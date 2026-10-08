@@ -1,0 +1,41 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.turbo/
+
+# env files: never commit secrets (CLAUDE.md §8)
+.env
+.env.*
+!.env.example
+
+# keys / certs
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# test & tool output
+playwright-report/
+test-results/
+blob-report/
+.lighthouseci/
+e2e/.auth/
+
+# editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*

@@ -1,0 +1,22 @@
+{
+  "name": "@mc/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MongoDB clients, schema, policy layer, scoped repositories, migrations. From Phase 1.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@mc/config": "workspace:*",
+    "@types/node": "24.19.1",
+    "eslint": "10.12.0",
+    "typescript": "6.0.3",
+    "vitest": "5.0.3"
+  }
+}

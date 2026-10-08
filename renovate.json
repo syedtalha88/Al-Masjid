@@ -1,0 +1,45 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":pinAllExceptPeerDependencies", "helpers:pinGitHubActionDigests"],
+  "timezone": "Asia/Kolkata",
+  "schedule": ["before 6am on monday"],
+  "rangeStrategy": "pin",
+  "minimumReleaseAge": "3 days",
+  "dependencyDashboard": true,
+  "labels": ["dependencies"],
+  "vulnerabilityAlerts": { "labels": ["security"], "schedule": ["at any time"] },
+  "packageRules": [
+    {
+      "description": "Automerge only patch updates of dev dependencies (PHASE_00 T0.1).",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
+      "description": "Never automerge anything else.",
+      "matchDepTypes": ["dependencies", "peerDependencies", "optionalDependencies"],
+      "automerge": false
+    },
+    {
+      "groupName": "eslint & typescript-eslint",
+      "matchPackageNames": ["eslint", "@eslint/**", "typescript-eslint", "@typescript-eslint/**", "eslint-*"]
+    },
+    { "groupName": "vitest", "matchPackageNames": ["vitest", "@vitest/**"] },
+    { "groupName": "react", "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"] },
+    { "groupName": "tanstack", "matchPackageNames": ["@tanstack/**"] },
+    { "groupName": "tailwind", "matchPackageNames": ["tailwindcss", "@tailwindcss/**"] },
+    { "groupName": "vite", "matchPackageNames": ["vite", "@vitejs/**", "vite-plugin-pwa", "workbox-*"] },
+    { "groupName": "playwright", "matchPackageNames": ["playwright", "@playwright/**"] },
+    { "groupName": "sentry", "matchPackageNames": ["@sentry/**"] },
+    {
+      "description": "TypeScript is held below 6.1 until typescript-eslint supports newer versions (DECISIONS #32).",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<6.1.0"
+    },
+    {
+      "description": "Docker base images and GitHub Actions: pinned by digest, reviewed manually.",
+      "matchManagers": ["dockerfile", "docker-compose", "github-actions"],
+      "automerge": false
+    }
+  ]
+}

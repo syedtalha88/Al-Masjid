@@ -1,0 +1,26 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "globalDependencies": [".nvmrc", "pnpm-workspace.yaml", "eslint.config.js"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "outputs": []
+    },
+    "lint": {
+      "dependsOn": ["^typecheck"],
+      "outputs": []
+    },
+    "test": {
+      "outputs": [],
+      "env": ["TZ"]
+    },
+    "//#lint:root": {
+      "inputs": ["scripts/**", "eslint.config.js", "e2e/**"],
+      "outputs": []
+    }
+  }
+}

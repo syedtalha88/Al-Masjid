@@ -1,0 +1,21 @@
+{
+  "name": "@mc/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Design tokens, components, motion presets, navigation, icons. From T0.6.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@mc/config": "workspace:*",
+    "eslint": "10.12.0",
+    "typescript": "6.0.3",
+    "vitest": "5.0.3"
+  }
+}

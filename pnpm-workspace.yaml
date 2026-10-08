@@ -1,0 +1,14 @@
+packages:
+  - apps/*
+  - packages/*
+
+# pnpm 12 reads these from here, not from .npmrc (only auth/registry settings live in .npmrc).
+saveExact: true
+strictPeerDependencies: true
+engineStrict: true
+# Supply-chain: only reviewed packages may run install scripts (04 §2 R9).
+strictDepBuilds: true
+allowBuilds:
+  lefthook: true
+# Don't install versions younger than 1 day (pnpm default since v11, made explicit).
+minimumReleaseAge: 1440

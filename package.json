@@ -1,0 +1,45 @@
+{
+  "name": "masjid-connect",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.10.1",
+  "engines": {
+    "node": ">=24.15.0 <25",
+    "pnpm": ">=12.10.0"
+  },
+  "scripts": {
+    "prepare": "lefthook install",
+    "dev": "node scripts/not-yet.mjs dev T0.4",
+    "dev:app": "node scripts/not-yet.mjs dev:app T0.4",
+    "dev:admin": "node scripts/not-yet.mjs dev:admin T0.4",
+    "db:start": "node scripts/not-yet.mjs db:start T0.4",
+    "db:reset": "node scripts/not-yet.mjs db:reset \"Phase 1\"",
+    "db:migrate": "node scripts/not-yet.mjs db:migrate \"Phase 1\"",
+    "db:test": "node scripts/not-yet.mjs db:test \"Phase 1\"",
+    "db:schema:check": "node scripts/not-yet.mjs db:schema:check \"Phase 1\"",
+    "db:verify-roles": "node scripts/not-yet.mjs db:verify-roles \"Phase 1\"",
+    "test": "turbo run test",
+    "test:int": "node scripts/not-yet.mjs test:int T0.12",
+    "test:e2e": "node scripts/not-yet.mjs test:e2e T0.12",
+    "i18n:check": "node scripts/not-yet.mjs i18n:check T0.7",
+    "size": "node scripts/not-yet.mjs size T0.12",
+    "lhci": "node scripts/not-yet.mjs lhci T0.12",
+    "stack:up": "node scripts/not-yet.mjs stack:up T0.4",
+    "infra:check": "node scripts/not-yet.mjs infra:check T0.14",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint lint:root",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify:quick": "turbo run typecheck lint lint:root test && prettier --check .",
+    "verify": "turbo run typecheck lint lint:root test && prettier --check . && pnpm i18n:check && pnpm db:test && pnpm test:int && pnpm test:e2e && pnpm size && pnpm lhci",
+    "lint:root": "eslint scripts eslint.config.js --max-warnings 0 --no-warn-ignored"
+  },
+  "devDependencies": {
+    "@mc/config": "workspace:*",
+    "eslint": "10.12.0",
+    "lefthook": "2.1.17",
+    "prettier": "3.9.9",
+    "turbo": "2.11.7",
+    "typescript": "6.0.3"
+  }
+}

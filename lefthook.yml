@@ -1,0 +1,24 @@
+# Git hooks (PHASE_00 T0.1). Docs: https://lefthook.dev/configuration/
+# lefthook stages files itself (stage_fixed), so lint-staged is not needed.
+
+pre-commit:
+  parallel: false
+  jobs:
+    - name: secrets (gitleaks)
+      # Install: `winget install Gitleaks.Gitleaks` (Windows) / `brew install gitleaks` (macOS). CI runs it too.
+      run: gitleaks git --pre-commit --staged --redact --no-banner
+
+    - name: format (prettier)
+      glob: '*.{js,mjs,cjs,ts,tsx,json,jsonc,yml,yaml,css,md,html}'
+      run: pnpm exec prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
+
+    - name: lint (eslint)
+      glob: '*.{js,mjs,cjs,ts,tsx}'
+      run: pnpm exec eslint --max-warnings 0 --fix --no-warn-ignored {staged_files}
+      stage_fixed: true
+
+commit-msg:
+  jobs:
+    - name: conventional commit
+      run: node scripts/check-commit-msg.mjs {1}
