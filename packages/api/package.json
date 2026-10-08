@@ -10,13 +10,28 @@
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --max-warnings 0",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "openapi:generate": "tsx scripts/generate-openapi.ts"
   },
   "devDependencies": {
     "@mc/config": "workspace:*",
     "@types/node": "24.19.1",
     "eslint": "10.12.0",
     "typescript": "6.0.3",
-    "vitest": "5.0.3"
+    "vitest": "5.0.3",
+    "@types/express": "5.0.6",
+    "@types/supertest": "7.2.1",
+    "@vitest/coverage-v8": "5.0.3",
+    "supertest": "7.3.1",
+    "tsx": "4.23.15"
+  },
+  "dependencies": {
+    "@asteasolutions/zod-to-openapi": "9.1.0",
+    "@mc/shared": "workspace:*",
+    "express": "5.2.1",
+    "helmet": "8.3.0",
+    "pino": "10.4.0",
+    "pino-http": "11.0.0",
+    "zod": "4.6.5"
   }
 }

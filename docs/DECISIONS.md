@@ -154,6 +154,16 @@ Unchanged: Turnstile, Sentry, Bunny Stream, web-push/VAPID, SimpleWebAuthn, all 
 - **Module system:** all TS uses `module: preserve` + `moduleResolution: bundler`; workspace packages export their TS source; apps are bundled by Vite and the server by a bundler (T0.4), so no `.js` import suffixes.
 **Consequences:** Two "spec says X" items differ in name only (lefthook vs Husky/lint-staged; `allowBuilds` vs `onlyBuiltDependencies`). Behaviour matches the spec.
 
+### #33 — API HTTP layer details (T0.4) — ACCEPTED (9 Oct 2026)
+**Decision:**
+- **Permissions-Policy without `interest-cohort=()`** (04 §7 lists it). FLoC was abandoned; current browsers no longer recognise the feature and log a console error for it, which would also cost Lighthouse "Best Practices" points. All other directives unchanged. Applies to Caddy static headers too (T0.5).
+- **HSTS sent without `preload`** until OPEN #29 is decided (`max-age=63072000; includeSubDomains`).
+- API responses emit **only** the 04 §7 headers: helmet's extra defaults (`Origin-Agent-Cluster`, `X-DNS-Prefetch-Control`, `X-Download-Options`, `X-Permitted-Cross-Domain-Policies`, `X-XSS-Protection`) are off; ETags are off (versioned caching uses `?v=`, 01 §5.2).
+- **`defineRoute()` handlers return `reply(status, body)`**: only declared statuses compile, bodies are typed per status. Responses are validated against their schema at runtime; undeclared fields are stripped (no accidental leaks), and a contract violation is a 500 (never a 400).
+- **Error mapping:** request validation → 400 `VALIDATION_FAILED` with field paths (from `defineRoute`); `$`/`.` keys anywhere → 400 `UNSAFE_INPUT`; non-JSON body → 415; malformed JSON → 400 `INVALID_JSON`; > 32 kB → 413; CORS preflight → 403 `CORS_NOT_ALLOWED`; everything else (including a stray `ZodError` from server-side parsing) → 500 `INTERNAL_ERROR` with no details. Problem `type` = `urn:masjid-connect:problem:<code>`.
+- **Access log** allow-list: request id, method, path **without** query string, status, duration. No headers, bodies, query strings or IPs.
+- **`trust proxy` = 1** (Caddy). The client IP for coarse rate limits comes only from `CF-Connecting-IP` when `TRUSTED_PROXY_MODE=cloudflare` (validated with `net.isIP`), else the socket address.
+
 ---
 
 ## OPEN

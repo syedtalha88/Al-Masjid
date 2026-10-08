@@ -12,3 +12,6 @@ docs/
 owner/
 CLAUDE.md
 .claude/
+
+# Generated (byte-compared by packages/api/test/openapi.test.ts)
+packages/api/openapi.json

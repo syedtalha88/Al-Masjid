@@ -9,6 +9,7 @@ engineStrict: true
 # Supply-chain: only reviewed packages may run install scripts (04 §2 R9).
 strictDepBuilds: true
 allowBuilds:
+  esbuild: true
   lefthook: true
 # Don't install versions younger than 1 day (pnpm default since v11, made explicit).
 minimumReleaseAge: 1440
