@@ -173,6 +173,17 @@ Unchanged: Turnstile, Sentry, Bunny Stream, web-push/VAPID, SimpleWebAuthn, all 
 - **`RELEASE`** (git SHA) is an optional env var baked into the image (default `dev`), used by health, logs and Sentry. Documented in `.env.example` ("set by the image").
 - Entrypoints only compose: validate env (`bootEnv` → exit 1 with a name-only list), build the app, start the server, and drain on the first SIGTERM/SIGINT (exit 0; a second signal exits 1).
 
+### #37 — Containers & local infrastructure (T0.4) — ACCEPTED (9 Oct 2026)
+**Decision:**
+- **Images pinned by digest:** build `node:24.21.0-trixie-slim`; server runtime **`gcr.io/distroless/nodejs24-debian13:nonroot`** (no shell/package manager, uid 65532); `caddy:2.11.7-alpine`; `mongo:8.0.32-noble` (the 8.0 major line Atlas runs; not the 8.x rapid releases); `redis:8.10.2-alpine`. One server image for all four processes (command selects `dist/{public,admin,worker,migrate}.mjs`); `pnpm deploy --prod` ships only `dist/` + `bullmq`/`ioredis` (workspace packages are bundled, so `@mc/api`/`@mc/shared` are devDependencies of `apps/server`). Image ≈ 235 MB.
+- **Caddy runs non-root (uid 1000) on 8443/8080** with all capabilities dropped; the host maps 443→8443 (and 80→8080) on the VPS. Our `infra/docker/caddy.Dockerfile` strips the official binary's `cap_net_bind_service` file capability (exec of a file-capability binary is refused under `no-new-privileges` + `cap_drop: ALL`). Caddy `admin off`; a loopback-only `:8081/healthz` serves the container healthcheck. One `Caddyfile` for all environments, configured by env (`APP_HOST`, `ADMIN_HOST`, `CADDY_TLS=local|origin`, upstreams). Static security headers/CSP are completed in T0.5.
+- **Healthchecks:** `node dist/healthcheck.mjs <process>` (APIs: local `/health`; worker: Redis heartbeat key). Compose waits on them.
+- **Local dev MongoDB on host port 27018** (owner's PC runs a separate MongoDB Windows service on 27017). Single-node replica set `rs0` with auth + keyfile (copied into the container with mode 400 at start); clients use `directConnection=true`.
+- **Redis**: config without secrets (`infra/compose/redis.conf`: ACL file, `noeviction`, AOF); ACL users `rl_public`, `admin`, `worker` (key-prefix + channel scoped, `-@dangerous -@admin +info`) and `health` (PING only); default user off. Verified by `pnpm --filter @mc/server verify:local` (11 checks).
+- **Local production-like stack** (`pnpm stack:up`): dev MongoDB/Redis + built images + Caddy at `https://app.localhost:8443` / `https://admin.localhost:8443` (Caddy internal CA; browsers warn locally). Both compose files share project `mc-dev`; `up` never uses `--remove-orphans` (it would remove the other file's services).
+- `prepare` installs git hooks only when `.git` exists (Docker/CI-without-git builds skip it).
+- **Playwright 1.63** with projects `pixel-7` (Chromium) and `iphone-14` (WebKit) per 10 §1; the `runtime-test` image target (DECISIONS #31) is added with the test hooks in T0.12.
+
 ### #27 — VPS access: self-hosted WireGuard + pull-based deploys — ACCEPTED (owner, 9 Oct 2026)
 **Context:** 04 §12.2 allows SSH only from the owner's IP(s) or a WireGuard/Tailscale tunnel. GitHub-hosted runners have huge, changing IP ranges, and Indian home broadband usually has a dynamic/CGNAT IP. The owner's constraint: **no external service that may start charging later.**
 **Decision:**

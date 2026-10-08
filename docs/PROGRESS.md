@@ -25,7 +25,7 @@
 - [x] T0.1 — Monorepo bootstrap (clean-clone `pnpm install && pnpm verify:quick` green; 5 lint violations proven — `docs/reports/evidence/PHASE_00_T0.1_lint-proof.txt`; Turbo full cache hit 31/31)
 - [x] T0.2 — Env & config (`packages/shared/src/env.ts`: 4 server + 2 client schemas, forbidden-var boot assertion, name-only errors with leak test; `.env.example` + sync test; `brand.ts`; 49 tests, 100% lines. Bundle-level `VITE_PUBLIC_*` proof → F2)
 - [ ] T0.3 — CI pipeline
-- [ ] T0.4 — App & API scaffolds — **IN PROGRESS.** Done: Express apps + defineRoute + health (48 tests), server entrypoints + tsdown build + graceful shutdown (14 tests), `pnpm setup:local`, both Vite/React SPAs with router/query + dev proxy (verified live). **Remaining:** Dockerfile (`runtime` + `runtime-test`, DECISIONS #31), `infra/compose/docker-compose.dev.yml` (mongo 8 replset + auth + keyfile, redis with ACL file + noeviction), stack compose (caddy + apis + worker), Caddyfile, `pnpm db:start`/`stack:up`, Playwright smoke per app. Blocked on Docker Desktop (owner enabling WSL + restart).
+- [x] T0.4 — App & API scaffolds (API 48 tests incl. no-stack-trace, `?a[$ne]=1`, SIGTERM drain; server 14 tests; `pnpm dev` + `pnpm stack:up` verified live; Playwright smoke 12/12 on Pixel 7 + iPhone 14 through Caddy; containers non-root/read-only/cap-dropped; local Redis/Mongo security checks 11/11; hadolint clean — DECISIONS #37)
 - [ ] T0.5 — Security headers & CSP
 - [ ] T0.6 — Design tokens, Tailwind, fonts, base styles
 - [ ] T0.7 — i18n foundation
@@ -44,19 +44,19 @@
 |---|---|---|---|
 | F1 | T0.1 | Move Node 24 → 26 when Node 26 enters Active LTS (28 Oct 2026): `.nvmrc`, `engines`, `@types/node`, Docker base image, CI (DECISIONS #32) | After 28 Oct 2026 (Phase 00 or 01) |
 | F2 | T0.2 | Prove client bundles contain only `VITE_PUBLIC_*`: Vite `envPrefix: VITE_PUBLIC_` + `parseClientEnv` at build, and the CI bundle secret scan | T0.4 + T0.3 |
-| F5 | Audit 9 Oct | Health response uses `release`; 03 §3/§4 contract says `version` (`{ok, db, redis, version}`). Rename field (db/redis added in Phase 1). | T0.4 (next) |
-| F6 | Audit 9 Oct | CLAUDE.md §7: `pnpm dev` must also start local MongoDB/Redis (Docker). Currently only `db:start` would. | T0.4 Docker part |
 | F7 | Audit 9 Oct | 09 §5 sets `<html lang dir>` before first paint from `localStorage mc.locale`, but CSP forbids inline scripts → needs an external blocking `/boot.js` + a documented exception to the `localStorage` lint ban. | T0.7 |
 | F8 | Audit 9 Oct | `text-tertiary` (#8A938E) fails WCAG AA (2.97:1 on canvas); tag text colours ~4.2–4.4:1. Darken per 06 §2 and record in DECISIONS. | T0.6 |
 | F9 | Audit 9 Oct | PHASE_00 T0.14, 04 §12.1 and HANDOFF still describe SSH-from-CI deploys; superseded by DECISIONS #27 (WireGuard + pull deploys). Update those texts when implementing. | T0.3 / T0.14 |
 | F10 | Audit 9 Oct | Owner wants no paid services. Phase 1 needs an Atlas staging tier with custom roles + views + transactions — likely not the free tier (verify). Decide before Phase 1: paid Atlas tier vs. self-hosted MongoDB for staging. Production Atlas M10 (~$60–80/mo) is in the plan. | Before Phase 1 (owner) |
 | F11 | Audit 9 Oct | Vendored `.claude/skills` (ui-ux-pro-max, MIT) — keep an MIT LICENSE notice in the folder (public repo). | T0.15 |
 | F4 | T0.4 | `RouteError` in both apps shows temporary English copy ("Something went wrong…") — move to i18n keys in all 4 locales | T0.7 |
+| F12 | T0.4 | Add `runtime-test` image target with the test-hooks module + CI check that `runtime` has no hooks (DECISIONS #31) | T0.12 |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-09 | 00 / T0.4 | Done. Dockerfiles (distroless server, non-root Caddy), dev + stack compose, Caddyfile, precompressed builds, Playwright smoke. Fixed on the way: Caddy root→non-root, source maps were served (now 404), `dev up` removed stack containers, health field `release`→`version` (F5). F5/F6 closed. |
 | 2026-10-09 | 00 / audit | Full re-read of the pack (CLAUDE.md, docs 00–10, phases 00–09, owner docs, agents, commands, design refs) vs. work done. On plan; 1 contract mismatch (F5) + 6 tracked items (F6–F11). |
 | 2026-10-09 | 00 / T0.4 | API, server, SPAs and local env generator done and pushed to GitHub. Paused for Docker: owner enabling WSL (`wsl --install --no-distribution`) + Windows restart. Next: Docker parts of T0.4, then T0.7 → T0.6 → T0.8 → T0.9 → T0.10. |
 | 2026-10-09 | 00 / owner answers | #27 WireGuard + pull deploys (no paid/external service), #28 public repo, #29–#31 accepted; `.claude/settings.json` deny narrowed so `.env.example` is editable (real env files still blocked); F3 closed. |
