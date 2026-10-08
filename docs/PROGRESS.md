@@ -25,7 +25,7 @@
 - [x] T0.1 — Monorepo bootstrap (clean-clone `pnpm install && pnpm verify:quick` green; 5 lint violations proven — `docs/reports/evidence/PHASE_00_T0.1_lint-proof.txt`; Turbo full cache hit 31/31)
 - [x] T0.2 — Env & config (`packages/shared/src/env.ts`: 4 server + 2 client schemas, forbidden-var boot assertion, name-only errors with leak test; `.env.example` + sync test; `brand.ts`; 49 tests, 100% lines. Bundle-level `VITE_PUBLIC_*` proof → F2)
 - [ ] T0.3 — CI pipeline
-- [ ] T0.4 — App & API scaffolds
+- [ ] T0.4 — App & API scaffolds — **IN PROGRESS.** Done: Express apps + defineRoute + health (48 tests), server entrypoints + tsdown build + graceful shutdown (14 tests), `pnpm setup:local`, both Vite/React SPAs with router/query + dev proxy (verified live). **Remaining:** Dockerfile (`runtime` + `runtime-test`, DECISIONS #31), `infra/compose/docker-compose.dev.yml` (mongo 8 replset + auth + keyfile, redis with ACL file + noeviction), stack compose (caddy + apis + worker), Caddyfile, `pnpm db:start`/`stack:up`, Playwright smoke per app. Blocked on Docker Desktop (owner enabling WSL + restart).
 - [ ] T0.5 — Security headers & CSP
 - [ ] T0.6 — Design tokens, Tailwind, fonts, base styles
 - [ ] T0.7 — i18n foundation
@@ -50,6 +50,7 @@
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-09 | 00 / T0.4 | API, server, SPAs and local env generator done and pushed to GitHub. Paused for Docker: owner enabling WSL (`wsl --install --no-distribution`) + Windows restart. Next: Docker parts of T0.4, then T0.7 → T0.6 → T0.8 → T0.9 → T0.10. |
 | 2026-10-09 | 00 / owner answers | #27 WireGuard + pull deploys (no paid/external service), #28 public repo, #29–#31 accepted; `.claude/settings.json` deny narrowed so `.env.example` is editable (real env files still blocked); F3 closed. |
 | 2026-10-09 | 00 / T0.2 | Env schemas per process (stricter than spec: per-process Mongo/Redis users, TLS + ap-south-1 + Cloudflare proxy outside local, RP_ID = admin host; external-service creds optional only in local). migrate process gets its own forbidden list (least privilege). |
 | 2026-10-09 | 00 / T0.1 | Monorepo bootstrapped (pnpm 12 + Turbo, TS 6.0 strict, ESLint 10 + 3 custom rules, 36 lint-rule tests, lefthook + gitleaks + commit-msg, Renovate). Toolchain recorded in DECISIONS #32. gitleaks installed on dev PC via winget. |
