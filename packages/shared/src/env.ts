@@ -217,6 +217,11 @@ function baseShape() {
     LOG_LEVEL: z.enum(LOG_LEVELS, { error: `must be one of ${LOG_LEVELS.join(', ')}` }).default('info'),
     SENTRY_DSN: z.url({ protocol: /^https$/, error: 'must be an https Sentry DSN' }).optional(),
     MONGODB_DB_NAME: nonEmpty.regex(/^[A-Za-z0-9_-]{1,38}$/, { error: 'must be 1–38 letters, digits, _ or -' }),
+    /** Build release (git SHA), baked into the Docker image; `dev` when unset (health, logs, Sentry). */
+    RELEASE: nonEmpty
+      .regex(/^[A-Za-z0-9._-]{1,64}$/, { error: 'must be 1–64 of A-Z a-z 0-9 . _ -' })
+      .optional()
+      .default('dev'),
   };
 }
 

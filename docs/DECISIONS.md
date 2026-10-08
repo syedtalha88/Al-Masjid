@@ -164,6 +164,15 @@ Unchanged: Turnstile, Sentry, Bunny Stream, web-push/VAPID, SimpleWebAuthn, all 
 - **Access log** allow-list: request id, method, path **without** query string, status, duration. No headers, bodies, query strings or IPs.
 - **`trust proxy` = 1** (Caddy). The client IP for coarse rate limits comes only from `CF-Connecting-IP` when `TRUSTED_PROXY_MODE=cloudflare` (validated with `net.isIP`), else the socket address.
 
+### #34 — Server build & process entrypoints (T0.4) — ACCEPTED (9 Oct 2026)
+**Decision:**
+- **tsdown 0.23** (rolldown) builds `apps/server` into one ESM file per process (`dist/{public,admin,worker,migrate}.mjs`). Workspace packages export TypeScript source, and Node's built-in type stripping refuses `.ts` under `node_modules`, so the server must be bundled; tsup is in maintenance mode and recommends tsdown. `@mc/*` and their pure-JS deps (express, pino, zod, helmet…) are bundled; packages listed in `apps/server` `dependencies` stay external — **bullmq** (loads Lua scripts from its own files) and **ioredis** — and are installed in the image by `pnpm deploy --prod`. Source maps are built for Sentry upload only, never shipped (T0.13).
+- **BullMQ 6** with **ioredis 6** (`maxRetriesPerRequest: null`, BullMQ `prefix: 'bull'`, never ioredis `keyPrefix`). Redis must run with `maxmemory-policy noeviction` (BullMQ requirement) — set in the compose Redis config.
+- `msgpackr-extract` (optional native accelerator pulled in by BullMQ) is **denied** in `allowBuilds`; the pure-JS path is used, keeping native builds out of images. `esbuild` (used by tsx) is allowed.
+- Worker heartbeat key `bull:mc:heartbeat:worker` (inside the worker's `bull:*` ACL), refreshed every 10 s with a 30 s TTL; the container healthcheck reads it.
+- **`RELEASE`** (git SHA) is an optional env var baked into the image (default `dev`), used by health, logs and Sentry. It is not in `.env.example` because the project's `.env.*` deny rule blocks Claude Code from editing that file after creation (see PROGRESS follow-up F3).
+- Entrypoints only compose: validate env (`bootEnv` → exit 1 with a name-only list), build the app, start the server, and drain on the first SIGTERM/SIGINT (exit 0; a second signal exits 1).
+
 ---
 
 ## OPEN

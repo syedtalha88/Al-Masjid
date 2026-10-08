@@ -495,6 +495,7 @@ describe('.env.example', () => {
       .filter((name): name is string => name !== undefined),
   );
 
+  // RELEASE is baked into the Docker image (never set in env files), so it is intentionally not listed.
   it('documents every server variable', () => {
     const names = new Set([
       ...SERVER_PROCESSES.flatMap((process) => Object.keys(PRODUCTION[process])),
@@ -523,5 +524,17 @@ describe('.env.example', () => {
       .split(/\r?\n/)
       .filter((line) => /^[A-Z0-9_]+=.+/.test(line));
     expect(withValues).toEqual([]);
+  });
+});
+
+describe('RELEASE', () => {
+  it('defaults to dev and accepts a git SHA', () => {
+    expect(loadServerEnv('migrate', PRODUCTION.migrate).RELEASE).toBe('dev');
+    expect(loadServerEnv('migrate', { ...PRODUCTION.migrate, RELEASE: '809eed7' }).RELEASE).toBe('809eed7');
+  });
+
+  it('rejects odd characters (it ends up in headers and logs)', () => {
+    const error = envError(() => loadServerEnv('migrate', { ...PRODUCTION.migrate, RELEASE: 'v1 <script>' }));
+    expect(reasonFor(error, 'RELEASE')).toMatch(/1–64/);
   });
 });
