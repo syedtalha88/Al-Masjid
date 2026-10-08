@@ -25,14 +25,14 @@ describe('health', () => {
   it('GET /api/v1/health returns version info only', async () => {
     const response = await request(publicApp()).get('/api/v1/health');
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ ok: true, service: 'api-public', release: 'test-sha' });
+    expect(response.body).toEqual({ ok: true, service: 'api-public', version: 'test-sha' });
     expect(response.headers['cache-control']).toBe('no-store');
   });
 
   it('GET /api/admin/health returns version info only', async () => {
     const response = await request(adminApp()).get('/api/admin/health');
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ ok: true, service: 'api-admin', release: 'test-sha' });
+    expect(response.body).toEqual({ ok: true, service: 'api-admin', version: 'test-sha' });
   });
 });
 

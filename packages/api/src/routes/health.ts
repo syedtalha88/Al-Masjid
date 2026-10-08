@@ -6,7 +6,7 @@ export const HealthResponse = z
   .object({
     ok: z.literal(true),
     service: z.enum(['api-public', 'api-admin']),
-    release: z.string(),
+    version: z.string(),
   })
   .meta({ id: 'HealthResponse' });
 
@@ -22,6 +22,6 @@ export function healthRoute(service: 'api-public' | 'api-admin', release: string
     tags: ['system'],
     auth: 'none',
     responses: { 200: HealthResponse },
-    handler: ({ reply }) => reply(200, { ok: true, service, release }),
+    handler: ({ reply }) => reply(200, { ok: true, service, version: release }),
   });
 }

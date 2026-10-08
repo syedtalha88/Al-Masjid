@@ -23,14 +23,14 @@
               "api-admin"
             ]
           },
-          "release": {
+          "version": {
             "type": "string"
           }
         },
         "required": [
           "ok",
           "service",
-          "release"
+          "version"
         ]
       }
     },
