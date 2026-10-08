@@ -35,9 +35,11 @@ function readEnvFile(path) {
   );
 }
 
-function writeEnvFile(relativePath, header, values) {
+function writeEnvFile(relativePath, header, values, { mergeMissing = false } = {}) {
   const path = join(root, relativePath);
-  if (existsSync(path) && !force) {
+  const complete = Object.keys(values).every((name) => name in readEnvFile(path));
+  // mergeMissing: an older file gains newly introduced keys (existing values are passed in `values`).
+  if (existsSync(path) && !force && (!mergeMissing || complete)) {
     process.stdout.write(`  kept     ${relativePath} (exists; use --force to regenerate)\n`);
     return;
   }
@@ -67,6 +69,7 @@ const compose = {
   REDIS_RL_PUBLIC_PASSWORD: existing.REDIS_RL_PUBLIC_PASSWORD ?? secret(),
   REDIS_ADMIN_PASSWORD: existing.REDIS_ADMIN_PASSWORD ?? secret(),
   REDIS_WORKER_PASSWORD: existing.REDIS_WORKER_PASSWORD ?? secret(),
+  REDIS_HEALTH_PASSWORD: existing.REDIS_HEALTH_PASSWORD ?? secret(),
 };
 
 // --- Dev VAPID key pair (P-256, base64url raw keys) -------------------------------------------------
@@ -85,7 +88,7 @@ const vapid = {
 };
 
 const mongo = (user, password) =>
-  `mongodb://${user}:${password}@localhost:27017/?replicaSet=rs0&directConnection=true&authSource=admin`;
+  `mongodb://${user}:${password}@localhost:27018/?directConnection=true&authSource=admin`;
 const redis = (user, password) => `redis://${user}:${password}@localhost:6379`;
 
 const common = {
@@ -101,7 +104,7 @@ const common = {
 const encryption = { FIELD_ENCRYPTION_KEY: key32(), FIELD_ENCRYPTION_KEY_ID: 'local1' };
 
 process.stdout.write('Local env files:\n');
-writeEnvFile('.env.local.compose', 'docker compose (MongoDB + Redis) passwords', compose);
+writeEnvFile('.env.local.compose', 'docker compose (MongoDB + Redis) passwords', compose, { mergeMissing: true });
 writeEnvFile('.env.local.api-public', 'api-public', {
   ...common,
   MONGODB_URI_PUBLIC: mongo('mc_public', compose.MC_PUBLIC_PASSWORD),
@@ -137,6 +140,47 @@ writeEnvFile('.env.local.migrate', 'migrate', {
   MONGODB_URI_MIGRATOR: mongo('mc_migrator', compose.MC_MIGRATOR_PASSWORD),
 });
 
+// Local production-like stack (`pnpm stack:up`): built images behind Caddy at https://app.localhost:8443 and
+// https://admin.localhost:8443; services reach MongoDB/Redis by container hostname.
+const stackMongo = (user, password) =>
+  `mongodb://${user}:${password}@mongo:27017/?directConnection=true&authSource=admin`;
+const stackRedis = (user, password) => `redis://${user}:${password}@redis:6379`;
+const stackCommon = {
+  ...common,
+  NODE_ENV: 'production',
+  LOG_LEVEL: 'info',
+  APP_ORIGIN: 'https://app.localhost:8443',
+  ADMIN_ORIGIN: 'https://admin.localhost:8443',
+  MEDIA_ORIGIN: 'https://app.localhost:8443',
+};
+writeEnvFile('.env.local.stack.api-public', 'api-public (local stack)', {
+  ...stackCommon,
+  MONGODB_URI_PUBLIC: stackMongo('mc_public', compose.MC_PUBLIC_PASSWORD),
+  REDIS_URL_PUBLIC: stackRedis('rl_public', compose.REDIS_RL_PUBLIC_PASSWORD),
+  PORT: '8787',
+});
+writeEnvFile('.env.local.stack.api-admin', 'api-admin (local stack)', {
+  ...stackCommon,
+  ...encryption,
+  MONGODB_URI_ADMIN: stackMongo('mc_admin', compose.MC_ADMIN_PASSWORD),
+  REDIS_URL_ADMIN: stackRedis('admin', compose.REDIS_ADMIN_PASSWORD),
+  SESSION_PEPPER: key32(),
+  RP_ID: 'admin.localhost',
+  VAPID_PUBLIC_KEY: vapid.publicKey,
+  PAYMENT_HOLD_MINUTES: '2',
+  PORT: '8788',
+});
+writeEnvFile('.env.local.stack.worker', 'worker (local stack)', {
+  ...stackCommon,
+  ...encryption,
+  MONGODB_URI_SYSTEM: stackMongo('mc_system', compose.MC_SYSTEM_PASSWORD),
+  REDIS_URL_WORKER: stackRedis('worker', compose.REDIS_WORKER_PASSWORD),
+  VAPID_PUBLIC_KEY: vapid.publicKey,
+  VAPID_PRIVATE_KEY: vapid.privateKey,
+  VAPID_SUBJECT: 'mailto:dev@localhost.invalid',
+  PAYMENT_HOLD_MINUTES: '2',
+});
+
 const client = {
   VITE_PUBLIC_VAPID_PUBLIC_KEY: vapid.publicKey,
   VITE_PUBLIC_APP_ORIGIN: 'http://localhost:5173',
@@ -154,26 +198,33 @@ writeEnvFile('apps/admin/.env.local', 'admin PWA (public values — they ship in
 });
 
 // --- Redis ACL file (04 §12.2): default user off, one user per process, dangerous commands disabled ----
-const aclPath = join(root, 'infra/compose/.local/redis-users.acl');
-if (!existsSync(aclPath) || force) {
-  mkdirSync(dirname(aclPath), { recursive: true });
-  // -@dangerous/-@admin block FLUSHALL, CONFIG, KEYS, DEBUG, … (04 §12.2); INFO is re-allowed because
-  // ioredis' ready check and BullMQ's version check need it. Verified against Redis in T0.12.
-  const safe = '+@all -@dangerous -@admin +info';
-  writeFileSync(
-    aclPath,
-    [
-      'user default off',
-      `user rl_public on >${compose.REDIS_RL_PUBLIC_PASSWORD} ~rl:pub:* ${safe}`,
-      `user admin on >${compose.REDIS_ADMIN_PASSWORD} ~rl:adm:* ~chal:* ~bull:* ${safe}`,
-      `user worker on >${compose.REDIS_WORKER_PASSWORD} ~bull:* ~push:* ~alert:* ${safe}`,
-      '',
-    ].join('\n'),
-    { mode: 0o600 },
-  );
-  process.stdout.write('  wrote    infra/compose/.local/redis-users.acl\n');
+// Always regenerated: it is derived from the passwords in .env.local.compose.
+const localDir = join(root, 'infra/compose/.local');
+mkdirSync(localDir, { recursive: true });
+// -@dangerous/-@admin block FLUSHALL, CONFIG, KEYS, DEBUG, … (04 §12.2); INFO is re-allowed because
+// ioredis' ready check and BullMQ's version check need it. `health` may only PING (container healthcheck).
+const safe = '+@all -@dangerous -@admin +info';
+writeFileSync(
+  join(localDir, 'redis-users.acl'),
+  [
+    'user default off',
+    `user rl_public on >${compose.REDIS_RL_PUBLIC_PASSWORD} resetchannels ~rl:pub:* ${safe}`,
+    `user admin on >${compose.REDIS_ADMIN_PASSWORD} resetchannels ~rl:adm:* ~chal:* ~bull:* &bull:* ${safe}`,
+    `user worker on >${compose.REDIS_WORKER_PASSWORD} resetchannels ~bull:* ~push:* ~alert:* &bull:* ${safe}`,
+    `user health on >${compose.REDIS_HEALTH_PASSWORD} resetkeys resetchannels -@all +ping`,
+    '',
+  ].join('\n'),
+  { mode: 0o600 },
+);
+process.stdout.write('  wrote    infra/compose/.local/redis-users.acl\n');
+
+// --- MongoDB replica-set keyfile (required for a replica set with auth) --------------------------------
+const keyfilePath = join(localDir, 'mongo-keyfile');
+if (!existsSync(keyfilePath) || force) {
+  writeFileSync(keyfilePath, randomBytes(756).toString('base64'), { mode: 0o600 });
+  process.stdout.write('  wrote    infra/compose/.local/mongo-keyfile\n');
 } else {
-  process.stdout.write('  kept     infra/compose/.local/redis-users.acl\n');
+  process.stdout.write('  kept     infra/compose/.local/mongo-keyfile\n');
 }
 
 process.stdout.write('\nDone. Start MongoDB + Redis with `pnpm db:start` (needs Docker), then `pnpm dev`.\n');

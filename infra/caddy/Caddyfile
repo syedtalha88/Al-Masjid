@@ -1,0 +1,106 @@
+# Caddy — static SPAs + reverse proxy for both origins (01 §1–2, §5.2; DECISIONS #21).
+# One file for every environment; differences come from environment variables:
+#   APP_HOST, ADMIN_HOST      e.g. app.localhost / admin.localhost (local stack) or app-staging.<domain>
+#   CADDY_TLS                 local  → Caddy's internal CA (local stack only)
+#                             origin → Cloudflare Origin CA certificate + Authenticated Origin Pulls
+#                                      (Caddy rejects TLS without Cloudflare's client certificate — 04 §12.2)
+#   API_PUBLIC_UPSTREAM, API_ADMIN_UPSTREAM   e.g. api-public:8787, api-admin:8788
+# Security headers for static files (exact 04 §7 set incl. CSP) are completed in T0.5.
+
+{
+	# No admin API inside the container (nothing to attack; config changes = redeploy).
+	admin off
+	# Caddy runs as an unprivileged user, so it listens on high ports; the host maps 443 → 8443, 80 → 8080.
+	https_port 8443
+	http_port 8080
+}
+
+# Container healthcheck only: plain HTTP on loopback inside the container, never published.
+http://:8081 {
+	bind 127.0.0.1
+	respond /healthz "ok" 200
+}
+
+(tls-local) {
+	tls internal
+}
+
+(tls-origin) {
+	tls /certs/origin.pem /certs/origin-key.pem {
+		client_auth {
+			mode require_and_verify
+			trust_pool file /certs/cloudflare-origin-pull-ca.pem
+		}
+	}
+}
+
+# Common to both origins.
+(common) {
+	import tls-{$CADDY_TLS}
+	encode zstd gzip
+	header -Server
+	header -X-Powered-By
+
+}
+
+# Static SPA: hashed assets immutable, entry points always revalidated (01 §5.2), SPA fallback.
+(spa) {
+	root * {args[0]}
+
+	@immutable path /assets/*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	@entry path / /index.html /sw.js /manifest.webmanifest /registerSW.js
+	header @entry Cache-Control "no-cache"
+
+	try_files {path} /index.html
+	file_server {
+		precompressed br gzip
+	}
+}
+
+https://{$APP_HOST} {
+	import common
+
+	# Public API → api-public (×2 replicas in staging/production; Docker DNS round-robin).
+	handle /api/v1/* {
+		reverse_proxy {$API_PUBLIC_UPSTREAM}
+	}
+	# Any other /api path on this origin does not exist (never falls through to the SPA).
+	handle /api/* {
+		header Content-Type "application/problem+json"
+		header Cache-Control "no-store"
+		respond `{"type":"urn:masjid-connect:problem:not-found","title":"Not Found","status":404,"code":"NOT_FOUND"}` 404
+	}
+	# Source maps are uploaded to Sentry only; never served (T0.13). Must precede the SPA catch-all.
+	@maps path *.map
+	handle @maps {
+		respond 404
+	}
+	handle {
+		import spa /srv/app
+	}
+}
+
+https://{$ADMIN_HOST} {
+	import common
+	header X-Robots-Tag "noindex, nofollow"
+
+	@adminApi path /api/admin/* /api/super/* /api/hooks/*
+	handle @adminApi {
+		reverse_proxy {$API_ADMIN_UPSTREAM}
+	}
+	handle /api/* {
+		header Content-Type "application/problem+json"
+		header Cache-Control "no-store"
+		respond `{"type":"urn:masjid-connect:problem:not-found","title":"Not Found","status":404,"code":"NOT_FOUND"}` 404
+	}
+	# Source maps are uploaded to Sentry only; never served (T0.13). Must precede the SPA catch-all.
+	@maps path *.map
+	handle @maps {
+		respond 404
+	}
+	handle {
+		import spa /srv/admin
+	}
+}

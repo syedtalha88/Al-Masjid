@@ -1,0 +1,23 @@
+# Build context = repository root. Keep secrets and junk out of every image layer (04 §12, security-reviewer).
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+infra/compose/.local/
+
+.git
+.github
+.claude
+.turbo
+**/.turbo
+**/node_modules
+**/dist
+**/coverage
+**/test-results
+**/playwright-report
+docs
+owner
+*.log

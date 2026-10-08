@@ -1,0 +1,110 @@
+# Local production-like stack (`pnpm stack:up`) — layered on docker-compose.dev.yml (MongoDB + Redis):
+# Caddy (static SPAs + reverse proxy) → api-public, api-admin; worker. Open https://app.localhost:8443 and
+# https://admin.localhost:8443 (Caddy's internal CA; the browser warns — expected locally).
+# Hardening mirrors staging/production (01 §5.9, 04 §12.2): non-root, read-only root fs, all capabilities
+# dropped, no-new-privileges, resource limits, healthchecks; only Caddy publishes a port (127.0.0.1).
+
+x-server: &server
+  image: mc-server:local
+  build:
+    context: ../..
+    dockerfile: infra/docker/server.Dockerfile
+    target: runtime
+  read_only: true
+  tmpfs:
+    - /tmp:size=16m
+  cap_drop: [ALL]
+  security_opt:
+    - no-new-privileges:true
+  restart: unless-stopped
+  depends_on:
+    mongo:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  api-public:
+    <<: *server
+    command: ['dist/public.mjs']
+    env_file: ../../.env.local.stack.api-public
+    deploy:
+      resources:
+        limits: { cpus: '0.50', memory: 256m }
+    healthcheck:
+      test: ['CMD', '/nodejs/bin/node', 'dist/healthcheck.mjs', 'api-public']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  api-admin:
+    <<: *server
+    command: ['dist/admin.mjs']
+    env_file: ../../.env.local.stack.api-admin
+    deploy:
+      resources:
+        limits: { cpus: '0.50', memory: 256m }
+    healthcheck:
+      test: ['CMD', '/nodejs/bin/node', 'dist/healthcheck.mjs', 'api-admin']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  worker:
+    <<: *server
+    command: ['dist/worker.mjs']
+    env_file: ../../.env.local.stack.worker
+    deploy:
+      resources:
+        limits: { cpus: '0.50', memory: 384m }
+    healthcheck:
+      test: ['CMD', '/nodejs/bin/node', 'dist/healthcheck.mjs', 'worker']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  caddy:
+    image: mc-caddy:local
+    build:
+      context: ../..
+      dockerfile: infra/docker/caddy.Dockerfile
+      target: base
+    environment:
+      APP_HOST: app.localhost
+      ADMIN_HOST: admin.localhost
+      CADDY_TLS: local
+      API_PUBLIC_UPSTREAM: api-public:8787
+      API_ADMIN_UPSTREAM: api-admin:8788
+    # Non-root (04 §12.2). Locally the internal CA lives in tmpfs (regenerated on restart); on the VPS
+    # Caddy uses the Cloudflare Origin CA files mounted read-only.
+    user: '1000:1000'
+    volumes:
+      - ../caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../../apps/app/dist:/srv/app:ro
+      - ../../apps/admin/dist:/srv/admin:ro
+    tmpfs:
+      - /data:uid=1000,gid=1000,size=8m
+      - /config:uid=1000,gid=1000,size=1m
+    ports:
+      - '127.0.0.1:8443:8443'
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits: { cpus: '0.50', memory: 128m }
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:8081/healthz']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+    depends_on:
+      api-public:
+        condition: service_healthy
+      api-admin:
+        condition: service_healthy

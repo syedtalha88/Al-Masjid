@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "description": "Node entrypoints: api-public, api-admin, worker, migrate. Scaffolded in T0.4.",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev:public": "tsx watch --env-file=../../.env.local.api-public src/public.ts",
     "dev:admin": "tsx watch --env-file=../../.env.local.api-admin src/admin.ts",
@@ -11,20 +14,21 @@
     "build": "tsdown",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --max-warnings 0",
-    "test": "vitest run"
+    "test": "vitest run",
+    "verify:local": "tsx scripts/verify-local-services.ts"
   },
   "devDependencies": {
+    "@mc/api": "workspace:*",
     "@mc/config": "workspace:*",
+    "@mc/shared": "workspace:*",
     "@types/node": "24.19.1",
     "eslint": "10.12.0",
-    "typescript": "6.0.3",
-    "vitest": "5.0.3",
     "tsdown": "0.23.0",
-    "tsx": "4.23.15"
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vitest": "5.0.3"
   },
   "dependencies": {
-    "@mc/api": "workspace:*",
-    "@mc/shared": "workspace:*",
     "bullmq": "6.3.11",
     "ioredis": "6.0.0"
   }

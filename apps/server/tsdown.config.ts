@@ -7,7 +7,7 @@ import { defineConfig } from 'tsdown';
  * files at runtime — and are installed in the image by `pnpm deploy --prod`.
  */
 export default defineConfig({
-  entry: ['src/public.ts', 'src/admin.ts', 'src/worker.ts', 'src/migrate.ts'],
+  entry: ['src/public.ts', 'src/admin.ts', 'src/worker.ts', 'src/migrate.ts', 'src/healthcheck.ts'],
   format: ['esm'],
   platform: 'node',
   target: 'node24',

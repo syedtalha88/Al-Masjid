@@ -1,0 +1,65 @@
+# Local development & CI services: MongoDB 8 (single-node replica set WITH auth + keyfile) and Redis
+# (ACL users per process). Start with `pnpm db:start` (needs `pnpm setup:local` once).
+# Ports are published on 127.0.0.1 only, so nothing is reachable from the network. MongoDB uses host
+# port 27018 so it can coexist with a locally installed MongoDB on 27017.
+name: mc-dev
+
+services:
+  mongo:
+    image: mongo:8.0.32-noble@sha256:0393ab544cbbe92b2dd64719205ecb14a8b3824b17ea75051e2f22482c3e4e66
+    # The keyfile must be owned by mongod's user (999) with mode 400, which a bind mount from Windows/macOS
+    # can't guarantee — so it is copied into the container before mongod starts.
+    entrypoint:
+      - bash
+      - -c
+      - >-
+        install -m 400 -o 999 -g 999 /run/mc/mongo-keyfile /tmp/mongo-keyfile &&
+        exec docker-entrypoint.sh mongod --replSet rs0 --keyFile /tmp/mongo-keyfile --bind_ip_all
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?run `pnpm setup:local` first}
+    volumes:
+      - mongo-data:/data/db
+      - ./.local/mongo-keyfile:/run/mc/mongo-keyfile:ro
+    ports:
+      - '127.0.0.1:27018:27017'
+    # Initiates the replica set on first start; afterwards just reports its status.
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          mongosh --quiet -u root -p "$$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval
+          "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }] }).ok }"
+          | grep -q 1
+      interval: 5s
+      timeout: 10s
+      retries: 30
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  redis:
+    image: redis:8.10.2-alpine@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0
+    command: ['redis-server', '/usr/local/etc/redis/redis.conf']
+    environment:
+      REDIS_HEALTH_PASSWORD: ${REDIS_HEALTH_PASSWORD:?run `pnpm setup:local` first}
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./.local/redis-users.acl:/usr/local/etc/redis/users.acl:ro
+      - redis-data:/data
+    ports:
+      - '127.0.0.1:6379:6379'
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'redis-cli --no-auth-warning --user health --pass "$$REDIS_HEALTH_PASSWORD" ping | grep -q PONG']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
+  redis-data:
