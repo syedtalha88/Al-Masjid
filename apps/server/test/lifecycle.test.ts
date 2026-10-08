@@ -5,8 +5,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { bootEnv, onShutdownSignal, type ProcessLike } from '../src/lifecycle.ts';
 
 class ExitCalled extends Error {
-  constructor(readonly code: number) {
+  readonly code: number;
+
+  constructor(code: number) {
     super(`exit(${String(code)})`);
+    this.code = code;
   }
 }
 

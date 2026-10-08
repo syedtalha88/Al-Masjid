@@ -44,6 +44,7 @@
 |---|---|---|---|
 | F1 | T0.1 | Move Node 24 → 26 when Node 26 enters Active LTS (28 Oct 2026): `.nvmrc`, `engines`, `@types/node`, Docker base image, CI (DECISIONS #32) | After 28 Oct 2026 (Phase 00 or 01) |
 | F2 | T0.2 | Prove client bundles contain only `VITE_PUBLIC_*`: Vite `envPrefix: VITE_PUBLIC_` + `parseClientEnv` at build, and the CI bundle secret scan | T0.4 + T0.3 |
+| F4 | T0.4 | `RouteError` in both apps shows temporary English copy ("Something went wrong…") — move to i18n keys in all 4 locales | T0.7 |
 
 ## Session log (newest first, one line each)
 

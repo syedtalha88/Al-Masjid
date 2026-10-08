@@ -46,14 +46,17 @@ const TITLES: Record<number, string> = {
  */
 export class ApiProblem extends Error {
   override readonly name = 'ApiProblem';
+  readonly status: number;
+  readonly code: ProblemCode;
+  readonly detail: string | undefined;
+  readonly errors: readonly ProblemFieldError[] | undefined;
 
-  constructor(
-    readonly status: number,
-    readonly code: ProblemCode,
-    readonly detail?: string,
-    readonly errors?: readonly ProblemFieldError[],
-  ) {
+  constructor(status: number, code: ProblemCode, detail?: string, errors?: readonly ProblemFieldError[]) {
     super(`${String(status)} ${code}${detail === undefined ? '' : `: ${detail}`}`);
+    this.status = status;
+    this.code = code;
+    this.detail = detail;
+    this.errors = errors;
   }
 }
 

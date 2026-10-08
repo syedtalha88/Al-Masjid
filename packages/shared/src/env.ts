@@ -35,17 +35,18 @@ export interface EnvProblem {
 /** Thrown when an environment is missing variables, has invalid ones, or holds forbidden ones. */
 export class EnvError extends Error {
   override readonly name = 'EnvError';
+  readonly target: ServerProcess | `${ClientApp}-client`;
+  readonly problems: readonly EnvProblem[];
 
-  constructor(
-    readonly target: ServerProcess | `${ClientApp}-client`,
-    readonly problems: readonly EnvProblem[],
-  ) {
+  constructor(target: ServerProcess | `${ClientApp}-client`, problems: readonly EnvProblem[]) {
     super(
       [
         `Invalid environment for ${target} — refusing to start. Problems (names only, values are never printed):`,
         ...problems.map((problem) => `  - ${problem.name}: ${problem.reason}`),
       ].join('\n'),
     );
+    this.target = target;
+    this.problems = problems;
   }
 }
 
