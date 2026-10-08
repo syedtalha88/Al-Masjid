@@ -21,6 +21,22 @@
     "//#lint:root": {
       "inputs": ["scripts/**", "eslint.config.js", "e2e/**"],
       "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:public": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:admin": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:worker": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

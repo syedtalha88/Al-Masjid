@@ -9,9 +9,9 @@
   },
   "scripts": {
     "prepare": "lefthook install",
-    "dev": "node scripts/not-yet.mjs dev T0.4",
-    "dev:app": "node scripts/not-yet.mjs dev:app T0.4",
-    "dev:admin": "node scripts/not-yet.mjs dev:admin T0.4",
+    "dev": "turbo run dev dev:public dev:admin dev:worker",
+    "dev:app": "turbo run dev dev:public --filter=@mc/app --filter=@mc/server",
+    "dev:admin": "turbo run dev dev:admin dev:worker --filter=@mc/admin --filter=@mc/server",
     "db:start": "node scripts/not-yet.mjs db:start T0.4",
     "db:reset": "node scripts/not-yet.mjs db:reset \"Phase 1\"",
     "db:migrate": "node scripts/not-yet.mjs db:migrate \"Phase 1\"",
@@ -32,7 +32,8 @@
     "format:check": "prettier --check .",
     "verify:quick": "turbo run typecheck lint lint:root test && prettier --check .",
     "verify": "turbo run typecheck lint lint:root test && prettier --check . && pnpm i18n:check && pnpm db:test && pnpm test:int && pnpm test:e2e && pnpm size && pnpm lhci",
-    "lint:root": "eslint scripts eslint.config.js --max-warnings 0 --no-warn-ignored"
+    "lint:root": "eslint scripts eslint.config.js --max-warnings 0 --no-warn-ignored",
+    "setup:local": "node scripts/setup-local.mjs"
   },
   "devDependencies": {
     "@mc/config": "workspace:*",
