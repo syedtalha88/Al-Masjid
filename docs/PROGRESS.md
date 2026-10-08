@@ -20,7 +20,7 @@
 
 ## Current phase task checklist
 
-**Phase 00** — started 9 Oct 2026. Owner prerequisites pending (not blocking yet): Docker Desktop (needed from T0.4), GitHub repo + plan (#28, T0.3), Cloudflare domain + staging VPS + Tailscale (#27, T0.5/T0.14). OPEN: DECISIONS #27–#31.
+**Phase 00** — started 9 Oct 2026. Owner: Docker installed ✅; GitHub public repo ✅ (DECISIONS #28); DECISIONS #27–#31 + #35 accepted. Pending (needed for T0.5/T0.14): domain on Cloudflare, staging VPS details (already purchased), WireGuard setup together in T0.14.
 
 - [x] T0.1 — Monorepo bootstrap (clean-clone `pnpm install && pnpm verify:quick` green; 5 lint violations proven — `docs/reports/evidence/PHASE_00_T0.1_lint-proof.txt`; Turbo full cache hit 31/31)
 - [x] T0.2 — Env & config (`packages/shared/src/env.ts`: 4 server + 2 client schemas, forbidden-var boot assertion, name-only errors with leak test; `.env.example` + sync test; `brand.ts`; 49 tests, 100% lines. Bundle-level `VITE_PUBLIC_*` proof → F2)
@@ -44,12 +44,12 @@
 |---|---|---|---|
 | F1 | T0.1 | Move Node 24 → 26 when Node 26 enters Active LTS (28 Oct 2026): `.nvmrc`, `engines`, `@types/node`, Docker base image, CI (DECISIONS #32) | After 28 Oct 2026 (Phase 00 or 01) |
 | F2 | T0.2 | Prove client bundles contain only `VITE_PUBLIC_*`: Vite `envPrefix: VITE_PUBLIC_` + `parseClientEnv` at build, and the CI bundle secret scan | T0.4 + T0.3 |
-| F3 | T0.4 | `.claude/settings.json` denies Read on `./.env.*`, which also blocks Claude Code from editing `.env.example` (no secrets). Owner decision: narrow the rule (e.g. allow `.env.example`) or keep editing it by hand. Pending: add `RELEASE` to `.env.example`. | Owner |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-09 | 00 / owner answers | #27 WireGuard + pull deploys (no paid/external service), #28 public repo, #29–#31 accepted; `.claude/settings.json` deny narrowed so `.env.example` is editable (real env files still blocked); F3 closed. |
 | 2026-10-09 | 00 / T0.2 | Env schemas per process (stricter than spec: per-process Mongo/Redis users, TLS + ap-south-1 + Cloudflare proxy outside local, RP_ID = admin host; external-service creds optional only in local). migrate process gets its own forbidden list (least privilege). |
 | 2026-10-09 | 00 / T0.1 | Monorepo bootstrapped (pnpm 12 + Turbo, TS 6.0 strict, ESLint 10 + 3 custom rules, 36 lint-rule tests, lefthook + gitleaks + commit-msg, Renovate). Toolchain recorded in DECISIONS #32. gitleaks installed on dev PC via winget. |
 | 2026-10-09 | 00 / start | Read all Phase 00 docs; raised OPEN DECISIONS #27–#31; asked owner for prerequisites (GitHub repo + plan, domain on Cloudflare, staging VPS, Docker Desktop on dev PC). No code yet. |

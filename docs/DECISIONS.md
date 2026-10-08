@@ -170,37 +170,36 @@ Unchanged: Turnstile, Sentry, Bunny Stream, web-push/VAPID, SimpleWebAuthn, all 
 - **BullMQ 6** with **ioredis 6** (`maxRetriesPerRequest: null`, BullMQ `prefix: 'bull'`, never ioredis `keyPrefix`). Redis must run with `maxmemory-policy noeviction` (BullMQ requirement) — set in the compose Redis config.
 - `msgpackr-extract` (optional native accelerator pulled in by BullMQ) is **denied** in `allowBuilds`; the pure-JS path is used, keeping native builds out of images. `esbuild` (used by tsx) is allowed.
 - Worker heartbeat key `bull:mc:heartbeat:worker` (inside the worker's `bull:*` ACL), refreshed every 10 s with a 30 s TTL; the container healthcheck reads it.
-- **`RELEASE`** (git SHA) is an optional env var baked into the image (default `dev`), used by health, logs and Sentry. It is not in `.env.example` because the project's `.env.*` deny rule blocks Claude Code from editing that file after creation (see PROGRESS follow-up F3).
+- **`RELEASE`** (git SHA) is an optional env var baked into the image (default `dev`), used by health, logs and Sentry. Documented in `.env.example` ("set by the image").
 - Entrypoints only compose: validate env (`bootEnv` → exit 1 with a name-only list), build the app, start the server, and drain on the first SIGTERM/SIGINT (exit 0; a second signal exits 1).
+
+### #27 — VPS access: self-hosted WireGuard + pull-based deploys — ACCEPTED (owner, 9 Oct 2026)
+**Context:** 04 §12.2 allows SSH only from the owner's IP(s) or a WireGuard/Tailscale tunnel. GitHub-hosted runners have huge, changing IP ranges, and Indian home broadband usually has a dynamic/CGNAT IP. The owner's constraint: **no external service that may start charging later.**
+**Decision:**
+- **Owner SSH over WireGuard** (open source, self-hosted on the VPS, no third-party account). UDP port for WireGuard is open; TCP 22 is reachable **only** through the tunnel. The owner's PC/phone hold WireGuard client configs generated during T0.14.
+- **Pull-based deploys — CI never connects to the VPS.** CI builds images, pushes them to GHCR by digest, and publishes a signed release manifest (digests per service) for the environment. A systemd timer on the VPS (as the restricted `deploy` user) polls for a new manifest, verifies it, runs `infra/vps/deploy.sh` (pull by digest → migrate if needed → rolling restart with health waits → smoke checks), and records the result in `deploy/releases.log`. Production manifests are published only by the `deploy-prod` workflow, which requires manual approval in the GitHub `production` environment.
+- Rejected: Tailscale (third-party account; free tier could change), opening SSH to GitHub's IP ranges (effectively public SSH).
+**Consequences:** No deploy secrets that grant access to the VPS live in GitHub. Deploy latency = poll interval (~1 min). `deploy-staging.yml` publishes instead of SSHing; T0.14 implements the VPS side. Rollback = publish/pin the previous manifest.
+
+### #28 — Public GitHub repository — ACCEPTED (owner, 9 Oct 2026)
+**Decision:** The code lives in the owner's **public** repo `github.com/syedtalha88/Al-Masjid`. Branch protection/rulesets with required checks are enforced on public repos on GitHub Free; standard Actions runners and public GHCR images are free.
+**Consequences:** Specs and code are public. Security never depends on secrecy of the code: secrets live only in VPS env files / GitHub environment secrets, gitleaks runs pre-commit and in CI, and the security-reviewer checks every phase. Container images on GHCR are public (they contain no secrets — env is injected at runtime).
+
+### #29 — HSTS without `preload` until launch — ACCEPTED (owner: "whichever is better", 9 Oct 2026)
+**Decision:** Send `Strict-Transport-Security: max-age=63072000; includeSubDomains` from Phase 0. Add `preload` and submit to the preload list deliberately in Phase 9, once the domain plan is final. (A+ grades don't require it.)
+
+### #30 — Installability verified without Lighthouse's PWA category — ACCEPTED (owner, 9 Oct 2026)
+**Decision:** T0.11's "Lighthouse installable checks" is replaced by: Playwright (Chromium) calls the DevTools Protocol `Page.getInstallabilityErrors` and asserts an empty list for both apps; a manifest-schema unit test (required fields, icon sizes/purposes, `id`, `scope`, `start_url`); and the owner's manual install check (guide 0.10). Free, no extra tools.
+
+### #31 — Two image targets: `runtime` and `runtime-test` — ACCEPTED (owner, 9 Oct 2026)
+**Decision:** One Dockerfile with a shared build stage and two final targets: `runtime` (shipped, Trivy-scanned, test hooks excluded) and `runtime-test` (same build output + the test-hooks module, used only by CI e2e). A CI check asserts the `runtime` image contains no test-hook code or routes.
+
+### #35 — Owner choices: Sentry, branding — ACCEPTED (owner, 9 Oct 2026)
+**Decision:** Sentry is wired in (T0.13) but stays a no-op until the owner creates a free Sentry account and adds DSNs. Branding confirmed for now: name "Masjid Connect", home-screen label "Masjid" (admin: "Masjid Admin"), placeholder brand mark (green rounded square, white dome glyph).
+**Cost note (owner asked to avoid services that charge later):** free — Cloudflare (free plan), GitHub (public repo), Sentry (free plan), WireGuard. Paid by design in the existing plan (01 §11): the VPS, MongoDB Atlas production (M10 + backup), Bunny Stream (usage-based), AWS S3 (small), the domain. Cheaper alternatives (self-hosted MongoDB, YouTube-only videos) are to be decided before Phase 1 / Phase 6.
 
 ---
 
 ## OPEN
 
-### #27 — How CI (and the owner) reach the VPS over SSH — OPEN (raised 9 Oct 2026, Phase 00)
-**Context:** 04 §12.2 allows SSH only from the owner's IP(s) or a WireGuard/Tailscale tunnel. `deploy-staging.yml` (T0.3/T0.14) deploys over SSH from GitHub-hosted runners, whose IP ranges are huge and change often. Home broadband in India usually has a dynamic or CGNAT IP, so an IP allow-list for the owner is fragile too.
-**Options:**
-- (a) **Tailscale** (free personal plan) on the VPS; CI joins the tailnet for one job with the official GitHub Action and an ephemeral, tag-scoped auth key; the owner SSHes over Tailscale. Port 22 is closed to the public internet. *New third-party service, MFA required.*
-- (b) **Pull-based deploy:** CI only pushes the image digest to GHCR and writes a release manifest; a systemd timer on the VPS pulls and deploys it. No inbound SSH from CI. The owner still needs (a) or an IP allow-list for their own SSH.
-- (c) Allow SSH from GitHub's published Actions IP ranges. Not recommended: thousands of ranges, effectively public SSH.
-**Recommendation:** (a) Tailscale. It solves both the CI and the owner's dynamic-IP problems, and SSH never faces the internet.
-
-### #28 — GitHub plan for a private repo with enforced checks — OPEN (raised 9 Oct 2026, Phase 00)
-**Context:** T0.3 requires that "a PR with a failing test is blocked" (branch protection with required checks), and 04 §12.1 requires `main` to be protected. On GitHub Free, protected branches/rulesets are enforced only on **public** repos; private repos need GitHub Pro/Team. Free private repos also have limited Actions minutes and GHCR storage, which this CI pipeline (compose stack + e2e on 2 devices + Lighthouse + Trivy) will consume quickly.
-**Options:** (a) GitHub **Pro** for the owner's account (small monthly fee; verify current price and limits); (b) make the repo **public** (enforced protection and free Actions minutes on standard runners; the specs become public, and security does not depend on them being secret); (c) stay on Free private and accept unenforced checks (the acceptance criterion cannot be met).
-**Recommendation:** (a) for now. Reconsider (b) at launch if the owner wants the project open source.
-
-### #29 — HSTS `preload` directive — OPEN (raised 9 Oct 2026, Phase 00)
-**Context:** 04 §7 specifies `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`. Once a header carries `preload`, **anyone** can submit the domain to the browser preload list, and removal takes months. It then applies to *every* subdomain of `<domain>`, including any future non-HTTPS use. An A+ grade does not require `preload`.
-**Options:** (a) send `max-age=63072000; includeSubDomains` now; add `preload` and submit deliberately in Phase 9 once the domain plan is final; (b) send `preload` from Phase 0 as written.
-**Recommendation:** (a).
-
-### #30 — "Lighthouse installable checks" no longer exist — OPEN (raised 9 Oct 2026, Phase 00)
-**Context:** T0.11's acceptance criterion is "Lighthouse 'installable' checks pass for both apps". Lighthouse has dropped its PWA category (installability is no longer part of the standard report). The criterion cannot be met as written.
-**Options:** (a) replace it with: Playwright (Chromium) calls the DevTools Protocol `Page.getInstallabilityErrors` and asserts an empty list for both apps, plus a manifest-schema unit test (required fields, icon sizes/purposes, `id`, `scope`, `start_url`) and the owner's manual install check (guide 0.10); (b) pin an old Lighthouse version that still has the PWA category (not recommended: stale tool, conflicts with the Lighthouse CI budgets).
-**Recommendation:** (a).
-
-### #31 — E2E test hooks vs. production images — OPEN (raised 9 Oct 2026, Phase 00)
-**Context:** 10 §3 / T0.12 say test hooks (`/api/test/*`) exist only when `APP_ENV=local` and `NODE_ENV=test`, and a build check proves they are absent from production images. 10 §7 runs e2e "against the full stack via compose" in CI, using the server image that was just built and Trivy-scanned. E2E needs the hooks, so it cannot use the exact production image.
-**Options:** (a) one Dockerfile with a shared build stage and two final targets: `runtime` (shipped, scanned, hooks excluded) and `runtime-test` (same build output + the hooks module). E2E runs on `runtime-test`; a CI check asserts that `runtime` contains no hook code or routes; (b) run e2e against `tsx`/Vite dev processes instead of images (weaker: doesn't test the real Caddy/headers path).
-**Recommendation:** (a).
+_None._

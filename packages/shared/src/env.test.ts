@@ -495,11 +495,11 @@ describe('.env.example', () => {
       .filter((name): name is string => name !== undefined),
   );
 
-  // RELEASE is baked into the Docker image (never set in env files), so it is intentionally not listed.
   it('documents every server variable', () => {
     const names = new Set([
       ...SERVER_PROCESSES.flatMap((process) => Object.keys(PRODUCTION[process])),
       'LOG_LEVEL',
+      'RELEASE',
       'SENTRY_DSN',
       'FIELD_ENCRYPTION_OLD_KEYS',
     ]);
