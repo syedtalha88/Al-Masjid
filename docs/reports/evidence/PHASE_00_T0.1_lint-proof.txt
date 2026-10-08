@@ -1,0 +1,14 @@
+T0.1 — temporary violation files linted with the real type-aware config (9 Oct 2026), then deleted.
+Command: pnpm exec eslint <5 temp files>  → exit code 1
+
+/apps/app/src/tmp/TmpBox.tsx
+    1:26  @typescript-eslint/no-unsafe-return  — Unsafe return of a value of type error.
+    1:41  mc/no-physical-direction  — "ml-2" is a physical-direction class. Use ms-* so the layout mirrors in Urdu (RTL).
+/packages/api/src/routes/tmp-system-scope.ts
+    1:10  no-restricted-imports  — 'systemScope' import from '@mc/db' is restricted from being used by a pattern. systemScope() may only be used in package
+/packages/api/src/tmp-mongodb.ts
+    1:1  no-restricted-imports  — 'mongodb' import is restricted from being used. The MongoDB driver may only be imported inside packages/db. Use the scop
+/packages/domain/src/tmp-any.ts
+    1:30  @typescript-eslint/no-explicit-any  — Unexpected any. Specify a different type.
+/packages/domain/src/tmp-console.ts
+    1:1  no-console  — Unexpected console statement.

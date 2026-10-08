@@ -20,9 +20,9 @@
 
 ## Current phase task checklist
 
-**Phase 00** — started 9 Oct 2026. Waiting on owner answers (DECISIONS #27–#31 and the prerequisites listed in the session log).
+**Phase 00** — started 9 Oct 2026. Owner prerequisites pending (not blocking yet): Docker Desktop (needed from T0.4), GitHub repo + plan (#28, T0.3), Cloudflare domain + staging VPS + Tailscale (#27, T0.5/T0.14). OPEN: DECISIONS #27–#31.
 
-- [ ] T0.1 — Monorepo bootstrap
+- [x] T0.1 — Monorepo bootstrap (clean-clone `pnpm install && pnpm verify:quick` green; 5 lint violations proven — `docs/reports/evidence/PHASE_00_T0.1_lint-proof.txt`; Turbo full cache hit 31/31)
 - [ ] T0.2 — Env & config
 - [ ] T0.3 — CI pipeline
 - [ ] T0.4 — App & API scaffolds
@@ -42,9 +42,11 @@
 
 | # | Found in | Description | Planned fix (phase/task) |
 |---|---|---|---|
+| F1 | T0.1 | Move Node 24 → 26 when Node 26 enters Active LTS (28 Oct 2026): `.nvmrc`, `engines`, `@types/node`, Docker base image, CI (DECISIONS #32) | After 28 Oct 2026 (Phase 00 or 01) |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-09 | 00 / T0.1 | Monorepo bootstrapped (pnpm 12 + Turbo, TS 6.0 strict, ESLint 10 + 3 custom rules, 36 lint-rule tests, lefthook + gitleaks + commit-msg, Renovate). Toolchain recorded in DECISIONS #32. gitleaks installed on dev PC via winget. |
 | 2026-10-09 | 00 / start | Read all Phase 00 docs; raised OPEN DECISIONS #27–#31; asked owner for prerequisites (GitHub repo + plan, domain on Cloudflare, staging VPS, Docker Desktop on dev PC). No code yet. |
