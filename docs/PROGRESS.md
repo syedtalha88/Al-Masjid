@@ -28,7 +28,7 @@
 - [x] T0.4 — App & API scaffolds (API 48 tests incl. no-stack-trace, `?a[$ne]=1`, SIGTERM drain; server 14 tests; `pnpm dev` + `pnpm stack:up` verified live; Playwright smoke 12/12 on Pixel 7 + iPhone 14 through Caddy; containers non-root/read-only/cap-dropped; local Redis/Mongo security checks 11/11; hadolint clean — DECISIONS #37)
 - [ ] T0.5 — Security headers & CSP
 - [ ] T0.6 — Design tokens, Tailwind, fonts, base styles
-- [ ] T0.7 — i18n foundation
+- [ ] T0.7 — i18n foundation — **IN PROGRESS (paused 9 Oct, owner's usage limit). Work is on disk, NOT committed** (`packages/i18n/**`, root `package.json` i18n scripts). Done: `src/locales.ts`, `src/format.ts` (money always en-IN grouping, Latin AM/PM upper-cased — record as DECISIONS #38), `src/boot.ts` + `src/vite-plugin.ts` (external `/boot.js` for pre-paint lang/dir — fixes F7), `src/document.ts`, `src/i18n.ts` (lazy JSON backend, ICU), `src/types.ts` (typed keys from en JSON), `src/react.tsx` (provider, `useLocale`, `<Bdi>/<Money>/<Time>`), locales en/hi/ur/te for `common` + `errors`, `meta/*.json`, `tools/check.ts` + `tools/cli.ts`, `review/*.csv` generated. **Next steps:** (1) fix 2 `i18n:check` problems — Telugu `countdown.hoursMinutes` too long (shorten or raise maxLength to ~24) + review CSV refresh (`pnpm i18n:review`); (2) write tests: `test/format.test.ts` (4 locales: ₹1,00,000, times, dates, relative incl. >6 days, plurals 0/1/2/5/21), `test/check.test.ts` (temp-dir fixtures: missing key, placeholder mismatch, invalid ICU, extra key, untranslated, missing `other`), `test/boot.test.ts`, `test/react.test.tsx` (jsdom: switch to ur → `<html dir=rtl lang=ur>` without reload, Money/Time render in `<bdi>`); (3) `packages/i18n/glossary.md` (religious terms per locale, translators confirm); (4) wire apps: `mcLocaleBoot()` in both vite configs, `I18nProvider` in providers, `RouteError` → `t('common:appError.*')` (closes F4), add `/boot.js` to Caddy `@entry` no-cache list; (5) add `packages/i18n/src/**/*.tsx` to eslint UI_FILES; typecheck/lint/test; e2e smoke still green; (6) DECISIONS #38, tick T0.7, commit + push.
 - [ ] T0.8 — Motion foundation
 - [ ] T0.9 — Navigation system
 - [ ] T0.10 — Core component library + showcase
@@ -51,11 +51,13 @@
 | F11 | Audit 9 Oct | Vendored `.claude/skills` (ui-ux-pro-max, MIT) — keep an MIT LICENSE notice in the folder (public repo). | T0.15 |
 | F4 | T0.4 | `RouteError` in both apps shows temporary English copy ("Something went wrong…") — move to i18n keys in all 4 locales | T0.7 |
 | F12 | T0.4 | Add `runtime-test` image target with the test-hooks module + CI check that `runtime` has no hooks (DECISIONS #31) | T0.12 |
+| F13 | T0.7 | Hijri month names: Intl gives English names for `te` and odd ordering for `hi` — add per-locale month-name fallback table (09 §4) | Phase 2 T2.1 |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-09 | 00 / T0.7 | Started i18n foundation; paused mid-task (owner usage limit). Uncommitted work on disk in `packages/i18n` — see T0.7 line for exact next steps. Local stack may still be running (`pnpm stack:down` to stop). |
 | 2026-10-09 | 00 / T0.4 | Done. Dockerfiles (distroless server, non-root Caddy), dev + stack compose, Caddyfile, precompressed builds, Playwright smoke. Fixed on the way: Caddy root→non-root, source maps were served (now 404), `dev up` removed stack containers, health field `release`→`version` (F5). F5/F6 closed. |
 | 2026-10-09 | 00 / audit | Full re-read of the pack (CLAUDE.md, docs 00–10, phases 00–09, owner docs, agents, commands, design refs) vs. work done. On plan; 1 contract mismatch (F5) + 6 tracked items (F6–F11). |
 | 2026-10-09 | 00 / T0.4 | API, server, SPAs and local env generator done and pushed to GitHub. Paused for Docker: owner enabling WSL (`wsl --install --no-distribution`) + Windows restart. Next: Docker parts of T0.4, then T0.7 → T0.6 → T0.8 → T0.9 → T0.10. |
