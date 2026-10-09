@@ -218,6 +218,16 @@ Unchanged: Turnstile, Sentry, Bunny Stream, web-push/VAPID, SimpleWebAuthn, all 
 - `index.html` has no inline script/style and no hard-coded brand values: `%MC_APP_NAME%`/`%MC_THEME_COLOR%` are filled from `brand.ts` by a tiny Vite plugin. `modulePreload.polyfill` off (no inline polyfill — CSP); build source maps `hidden` (for Sentry upload only).
 - Dev ports: app 5173 → `/api` proxy to api-public 8787; admin 5174 → api-admin 8788.
 
+### #38 — i18n runtime & formatting details (T0.7) — ACCEPTED (9 Oct 2026)
+**Decision:**
+- **Libraries (09 §2):** i18next 26.4, react-i18next 17.0, i18next-icu 2.5 + intl-messageformat 12.1 (ICU plurals/select). `@mc/i18n` is a runtime dependency of both apps. **Bundle impact (measured from the source map):** ≈ 89 KB minified / ≈ 29 KB gzip of the initial JS (i18next 42 KB, ICU parser + skeleton parser 26 KB, rest small). Musalli `/` initial JS is now 130.8 KB gzip of the 170 KB budget. Follow-up F14: precompile ICU messages to ASTs at build time to drop the parser (~8 KB gzip) if the budget gets tight.
+- **Lazy namespaces:** each `locales/<lng>/<ns>.json` is its own chunk via `import.meta.glob` + a 20-line i18next backend (no `i18next-http-backend`), so a device downloads only its language. Keys are typed from the English JSON (`CustomTypeOptions`), so a wrong key fails typecheck — no generated `.d.ts` needed.
+- **Pre-paint `<html lang dir>` (09 §5, F7):** an external classic script `/boot.js` (emitted by the `mcLocaleBoot()` Vite plugin, first element in `<head>`, served `no-cache` by Caddy) reads the `mc.locale` localStorage mirror → browser languages → `en`. External file, not inline, so the CSP needs no `'unsafe-inline'`/hash. It is the serialized source of `bootDocumentLocale()`; a test runs it in an empty VM realm to prove it is self-contained.
+- **Money always uses `en-IN` grouping** (`₹1,00,000`) in every locale: `ur-IN` would group as `₹100,000`, contradicting 09 §4.
+- **Times:** the space before AM/PM is normalized to one U+00A0 no-break space in every locale (ICU emits U+202F for `en-IN` but U+0020 for the others), so "AM" never wraps alone and output is identical across ICU versions.
+- **`i18n:check` measures length in grapheme clusters** (`Intl.Segmenter`), not code points: Indic vowel signs, viramas and anusvara join their base letter, so code-point counts overstated Telugu/Hindi by ~2×. `maxLength` in `meta/<ns>.json` is a soft UI-space hint per key.
+- **Review flow:** `review/<locale>.csv` (namespace,key,en,draft,reviewed). A row keeps `reviewed=yes` only while its draft is unchanged; `i18n:check` fails if a CSV is stale. Unreviewed counts are printed, not a failure (owner decides — 09 §3). `glossary.md` holds draft native-script forms of the 09 §3 terms, awaiting the owner's translators.
+
 ---
 
 ## OPEN
