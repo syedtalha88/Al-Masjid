@@ -1,3 +1,4 @@
+import { mcLocaleBoot } from '@mc/i18n/vite';
 import { BRAND } from '@mc/shared/brand';
 import { CLIENT_ENV_PREFIX, parseClientEnv } from '@mc/shared/env';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
@@ -18,7 +19,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     envPrefix: CLIENT_ENV_PREFIX,
-    plugins: [tanstackRouter({ target: 'react', autoCodeSplitting: true }), react(), brandHtml()],
+    plugins: [tanstackRouter({ target: 'react', autoCodeSplitting: true }), react(), brandHtml(), mcLocaleBoot()],
     server: {
       port: 5174,
       strictPort: true,

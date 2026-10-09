@@ -1,0 +1,17 @@
+{
+  "appError": {
+    "title": "कुछ गड़बड़ हो गई",
+    "body": "कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",
+    "retry": "फिर कोशिश करें"
+  },
+  "loading": "लोड हो रहा है…",
+  "language": {
+    "label": "भाषा",
+    "choose": "अपनी भाषा चुनें"
+  },
+  "newUpdates": "{count, plural, one {# नया अपडेट} other {# नए अपडेट}}",
+  "countdown": {
+    "hoursMinutes": "{hours} घं {minutes} मि बाकी",
+    "minutes": "{minutes} मि बाकी"
+  }
+}

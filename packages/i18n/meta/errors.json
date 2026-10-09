@@ -1,0 +1,11 @@
+{
+  "NOT_FOUND": {
+    "context": "API problem code NOT_FOUND shown to users"
+  },
+  "INTERNAL_ERROR": {
+    "context": "Server error; reassure and suggest retrying later"
+  },
+  "NETWORK": {
+    "context": "Client could not reach the server (offline / patchy network)"
+  }
+}

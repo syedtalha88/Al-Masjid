@@ -1,0 +1,20 @@
+namespace,key,en,draft,reviewed
+common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
+common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
+common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
+common,loading,Loading…,లోడ్ అవుతోంది…,no
+common,language.label,Language,భాష,no
+common,language.choose,Choose your language,మీ భాషను ఎంచుకోండి,no
+common,newUpdates,"{count, plural, one {# new update} other {# new updates}}","{count, plural, one {# కొత్త అప్‌డేట్} other {# కొత్త అప్‌డేట్‌లు}}",no
+common,countdown.hoursMinutes,{hours}h {minutes}m left,{hours}గం {minutes}ని మిగిలింది,no
+common,countdown.minutes,{minutes}m left,{minutes}ని మిగిలింది,no
+errors,NOT_FOUND,We couldn’t find that. It may have been removed.,ఇది కనిపించలేదు. ఇది తొలగించబడి ఉండవచ్చు.,no
+errors,METHOD_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
+errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,కొన్ని వివరాలు సరిగా లేవు. దయచేసి చూసి మళ్లీ ప్రయత్నించండి.,no
+errors,UNSAFE_INPUT,Some details look wrong. Please check and try again.,కొన్ని వివరాలు సరిగా లేవు. దయచేసి చూసి మళ్లీ ప్రయత్నించండి.,no
+errors,INVALID_JSON,Something went wrong sending your request. Please try again.,మీ అభ్యర్థన పంపడంలో సమస్య వచ్చింది. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+errors,PAYLOAD_TOO_LARGE,That is too large to send. Please try something smaller.,ఇది పంపడానికి చాలా పెద్దది. దయచేసి చిన్నది పంపండి.,no
+errors,UNSUPPORTED_MEDIA_TYPE,Something went wrong sending your request. Please try again.,మీ అభ్యర్థన పంపడంలో సమస్య వచ్చింది. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+errors,CORS_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
+errors,INTERNAL_ERROR,Something went wrong on our side. Please try again in a moment.,మా వైపు ఏదో సమస్య వచ్చింది. దయచేసి కొద్దిసేపటి తర్వాత మళ్లీ ప్రయత్నించండి.,no
+errors,NETWORK,You seem to be offline. Please check your connection and try again.,మీరు ఆఫ్‌లైన్‌లో ఉన్నట్లున్నారు. దయచేసి కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి.,no

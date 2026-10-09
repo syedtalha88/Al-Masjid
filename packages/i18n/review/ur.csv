@@ -1,0 +1,20 @@
+namespace,key,en,draft,reviewed
+common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
+common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
+common,appError.retry,Try again,دوبارہ کوشش کریں,no
+common,loading,Loading…,لوڈ ہو رہا ہے…,no
+common,language.label,Language,زبان,no
+common,language.choose,Choose your language,اپنی زبان منتخب کریں,no
+common,newUpdates,"{count, plural, one {# new update} other {# new updates}}","{count, plural, one {# نئی اپڈیٹ} other {# نئی اپڈیٹس}}",no
+common,countdown.hoursMinutes,{hours}h {minutes}m left,{hours} گھنٹے {minutes} منٹ باقی,no
+common,countdown.minutes,{minutes}m left,{minutes} منٹ باقی,no
+errors,NOT_FOUND,We couldn’t find that. It may have been removed.,یہ نہیں ملا۔ ہو سکتا ہے اسے ہٹا دیا گیا ہو۔,no
+errors,METHOD_NOT_ALLOWED,That action isn’t available here.,یہ کام یہاں دستیاب نہیں ہے۔,no
+errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,کچھ معلومات غلط لگ رہی ہیں۔ براہِ کرم جانچ کر دوبارہ کوشش کریں۔,no
+errors,UNSAFE_INPUT,Some details look wrong. Please check and try again.,کچھ معلومات غلط لگ رہی ہیں۔ براہِ کرم جانچ کر دوبارہ کوشش کریں۔,no
+errors,INVALID_JSON,Something went wrong sending your request. Please try again.,آپ کی درخواست بھیجنے میں مسئلہ ہوا۔ براہِ کرم دوبارہ کوشش کریں۔,no
+errors,PAYLOAD_TOO_LARGE,That is too large to send. Please try something smaller.,یہ بھیجنے کے لیے بہت بڑا ہے۔ براہِ کرم کچھ چھوٹا بھیجیں۔,no
+errors,UNSUPPORTED_MEDIA_TYPE,Something went wrong sending your request. Please try again.,آپ کی درخواست بھیجنے میں مسئلہ ہوا۔ براہِ کرم دوبارہ کوشش کریں۔,no
+errors,CORS_NOT_ALLOWED,That action isn’t available here.,یہ کام یہاں دستیاب نہیں ہے۔,no
+errors,INTERNAL_ERROR,Something went wrong on our side. Please try again in a moment.,ہماری طرف سے کچھ مسئلہ ہوا۔ براہِ کرم تھوڑی دیر بعد دوبارہ کوشش کریں۔,no
+errors,NETWORK,You seem to be offline. Please check your connection and try again.,لگتا ہے آپ آف لائن ہیں۔ براہِ کرم کنکشن چیک کر کے دوبارہ کوشش کریں۔,no

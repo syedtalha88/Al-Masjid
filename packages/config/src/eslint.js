@@ -10,8 +10,13 @@ import { mcPlugin } from './eslint-plugin/index.js';
 
 const TS_FILES = ['**/*.{ts,tsx,mts,cts}'];
 const JS_FILES = ['**/*.{js,mjs,cjs}'];
-/** Browser/React code: both PWAs and the UI package. */
-const UI_FILES = ['apps/app/**/*.{ts,tsx}', 'apps/admin/**/*.{ts,tsx}', 'packages/ui/**/*.{ts,tsx}'];
+/** Browser/React code: both PWAs, the UI package and the i18n runtime. */
+const UI_FILES = [
+  'apps/app/**/*.{ts,tsx}',
+  'apps/admin/**/*.{ts,tsx}',
+  'packages/ui/**/*.{ts,tsx}',
+  'packages/i18n/src/**/*.{ts,tsx}',
+];
 
 const MONGODB_MESSAGE =
   'The MongoDB driver may only be imported inside packages/db. Use the scoped repositories (withScope / withTransaction).';

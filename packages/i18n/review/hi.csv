@@ -1,0 +1,20 @@
+namespace,key,en,draft,reviewed
+common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
+common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
+common,appError.retry,Try again,फिर कोशिश करें,no
+common,loading,Loading…,लोड हो रहा है…,no
+common,language.label,Language,भाषा,no
+common,language.choose,Choose your language,अपनी भाषा चुनें,no
+common,newUpdates,"{count, plural, one {# new update} other {# new updates}}","{count, plural, one {# नया अपडेट} other {# नए अपडेट}}",no
+common,countdown.hoursMinutes,{hours}h {minutes}m left,{hours} घं {minutes} मि बाकी,no
+common,countdown.minutes,{minutes}m left,{minutes} मि बाकी,no
+errors,NOT_FOUND,We couldn’t find that. It may have been removed.,यह नहीं मिला। हो सकता है इसे हटा दिया गया हो।,no
+errors,METHOD_NOT_ALLOWED,That action isn’t available here.,यह काम यहाँ उपलब्ध नहीं है।,no
+errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,कुछ जानकारी गलत लग रही है। कृपया जाँचकर फिर कोशिश करें।,no
+errors,UNSAFE_INPUT,Some details look wrong. Please check and try again.,कुछ जानकारी गलत लग रही है। कृपया जाँचकर फिर कोशिश करें।,no
+errors,INVALID_JSON,Something went wrong sending your request. Please try again.,आपका अनुरोध भेजने में दिक्कत हुई। कृपया फिर कोशिश करें।,no
+errors,PAYLOAD_TOO_LARGE,That is too large to send. Please try something smaller.,यह भेजने के लिए बहुत बड़ा है। कृपया कुछ छोटा भेजें।,no
+errors,UNSUPPORTED_MEDIA_TYPE,Something went wrong sending your request. Please try again.,आपका अनुरोध भेजने में दिक्कत हुई। कृपया फिर कोशिश करें।,no
+errors,CORS_NOT_ALLOWED,That action isn’t available here.,यह काम यहाँ उपलब्ध नहीं है।,no
+errors,INTERNAL_ERROR,Something went wrong on our side. Please try again in a moment.,हमारी तरफ़ से कुछ गड़बड़ हुई। कृपया थोड़ी देर में फिर कोशिश करें।,no
+errors,NETWORK,You seem to be offline. Please check your connection and try again.,लगता है आप ऑफ़लाइन हैं। कृपया कनेक्शन जाँचकर फिर कोशिश करें।,no

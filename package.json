@@ -21,7 +21,7 @@
     "test": "turbo run test",
     "test:int": "node scripts/not-yet.mjs test:int T0.12",
     "test:e2e": "playwright test",
-    "i18n:check": "node scripts/not-yet.mjs i18n:check T0.7",
+    "i18n:check": "pnpm --filter @mc/i18n i18n:check",
     "size": "node scripts/not-yet.mjs size T0.12",
     "lhci": "node scripts/not-yet.mjs lhci T0.12",
     "stack:up": "pnpm --filter @mc/app --filter @mc/admin build && node scripts/compose.mjs stack up --build",
@@ -36,7 +36,8 @@
     "setup:local": "node scripts/setup-local.mjs",
     "db:stop": "node scripts/compose.mjs dev down",
     "stack:down": "node scripts/compose.mjs stack down",
-    "typecheck:root": "tsc --noEmit -p tsconfig.json"
+    "typecheck:root": "tsc --noEmit -p tsconfig.json",
+    "i18n:review": "pnpm --filter @mc/i18n i18n:review"
   },
   "devDependencies": {
     "@mc/config": "workspace:*",

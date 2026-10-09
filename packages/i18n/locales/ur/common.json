@@ -1,0 +1,17 @@
+{
+  "appError": {
+    "title": "کچھ غلط ہو گیا",
+    "body": "براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔",
+    "retry": "دوبارہ کوشش کریں"
+  },
+  "loading": "لوڈ ہو رہا ہے…",
+  "language": {
+    "label": "زبان",
+    "choose": "اپنی زبان منتخب کریں"
+  },
+  "newUpdates": "{count, plural, one {# نئی اپڈیٹ} other {# نئی اپڈیٹس}}",
+  "countdown": {
+    "hoursMinutes": "{hours} گھنٹے {minutes} منٹ باقی",
+    "minutes": "{minutes} منٹ باقی"
+  }
+}

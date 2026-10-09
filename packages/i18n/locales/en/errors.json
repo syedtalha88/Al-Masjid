@@ -1,0 +1,12 @@
+{
+  "NOT_FOUND": "We couldn’t find that. It may have been removed.",
+  "METHOD_NOT_ALLOWED": "That action isn’t available here.",
+  "VALIDATION_FAILED": "Some details look wrong. Please check and try again.",
+  "UNSAFE_INPUT": "Some details look wrong. Please check and try again.",
+  "INVALID_JSON": "Something went wrong sending your request. Please try again.",
+  "PAYLOAD_TOO_LARGE": "That is too large to send. Please try something smaller.",
+  "UNSUPPORTED_MEDIA_TYPE": "Something went wrong sending your request. Please try again.",
+  "CORS_NOT_ALLOWED": "That action isn’t available here.",
+  "INTERNAL_ERROR": "Something went wrong on our side. Please try again in a moment.",
+  "NETWORK": "You seem to be offline. Please check your connection and try again."
+}

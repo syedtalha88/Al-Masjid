@@ -1,0 +1,35 @@
+{
+  "appError.title": {
+    "context": "Heading of the full-screen error state",
+    "maxLength": 40
+  },
+  "appError.body": {
+    "context": "Explanation under the error heading; suggest what to do, never alarm"
+  },
+  "appError.retry": {
+    "context": "Button that retries loading",
+    "maxLength": 24
+  },
+  "loading": {
+    "context": "Screen-reader label while content loads"
+  },
+  "language.label": {
+    "context": "Settings row label",
+    "maxLength": 24
+  },
+  "language.choose": {
+    "context": "Onboarding title above the four language cards"
+  },
+  "newUpdates": {
+    "context": "Badge text next to a masjid: number of unseen posts (ICU plural)",
+    "maxLength": 24
+  },
+  "countdown.hoursMinutes": {
+    "context": "Time left until the next jamaat, e.g. \"2h 18m left\". Footnote line on the masjid card (06 footnote style), not a fixed-width pill",
+    "maxLength": 24
+  },
+  "countdown.minutes": {
+    "context": "Time left when under an hour, e.g. \"48m left\"",
+    "maxLength": 16
+  }
+}

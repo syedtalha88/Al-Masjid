@@ -1,0 +1,17 @@
+{
+  "appError": {
+    "title": "Something went wrong",
+    "body": "Please try again. If it keeps happening, check your internet connection.",
+    "retry": "Try again"
+  },
+  "loading": "Loading…",
+  "language": {
+    "label": "Language",
+    "choose": "Choose your language"
+  },
+  "newUpdates": "{count, plural, one {# new update} other {# new updates}}",
+  "countdown": {
+    "hoursMinutes": "{hours}h {minutes}m left",
+    "minutes": "{minutes}m left"
+  }
+}

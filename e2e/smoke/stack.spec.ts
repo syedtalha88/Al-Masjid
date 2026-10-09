@@ -36,6 +36,31 @@ test.describe('musalli app (app origin)', () => {
   });
 });
 
+test.describe('locale boot (T0.7, 09 §5)', () => {
+  for (const url of [APP_URL, ADMIN_URL]) {
+    test(`stored Urdu choice → <html lang=ur dir=rtl> before the app renders (${new URL(url).hostname})`, async ({
+      page,
+    }) => {
+      await page.addInitScript(() => {
+        localStorage.setItem('mc.locale', 'ur');
+      });
+      await page.goto(url);
+      await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+      await expect(page.locator('html')).toHaveAttribute('lang', 'ur');
+      // Still renders (the shell heading is the brand name in every locale).
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    });
+  }
+
+  test('/boot.js is an external, revalidated classic script (no inline JS for the CSP)', async ({ request }) => {
+    const response = await request.get(`${APP_URL}/boot.js`);
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toContain('javascript');
+    expect(response.headers()['cache-control']).toBe('no-cache');
+    expect(await response.text()).toContain('"mc.locale"');
+  });
+});
+
 test.describe('admin app (admin origin)', () => {
   test('loads the admin shell, noindex', async ({ page }) => {
     const response = await page.goto(ADMIN_URL);
