@@ -20,6 +20,8 @@ export const BRAND = {
     theme: '#F8F8F5',
     /** Brand mark fill = `--color-primary-700`. */
     primary: '#13543C',
+    /** Admin app's brand mark fill = `--color-primary-900` (tells the two installed apps apart). */
+    adminPrimary: '#0A3324',
     /** Glyph colour on the brand mark = `--color-on-primary`. */
     onPrimary: '#FFFFFF',
   },

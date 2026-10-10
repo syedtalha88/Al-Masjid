@@ -50,8 +50,14 @@ http://:8081 {
 	@immutable path /assets/*
 	header @immutable Cache-Control "public, max-age=31536000, immutable"
 
-	@entry path / /index.html /boot.js /sw.js /manifest.webmanifest /registerSW.js
+	@entry path / /index.html /boot.js /sw.js /manifest.webmanifest /offline.html
 	header @entry Cache-Control "no-cache"
+
+	# PWA (T0.11): the manifest's registered type; icons and launch screens are not hashed → one day.
+	@manifest path /manifest.webmanifest
+	header @manifest Content-Type "application/manifest+json"
+	@pwaImages path /icons/* /splash/*
+	header @pwaImages Cache-Control "public, max-age=86400"
 
 	try_files {path} /index.html
 	file_server {

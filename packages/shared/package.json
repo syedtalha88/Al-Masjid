@@ -7,7 +7,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./env": "./src/env.ts",
-    "./brand": "./src/brand.ts"
+    "./brand": "./src/brand.ts",
+    "./brand-mark": "./src/brand-mark.ts",
+    "./pwa": "./src/pwa.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

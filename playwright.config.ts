@@ -24,7 +24,13 @@ export default defineConfig({
   },
   metadata: { appUrl: APP_URL, adminUrl: ADMIN_URL },
   projects: [
-    { name: 'pixel-7', use: { ...devices['Pixel 7'] }, testIgnore: /.perf.spec.ts$/ },
+    {
+      name: 'pixel-7',
+      // Caddy's local CA is not trusted by the test browser; Chromium refuses service workers on certificate
+      // errors even with ignoreHTTPSErrors, so the PWA specs need this flag (local/CI test browsers only).
+      use: { ...devices['Pixel 7'], launchOptions: { args: ['--ignore-certificate-errors'] } },
+      testIgnore: /.perf.spec.ts$/,
+    },
     { name: 'iphone-14', use: { ...devices['iPhone 14'] }, testIgnore: /.perf.spec.ts$/ },
     // Performance traces (08 §8): Chromium with CPU throttling, run alone (`pnpm test:perf`, one worker) —
     // parallel workers compete for the CPU and make timings meaningless.

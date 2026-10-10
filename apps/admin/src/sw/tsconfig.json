@@ -1,0 +1,9 @@
+{
+  // The service worker runs in a WorkerGlobalScope: WebWorker lib, no DOM (excluded from ../../tsconfig.json).
+  "extends": "@mc/config/tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "WebWorker"],
+    "types": ["vite/client"]
+  },
+  "include": ["."]
+}

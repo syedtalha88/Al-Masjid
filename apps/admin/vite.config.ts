@@ -2,6 +2,7 @@ import { mcLocaleBoot } from '@mc/i18n/vite';
 import { BRAND } from '@mc/shared/brand';
 import { CLIENT_ENV_PREFIX, parseClientEnv } from '@mc/shared/env';
 import { fontBaseName, LOCALE_PRELOAD_FONTS } from '@mc/ui/fonts';
+import { mcPwa } from '@mc/ui/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
@@ -32,6 +33,7 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       brandHtml(),
       mcLocaleBoot({ preloadFonts }),
+      ...mcPwa({ app: 'admin' }),
     ],
     server: {
       port: 5174,
