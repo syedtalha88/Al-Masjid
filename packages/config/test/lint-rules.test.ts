@@ -175,6 +175,16 @@ describe('mc/no-adhoc-motion', () => {
     expect((await ruleIds(file, code)).filter((id) => id === 'mc/no-adhoc-motion')).toHaveLength(2);
   });
 
+  it('rejects hard-coded CSS timings in inline styles', async () => {
+    const transition = "export const A = () => <div style={{ transition: 'opacity 300ms ease' }} />;\n";
+    expect(await ruleIds(file, transition)).toContain('mc/no-adhoc-motion');
+    const curve = "export const s = { animationTimingFunction: 'cubic-bezier(0.3, 0, 0, 1)' };\n";
+    expect(await ruleIds(file, curve)).toContain('mc/no-adhoc-motion');
+    const preset =
+      "import { css } from '@mc/ui/motion';\nexport const s = { transition: css.ios.transition('opacity') };\n";
+    expect(await ruleIds(file, preset)).not.toContain('mc/no-adhoc-motion');
+  });
+
   it('allows presets referenced by name', async () => {
     const code =
       "import { spring } from '@mc/ui/motion';\nexport const A = () => <m.div transition={spring.smooth} />;\ndeclare const m: any;\n";

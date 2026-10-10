@@ -21,6 +21,29 @@ const TIMING_KEYS = new Set([
 
 const TIMING_UTILITY = /^(duration|delay)-(\d|\[)|^ease-\[/;
 
+// Inline CSS timing in style objects: { transition: 'opacity 300ms' }, { animationDuration: '1s' }.
+const CSS_TIMING_KEYS = new Set([
+  'transition',
+  'transitionDuration',
+  'transitionDelay',
+  'transitionTimingFunction',
+  'animation',
+  'animationDuration',
+  'animationDelay',
+  'animationTimingFunction',
+]);
+const CSS_TIME_OR_CURVE = /\d(\.\d+)?m?s\b|cubic-bezier\(/;
+
+/**
+ * True when a style value hard-codes a CSS duration/delay ("300ms", "0.2s") or a cubic-bezier curve.
+ * @param {import('estree').Node} node
+ */
+function hasCssTiming(node) {
+  if (node.type === 'Literal') return typeof node.value === 'string' && CSS_TIME_OR_CURVE.test(node.value);
+  if (node.type === 'TemplateLiteral') return node.quasis.some((quasi) => CSS_TIME_OR_CURVE.test(quasi.value.raw));
+  return false;
+}
+
 /**
  * Finds the first numeric literal anywhere inside `node` (objects, arrays, unary minus).
  * @param {import('estree').Node} node
@@ -99,7 +122,12 @@ export const noAdhocMotion = {
       Property(node) {
         classVisitor.Property(node);
         const key = node.key.type === 'Identifier' ? node.key.name : null;
-        if (key === 'transition') checkTransitionValue(/** @type {import('estree').Node} */ (node.value));
+        const value = /** @type {import('estree').Node} */ (node.value);
+        if (key === 'transition' && value.type !== 'Literal' && value.type !== 'TemplateLiteral') {
+          checkTransitionValue(value);
+        } else if (key !== null && CSS_TIMING_KEYS.has(key) && hasCssTiming(value)) {
+          context.report({ node: value, messageId: 'adhoc' });
+        }
       },
       /** @param {any} node JSXAttribute — <m.div transition={{ duration: 0.3 }} /> */
       JSXAttribute(node) {

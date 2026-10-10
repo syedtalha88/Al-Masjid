@@ -3,12 +3,16 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
   "description": "Design tokens, styles, fonts, icons, illustrations; components, motion and navigation follow (T0.6–T0.10).",
   "exports": {
     ".": "./src/index.ts",
     "./styles.css": "./styles.css",
     "./tokens": "./src/tokens/tokens.ts",
-    "./fonts": "./src/fonts/fonts.ts"
+    "./fonts": "./src/fonts/fonts.ts",
+    "./motion": "./src/motion/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -41,9 +45,11 @@
     "@fontsource-variable/noto-sans-telugu": "5.3.0",
     "@fontsource/amiri": "5.3.0",
     "@mc/i18n": "workspace:*",
+    "motion": "14.0.0",
     "tailwindcss": "4.3.3"
   },
   "peerDependencies": {
-    "react": "19.3.0"
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   }
 }

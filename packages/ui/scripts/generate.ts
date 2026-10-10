@@ -2,6 +2,7 @@
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
+import { motionCss } from '../src/motion/css.ts';
 import { tokensCss, typeCss } from '../src/tokens/css.ts';
 import { fontFallbacksCss, fontsCss } from './fonts-css.ts';
 
@@ -11,6 +12,7 @@ export const GENERATED = {
   'type.css': typeCss,
   'fonts.css': fontsCss,
   'font-fallbacks.css': fontFallbacksCss,
+  'motion.css': motionCss,
 } as const;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

@@ -1,4 +1,5 @@
 import { I18nProvider } from '@mc/i18n/react';
+import { MotionProvider } from '@mc/ui/motion';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -17,17 +18,19 @@ export function createQueryClient(): QueryClient {
 }
 
 /**
- * Root providers: i18n (locale already applied to `<html lang dir>` by `/boot.js`; the first namespaces load
+ * Root providers: motion (lazy features, reduced/lite prefs) → i18n (locale already applied to `<html lang dir>` by `/boot.js`; the first namespaces load
  * as one small JSON chunk) → TanStack Query → TanStack Router (owns error boundaries and Suspense).
  */
 export function AppProviders() {
   const [queryClient] = useState(createQueryClient);
   const [router] = useState(() => createAppRouter(queryClient));
   return (
-    <I18nProvider fallback={<RoutePending />}>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
-    </I18nProvider>
+    <MotionProvider>
+      <I18nProvider fallback={<RoutePending />}>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </I18nProvider>
+    </MotionProvider>
   );
 }
