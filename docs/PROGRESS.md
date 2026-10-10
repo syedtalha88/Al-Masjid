@@ -27,7 +27,7 @@
 - [ ] T0.3 — CI pipeline
 - [x] T0.4 — App & API scaffolds (API 48 tests incl. no-stack-trace, `?a[$ne]=1`, SIGTERM drain; server 14 tests; `pnpm dev` + `pnpm stack:up` verified live; Playwright smoke 12/12 on Pixel 7 + iPhone 14 through Caddy; containers non-root/read-only/cap-dropped; local Redis/Mongo security checks 11/11; hadolint clean — DECISIONS #37)
 - [ ] T0.5 — Security headers & CSP
-- [ ] T0.6 — Design tokens, Tailwind, fonts, base styles
+- [x] T0.6 — Design tokens, Tailwind, fonts, base styles (Tailwind 4.3 with default palette removed; tokens.ts → generated tokens.css/type.css; `type-*` scale with hi/te/ur + admin adjustments; contrast fixed for 26 pairs (closes F8); subset fonts per locale + /boot.js preloads + Capsize fallback metrics; 5 prayer icons, masjid tile, 3 illustrations; ui 52 tests, i18n 77; e2e 20/20 (only active-locale fonts download, CLS ≤ 0.01); zero raw colors in apps — DECISIONS #41)
 - [x] T0.7 — i18n foundation (`@mc/i18n`: i18next + ICU, lazy per-locale namespace chunks, typed keys, `formatters()` for ₹/numbers/times/dates/relative/Hijri stub/lists, external `/boot.js` sets `<html lang dir>` before paint, instant RTL switch, `<Bdi>/<Money>/<Time>`; `pnpm i18n:check` (all 09 §3 rules, grapheme-based lengths) + `pnpm i18n:review` CSVs (19 drafts × hi/ur/te awaiting human review); `glossary.md` drafts; both apps wired, `RouteError` translated; 72 unit tests; Playwright 18/18 incl. Urdu RTL boot on Pixel 7 + iPhone 14; i18n adds ≈29 KB gzip, `/` initial JS 130.8/170 KB — DECISIONS #38)
 - [ ] T0.8 — Motion foundation
 - [ ] T0.9 — Navigation system
@@ -44,7 +44,6 @@
 |---|---|---|---|
 | F1 | T0.1 | Move Node 24 → 26 when Node 26 enters Active LTS (28 Oct 2026): `.nvmrc`, `engines`, `@types/node`, Docker base image, CI (DECISIONS #32) | After 28 Oct 2026 (Phase 00 or 01) |
 | F2 | T0.2 | Prove client bundles contain only `VITE_PUBLIC_*`: Vite `envPrefix: VITE_PUBLIC_` + `parseClientEnv` at build, and the CI bundle secret scan | T0.4 + T0.3 |
-| F8 | Audit 9 Oct | `text-tertiary` (#8A938E) fails WCAG AA (2.97:1 on canvas); tag text colours ~4.2–4.4:1. Darken per 06 §2 and record in DECISIONS. | T0.6 |
 | F9 | Audit 9 Oct | PHASE_00 T0.14, 04 §12.1 and HANDOFF still describe SSH-from-CI deploys; superseded by DECISIONS #27 (WireGuard + pull deploys). Update those texts when implementing. | T0.3 / T0.14 |
 | F10 | Audit 9 Oct | Owner wants no paid services. Phase 1 needs an Atlas staging tier with custom roles + views + transactions — likely not the free tier (verify). Decide before Phase 1: paid Atlas tier vs. self-hosted MongoDB for staging. Production Atlas M10 (~$60–80/mo) is in the plan. | Before Phase 1 (owner) |
 | F11 | Audit 9 Oct | Vendored `.claude/skills` (ui-ux-pro-max, MIT) — keep an MIT LICENSE notice in the folder (public repo). | T0.15 |
@@ -57,6 +56,7 @@
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-10 | 00 / T0.6 | T0.6 done (DECISIONS #41): tokens, type scale, fonts, icons; fixed Urdu-rendered-in-Arial fallback bug found by e2e; hi/te font budget raised to 180 KB. Docker was not running — font e2e ran against vite preview. Next: T0.8 motion. |
 | 2026-10-10 | 00 / plan change | Owner: bayans = YouTube links only (DECISIONS #39), Cloudinary replaces AWS S3, logs stay on the VPS (DECISIONS #40; answers 1a 2a 3a). Env schema, .env.example, tests and all docs updated. Next: T0.6. |
 | 2026-10-09 | 00 / T0.7 | T0.7 done: i18n foundation, 72 tests, e2e 18/18, closed F4 + F7, added F14 (DECISIONS #38). Next: T0.6 design tokens. |
 | 2026-10-09 | 00 / T0.4 | Done. Dockerfiles (distroless server, non-root Caddy), dev + stack compose, Caddyfile, precompressed builds, Playwright smoke. Fixed on the way: Caddy root→non-root, source maps were served (now 404), `dev up` removed stack containers, health field `release`→`version` (F5). F5/F6 closed. |

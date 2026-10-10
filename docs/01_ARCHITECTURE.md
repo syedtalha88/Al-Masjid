@@ -266,7 +266,7 @@ Per-process env sets (Zod-validated at boot; missing/invalid → refuse to start
 | Initial JS (gzip) for `/` route | ≤ 170 KB |
 | Any lazy route chunk (gzip) | ≤ 60 KB |
 | Initial CSS (gzip) | ≤ 25 KB |
-| Fonts on first load | Only active-locale subset(s), `font-display: swap`, ≤ 120 KB (Urdu Nastaliq lazy ≤ 350 KB, loaded only for `ur`) |
+| Fonts on first load | Only active-locale subset(s), `font-display: swap`, ≤ 120 KB for `en`/`ur`, ≤ 180 KB for `hi`/`te` (their script variable fonts alone are ~121–124 KB — DECISIONS #41); Urdu Nastaliq lazy ≤ 350 KB, loaded only for `ur` |
 | LCP (cold) | ≤ 2.5 s |
 | LCP (warm, SW) | ≤ 1.0 s |
 | INP | ≤ 200 ms |
