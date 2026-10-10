@@ -20,7 +20,7 @@
 
 ## Current phase task checklist
 
-**Phase 00** — started 9 Oct 2026. Owner: Docker installed ✅; GitHub public repo ✅ (DECISIONS #28); DECISIONS #27–#31 + #35 accepted. Pending (needed for T0.5/T0.14): domain on Cloudflare, staging VPS details (already purchased), WireGuard setup together in T0.14.
+**Phase 00** — started 9 Oct 2026. Owner: Docker installed ✅; GitHub public repo ✅ (DECISIONS #28); DECISIONS #27–#31 + #35 accepted. Owner details (10 Oct 2026): domain **almasjids.com** on Cloudflare (nameservers switched) ✅; VPS **Hostinger Mumbai, 4 vCPU / 16 GB, Ubuntu 24.04, static IPv4**, one VPS for staging + production (DECISIONS #42) ✅; Cloudinary cloud name `g0ytozsb` (not a secret; API keys go only into VPS env files) ✅; test phones **iPhone + Poco F7** (Poco F7 is mid/high-end — low-end checks keep using throttled Moto-G-class profiles) ✅. Pending: WireGuard + VPS setup together in T0.14; Sentry DSNs (optional).
 
 - [x] T0.1 — Monorepo bootstrap (clean-clone `pnpm install && pnpm verify:quick` green; 5 lint violations proven — `docs/reports/evidence/PHASE_00_T0.1_lint-proof.txt`; Turbo full cache hit 31/31)
 - [x] T0.2 — Env & config (`packages/shared/src/env.ts`: 4 server + 2 client schemas, forbidden-var boot assertion, name-only errors with leak test; `.env.example` + sync test; `brand.ts`; 49 tests, 100% lines. Bundle-level `VITE_PUBLIC_*` proof → F2)

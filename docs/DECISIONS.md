@@ -113,7 +113,7 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 4. **Tests for every cell** of the matrix (allowed and denied), plus DB-privilege tests that connect as each MongoDB user and prove forbidden operations fail with `Unauthorized` — the equivalent of the old pgTAP suite (10 §1).
 **Consequences:** Cross-tenant isolation for admins is enforced in code (layer 2) rather than in the database engine; layers 3–4 and the import ban compensate. Any new collection or repository method must add its policy cells and tests in the same commit.
 
-### #21 — Hosting: VPS + Docker Compose + Caddy + Cloudflare — ACCEPTED
+### #21 — Hosting: VPS + Docker Compose + Caddy + Cloudflare — ACCEPTED (amended by #42: one VPS for staging + production)
 **Decision:**
 - One VPS per environment (staging, production), Ubuntu LTS, in **Mumbai** (same region as Atlas for ~1–2 ms DB latency). Suggested providers with a Mumbai region: AWS Lightsail/EC2, Vultr, Akamai/Linode, DigitalOcean (Bangalore is acceptable if Mumbai isn't offered; measure DB latency). Owner picks; Claude Code verifies latency in T0.14/T1.1.
 - Docker Compose services: `caddy` (static SPA files + reverse proxy + security headers for static files), `api-public` (×2 replicas), `api-admin` (×2), `worker` (×1–2), `redis`. Containers run as non-root with read-only root filesystems.
@@ -262,6 +262,16 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **Fallback metrics:** Capsize-generated `Inter Fallback: Arial/Roboto` faces (size-adjust/ascent/descent overrides) **restricted to Inter's Latin `unicode-range`** — unrestricted, Arial's Arabic glyphs would have drawn Urdu text instead of Nastaliq (caught by the e2e). Measured CLS ≤ 0.01 for all four locales (Chromium Layout Instability API; Lighthouse CI arrives with T0.12).
 - **Budget deviation (01 §9 "fonts on first load ≤ 120 KB"):** met for `en` (48 KB) and `ur` (48 KB first, Nastaliq 239 KB lazy ≤ 350 KB). `hi` = 48 + 121 KB and `te` = 48 + 124 KB ≈ 170 KB: the Devanagari/Telugu variable fonts alone exceed 120 KB, and static weights would be larger. Accepted per-locale budget: ≤ 180 KB for `hi`/`te`. Cheaper later options if needed: `local()` system Noto first (Android ships it), or a custom glyph subset.
 - **Apps:** new runtime dependency `@mc/ui` (workspace) — JS impact 0 KB today (`/` initial JS unchanged at 130.81 KB gz); CSS 3.6 KB gz. Icons: 5 custom prayer icons + masjid glyph/tile on Phosphor's 256-grid/1.5px stroke, 3 illustrations (< 4 KB each, tested); all colored by token classes.
+
+### #42 — One VPS hosts staging and production — ACCEPTED (owner, 10 Oct 2026; amends #21)
+**Context:** Owner has one Hostinger VPS (Mumbai, 4 vCPU / 16 GB, Ubuntu 24.04, static IPv4) and wants no second server. #21 assumed one VPS per environment.
+**Decision:** Staging and production run as two **separate Docker Compose projects** on the same host, isolated as far as one machine allows:
+- separate Compose project names, networks, Redis containers (own ACL passwords), env directories (`/etc/masjid-connect/staging/`, `/etc/masjid-connect/production/`, mode 600), images pinned by digest, and deploy users/keys; no shared volumes;
+- separate MongoDB Atlas projects/users and Cloudinary folders + API keys, so a staging credential never opens production data;
+- one host Caddy is not shared: each project has its own Caddy bound to distinct internal ports, fronted by a small host-level router (or one Caddy with strictly separate site blocks — chosen in T0.14), all behind Cloudflare with Authenticated Origin Pulls;
+- per-project CPU/memory limits so a staging load test cannot starve production; staging is stopped during production incidents if needed;
+- hostnames: `app.almasjids.com`, `admin.almasjids.com`, `media.almasjids.com` (production) and `app-staging.`, `admin-staging.`, `media-staging.` (staging).
+**Consequences / accepted risk:** a host-level compromise (e.g. via a staging container escape or a leaked staging deploy key) reaches production too, and kernel/Docker upgrades restart both. Mitigations above; the deploy runbook (T0.14) and the Phase 9 hardening review re-check this. Owner can add a second VPS later without code changes.
 
 ---
 
