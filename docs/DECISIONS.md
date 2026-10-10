@@ -313,6 +313,17 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 
 ---
 
+### #46 — PWA baseline (T0.11) — ACCEPTED (11 Oct 2026)
+**Decision:**
+- **vite-plugin-pwa 1.3.0** (May 2026; supports Vite 8, Workbox 7.4.1) — not the 8-day-old 2.0.0 major; Renovate moves us later. `injectManifest` with our own service workers (`apps/*/src/sw/sw.ts`, own `tsconfig.json` with the WebWorker lib); Workbox modules are build-time dev dependencies bundled into `sw.js` (8.8 KB gz), never into the app. Registration is ours (`@mc/ui/pwa` `useServiceWorker`), not the plugin's virtual module. Shared build setup: `@mc/ui/vite` `mcPwa({ app })`.
+- **Manifest** emitted from `webManifest()` (`@mc/shared/pwa`, unit-tested — DECISIONS #30): `id`/`scope` `/`, `start_url` `/?source=pwa`, standalone, portrait, canvas colors, 192/512 any + maskable, 96 monochrome badge; the musalli app adds `launch_handler: focus-existing` and shortcuts (Qibla, Updates — routes arrive in Phases 2/7). Name/colors only from `BRAND`; the admin mark uses primary-900 so the two installed apps differ.
+- **Icons and launch screens** are rendered from one SVG (`@mc/shared/brand-mark`) by `pnpm pwa:assets` with Playwright's Chromium (no image toolchain dependency) and committed. Ten iPhone launch screens (`apple-touch-startup-image` with device media queries).
+- **Caching (01 §5.6):** precache = the shell (JS/CSS/HTML, Inter, icons, manifest, offline page). Per-locale chunks and script fonts are runtime CacheFirst, so a phone stores only its own locale; on the first visit the page hands the worker the asset URLs it already loaded (`CACHE_URLS`) so offline works without another reload. Musalli SW also routes media images (CacheFirst 300/30 d), versioned API GETs (CacheFirst) and the versions endpoint (NetworkFirst 3 s). Admin SW has no API route at all (verified in e2e: no `/api` URL in any cache).
+- **Update flow:** a new worker waits; `useServiceWorker` exposes `updateAvailable`, the persistent toast's Refresh posts `SKIP_WAITING`, and the page reloads only on the resulting `controllerchange` after that tap. Checks for updates hourly and on returning to the foreground. Release id stamped as `<meta name="mc-release">` (`MC_RELEASE`, reused by Sentry in T0.13).
+- **Offline page** (`offline.html`, generated at build): the app stylesheet + the offline message in all four languages from the i18n catalogs; no inline script/style (CSP). `AppSurfaces` (offline banner + update toast) is mounted in both apps inside a `ToastProvider`.
+- **Caddy:** `offline.html` no-cache, `.webmanifest` served as `application/manifest+json`, icons/splash 1 day.
+- **Tests:** Chromium refuses service workers on a self-signed origin even with `ignoreHTTPSErrors`, so the Pixel 7 project launches with `--ignore-certificate-errors` (test browsers only). Installability (CDP), admin-no-API, offline reload and the two-build update flow run on Chromium; Playwright's WebKit is not used for service-worker lifecycle checks — the owner's iPhone install check (guide 0.10) covers iOS.
+
 ## OPEN
 
 _None._
