@@ -45,3 +45,17 @@ export function MotionProvider({ children, features = loadFeatures }: MotionProv
 export function useMotionPrefs(): MotionPrefs {
   return use(MotionPrefsContext);
 }
+
+/**
+ * Overrides the motion preferences for a subtree — the dev showcase's reduced/lite toggles. JS-driven motion
+ * follows it; CSS-only utilities keep following the OS `prefers-reduced-motion` (emulate it in DevTools).
+ */
+export function MotionPrefsOverride({
+  value,
+  children,
+}: {
+  readonly value: MotionPrefs;
+  readonly children: ReactNode;
+}) {
+  return <MotionPrefsContext value={value}>{children}</MotionPrefsContext>;
+}

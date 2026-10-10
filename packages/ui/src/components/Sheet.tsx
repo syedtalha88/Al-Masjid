@@ -14,6 +14,7 @@ import { XIcon } from '../icons/glyphs.tsx';
 import { useMotionPrefs } from '../motion/MotionProvider.tsx';
 import { animateChannel, getChannel, holdLayer, initLayer, setChannel } from '../navigation/driver.ts';
 import { IconButton } from './Button.tsx';
+import { wrapTab } from './focus.ts';
 
 export type SheetSnap = 'content' | 'full';
 
@@ -262,9 +263,13 @@ export function Sheet({ open, onClose, title, snaps = ['content'], closeButton =
   if (!mounted) return null;
   const full = snaps.includes('full');
   return (
+    // eslint-disable-next-line jsx-a11y-x/no-noninteractive-element-interactions -- the modal manages Tab for its focus trap (APG dialog pattern)
     <dialog
       ref={dialog}
       aria-labelledby={titleId}
+      onKeyDown={(event) => {
+        wrapTab(event, dialog.current);
+      }}
       onCancel={(event) => {
         // Esc: animate out through the normal close path instead of the browser's instant close.
         event.preventDefault();

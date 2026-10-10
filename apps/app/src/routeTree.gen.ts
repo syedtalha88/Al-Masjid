@@ -14,6 +14,7 @@ import { Route as MasjidsRouteImport } from './routes/masjids'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as UpdatesRouteImport } from './routes/updates'
+import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase'
 import { Route as DemoNumberRouteImport } from './routes/demo.$number'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +42,11 @@ const UpdatesRoute = UpdatesRouteImport.update({
   path: '/updates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevShowcaseRoute = DevShowcaseRouteImport.update({
+  id: '/_dev/showcase',
+  path: '/_dev/showcase',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoNumberRoute = DemoNumberRouteImport.update({
   id: '/demo/$number',
   path: '/demo/$number',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/scan': typeof ScanRoute
   '/settings': typeof SettingsRoute
   '/updates': typeof UpdatesRoute
+  '/_dev/showcase': typeof DevShowcaseRoute
   '/demo/$number': typeof DemoNumberRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/scan': typeof ScanRoute
   '/settings': typeof SettingsRoute
   '/updates': typeof UpdatesRoute
+  '/_dev/showcase': typeof DevShowcaseRoute
   '/demo/$number': typeof DemoNumberRoute
 }
 export interface FileRoutesById {
@@ -70,14 +78,28 @@ export interface FileRoutesById {
   '/scan': typeof ScanRoute
   '/settings': typeof SettingsRoute
   '/updates': typeof UpdatesRoute
+  '/_dev/showcase': typeof DevShowcaseRoute
   '/demo/$number': typeof DemoNumberRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/masjids' | '/scan' | '/settings' | '/updates' | '/demo/$number'
+    | '/'
+    | '/masjids'
+    | '/scan'
+    | '/settings'
+    | '/updates'
+    | '/_dev/showcase'
+    | '/demo/$number'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/masjids' | '/scan' | '/settings' | '/updates' | '/demo/$number'
+  to:
+    | '/'
+    | '/masjids'
+    | '/scan'
+    | '/settings'
+    | '/updates'
+    | '/_dev/showcase'
+    | '/demo/$number'
   id:
     | '__root__'
     | '/'
@@ -85,6 +107,7 @@ export interface FileRouteTypes {
     | '/scan'
     | '/settings'
     | '/updates'
+    | '/_dev/showcase'
     | '/demo/$number'
   fileRoutesById: FileRoutesById
 }
@@ -94,6 +117,7 @@ export interface RootRouteChildren {
   ScanRoute: typeof ScanRoute
   SettingsRoute: typeof SettingsRoute
   UpdatesRoute: typeof UpdatesRoute
+  DevShowcaseRoute: typeof DevShowcaseRoute
   DemoNumberRoute: typeof DemoNumberRoute
 }
 
@@ -134,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UpdatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_dev/showcase': {
+      id: '/_dev/showcase'
+      path: '/_dev/showcase'
+      fullPath: '/_dev/showcase'
+      preLoaderRoute: typeof DevShowcaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/$number': {
       id: '/demo/$number'
       path: '/demo/$number'
@@ -150,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   ScanRoute: ScanRoute,
   SettingsRoute: SettingsRoute,
   UpdatesRoute: UpdatesRoute,
+  DevShowcaseRoute: DevShowcaseRoute,
   DemoNumberRoute: DemoNumberRoute,
 }
 export const routeTree = rootRouteImport

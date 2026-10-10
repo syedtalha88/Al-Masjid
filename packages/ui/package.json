@@ -15,7 +15,8 @@
     "./components": "./src/components/index.ts",
     "./icons": "./src/icons/index.ts",
     "./motion": "./src/motion/index.ts",
-    "./navigation": "./src/navigation/index.ts"
+    "./navigation": "./src/navigation/index.ts",
+    "./showcase": "./src/showcase/Showcase.tsx"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

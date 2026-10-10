@@ -224,3 +224,27 @@ describe('install (07 Onboarding step 6)', () => {
     expect(screen.getByText('Open Masjid Connect from your Home Screen')).toBeTruthy();
   });
 });
+
+describe('TabBar badge (06 §6)', () => {
+  it('shows the unseen count on Updates and includes it in the tab name', async () => {
+    const { TabBar } = await import('../src/navigation/TabBar.tsx');
+    const { UpdatesIcon, HomeIcon } = await import('../src/navigation/icons.tsx');
+    await renderUi(
+      <TabBar
+        api={navigator}
+        label="Main"
+        start={[
+          { id: 'home', label: 'Home', Icon: HomeIcon },
+          { id: 'masjids', label: 'My Masjids', Icon: HomeIcon },
+        ]}
+        end={[
+          { id: 'updates', label: 'Updates', Icon: UpdatesIcon, badge: 3 },
+          { id: 'settings', label: 'Settings', Icon: HomeIcon },
+        ]}
+        scan={{ label: 'Scan QR code', href: '/scan' }}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Updates, 3 new' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Home' })).toBeTruthy();
+  });
+});

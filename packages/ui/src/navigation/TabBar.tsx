@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 
+import { CountBadge } from '../components/Badges.tsx';
 import { Pressable } from '../motion/Pressable.tsx';
 import type { NavigatorApi } from './context.ts';
 import { ScanIcon, type WeightedIconProps } from './icons.tsx';
@@ -8,6 +9,8 @@ export interface TabItem {
   readonly id: string;
   readonly label: string;
   readonly Icon: ComponentType<WeightedIconProps>;
+  /** Unseen items (Updates — 06 §6): a red count on the icon, part of the tab's accessible name. */
+  readonly badge?: number;
 }
 
 export interface TabBarProps {
@@ -32,8 +35,18 @@ function TabButton({ item, active, onSelect }: { item: TabItem; active: boolean;
           active ? 'text-primary-700' : 'text-text-tertiary'
         }`}
       >
-        <Icon weight={active ? 'fill' : 'regular'} />
+        {/* The visible badge sits on the icon; the spoken count follows the label ("Updates, 3 new"). */}
+        <span className="relative inline-flex" aria-hidden>
+          <Icon weight={active ? 'fill' : 'regular'} />
+          {item.badge ? <CountBadge count={item.badge} className="absolute -top-1.5 -end-2.5" /> : null}
+        </span>
         <span>{item.label}</span>
+        {item.badge ? (
+          <span className="sr-only">
+            {', '}
+            <CountBadge count={item.badge} />
+          </span>
+        ) : null}
       </Pressable>
     </li>
   );

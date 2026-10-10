@@ -4,6 +4,7 @@ import { type ReactNode, useEffect, useId, useLayoutEffect, useRef, useState } f
 import { useMotionPrefs } from '../motion/MotionProvider.tsx';
 import { animateChannel, initLayer } from '../navigation/driver.ts';
 import { Button } from './Button.tsx';
+import { wrapTab } from './focus.ts';
 
 export interface DialogProps {
   readonly open: boolean;
@@ -87,11 +88,15 @@ export function Dialog({
 
   if (!mounted) return null;
   return (
+    // eslint-disable-next-line jsx-a11y-x/no-noninteractive-element-interactions -- the modal manages Tab for its focus trap (APG dialog pattern)
     <dialog
       ref={dialog}
       role={destructive ? 'alertdialog' : undefined}
       aria-labelledby={titleId}
       aria-describedby={bodyId}
+      onKeyDown={(event) => {
+        wrapTab(event, dialog.current);
+      }}
       onCancel={(event) => {
         event.preventDefault();
         if (!loading) onClose();

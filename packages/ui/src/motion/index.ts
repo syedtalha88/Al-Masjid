@@ -3,7 +3,13 @@ export { CountUp, type CountUpProps } from './CountUp.tsx';
 export { DigitRoll, type DigitRollProps } from './DigitRoll.tsx';
 export { haptic, type HapticKind, HAPTICS, isHapticsEnabled, setHapticsEnabled, useHaptics } from './haptics.ts';
 export { type DeviceHints, isLowEndDevice, JANK, JankMonitor, trackMotion, useLiteMotion } from './lite.ts';
-export { type MotionPrefs, MotionProvider, type MotionProviderProps, useMotionPrefs } from './MotionProvider.tsx';
+export {
+  type MotionPrefs,
+  MotionPrefsOverride,
+  MotionProvider,
+  type MotionProviderProps,
+  useMotionPrefs,
+} from './MotionProvider.tsx';
 export { CROSSFADE, motionOrFade, type Presence } from './presence.ts';
 export { Pressable, type PressableProps } from './Pressable.tsx';
 export { useReducedMotionPref } from './reduced.ts';
