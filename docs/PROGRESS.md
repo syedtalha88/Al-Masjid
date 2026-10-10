@@ -54,11 +54,13 @@
 | F16 | T0.8 | Haptics "Vibration" setting lives in memory; persist it in the device store (IndexedDB) and add the Settings toggle | Phase 2 (Settings) |
 | F17 | T0.9 | Confirm on the owner's iPhone (installed app + Safari) that iOS gives no native back swipe in standalone mode and that Safari's own swipe does not double-animate; adjust the platform rule if needed (DECISIONS #44) | T0.14 (needs staging URL) |
 | F18 | T0.9 | Phase 0 placeholder screens (`/demo/$number`, placeholder tab roots/Scan, tall spacer) exist only to exercise navigation; replace with real screens | Phase 2 |
+| F19 | Owner 10 Oct | Owner rule: never trade quality for small KB savings (10–20 KB is fine). Revert the stack navigator animations from CSS transitions back to Motion (MotionValues + `animate`, swipe-release velocity hand-off, interruptible springs) — DECISIONS #44 to be amended; re-run navigation e2e + perf | Start of next session, before T0.10 |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-10 | 00 / pause | Paused by owner. Owner rule: quality over bundle size (10–20 KB acceptable). **Next session: F19 first (navigator back to Motion), then T0.10.** |
 | 2026-10-10 | 00 / T0.9 | T0.9 done (DECISIONS #44): history-driven stack navigator, tab bar, swipe-back, modal, focus/inert, perf; switched navigator animations to CSS spring curves (−12 KB). e2e found & fixed: swipe pointer capture, WebKit focus, flick velocity noise. Next: T0.10 component library. |
 | 2026-10-10 | 00 / T0.8 | T0.8 done (DECISIONS #43). Owner details recorded (domain almasjids.com, Hostinger VPS shared by staging+prod — DECISIONS #42, Cloudinary g0ytozsb, iPhone + Poco F7). Docker running again; full e2e 38/38. Next: T0.9 navigation. |
 | 2026-10-10 | 00 / T0.6 | T0.6 done (DECISIONS #41): tokens, type scale, fonts, icons; fixed Urdu-rendered-in-Arial fallback bug found by e2e; hi/te font budget raised to 180 KB. Docker was not running — font e2e ran against vite preview. Next: T0.8 motion. |
