@@ -6,6 +6,7 @@
   "description": "Locales (en, hi, ur, te), i18next setup, formatters, RTL boot, i18n:check (09_I18N).",
   "exports": {
     ".": "./src/index.ts",
+    "./locales": "./src/locales.ts",
     "./react": "./src/react.tsx",
     "./vite": "./src/vite-plugin.ts",
     "./format": "./src/format.ts"

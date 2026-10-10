@@ -1,0 +1,10 @@
+/*
+ * @mc/ui stylesheet entry (imported by each app's src/styles.css). Tailwind's automatic source detection is
+ * off; each app declares its own @source paths (its src + packages/ui/src).
+ */
+@import 'tailwindcss' source(none);
+@import './tokens.css';
+@import './type.css';
+@import './font-fallbacks.css';
+@import './fonts.css';
+@import './base.css';

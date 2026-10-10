@@ -3,19 +3,47 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Design tokens, components, motion presets, navigation, icons. From T0.6.",
+  "description": "Design tokens, styles, fonts, icons, illustrations; components, motion and navigation follow (T0.6–T0.10).",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./styles.css": "./styles.css",
+    "./tokens": "./src/tokens/tokens.ts",
+    "./fonts": "./src/fonts/fonts.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --max-warnings 0",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run",
+    "generate": "tsx scripts/generate.ts"
   },
   "devDependencies": {
+    "@capsizecss/core": "4.1.3",
+    "@capsizecss/metrics": "4.3.0",
     "@mc/config": "workspace:*",
+    "@mc/shared": "workspace:*",
+    "@testing-library/dom": "10.4.2",
+    "@testing-library/react": "16.3.3",
+    "@types/node": "24.19.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "eslint": "10.12.0",
+    "jsdom": "30.1.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "tsx": "4.23.15",
     "typescript": "6.0.3",
     "vitest": "5.0.3"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "5.3.0",
+    "@fontsource-variable/noto-nastaliq-urdu": "5.3.0",
+    "@fontsource-variable/noto-sans-devanagari": "5.3.0",
+    "@fontsource-variable/noto-sans-telugu": "5.3.0",
+    "@fontsource/amiri": "5.3.0",
+    "@mc/i18n": "workspace:*",
+    "tailwindcss": "4.3.3"
+  },
+  "peerDependencies": {
+    "react": "19.3.0"
   }
 }

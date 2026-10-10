@@ -31,5 +31,9 @@
   "countdown.minutes": {
     "context": "Time left when under an hour, e.g. \"48m left\"",
     "maxLength": 16
+  },
+  "home.greeting": {
+    "context": "Greeting above the masjid list on Home (Islamic greeting, as in the reference design)",
+    "maxLength": 28
   }
 }

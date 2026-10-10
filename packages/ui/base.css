@@ -1,0 +1,81 @@
+/* Base styles (PHASE_00 T0.6, 06 §4). Tokens only — no raw colors here either. */
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-ui);
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply type-body;
+    min-height: 100dvh;
+    background-color: var(--color-bg);
+    /* App-like feel: no rubber-band of the whole page; scrollers opt in to their own behaviour. */
+    overscroll-behavior-y: none;
+  }
+
+  ::selection {
+    background-color: var(--color-mint-200);
+    color: var(--color-primary-900);
+  }
+
+  /* 2px focus ring + 2px offset on keyboard focus only (06 §2 `--color-focus`). */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* Arabic religious text is never mirrored or re-styled by the UI locale (06 §6 ArabicText). */
+  :lang(ar) {
+    font-family: var(--font-arabic);
+    letter-spacing: 0;
+  }
+}
+
+/* A scrolling region that keeps its overscroll to itself (no scroll chaining to the page). */
+@utility scroller {
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* A horizontal scroller (chip rows, carousels). */
+@utility scroller-x {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+ * Safe areas (06 §4, `viewport-fit=cover`). Physical sides are intentional here: device insets do not flip
+ * with text direction, so `px-safe` pads both sides by their own inset.
+ */
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility px-safe {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Screen gutter that also respects horizontal safe areas (landscape notches). */
+@utility px-screen {
+  padding-left: max(var(--mc-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--mc-gutter), env(safe-area-inset-right));
+}

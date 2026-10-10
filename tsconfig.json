@@ -1,4 +1,8 @@
 {
   "extends": "./packages/config/tsconfig.node.json",
+  "compilerOptions": {
+    // Playwright specs pass callbacks that run in the browser (page.evaluate / addInitScript).
+    "lib": ["ES2023", "DOM", "DOM.Iterable"]
+  },
   "include": ["playwright.config.ts", "e2e"]
 }

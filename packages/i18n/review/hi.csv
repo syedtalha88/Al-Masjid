@@ -8,6 +8,7 @@ common,language.choose,Choose your language,अपनी भाषा चुन�
 common,newUpdates,"{count, plural, one {# new update} other {# new updates}}","{count, plural, one {# नया अपडेट} other {# नए अपडेट}}",no
 common,countdown.hoursMinutes,{hours}h {minutes}m left,{hours} घं {minutes} मि बाकी,no
 common,countdown.minutes,{minutes}m left,{minutes} मि बाकी,no
+common,home.greeting,Assalamu Alaikum,अस्सलामु अलैकुम,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,यह नहीं मिला। हो सकता है इसे हटा दिया गया हो।,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,यह काम यहाँ उपलब्ध नहीं है।,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,कुछ जानकारी गलत लग रही है। कृपया जाँचकर फिर कोशिश करें।,no

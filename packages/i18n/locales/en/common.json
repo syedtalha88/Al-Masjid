@@ -13,5 +13,8 @@
   "countdown": {
     "hoursMinutes": "{hours}h {minutes}m left",
     "minutes": "{minutes}m left"
+  },
+  "home": {
+    "greeting": "Assalamu Alaikum"
   }
 }

@@ -1,9 +1,16 @@
 import { mcLocaleBoot } from '@mc/i18n/vite';
 import { BRAND } from '@mc/shared/brand';
 import { CLIENT_ENV_PREFIX, parseClientEnv } from '@mc/shared/env';
+import { fontBaseName, LOCALE_PRELOAD_FONTS } from '@mc/ui/fonts';
+import tailwindcss from '@tailwindcss/vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
+
+/** Active-locale UI fonts preloaded by /boot.js (09 §6). */
+const preloadFonts = Object.fromEntries(
+  Object.entries(LOCALE_PRELOAD_FONTS).map(([locale, keys]) => [locale, keys.map(fontBaseName)]),
+);
 
 /** Fills `%MC_APP_NAME%` / `%MC_THEME_COLOR%` in index.html from brand.ts (single source; no hex in apps/**). */
 const brandHtml = (): Plugin => ({
@@ -19,7 +26,13 @@ export default defineConfig(({ mode }) => {
 
   return {
     envPrefix: CLIENT_ENV_PREFIX,
-    plugins: [tanstackRouter({ target: 'react', autoCodeSplitting: true }), react(), brandHtml(), mcLocaleBoot()],
+    plugins: [
+      tanstackRouter({ target: 'react', autoCodeSplitting: true }),
+      react(),
+      tailwindcss(),
+      brandHtml(),
+      mcLocaleBoot({ preloadFonts }),
+    ],
     server: {
       port: 5173,
       strictPort: true,

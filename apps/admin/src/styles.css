@@ -1,0 +1,6 @@
+/* App stylesheet: design system from @mc/ui; Tailwind scans this app and the UI package only. */
+@import '@mc/ui/styles.css';
+@source './';
+@source '../../../packages/ui/src';
+@source not '../../../packages/ui/src/tokens';
+@source not '../../../packages/ui/src/fonts';

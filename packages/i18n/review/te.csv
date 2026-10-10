@@ -8,6 +8,7 @@ common,language.choose,Choose your language,మీ భాషను ఎంచు�
 common,newUpdates,"{count, plural, one {# new update} other {# new updates}}","{count, plural, one {# కొత్త అప్‌డేట్} other {# కొత్త అప్‌డేట్‌లు}}",no
 common,countdown.hoursMinutes,{hours}h {minutes}m left,{hours}గం {minutes}ని మిగిలింది,no
 common,countdown.minutes,{minutes}m left,{minutes}ని మిగిలింది,no
+common,home.greeting,Assalamu Alaikum,అస్సలాము అలైకుమ్,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,ఇది కనిపించలేదు. ఇది తొలగించబడి ఉండవచ్చు.,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,కొన్ని వివరాలు సరిగా లేవు. దయచేసి చూసి మళ్లీ ప్రయత్నించండి.,no

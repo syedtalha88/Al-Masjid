@@ -13,5 +13,8 @@
   "countdown": {
     "hoursMinutes": "{hours}గం {minutes}ని మిగిలింది",
     "minutes": "{minutes}ని మిగిలింది"
+  },
+  "home": {
+    "greeting": "అస్సలాము అలైకుమ్"
   }
 }
