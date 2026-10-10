@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
+import { spring as springGenerator } from 'motion';
 import { domAnimation } from 'motion/react';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,7 +15,7 @@ import { CROSSFADE, motionOrFade } from '../src/motion/presence.ts';
 import { Pressable } from '../src/motion/Pressable.tsx';
 import { useReducedMotionPref } from '../src/motion/reduced.ts';
 import { SuccessCheck } from '../src/motion/SuccessCheck.tsx';
-import { css, gesture, press, spring, stagger, tween } from '../src/motion/tokens.ts';
+import { css, gesture, press, spring, springPhysics, stagger, tween } from '../src/motion/tokens.ts';
 
 const REDUCE = '(prefers-reduced-motion: reduce)';
 
@@ -81,6 +82,21 @@ describe('tokens (08 §2)', () => {
     for (const name of Object.keys(spring))
       expect(generated).toMatch(new RegExp(`--mc-spring-${name}: \\d+ms linear\\(`));
     expect(generated.indexOf('var(--mc-ease-ios)')).toBeLessThan(generated.indexOf('var(--mc-spring-snappy)'));
+  });
+
+  it('springPhysics is the same curve as the visualDuration spring, and honours a starting velocity', () => {
+    for (const token of [spring.snappy, spring.smooth, spring.gentle, spring.bouncy]) {
+      const timed = springGenerator({
+        keyframes: [0, 100],
+        visualDuration: token.visualDuration,
+        bounce: token.bounce,
+      });
+      const physics = springGenerator({ keyframes: [0, 100], ...springPhysics(token) });
+      for (let ms = 0; ms <= 1000; ms += 25) expect(physics.next(ms).value).toBeCloseTo(timed.next(ms).value, 6);
+    }
+    const sample = (velocity: number) =>
+      springGenerator({ keyframes: [0, 100], ...springPhysics(spring.smooth), velocity }).next(50).value;
+    expect(sample(2000)).toBeGreaterThan(sample(0) + 10);
   });
 });
 

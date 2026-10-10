@@ -38,13 +38,9 @@ async function drag(page: Page, fromX: number, toX: number, durationMs: number) 
   await page.mouse.up();
 }
 
-/** Waits until no screen is mid-transition (CSS transitions settled). */
+/** Waits until no navigator layer is moving (the driver marks moving layers with `data-animating`). */
 async function settle(page: Page) {
-  await page.waitForFunction(() =>
-    [...document.querySelectorAll<HTMLElement>('section[data-screen]')].every(
-      (element) => element.getAnimations().length === 0,
-    ),
-  );
+  await page.waitForFunction(() => document.querySelector('[data-animating]') === null);
 }
 
 test.beforeEach(async ({ page }) => {

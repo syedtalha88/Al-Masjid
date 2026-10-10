@@ -17,6 +17,26 @@ export const spring = {
 
 export type SpringToken = keyof typeof spring;
 
+/**
+ * The same spring as a physics spring (`stiffness`/`damping`/`mass`). Motion treats `visualDuration`/`bounce`
+ * springs as time-defined and ignores any starting velocity (Motion 14), so animations that must carry a
+ * velocity — swipe releases and interrupted navigation (08 §1.2, §3.2) — use this form. Same conversion as
+ * Motion's own (`stiffness = (2π / (1.2 · visualDuration))²`, damping ratio `1 − bounce`); proven equal by test.
+ *
+ * @param token - a spring token with `bounce >= 0`.
+ * @returns a Motion spring transition that honours `velocity`.
+ */
+export function springPhysics(token: (typeof spring)[SpringToken]) {
+  const dampingRatio = 1 - token.bounce;
+  const stiffness = ((2 * Math.PI) / (token.visualDuration * 1.2)) ** 2;
+  return {
+    type: 'spring',
+    stiffness,
+    damping: 2 * dampingRatio * Math.sqrt(stiffness),
+    mass: 1,
+  } as const satisfies Transition;
+}
+
 /** Tweens (seconds). */
 export const tween = {
   /** Crossfades and the reduced-motion replacement for every movement. */
@@ -73,8 +93,6 @@ export const navigation = {
   velocityWindowMs: 100,
   /** Without requestIdleCallback (Safari), tab-root code is preloaded this long after start, ms. */
   idlePreloadDelayMs: 1500,
-  /** Safety net: a screen whose exit animation was interrupted is removed after this, ms. */
-  settleTimeoutMs: 1200,
 } as const;
 
 /** Gesture thresholds (08 §2, §5.1). */

@@ -16,9 +16,11 @@ import {
 
 import { trackMotion } from '../motion/lite.ts';
 import { useMotionPrefs } from '../motion/MotionProvider.tsx';
-import { gesture, navigation } from '../motion/tokens.ts';
+import { navigation } from '../motion/tokens.ts';
 import type { AdapterLocation, NavAdapter, ResolvedScreen } from './adapter.ts';
 import { type NavigatorApi, NavigatorContext, ScreenContext, type ScreenInfo } from './context.ts';
+import { animateChannel, getChannel, holdLayer, initLayer, setChannel, translateX } from './driver.ts';
+import { type Sample, swipeRelease } from './gesture.ts';
 import {
   type Entry,
   finishLeaving,
@@ -29,7 +31,6 @@ import {
   reduceLocation,
 } from './model.ts';
 import { isIOSSafariBrowser } from './platform.ts';
-import { transitionTo, translateX } from './transition.ts';
 
 /** DOM nodes of one mounted screen: the sliding section and its dim overlay. */
 interface Registered {
@@ -53,6 +54,7 @@ export interface StackNavigatorProps {
 const direction = (): 1 | -1 => (document.documentElement.dir === 'rtl' ? -1 : 1);
 const coveredX = () => -navigation.coveredOffsetPct * direction();
 const offscreenX = () => 100 * direction();
+const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
 
 function focusTitle(element: HTMLElement | undefined | null) {
   if (!element) return;
@@ -67,7 +69,8 @@ const scrollerOf = (element: HTMLElement | undefined | null) =>
  * iOS-style stack navigator on top of browser history (08 §3): per-tab stacks, push/pop with parallax and
  * dim, interactive edge swipe-back, tab switching that keeps stacks and scroll, full-screen modals with a
  * scaled background, focus management and `inert` on covered screens. Reduced motion → crossfades; lite
- * motion → no modal background scale. Animations are compositor CSS transitions (DECISIONS #44).
+ * motion → no modal background scale. Animations are interruptible Motion springs on MotionValues; a swipe
+ * release hands its velocity to the spring (DECISIONS #44).
  */
 export function StackNavigator({
   adapter,
@@ -172,7 +175,14 @@ export function StackNavigator({
     };
   }, [adapter, config, state, activeStack, reduced, screens]);
 
+  // The modal backdrop starts transparent (the driver's default opacity is 1).
+  useLayoutEffect(() => {
+    initLayer(modalDim.current, { opacity: 0 });
+  }, []);
+
   // ---- Transitions -------------------------------------------------------------------------------------
+  // Motion springs on MotionValues (driver.ts): interrupting a transition continues from the current position
+  // and velocity; a swipe release hands the finger's velocity to the spring.
   useLayoutEffect(() => {
     const transition = state.transition;
     if (transition.type === 'none' || transition.type === 'replace') return;
@@ -185,16 +195,18 @@ export function StackNavigator({
       case 'push': {
         const incoming = nodes(transition.to);
         const outgoing = nodes(transition.from);
-        const moves = reduced
-          ? [
-              transitionTo(incoming?.element, 'opacity', '1', 'fade'),
-              transitionTo(outgoing?.element, 'transform', translateX(coveredX()), 'none'),
-            ]
-          : [
-              transitionTo(incoming?.element, 'transform', translateX(0), 'smooth'),
-              transitionTo(outgoing?.element, 'transform', translateX(coveredX()), 'smooth'),
-              transitionTo(outgoing?.dim, 'opacity', String(navigation.coveredDim), 'smooth'),
-            ];
+        let moves: Promise<boolean>[];
+        if (reduced) {
+          setChannel(outgoing?.element, 'x', coveredX());
+          setChannel(outgoing?.dim, 'opacity', navigation.coveredDim);
+          moves = [animateChannel(incoming?.element, 'opacity', 1, 'fade')];
+        } else {
+          moves = [
+            animateChannel(incoming?.element, 'x', 0, 'smooth'),
+            animateChannel(outgoing?.element, 'x', coveredX(), 'smooth'),
+            animateChannel(outgoing?.dim, 'opacity', navigation.coveredDim, 'smooth'),
+          ];
+        }
         void Promise.all(moves).then(() => {
           stopTracking();
           if (current()) focusTitle(incoming?.element);
@@ -204,27 +216,26 @@ export function StackNavigator({
       case 'pop': {
         const leaving = nodes(transition.from);
         const target = nodes(transition.to);
+        // A committed swipe is already springing to these targets with the finger's velocity: join it.
         const fromGesture = gestureCommitted.current === transition.from;
         gestureCommitted.current = null;
         const native = isIOSSafariBrowser() && !inAppBack.current && !fromGesture;
         inAppBack.current = false;
-        const instant = fromGesture || native;
-        const moves = instant
-          ? [
-              transitionTo(target?.element, 'transform', translateX(0), 'none'),
-              transitionTo(target?.dim, 'opacity', '0', 'none'),
-            ]
-          : reduced
-            ? [
-                transitionTo(leaving?.element, 'opacity', '0', 'fade'),
-                transitionTo(target?.element, 'transform', translateX(0), 'none'),
-                transitionTo(target?.dim, 'opacity', '0', 'none'),
-              ]
-            : [
-                transitionTo(leaving?.element, 'transform', translateX(offscreenX()), 'smooth'),
-                transitionTo(target?.element, 'transform', translateX(0), 'smooth'),
-                transitionTo(target?.dim, 'opacity', '0', 'smooth'),
-              ];
+        let moves: Promise<boolean>[] = [];
+        if (native) {
+          setChannel(target?.element, 'x', 0);
+          setChannel(target?.dim, 'opacity', 0);
+        } else if (reduced && !fromGesture) {
+          setChannel(target?.element, 'x', 0);
+          setChannel(target?.dim, 'opacity', 0);
+          moves = [animateChannel(leaving?.element, 'opacity', 0, 'fade')];
+        } else {
+          moves = [
+            animateChannel(leaving?.element, 'x', offscreenX(), 'smooth'),
+            animateChannel(target?.element, 'x', 0, 'smooth'),
+            animateChannel(target?.dim, 'opacity', 0, 'smooth'),
+          ];
+        }
         void Promise.all(moves).then(() => {
           stopTracking();
           setState((latest) => finishLeaving(latest, transition.from));
@@ -244,8 +255,8 @@ export function StackNavigator({
       case 'tab': {
         const layer = tabLayers.current.get(transition.to);
         if (layer && !reduced) {
-          void transitionTo(layer, 'opacity', '0', 'none');
-          void transitionTo(layer, 'opacity', '1', 'quick').then(stopTracking);
+          setChannel(layer, 'opacity', 0);
+          void animateChannel(layer, 'opacity', 1, 'quick').then(stopTracking);
         } else {
           stopTracking();
         }
@@ -255,24 +266,12 @@ export function StackNavigator({
         const modal = modalLayer.current;
         const background = !reduced && !lite;
         const moves = [
-          reduced
-            ? transitionTo(modal, 'opacity', '1', 'fade')
-            : transitionTo(modal, 'transform', 'translateY(0%)', 'smooth'),
+          reduced ? animateChannel(modal, 'opacity', 1, 'fade') : animateChannel(modal, 'y', 0, 'smooth'),
           ...(background
             ? [
-                transitionTo(
-                  appLayer.current,
-                  'transform',
-                  `scale(${String(navigation.modalBackgroundScale)})`,
-                  'smooth',
-                ),
-                transitionTo(
-                  appLayer.current,
-                  'border-radius',
-                  `${String(navigation.modalBackgroundRadiusPx)}px`,
-                  'smooth',
-                ),
-                transitionTo(modalDim.current, 'opacity', String(navigation.modalDim), 'smooth'),
+                animateChannel(appLayer.current, 'scale', navigation.modalBackgroundScale, 'smooth'),
+                animateChannel(appLayer.current, 'radius', navigation.modalBackgroundRadiusPx, 'smooth'),
+                animateChannel(modalDim.current, 'opacity', navigation.modalDim, 'smooth'),
               ]
             : []),
         ];
@@ -285,15 +284,20 @@ export function StackNavigator({
       case 'modal-dismiss': {
         const modal = modalLayer.current;
         inAppBack.current = false;
-        const curve = reduced ? 'none' : 'smooth';
-        const moves = [
-          reduced
-            ? transitionTo(modal, 'opacity', '0', 'fade')
-            : transitionTo(modal, 'transform', 'translateY(100%)', 'smooth'),
-          transitionTo(appLayer.current, 'transform', 'scale(1)', curve),
-          transitionTo(appLayer.current, 'border-radius', '0px', curve),
-          transitionTo(modalDim.current, 'opacity', '0', curve),
-        ];
+        let moves: Promise<boolean>[];
+        if (reduced) {
+          setChannel(appLayer.current, 'scale', 1);
+          setChannel(appLayer.current, 'radius', 0);
+          setChannel(modalDim.current, 'opacity', 0);
+          moves = [animateChannel(modal, 'opacity', 0, 'fade')];
+        } else {
+          moves = [
+            animateChannel(modal, 'y', 100, 'smooth'),
+            animateChannel(appLayer.current, 'scale', 1, 'smooth'),
+            animateChannel(appLayer.current, 'radius', 0, 'smooth'),
+            animateChannel(modalDim.current, 'opacity', 0, 'smooth'),
+          ];
+        }
         void Promise.all(moves).then(() => {
           stopTracking();
           setState((latest) => finishModalLeaving(latest, transition.key));
@@ -315,10 +319,13 @@ export function StackNavigator({
     startX: number;
     startY: number;
     active: boolean;
-    samples: [x: number, time: number][];
+    /** Pointer x when the drag activated, and the top screen's progress then (grabbed mid-animation). */
+    originX: number;
+    originProgress: number;
+    samples: Sample[];
     top: string;
     below: string;
-    stopTracking: () => void;
+    release: () => void;
   } | null>(null);
 
   const canSwipeBack = !state.modal && activeStack.length > 1;
@@ -335,10 +342,12 @@ export function StackNavigator({
         startX: event.clientX,
         startY: event.clientY,
         active: false,
-        samples: [[event.clientX, event.timeStamp]],
+        originX: event.clientX,
+        originProgress: 0,
+        samples: [[event.clientX * direction(), event.timeStamp]],
         top: top.key,
         below: below.key,
-        stopTracking: () => undefined,
+        release: () => undefined,
       };
     },
     [activeStack, canSwipeBack],
@@ -349,24 +358,33 @@ export function StackNavigator({
       const current = drag.current;
       if (current?.pointerId !== event.pointerId) return;
       const sign = direction();
-      const dx = (event.clientX - current.startX) * sign;
-      const dy = event.clientY - current.startY;
+      const top = screens.get(current.top);
+      const below = screens.get(current.below);
       if (!current.active) {
+        const dx = (event.clientX - current.startX) * sign;
+        const dy = event.clientY - current.startY;
         if (Math.abs(dy) > navigation.swipeActivatePx && Math.abs(dy) > Math.abs(dx)) {
           drag.current = null;
           return;
         }
         if (dx < navigation.swipeActivatePx) return;
         current.active = true;
-        current.stopTracking = trackMotion();
+        // Grab the screen where it is (it may still be springing): no jump to the finger.
+        current.originX = event.clientX;
+        current.originProgress = clamp01((getChannel(top?.element, 'x') * sign) / 100);
+        const stopTracking = trackMotion();
+        const holds = [holdLayer(top?.element), holdLayer(below?.element), holdLayer(below?.dim)];
+        current.release = () => {
+          for (const release of holds) release();
+          stopTracking();
+        };
       }
-      const progress = Math.min(Math.max(dx / window.innerWidth, 0), 1);
-      const top = screens.get(current.top);
-      const below = screens.get(current.below);
-      void transitionTo(top?.element, 'transform', translateX(progress * 100 * sign), 'none');
-      void transitionTo(below?.element, 'transform', translateX(coveredX() * (1 - progress)), 'none');
-      void transitionTo(below?.dim, 'opacity', String(navigation.coveredDim * (1 - progress)), 'none');
-      current.samples.push([event.clientX, event.timeStamp]);
+      // The finger moves the screen 1:1; the covered screen's parallax and dim follow its progress.
+      const progress = clamp01(current.originProgress + ((event.clientX - current.originX) * sign) / window.innerWidth);
+      setChannel(top?.element, 'x', progress * 100 * sign);
+      setChannel(below?.element, 'x', coveredX() * (1 - progress));
+      setChannel(below?.dim, 'opacity', navigation.coveredDim * (1 - progress));
+      current.samples.push([event.clientX * sign, event.timeStamp]);
       if (current.samples.length > 8) current.samples.shift();
     },
     [screens],
@@ -378,33 +396,34 @@ export function StackNavigator({
       drag.current = null;
       if (current?.pointerId !== event.pointerId || !current.active) return;
       const sign = direction();
-      const dx = (event.clientX - current.startX) * sign;
-      const recent = current.samples.filter(([, time]) => event.timeStamp - time <= navigation.velocityWindowMs);
-      const first = recent[0] ?? current.samples[0];
-      const elapsed = first ? (event.timeStamp - first[1]) / 1000 : 0;
-      // Below 10 ms of samples the estimate is noise (coalesced events), not a flick.
-      const velocity = first && elapsed >= 0.01 ? ((event.clientX - first[0]) * sign) / elapsed : 0;
-      const commit =
-        !cancelled && (velocity > gesture.dismissVelocity || dx / window.innerWidth > gesture.dismissDistance);
       const top = screens.get(current.top);
       const below = screens.get(current.below);
-      const moves = commit
-        ? [
-            transitionTo(top?.element, 'transform', translateX(offscreenX()), 'smooth'),
-            transitionTo(below?.element, 'transform', translateX(0), 'smooth'),
-            transitionTo(below?.dim, 'opacity', '0', 'smooth'),
-          ]
-        : [
-            transitionTo(top?.element, 'transform', translateX(0), 'smooth'),
-            transitionTo(below?.element, 'transform', translateX(coveredX()), 'smooth'),
-            transitionTo(below?.dim, 'opacity', String(navigation.coveredDim), 'smooth'),
-          ];
-      void Promise.all(moves).then(() => {
-        current.stopTracking();
-        if (!commit) return;
+      const progress = clamp01((getChannel(top?.element, 'x') * sign) / 100);
+      const { commit, progressVelocity } = swipeRelease(
+        current.samples,
+        [event.clientX * sign, event.timeStamp],
+        progress,
+        window.innerWidth,
+        cancelled,
+      );
+      // Release velocity (widths/s) converted into each value's own units per second.
+      const end = commit ? 1 : 0;
+      void Promise.all([
+        animateChannel(top?.element, 'x', end * 100 * sign, 'smooth', progressVelocity * 100 * sign),
+        animateChannel(below?.element, 'x', coveredX() * (1 - end), 'smooth', -coveredX() * progressVelocity),
+        animateChannel(
+          below?.dim,
+          'opacity',
+          navigation.coveredDim * (1 - end),
+          'smooth',
+          -navigation.coveredDim * progressVelocity,
+        ),
+      ]).then(current.release);
+      if (commit) {
+        // Pop right away; the pop transition joins these springs instead of restarting them.
         gestureCommitted.current = current.top;
         api.back();
-      });
+      }
     },
     [api, screens],
   );
@@ -601,8 +620,9 @@ interface ScreenHostProps {
 
 /** One mounted screen. Its starting style is captured at mount; afterwards only the navigator moves it. */
 function ScreenHost({ entryKey, initial, interactive, registry, scrollCache, children }: ScreenHostProps) {
-  const [initialStyle] = useState(() => ({ transform: translateX(initial.x), opacity: initial.opacity }));
-  const [initialDim] = useState(() => ({ opacity: initial.dim }));
+  const [start] = useState(initial);
+  const [initialStyle] = useState(() => ({ transform: translateX(start.x), opacity: start.opacity }));
+  const [initialDim] = useState(() => ({ opacity: start.dim }));
   const element = useRef<HTMLElement>(null);
   const dim = useRef<HTMLDivElement>(null);
 
@@ -610,6 +630,9 @@ function ScreenHost({ entryKey, initial, interactive, registry, scrollCache, chi
     const node = element.current;
     const overlay = dim.current;
     if (!node || !overlay) return;
+    // Hand the rendered starting style to the animation driver (runs before the navigator's transition).
+    initLayer(node, { x: start.x, opacity: start.opacity });
+    initLayer(overlay, { opacity: start.dim });
     registry.set(entryKey, { element: node, dim: overlay });
     const scroller = scrollerOf(node);
     const cached = scrollCache.get(entryKey);
@@ -618,7 +641,7 @@ function ScreenHost({ entryKey, initial, interactive, registry, scrollCache, chi
       if (scroller) scrollCache.set(entryKey, scroller.scrollTop);
       registry.delete(entryKey);
     };
-  }, [entryKey, registry, scrollCache]);
+  }, [entryKey, registry, scrollCache, start]);
 
   return (
     <section
@@ -650,6 +673,11 @@ function ModalHost({ layerRef, startHidden, reduced, open, children }: ModalHost
   const [initialStyle] = useState(() =>
     startHidden ? (reduced ? { opacity: 0 } : { transform: 'translateY(100%)' }) : undefined,
   );
+  // Hand the starting position to the animation driver (child layout effects run before the navigator's).
+  useLayoutEffect(() => {
+    if (startHidden) initLayer(layerRef.current, reduced ? { opacity: 0 } : { y: 100 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount only, like initialStyle
+  }, []);
   return (
     <div
       ref={layerRef}
