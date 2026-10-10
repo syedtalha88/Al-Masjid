@@ -34,5 +34,10 @@
     "openNext": "अगली स्क्रीन खोलें",
     "screenTitle": "स्क्रीन {number}",
     "scanTitle": "स्कैन"
+  },
+  "ui": {
+    "seeAll": "सभी देखें",
+    "verified": "सत्यापित",
+    "newCount": "{count, plural, one {# नया} other {# नए}}"
   }
 }

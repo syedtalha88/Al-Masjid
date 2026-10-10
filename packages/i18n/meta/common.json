@@ -78,5 +78,16 @@
   "placeholder.scanTitle": {
     "context": "Title of the Scan screen placeholder",
     "maxLength": 20
+  },
+  "ui.seeAll": {
+    "context": "Link-button at the end of a section title (e.g. 'Recent Updates … See All')",
+    "maxLength": 16
+  },
+  "ui.verified": {
+    "context": "Small badge next to a masjid name: the masjid was verified by the app team",
+    "maxLength": 18
+  },
+  "ui.newCount": {
+    "context": "Screen-reader name of the red number badge on a row (count of unseen items, ICU plural)"
   }
 }

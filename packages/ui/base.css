@@ -79,3 +79,28 @@
   padding-left: max(var(--mc-gutter), env(safe-area-inset-left));
   padding-right: max(var(--mc-gutter), env(safe-area-inset-right));
 }
+
+/*
+ * Control sizes (06 §4, §6): app hit targets ≥ 44px, admin ≥ 56px. Components size themselves with these, so
+ * the admin app gets its bigger targets without a separate component set.
+ */
+:root {
+  --mc-hit: 2.75rem;
+  --mc-control-md: 3rem;
+  --mc-control-lg: 3.5rem;
+}
+
+:root[data-app='admin'] {
+  --mc-hit: 3.5rem;
+  --mc-control-md: 3.5rem;
+  --mc-control-lg: 4rem;
+}
+
+/* 1px hairline in --color-border; a true 0.5px line on high-density screens (06 §4). */
+@utility hairline {
+  height: 1px;
+  background-color: var(--color-border);
+  @media (min-resolution: 2dppx) {
+    transform: scaleY(0.5);
+  }
+}

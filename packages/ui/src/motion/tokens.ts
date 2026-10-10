@@ -63,6 +63,14 @@ export const css = {
   imageInMs: 250,
 } as const;
 
+/** Looping indicators (CSS keyframes in `motion.css`). Spinners keep turning with reduced motion (functional). */
+export const loop = {
+  /** One spinner revolution, ms. */
+  spinnerMs: 800,
+  /** One skeleton shimmer sweep, ms (static skeleton with reduced motion, 08 §6). */
+  shimmerMs: 1400,
+} as const;
+
 /** First-load list entrance: 30 ms per item for the first 8 items, then 0 (08 §2, §5.4). */
 export const stagger = {
   stepS: 0.03,

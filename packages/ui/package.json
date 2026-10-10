@@ -12,6 +12,8 @@
     "./styles.css": "./styles.css",
     "./tokens": "./src/tokens/tokens.ts",
     "./fonts": "./src/fonts/fonts.ts",
+    "./components": "./src/components/index.ts",
+    "./icons": "./src/icons/index.ts",
     "./motion": "./src/motion/index.ts",
     "./navigation": "./src/navigation/index.ts"
   },

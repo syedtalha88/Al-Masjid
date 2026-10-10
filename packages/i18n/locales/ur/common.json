@@ -34,5 +34,10 @@
     "openNext": "اگلی اسکرین کھولیں",
     "screenTitle": "اسکرین {number}",
     "scanTitle": "اسکین"
+  },
+  "ui": {
+    "seeAll": "سب دیکھیں",
+    "verified": "تصدیق شدہ",
+    "newCount": "{count, plural, one {# نیا} other {# نئے}}"
   }
 }

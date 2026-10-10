@@ -34,5 +34,10 @@
     "openNext": "Open next screen",
     "screenTitle": "Screen {number}",
     "scanTitle": "Scan"
+  },
+  "ui": {
+    "seeAll": "See All",
+    "verified": "Verified",
+    "newCount": "{count, plural, one {# new} other {# new}}"
   }
 }

@@ -8,4 +8,15 @@ export { CROSSFADE, motionOrFade, type Presence } from './presence.ts';
 export { Pressable, type PressableProps } from './Pressable.tsx';
 export { useReducedMotionPref } from './reduced.ts';
 export { SuccessCheck, type SuccessCheckProps } from './SuccessCheck.tsx';
-export { css, gesture, press, type PressKind, spring, type SpringToken, stagger, tween } from './tokens.ts';
+export {
+  css,
+  gesture,
+  loop,
+  press,
+  type PressKind,
+  spring,
+  springPhysics,
+  type SpringToken,
+  stagger,
+  tween,
+} from './tokens.ts';

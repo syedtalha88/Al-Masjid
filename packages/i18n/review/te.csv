@@ -21,6 +21,9 @@ common,placeholder.comingSoon,This screen is coming soon.,ఈ స్క్రీ
 common,placeholder.openNext,Open next screen,తదుపరి స్క్రీన్ తెరవండి,no
 common,placeholder.screenTitle,Screen {number},స్క్రీన్ {number},no
 common,placeholder.scanTitle,Scan,స్కాన్,no
+common,ui.seeAll,See All,అన్నీ చూడండి,no
+common,ui.verified,Verified,ధృవీకరించబడింది,no
+common,ui.newCount,"{count, plural, one {# new} other {# new}}","{count, plural, one {# కొత్తది} other {# కొత్తవి}}",no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,ఇది కనిపించలేదు. ఇది తొలగించబడి ఉండవచ్చు.,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,కొన్ని వివరాలు సరిగా లేవు. దయచేసి చూసి మళ్లీ ప్రయత్నించండి.,no
