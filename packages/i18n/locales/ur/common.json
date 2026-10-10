@@ -38,6 +38,9 @@
   "ui": {
     "seeAll": "سب دیکھیں",
     "verified": "تصدیق شدہ",
-    "newCount": "{count, plural, one {# نیا} other {# نئے}}"
+    "newCount": "{count, plural, one {# نیا} other {# نئے}}",
+    "optional": "اختیاری",
+    "characterCount": "{count, plural, one {{max} میں سے # حرف استعمال ہوا} other {{max} میں سے # حروف استعمال ہوئے}}",
+    "clearSearch": "تلاش صاف کریں"
   }
 }

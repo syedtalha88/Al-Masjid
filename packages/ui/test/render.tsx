@@ -1,6 +1,6 @@
 import { createI18n, type Locale } from '@mc/i18n';
 import { I18nProvider } from '@mc/i18n/react';
-import { render, type RenderResult } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { domAnimation } from 'motion/react';
 import type { ReactNode } from 'react';
 import { vi } from 'vitest';
@@ -32,14 +32,19 @@ export function mockReducedMotion(reduced: boolean): void {
 export async function renderUi(
   ui: ReactNode,
   { locale = 'en', reduced = false }: { readonly locale?: Locale; readonly reduced?: boolean } = {},
-): Promise<RenderResult> {
+) {
   mockReducedMotion(reduced);
   document.documentElement.lang = locale;
   document.documentElement.dir = locale === 'ur' ? 'rtl' : 'ltr';
+  // jsdom lacks element scrolling APIs that components call (ChipGroup keeps the active chip in view).
+  Element.prototype.scrollBy = vi.fn();
+  Element.prototype.scrollTo = vi.fn();
   const instance = await createI18n(locale);
-  return render(
+  // A wrapper (not a wrapped tree), so `rerender` keeps the providers.
+  const wrapper = ({ children }: { readonly children: ReactNode }) => (
     <I18nProvider instance={instance} initialLocale={locale}>
-      <MotionProvider features={domAnimation}>{ui}</MotionProvider>
-    </I18nProvider>,
+      <MotionProvider features={domAnimation}>{children}</MotionProvider>
+    </I18nProvider>
   );
+  return render(ui, { wrapper });
 }

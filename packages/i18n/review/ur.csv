@@ -24,6 +24,9 @@ common,placeholder.scanTitle,Scan,اسکین,no
 common,ui.seeAll,See All,سب دیکھیں,no
 common,ui.verified,Verified,تصدیق شدہ,no
 common,ui.newCount,"{count, plural, one {# new} other {# new}}","{count, plural, one {# نیا} other {# نئے}}",no
+common,ui.optional,Optional,اختیاری,no
+common,ui.characterCount,"{count, plural, one {# of {max} characters used} other {# of {max} characters used}}","{count, plural, one {{max} میں سے # حرف استعمال ہوا} other {{max} میں سے # حروف استعمال ہوئے}}",no
+common,ui.clearSearch,Clear search,تلاش صاف کریں,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,یہ نہیں ملا۔ ہو سکتا ہے اسے ہٹا دیا گیا ہو۔,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,یہ کام یہاں دستیاب نہیں ہے۔,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,کچھ معلومات غلط لگ رہی ہیں۔ براہِ کرم جانچ کر دوبارہ کوشش کریں۔,no

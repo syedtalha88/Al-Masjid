@@ -38,6 +38,9 @@
   "ui": {
     "seeAll": "See All",
     "verified": "Verified",
-    "newCount": "{count, plural, one {# new} other {# new}}"
+    "newCount": "{count, plural, one {# new} other {# new}}",
+    "optional": "Optional",
+    "characterCount": "{count, plural, one {# of {max} characters used} other {# of {max} characters used}}",
+    "clearSearch": "Clear search"
   }
 }

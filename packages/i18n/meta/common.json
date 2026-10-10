@@ -89,5 +89,16 @@
   },
   "ui.newCount": {
     "context": "Screen-reader name of the red number badge on a row (count of unseen items, ICU plural)"
+  },
+  "ui.optional": {
+    "context": "Small grey word after a form field label: the field may be left empty",
+    "maxLength": 14
+  },
+  "ui.characterCount": {
+    "context": "Screen-reader text for the character counter under a text box (visually shown as '120/500')"
+  },
+  "ui.clearSearch": {
+    "context": "Accessible name of the X button inside the search box",
+    "maxLength": 24
   }
 }

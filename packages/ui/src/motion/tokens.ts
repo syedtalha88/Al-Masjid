@@ -71,6 +71,12 @@ export const loop = {
   shimmerMs: 1400,
 } as const;
 
+/** Form feedback (08 §5.10): an invalid field shakes x 0 → −6 → 6 → −3 → 0 px. */
+export const feedback = {
+  shakeMs: 300,
+  shakePx: [0, -6, 6, -3, 0],
+} as const;
+
 /** First-load list entrance: 30 ms per item for the first 8 items, then 0 (08 §2, §5.4). */
 export const stagger = {
   stepS: 0.03,

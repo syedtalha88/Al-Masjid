@@ -38,6 +38,9 @@
   "ui": {
     "seeAll": "అన్నీ చూడండి",
     "verified": "ధృవీకరించబడింది",
-    "newCount": "{count, plural, one {# కొత్తది} other {# కొత్తవి}}"
+    "newCount": "{count, plural, one {# కొత్తది} other {# కొత్తవి}}",
+    "optional": "ఐచ్ఛికం",
+    "characterCount": "{count, plural, one {{max}లో # అక్షరం వాడబడింది} other {{max}లో # అక్షరాలు వాడబడ్డాయి}}",
+    "clearSearch": "శోధనను క్లియర్ చేయండి"
   }
 }

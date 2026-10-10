@@ -104,3 +104,31 @@
     transform: scaleY(0.5);
   }
 }
+
+/*
+ * Edge fades on horizontal scrollers (ChipGroup, 06 §6): only the edges that have more content beyond them.
+ * Only the mask's alpha matters; the color is a token so no raw color appears here.
+ */
+@utility mask-fade-start {
+  mask-image: linear-gradient(to right, transparent, var(--color-text) 2rem);
+  :where([dir='rtl']) & {
+    mask-image: linear-gradient(to left, transparent, var(--color-text) 2rem);
+  }
+}
+
+@utility mask-fade-end {
+  mask-image: linear-gradient(to left, transparent, var(--color-text) 2rem);
+  :where([dir='rtl']) & {
+    mask-image: linear-gradient(to right, transparent, var(--color-text) 2rem);
+  }
+}
+
+@utility mask-fade-both {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    var(--color-text) 2rem,
+    var(--color-text) calc(100% - 2rem),
+    transparent
+  );
+}

@@ -69,6 +69,47 @@
   }
 }
 
+/* Sliding selection indicators (08 §5.2): segmented thumb (spring.smooth), tab underline (spring.snappy). */
+@utility transition-thumb {
+  transition: transform var(--mc-spring-smooth);
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+@utility transition-indicator {
+  transition: transform var(--mc-spring-snappy);
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* Invalid form field (08 §5.10): a short horizontal shake; none with reduced motion. */
+@keyframes mc-shake {
+  0% {
+    transform: translateX(0px);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+  75% {
+    transform: translateX(-3px);
+  }
+  100% {
+    transform: translateX(0px);
+  }
+}
+
+@utility shake {
+  animation: mc-shake 300ms ease-in-out;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 /* Spinner: one compositor rotation per 800 ms. Kept with reduced motion (it is functional). */
 @keyframes mc-spin {
   to {

@@ -10,6 +10,7 @@ export { useReducedMotionPref } from './reduced.ts';
 export { SuccessCheck, type SuccessCheckProps } from './SuccessCheck.tsx';
 export {
   css,
+  feedback,
   gesture,
   loop,
   press,
