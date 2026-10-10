@@ -1,7 +1,7 @@
 {
   "extends": "@mc/config/tsconfig.react.json",
   "compilerOptions": {
-    "types": ["node"]
+    "types": ["node", "vite/client"]
   },
   "include": ["src", "scripts", "test"]
 }

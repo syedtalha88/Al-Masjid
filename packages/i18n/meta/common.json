@@ -35,5 +35,48 @@
   "home.greeting": {
     "context": "Greeting above the masjid list on Home (Islamic greeting, as in the reference design)",
     "maxLength": 28
+  },
+  "nav.back": {
+    "context": "Accessible name of the back chevron button",
+    "maxLength": 24
+  },
+  "nav.close": {
+    "context": "Accessible name of the close (X) button on full-screen modals",
+    "maxLength": 24
+  },
+  "tabs.label": {
+    "context": "Screen-reader name of the bottom tab bar landmark"
+  },
+  "tabs.home": {
+    "context": "Tab bar label (micro text, very short)",
+    "maxLength": 12
+  },
+  "tabs.myMasjids": {
+    "context": "Tab bar label (micro text, very short)",
+    "maxLength": 14
+  },
+  "tabs.scan": {
+    "context": "Accessible name of the round Scan button in the tab bar"
+  },
+  "tabs.updates": {
+    "context": "Tab bar label (micro text, very short)",
+    "maxLength": 12
+  },
+  "tabs.settings": {
+    "context": "Tab bar label (micro text, very short)",
+    "maxLength": 12
+  },
+  "placeholder.comingSoon": {
+    "context": "Phase 0 placeholder body on not-yet-built screens"
+  },
+  "placeholder.openNext": {
+    "context": "Phase 0 placeholder button that opens another screen (navigation test)"
+  },
+  "placeholder.screenTitle": {
+    "context": "Phase 0 placeholder screen title, e.g. \"Screen 2\""
+  },
+  "placeholder.scanTitle": {
+    "context": "Title of the Scan screen placeholder",
+    "maxLength": 20
   }
 }

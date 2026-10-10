@@ -7,9 +7,20 @@
   --mc-spring-bouncy: 750ms linear(0, 0.0553, 0.1843, 0.3437, 0.505, 0.6509, 0.7729, 0.8683, 0.9382, 0.9859, 1.0156, 1.0316, 1.0379, 1.0377, 1.0338, 1.028, 1.0218, 1.0158, 1.0107, 1.0066, 1.0035, 1.0013, 0.9998, 0.999, 1);
   --mc-ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
   --mc-duration-ios: 400ms;
+  --mc-tween-fade: 180ms cubic-bezier(0.2, 0, 0, 1);
+  --mc-tween-quick: 120ms ease-out;
   --mc-press-button: 0.96;
   --mc-press-card: 0.98;
   --mc-press-fab: 0.92;
+}
+
+@supports not (transition-timing-function: linear(0, 1)) {
+  :root {
+    --mc-spring-snappy: 250ms var(--mc-ease-ios);
+    --mc-spring-smooth: 380ms var(--mc-ease-ios);
+    --mc-spring-gentle: 550ms var(--mc-ease-ios);
+    --mc-spring-bouncy: 450ms var(--mc-ease-ios);
+  }
 }
 
 /*

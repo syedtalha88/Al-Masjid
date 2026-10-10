@@ -20,7 +20,8 @@
     "db:verify-roles": "node scripts/not-yet.mjs db:verify-roles \"Phase 1\"",
     "test": "turbo run test",
     "test:int": "node scripts/not-yet.mjs test:int T0.12",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --project=pixel-7 --project=iphone-14",
+    "test:perf": "playwright test --project=perf --workers=1",
     "i18n:check": "pnpm --filter @mc/i18n i18n:check",
     "size": "node scripts/not-yet.mjs size T0.12",
     "lhci": "node scripts/not-yet.mjs lhci T0.12",
@@ -40,6 +41,7 @@
     "i18n:review": "pnpm --filter @mc/i18n i18n:review"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@mc/config": "workspace:*",
     "@playwright/test": "1.63.0",
     "@types/node": "24.19.1",

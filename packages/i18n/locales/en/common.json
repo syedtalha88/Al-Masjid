@@ -16,5 +16,23 @@
   },
   "home": {
     "greeting": "Assalamu Alaikum"
+  },
+  "nav": {
+    "back": "Back",
+    "close": "Close"
+  },
+  "tabs": {
+    "label": "Main",
+    "home": "Home",
+    "myMasjids": "My Masjids",
+    "scan": "Scan QR code",
+    "updates": "Updates",
+    "settings": "Settings"
+  },
+  "placeholder": {
+    "comingSoon": "This screen is coming soon.",
+    "openNext": "Open next screen",
+    "screenTitle": "Screen {number}",
+    "scanTitle": "Scan"
   }
 }

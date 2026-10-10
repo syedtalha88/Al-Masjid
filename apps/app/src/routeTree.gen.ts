@@ -10,33 +10,91 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MasjidsRouteImport } from './routes/masjids'
+import { Route as ScanRouteImport } from './routes/scan'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as UpdatesRouteImport } from './routes/updates'
+import { Route as DemoNumberRouteImport } from './routes/demo.$number'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MasjidsRoute = MasjidsRouteImport.update({
+  id: '/masjids',
+  path: '/masjids',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScanRoute = ScanRouteImport.update({
+  id: '/scan',
+  path: '/scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UpdatesRoute = UpdatesRouteImport.update({
+  id: '/updates',
+  path: '/updates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoNumberRoute = DemoNumberRouteImport.update({
+  id: '/demo/$number',
+  path: '/demo/$number',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/masjids': typeof MasjidsRoute
+  '/scan': typeof ScanRoute
+  '/settings': typeof SettingsRoute
+  '/updates': typeof UpdatesRoute
+  '/demo/$number': typeof DemoNumberRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/masjids': typeof MasjidsRoute
+  '/scan': typeof ScanRoute
+  '/settings': typeof SettingsRoute
+  '/updates': typeof UpdatesRoute
+  '/demo/$number': typeof DemoNumberRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/masjids': typeof MasjidsRoute
+  '/scan': typeof ScanRoute
+  '/settings': typeof SettingsRoute
+  '/updates': typeof UpdatesRoute
+  '/demo/$number': typeof DemoNumberRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/masjids' | '/scan' | '/settings' | '/updates' | '/demo/$number'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/masjids' | '/scan' | '/settings' | '/updates' | '/demo/$number'
+  id:
+    | '__root__'
+    | '/'
+    | '/masjids'
+    | '/scan'
+    | '/settings'
+    | '/updates'
+    | '/demo/$number'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MasjidsRoute: typeof MasjidsRoute
+  ScanRoute: typeof ScanRoute
+  SettingsRoute: typeof SettingsRoute
+  UpdatesRoute: typeof UpdatesRoute
+  DemoNumberRoute: typeof DemoNumberRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +106,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/masjids': {
+      id: '/masjids'
+      path: '/masjids'
+      fullPath: '/masjids'
+      preLoaderRoute: typeof MasjidsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scan': {
+      id: '/scan'
+      path: '/scan'
+      fullPath: '/scan'
+      preLoaderRoute: typeof ScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/updates': {
+      id: '/updates'
+      path: '/updates'
+      fullPath: '/updates'
+      preLoaderRoute: typeof UpdatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/$number': {
+      id: '/demo/$number'
+      path: '/demo/$number'
+      fullPath: '/demo/$number'
+      preLoaderRoute: typeof DemoNumberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MasjidsRoute: MasjidsRoute,
+  ScanRoute: ScanRoute,
+  SettingsRoute: SettingsRoute,
+  UpdatesRoute: UpdatesRoute,
+  DemoNumberRoute: DemoNumberRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

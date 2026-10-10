@@ -16,5 +16,23 @@
   },
   "home": {
     "greeting": "अस्सलामु अलैकुम"
+  },
+  "nav": {
+    "back": "वापस",
+    "close": "बंद करें"
+  },
+  "tabs": {
+    "label": "मुख्य",
+    "home": "होम",
+    "myMasjids": "मेरी मस्जिदें",
+    "scan": "QR कोड स्कैन करें",
+    "updates": "अपडेट",
+    "settings": "सेटिंग्स"
+  },
+  "placeholder": {
+    "comingSoon": "यह स्क्रीन जल्द आ रही है।",
+    "openNext": "अगली स्क्रीन खोलें",
+    "screenTitle": "स्क्रीन {number}",
+    "scanTitle": "स्कैन"
   }
 }

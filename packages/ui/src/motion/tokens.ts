@@ -55,6 +55,28 @@ export const stagger = {
 export const press = { button: 0.96, card: 0.98, fab: 0.92 } as const;
 export type PressKind = keyof typeof press;
 
+/** Stack navigator geometry (08 §3.1, §3.4). */
+export const navigation = {
+  /** Covered screen parallax: x 0 → −28% (mirrored in RTL). */
+  coveredOffsetPct: 28,
+  /** Dim over the covered screen. */
+  coveredDim: 0.06,
+  /** Modal presentation: app scales to 0.94, corners 16px, dim 0.3 (not in lite motion). */
+  modalBackgroundScale: 0.94,
+  modalBackgroundRadiusPx: 16,
+  modalDim: 0.3,
+  /** Screens kept mounted per stack; deeper ones unmount and restore scroll from cache. */
+  maxMounted: 3,
+  /** Horizontal movement before an edge drag becomes a swipe-back (vertical wins otherwise). */
+  swipeActivatePx: 10,
+  /** Release-velocity window for swipe commits, ms. */
+  velocityWindowMs: 100,
+  /** Without requestIdleCallback (Safari), tab-root code is preloaded this long after start, ms. */
+  idlePreloadDelayMs: 1500,
+  /** Safety net: a screen whose exit animation was interrupted is removed after this, ms. */
+  settleTimeoutMs: 1200,
+} as const;
+
 /** Gesture thresholds (08 §2, §5.1). */
 export const gesture = {
   /** Swipe-back hit area from the leading edge, px. */

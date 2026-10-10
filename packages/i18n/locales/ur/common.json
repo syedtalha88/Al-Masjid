@@ -16,5 +16,23 @@
   },
   "home": {
     "greeting": "السلام علیکم"
+  },
+  "nav": {
+    "back": "واپس",
+    "close": "بند کریں"
+  },
+  "tabs": {
+    "label": "مرکزی",
+    "home": "ہوم",
+    "myMasjids": "میری مساجد",
+    "scan": "QR کوڈ اسکین کریں",
+    "updates": "اپڈیٹس",
+    "settings": "ترتیبات"
+  },
+  "placeholder": {
+    "comingSoon": "یہ اسکرین جلد آ رہی ہے۔",
+    "openNext": "اگلی اسکرین کھولیں",
+    "screenTitle": "اسکرین {number}",
+    "scanTitle": "اسکین"
   }
 }

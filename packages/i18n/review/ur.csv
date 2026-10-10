@@ -9,6 +9,18 @@ common,newUpdates,"{count, plural, one {# new update} other {# new updates}}","{
 common,countdown.hoursMinutes,{hours}h {minutes}m left,{hours} گھنٹے {minutes} منٹ باقی,no
 common,countdown.minutes,{minutes}m left,{minutes} منٹ باقی,no
 common,home.greeting,Assalamu Alaikum,السلام علیکم,no
+common,nav.back,Back,واپس,no
+common,nav.close,Close,بند کریں,no
+common,tabs.label,Main,مرکزی,no
+common,tabs.home,Home,ہوم,no
+common,tabs.myMasjids,My Masjids,میری مساجد,no
+common,tabs.scan,Scan QR code,QR کوڈ اسکین کریں,no
+common,tabs.updates,Updates,اپڈیٹس,no
+common,tabs.settings,Settings,ترتیبات,no
+common,placeholder.comingSoon,This screen is coming soon.,یہ اسکرین جلد آ رہی ہے۔,no
+common,placeholder.openNext,Open next screen,اگلی اسکرین کھولیں,no
+common,placeholder.screenTitle,Screen {number},اسکرین {number},no
+common,placeholder.scanTitle,Scan,اسکین,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,یہ نہیں ملا۔ ہو سکتا ہے اسے ہٹا دیا گیا ہو۔,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,یہ کام یہاں دستیاب نہیں ہے۔,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,کچھ معلومات غلط لگ رہی ہیں۔ براہِ کرم جانچ کر دوبارہ کوشش کریں۔,no

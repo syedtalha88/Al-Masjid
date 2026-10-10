@@ -12,7 +12,8 @@
     "./styles.css": "./styles.css",
     "./tokens": "./src/tokens/tokens.ts",
     "./fonts": "./src/fonts/fonts.ts",
-    "./motion": "./src/motion/index.ts"
+    "./motion": "./src/motion/index.ts",
+    "./navigation": "./src/navigation/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -25,6 +26,7 @@
     "@capsizecss/metrics": "4.3.0",
     "@mc/config": "workspace:*",
     "@mc/shared": "workspace:*",
+    "@tanstack/react-router": "1.170.41",
     "@testing-library/dom": "10.4.2",
     "@testing-library/react": "16.3.3",
     "@types/node": "24.19.1",
@@ -36,6 +38,7 @@
     "react-dom": "19.3.0",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
+    "vite": "8.3.3",
     "vitest": "5.0.3"
   },
   "dependencies": {
@@ -49,6 +52,7 @@
     "tailwindcss": "4.3.3"
   },
   "peerDependencies": {
+    "@tanstack/react-router": "1.170.41",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   }

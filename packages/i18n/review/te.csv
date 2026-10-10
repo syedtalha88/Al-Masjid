@@ -9,6 +9,18 @@ common,newUpdates,"{count, plural, one {# new update} other {# new updates}}","{
 common,countdown.hoursMinutes,{hours}h {minutes}m left,{hours}గం {minutes}ని మిగిలింది,no
 common,countdown.minutes,{minutes}m left,{minutes}ని మిగిలింది,no
 common,home.greeting,Assalamu Alaikum,అస్సలాము అలైకుమ్,no
+common,nav.back,Back,వెనుకకు,no
+common,nav.close,Close,మూసివేయి,no
+common,tabs.label,Main,ప్రధాన,no
+common,tabs.home,Home,హోమ్,no
+common,tabs.myMasjids,My Masjids,నా మస్జిద్‌లు,no
+common,tabs.scan,Scan QR code,QR కోడ్ స్కాన్ చేయండి,no
+common,tabs.updates,Updates,అప్‌డేట్‌లు,no
+common,tabs.settings,Settings,సెట్టింగ్‌లు,no
+common,placeholder.comingSoon,This screen is coming soon.,ఈ స్క్రీన్ త్వరలో వస్తుంది.,no
+common,placeholder.openNext,Open next screen,తదుపరి స్క్రీన్ తెరవండి,no
+common,placeholder.screenTitle,Screen {number},స్క్రీన్ {number},no
+common,placeholder.scanTitle,Scan,స్కాన్,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,ఇది కనిపించలేదు. ఇది తొలగించబడి ఉండవచ్చు.,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,కొన్ని వివరాలు సరిగా లేవు. దయచేసి చూసి మళ్లీ ప్రయత్నించండి.,no

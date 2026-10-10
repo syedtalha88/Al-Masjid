@@ -1,18 +1,18 @@
 import { useTranslation } from '@mc/i18n/react';
 import { BRAND } from '@mc/shared/brand';
+import { Screen } from '@mc/ui/navigation';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/')({
   component: Home,
 });
 
-/** Empty admin Home shell (Phase 0 has no feature screens — PHASE_00 "Out of scope"). */
+/** Admin Home (Phase 0 placeholder; the tile grid arrives in Phase 3). */
 function Home() {
   const { t } = useTranslation();
   return (
-    <div className="px-screen pt-safe">
-      <p className="type-footnote text-text-secondary pt-6">{t('home.greeting')}</p>
-      <h1 className="type-large-title text-text">{BRAND.adminName}</h1>
-    </div>
+    <Screen title={BRAND.adminName}>
+      <p className="pt-2 type-footnote text-text-secondary">{t('home.greeting')}</p>
+    </Screen>
   );
 }

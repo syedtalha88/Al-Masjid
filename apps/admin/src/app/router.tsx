@@ -17,7 +17,8 @@ export function createAppRouter(queryClient: QueryClient) {
     defaultPreload: 'intent',
     defaultErrorComponent: RouteError,
     defaultPendingComponent: RoutePending,
-    scrollRestoration: true,
+    // Each screen keeps its own scroll position inside the stack navigator (08 §3), not the window.
+    scrollRestoration: false,
   });
 }
 
