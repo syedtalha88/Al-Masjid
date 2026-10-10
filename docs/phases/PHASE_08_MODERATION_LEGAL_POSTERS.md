@@ -31,16 +31,16 @@ The platform can meet Indian intermediary obligations in practice: anyone can re
 **Acceptance:** [ ] Contact encrypted at rest (DB test reads ciphertext). [ ] Reference numbers sequential per year, unguessable ordering not required.
 
 ### T8.5 — Legal orders register (C7)
-**Do:** Create/edit orders with received time (entered), due = +3 h, linked targets, action log, private document upload (private S3 bucket — Block Public Access, SSE, presigned GET URLs valid 5 min, generated only for Super Admin with step-up; uploads via `busboy` with type/size limits), status flow.
-**Acceptance:** [ ] Private documents inaccessible without a presigned URL, and the URL expires after 5 minutes (test against the S3 adapter + staging opt-in). [ ] Timer and alerts work (reuse T8.3).
+**Do:** Create/edit orders with received time (entered), due = +3 h, linked targets, action log, private document upload (encrypted with AES-256-GCM in `api-admin`, stored as a Cloudinary `raw` + `authenticated` asset; downloads only through `api-admin`, which fetches, decrypts and streams the file to a Super Admin with step-up — no signed URL ever reaches a browser; uploads via `busboy` with type/size limits — DECISIONS #40), status flow.
+**Acceptance:** [ ] Stored bytes are ciphertext (test reads the raw object via the adapter); a non-super or no-step-up session gets 403; the Cloudinary asset is not reachable by its public URL (staging opt-in check). [ ] Timer and alerts work (reuse T8.3).
 
 ### T8.6 — Legal texts, versions & reminders
 **Do:** Draft `privacy`, `terms`, `content-policy`, `grievance`, `undertaking` in English + draft translations, each with `DRAFT — REQUIRES LEGAL REVIEW` banner and front-matter status; legal reader screen (both apps); version tracking (`app_settings.*_version`) → re-acceptance prompts (musalli privacy notice sheet; admin undertaking screen); annual reminder (musalli sheet; admin re-accept); `licenses` page generated at build from dependency licenses + fonts + datasets (GeoNames, etc.) + library sources. Production build check refuses drafts.
-**Privacy policy draft must accurately list:** data categories (02 devices/admin/grievance), purposes, processors (VPS hosting provider, MongoDB Atlas, AWS S3, Cloudflare (CDN/WAF/DNS + Turnstile), Bunny, Sentry, push services FCM/APNs/Mozilla) and their regions, retention table, rights & how to exercise, grievance officer, children statement, no ads/no tracking, changes policy.
+**Privacy policy draft must accurately list:** data categories (02 devices/admin/grievance), purposes, processors (VPS hosting provider, MongoDB Atlas, Cloudinary (images; encrypted legal documents), Cloudflare (CDN/WAF/DNS + Turnstile), YouTube (only after a user taps Play on a bayan), Sentry, push services FCM/APNs/Mozilla) and their regions, retention table, rights & how to exercise, grievance officer, children statement, no ads/no tracking, changes policy.
 **Acceptance:** [ ] Build check proven (fails with draft in prod mode). [ ] Re-acceptance flows e2e.
 
 ### T8.7 — Retention job
-**Do:** Worker job `retention` (scheduler 03:00 IST, `systemScope()`) implementing every row of `02 §6` in batches (≤ 1,000 documents per operation, loop until done or time budget), media deletion (S3/Bunny via `bunny-delete`), log-archive lifecycle check, audited summary, `--dry-run` mode (Super Admin can trigger dry-run report on staging), alert on failure.
+**Do:** Worker job `retention` (scheduler 03:00 IST, `systemScope()`) implementing every row of `02 §6` in batches (≤ 1,000 documents per operation, loop until done or time budget), media deletion (Cloudinary via `media-delete` + Cloudflare purge), VPS log-archive 200-day cleanup check, audited summary, `--dry-run` mode (Super Admin can trigger dry-run report on staging), alert on failure.
 **Acceptance:** [ ] Integration test per retention rule with clock control; dry-run changes nothing.
 
 ### T8.8 — QR poster generator (C3)
@@ -52,7 +52,7 @@ The platform can meet Indian intermediary obligations in practice: anyone can re
 **Acceptance:** [ ] Integration tests for each switch.
 
 ### T8.10 — Audit & stats completion
-**Do:** Audit viewer filters/export final; Stats page (masjids by status, devices, follows, push success, job lag, storage per masjid, reports/grievances SLA compliance %).
+**Do:** Audit viewer filters/export final; Stats page (masjids by status, devices, follows, push success, job lag, Cloudinary credits used, reports/grievances SLA compliance %).
 **Acceptance:** [ ] CSV export audited; no secrets/PII columns beyond what Super Admin may see.
 
 ### T8.11 — Quality gates

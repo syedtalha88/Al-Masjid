@@ -23,13 +23,13 @@
                           │  └──────────────┬───────────────────────────────────────────────┬────────────────────────┘
                           │                 │ TLS, IP access list = VPS static IP          │
                           │      ┌──────────▼────────────────────────────┐        ┌────────▼───────────────┐
-                          │      │ MongoDB Atlas (AWS ap-south-1 Mumbai)  │        │ AWS S3 (ap-south-1)     │
-                          │      │ replica set · custom roles · views ·   │        │ public media bucket     │
-                          │      │ Continuous Backup (PITR)               │        │ (media.<domain> via CF) │
-                          │      └────────────────────────────────────────┘        │ private legal-docs      │
-                          │                                                         │ private log archive     │
+                          │      │ MongoDB Atlas (AWS ap-south-1 Mumbai)  │        │ Cloudinary (free plan)  │
+                          │      │ replica set · custom roles · views ·   │        │ sanitized images via    │
+                          │      │ Continuous Backup (PITR)               │        │ media.<domain> + CF     │
+                          │      └────────────────────────────────────────┘        │ encrypted legal docs    │
    Push services (FCM / APNs / Mozilla) ◀── web-push (VAPID) ── worker              └─────────────────────────┘
-   Bunny Stream (TUS upload, HLS, token auth, webhook → api-admin /api/hooks/bunny)
+   YouTube (bayans): api-admin checks oEmbed + copies the thumbnail; phones load the youtube-nocookie
+     embed only after the user taps Play (DECISIONS #39). Log archive: on the VPS, encrypted, 200 days (#40)
    Cloudflare Turnstile (invisible) ◀── device registration, reports, grievances
    Sentry (errors, PII-scrubbed)
 ```
@@ -40,9 +40,9 @@
 |---|---|---|
 | `app.<domain>` | Musalli PWA + `/api/v1/*` + `/m/:code` + `/p/:id` | Public. Cookie-less. Device bearer auth. Cloudflare caches static assets + versioned API GETs. |
 | `admin.<domain>` | Admin + Super Admin PWA + `/api/admin/*`, `/api/super/*`, `/api/hooks/*` | Passkey RP ID = `admin.<domain>`. `__Host-` session cookie. Not linked from the public app. `noindex`. Cloudflare "bypass cache" for `/api/*`. |
-| `media.<domain>` | Processed public images (S3 public media bucket via Cloudflare) | Immutable, content-hashed keys. Never serves HTML. |
+| `media.<domain>` | Processed public images: Caddy route proxying an allow-listed path to Cloudinary, cached by Cloudflare (DECISIONS #40) | Immutable, random keys. Never serves HTML. |
 | `<domain>` | Tiny static landing (what is this, legal pages, grievance officer details, Play Store link) | Served by the same Caddy (static folder). |
-| `app-staging.<domain>`, `admin-staging.<domain>`, `media-staging.<domain>` | Staging VPS / staging S3 media bucket | Stable staging hosts (passkeys need a real RP domain). `noindex`. |
+| `app-staging.<domain>`, `admin-staging.<domain>`, `media-staging.<domain>` | Staging VPS / staging Cloudinary folder | Stable staging hosts (passkeys need a real RP domain). `noindex`. |
 
 Two separate service-worker scopes, two manifests, two installable apps. There are **no** `/api/jobs/*` HTTP routes: background jobs run only inside the `worker` container (not reachable from the internet).
 
@@ -126,8 +126,8 @@ masjid-connect/
 | Rate limit / ephemeral | **Redis 7+** (self-hosted container) + `rate-limiter-flexible` (sliding/fixed window) | Challenges (GETDEL), rate limits, idempotency keys |
 | Jobs | **BullMQ** (queues, retries/backoff, job schedulers) + MongoDB outbox | `worker` container only |
 | Push | `web-push` (VAPID) | `worker` only |
-| Video | Bunny Stream (TUS upload, HLS, token auth, webhooks) | `hls.js` (light build) where native HLS absent |
-| Images | `sharp` re-encode → **AWS S3** public media bucket (`@aws-sdk/client-s3`) | AVIF + WebP, 3 widths |
+| Video | **YouTube links** (DECISIONS #39): oEmbed check, copied thumbnail, `youtube-nocookie.com` embed after tap | No video hosting, no player library |
+| Images | `sharp` sanitize/re-encode → **Cloudinary** signed server-side upload (DECISIONS #40) | Named transformations 480/960/1440 × AVIF/WebP; strict transformations ON |
 | Multipart | `busboy` (streaming, hard limits) | Admin image uploads only |
 | QR generate | `qrcode` (SVG output) | Posters, UPI QR |
 | QR scan | `BarcodeDetector` where available, else `qr-scanner` (lazy) | |
@@ -150,7 +150,7 @@ masjid-connect/
   - `mc_admin` — used by `api-admin` only. Read/write on content/admin collections, `insert`+`find` only on append-only collections, no access to `devices`.
   - `mc_system` — used by `worker` and one-off scripts (bootstrap, seed-staging). Broad read/write incl. purge.
   - `mc_migrator` — used only by the migration container in CI deploys (collMod, createIndex, create views). Never present in a running app container.
-- **Every** DB call goes through a scoped repository in `packages/db`: `withScope(scope, fn)` where `scope` is one of `publicScope()`, `deviceScope(deviceId)`, `adminScope({adminId, masjids: [{id, role}]})`, `superScope(adminId)`, `hookScope('bunny')` (webhooks; narrow policy cells: video status, `video_used_bytes`, publish + outbox insert for that video's item only), `systemScope()`. The **policy table** (02 §4) supplies the filter, projection and writable-field allow-list for each (collection × scope × operation); a missing cell throws `PolicyDeniedError`. Multi-document writes use `withTransaction(scope, fn)` (driver `session.withTransaction`, `readConcern: majority`, `writeConcern: majority`).
+- **Every** DB call goes through a scoped repository in `packages/db`: `withScope(scope, fn)` where `scope` is one of `publicScope()`, `deviceScope(deviceId)`, `adminScope({adminId, masjids: [{id, role}]})`, `superScope(adminId)`, `hookScope(name)` (reserved for inbound webhooks with narrow policy cells; none in v1 since Bunny was dropped — DECISIONS #39), `systemScope()`. The **policy table** (02 §4) supplies the filter, projection and writable-field allow-list for each (collection × scope × operation); a missing cell throws `PolicyDeniedError`. Multi-document writes use `withTransaction(scope, fn)` (driver `session.withTransaction`, `readConcern: majority`, `writeConcern: majority`).
 - `systemScope()` may only be imported from `packages/api/src/jobs/**` (runs in `worker` with `mc_system`) and `scripts/**`; `hookScope()` only from `packages/api/src/hooks/**` (runs in `api-admin` with `mc_admin`) — enforced by ESLint `no-restricted-imports` + Semgrep. Raw driver imports (`mongodb`) are banned outside `packages/db`.
 - Verify in T1.1 that Atlas custom roles can grant privileges on **views** without privileges on the source collections; if not, record an OPEN decision (fallback: `mc_public` gets `find` on source collections and the policy layer projections become the only filter — weaker, needs owner sign-off).
 
@@ -178,16 +178,18 @@ masjid-connect/
 6. The service worker **always** shows a notification for every push (required by browsers); it never silently drops one.
 7. **Outbox sweeper** (every minute): re-enqueues `notification_jobs` still `pending` after 2 minutes; **stuck-job detector**: `running` with no progress for 10 min → `failed` + Super Admin alert.
 
-### 5.4 Video pipeline (DECISIONS #10)
-1. Admin selects file → app validates type/size/duration (via `<video>` metadata) → `POST /api/admin/videos` (title, audience…) → API creates Bunny video object (server-side API key), stores item `uploading`, returns **TUS signature** (`SHA256(libraryId + apiKey + expiration + videoId)`, expiry 6h), libraryId, videoId.
-2. Browser uploads directly to Bunny TUS endpoint with `tus-js-client` (chunked, resumable, fingerprint stored in IndexedDB).
-3. Bunny webhook → `/api/hooks/bunny` on `api-admin` (verify signature/secret, idempotent) → status `processing` → `ready` (store duration, thumbnail) → publish item + enqueue push. Webhook handlers run with `hookScope('bunny')` (allowed only in `hooks/**`).
-4. Playback: `GET /api/v1/videos/:publicId/play` → returns short-lived (2h) token-signed HLS URL; audience check against device preference; `hls.js` or native HLS. (The token key for **signing playback URLs** is the only Bunny secret `api-public` holds; it cannot manage the library.)
-5. YouTube: store only the 11-char video id (validated); render `lite` facade (thumbnail via `i.ytimg.com`, iframe `youtube-nocookie.com` only after tap).
-6. Bunny library settings: token authentication ON, allowed referrers = app/admin origins, renditions 360p/480p/720p, MP4 fallback OFF, storage replication per cost decision.
+### 5.4 Bayan videos — YouTube links (DECISIONS #39; replaces the Bunny pipeline of #10)
+1. Admin pastes a link → the admin app parses it client-side for instant feedback → `POST /api/admin/videos` (link, title, speaker, description, audience, language).
+2. `api-admin` re-parses strictly (allowed hosts/paths only, 11-char id `[A-Za-z0-9_-]{11}`, optional start seconds) and stores **only** `youtube_id` + `start_s` — never the pasted URL.
+3. Server calls YouTube oEmbed (fixed host, URL built from the validated id, 5 s timeout) → title pre-fill; private/deleted/embedding-disabled → `422 VIDEO_UNAVAILABLE`.
+4. Server fetches `https://i.ytimg.com/vi/<id>/hqdefault.jpg` (fixed host; size/type limits) → the normal image pipeline (§5.5) → Cloudinary; stores `thumb_key` + thumbhash.
+5. Item published immediately (no processing state) → outbox + push, audience-filtered.
+6. Musalli: card with our thumbnail + play button (facade). Only on tap: `<iframe src="https://www.youtube-nocookie.com/embed/<id>?autoplay=1&rel=0&playsinline=1[&start=n]" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin">`. No Google request before the tap; CSP `frame-src https://www.youtube-nocookie.com` only.
+
 
 ### 5.5 Images
-Upload → `api-admin` (admin only, `busboy` with 10 MB hard limit) → magic-byte check (JPEG/PNG/WebP/HEIC) → `sharp` decode (limit input pixels 40 MP) → strip metadata → resize to 3 widths (480/960/1440) → AVIF + WebP → compute a **thumbhash** (≈ 25 bytes, base64) for the blurred placeholder → upload to the S3 public media bucket under `m/<masjidId>/<random-uuid>-<w>.<ext>` with `Content-Type` set by us, `Cache-Control: public, max-age=31536000, immutable` → DB stores the key + thumbhash (`*_thumbhash` next to every `*_key` field). Original discarded (never written to disk; processed in memory with limits).
+Upload → `api-admin` (admin only, `busboy` with 10 MB hard limit) → magic-byte check (JPEG/PNG/WebP/HEIC) → `sharp` decode (limit input pixels 40 MP) → strip metadata → resize to 3 widths (480/960/1440) → re-encode one sanitized master (max 1440 px) → compute a **thumbhash** (≈ 25 bytes, base64) for the blurred placeholder → signed server-side upload to Cloudinary as `m/<masjidId>/<random-uuid>` → DB stores the key + thumbhash (`*_thumbhash` next to every `*_key` field). Original discarded (never written to disk; processed in memory with limits).
+Delivery (DECISIONS #40): `media.<domain>/i/<480|960|1440>/<avif|webp>/<key>` → Caddy (path allow-list) → Cloudinary named transformation → Cloudflare cache `public, max-age=31536000, immutable`, so musalli IPs never reach Cloudinary and most views cost no credits. Cloudinary **strict transformations** ON (no ad-hoc sizes). Legal-order documents: AES-256-GCM encrypted in `api-admin`, stored as Cloudinary `raw` + `authenticated`, downloaded and decrypted server-side only.
 
 ### 5.6 Offline & service worker (apps/app)
 - Precache app shell + locale JSON for the active locale + active locale font subset.
@@ -219,7 +221,8 @@ Upload → `api-admin` (admin only, `busboy` with 10 MB hard limit) → magic-by
 | `report-triage` | scheduler every 1 min | sends the immediate Super Admin alert for each new urgent report and auto-hides an item once ≥ `report_autohide_threshold` distinct devices reported it within 1 h (the public API may only insert reports, so this runs in the worker); one alert/hide per report/item, recorded |
 | `cdn-purge` | moderation removal | idempotent (purge is) |
 | `alert-send` | admin/super-admin alert pushes | (alertId) |
-| `bunny-delete` | retention | (videoId) |
+| `media-delete` | retention, moderation | (Cloudinary key) — destroy + invalidate, then Cloudflare purge |
+| `cloudinary-usage` | scheduler daily 06:00 IST | alert at 70% / 90% of monthly credits, once per (month, threshold) |
 | `stats-snapshot` | scheduler hourly (writes `stats_snapshots` + `masjid_stats.ameens_7d`) | (hour) |
 | `counters-reconcile` | scheduler weekly (Sun 04:00 IST) | recompute, idempotent |
 Schedulers use explicit time zone `Asia/Kolkata`. Each processor has a timeout, max attempts, exponential backoff, and writes failures to Sentry + structured logs. Queue health (waiting/active/failed counts, oldest job age) is exposed to Super Admin Stats.
@@ -234,21 +237,21 @@ Schedulers use explicit time zone `Asia/Kolkata`. Each processor has a timeout, 
 
 | Env | Frontend & API | DB | Redis / Jobs | Storage | Video |
 |---|---|---|---|---|---|
-| local | Vite dev servers; `api-public` :8787, `api-admin` :8788, `worker` via `tsx watch`; Vite proxy `/api` | Docker `mongo:8` single-node **replica set with auth** (roles + views applied by `db:reset`) | Docker Redis; BullMQ real; VAPID dev keys | filesystem adapter | Bunny **mock** adapter by default; real staging library opt-in |
-| staging | Staging VPS (Mumbai) via Docker Compose; `app-staging.<domain>`, `admin-staging.<domain>` behind Cloudflare | Atlas project `mc-staging` (Mumbai) | Redis container on staging VPS | S3 staging buckets | Bunny staging library |
-| production | Production VPS (Mumbai) | Atlas project `mc-prod` (Mumbai, M10+, Continuous Backup on) | Redis container on prod VPS | S3 prod buckets | Bunny prod library |
+| local | Vite dev servers; `api-public` :8787, `api-admin` :8788, `worker` via `tsx watch`; Vite proxy `/api` | Docker `mongo:8` single-node **replica set with auth** (roles + views applied by `db:reset`) | Docker Redis; BullMQ real; VAPID dev keys | filesystem adapter | YouTube oEmbed **mock** adapter by default |
+| staging | Staging VPS (Mumbai) via Docker Compose; `app-staging.<domain>`, `admin-staging.<domain>` behind Cloudflare | Atlas project `mc-staging` (Mumbai) | Redis container on staging VPS | Cloudinary (staging folder) | YouTube links |
+| production | Production VPS (Mumbai) | Atlas project `mc-prod` (Mumbai, M10+, Continuous Backup on) | Redis container on prod VPS | Cloudinary (prod folder) | YouTube links |
 
 Passkeys require the real RP domain → device testing of admin login happens on staging (`admin-staging.<domain>`). Staging and production never share credentials, Atlas projects, buckets or VAPID keys.
 
 ## 7. Configuration (`packages/shared/src/env.ts`)
 Per-process env sets (Zod-validated at boot; missing/invalid → refuse to start, listing names never values):
 - **Common (all server processes):** `NODE_ENV`, `APP_ENV` (`local|staging|production`), `LOG_LEVEL`, `SENTRY_DSN`, `MONGODB_DB_NAME`, `APP_ORIGIN`, `ADMIN_ORIGIN`, `MEDIA_ORIGIN`, `TRUSTED_PROXY_MODE` (`cloudflare|none`).
-- **api-public:** `MONGODB_URI_PUBLIC`, `REDIS_URL_PUBLIC` (ACL user `rl_public`), `TURNSTILE_SECRET`, `BUNNY_TOKEN_KEY`, `BUNNY_CDN_HOST`, `PORT`.
-- **api-admin:** `MONGODB_URI_ADMIN`, `REDIS_URL_ADMIN` (ACL user `admin`), `SESSION_PEPPER`, `FIELD_ENCRYPTION_KEY` (AES-256-GCM, base64 32 bytes) + `FIELD_ENCRYPTION_KEY_ID` (+ old keys for rotation), `RP_ID`, `BUNNY_LIBRARY_ID`, `BUNNY_API_KEY`, `BUNNY_TOKEN_KEY`, `BUNNY_WEBHOOK_SECRET`, `BUNNY_CDN_HOST`, `S3_REGION`, `S3_MEDIA_BUCKET`, `S3_PRIVATE_BUCKET`, `S3_ACCESS_KEY_ID_ADMIN`, `S3_SECRET_ACCESS_KEY_ADMIN`, `TURNSTILE_SECRET`, `VAPID_PUBLIC_KEY`, `PAYMENT_HOLD_MINUTES` (≥ 1440 enforced in production), `PORT`.
-- **worker:** `MONGODB_URI_SYSTEM`, `REDIS_URL_WORKER` (ACL user `worker`), `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mailto:), `BUNNY_LIBRARY_ID`, `BUNNY_API_KEY`, `S3_REGION`, `S3_MEDIA_BUCKET`, `S3_PRIVATE_BUCKET`, `S3_LOG_BUCKET`, `S3_ACCESS_KEY_ID_WORKER`, `S3_SECRET_ACCESS_KEY_WORKER`, `CF_API_TOKEN_PURGE`, `CF_ZONE_ID`, `FIELD_ENCRYPTION_KEY*` (retention anonymization), `PAYMENT_HOLD_MINUTES`.
+- **api-public:** `MONGODB_URI_PUBLIC`, `REDIS_URL_PUBLIC` (ACL user `rl_public`), `TURNSTILE_SECRET`, `PORT`.
+- **api-admin:** `MONGODB_URI_ADMIN`, `REDIS_URL_ADMIN` (ACL user `admin`), `SESSION_PEPPER`, `FIELD_ENCRYPTION_KEY` (AES-256-GCM, base64 32 bytes) + `FIELD_ENCRYPTION_KEY_ID` (+ old keys for rotation), `RP_ID`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (api-admin's own key), `TURNSTILE_SECRET`, `VAPID_PUBLIC_KEY`, `PAYMENT_HOLD_MINUTES` (≥ 1440 enforced in production), `PORT`.
+- **worker:** `MONGODB_URI_SYSTEM`, `REDIS_URL_WORKER` (ACL user `worker`), `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mailto:), `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (the worker's own key), `CF_API_TOKEN_PURGE`, `CF_ZONE_ID`, `FIELD_ENCRYPTION_KEY*` (retention anonymization), `PAYMENT_HOLD_MINUTES`.
 - **migrate (one-off):** `MONGODB_URI_MIGRATOR`.
 - **Client (build time):** `VITE_PUBLIC_API_BASE`, `VITE_PUBLIC_VAPID_PUBLIC_KEY`, `VITE_PUBLIC_TURNSTILE_SITE_KEY`, `VITE_PUBLIC_SENTRY_DSN`, `VITE_PUBLIC_APP_ORIGIN`, `VITE_PUBLIC_MEDIA_ORIGIN`.
-**Forbidden-variable boot assertion:** `api-public` must NOT have any of `MONGODB_URI_ADMIN`, `MONGODB_URI_SYSTEM`, `MONGODB_URI_MIGRATOR`, `BUNNY_API_KEY`, `S3_*_KEY*`, `VAPID_PRIVATE_KEY`, `CF_API_TOKEN_PURGE`, `SESSION_PEPPER`, `FIELD_ENCRYPTION_KEY*`. `api-admin` must NOT have `MONGODB_URI_SYSTEM`, `MONGODB_URI_MIGRATOR`, `MONGODB_URI_PUBLIC`, `VAPID_PRIVATE_KEY`, `CF_API_TOKEN_PURGE`. `worker` must NOT have `MONGODB_URI_PUBLIC`, `MONGODB_URI_ADMIN`, `MONGODB_URI_MIGRATOR`, `SESSION_PEPPER`. Each assertion is unit-tested.
+**Forbidden-variable boot assertion:** `api-public` must NOT have any of `MONGODB_URI_ADMIN`, `MONGODB_URI_SYSTEM`, `MONGODB_URI_MIGRATOR`, `CLOUDINARY_API_*`, `VAPID_PRIVATE_KEY`, `CF_API_TOKEN_PURGE`, `SESSION_PEPPER`, `FIELD_ENCRYPTION_KEY*`. `api-admin` must NOT have `MONGODB_URI_SYSTEM`, `MONGODB_URI_MIGRATOR`, `MONGODB_URI_PUBLIC`, `VAPID_PRIVATE_KEY`, `CF_API_TOKEN_PURGE`. `worker` must NOT have `MONGODB_URI_PUBLIC`, `MONGODB_URI_ADMIN`, `MONGODB_URI_MIGRATOR`, `SESSION_PEPPER`. Each assertion is unit-tested.
 
 ## 8. Scalability targets (design for, then load-test in Phase 9)
 - 10,000 masjids · 10 lakh (1M) devices · 50 lakh follows.
@@ -261,7 +264,7 @@ Per-process env sets (Zod-validated at boot; missing/invalid → refuse to start
 | Metric (musalli app, Moto G-class profile, "Slow 4G" throttling in Lighthouse) | Budget |
 |---|---|
 | Initial JS (gzip) for `/` route | ≤ 170 KB |
-| Any lazy route chunk (gzip) | ≤ 60 KB (video player chunk ≤ 90 KB) |
+| Any lazy route chunk (gzip) | ≤ 60 KB |
 | Initial CSS (gzip) | ≤ 25 KB |
 | Fonts on first load | Only active-locale subset(s), `font-display: swap`, ≤ 120 KB (Urdu Nastaliq lazy ≤ 350 KB, loaded only for `ur`) |
 | LCP (cold) | ≤ 2.5 s |
@@ -275,10 +278,10 @@ Admin app budgets: initial JS ≤ 220 KB, others same. Compression: Caddy serves
 
 ## 10. Observability
 - Sentry: release tagging, source maps uploaded (not served publicly), PII scrubber (strip query strings, auth headers, IPs), sample rates: errors 100%, traces 5%. One Sentry project per process type (app, admin, api, worker) or tags.
-- Structured logs (pino JSON) with request id; Docker log rotation; daily encrypted shipment to the S3 log bucket with ≥ 180-day retention (CERT-In, DECISIONS #24).
+- Structured logs (pino JSON) with request id; Docker log rotation; daily encrypted archive on the VPS kept 200 days (≥ 180 required by CERT-In), included in VPS backups (DECISIONS #40).
 - Health: `GET /api/v1/health` and `GET /api/admin/health` (MongoDB ping, Redis ping, build version); worker heartbeat. External uptime monitor on both (Phase 9).
 - VPS: disk/CPU/memory alerts (provider monitoring or a lightweight agent), Docker container restart alerts, Atlas alerts (connections, oplog window, disk, slow queries).
 - Dashboards (Super Admin "Stats"): push success rate, job queue lag & failed jobs, error rate, storage usage.
 
 ## 11. Cost guardrails (verify current vendor pricing before launch)
-Rough monthly order of magnitude at 1,000 masjids / 2 lakh devices: production VPS 4 vCPU/8 GB (~$25–50) + staging VPS 2 vCPU/4 GB (~$10–25), MongoDB Atlas M10 in Mumbai with backup (~$60–80; staging on the cheapest tier that supports custom roles + transactions), Cloudflare (free plan; Pro optional for more WAF rules), AWS S3 (a few dollars), Bunny Stream (storage + delivery; the largest variable — enforce quotas, 720p cap), Sentry (free/team tier), domain. Super Admin dashboard shows storage + delivery estimates per masjid.
+Rough monthly order of magnitude at 1,000 masjids / 2 lakh devices: production VPS 4 vCPU/8 GB (~$25–50) + staging VPS 2 vCPU/4 GB (~$10–25), MongoDB Atlas M10 in Mumbai with backup (~$60–80; staging on the cheapest tier that supports custom roles + transactions), Cloudflare (free plan; Pro optional for more WAF rules), Cloudinary (free plan: 25 credits/month, no card; kept inside it by the Cloudflare cache — DECISIONS #40), YouTube for bayans (free — DECISIONS #39), Sentry (free tier), domain. Super Admin dashboard shows Cloudinary credits used.

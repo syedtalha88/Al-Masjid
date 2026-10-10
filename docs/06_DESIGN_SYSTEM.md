@@ -151,7 +151,7 @@ Admin app: base `body` = 17/24, `headline` = 19/26, buttons 18/24 semibold. Ever
 - `JumuahCard` (mint card + mosque illustration + rows "Jumu'ah 1 1:30 PM").
 - `RamadanCard` (Sehri ends / Iftar with icons; gentle crescent illustration).
 - `TimelineList` (Updates): left 44px icon circles connected by a 2px `--color-border` vertical line; content: masjid name `subheadStrong`, title `subheadStrong`, snippet `footnote` 2 lines, time `caption`.
-- `AnnouncementCard`, `HadithCard` (+ `hero` variant with photo, date pill, bookmark), `DuaRequestCard` (+ `DuaBox`), `CampaignCard`, `CampaignHero`, `ProgressBar` (12px, full radius, track surface-muted, fill primary-500, animated), `AmountPair` (received vs target), `MetaRow` (Started / Ends / Support with icons), `VideoCard`, `VideoPlayer`, `ChandaChart` (8 bars, custom SVG, current week primary, others mint-200).
+- `AnnouncementCard`, `HadithCard` (+ `hero` variant with photo, date pill, bookmark), `DuaRequestCard` (+ `DuaBox`), `CampaignCard`, `CampaignHero`, `ProgressBar` (12px, full radius, track surface-muted, fill primary-500, animated), `AmountPair` (received vs target), `MetaRow` (Started / Ends / Support with icons), `VideoCard`, `YouTubeFacade` (thumbnail + play; iframe only after tap — DECISIONS #39), `ChandaChart` (8 bars, custom SVG, current week primary, others mint-200).
 - `ArabicText` — `dir="rtl"`, `lang="ar"`, Amiri, centered by default, never mirrored by locale, `user-select: text`, larger tap-to-copy affordance in "Read Full".
 - `QrCodeView` (SVG QR with quiet zone, white card, payee name below), `UpiActions`.
 - `Compass` (see 07 Qibla).
@@ -171,7 +171,7 @@ Admin app: base `body` = 17/24, `headline` = 19/26, buttons 18/24 semibold. Ever
 - `PublishBar` — sticky bottom bar: "Notify followers" switch with quota text ("6 of 8 left today") + big primary "Publish" button.
 - `PreviewFrame` — shows the musalli rendering inside a phone-shaped rounded frame with language switcher.
 - `StepHeader` — "Step 2 of 3" + progress dots.
-- `UploadProgress` — circular progress with % and "You can keep using the app".
+- `UploadProgress` — circular progress with % for image uploads.
 - `SuccessCheck` — animated check (see motion).
 
 ## 7. Content & tone

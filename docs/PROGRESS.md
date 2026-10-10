@@ -51,11 +51,13 @@
 | F12 | T0.4 | Add `runtime-test` image target with the test-hooks module + CI check that `runtime` has no hooks (DECISIONS #31) | T0.12 |
 | F13 | T0.7 | Hijri month names: Intl gives English names for `te` and odd ordering for `hi` — add per-locale month-name fallback table (09 §4) | Phase 2 T2.1 |
 | F14 | T0.7 | i18n runtime is ≈29 KB gzip of the initial JS; if the 170 KB budget gets tight, precompile ICU messages to ASTs at build time and drop the parser (~8 KB gzip) (DECISIONS #38) | When `pnpm size` nears budget |
+| F15 | T0.7 | Phase 00 exit budget: musalli initial JS ≤ 120 KB gz (PHASE_00 exit criteria); currently 130.8 KB (React DOM ≈ 50 % of it, i18n ≈ 29 KB). Measure precisely with size-limit and bring under budget (ICU precompile F14, defer non-shell code). | T0.12 |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-10 | 00 / plan change | Owner: bayans = YouTube links only (DECISIONS #39), Cloudinary replaces AWS S3, logs stay on the VPS (DECISIONS #40; answers 1a 2a 3a). Env schema, .env.example, tests and all docs updated. Next: T0.6. |
 | 2026-10-09 | 00 / T0.7 | T0.7 done: i18n foundation, 72 tests, e2e 18/18, closed F4 + F7, added F14 (DECISIONS #38). Next: T0.6 design tokens. |
 | 2026-10-09 | 00 / T0.4 | Done. Dockerfiles (distroless server, non-root Caddy), dev + stack compose, Caddyfile, precompressed builds, Playwright smoke. Fixed on the way: Caddy root→non-root, source maps were served (now 404), `dev up` removed stack containers, health field `release`→`version` (F5). F5/F6 closed. |
 | 2026-10-09 | 00 / audit | Full re-read of the pack (CLAUDE.md, docs 00–10, phases 00–09, owner docs, agents, commands, design refs) vs. work done. On plan; 1 contract mismatch (F5) + 6 tracked items (F6–F11). |

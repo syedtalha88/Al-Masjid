@@ -38,7 +38,7 @@ Notification categories/preferences (rejected — DECISIONS #16). Scheduled post
 **Acceptance:** [ ] Quota resets at IST midnight (clock-controlled test). [ ] UI counts match DB (integration).
 
 ### T4.6 — Admin push subscriptions & alert plumbing
-**Do:** Admin app SW + `PUT/DELETE /auth/push`; alert service (API side enqueues an `alert-send` job; the worker — the only holder of the VAPID private key — sends it) used for: video ready/failed (Phase 6), payment request status (Phase 5), content removed (Phase 8), and Super Admin alerts (new payment request, SLA thresholds, credential counter regression). Implement now with the counter-regression alert wired.
+**Do:** Admin app SW + `PUT/DELETE /auth/push`; alert service (API side enqueues an `alert-send` job; the worker — the only holder of the VAPID private key — sends it) used for: payment request status (Phase 5), content removed (Phase 8), and Super Admin alerts (new payment request, SLA thresholds, Cloudinary credits at 70%/90%, credential counter regression). Implement now with the counter-regression alert wired.
 **Acceptance:** [ ] Super Admin receives a test alert from a dev-only trigger on staging.
 
 ### T4.7 — Kill switch

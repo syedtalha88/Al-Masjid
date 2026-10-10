@@ -58,7 +58,7 @@ A boot-time assertion in each process refuses to start if a variable that proces
 **Decision:** Publishing writes a `notification_jobs` document (**outbox**, status `pending`) in the same MongoDB transaction as the content; after commit the API enqueues a BullMQ job (job id = notification job id, so duplicates are impossible). The `worker` process runs fan-out and send-batch processors with retries/backoff, sends Web Push (VAPID) in batches, prunes dead subscriptions, and runs all scheduled jobs (BullMQ job schedulers). An **outbox sweeper** re-enqueues `pending` jobs older than 2 minutes, so a lost Redis queue never loses a notification (MongoDB is the source of truth).
 **Consequences:** Fewer vendors and accounts; job state survives Redis restarts; Redis must be private (no public port), password + ACL protected, AOF persistence on.
 
-### #10 — Video via Bunny Stream (TUS upload, HLS playback) + optional YouTube link — ACCEPTED
+### #10 — Video via Bunny Stream (TUS upload, HLS playback) + optional YouTube link — SUPERSEDED by #39 (10 Oct 2026)
 **Decision:** Direct resumable uploads from the admin's phone to Bunny Stream using server-issued short-lived signatures; HLS playback with token auth; renditions 360p/480p/720p only. Admin may instead paste a YouTube link (rendered via a privacy-friendly click-to-load embed).
 **Consequences:** Running cost scales with storage/views; per-masjid quotas enforced.
 
@@ -99,10 +99,10 @@ Not building: (1) khutbah language field, (5) janaza priority alerts, (7) per-ca
 | DB tests | pgTAP | **Policy-matrix + DB-privilege tests** with Vitest against a real MongoDB (Docker) (10) |
 | Jobs | Upstash QStash | **BullMQ** + MongoDB outbox (#9) |
 | Rate limits / challenges | Upstash Redis | **Redis 7+ on the VPS** (private network, ACL users) |
-| Image storage | Supabase Storage | **AWS S3 ap-south-1** (public media bucket behind Cloudflare; private bucket for legal documents) (#23) |
+| Image storage | Supabase Storage | ~~AWS S3 ap-south-1 (#23)~~ → **Cloudinary** (free plan) behind our own `media.<domain>` + Cloudflare cache (#40) |
 | Hosting / CDN / firewall | Vercel (bom1), Vercel CDN & Firewall | **VPS (Mumbai) + Docker Compose + Caddy + Cloudflare** (#21) |
 | Backups | Supabase PITR | **Atlas Continuous Cloud Backup (PITR)** + VPS snapshots |
-Unchanged: Turnstile, Sentry, Bunny Stream, web-push/VAPID, SimpleWebAuthn, all product rules.
+Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules. (Bunny Stream later replaced by YouTube links — #39.)
 
 ### #20 — Authorization without row-level security — ACCEPTED
 **Context:** Revision 1 enforced tenant isolation twice: API checks + Postgres RLS. MongoDB has no row-level security, so we must not quietly drop the second layer.
@@ -124,11 +124,11 @@ Unchanged: Turnstile, Sentry, Bunny Stream, web-push/VAPID, SimpleWebAuthn, all 
 ### #22 — IDs — ACCEPTED
 **Decision:** All document `_id`s are **UUID v4** stored as BSON Binary subtype 4 (`new UUID()` from the driver), so ids in URLs are not guessable or time-ordered (R6). Exception: `audit_log` uses ObjectId (ordered append). Public item ids stay the 12-char random `public_id`.
 
-### #23 — Object storage: AWS S3 (ap-south-1) — ACCEPTED
+### #23 — Object storage: AWS S3 (ap-south-1) — SUPERSEDED by #40 (10 Oct 2026)
 **Decision:** Processed images go to a **public media bucket** served as `media.<domain>` through Cloudflare (bucket policy only allows reads via Cloudflare / the CDN path; objects are content-hashed and immutable). Legal-order documents go to a **separate private bucket** (Block Public Access on, SSE encryption, 5-minute presigned GET URLs, Super Admin only). Only `api-admin` (write) and `worker` (delete) have S3 credentials, each an IAM user scoped to the exact bucket/prefix and actions. Local dev and tests use a filesystem adapter with the same interface.
 **Consequences:** One more account (AWS) with MFA; cost is very low at our image volumes.
 
-### #24 — Logging & CERT-In retention on a VPS — ACCEPTED
+### #24 — Logging & CERT-In retention on a VPS — SUPERSEDED by #40 (log archive part; 10 Oct 2026)
 **Decision:** pino JSON logs to stdout → Docker `local` log driver with rotation → shipped daily (encrypted) to a private S3 bucket in ap-south-1 with a 200-day lifecycle rule, guaranteeing ≥ 180 days. A hosted log search tool can be added in Phase 9 if the owner wants (must keep data in India or be documented). NTP: `systemd-timesyncd`/chrony enabled on the VPS (CERT-In).
 
 ### #25 — Official MongoDB driver, not Mongoose — ACCEPTED
@@ -227,6 +227,30 @@ Unchanged: Turnstile, Sentry, Bunny Stream, web-push/VAPID, SimpleWebAuthn, all 
 - **Times:** the space before AM/PM is normalized to one U+00A0 no-break space in every locale (ICU emits U+202F for `en-IN` but U+0020 for the others), so "AM" never wraps alone and output is identical across ICU versions.
 - **`i18n:check` measures length in grapheme clusters** (`Intl.Segmenter`), not code points: Indic vowel signs, viramas and anusvara join their base letter, so code-point counts overstated Telugu/Hindi by ~2×. `maxLength` in `meta/<ns>.json` is a soft UI-space hint per key.
 - **Review flow:** `review/<locale>.csv` (namespace,key,en,draft,reviewed). A row keeps `reviewed=yes` only while its draft is unchanged; `i18n:check` fails if a CSV is stale. Unreviewed counts are printed, not a failure (owner decides — 09 §3). `glossary.md` holds draft native-script forms of the 09 §3 terms, awaiting the owner's translators.
+
+### #39 — Bayan videos are YouTube links only (no video hosting) — ACCEPTED (owner, 10 Oct 2026)
+**Context:** The owner wants no services that can start charging. Bunny Stream (#10) bills per GB stored and delivered — the largest variable cost in 01 §11.
+**Decision:**
+- Masjid admins upload bayans to **their own YouTube channel** (Unlisted or Public) and paste the link in the admin app. We host no video: no Bunny, no TUS upload, no HLS/hls.js, no Bunny webhook or `hookScope('bunny')`, no video storage quotas.
+- **Link → embed:** `api-admin` accepts only `https://` links on `youtube.com`, `www.youtube.com`, `m.youtube.com`, `youtu.be`, `www.youtube-nocookie.com` in the forms `/watch?v=`, `youtu.be/<id>`, `/shorts/<id>`, `/live/<id>`, `/embed/<id>`; extracts the 11-character id (`[A-Za-z0-9_-]{11}`) and an optional start time (`t`/`start`, seconds or `1h2m3s`). Only the id + start seconds are stored — never the pasted URL. The app builds the player URL itself: `https://www.youtube-nocookie.com/embed/<id>?autoplay=1&rel=0&playsinline=1[&start=n]`. Anything else (playlists without a video, channels, other hosts, look-alike domains) is rejected with a friendly error (04 §6).
+- **Check before publish:** the server calls YouTube oEmbed (fixed host, validated id — no SSRF) to get the title and to refuse private / deleted / embedding-disabled videos (behaviour verified against current docs in Phase 6).
+- **Privacy (CLAUDE.md §2.1):** when the admin publishes, `api-admin` copies the thumbnail once (`i.ytimg.com/vi/<id>/hqdefault.jpg`, fixed host), runs it through the normal image pipeline and stores it in Cloudinary (#40). Musalli phones show that thumbnail with a play button (facade) and contact YouTube **only after the user taps Play**. CSP: `frame-src https://www.youtube-nocookie.com` only; no Google script loads before the tap.
+- **Audience (brothers / sisters / everyone)** stays and is enforced server-side like every other item. Limitation accepted by the owner: anyone who has the YouTube link can watch an Unlisted video outside our app. When an admin picks "sisters only", the app warns them of this and advises Unlisted.
+- **Moderation / takedown:** removing a bayan hides it everywhere in our app (05 §9); the video itself lives on the masjid's YouTube channel, outside our control — the takedown response says so.
+- Videos are online-only; YouTube's own player is used (no custom controls). The 90 KB player chunk budget no longer applies; the facade is a few KB.
+**Consequences:** Zero video cost and a much smaller Phase 6. Admins need a YouTube account. Product spec §4.3, 01 §5.4, 02 (items.video), 03 (videos), 04 §6–7, 07 A12/B10 and PHASE_06 are rewritten to match.
+
+### #40 — Images and private files on Cloudinary; logs stay on the VPS — ACCEPTED (owner, 10 Oct 2026)
+**Context:** Owner replaced AWS S3 (#23) with Cloudinary to stay on free services. Cloudinary Free plan (checked 10 Oct 2026): $0, no credit card, 25 credits/month (1 credit = 1 GB storage **or** 1 GB image bandwidth **or** 1,000 transformations). Without a card on file it cannot bill us; exceeding the credits degrades service, so usage must stay well inside them. Free-plan data location could not be confirmed (likely outside India).
+**Decision:**
+- **Images:** `api-admin` still sanitizes every upload itself (busboy 10 MB limit → magic-byte check → `sharp` decode with pixel limit → strip all metadata incl. GPS → re-encode → thumbhash), then uploads **one sanitized master** to Cloudinary with a server-side signed upload under `m/<masjidId>/<random-uuid>`. Originals never leave our server unsanitized.
+- **Delivery through our own domain:** `media.<domain>` (Caddy route → `res.cloudinary.com`, path allow-list) behind Cloudflare with `Cache-Control: public, max-age=31536000, immutable`. Most views are served from Cloudflare's free cache, so Cloudinary bandwidth ≈ cache misses only; musalli IPs never reach Cloudinary; CSP `img-src` stays our own origins. Cloudinary **strict transformations ON** with six named transformations (480/960/1440 × AVIF/WebP, explicit formats — not `f_auto`, because the Cloudflare free cache does not vary on `Accept`).
+- **Legal-order documents** (Super Admin only): encrypted server-side with AES-256-GCM (`FIELD_ENCRYPTION_KEY`, key id stored) **before** upload, stored as Cloudinary `raw` + `authenticated` assets; downloaded and decrypted only inside `api-admin` and streamed to the Super Admin. No signed URL ever reaches a browser. Cloudinary only ever holds ciphertext, so its storage location does not expose content.
+- **Logs (CERT-In, replaces #24's S3 archive):** pino → Docker `local` driver with rotation → daily compressed archive on the VPS (`/var/log/masjid-connect/archive`, mode 600) kept **200 days** (≥ 180 required), encrypted to a public key (the private key stays with the owner offline), deleted by a systemd timer after 200 days; included in VPS backups. Logs stay in India (Mumbai VPS).
+- **Credentials:** `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` only in `api-admin` (upload) and `worker` (retention deletes + usage check), each with its **own API key** so one can be revoked alone (the free plan has no per-key permission scopes — accepted). `api-public` holds no Cloudinary secret (forbidden-variable boot assertion). Deletes also invalidate the CDN copy and purge Cloudflare.
+- **Budget guard:** the worker reads Cloudinary's usage daily; the Super Admin dashboard shows credits used and alerts at 70% and 90%. Image uploads stay rate-limited per masjid (03 §3).
+- Local dev/tests: the filesystem adapter with the same interface (no Cloudinary account needed locally).
+**Consequences:** No AWS account. One more account (Cloudinary) with MFA. VPS disk now holds the log archive (sized in T0.14). 01 §2/§5.5/§7/§11, 02, 04, 05, 10 and the phase files are updated to match.
 
 ---
 

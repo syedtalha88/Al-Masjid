@@ -113,12 +113,12 @@ Common rules:
 - Visibility toggle `show_chanda` on the masjid (default off). When on: Masjid Detail row "Weekly Chanda" → screen with current week amount + last 8 weeks bar chart; publishing a week creates a `chanda_update` feed item (notification optional, default off).
 
 #### Bayan videos
-- Upload from phone gallery/camera (MP4/MOV/WebM, ≤ 2 GB, ≤ 120 min) **or** paste a YouTube link.
-- Fields: title, speaker (optional), description (optional), **audience** `everyone` | `brothers` | `sisters` (required, no default — admin must choose), language tag.
-- Upload is resumable; admin sees progress and can leave the screen (upload continues while the app is open; resumes on return).
-- Processing → `ready` triggers the publish + notification. Failed processing → admin sees a retry/delete option.
-- Musalli: Masjid Detail row "Bayans" + Updates filter "Bayans". Audience-filtered server-side.
-- Per-masjid storage quota (default 20 GB, Super Admin adjustable). Quota bar shown to admin.
+- **YouTube links only (DECISIONS #39):** the admin uploads the bayan to the masjid's own YouTube channel (Unlisted or Public) and pastes the link. We host no video files.
+- The app accepts any normal YouTube link (watch, youtu.be, shorts, live, embed; an optional start time is kept), validates it, and converts it to a privacy-friendly embed. Private, deleted or embedding-disabled videos are refused with a friendly message. The title is pre-filled from YouTube and editable.
+- Fields: title, speaker (optional), description (optional), **audience** `everyone` | `brothers` | `sisters` (required, no default — admin must choose), language tag. Preview before publish.
+- Choosing **sisters** shows a warning: "Anyone who has this YouTube link can watch it outside the app. Upload it as Unlisted." (owner-accepted limitation).
+- Publishing is immediate (no processing step) and notifies followers per audience.
+- Musalli: Masjid Detail row "Bayans" + Updates filter "Bayans". Audience-filtered server-side. Cards show our own copy of the thumbnail; the phone contacts YouTube **only after the user taps Play** (YouTube's player in a `youtube-nocookie.com` embed). Online only.
 
 ### 4.4 Notifications
 - Musalli enables via soft-ask sheet → system prompt (requires user tap). iOS: only inside the installed Home Screen app; otherwise show the install guide.
@@ -144,7 +144,7 @@ Language · Brother/Sister · Notifications (status + enable/fix + per-masjid mu
 - Post share: link `https://<app-domain>/p/<postPublicId>` (landing shows the item and a follow button).
 
 ## 5. Super Admin capabilities (summary)
-Dashboard (SLA alerts first) · Masjids (create, edit, activate, suspend, delete-with-retention, set quotas, per-masjid Hijri offset) · Admins (invite, re-invite, revoke sessions, revoke passkeys, remove) · Payment profile approvals (side-by-side old/new, payee name, approve → 24h hold → active; reject with reason) · Moderation queue (reports with SLA countdown, preview, remove/restore, suspend masjid) · Grievances (ack/resolve with timers) · Legal orders register (3-hour timer) · Content library (import JSON, review, verify, retire) · Notice templates (4-language text, params, icon) · Global settings (Hijri offset, default quotas, maintenance banner) · Audit log (filter by actor/masjid/action/date, export CSV) · QR poster generator · Stats (masjids, followers, push success rate, storage).
+Dashboard (SLA alerts first) · Masjids (create, edit, activate, suspend, delete-with-retention, set quotas, per-masjid Hijri offset) · Admins (invite, re-invite, revoke sessions, revoke passkeys, remove) · Payment profile approvals (side-by-side old/new, payee name, approve → 24h hold → active; reject with reason) · Moderation queue (reports with SLA countdown, preview, remove/restore, suspend masjid) · Grievances (ack/resolve with timers) · Legal orders register (3-hour timer) · Content library (import JSON, review, verify, retire) · Notice templates (4-language text, params, icon) · Global settings (Hijri offset, default quotas, maintenance banner) · Audit log (filter by actor/masjid/action/date, export CSV) · QR poster generator · Stats (masjids, followers, push success rate, Cloudinary credits used).
 
 ## 6. Out of scope (v1)
 Musalli accounts, comments/chat, payments processing, maps of all masjids / masjid discovery, admin-to-admin messaging, ads, analytics SDKs, native apps, dark theme, Azan audio playback/alarms (web cannot schedule reliable alarms), machine translation.

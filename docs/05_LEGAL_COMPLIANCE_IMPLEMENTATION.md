@@ -47,8 +47,8 @@ Features:
 
 ## 5. Security safeguards & breach readiness (DPDP Rule on reasonable security + CERT-In)
 - Everything in `04_SECURITY.md`.
-- Logs (API access logs, auth events) retained **≥ 180 days** — encrypted daily archive in AWS S3 ap-south-1 (Mumbai) with a 200-day lifecycle (DECISIONS #24); owner confirms acceptability with lawyer.
-- Server clocks: the VPS runs NTP (chrony/systemd-timesyncd, checked by `infra/vps/check.sh`); MongoDB Atlas, Cloudflare and AWS are NTP-synced by the providers — record this in the runbook.
+- Logs (API access logs, auth events) retained **≥ 180 days** — encrypted daily archive on the Mumbai VPS kept 200 days and included in VPS backups (DECISIONS #40, replaces the S3 archive of #24); owner confirms acceptability with lawyer.
+- Server clocks: the VPS runs NTP (chrony/systemd-timesyncd, checked by `infra/vps/check.sh`); MongoDB Atlas, Cloudflare and Cloudinary are NTP-synced by the providers — record this in the runbook.
 - Incident tooling: kill switches (04 §13), audit export, ability to identify affected admins.
 - Breach notification support: Super Admin can broadcast an in-app banner to all musallis and push to all admins.
 

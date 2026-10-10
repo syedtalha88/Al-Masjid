@@ -111,9 +111,9 @@ Device registration failure → retry banner; onboarding continues offline and r
 - Inline NavBar. Big card: "This week" + amount `amountLarge` + week range + note; `ChandaChart` last 8 weeks (tap bar → tooltip amount); `InfoNote` "Reported by masjid admin."
 
 ## A12. Bayans (videos)
-- Inline NavBar + masjid subtitle. List of `VideoCard`: 16:9 thumbnail (radius 16) with duration pill and play glyph, title `headline` 2 lines, speaker · date `caption`. YouTube items show a small "YouTube" text tag (no logo).
+- Inline NavBar + masjid subtitle. List of `VideoCard`: 16:9 thumbnail (radius 16, our own copy — DECISIONS #39) with play glyph, title `headline` 2 lines, speaker · date `caption`, small "YouTube" text tag (no logo).
 - Empty: "No bayans yet".
-- **Player screen**: video at top (16:9, sticky), custom controls (play/pause, scrubber with buffered range, time, quality auto badge, playback speed 1×/1.25×/1.5×, full-screen, 10s back/forward on double-tap sides), below: title, speaker, date, description (expandable), Share, Report. Picture-in-picture where supported. Remembers playback position locally. Network error → "Retry" overlay. YouTube: tap-to-load facade → `youtube-nocookie` iframe.
+- **Player screen**: 16:9 `YouTubeFacade` at top (sticky): our thumbnail + big play button + one line "Plays from YouTube". On tap only → `youtube-nocookie` iframe with autoplay (YouTube's own controls, full-screen allowed). Below: title, speaker, date, description (expandable), Share, Report. Offline → the facade shows "Connect to the internet to watch" instead of loading.
 
 ## A13. Updates — [ref-2/4]
 - Large title "Updates". `ChipGroup`: All · Announcements · Dua · Donations · Hadith & Quran · Bayans · Timings · Chanda.
@@ -206,10 +206,9 @@ Success: check animation + "Published. 1,240 people will be notified." + buttons
 - Week selector (current week default) → amount `NumberPad` → note → "Show chanda to followers" switch (masjid-level, with explanation) → Save (+ notify toggle default off). History list.
 
 ## B10. Bayan Video
-- Choose: "Upload from phone" | "YouTube link".
-- Upload: pick file → validation (size/duration/type) with friendly errors → title (+ speaker, optional description) → **Audience** (3 big cards, required: Everyone · Brothers only · Sisters only) → ownership checkbox → Start upload → `UploadProgress` (pause/resume/cancel; keeps going while app open; resumes after reopen) → "Processing… we'll notify followers when it's ready." Quota bar shown on the first step ("4.2 GB of 20 GB used").
-- YouTube: paste link → thumbnail preview fetched client-side from `i.ytimg.com` → title → audience → Publish.
-- Video list with statuses (Uploading x% / Processing / Ready / Failed — Retry).
+- YouTube links only (DECISIONS #39). Step 1: short illustrated help "Upload the bayan to your masjid's YouTube channel, then copy its link" + big "Paste link" button (reads the clipboard on tap) and a text field.
+- Link checked instantly (friendly errors: "This is not a YouTube video link", "This video is private or can't be shown in other apps") → preview card (thumbnail via our server, title pre-filled and editable) → speaker / description (optional) → **Audience** (3 big cards, required: Everyone · Brothers only · Sisters only). Choosing Sisters only shows a warning card: "Anyone who has this YouTube link can watch it outside the app. Upload it as Unlisted." → ownership checkbox → `PublishBar`.
+- Video list: Published / Removed by moderation / Deleted; Edit (≤ 24h), Delete.
 
 ## B11. Special Dates & Ramadan
 - Special date: type (icon cards) → date → times (add up to 5, each with optional label) → note → Save (+ notify).

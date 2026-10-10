@@ -46,7 +46,7 @@ If `docs/PROGRESS.md` says a phase is "AWAITING OWNER VERIFICATION", **do not st
 For every task `Tn.m` in the phase file:
 
 1. **Plan** — restate the task's acceptance criteria. List files you will create/change. If the task touches auth, the policy layer / DB users / views, uploads, payments, push, moderation, or infrastructure (Docker, Caddy, Cloudflare, VPS), re-read the matching section of `docs/04_SECURITY.md`.
-2. **Verify third-party APIs before using them.** Your training data may be outdated. For any library or service (Vite, React, TanStack, Motion, Tailwind, Express 5, the `mongodb` Node driver, MongoDB Atlas (custom roles, views, backups), BullMQ, Redis, rate-limiter-flexible, helmet, pino, SimpleWebAuthn, web-push, AWS S3 SDK, Bunny Stream, Turnstile, Cloudflare (cache rules, WAF, purge API, origin pulls), Caddy, Docker Compose, Workbox/vite-plugin-pwa, adhan, hls.js, qr-scanner, Playwright…), check the **current official docs** (web fetch / docs MCP if available) before writing code against it. Record the version you used.
+2. **Verify third-party APIs before using them.** Your training data may be outdated. For any library or service (Vite, React, TanStack, Motion, Tailwind, Express 5, the `mongodb` Node driver, MongoDB Atlas (custom roles, views, backups), BullMQ, Redis, rate-limiter-flexible, helmet, pino, SimpleWebAuthn, web-push, Cloudinary (upload API, strict transformations, authenticated assets), YouTube embeds/oEmbed, Turnstile, Cloudflare (cache rules, WAF, purge API, origin pulls), Caddy, Docker Compose, Workbox/vite-plugin-pwa, adhan, qr-scanner, Playwright…), check the **current official docs** (web fetch / docs MCP if available) before writing code against it. Record the version you used.
 3. **Test-first where logic is non-trivial** — domain logic (prayer, Hijri, Qibla, UPI, money, codes), policy-matrix cells and DB privileges, API validation, auth flows, job processors. Write the failing test, then the code.
 4. **Implement** in small, reviewable steps. Follow §6 coding standards.
 5. **Verify** — run `pnpm verify:quick` (typecheck + lint + unit tests for touched packages). For DB changes also run `pnpm db:test`. For UI changes, run the relevant Playwright spec and look at the screenshot output.
@@ -139,7 +139,7 @@ pnpm verify            # everything CI runs
 
 ## 8. Environments & secrets
 
-- `local` (Docker MongoDB replica set + Redis; Bunny/S3/push mocked where noted), `staging` (staging VPS + Atlas `mc-staging`, deployed from `main`), `production` (production VPS + Atlas `mc-prod`, deployed with manual approval).
+- `local` (Docker MongoDB replica set + Redis; Cloudinary/push mocked where noted), `staging` (staging VPS + Atlas `mc-staging`, deployed from `main`), `production` (production VPS + Atlas `mc-prod`, deployed with manual approval).
 - All env vars are declared and validated with Zod in `packages/shared/src/env.ts`. The app must refuse to boot with missing/invalid env.
 - `.env.example` documents every variable with a comment, grouped per process (`api-public`, `api-admin`, `worker`, `migrate`, client). Real values live only in the per-process env files on the VPS (`/etc/masjid-connect/<env>/*.env`, mode 600), GitHub environment secrets (deploy only), and local `.env.local` (git-ignored). **Never** read or print `.env*` contents in the transcript; never SSH into staging/production unless the owner asks for a specific action.
 - Client bundles may contain only `VITE_PUBLIC_*` values. CI greps built bundles for secret patterns and fails if found.

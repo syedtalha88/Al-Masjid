@@ -47,8 +47,6 @@ template_status:      active | retired
 campaign_purpose:     renovation | repair | utilities | welfare | other
 campaign_status:      active | completed | closed
 payment_status:       pending | approved_on_hold | active | rejected | superseded
-video_source:         upload | youtube
-video_status:         uploading | processing | ready | failed
 push_status:          active | dead | none
 job_status:           pending | running | completed | failed
 report_reason:        misleading | hateful | off_topic | fraud | private_info | copyright | other
@@ -83,8 +81,6 @@ actor_type:           admin | super_admin | system | device
 | sehri_precaution_min | int 0..15, default 0 | |
 | iftar_precaution_min | int 0..10, default 0 | |
 | push_daily_quota | int 0..50, default 8 | |
-| video_quota_bytes | long, default 21474836480 | 20 GB |
-| video_used_bytes | long, default 0 | maintained by data layer (§5) |
 | content_version | long, default 1 | bumped by data layer on every content change (§5) |
 | admin_count | int 0..5, default 0 | maintained by data layer; enforces ≤ 5 admins |
 | removals_90d_cache | int, optional | repeat-violation counter cache (Phase 8) |
@@ -140,10 +136,10 @@ Indexes: `{follow_code:1}` unique · `{status:1, created_at:-1}` · `{name:1}` (
 | dua | `{category dua_category, person_name? ≤80, name_private bool default true, library_id UUID, janaza_at? Date, janaza_place? ≤120, archived_at? Date}` | type = dua_request |
 | campaign | `{purpose campaign_purpose, target_paise long ≥ 100000, received_paise long ≥ 0 default 0, received_updated_at?, received_updated_by?, starts_on date, ends_on? date, status campaign_status, payment_profile_id UUID (snapshot reference at creation), cover_key?, cover_thumbhash?}` | type = campaign |
 | chanda | `{chanda_week_id UUID}` | type = chanda_update |
-| video | `{source video_source, bunny_video_id? UUID, youtube_id? string(11), speaker? ≤80, duration_sec? int, size_bytes? long, thumbnail_url? ≤500, video_status, failure_reason? ≤200}` | type = video; validator: exactly one of bunny/youtube set by source |
+| video | `{youtube_id string(11) ^[A-Za-z0-9_-]{11}$, start_s? int 0..86400, speaker? ≤80, thumb_key ≤200, thumb_thumbhash ≤64}` | type = video; YouTube link only — the pasted URL is never stored (DECISIONS #39) |
 | created_at, updated_at | Date | |
 Validator: `oneOf` by `type` — exactly the matching detail object is present, others absent.
-Indexes: `{public_id:1}` unique · `{masjid_id:1, status:1, published_at:-1, _id:-1}` · `{masjid_id:1, type:1, status:1, published_at:-1, _id:-1}` · `{masjid_id:1, audience:1, status:1, published_at:-1, _id:-1}` partial `{status:'published'}` · `{purge_after:1}` partial `{purge_after: {$type: 'date'}}` · `{"campaign.status":1, "campaign.ends_on":1}` partial `{type:'campaign'}` · `{"video.bunny_video_id":1}` partial `{type:'video'}`.
+Indexes: `{public_id:1}` unique · `{masjid_id:1, status:1, published_at:-1, _id:-1}` · `{masjid_id:1, type:1, status:1, published_at:-1, _id:-1}` · `{masjid_id:1, audience:1, status:1, published_at:-1, _id:-1}` partial `{status:'published'}` · `{purge_after:1}` partial `{purge_after: {$type: 'date'}}` · `{"campaign.status":1, "campaign.ends_on":1}` partial `{type:'campaign'}`.
 
 **ameens**: `_id`, `dua_item_id`, `masjid_id` (copied from the item, for weekly stats), `device_id`, `created_at`. Unique `{dua_item_id:1, device_id:1}` (once per device); index `{device_id:1}` (Clear all data / retention); index `{masjid_id:1, created_at:-1}` (stats job). Admins never read this collection (it holds device ids).
 **ameen_counters** (DECISIONS #26c): `_id` = dua item id, `count` int ≥ 0, `updated_at`. Incremented in the same transaction as a successful (non-duplicate) ameen insert.
@@ -172,10 +168,10 @@ State machine (enforced **only** by `packages/db/src/state/payment.ts` — §3):
 **reports**: `_id`, `target_type` enum `item|masjid`, `target_id` UUID, `masjid_id`, `reason report_reason`, `details ≤500` optional, `device_id` optional (cleared when the device is deleted), `urgent bool`, `status report_status`, `sla_due_at` (created + 36h; `private_info` 2h when it alleges intimate/impersonation content — see 05 §3), `actioned_by`, `actioned_at`, `resolution_note ≤500`, `created_at`, `closed_at` optional. Indexes: `{status:1, sla_due_at:1}` · `{target_id:1, created_at:-1}` · `{masjid_id:1, created_at:-1}` · `{device_id:1}` partial. Rate-limited per device.
 **grievances**: `_id`, `public_ref` unique (e.g. `GR-2026-000123`), `category` enum `privacy|content|technical|feedback|other`, `description ≤2000`, `contact_enc` optional (encrypted, same `v1:<keyId>:…` format — replaces the old `contact_key_id` column), `status grievance_status`, `ack_due_at` (24h), `resolve_due_at` (per 05 §3), `acknowledged_at`, `resolved_at`, `resolution ≤2000`, `handled_by`, `created_at`. Index `{status:1, ack_due_at:1}`.
 **grievance_seq**: `_id` = year (e.g. `"2026"`), `seq long` — `findOneAndUpdate({$inc:{seq:1}}, {upsert:true})` produces sequential references per year.
-**legal_orders**: `_id`, `authority ≤200`, `reference_no ≤120`, `received_at`, `due_at` (received + 3h), `target_type`, `target_id`, `summary ≤2000`, `action_taken ≤2000`, `action_log [{at, by, note ≤500}]` ≤ 200, `status legal_order_status`, `document_key` optional (private bucket), `handled_by`, timestamps. Index `{status:1, due_at:1}`.
+**legal_orders**: `_id`, `authority ≤200`, `reference_no ≤120`, `received_at`, `due_at` (received + 3h), `target_type`, `target_id`, `summary ≤2000`, `action_taken ≤2000`, `action_log [{at, by, note ≤500}]` ≤ 200, `status legal_order_status`, `document_key` optional (Cloudinary `raw` + `authenticated` asset holding the AES-256-GCM-encrypted file — DECISIONS #40), `handled_by`, timestamps. Index `{status:1, due_at:1}`.
 **audit_log**: `_id` **ObjectId** (ordered), `at Date`, `actor_type actor_type`, `actor_id` UUID optional, `action string ≤80` (dot-namespaced, e.g. `item.publish`, `payment.approve`, `session.revoke`), `masjid_id` optional, `target_type ≤40`, `target_id ≤64`, `meta` object (≤ 4 KB, no secrets/PII — allow-listed keys per action), `request_id ≤64`. **Append-only**: no user except `mc_system` has `update`/`remove` privileges on this collection (§4.3); only the retention job deletes entries older than retention and records the purge as a new audit entry. Indexes: `{at:-1}` · `{masjid_id:1, at:-1}` · `{actor_id:1, at:-1}` · `{action:1, at:-1}`.
-**app_settings**: single document `_id: "global"`: `global_hijri_offset int −2..2`, `maintenance_banner {en,hi,ur,te}` optional, `incident_banner {en,hi,ur,te}` optional, `default_push_quota`, `default_video_quota_bytes`, `undertaking_version`, `privacy_version`, `terms_version`, `push_paused bool default false`, `admin_read_only bool default false`, `report_autohide_threshold int default 10`, `grievance_officer {name, email, address, city}`, `support_whatsapp` optional, `min_client_version`, `updated_by`, `updated_at`. Public fields (exposed via `/config` through the `v_pub_settings` view): hijri offset, banners, legal versions, grievance officer, min client version.
-**stats_snapshots**: `_id` = ISO hour string, aggregate counts computed hourly by the worker (masjids by status, devices by platform/locale/push status, follows, push success 24h, storage) — Super Admin Stats reads this instead of scanning large collections.
+**app_settings**: single document `_id: "global"`: `global_hijri_offset int −2..2`, `maintenance_banner {en,hi,ur,te}` optional, `incident_banner {en,hi,ur,te}` optional, `default_push_quota`, `undertaking_version`, `privacy_version`, `terms_version`, `push_paused bool default false`, `admin_read_only bool default false`, `report_autohide_threshold int default 10`, `grievance_officer {name, email, address, city}`, `support_whatsapp` optional, `min_client_version`, `updated_by`, `updated_at`. Public fields (exposed via `/config` through the `v_pub_settings` view): hijri offset, banners, legal versions, grievance officer, min client version.
+**stats_snapshots**: `_id` = ISO hour string, aggregate counts computed hourly by the worker (masjids by status, devices by platform/locale/push status, follows, push success 24h, Cloudinary credits used) — Super Admin Stats reads this instead of scanning large collections.
 **_migrations** (runner): `_id` = migration id, `checksum`, `applied_at`, `duration_ms`; plus a lock document `_id: "__lock"` with `locked_until`.
 
 ## 3. Data-layer operations that replace SQL helper/state functions
@@ -217,7 +213,7 @@ S = find, I = insert, U = update, D = delete. "own" = scope's device / scope's m
 | app_settings | S via `v_pub_settings` (public fields) | – | S | S/U |
 | stats_snapshots | – | – | – | S |
 
-`hookScope('bunny')` (webhooks) has only: items of `type:'video'` — U `video.*` (status, duration, size, thumbnail, failure reason), item `status` draft → published and `published_at`, `published_version`; masjids — U `video_used_bytes`, `content_version`; notification_jobs — I. `systemScope()` (worker/scripts) has all cells.
+`hookScope(name)` has no cells in v1 — there are no inbound webhooks since Bunny was dropped (DECISIONS #39); a future webhook adds its own narrow cells + tests. `systemScope()` (worker/scripts) has all cells.
 
 Every cell (allowed **and** denied) has a test (10 §1, "Policy matrix"). A generated checklist test asserts the number of (collection × scope × operation) cells equals the number of tests.
 
@@ -264,22 +260,21 @@ Implemented once in `packages/db/src/effects.ts`, invoked inside the same transa
 - **Admin limit**: conditional `masjids.admin_count` `$inc` where `< 5`.
 - **Audit immutability**: DB privileges (§4.3) + test.
 - **Ameen count**: insert `ameens` (duplicate key ⇒ return current count, no increment) + `$inc ameen_counters.count`.
-- **Video usage**: `masjids.video_used_bytes` `$inc` on size set/change; decrement immediately on delete/removal (Phase 6 rule).
 - **Purge marker**: `purge_after = now + 180 days` when item status becomes `deleted` or `removed`.
 - **Visibility mirror**: masjid status/deletion change → `updateMany` `masjid_visible` on its masjid_timings, special_timings, items, chanda_weeks, payment_profiles.
 - **Chanda visibility mirror**: `setShowChanda` → `updateMany` `chanda_weeks.visible`.
 - **Device mirror**: device `audience_pref` / `locale` / push status change → `updateMany` the device's follows (≤ 20 docs).
 - **Reference & delete rules** (replace Postgres `ON DELETE`): masjids and admin users are never hard-deleted by the app (soft delete / anonymize). Hard deletes happen only in state functions or the retention job, always in a transaction:
   - device deleted (Clear all data or retention) → its `device_follows` and `ameens` deleted, `masjid_stats.followers` decremented, `ameen_counters` kept; `reports.device_id` is `$unset` by the daily `retention` job for reports whose device no longer exists (the public DB user has insert-only access to `reports`, so it can't clear it itself);
-  - item purged by retention → its `ameens`, `ameen_counters`, `campaign_amount_history`, linked `chanda_weeks.item_id` (unset) and media (S3/Bunny) removed; `notification_jobs`/`reports`/`audit_log` keep the dangling id until their own retention;
+  - item purged by retention → its `ameens`, `ameen_counters`, `campaign_amount_history`, linked `chanda_weeks.item_id` (unset) and media (Cloudinary images, incl. copied video thumbnails) removed; `notification_jobs`/`reports`/`audit_log` keep the dangling id until their own retention;
   - admin removed from a masjid → `masjid_admins` document deleted + `admin_count` decremented; admin anonymized → credentials, sessions, invites, push subscriptions deleted;
   - any other dangling reference is a bug: the weekly `counters-reconcile` job also reports orphaned references.
-- **Reconciliation**: weekly worker job `counters-reconcile` recomputes `masjid_stats.followers`, `devices.follow_count`, `ameen_counters`, `masjids.admin_count`, `video_used_bytes` and logs/alerts any drift (should be zero).
+- **Reconciliation**: weekly worker job `counters-reconcile` recomputes `masjid_stats.followers`, `devices.follow_count`, `ameen_counters`, `masjids.admin_count` and logs/alerts any drift (should be zero).
 
 ## 6. Retention (daily worker job `retention`, 03:00 IST, runs with `systemScope()`)
 | Data | Keep | Action |
 |---|---|---|
-| Removed items (moderation) | 180 days after removal (IT Rules preservation) | hard delete + media delete (S3/Bunny) + related ameens/counters |
+| Removed items (moderation) | 180 days after removal (IT Rules preservation) | hard delete + media delete (Cloudinary + Cloudflare purge) + related ameens/counters |
 | Deleted items (by admin) | 180 days | hard delete + media delete |
 | Devices with `last_seen_at` > 180 days | – | delete (and its follows; follower counts decremented; its ameens deleted — Ameen counters keep the totals) |
 | `reports.device_id` of deleted devices | – | `$unset` daily (05 §1 privacy) |
@@ -295,4 +290,4 @@ Implemented once in `packages/db/src/effects.ts`, invoked inside the same transa
 | Campaign amount history | life of campaign + 1 year | delete |
 | Removed admin users | 1 year after removal | anonymize (display name → "Removed admin", phone removed, credentials/sessions deleted) |
 | Stats snapshots | 2 years | delete |
-Batches of ≤ 1,000 documents per operation, looping until done or the time budget ends; `--dry-run` mode reports counts and changes nothing. Application/access logs (outside DB): ≥ 180 days in the S3 log archive (CERT-In, DECISIONS #24).
+Batches of ≤ 1,000 documents per operation, looping until done or the time budget ends; `--dry-run` mode reports counts and changes nothing. Application/access logs (outside DB): ≥ 180 days in the encrypted log archive on the VPS (CERT-In, DECISIONS #40).

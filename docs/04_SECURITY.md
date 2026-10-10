@@ -13,7 +13,7 @@
 | Push channel | Reaches lakhs of phones | Spam / phishing notifications |
 | Device records & follow graph | Pseudonymous religious-affiliation data | Profiling of people who follow certain masjids |
 | Admin phone numbers, grievance contacts | Personal data | DPDP breach |
-| The VPS and its secrets | Holds every credential for MongoDB, S3, Bunny, VAPID | Full compromise of data and push channel |
+| The VPS and its secrets | Holds every credential for MongoDB, Cloudinary, VAPID | Full compromise of data and push channel |
 | Availability | Jumu'ah/Ramadan spikes | Outage at the moment people need timings |
 
 Threat actors: opportunistic bots/scrapers, fraudsters targeting donations, communal trolls, a disgruntled ex-committee member, compromised admin phone, insider mistakes, supply-chain compromise, internet-wide scanners hitting the VPS.
@@ -62,7 +62,7 @@ Threat actors: opportunistic bots/scrapers, fraudsters targeting donations, comm
 - Sensitive state changes only via the state functions in `packages/db/src/state/**` with explicit scope checks (02 §3) — no generic update method exists for `payment_profiles`, masjid `status`, item `removed` status, or invites.
 - Field allow-lists (replacing Postgres column grants) prevent admins from changing quotas, status, verification, follow code, counters, `content_version`, `masjid_visible` — tested with crafted payloads.
 - Super admin endpoints mounted on a separate Express router with a role guard at the router level + per-route step-up guard.
-- `systemScope()` and the system DB user exist only in the `worker` container and one-off scripts; webhooks use the narrow `hookScope('bunny')`; ESLint + Semgrep enforce the import bans; the forbidden-env boot assertion (01 §7) enforces the credential split.
+- `systemScope()` and the system DB user exist only in the `worker` container and one-off scripts; `hookScope(name)` is reserved for future webhooks (none in v1); ESLint + Semgrep enforce the import bans; the forbidden-env boot assertion (01 §7) enforces the credential split.
 
 ## 6. Input validation & output encoding
 
@@ -70,11 +70,11 @@ Threat actors: opportunistic bots/scrapers, fraudsters targeting donations, comm
 - **NoSQL safety** (R11): only primitives reach filters; ids validated as UUID strings then converted to BSON UUID; no user-controlled field names, sort keys or operators (sort/filter options are enums mapped to fixed fields); `$`/`.`-prefixed keys rejected anywhere in parsed input; Express `query parser: 'simple'`; aggregation pipelines are static code with parameter values only.
 - Text rendering: React only; line breaks via CSS `white-space: pre-line`. Linkify only `https://` URLs with `rel="noopener noreferrer nofollow ugc"` and an interstitial "You are leaving the app" for non-allow-listed hosts.
 - Legal markdown rendered at build/server time with a sanitizer (allow-list tags) — content is ours, still sanitized.
-- Files: see 01 §5.4–5.5. Never serve user uploads from the app or admin origin; only from `media.<domain>` (S3 via Cloudflare), with `Content-Type` set by us and `X-Content-Type-Options: nosniff`; upload parsing via `busboy` with hard limits (one file, size, field count, field size) — never written to disk.
+- Files: see 01 §5.4–5.5. Never serve user uploads from the app or admin origin; only from `media.<domain>` (Caddy → Cloudinary named transformations, cached by Cloudflare — DECISIONS #40), with `Content-Type` set by Cloudinary for our re-encoded images and `X-Content-Type-Options: nosniff`; upload parsing via `busboy` with hard limits (one file, size, field count, field size) — never written to disk.
 - QR scan results: parsed as URL; only `https://app.<domain>/m/<code>` (or a bare 8-char code) is accepted; anything else → "This QR is not a Masjid Connect code" (no navigation). Admin UPI-QR scan accepts only `upi://pay` URIs and extracts `pa`/`pn` through `packages/domain/upi`.
-- YouTube: accept only `youtube.com/watch?v=`, `youtu.be/`, `youtube.com/shorts/`, `youtube.com/live/` → extract 11-char id with strict regex.
+- YouTube (DECISIONS #39): parse with the WHATWG `URL` parser, require `https:`, host exactly one of `youtube.com`, `www.youtube.com`, `m.youtube.com`, `youtu.be`, `www.youtube-nocookie.com` (no suffix matching — `youtube.com.evil.example` fails), paths `/watch?v=`, `youtu.be/<id>`, `/shorts/<id>`, `/live/<id>`, `/embed/<id>` → id must match `^[A-Za-z0-9_-]{11}$`; optional `t`/`start` → integer seconds 0..86400. Store only id + seconds; build every YouTube URL ourselves. Property-based tests (fast-check) for the parser.
 - Push subscription endpoint: https + host allow-list (`fcm.googleapis.com`, `*.push.apple.com`, `updates.push.services.mozilla.com`, `*.notify.windows.com`) to prevent SSRF via push sending.
-- Outbound requests (Bunny, Turnstile, push, S3, Cloudflare API, Sentry) go only to fixed hosts; no user-controlled URLs are fetched server-side. Container egress is otherwise unrestricted only to the internet (not to the VPS host/metadata IPs — block `169.254.169.254` and the Docker host gateway from app containers via firewall rules).
+- Outbound requests (Cloudinary API, YouTube oEmbed + `i.ytimg.com` thumbnails, Turnstile, push, Cloudflare API, Sentry) go only to fixed hosts; no user-controlled URLs are fetched server-side (YouTube URLs are rebuilt from the validated id; responses size- and type-limited, 5 s timeout, no redirects followed to other hosts). Container egress is otherwise unrestricted only to the internet (not to the VPS host/metadata IPs — block `169.254.169.254` and the Docker host gateway from app containers via firewall rules).
 
 ## 7. HTTP security headers (all origins; set in Caddy for static files and `helmet` + custom middleware for API responses)
 
@@ -83,10 +83,10 @@ Content-Security-Policy:
   default-src 'self';
   script-src 'self' https://challenges.cloudflare.com;
   style-src 'self';
-  img-src 'self' data: blob: https://media.<domain> https://<bunny-cdn-host> https://i.ytimg.com;
-  media-src 'self' blob: https://<bunny-cdn-host>;
+  img-src 'self' data: blob: https://media.<domain>;
+  media-src 'self' blob:;
   font-src 'self';
-  connect-src 'self' https://<bunny-tus-host> https://<bunny-cdn-host> https://<sentry-ingest-host> https://challenges.cloudflare.com;
+  connect-src 'self' https://<sentry-ingest-host> https://challenges.cloudflare.com;
   frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com;
   worker-src 'self' blob:;
   manifest-src 'self';
@@ -106,7 +106,7 @@ X-Frame-Options: DENY
 - Caddy removes the `Server` header; Express `x-powered-by` disabled.
 - No inline scripts/styles in `index.html` (Vite build config ensures this; theme-color via meta tag). If a hash is unavoidable, use a build-time computed hash, never `'unsafe-inline'`.
 - Cloudflare must not inject scripts (Rocket Loader, Email Obfuscation, Web Analytics auto-inject, etc. **off**) — they would break CSP.
-- Verify Motion/Tailwind/hls.js work under this CSP in Phase 0/6 (style attributes set via CSSOM are allowed; `style=""` in HTML strings is not).
+- Verify Motion/Tailwind and the YouTube facade/iframe work under this CSP in Phase 0/6 (style attributes set via CSSOM are allowed; `style=""` in HTML strings is not).
 - Target: securityheaders.com A+, Mozilla Observatory A+.
 
 ## 8. CSRF, CORS, clickjacking
@@ -118,17 +118,17 @@ X-Frame-Options: DENY
 - Rate limits per 03 §2. Prefer device/session keys over IP (Indian carrier CGNAT).
 - Turnstile on device registration, reports and grievances; server verifies with `remoteip` omitted (we don't store IPs).
 - Push quota per masjid per IST day; Super Admin override.
-- Upload quotas per masjid; video duration/size limits.
+- Upload rate limits per masjid (03 §3); Cloudinary credit usage monitored with alerts (DECISIONS #40).
 - Follow cap 20/device; Ameen idempotent.
 - Cloudflare: WAF managed rules on, rate-limit rule on `/api/*` (coarse), Bot Fight Mode evaluated for compatibility with the PWA, a documented "Under Attack" toggle in the runbook.
 
 ## 10. Data protection
-- In transit: TLS 1.2+ everywhere — Cloudflare edge (TLS 1.2 minimum, HSTS), Cloudflare → origin **Full (strict)** with Origin CA certificate + Authenticated Origin Pulls, Atlas (TLS required), S3/Bunny/push (HTTPS). Redis traffic stays on the private Docker network (no published port).
-- At rest: provider encryption (Atlas encryption at rest, S3 SSE, VPS disk encryption where the provider offers it) + app-level AES-256-GCM for `admin_users.phone_enc` and `grievances.contact_enc` (random 96-bit IV per value, key id stored for rotation, key from env, never in DB).
+- In transit: TLS 1.2+ everywhere — Cloudflare edge (TLS 1.2 minimum, HSTS), Cloudflare → origin **Full (strict)** with Origin CA certificate + Authenticated Origin Pulls, Atlas (TLS required), Cloudinary/YouTube/push (HTTPS). Redis traffic stays on the private Docker network (no published port).
+- At rest: provider encryption (Atlas encryption at rest, Cloudinary storage encryption, VPS disk encryption where the provider offers it) + app-level AES-256-GCM for `admin_users.phone_enc`, `grievances.contact_enc` and legal-order documents before upload (DECISIONS #40); the VPS log archive is encrypted to an owner-held public key (random 96-bit IV per value, key id stored for rotation, key from env, never in DB).
 - Secrets: only in per-process env files on the VPS (`/etc/masjid-connect/<env>/*.env`, root-owned, mode 600) and in GitHub **environment** secrets used by deploy jobs (SSH deploy key, registry token) — never in the repo, images, or logs; separate per environment; rotate VAPID? (no — rotating breaks subscriptions; protect it and back it up instead), rotate others yearly or on suspicion. `.env*` git-ignored; gitleaks in CI and pre-commit.
 - Logging: allow-listed fields only; pino redaction; no request/response bodies for auth/device/grievance routes; Sentry `beforeSend` scrubber + server-side data scrubbing enabled.
 - Backups: Atlas Continuous Cloud Backup (point-in-time restore) in production; monthly restore drill into a scratch cluster (Phase 9 runbook). VPS: provider snapshots weekly (config only — no DB data lives on the VPS except Redis, which is reconstructible).
-- Least privilege for humans: only the owner has production access; MFA on email, GitHub, VPS provider, MongoDB Atlas, AWS (root account locked away; IAM users only), Cloudflare, Bunny, Sentry, domain registrar, Google Play.
+- Least privilege for humans: only the owner has production access; MFA on email, GitHub, VPS provider, MongoDB Atlas, Cloudinary, Cloudflare, Sentry, domain registrar, Google Play.
 
 ## 11. Frontend security
 - No secrets in bundles (CI scans `dist/` for key patterns and for env names that must not appear).
@@ -161,7 +161,7 @@ X-Frame-Options: DENY
 - Kill switches (Super Admin): suspend masjid, revoke admin, global "pause all push" flag, maintenance banner, global read-only mode flag (admin writes return 503 with friendly message).
 - Infrastructure switches (runbook): Cloudflare "Under Attack" mode, scale API replicas, stop `worker` (halts all pushes), rotate a process's DB password in Atlas (cuts that process off instantly).
 - Alerting: Sentry error spike, job failure rate > 5%, push success < 90%, 5xx rate > 1%, SLA timers, Atlas alerts, VPS resource alerts → Super Admin push + email (via Sentry/uptime tool).
-- Forensics: audit log + request ids + 180-day logs (S3 archive) + Atlas audit/access logs.
+- Forensics: audit log + request ids + 180-day logs (encrypted VPS archive, DECISIONS #40) + Atlas audit/access logs.
 - Breach → owner follows `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md §Incident` (CERT-In 6h, DPDP Board/principals).
 
 ## 14. Security test requirements (see 10_TESTING)

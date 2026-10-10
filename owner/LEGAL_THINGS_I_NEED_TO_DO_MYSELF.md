@@ -46,7 +46,7 @@ You plan to run this as a free giveaway without registering a company. That is a
 
 ### A3. Secure your own accounts (not legal, but the #1 real-world risk)
 - [ ] Use a password manager.
-- [ ] Turn on **MFA (authenticator app or security key, not SMS)** for: email, GitHub, your VPS provider, MongoDB Atlas, AWS (lock away the root account; use the IAM users Claude Code sets up), Bunny, Cloudflare, Sentry, domain registrar, Google Play.
+- [ ] Turn on **MFA (authenticator app or security key, not SMS)** for: email, GitHub, your VPS provider, MongoDB Atlas, Cloudinary, YouTube/Google account of each masjid (advise admins), Cloudflare, Sentry, domain registrar, Google Play.
 - [ ] Keep your **server SSH key** on your own laptop only (with a passphrase) plus one offline backup. Never send it to anyone, including Claude Code. Store every server env file, the VAPID private key and all recovery codes in a password manager.
 - [ ] Store recovery codes offline (printed, in a safe place).
 - [ ] Never share these logins. If you add helpers later, give them their own accounts with limited access.
@@ -95,7 +95,7 @@ The app will not let anyone type hadith or ayat freely; it only uses the verifie
 
 ### B6. Vendors (processors)
 For each service: read and accept their Data Processing Addendum (DPA) / terms, note the data region, enable MFA, and list them in the privacy policy.
-- [ ] VPS provider (hosting, Mumbai) · [ ] MongoDB Atlas (database, AWS Mumbai) · [ ] AWS (S3 image/document/log storage, Mumbai) · [ ] Bunny.net (videos) · [ ] Cloudflare (DNS, CDN, firewall, Turnstile) · [ ] Sentry (error reports) · [ ] Google (Play; push delivery via FCM) · [ ] Apple (push delivery via APNs) · [ ] Map tile provider (Phase 7 decision).
+- [ ] VPS provider (hosting, Mumbai) · [ ] MongoDB Atlas (database, AWS Mumbai) · [ ] Cloudinary (images; legal documents stored encrypted) · [ ] YouTube (bayans are hosted on each masjid's own channel; loaded only when a user taps Play) · [ ] Cloudflare (DNS, CDN, firewall, Turnstile) · [ ] Sentry (error reports) · [ ] Google (Play; push delivery via FCM) · [ ] Apple (push delivery via APNs) · [ ] Map tile provider (Phase 7 decision).
 - [ ] Ask the lawyer whether any of these regions are a problem (DPDP allows cross-border transfer except to countries the government restricts).
 
 ### B7. CERT-In readiness

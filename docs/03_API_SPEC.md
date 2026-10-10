@@ -14,7 +14,7 @@ Server timeouts: `requestTimeout` 15 s (uploads 120 s), `headersTimeout` 10 s, `
 - **Session** (admin app): cookie `__Host-mc_sess` (opaque 32-byte token; DB stores SHA-256 with pepper). Required header on all non-GET: `X-MC-CSRF: 1` and `Origin` must equal `ADMIN_ORIGIN`.
 - **Step-up** (super admin sensitive ops): session `step_up_at` within 5 minutes, else 403 `STEP_UP_REQUIRED` → client runs a passkey assertion → retry.
 - **Jobs**: not HTTP — BullMQ processors inside the `worker` container (01 §5.8); Redis is reachable only on the private Docker network with per-process ACL users.
-- **Bunny** (hooks): shared secret / signature as per Bunny docs (verify current mechanism in Phase 6).
+- **Webhooks**: none in v1 (no video host — DECISIONS #39).
 
 ## 2. Rate limits (Redis via `rate-limiter-flexible`; key = device id / session id; IP used only as a coarse secondary key with generous limits because of CGNAT; Cloudflare WAF rate rules are an outer, coarser layer)
 | Bucket | Limit |
@@ -27,7 +27,7 @@ Server timeouts: `requestTimeout` 15 s (uploads 120 s), `headersTimeout` 10 s, `
 | grievances | 5 / day / IP + Turnstile |
 | admin login options/verify | 10 / 10 min / IP, 20 / hour / credential |
 | admin writes | 120 / hour / session |
-| admin uploads (image/video create) | 30 / hour / masjid |
+| admin uploads / video links (image upload, video create) | 30 / hour / masjid |
 | super admin writes | 600 / hour / session |
 Exceeded → 429 with `Retry-After`.
 
@@ -52,7 +52,6 @@ Exceeded → 429 with `Retry-After`.
 | `GET /masjids/:id/feed?v=&type=&aud=&cursor=&limit=` | – | Paginated items (limit ≤ 30), `aud` ∈ brothers/sisters → returns everyone + that audience | immutable w/ v |
 | `GET /items/:publicId?v=&aud=` | – | Full item incl. type detail + library content | immutable w/ v |
 | `POST /items/:publicId/ameen` | Device | Idempotent (via `recordAmeen`); returns `{count}` | no-store |
-| `GET /videos/:publicId/play?aud=` | Device | `{hlsUrl, expiresAt, posterUrl}` (token-signed, 2h) or `{youtubeId}` | private, no-store |
 | `GET /library/:id` | – | Library entry (verified only) | s-maxage=86400 |
 | `GET /templates` | – | Active notice templates (all locales) | s-maxage=3600 |
 | `POST /reports` | Device + Turnstile | `{targetType, targetPublicId, reason, details?}` | no-store |
@@ -92,7 +91,7 @@ Non-API routes on the app origin: `/m/:code` (SPA route — landing/follow), `/p
 | Campaigns | `POST /campaigns` · `PATCH /campaigns/:id` · `POST /campaigns/:id/received` `{receivedPaise}` · `POST /campaigns/:id/complete` |
 | Chanda | `GET /chanda` · `PUT /chanda/:weekStart` `{amountPaise, note?, notify}` · `PATCH /chanda/settings` `{show, weekStart}` |
 | Payment | `GET /payment` (active + pending) · `POST /payment/requests` `{vpa, payeeName, note}` |
-| Videos | `POST /videos` `{title, speaker?, description?, audience, locale, sizeBytes, durationSec, mimeType}` → `{videoPublicId, tus: {endpoint, signature, expire, libraryId, videoId}}` · `POST /videos/youtube` `{url, title, …}` · `PATCH /videos/:id` · `DELETE /videos/:id` · `GET /videos/quota` |
+| Videos (YouTube links only — DECISIONS #39) | `POST /videos/preview` `{url}` → `{youtubeId, startS?, title, thumbnailPreviewUrl}` (strict parse + oEmbed; `422 INVALID_VIDEO_LINK` / `422 VIDEO_UNAVAILABLE`) · `POST /videos` `{url, title, speaker?, description?, audience, locale, notify}` → published item (thumbnail copied to Cloudinary) · `PATCH /videos/:id` · `DELETE /videos/:id` |
 | Library/templates (read) | `GET /library?kind=&q=&category=&cursor=` · `GET /library/suggestion?kind=` · `GET /templates` |
 | Notifications | `GET /notifications/quota` `{used, limit, resetsAt}` · `GET /notifications/jobs?cursor=` |
 | Stats | `GET /stats` `{followers, itemsThisWeek, ameenThisWeek}` (`ameenThisWeek` from `masjid_stats.ameens_7d`, up to 1 h old) |
@@ -118,12 +117,9 @@ Publishing endpoints accept `notify: boolean` and return `{item, notification: {
 | Stats | `GET /stats` |
 
 ## 6. Jobs & hooks
-**Jobs** are BullMQ processors in the `worker` container (DB user `mc_system`) — full list, schedules and idempotency keys in `01_ARCHITECTURE.md §5.8` (`push-fanout`, `push-send-batch`, `payment-activate` every 10 min, `campaign-close` daily 00:10 IST, `retention` daily 03:00 IST, `sla-alerts` every 15 min → Super Admin push via admin push subscriptions, `report-triage` every 1 min, `outbox-sweeper`, `cdn-purge`, `alert-send`, `bunny-delete`, `stats-snapshot`, `counters-reconcile`). There are no public job endpoints.
+**Jobs** are BullMQ processors in the `worker` container (DB user `mc_system`) — full list, schedules and idempotency keys in `01_ARCHITECTURE.md §5.8` (`push-fanout`, `push-send-batch`, `payment-activate` every 10 min, `campaign-close` daily 00:10 IST, `retention` daily 03:00 IST, `sla-alerts` every 15 min → Super Admin push via admin push subscriptions, `report-triage` every 1 min, `outbox-sweeper`, `cdn-purge`, `alert-send`, `media-delete`, `cloudinary-usage`, `stats-snapshot`, `counters-reconcile`). There are no public job endpoints.
 
-**Hooks** (HTTP, on `api-admin`, handlers use the narrow `hookScope('bunny')` — 01 §5.1):
-| Path | Trigger | Idempotency |
-|---|---|---|
-| `POST /api/hooks/bunny` | Bunny webhook (signature/secret verified; raw body captured for verification before JSON parsing) | (videoId, status) |
+**Hooks**: none in v1 (Bunny dropped — DECISIONS #39). The `/api/hooks/*` route prefix and `hookScope(name)` stay reserved on `api-admin` for a future webhook, which must verify a signature over the raw body and add its own narrow policy cells.
 
 ## 7. Client API layer rules
 - One typed client per app built from contracts (`packages/shared`), wrapping `fetch` with: timeout (10s, uploads excluded), retry (GET only, 2× with jitter, not on 4xx), problem+json parsing → typed `ApiError`, `X-Request-Id`, device auth header injection.

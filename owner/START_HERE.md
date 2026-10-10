@@ -38,13 +38,13 @@ unclear or contradictory.
 | 00 | GitHub repo, a domain moved to Cloudflare (free account), a **staging VPS** in Mumbai (2 vCPU / 4 GB RAM, Ubuntu LTS, static IP), optional Sentry |
 | 01 | MongoDB Atlas staging project (Mumbai), Cloudflare Turnstile keys, your phone for the Super Admin passkey |
 | 02 | Android + iPhone for testing |
-| 03 | AWS account (MFA on) for image storage — S3 in Mumbai; (later, before pilot) verified Content Library file and reviewed translations |
+| 03 | Cloudinary account on the Free plan (no card, MFA on) for images — DECISIONS #40; (later, before pilot) verified Content Library file and reviewed translations |
 | 04 | VAPID keys (Claude Code generates; **you back up the private key**) — no new accounts |
 | 05 | Your own UPI ID for a ₹1 test |
-| 06 | Bunny.net Stream library |
+| 06 | Nothing new — bayans are YouTube links (DECISIONS #39); a test video on any YouTube channel you control |
 | 07 | Decision on map tiles for the Qibla fallback |
 | 08 | Grievance Officer details, lawyer for legal texts |
-| 09 | Production VPS + Atlas production cluster (M10, backups on) + production S3 buckets, Google Play developer account, pilot masjids |
+| 09 | Production VPS + Atlas production cluster (M10, backups on) + production Cloudinary environment, Google Play developer account, pilot masjids |
 
 ## 5. Files in this pack
 | File | For | Purpose |

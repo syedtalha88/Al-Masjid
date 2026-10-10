@@ -14,7 +14,7 @@
 | DB — privileges | Vitest connecting **as each MongoDB user** (`mc_public`, `mc_admin`, `mc_system`, `mc_migrator`) | every forbidden action → `Unauthorized`; views expose only listed fields; append-only collections | `packages/db/test/privileges/**` (+ `scripts/db-verify-roles.ts` for staging Atlas) |
 | DB — performance | Vitest + `explain('executionStats')` on a seeded large dataset | hot queries use `IXSCAN`, no `COLLSCAN`, docs examined ≤ 2× returned | `packages/db/test/perf/**` |
 | API integration | Vitest + Supertest against `createPublicApp()` / `createAdminApp()` + real MongoDB + Redis (Docker) | every endpoint: happy path, validation errors, authz matrix, NoSQL-injection payloads, rate limits, idempotency, cache headers | `packages/api/test/**` |
-| Jobs | Vitest + real Redis + BullMQ + mock push/Bunny/S3/Cloudflare adapters | fan-out recipients, retries, idempotency, schedules, outbox sweeper, retention | `packages/api/test/jobs/**` |
+| Jobs | Vitest + real Redis + BullMQ + mock push/Cloudinary/YouTube-oEmbed/Cloudflare adapters | fan-out recipients, retries, idempotency, schedules, outbox sweeper, retention | `packages/api/test/jobs/**` |
 | Contract | OpenAPI snapshot diff | breaking changes flagged | CI |
 | E2E | Playwright | critical journeys on **Pixel 7 (Chromium)** and **iPhone 14 (WebKit)** device profiles; offline; i18n; RTL | `e2e/**` |
 | Visual regression | Playwright screenshots | key screens × 4 locales, compared to baselines; reviewed against design references | `e2e/visual/**` |
@@ -33,7 +33,7 @@
 - `packages/db`: ≥ 95% lines; policy matrix: 100% of cells (enforced by a generated checklist test that counts policy cells vs tests); DB privileges: 100% of the 02 §4.3 table.
 
 ## 3. Rules
-- Tests are deterministic: fixed clock (`vi.setSystemTime` + an injectable `Clock` in services/jobs), fixed time zone `Asia/Kolkata` (`TZ=Asia/Kolkata` in test env), seeded randomness, no external network (MSW for client tests; Bunny/S3/push/Cloudflare/Turnstile adapters mocked in API/job tests with contract-shaped fakes). MongoDB and Redis are **real** (Docker) — each test file uses its own database name / Redis key prefix so files run in parallel.
+- Tests are deterministic: fixed clock (`vi.setSystemTime` + an injectable `Clock` in services/jobs), fixed time zone `Asia/Kolkata` (`TZ=Asia/Kolkata` in test env), seeded randomness, no external network (MSW for client tests; Cloudinary/YouTube-oEmbed/push/Cloudflare/Turnstile adapters mocked in API/job tests with contract-shaped fakes). MongoDB and Redis are **real** (Docker) — each test file uses its own database name / Redis key prefix so files run in parallel.
 - No `.only`, no unexplained `.skip` (CI greps).
 - Each bug fixed gets a regression test first.
 - E2E uses **dev-only test hooks** (e.g. `/api/test/seed`, `/api/test/clock`, `/api/test/run-job`) registered only when `APP_ENV=local` **and** `NODE_ENV=test`; a build check ensures they are absent from production bundles, images and route tables.
@@ -72,7 +72,7 @@ Seed masjids use obviously fake names ("Test Masjid Alpha", "Test Masjid Beta"),
 7. Admin notice from template → musalli in Telugu sees Telugu text.
 8. Dua request → musalli Ameen (count increments once).
 9. Campaign → UPI deep link has correct params; QR sheet shows payee name; VPA change request → super approve → hold → activation (clock-advanced) → followers' bundle updated.
-10. Video (mock Bunny) upload → processing → ready → sisters-only hidden for brothers.
+10. Bayan from a YouTube link (mock oEmbed) → published with copied thumbnail → sisters-only hidden for brothers; no request to YouTube before Play is tapped.
 11. Report → moderation remove → item gone for musalli within one version poll.
 12. Clear all data → device deleted server-side.
 

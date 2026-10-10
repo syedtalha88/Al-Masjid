@@ -26,7 +26,7 @@ A free, ad-free, multilingual PWA connecting Indian Muslims with their local mas
 4. **Dua requests** (illness / inteqal / other) with an attached dua from the library; person's name optional and private by default; musallis tap **Ameen** (count once per device).
 5. **Donation campaigns**: target, progress bar, amount received **updated manually by admin** (labelled "Received (reported by masjid)" + last updated time), **Donate Now** (UPI deep link `upi://pay?...`) + **Show UPI QR** sheet (with save-to-gallery). We never touch money. **UPI change-lock:** any change to the masjid's UPI needs Super Admin approval + 24-hour hold + followers notified. Admin-uploaded QR images not accepted (VPA extracted by scanning). Business/merchant UPI IDs recommended.
 6. **Weekly chanda** totals with a visibility toggle (shown only if the masjid wants) + 8-week chart.
-7. **Bayan videos**: resumable upload from phone (Bunny Stream, HLS, 360/480/720p) or YouTube link; audience **Everyone / Brothers only / Sisters only**; per-masjid storage quota (default 20 GB).
+7. **Bayan videos**: YouTube links only (admin uploads to the masjid's own channel and pastes the link; app validates and embeds via youtube-nocookie after a tap — DECISIONS #39); audience **Everyone / Brothers only / Sisters only**.
 8. **Push notifications** for all of the above (web push); per-masjid **mute** toggle; daily push quota per masjid.
 9. **Qibla compass** (on-device location only; iOS motion permission; calibration; map fallback).
 10. **4 languages:** English, Hindi, **Urdu (full RTL)**, Telugu.
@@ -47,7 +47,7 @@ A free, ad-free, multilingual PWA connecting Indian Muslims with their local mas
 - Passkeys via SimpleWebAuthn; `__Host-` HttpOnly SameSite=Strict session cookies; step-up re-auth for sensitive super-admin actions.
 - **Caching for scale:** per-masjid `content_version`; clients poll a tiny versions endpoint and fetch immutable versioned bundles/feeds from the Cloudflare CDN; takedown = version bump + Cloudflare purge job.
 - **Jobs & push:** **Redis on the VPS** (private network, ACL users per process) + **BullMQ**; MongoDB **outbox** (`notification_jobs`) + sweeper so no notification is lost; web-push (VAPID private key only in the worker). Rate limits with `rate-limiter-flexible`. Cloudflare **Turnstile** for device registration/reports/grievances; **Sentry** with PII scrubbing; no analytics SDKs.
-- **Images:** sharp re-encode → **AWS S3 ap-south-1** public media bucket at `media.<domain>` via Cloudflare; separate private bucket (presigned 5-min URLs) for legal documents; logs archived to S3 ≥ 180 days (CERT-In).
+- **Images:** sharp sanitize/re-encode → **Cloudinary** (free plan) served at `media.<domain>` via Caddy + Cloudflare cache; legal documents encrypted before upload to Cloudinary; logs archived encrypted on the VPS ≥ 180 days (CERT-In) — DECISIONS #40.
 - Musalli device record stores only: random id + hashed secret, locale, brother/sister, followed masjids + mute flags, push subscription, privacy version. No name/phone/email/location/IP in the database.
 - Monorepo: pnpm + Turborepo; `apps/{app,admin,server}`, `packages/{api,db,domain,shared,ui,i18n,config}`, `infra/{docker,compose,caddy,mongo,cloudflare,vps}`.
 - Performance budgets: initial JS ≤ 170 KB gz, LCP ≤ 2.5 s cold / ≤ 1 s warm on a ₹8k Android, 60 fps animations, "lite motion" mode for low-end phones, full reduced-motion support; API p95 ≤ 150 ms on cache miss.
@@ -58,10 +58,10 @@ A free, ad-free, multilingual PWA connecting Indian Muslims with their local mas
 - **00** Foundation: monorepo, CI, Express skeleton + Docker + Caddy, **staging VPS provisioning & hardening + Cloudflare**, security headers (A+), design tokens & components, 4 languages + RTL, motion & stack navigation, PWA baseline.
 - **01** Database (Atlas, all collections + validators + indexes + views, DB users/roles, policy layer + full matrix and privilege tests), passkey auth & sessions, bootstrap super admin, admin shell, Super Admin masjid/admin onboarding, audit log.
 - **02** Musalli core: onboarding, scan/code/link follow, Home, My Masjids, Masjid Detail, Prayer Timings, Updates, Announcements/Hadith/Dua read side + Ameen, Settings, offline (uses fake seed data).
-- **03** Admin content tools: timings editor, special dates & Ramadan, content library import/verify, notice templates, notice/hadith/dua creators, image pipeline (S3), My Posts, preview & publish, real-person usability test.
+- **03** Admin content tools: timings editor, special dates & Ramadan, content library import/verify, notice templates, notice/hadith/dua creators, image pipeline (Cloudinary), My Posts, preview & publish, real-person usability test.
 - **04** Push notifications (subscription UX, service worker, BullMQ fan-out + outbox, quotas, mute, kill switch, 50k load test).
 - **05** Donations & chanda + UPI change-lock (₹1 real-payment test).
-- **06** Bayan videos (Bunny Stream resumable upload, webhook, YouTube option, player, audience filter, quotas).
+- **06** Bayan videos (YouTube links: parser, oEmbed check, copied thumbnail, tap-to-load facade, audience filter).
 - **07** Qibla compass.
 - **08** Moderation, grievance, legal orders, legal pages, retention job, QR posters, kill switches.
 - **09** Hardening (ASVS checklist, ZAP, load + resilience tests, a11y, Atlas restore drill + VPS rebuild drill, runbooks, monitoring), production setup, Google Play TWA, pilot with 2–3 masjids.

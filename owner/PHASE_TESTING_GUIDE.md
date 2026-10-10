@@ -168,14 +168,13 @@ Use Android B as admin and Android A / iPhone as musalli.
 
 | # | Check | How | Expected |
 |---|---|---|---|
-| 6.1 | Upload on mobile data | Admin Android B (Wi-Fi off) → Bayan Video → upload a 10-minute phone video → Audience: Everyone | Progress circle moves smoothly |
-| 6.2 | Interrupt & resume | Mid-upload turn on Airplane mode for 30 s, then off; also try closing and reopening the app | Upload continues from where it stopped, doesn't restart from 0 |
-| 6.3 | Processing → ready | Wait | Admin gets "Video ready"; followers get a notification |
-| 6.4 | Playback on weak network | Musalli: Masjid → Bayans → play; Chrome DevTools or move to weak signal | Starts quickly; quality adjusts; no long freezes |
-| 6.5 | Player controls | Seek, double-tap sides (±10 s), speed 1.5×, full-screen, picture-in-picture | All work; leaving and reopening remembers position |
-| 6.6 | Sisters-only | Upload a "Sisters only" video | Sister phone sees it; Brother phone does not (not in list, no notification) |
-| 6.7 | YouTube link | Paste a YouTube link | Shows thumbnail; plays only after tapping |
-| 6.8 | Quota | Check the storage bar in admin | Shows used / 20 GB |
+| 6.1 | Paste a link | Upload a short test video to YouTube as **Unlisted**, copy its link → Admin → Bayan Video → Paste link | Thumbnail and title appear; you can edit the title |
+| 6.2 | Wrong links | Paste a non-YouTube link, a YouTube channel link, and the link of a **Private** video | Each shows a clear, friendly error; nothing is published |
+| 6.3 | Publish | Audience: Everyone → Publish | Followers get a notification right away |
+| 6.4 | Playback on weak network | Musalli: Masjid → Bayans → tap the video → tap Play; try on weak signal | YouTube player opens and plays; before you tap Play nothing loads from YouTube |
+| 6.5 | Sisters-only | Publish another link as "Sisters only" | You see the warning about Unlisted links; Sister phone sees it; Brother phone does not (not in list, no notification) |
+| 6.6 | Short & timestamp links | Paste a YouTube Shorts link and a link with a start time (`?t=90`) | Both work; the second starts at 1:30 |
+| 6.7 | Offline | Musalli phone in Airplane mode → open a bayan | Friendly "Connect to the internet to watch" message, no broken player |
 
 ---
 
@@ -220,7 +219,7 @@ Use Android B as admin and Android A / iPhone as musalli.
 | 9.1 | Security sign-off | Read `docs/security/ASVS_L2_CHECKLIST.md` summary and abuse-test results in the report | No open high/medium issues; you agree with any accepted risks |
 | 9.2 | Load test | Read load-test section of the report | Targets met (CDN ≥ 95%, errors < 0.1%) |
 | 9.3 | Restore drills | Read the database restore drill and the "rebuild the server from scratch" drill evidence | Data restored successfully; server rebuilt; time taken noted (server rebuild under 1 hour) |
-| 9.3b | Your backups | Confirm you have an offline copy (password manager) of: the VAPID private key, every server env file, the Cloudflare/Atlas/AWS recovery codes | All saved somewhere only you control |
+| 9.3b | Your backups | Confirm you have an offline copy (password manager) of: the VAPID private key, every server env file, the Cloudflare/Atlas/Cloudinary recovery codes, the log-archive private key | All saved somewhere only you control |
 | 9.4 | Runbooks | Read every runbook in `docs/runbooks/` | You understand each step without coding knowledge; ask Claude Code to simplify any you don't |
 | 9.5 | Production smoke test | On production URLs: onboarding, follow, admin login (your prod passkeys), publish, notification, donation QR | All work |
 | 9.6 | Legal blockers | `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md` Stage B | All ticked (lawyer review, translations, library, grievance officer, paperwork) |
