@@ -42,6 +42,15 @@ export interface Formatters {
   hijri(value: Date): string;
   /** "A, B and C". */
   list(items: readonly string[]): string;
+  /** Calendar month title: (2026, 9) → "September 2026". */
+  calendarMonth(year: number, month: number): string;
+  /** Weekday column header, 0 = Sunday → "Sun". */
+  weekdayShort(weekday: number): string;
+  /**
+   * A calendar date string "YYYY-MM-DD" (no time zone involved): `long` → "Saturday, 26 September 2026"
+   * (screen readers, date pickers), `medium` → "26 Sep 2026". Throws on malformed input.
+   */
+  calendarDate(value: string, style?: 'long' | 'medium'): string;
 }
 
 const cache = new Map<Locale, Formatters>();
@@ -113,6 +122,31 @@ export function formatters(locale: Locale): Formatters {
     timeZone: DISPLAY_TIME_ZONE,
   });
   const list = new Intl.ListFormat(intlLocale, { style: 'long', type: 'conjunction' });
+  // Calendar dates are plain days: formatted at UTC midnight so no zone can shift them.
+  const calendarMonth = new Intl.DateTimeFormat(intlLocale, {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+    numberingSystem: 'latn',
+  });
+  const weekdayShort = new Intl.DateTimeFormat(intlLocale, { weekday: 'short', timeZone: 'UTC' });
+  const calendarDates = {
+    long: new Intl.DateTimeFormat(intlLocale, {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+      numberingSystem: 'latn',
+    }),
+    medium: new Intl.DateTimeFormat(intlLocale, {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      timeZone: 'UTC',
+      numberingSystem: 'latn',
+    }),
+  };
 
   const result: Formatters = {
     locale,
@@ -149,6 +183,14 @@ export function formatters(locale: Locale): Formatters {
     },
     hijri: (value) => hijri.format(value),
     list: (items) => list.format(items),
+    calendarMonth: (y, m) => calendarMonth.format(new Date(Date.UTC(y, m - 1, 1))),
+    // 4 Jan 1970 was a Sunday.
+    weekdayShort: (weekday) => weekdayShort.format(new Date(Date.UTC(1970, 0, 4 + weekday))),
+    calendarDate(value, style = 'long') {
+      const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+      if (!match) throw new RangeError('calendarDate(): expected "YYYY-MM-DD"');
+      return calendarDates[style].format(new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))));
+    },
   };
   cache.set(locale, result);
   return result;

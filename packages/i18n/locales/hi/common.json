@@ -41,6 +41,15 @@
     "newCount": "{count, plural, one {# नया} other {# नए}}",
     "optional": "वैकल्पिक",
     "characterCount": "{count, plural, one {{max} में से # अक्षर लिखा गया} other {{max} में से # अक्षर लिखे गए}}",
-    "clearSearch": "खोज साफ़ करें"
+    "clearSearch": "खोज साफ़ करें",
+    "cancel": "रद्द करें",
+    "dismiss": "हटाएँ",
+    "choose": "चुनें",
+    "previousMonth": "पिछला महीना",
+    "nextMonth": "अगला महीना",
+    "hour": "घंटा",
+    "minute": "मिनट",
+    "period": "AM या PM",
+    "deleteDigit": "आख़िरी अंक मिटाएँ"
   }
 }

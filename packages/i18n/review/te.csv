@@ -27,6 +27,15 @@ common,ui.newCount,"{count, plural, one {# new} other {# new}}","{count, plural,
 common,ui.optional,Optional,ఐచ్ఛికం,no
 common,ui.characterCount,"{count, plural, one {# of {max} characters used} other {# of {max} characters used}}","{count, plural, one {{max}లో # అక్షరం వాడబడింది} other {{max}లో # అక్షరాలు వాడబడ్డాయి}}",no
 common,ui.clearSearch,Clear search,శోధనను క్లియర్ చేయండి,no
+common,ui.cancel,Cancel,రద్దు చేయండి,no
+common,ui.dismiss,Dismiss,తీసివేయండి,no
+common,ui.choose,Choose,ఎంచుకోండి,no
+common,ui.previousMonth,Previous month,మునుపటి నెల,no
+common,ui.nextMonth,Next month,తదుపరి నెల,no
+common,ui.hour,Hour,గంట,no
+common,ui.minute,Minute,నిమిషం,no
+common,ui.period,AM or PM,AM లేదా PM,no
+common,ui.deleteDigit,Delete last digit,చివరి అంకెను తొలగించండి,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,ఇది కనిపించలేదు. ఇది తొలగించబడి ఉండవచ్చు.,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,కొన్ని వివరాలు సరిగా లేవు. దయచేసి చూసి మళ్లీ ప్రయత్నించండి.,no

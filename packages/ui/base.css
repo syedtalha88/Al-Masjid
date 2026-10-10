@@ -88,12 +88,14 @@
   --mc-hit: 2.75rem;
   --mc-control-md: 3rem;
   --mc-control-lg: 3.5rem;
+  --mc-wheel-row: 2.75rem;
 }
 
 :root[data-app='admin'] {
   --mc-hit: 3.5rem;
   --mc-control-md: 3.5rem;
   --mc-control-lg: 4rem;
+  --mc-wheel-row: 3.5rem;
 }
 
 /* 1px hairline in --color-border; a true 0.5px line on high-density screens (06 §4). */

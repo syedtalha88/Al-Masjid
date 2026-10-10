@@ -41,6 +41,15 @@
     "newCount": "{count, plural, one {# కొత్తది} other {# కొత్తవి}}",
     "optional": "ఐచ్ఛికం",
     "characterCount": "{count, plural, one {{max}లో # అక్షరం వాడబడింది} other {{max}లో # అక్షరాలు వాడబడ్డాయి}}",
-    "clearSearch": "శోధనను క్లియర్ చేయండి"
+    "clearSearch": "శోధనను క్లియర్ చేయండి",
+    "cancel": "రద్దు చేయండి",
+    "dismiss": "తీసివేయండి",
+    "choose": "ఎంచుకోండి",
+    "previousMonth": "మునుపటి నెల",
+    "nextMonth": "తదుపరి నెల",
+    "hour": "గంట",
+    "minute": "నిమిషం",
+    "period": "AM లేదా PM",
+    "deleteDigit": "చివరి అంకెను తొలగించండి"
   }
 }

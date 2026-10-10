@@ -1,4 +1,12 @@
-import { type ComponentPropsWithoutRef, type MouseEvent, type PointerEvent, useEffect, useRef } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  type MouseEvent,
+  type PointerEvent,
+  type Ref,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
 
 import { gesture, type PressKind } from './tokens.ts';
 
@@ -9,6 +17,8 @@ export interface PressableProps extends Omit<ComponentPropsWithoutRef<'button'>,
   readonly onPress?: (event: MouseEvent<HTMLButtonElement>) => void;
   /** Fires after 500 ms of holding still (context sheet). */
   readonly onLongPress?: () => void;
+  /** The underlying `<button>` (React 19: `ref` is a prop), e.g. to focus it. */
+  readonly ref?: Ref<HTMLButtonElement>;
 }
 
 const KIND_CLASS: Record<PressKind, string> = { button: '', card: 'press-card', fab: 'press-fab' };
@@ -31,9 +41,19 @@ export function Pressable({
   onPointerCancel,
   onPointerLeave,
   children,
+  ref: forwardedRef,
   ...rest
 }: PressableProps) {
   const ref = useRef<HTMLButtonElement>(null);
+  // Keep our own handle and hand the same node to the caller's ref.
+  const setRef = useCallback(
+    (node: HTMLButtonElement | null) => {
+      ref.current = node;
+      if (typeof forwardedRef === 'function') forwardedRef(node);
+      else if (forwardedRef) forwardedRef.current = node;
+    },
+    [forwardedRef],
+  );
   const press = useRef({ x: 0, y: 0, timer: undefined as ReturnType<typeof setTimeout> | undefined, suppress: false });
 
   const release = () => {
@@ -47,7 +67,7 @@ export function Pressable({
 
   return (
     <button
-      ref={ref}
+      ref={setRef}
       type={type}
       className={`pressable ${KIND_CLASS[kind]} ${className ?? ''}`}
       onPointerDown={(event: PointerEvent<HTMLButtonElement>) => {

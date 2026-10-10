@@ -75,6 +75,10 @@ export const loop = {
 export const feedback = {
   shakeMs: 300,
   shakePx: [0, -6, 6, -3, 0],
+  /** Toasts auto-dismiss after this (08 §5.10); persistent toasts (update available) wait for an action. */
+  toastMs: 3000,
+  /** Tap ripple (Ameen 08 §5.6, NumberPad keys §5.12): scale 0 → 2.4, opacity 0.35 → 0. */
+  rippleMs: 500,
 } as const;
 
 /** First-load list entrance: 30 ms per item for the first 8 items, then 0 (08 §2, §5.4). */

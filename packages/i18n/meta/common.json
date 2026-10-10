@@ -100,5 +100,41 @@
   "ui.clearSearch": {
     "context": "Accessible name of the X button inside the search box",
     "maxLength": 24
+  },
+  "ui.cancel": {
+    "context": "Button that closes a confirm dialog without doing anything",
+    "maxLength": 18
+  },
+  "ui.dismiss": {
+    "context": "Accessible name of the X that closes a message bar at the top",
+    "maxLength": 18
+  },
+  "ui.choose": {
+    "context": "Placeholder in a pick-list field when nothing is chosen yet",
+    "maxLength": 18
+  },
+  "ui.previousMonth": {
+    "context": "Accessible name of the left arrow in the calendar",
+    "maxLength": 24
+  },
+  "ui.nextMonth": {
+    "context": "Accessible name of the right arrow in the calendar",
+    "maxLength": 24
+  },
+  "ui.hour": {
+    "context": "Accessible name of the hour wheel in the time picker",
+    "maxLength": 12
+  },
+  "ui.minute": {
+    "context": "Accessible name of the minute wheel in the time picker",
+    "maxLength": 12
+  },
+  "ui.period": {
+    "context": "Accessible name of the AM/PM wheel in the time picker",
+    "maxLength": 16
+  },
+  "ui.deleteDigit": {
+    "context": "Accessible name of the backspace key on the amount keypad",
+    "maxLength": 28
   }
 }

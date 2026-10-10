@@ -24,6 +24,22 @@ export function mockReducedMotion(reduced: boolean): void {
 }
 
 /**
+ * jsdom has no modal dialog API: open/close toggle the `open` attribute and `close` fires the close event.
+ * Focus trapping and Esc are browser behaviour, covered by the Playwright specs.
+ */
+export function stubDialog(): void {
+  if (typeof HTMLDialogElement.prototype.showModal === 'function') return;
+  HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
+    if (!this.hasAttribute('open')) return;
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+  };
+}
+
+/**
  * Renders `ui` inside the real i18n (locale JSON files) and motion providers, as the apps do.
  *
  * @param options.locale - UI locale (default `en`); also sets `<html lang dir>`.
@@ -39,6 +55,7 @@ export async function renderUi(
   // jsdom lacks element scrolling APIs that components call (ChipGroup keeps the active chip in view).
   Element.prototype.scrollBy = vi.fn();
   Element.prototype.scrollTo = vi.fn();
+  stubDialog();
   const instance = await createI18n(locale);
   // A wrapper (not a wrapped tree), so `rerender` keeps the providers.
   const wrapper = ({ children }: { readonly children: ReactNode }) => (

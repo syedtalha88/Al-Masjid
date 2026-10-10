@@ -5,12 +5,13 @@
   "type": "module",
   "description": "Pure domain logic (prayer, hijri, qibla, upi, money, follow codes, time). No I/O, no React.",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./time": "./src/time.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --max-warnings 0",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
   },
   "devDependencies": {
     "@mc/config": "workspace:*",

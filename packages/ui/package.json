@@ -49,6 +49,7 @@
     "@fontsource-variable/noto-sans-devanagari": "5.3.0",
     "@fontsource-variable/noto-sans-telugu": "5.3.0",
     "@fontsource/amiri": "5.3.0",
+    "@mc/domain": "workspace:*",
     "@mc/i18n": "workspace:*",
     "motion": "14.0.0",
     "tailwindcss": "4.3.3"

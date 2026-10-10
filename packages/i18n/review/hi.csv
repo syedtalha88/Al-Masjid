@@ -27,6 +27,15 @@ common,ui.newCount,"{count, plural, one {# new} other {# new}}","{count, plural,
 common,ui.optional,Optional,वैकल्पिक,no
 common,ui.characterCount,"{count, plural, one {# of {max} characters used} other {# of {max} characters used}}","{count, plural, one {{max} में से # अक्षर लिखा गया} other {{max} में से # अक्षर लिखे गए}}",no
 common,ui.clearSearch,Clear search,खोज साफ़ करें,no
+common,ui.cancel,Cancel,रद्द करें,no
+common,ui.dismiss,Dismiss,हटाएँ,no
+common,ui.choose,Choose,चुनें,no
+common,ui.previousMonth,Previous month,पिछला महीना,no
+common,ui.nextMonth,Next month,अगला महीना,no
+common,ui.hour,Hour,घंटा,no
+common,ui.minute,Minute,मिनट,no
+common,ui.period,AM or PM,AM या PM,no
+common,ui.deleteDigit,Delete last digit,आख़िरी अंक मिटाएँ,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,यह नहीं मिला। हो सकता है इसे हटा दिया गया हो।,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,यह काम यहाँ उपलब्ध नहीं है।,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,कुछ जानकारी गलत लग रही है। कृपया जाँचकर फिर कोशिश करें।,no

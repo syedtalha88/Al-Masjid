@@ -88,3 +88,23 @@ describe('formatters(en) exact output', () => {
     expect(f.list(['A', 'B', 'C'])).toBe('A, B and C');
   });
 });
+
+describe('calendar formatters (date picker)', () => {
+  it('English month titles, weekday headers and spoken day labels', () => {
+    const f = formatters('en');
+    expect(f.calendarMonth(2026, 9)).toBe('September 2026');
+    expect([0, 1, 6].map((day) => f.weekdayShort(day))).toEqual(['Sun', 'Mon', 'Sat']);
+    expect(f.calendarDate('2026-09-26')).toBe('Saturday, 26 September 2026');
+    expect(f.calendarDate('2026-09-26', 'medium')).toBe('26 Sept 2026');
+    expect(() => f.calendarDate('26/09/2026')).toThrow(RangeError);
+  });
+
+  it.each(['hi', 'ur', 'te'] as const)('%s: own script, Latin digits, never shifted by a time zone', (locale) => {
+    const f = formatters(locale);
+    expect(f.calendarMonth(2026, 1)).toMatch(/2026/u);
+    expect(f.calendarMonth(2026, 1)).not.toMatch(NON_LATIN_DIGITS);
+    expect(f.calendarDate('2026-01-01')).toMatch(/2026/u);
+    expect(f.calendarDate('2026-01-01')).not.toMatch(/2025/u);
+    expect(new Set([0, 1, 2, 3, 4, 5, 6].map((day) => f.weekdayShort(day))).size).toBe(7);
+  });
+});

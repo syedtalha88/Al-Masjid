@@ -110,6 +110,43 @@
   }
 }
 
+/* Tap ripple from the element's center (keys, Ameen); none with reduced motion. */
+@keyframes mc-ripple {
+  from {
+    transform: scale(0);
+    opacity: 0.35;
+  }
+  to {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@utility ripple {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 50%;
+    aspect-ratio: 1;
+    border-radius: 9999px;
+    background-color: var(--color-mint-200);
+    opacity: 0;
+    pointer-events: none;
+  }
+  &[data-ripple]::after {
+    animation: mc-ripple 500ms ease-out;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &[data-ripple]::after {
+      animation: none;
+    }
+  }
+}
+
 /* Spinner: one compositor rotation per 800 ms. Kept with reduced motion (it is functional). */
 @keyframes mc-spin {
   to {

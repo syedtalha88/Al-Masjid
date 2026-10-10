@@ -41,6 +41,15 @@
     "newCount": "{count, plural, one {# نیا} other {# نئے}}",
     "optional": "اختیاری",
     "characterCount": "{count, plural, one {{max} میں سے # حرف استعمال ہوا} other {{max} میں سے # حروف استعمال ہوئے}}",
-    "clearSearch": "تلاش صاف کریں"
+    "clearSearch": "تلاش صاف کریں",
+    "cancel": "منسوخ کریں",
+    "dismiss": "ہٹائیں",
+    "choose": "منتخب کریں",
+    "previousMonth": "پچھلا مہینہ",
+    "nextMonth": "اگلا مہینہ",
+    "hour": "گھنٹہ",
+    "minute": "منٹ",
+    "period": "AM یا PM",
+    "deleteDigit": "آخری ہندسہ مٹائیں"
   }
 }

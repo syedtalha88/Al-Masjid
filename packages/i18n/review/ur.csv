@@ -27,6 +27,15 @@ common,ui.newCount,"{count, plural, one {# new} other {# new}}","{count, plural,
 common,ui.optional,Optional,اختیاری,no
 common,ui.characterCount,"{count, plural, one {# of {max} characters used} other {# of {max} characters used}}","{count, plural, one {{max} میں سے # حرف استعمال ہوا} other {{max} میں سے # حروف استعمال ہوئے}}",no
 common,ui.clearSearch,Clear search,تلاش صاف کریں,no
+common,ui.cancel,Cancel,منسوخ کریں,no
+common,ui.dismiss,Dismiss,ہٹائیں,no
+common,ui.choose,Choose,منتخب کریں,no
+common,ui.previousMonth,Previous month,پچھلا مہینہ,no
+common,ui.nextMonth,Next month,اگلا مہینہ,no
+common,ui.hour,Hour,گھنٹہ,no
+common,ui.minute,Minute,منٹ,no
+common,ui.period,AM or PM,AM یا PM,no
+common,ui.deleteDigit,Delete last digit,آخری ہندسہ مٹائیں,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,یہ نہیں ملا۔ ہو سکتا ہے اسے ہٹا دیا گیا ہو۔,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,یہ کام یہاں دستیاب نہیں ہے۔,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,کچھ معلومات غلط لگ رہی ہیں۔ براہِ کرم جانچ کر دوبارہ کوشش کریں۔,no

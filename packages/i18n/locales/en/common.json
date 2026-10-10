@@ -41,6 +41,15 @@
     "newCount": "{count, plural, one {# new} other {# new}}",
     "optional": "Optional",
     "characterCount": "{count, plural, one {# of {max} characters used} other {# of {max} characters used}}",
-    "clearSearch": "Clear search"
+    "clearSearch": "Clear search",
+    "cancel": "Cancel",
+    "dismiss": "Dismiss",
+    "choose": "Choose",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "hour": "Hour",
+    "minute": "Minute",
+    "period": "AM or PM",
+    "deleteDigit": "Delete last digit"
   }
 }
