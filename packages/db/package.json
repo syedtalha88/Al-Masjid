@@ -5,12 +5,15 @@
   "type": "module",
   "description": "MongoDB clients, schema, policy layer, scoped repositories, migrations. From Phase 1.",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./testing": "./src/testing/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --max-warnings 0",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:int": "node ../../scripts/vitest-int.mjs"
   },
   "devDependencies": {
     "@mc/config": "workspace:*",
@@ -18,5 +21,8 @@
     "eslint": "10.12.0",
     "typescript": "6.0.3",
     "vitest": "5.0.3"
+  },
+  "dependencies": {
+    "mongodb": "7.6.0"
   }
 }

@@ -12,12 +12,14 @@
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --max-warnings 0",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@mc/config": "workspace:*",
     "@types/node": "24.19.1",
     "eslint": "10.12.0",
+    "fast-check": "4.10.2",
     "typescript": "6.0.3",
     "vitest": "5.0.3"
   }

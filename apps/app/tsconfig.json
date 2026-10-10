@@ -3,7 +3,7 @@
   "compilerOptions": {
     "types": ["vite/client"]
   },
-  "include": ["src", "vite.config.ts"],
+  "include": ["vitest.config.ts", "src", "vite.config.ts"],
   // The service worker has its own lib (WebWorker, not DOM): src/sw/tsconfig.json.
   "exclude": ["src/sw"]
 }

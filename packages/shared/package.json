@@ -9,12 +9,14 @@
     "./env": "./src/env.ts",
     "./brand": "./src/brand.ts",
     "./brand-mark": "./src/brand-mark.ts",
-    "./pwa": "./src/pwa.ts"
+    "./pwa": "./src/pwa.ts",
+    "./clock": "./src/clock.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --max-warnings 0",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@mc/config": "workspace:*",

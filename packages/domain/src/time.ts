@@ -44,9 +44,9 @@ export function isCalendarDate(value: unknown): value is string {
  * @throws RangeError when `value` is not a valid "YYYY-MM-DD" date.
  */
 export function parseCalendarDate(value: string): CalendarParts {
-  if (!isCalendarDate(value)) throw new RangeError('parseCalendarDate(): expected a valid "YYYY-MM-DD"');
-  const [year, month, day] = value.split('-').map(Number);
-  return { year: year ?? 0, month: month ?? 0, day: day ?? 0 };
+  const match = DATE_PATTERN.exec(value);
+  if (!match || !isCalendarDate(value)) throw new RangeError('parseCalendarDate(): expected a valid "YYYY-MM-DD"');
+  return { year: Number(match[1]), month: Number(match[2]), day: Number(match[3]) };
 }
 
 /**
@@ -132,8 +132,8 @@ export function calendarDateInZone(instant: Date, timeZone: string = DISPLAY_TIM
     month: '2-digit',
     day: '2-digit',
   }).formatToParts(instant);
-  const part = (type: string) => parts.find((item) => item.type === type)?.value ?? '';
-  return toCalendarDate(Number(part('year')), Number(part('month')), Number(part('day')));
+  const value = Object.fromEntries(parts.map((item) => [item.type, item.value]));
+  return toCalendarDate(Number(value['year']), Number(value['month']), Number(value['day']));
 }
 
 export interface WallClock {

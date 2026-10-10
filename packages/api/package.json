@@ -5,25 +5,29 @@
   "type": "module",
   "description": "Express apps (createPublicApp / createAdminApp), routes, services, jobs, hooks. From T0.4.",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./testing": "./src/testing/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --max-warnings 0",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:int": "node ../../scripts/vitest-int.mjs",
     "openapi:generate": "tsx scripts/generate-openapi.ts"
   },
   "devDependencies": {
     "@mc/config": "workspace:*",
-    "@types/node": "24.19.1",
-    "eslint": "10.12.0",
-    "typescript": "6.0.3",
-    "vitest": "5.0.3",
     "@types/express": "5.0.6",
+    "@types/node": "24.19.1",
     "@types/supertest": "7.2.1",
     "@vitest/coverage-v8": "5.0.3",
+    "eslint": "10.12.0",
+    "ioredis": "6.0.0",
     "supertest": "7.3.1",
-    "tsx": "4.23.15"
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vitest": "5.0.3"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "9.1.0",

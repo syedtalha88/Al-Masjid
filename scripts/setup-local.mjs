@@ -11,6 +11,7 @@
 //   .env.local.migrate        migrate
 //   apps/app/.env.local       musalli PWA build-time VITE_PUBLIC_* values
 //   apps/admin/.env.local     admin PWA build-time VITE_PUBLIC_* values
+//   .env.local.test           integration tests (pnpm test:int): MongoDB + Redis test credentials
 //   infra/compose/.local/redis-users.acl   Redis ACL users generated from the passwords above
 import { generateKeyPairSync, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -70,6 +71,7 @@ const compose = {
   REDIS_ADMIN_PASSWORD: existing.REDIS_ADMIN_PASSWORD ?? secret(),
   REDIS_WORKER_PASSWORD: existing.REDIS_WORKER_PASSWORD ?? secret(),
   REDIS_HEALTH_PASSWORD: existing.REDIS_HEALTH_PASSWORD ?? secret(),
+  REDIS_TEST_PASSWORD: existing.REDIS_TEST_PASSWORD ?? secret(),
 };
 
 // --- Dev VAPID key pair (P-256, base64url raw keys) -------------------------------------------------
@@ -197,6 +199,18 @@ writeEnvFile('apps/admin/.env.local', 'admin PWA (public values — they ship in
   ...client,
 });
 
+// Integration tests (`pnpm test:int`, 10 §3): every test file creates and drops its own `test_*` database,
+// so the local root user is used — local Docker only, never a deployed environment. Redis uses the `test` user.
+writeEnvFile(
+  '.env.local.test',
+  'integration tests (pnpm test:int)',
+  {
+    MONGODB_URI_TEST: mongo('root', compose.MONGO_ROOT_PASSWORD),
+    REDIS_URL_TEST: redis('test', compose.REDIS_TEST_PASSWORD),
+  },
+  { mergeMissing: true },
+);
+
 // --- Redis ACL file (04 §12.2): default user off, one user per process, dangerous commands disabled ----
 // Always regenerated: it is derived from the passwords in .env.local.compose.
 const localDir = join(root, 'infra/compose/.local');
@@ -212,6 +226,8 @@ writeFileSync(
     `user admin on >${compose.REDIS_ADMIN_PASSWORD} resetchannels ~rl:adm:* ~chal:* ~bull:* &bull:* ${safe}`,
     `user worker on >${compose.REDIS_WORKER_PASSWORD} resetchannels ~bull:* ~push:* ~alert:* &bull:* ${safe}`,
     `user health on >${compose.REDIS_HEALTH_PASSWORD} resetkeys resetchannels -@all +ping`,
+    // Integration tests (T0.12): only `test:*` keys/channels; each test file uses its own `test:<id>:` prefix.
+    `user test on >${compose.REDIS_TEST_PASSWORD} resetchannels ~test:* &test:* ${safe}`,
     '',
   ].join('\n'),
   { mode: 0o600 },

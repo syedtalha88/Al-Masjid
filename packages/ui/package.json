@@ -24,6 +24,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --max-warnings 0",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "generate": "tsx scripts/generate.ts"
   },
   "devDependencies": {

@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest';
 // PHASE_00 T0.6 acceptance: "grep finds zero hex colors in apps/**" — colors come only from design tokens
 // (CLAUDE.md §6 UI). Also forbids rgb()/hsl() literals and Tailwind arbitrary color values.
 const repo = fileURLToPath(new URL('../../..', import.meta.url));
-const SKIP = new Set(['node_modules', 'dist', 'dev-dist', '.turbo', 'test-results']);
+const SKIP = new Set(['node_modules', 'dist', 'dev-dist', '.turbo', 'test-results', 'coverage']);
 const SOURCE = /\.(tsx?|css|html|json|webmanifest)$/;
 const RAW_COLOR = /#[0-9a-fA-F]{3,8}\b|\b(rgba?|hsla?|oklch|oklab)\(|\[(#|rgb|hsl)/;
 

@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p src/sw/tsconfig.json",
     "lint": "eslint . --max-warnings 0",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@mc/config": "workspace:*",

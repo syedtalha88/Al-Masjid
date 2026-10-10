@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --max-warnings 0",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "i18n:check": "tsx tools/cli.ts check",
     "i18n:review": "tsx tools/cli.ts review"
   },

@@ -18,6 +18,14 @@
       "outputs": [],
       "env": ["TZ"]
     },
+    "test:coverage": {
+      "outputs": ["coverage/**"],
+      "env": ["TZ"]
+    },
+    "test:int": {
+      "cache": false,
+      "passThroughEnv": ["MONGODB_URI_TEST", "REDIS_URL_TEST", "MC_TEST_KIND"]
+    },
     "//#lint:root": {
       "inputs": ["scripts/**", "e2e/**", "eslint.config.js", "playwright.config.ts"],
       "outputs": []
