@@ -284,6 +284,19 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **Haptics:** 08 §7 patterns via `navigator.vibrate`; setting "Vibration" default on, in memory until the device store exists (F16).
 - **Lint:** `mc/no-adhoc-motion` now also rejects hard-coded CSS timings in inline styles (`transition: 'opacity 300ms'`, `cubic-bezier(…)`).
 
+### #44 — Navigation system (T0.9) — ACCEPTED (10 Oct 2026)
+**Decision:**
+- **Browser history is the single source of truth.** TanStack Router keeps owning URLs, history, code splitting and matching; a pure reducer (`packages/ui/src/navigation/model.ts`, unit-tested incl. a 200-step random sequence) turns every location change — our push/back, Android back, browser back/forward, deep links — into per-tab stacks + one transition. Entries are identified by history-entry keys (`mcKey` → TanStack `__TSR_key`); re-targeting an existing screen (tab tap, re-tap → pop to root, deep-link back onto a synthetic root) pushes/replaces with that key.
+- **Screens are rendered by the navigator, not `<Outlet>`.** The root route renders `StackNavigator`; each stack entry renders its route's (code-split) component from its own frozen location, so covered screens keep their content during and after transitions. Consequence: **screens read params/search with `useScreen()`**, never the router's `useParams`/`useSearch` (those follow the current URL). The router's window scroll restoration is off; each screen has its own scroll container, kept while mounted (max 3 per stack) and cached when unmounted.
+- **Back follows history** (web/PWA behaviour): back from a tab you switched to returns to the previous tab's screen. Re-tapping the active tab pops to its root and scrolls to top.
+- **Animations are CSS transitions** on the compositor using the spring curves Motion generated (`motion.css`, `linear()` with a cubic-bezier fallback): CSS re-targets from the current position, so rapid push/pop and swipe interruption never jump. Using Motion's `animate()` here would have added ~12 KB gz to the initial JS (measured: 161 vs 149 KB). Trade-off accepted: a swipe release does not pass its finger velocity into the spring. Reduced motion → crossfades; lite motion → no modal background scale/dim.
+- **Swipe-back** starts on a 24 px leading-edge strip (`touch-action: pan-y`, pointer captured on down; right edge in RTL), activates after 10 px horizontal movement (vertical wins otherwise), commits on > 500 px/s or > 35 % — velocity from the last 100 ms, ignored when measured over < 10 ms.
+- **iOS:** in Safari (browser) a `popstate` we did not cause is applied without our animation (Safari already animated its own edge swipe). In the installed app we assume iOS provides no back swipe, so ours is used — **to be confirmed on the owner's iPhone once staging exists (PROGRESS F17)**.
+- **Focus/a11y:** after push focus moves to the new screen's `<h1>`; after pop it returns to the control that opened the screen (or the title — WebKit does not focus tapped buttons); covered screens, inactive tabs and the app under a modal are `inert` + `aria-hidden`; axe (WCAG 2.1 AA) clean on a tab root, a pushed screen and the modal.
+- **Performance:** screens are memoized (a navigation re-renders only screens whose state changed); tab-root/modal code is preloaded when idle, pushed screens on press. Under 4× CPU throttling push/pop shows no long task > 50 ms after the first visit of a route (first-time chunk evaluation excluded). Perf specs run alone: `pnpm test:perf` (Playwright `perf` project, one worker).
+- **Icons:** tab/back/close/scan icons drawn by us on Phosphor's grid (the `@phosphor-icons/*` packages last released 17 months ago — CLAUDE.md §6 dependency rule).
+- **Initial JS:** `/` = 149.0 KB gz (navigator + 6 placeholder routes + tab bar ≈ 7.8 KB over T0.8). Tracked in F15.
+
 ---
 
 ## OPEN
