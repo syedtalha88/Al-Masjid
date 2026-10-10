@@ -61,8 +61,7 @@ const FORBIDDEN: Readonly<Record<ServerProcess, readonly Matcher[]>> = {
     'MONGODB_URI_ADMIN',
     'MONGODB_URI_SYSTEM',
     'MONGODB_URI_MIGRATOR',
-    'BUNNY_API_KEY',
-    /^S3_.*_KEY/,
+    /^CLOUDINARY_API_/,
     'VAPID_PRIVATE_KEY',
     'CF_API_TOKEN_PURGE',
     'SESSION_PEPPER',
@@ -84,8 +83,7 @@ const FORBIDDEN: Readonly<Record<ServerProcess, readonly Matcher[]>> = {
     'MONGODB_URI_SYSTEM',
     'SESSION_PEPPER',
     'VAPID_PRIVATE_KEY',
-    'BUNNY_API_KEY',
-    /^S3_.*_KEY/,
+    /^CLOUDINARY_API_/,
     'CF_API_TOKEN_PURGE',
     /^FIELD_ENCRYPTION_KEY/,
     'FIELD_ENCRYPTION_OLD_KEYS',
@@ -195,8 +193,6 @@ const redisUrl = (user: string) =>
       error: `must authenticate as the "${user}" Redis ACL user`,
     });
 
-const s3Bucket = nonEmpty.regex(/^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/, { error: 'must be a valid S3 bucket name' });
-
 /** P-256 public key, uncompressed point, base64url (65 bytes). */
 const vapidPublicKey = nonEmpty.refine((value) => base64ByteLength(value) === 65, {
   error: 'must be a base64url VAPID public key (65 bytes)',
@@ -273,7 +269,21 @@ const paymentHoldMinutes = (isProduction: boolean) =>
     .int({ error: 'must be a whole number of minutes' })
     .min(isProduction ? 1440 : 1, { error: isProduction ? 'must be ≥ 1440 (24 h) in production' : 'must be ≥ 1' });
 
-const bunnyLibraryId = nonEmpty.regex(/^\d+$/, { error: 'must be numeric' });
+/** Cloudinary credentials (DECISIONS #40); api-admin and worker each get their own API key. */
+const cloudinaryShape = (isLocal: boolean) => ({
+  CLOUDINARY_CLOUD_NAME: requiredOutsideLocal(
+    nonEmpty.regex(/^[A-Za-z0-9_-]{1,64}$/, { error: 'must be a Cloudinary cloud name' }),
+    isLocal,
+  ),
+  CLOUDINARY_API_KEY: requiredOutsideLocal(
+    nonEmpty.regex(/^\d{6,20}$/, { error: 'must be a numeric API key' }),
+    isLocal,
+  ),
+  CLOUDINARY_API_SECRET: requiredOutsideLocal(
+    nonEmpty.regex(/^[A-Za-z0-9_-]{16,64}$/, { error: 'must be a Cloudinary API secret' }),
+    isLocal,
+  ),
+});
 
 const SERVER_SCHEMAS = {
   'api-public': (appEnv: AppEnv) => {
@@ -283,8 +293,6 @@ const SERVER_SCHEMAS = {
       MONGODB_URI_PUBLIC: mongoUri('mc_public', isLocal),
       REDIS_URL_PUBLIC: redisUrl('rl_public'),
       TURNSTILE_SECRET: requiredOutsideLocal(nonEmpty, isLocal),
-      BUNNY_TOKEN_KEY: requiredOutsideLocal(nonEmpty, isLocal),
-      BUNNY_CDN_HOST: requiredOutsideLocal(hostname, isLocal),
       PORT: port,
     });
   },
@@ -297,16 +305,7 @@ const SERVER_SCHEMAS = {
       REDIS_URL_ADMIN: redisUrl('admin'),
       SESSION_PEPPER: base64Bytes(32, false),
       RP_ID: hostname,
-      BUNNY_LIBRARY_ID: requiredOutsideLocal(bunnyLibraryId, isLocal),
-      BUNNY_API_KEY: requiredOutsideLocal(nonEmpty, isLocal),
-      BUNNY_TOKEN_KEY: requiredOutsideLocal(nonEmpty, isLocal),
-      BUNNY_WEBHOOK_SECRET: requiredOutsideLocal(nonEmpty, isLocal),
-      BUNNY_CDN_HOST: requiredOutsideLocal(hostname, isLocal),
-      S3_REGION: requiredOutsideLocal(nonEmpty, isLocal),
-      S3_MEDIA_BUCKET: requiredOutsideLocal(s3Bucket, isLocal),
-      S3_PRIVATE_BUCKET: requiredOutsideLocal(s3Bucket, isLocal),
-      S3_ACCESS_KEY_ID_ADMIN: requiredOutsideLocal(nonEmpty, isLocal),
-      S3_SECRET_ACCESS_KEY_ADMIN: requiredOutsideLocal(nonEmpty, isLocal),
+      ...cloudinaryShape(isLocal),
       TURNSTILE_SECRET: requiredOutsideLocal(nonEmpty, isLocal),
       VAPID_PUBLIC_KEY: vapidPublicKey,
       PAYMENT_HOLD_MINUTES: paymentHoldMinutes(appEnv === 'production'),
@@ -325,14 +324,7 @@ const SERVER_SCHEMAS = {
       VAPID_SUBJECT: nonEmpty.regex(/^(mailto:[^@\s]+@[^@\s]+|https:\/\/\S+)$/, {
         error: 'must be a mailto: or https: contact',
       }),
-      BUNNY_LIBRARY_ID: requiredOutsideLocal(bunnyLibraryId, isLocal),
-      BUNNY_API_KEY: requiredOutsideLocal(nonEmpty, isLocal),
-      S3_REGION: requiredOutsideLocal(nonEmpty, isLocal),
-      S3_MEDIA_BUCKET: requiredOutsideLocal(s3Bucket, isLocal),
-      S3_PRIVATE_BUCKET: requiredOutsideLocal(s3Bucket, isLocal),
-      S3_LOG_BUCKET: requiredOutsideLocal(s3Bucket, isLocal),
-      S3_ACCESS_KEY_ID_WORKER: requiredOutsideLocal(nonEmpty, isLocal),
-      S3_SECRET_ACCESS_KEY_WORKER: requiredOutsideLocal(nonEmpty, isLocal),
+      ...cloudinaryShape(isLocal),
       CF_API_TOKEN_PURGE: requiredOutsideLocal(nonEmpty, isLocal),
       CF_ZONE_ID: requiredOutsideLocal(
         nonEmpty.regex(/^[a-f0-9]{32}$/, { error: 'must be a 32-character hex zone id' }),
@@ -363,9 +355,6 @@ function crossFieldProblems(env: Record<string, unknown>): EnvProblem[] {
         name: 'TRUSTED_PROXY_MODE',
         reason: 'must be cloudflare outside local (origin sits behind Cloudflare)',
       });
-    }
-    if ('S3_REGION' in env && env['S3_REGION'] !== 'ap-south-1') {
-      problems.push({ name: 'S3_REGION', reason: 'must be ap-south-1 (data stays in India — DECISIONS #23)' });
     }
   }
   if (typeof env['RP_ID'] === 'string' && typeof env['ADMIN_ORIGIN'] === 'string') {

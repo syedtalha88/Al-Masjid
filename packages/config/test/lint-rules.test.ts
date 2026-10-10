@@ -10,13 +10,16 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../
 
 let eslint: ESLint;
 
-beforeAll(() => {
+beforeAll(async () => {
   eslint = new ESLint({
     cwd: repoRoot,
     overrideConfigFile: true,
     overrideConfig: createConfig({ tsconfigRootDir: repoRoot, typeAware: false }),
   });
-});
+  // Warm-up: the first lint loads every plugin (several seconds when packages test in parallel); doing it
+  // here keeps that cost out of the 5 s per-test timeout.
+  await eslint.lintText('', { filePath: path.join(repoRoot, 'packages/shared/src/warm-up.ts') });
+}, 60_000);
 
 /** Lints `code` as if it lived at `relativePath` and returns the ids of the rules that fired. */
 async function ruleIds(relativePath: string, code: string): Promise<string[]> {
@@ -68,11 +71,11 @@ describe('import bans: allowed areas', () => {
 
   it('rejects hookScope outside packages/api/src/hooks, allows it inside', async () => {
     expect(await ruleIds('packages/api/src/jobs/retention.ts', hookScopeImport)).toContain('no-restricted-imports');
-    expect(await ruleIds('packages/api/src/hooks/bunny.ts', hookScopeImport)).not.toContain('no-restricted-imports');
+    expect(await ruleIds('packages/api/src/hooks/example.ts', hookScopeImport)).not.toContain('no-restricted-imports');
   });
 
   it('rejects systemScope in webhooks', async () => {
-    expect(await ruleIds('packages/api/src/hooks/bunny.ts', systemScopeImport)).toContain('no-restricted-imports');
+    expect(await ruleIds('packages/api/src/hooks/example.ts', systemScopeImport)).toContain('no-restricted-imports');
   });
 
   it('rejects an aliased systemScope import from a @mc/db subpath', async () => {

@@ -81,8 +81,11 @@ const PROD_COMMON = {
   TRUSTED_PROXY_MODE: 'cloudflare',
 };
 const ATLAS = (user: string) => `mongodb+srv://${user}:fake-pw@cluster0.example.mongodb.net/?retryWrites=true`;
-const S3 = { S3_REGION: 'ap-south-1', S3_MEDIA_BUCKET: 'mc-media', S3_PRIVATE_BUCKET: 'mc-private' };
-const BUNNY = { BUNNY_LIBRARY_ID: '12345', BUNNY_API_KEY: 'fake-bunny-api-key' };
+const CLOUDINARY = (key: string) => ({
+  CLOUDINARY_CLOUD_NAME: 'mc-fake',
+  CLOUDINARY_API_KEY: key,
+  CLOUDINARY_API_SECRET: 'fake_cloudinary_secret_xx',
+});
 
 const PRODUCTION: Record<ServerProcess, Record<string, string>> = {
   'api-public': {
@@ -90,14 +93,11 @@ const PRODUCTION: Record<ServerProcess, Record<string, string>> = {
     MONGODB_URI_PUBLIC: ATLAS('mc_public'),
     REDIS_URL_PUBLIC: 'redis://rl_public:fake-pw@redis:6379',
     TURNSTILE_SECRET: 'fake-turnstile-secret',
-    BUNNY_TOKEN_KEY: 'fake-token-key',
-    BUNNY_CDN_HOST: 'vz-fake.b-cdn.net',
     PORT: '8787',
   },
   'api-admin': {
     ...PROD_COMMON,
-    ...S3,
-    ...BUNNY,
+    ...CLOUDINARY('111111111111111'),
     MONGODB_URI_ADMIN: ATLAS('mc_admin'),
     REDIS_URL_ADMIN: 'redis://admin:fake-pw@redis:6379',
     SESSION_PEPPER: KEY_32,
@@ -105,11 +105,6 @@ const PRODUCTION: Record<ServerProcess, Record<string, string>> = {
     FIELD_ENCRYPTION_KEY_ID: 'k2',
     FIELD_ENCRYPTION_OLD_KEYS: `k1:${b64(32, 1)}`,
     RP_ID: 'admin.example.com',
-    BUNNY_TOKEN_KEY: 'fake-token-key',
-    BUNNY_WEBHOOK_SECRET: 'fake-webhook-secret',
-    BUNNY_CDN_HOST: 'vz-fake.b-cdn.net',
-    S3_ACCESS_KEY_ID_ADMIN: 'FAKEACCESSKEYADMIN',
-    S3_SECRET_ACCESS_KEY_ADMIN: 'fake-secret-admin',
     TURNSTILE_SECRET: 'fake-turnstile-secret',
     VAPID_PUBLIC_KEY: VAPID_PUBLIC,
     PAYMENT_HOLD_MINUTES: '1440',
@@ -117,8 +112,7 @@ const PRODUCTION: Record<ServerProcess, Record<string, string>> = {
   },
   worker: {
     ...PROD_COMMON,
-    ...S3,
-    ...BUNNY,
+    ...CLOUDINARY('222222222222222'),
     MONGODB_URI_SYSTEM: ATLAS('mc_system'),
     REDIS_URL_WORKER: 'redis://worker:fake-pw@redis:6379',
     FIELD_ENCRYPTION_KEY: KEY_32,
@@ -126,9 +120,6 @@ const PRODUCTION: Record<ServerProcess, Record<string, string>> = {
     VAPID_PUBLIC_KEY: VAPID_PUBLIC,
     VAPID_PRIVATE_KEY: VAPID_PRIVATE,
     VAPID_SUBJECT: 'mailto:owner@example.com',
-    S3_LOG_BUCKET: 'mc-logs',
-    S3_ACCESS_KEY_ID_WORKER: 'FAKEACCESSKEYWORKER',
-    S3_SECRET_ACCESS_KEY_WORKER: 'fake-secret-worker',
     CF_API_TOKEN_PURGE: 'fake-cf-purge-token',
     CF_ZONE_ID: 'a'.repeat(32),
     PAYMENT_HOLD_MINUTES: '1440',
@@ -206,16 +197,16 @@ describe('forbidden variables (boot refuses to start — DECISIONS #7)', () => {
     expect(error.message).not.toContain(value);
   });
 
-  it('matches pattern rules (S3_*_KEY*, FIELD_ENCRYPTION_KEY*) for api-public', () => {
+  it('matches pattern rules (CLOUDINARY_API_*, FIELD_ENCRYPTION_KEY*) for api-public', () => {
     expect(
       findForbiddenVars('api-public', {
-        S3_SECRET_ACCESS_KEY_WORKER: 'x',
-        S3_ACCESS_KEY_ID_ADMIN: 'x',
+        CLOUDINARY_API_SECRET: 'x',
+        CLOUDINARY_API_KEY: 'x',
         FIELD_ENCRYPTION_KEY_ID: 'k1',
-        S3_REGION: 'ap-south-1',
+        CLOUDINARY_CLOUD_NAME: 'mc-fake',
         PORT: '8787',
       }),
-    ).toEqual(['FIELD_ENCRYPTION_KEY_ID', 'S3_ACCESS_KEY_ID_ADMIN', 'S3_SECRET_ACCESS_KEY_WORKER']);
+    ).toEqual(['CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'FIELD_ENCRYPTION_KEY_ID']);
   });
 
   it('treats an empty-but-present forbidden variable as present', () => {
@@ -313,12 +304,6 @@ describe('field rules', () => {
         'TRUSTED_PROXY_MODE',
       ),
     ).toMatch(/cloudflare/);
-    expect(
-      reasonFor(
-        envError(() => loadServerEnv('worker', { ...prodWorker, S3_REGION: 'us-east-1' })),
-        'S3_REGION',
-      ),
-    ).toMatch(/ap-south-1/);
   });
 
   it('requires RP_ID to match the admin origin hostname', () => {
@@ -373,14 +358,14 @@ describe('field rules', () => {
     }
   });
 
-  it('validates PORT, hostnames, buckets, zone id, VAPID subject and Sentry DSN', () => {
+  it('validates PORT, Cloudinary credentials, zone id, VAPID subject and Sentry DSN', () => {
     const cases: [ServerProcess, Record<string, string>, string][] = [
       ['api-public', { ...prodPublic, PORT: '70000' }, 'PORT'],
-      ['api-public', { ...prodPublic, BUNNY_CDN_HOST: 'https://vz.b-cdn.net' }, 'BUNNY_CDN_HOST'],
-      ['worker', { ...prodWorker, S3_LOG_BUCKET: 'Bad_Bucket' }, 'S3_LOG_BUCKET'],
+      ['api-admin', { ...prodAdmin, CLOUDINARY_CLOUD_NAME: 'bad name' }, 'CLOUDINARY_CLOUD_NAME'],
+      ['worker', { ...prodWorker, CLOUDINARY_API_SECRET: 'short' }, 'CLOUDINARY_API_SECRET'],
       ['worker', { ...prodWorker, CF_ZONE_ID: 'xyz' }, 'CF_ZONE_ID'],
       ['worker', { ...prodWorker, VAPID_SUBJECT: 'owner@example.com' }, 'VAPID_SUBJECT'],
-      ['worker', { ...prodWorker, BUNNY_LIBRARY_ID: 'abc' }, 'BUNNY_LIBRARY_ID'],
+      ['worker', { ...prodWorker, CLOUDINARY_API_KEY: 'abc' }, 'CLOUDINARY_API_KEY'],
       ['migrate', { ...PRODUCTION.migrate, SENTRY_DSN: 'http://key@sentry.example.com/1' }, 'SENTRY_DSN'],
       ['migrate', { ...PRODUCTION.migrate, MONGODB_DB_NAME: 'bad name' }, 'MONGODB_DB_NAME'],
       ['migrate', { ...PRODUCTION.migrate, LOG_LEVEL: 'verbose' }, 'LOG_LEVEL'],
@@ -408,7 +393,7 @@ describe('field rules', () => {
 
   it('keeps external-service credentials optional only in local', () => {
     const local = loadServerEnv('worker', LOCAL.worker);
-    expect(local.S3_MEDIA_BUCKET).toBeUndefined();
+    expect(local.CLOUDINARY_API_SECRET).toBeUndefined();
     const { CF_API_TOKEN_PURGE: _omitted, ...withoutPurge } = prodWorker;
     expect(
       reasonFor(
