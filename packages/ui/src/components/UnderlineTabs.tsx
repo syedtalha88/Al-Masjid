@@ -14,13 +14,13 @@ import { Pressable } from '../motion/Pressable.tsx';
 import { gesture } from '../motion/tokens.ts';
 import { animateChannel, getChannel, setChannel } from '../navigation/driver.ts';
 
-export interface TabItem<Id extends string = string> {
+export interface UnderlineTab<Id extends string = string> {
   readonly id: Id;
   readonly label: string;
 }
 
 export interface UnderlineTabsProps<Id extends string> {
-  readonly tabs: readonly TabItem<Id>[];
+  readonly tabs: readonly UnderlineTab<Id>[];
   readonly value: Id;
   readonly onChange: (id: Id) => void;
   /** Accessible name of the tab list. */
@@ -144,7 +144,7 @@ export function UnderlineTabs<Id extends string>({
 }
 
 export interface TabPanelsProps<Id extends string> {
-  readonly tabs: readonly TabItem<Id>[];
+  readonly tabs: readonly UnderlineTab<Id>[];
   readonly value: Id;
   readonly idPrefix: string;
   /** Enables horizontal swipe between panels (08 §5.2). */

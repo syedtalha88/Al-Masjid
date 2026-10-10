@@ -92,6 +92,11 @@ ${fallbacks.join('\n')}
   }
 }
 
+/* Image placeholder → real image (08 §5.4): opacity only, no scale pop. */
+@utility transition-image {
+  transition: opacity ${String(css.imageInMs)}ms var(--mc-ease-ios);
+}
+
 /* Sliding selection indicators (08 §5.2): segmented thumb (spring.smooth), tab underline (spring.snappy). */
 @utility transition-thumb {
   transition: transform var(--mc-spring-smooth);

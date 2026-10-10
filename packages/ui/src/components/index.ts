@@ -17,6 +17,7 @@ export { type Chip, ChipGroup, type ChipGroupProps } from './ChipGroup.tsx';
 export { Dialog, type DialogProps } from './Dialog.tsx';
 export { Divider, type DividerProps } from './Divider.tsx';
 export { EmptyState, type EmptyStateProps } from './EmptyState.tsx';
+export { OfflineBanner, UpdateAvailableToast, useOnlineStatus, useUpdateAvailableToast } from './Feedback.tsx';
 export {
   SearchField,
   type SearchFieldProps,
@@ -26,7 +27,16 @@ export {
   type TextFieldProps,
 } from './Fields.tsx';
 export { IconCircle, type IconCircleProps, type IconCircleSize } from './IconCircle.tsx';
+export { Image, type ImageProps, type ImageRatio } from './Image.tsx';
 export { InfoNote, type InfoNoteProps } from './InfoNote.tsx';
+export {
+  InstallPrompt,
+  type InstallPromptProps,
+  type InstallPromptState,
+  IosInstallGuide,
+  type IosInstallGuideProps,
+  useInstallPrompt,
+} from './Install.tsx';
 export { ListRow, type ListRowProps } from './ListRow.tsx';
 export { applyPadKey, MAX_PAISE, NumberPad, type NumberPadProps } from './NumberPad.tsx';
 export { DatePickerSheet, type DatePickerSheetProps, Select, type SelectOption, type SelectProps } from './Pickers.tsx';
@@ -42,9 +52,9 @@ export { type ToastApi, type ToastOptions, ToastProvider, type ToastTone, useToa
 export { Checkbox, type CheckboxProps, Switch, type SwitchProps } from './Toggles.tsx';
 export { type Tone, TONE_CLASS } from './tone.ts';
 export {
-  type TabItem,
   TabPanels,
   type TabPanelsProps,
+  type UnderlineTab,
   UnderlineTabs,
   type UnderlineTabsProps,
 } from './UnderlineTabs.tsx';

@@ -13,6 +13,7 @@ export {
   type WeightedIconProps,
 } from './icons.tsx';
 export { type NavConfig, type TabConfig } from './model.ts';
+export { NavBar, type NavBarProps, type NavBarVariant } from './NavBar.tsx';
 export { Screen, type ScreenProps } from './Screen.tsx';
 export { StackNavigator, type StackNavigatorProps } from './StackNavigator.tsx';
-export { TabBar, type TabBarProps, type TabItem } from './TabBar.tsx';
+export { ScanFab, type ScanFabProps, TabBar, type TabBarProps, type TabItem } from './TabBar.tsx';

@@ -134,3 +134,32 @@
     transparent
   );
 }
+
+/*
+ * Large-title nav bar (08 §4): from the canvas to a surface bar with `e2` shadow and a hairline as content
+ * scrolls under it. NavBar writes --mc-bar-progress (0–1); only opacity changes.
+ */
+@utility nav-bar-collapsing {
+  --mc-bar-progress: 0;
+  background-color: var(--color-bg);
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-e2);
+    opacity: var(--mc-bar-progress);
+    pointer-events: none;
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background-color: var(--color-border);
+    opacity: var(--mc-bar-progress);
+    pointer-events: none;
+  }
+}

@@ -36,6 +36,17 @@ common,ui.hour,Hour,گھنٹہ,no
 common,ui.minute,Minute,منٹ,no
 common,ui.period,AM or PM,AM یا PM,no
 common,ui.deleteDigit,Delete last digit,آخری ہندسہ مٹائیں,no
+common,ui.offline,You’re offline — showing saved information,آپ آف لائن ہیں — محفوظ معلومات دکھائی جا رہی ہیں,no
+common,ui.updateAvailable,A new version of the app is ready,ایپ کا نیا ورژن تیار ہے,no
+common,ui.refresh,Refresh,ریفریش کریں,no
+common,ui.install.title,Install {app},{app} انسٹال کریں,no
+common,ui.install.body,Open it from your home screen and see timings even without internet.,اسے ہوم اسکرین سے کھولیں اور انٹرنیٹ کے بغیر بھی اوقات دیکھیں۔,no
+common,ui.install.action,Install app,ایپ انسٹال کریں,no
+common,ui.notNow,Not now,ابھی نہیں,no
+common,ui.iosInstall.title,Add {app} to your Home Screen,{app} کو ہوم اسکرین پر شامل کریں,no
+common,ui.iosInstall.share,Tap the Share button in Safari,Safari میں شیئر بٹن دبائیں,no
+common,ui.iosInstall.add,Choose “Add to Home Screen”,“ہوم اسکرین میں شامل کریں” منتخب کریں,no
+common,ui.iosInstall.open,Open {app} from your Home Screen,ہوم اسکرین سے {app} کھولیں,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,یہ نہیں ملا۔ ہو سکتا ہے اسے ہٹا دیا گیا ہو۔,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,یہ کام یہاں دستیاب نہیں ہے۔,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,کچھ معلومات غلط لگ رہی ہیں۔ براہِ کرم جانچ کر دوبارہ کوشش کریں۔,no

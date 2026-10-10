@@ -136,5 +136,41 @@
   "ui.deleteDigit": {
     "context": "Accessible name of the backspace key on the amount keypad",
     "maxLength": 28
+  },
+  "ui.offline": {
+    "context": "Thin banner at the top when the phone has no internet; the app still shows cached timings"
+  },
+  "ui.updateAvailable": {
+    "context": "Message bar shown when an app update has downloaded"
+  },
+  "ui.refresh": {
+    "context": "Button on the update message bar that reloads into the new version",
+    "maxLength": 14
+  },
+  "ui.install.title": {
+    "context": "Title of the card offering to install the app on Android ({app} = app name)"
+  },
+  "ui.install.body": {
+    "context": "Why to install, under the install card title"
+  },
+  "ui.install.action": {
+    "context": "Main button of the install card",
+    "maxLength": 24
+  },
+  "ui.notNow": {
+    "context": "Secondary button that skips an optional step",
+    "maxLength": 16
+  },
+  "ui.iosInstall.title": {
+    "context": "Title of the 3-step guide for iPhone Safari users ({app} = app name)"
+  },
+  "ui.iosInstall.share": {
+    "context": "Step 1 of the iPhone install guide (the square-with-arrow icon)"
+  },
+  "ui.iosInstall.add": {
+    "context": "Step 2 of the iPhone install guide; quote the iOS menu item as iOS shows it in that language"
+  },
+  "ui.iosInstall.open": {
+    "context": "Step 3 of the iPhone install guide ({app} = app name)"
   }
 }

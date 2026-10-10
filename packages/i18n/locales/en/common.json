@@ -50,6 +50,21 @@
     "hour": "Hour",
     "minute": "Minute",
     "period": "AM or PM",
-    "deleteDigit": "Delete last digit"
+    "deleteDigit": "Delete last digit",
+    "offline": "You’re offline — showing saved information",
+    "updateAvailable": "A new version of the app is ready",
+    "refresh": "Refresh",
+    "install": {
+      "title": "Install {app}",
+      "body": "Open it from your home screen and see timings even without internet.",
+      "action": "Install app"
+    },
+    "notNow": "Not now",
+    "iosInstall": {
+      "title": "Add {app} to your Home Screen",
+      "share": "Tap the Share button in Safari",
+      "add": "Choose “Add to Home Screen”",
+      "open": "Open {app} from your Home Screen"
+    }
   }
 }

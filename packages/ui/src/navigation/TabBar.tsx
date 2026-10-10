@@ -62,23 +62,45 @@ export function TabBar({ api, start, end, label, scan }: TabBarProps) {
       <ul className="mx-auto flex h-16 max-w-content items-stretch">
         {start.map(item)}
         <li className="flex flex-1 justify-center">
-          <Pressable
-            kind="fab"
+          <ScanFab
+            label={scan.label}
             onPress={() => {
               api.presentModal(scan.href);
             }}
             onPointerDown={() => {
               api.preload(scan.href);
             }}
-            aria-label={scan.label}
-            data-tab-button="scan"
-            className="-mt-4.5 inline-flex size-14 items-center justify-center rounded-full bg-primary-700 text-on-primary shadow-fab ring-4 ring-surface"
-          >
-            <ScanIcon size={26} />
-          </Pressable>
+          />
         </li>
         {end.map(item)}
       </ul>
     </nav>
+  );
+}
+
+export interface ScanFabProps {
+  /** Accessible name ("Scan QR code"). */
+  readonly label: string;
+  readonly onPress: () => void;
+  /** Start loading the scanner's code on touch, before the tap completes. */
+  readonly onPointerDown?: () => void;
+}
+
+/**
+ * Raised circular Scan button (06 §6 ScanFab): 56 px primary-700 circle, white scan glyph, lifted −18 px
+ * above the tab bar with the `fab` shadow and a 4 px surface ring; press scale 0.92 (08 §3.3).
+ */
+export function ScanFab({ label, onPress, onPointerDown }: ScanFabProps) {
+  return (
+    <Pressable
+      kind="fab"
+      onPress={onPress}
+      {...(onPointerDown ? { onPointerDown } : {})}
+      aria-label={label}
+      data-tab-button="scan"
+      className="-mt-4.5 inline-flex size-14 items-center justify-center rounded-full bg-primary-700 text-on-primary shadow-fab ring-4 ring-surface"
+    >
+      <ScanIcon size={26} />
+    </Pressable>
   );
 }
