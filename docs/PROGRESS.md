@@ -29,7 +29,7 @@
 - [ ] T0.5 — Security headers & CSP
 - [x] T0.6 — Design tokens, Tailwind, fonts, base styles (Tailwind 4.3 with default palette removed; tokens.ts → generated tokens.css/type.css; `type-*` scale with hi/te/ur + admin adjustments; contrast fixed for 26 pairs (closes F8); subset fonts per locale + /boot.js preloads + Capsize fallback metrics; 5 prayer icons, masjid tile, 3 illustrations; ui 52 tests, i18n 77; e2e 20/20 (only active-locale fonts download, CLS ≤ 0.01); zero raw colors in apps — DECISIONS #41)
 - [x] T0.7 — i18n foundation (`@mc/i18n`: i18next + ICU, lazy per-locale namespace chunks, typed keys, `formatters()` for ₹/numbers/times/dates/relative/Hijri stub/lists, external `/boot.js` sets `<html lang dir>` before paint, instant RTL switch, `<Bdi>/<Money>/<Time>`; `pnpm i18n:check` (all 09 §3 rules, grapheme-based lengths) + `pnpm i18n:review` CSVs (19 drafts × hi/ur/te awaiting human review); `glossary.md` drafts; both apps wired, `RouteError` translated; 72 unit tests; Playwright 18/18 incl. Urdu RTL boot on Pixel 7 + iPhone 14; i18n adds ≈29 KB gzip, `/` initial JS 130.8/170 KB — DECISIONS #38)
-- [ ] T0.8 — Motion foundation
+- [x] T0.8 — Motion foundation (Motion 14: lazy LazyMotion features, tokens per 08 §2 + CSS spring curves, MotionProvider, useReducedMotionPref, lite-motion + dropped-frame burst detector, haptics + setting hook, CSS-driven Pressable (same-frame pointerdown, scroll-cancel, long-press), SuccessCheck, CountUp, DigitRoll; lint rule extended to inline CSS timings; ui 74 tests, config 37; e2e 38/38 — DECISIONS #43)
 - [ ] T0.9 — Navigation system
 - [ ] T0.10 — Core component library + showcase
 - [ ] T0.11 — PWA baseline
@@ -50,12 +50,14 @@
 | F12 | T0.4 | Add `runtime-test` image target with the test-hooks module + CI check that `runtime` has no hooks (DECISIONS #31) | T0.12 |
 | F13 | T0.7 | Hijri month names: Intl gives English names for `te` and odd ordering for `hi` — add per-locale month-name fallback table (09 §4) | Phase 2 T2.1 |
 | F14 | T0.7 | i18n runtime is ≈29 KB gzip of the initial JS; if the 170 KB budget gets tight, precompile ICU messages to ASTs at build time and drop the parser (~8 KB gzip) (DECISIONS #38) | When `pnpm size` nears budget |
-| F15 | T0.7 | Phase 00 exit budget: musalli initial JS ≤ 120 KB gz (PHASE_00 exit criteria); currently 130.8 KB (React DOM ≈ 50 % of it, i18n ≈ 29 KB). Measure precisely with size-limit and bring under budget (ICU precompile F14, defer non-shell code). | T0.12 |
+| F15 | T0.7 | Phase 00 exit budget: musalli initial JS ≤ 120 KB gz (PHASE_00 exit criteria). Measured 10 Oct: **141.2 KB** = react-dom ≈ 47 %, router, i18n ≈ 29 KB, Motion runtime 9.7 KB (DECISIONS #43), query. Wire size-limit, then reduce (ICU precompile F14, defer non-shell code) or propose a revised Phase 00 target to the owner with numbers (01 §9 final budget for `/` stays 170 KB). | T0.12 |
+| F16 | T0.8 | Haptics "Vibration" setting lives in memory; persist it in the device store (IndexedDB) and add the Settings toggle | Phase 2 (Settings) |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-10 | 00 / T0.8 | T0.8 done (DECISIONS #43). Owner details recorded (domain almasjids.com, Hostinger VPS shared by staging+prod — DECISIONS #42, Cloudinary g0ytozsb, iPhone + Poco F7). Docker running again; full e2e 38/38. Next: T0.9 navigation. |
 | 2026-10-10 | 00 / T0.6 | T0.6 done (DECISIONS #41): tokens, type scale, fonts, icons; fixed Urdu-rendered-in-Arial fallback bug found by e2e; hi/te font budget raised to 180 KB. Docker was not running — font e2e ran against vite preview. Next: T0.8 motion. |
 | 2026-10-10 | 00 / plan change | Owner: bayans = YouTube links only (DECISIONS #39), Cloudinary replaces AWS S3, logs stay on the VPS (DECISIONS #40; answers 1a 2a 3a). Env schema, .env.example, tests and all docs updated. Next: T0.6. |
 | 2026-10-09 | 00 / T0.7 | T0.7 done: i18n foundation, 72 tests, e2e 18/18, closed F4 + F7, added F14 (DECISIONS #38). Next: T0.6 design tokens. |

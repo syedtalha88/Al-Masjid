@@ -273,6 +273,17 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - hostnames: `app.almasjids.com`, `admin.almasjids.com`, `media.almasjids.com` (production) and `app-staging.`, `admin-staging.`, `media-staging.` (staging).
 **Consequences / accepted risk:** a host-level compromise (e.g. via a staging container escape or a leaked staging deploy key) reaches production too, and kernel/Docker upgrades restart both. Mitigations above; the deploy runbook (T0.14) and the Phase 9 hardening review re-check this. Owner can add a second VPS later without code changes.
 
+### #43 — Motion foundation (T0.8) — ACCEPTED (10 Oct 2026)
+**Decision:**
+- **Motion 14.0** (`motion/react`, `m.*` from `motion/react-m`). 14.0 only removed internal APIs; the springs (`visualDuration` + `bounce`), `LazyMotion`, `MotionConfig` used here are unchanged (checked against motion.dev docs and the changelog). Root `MotionProvider` = `LazyMotion strict` with **lazily loaded** `domAnimation` (own chunk, 15.8 KB gz) + `MotionConfig reducedMotion="user"` as a safety net + our `{reduced, lite}` context.
+- **Measured cost:** `LazyMotion` at the root pulls Motion's shared runtime into the initial JS (+9.7 KB gz: `/` 131.2 → 141.2 KB). Verified by experiment that neither `MotionConfig` nor `strict` causes it and that a root without Motion is back to 131.2 KB. Deferring `LazyMotion` itself would remount the whole app when it arrives, so it stays; tracked under F15.
+- **Tokens** (`packages/ui/src/motion/tokens.ts`) exactly per 08 §2, plus `tween.countUp` / `drawCircle` / `drawCheck` for 08 §5.7–5.8. The generator turns every spring into CSS (`motion.css`, Motion's `spring()` → `linear()` easing, cubic-bezier fallback first) so CSS-only transitions share the same physics.
+- **Press feedback is CSS, not JS:** `Pressable` sets `data-pressed` synchronously on `pointerdown` (same frame; compositor-only scale with the `spring.snappy` curve), releases on ≥ 8 px movement or `pointercancel`, long-press 500 ms, and keeps native `<button>` activation for keyboard/screen readers. No animation engine needed for taps.
+- **Reduced motion:** `useReducedMotionPref` (live `matchMedia`); every moving presence goes through `motionOrFade()` → `tween.fade` crossfade. `SuccessCheck` appears drawn, `CountUp` shows the final value, `DigitRoll` crossfades.
+- **Lite motion:** `hardwareConcurrency ≤ 4` and (`deviceMemory ≤ 3` or unknown), or ≥ 3 dropped-frame bursts (a frame ≥ 50 ms; consecutive slow frames = one burst; only measured while something animates via `trackMotion()`, never while the page is hidden).
+- **Haptics:** 08 §7 patterns via `navigator.vibrate`; setting "Vibration" default on, in memory until the device store exists (F16).
+- **Lint:** `mc/no-adhoc-motion` now also rejects hard-coded CSS timings in inline styles (`transition: 'opacity 300ms'`, `cubic-bezier(…)`).
+
 ---
 
 ## OPEN
