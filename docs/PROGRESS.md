@@ -43,8 +43,8 @@
 | # | Found in | Description | Planned fix (phase/task) |
 |---|---|---|---|
 | F1 | T0.1 | Move Node 24 → 26 when Node 26 enters Active LTS (28 Oct 2026): `.nvmrc`, `engines`, `@types/node`, Docker base image, CI (DECISIONS #32) | After 28 Oct 2026 (Phase 00 or 01) |
-| F2 | T0.2 | Prove client bundles contain only `VITE_PUBLIC_*`: Vite `envPrefix: VITE_PUBLIC_` + `parseClientEnv` at build, and the CI bundle secret scan | T0.4 + T0.3 |
-| F9 | Audit 9 Oct | PHASE_00 T0.14, 04 §12.1 and HANDOFF still describe SSH-from-CI deploys; superseded by DECISIONS #27 (WireGuard + pull deploys). Update those texts when implementing. | T0.3 / T0.14 |
+| F2 | T0.2 | ~~Prove client bundles contain only `VITE_PUBLIC_*`~~ — **closed 14 Oct 2026**: `envPrefix` + `parseClientEnv` at build (T0.4) and `pnpm scan:bundles` in CI and inside the web image build (T0.3, DECISIONS #49) | – |
+| F9 | Audit 9 Oct | ~~SSH-from-CI deploy texts~~ — **closed 14 Oct 2026**: 04 §12.1, 01 §4, PHASE_00 T0.3/T0.14 and HANDOFF now describe pull deploys (DECISIONS #27, #49) | – |
 | F10 | Audit 9 Oct | Owner wants no paid services. Phase 1 needs an Atlas staging tier with custom roles + views + transactions — likely not the free tier (verify). Decide before Phase 1: paid Atlas tier vs. self-hosted MongoDB for staging. Production Atlas M10 (~$60–80/mo) is in the plan. | Before Phase 1 (owner) |
 | F11 | Audit 9 Oct | Vendored `.claude/skills` (ui-ux-pro-max, MIT) — keep an MIT LICENSE notice in the folder (public repo). | T0.15 |
 | F12 | T0.4 | ~~`runtime-test` image target + check that `runtime` has no hooks~~ — **closed 13 Oct 2026** (T0.12, DECISIONS #48; CI runs the checks from T0.3) | – |
@@ -57,6 +57,8 @@
 | F18 | T0.9 | Phase 0 placeholder screens (`/demo/$number`, placeholder tab roots/Scan, tall spacer) exist only to exercise navigation; replace with real screens | Phase 2 |
 | F21 | T0.10 | Android back / browser back should close an open Sheet or Dialog instead of navigating the screen behind it (history entry per open overlay, integrated with the navigator reducer) | Phase 2 (first screens with sheets) |
 | F22 | T0.10 | Icon design pass: our hand-drawn `HandsPrayingIcon` (dua) and `MegaphoneIcon` are recognisable but not at Phosphor quality — redraw on the grid or import the exact Phosphor paths under MIT | Before Phase 2 screens use them |
+| F24 | T0.3 | Caddy is compiled from source (2.11.7 + Go 1.27.2 + x/net 0.60.0) because the official binary has 4 HIGH CVEs (DECISIONS #49). Switch back to the official `caddy:*-alpine` binary once a release includes the fixes (Trivy in CI/nightly tells) | When Caddy > 2.11.7 ships |
+| F25 | T0.3 | Release manifests are workflow artifacts today. T0.14: sign them (keyless, no paid service), publish where the VPS can poll, and the VPS-side timer + `deploy.sh` that verifies and deploys by digest; set the staging/production environment variables (VITE_PUBLIC_*) and the production required reviewer | T0.14 |
 | F20 | F19 | Perf spec (4× CPU throttle): 1 of 23 runs had long tasks of 189 + 110 ms right after a rebuild. T0.12: the perf spec now traces with attribution (input / chunk evaluation / animation frame / style-layout), dropped frames and forced layouts — 16/16 clean over 8 repeats. Remaining: the same transitions on a real low-end Android (owner guide) | T0.14 (needs staging URL) |
 
 ## Session log (newest first, one line each)

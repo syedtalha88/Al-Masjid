@@ -137,7 +137,7 @@ masjid-connect/
 | Web server / TLS | **Caddy 2** (reverse proxy, static files, headers) behind **Cloudflare** | Cloudflare Origin CA cert, Authenticated Origin Pulls |
 | Containers | Docker Engine + Docker Compose v2 | Images in GHCR, pinned by digest |
 | Testing | Vitest, Supertest, Testing Library, Playwright, MSW, fast-check, Lighthouse CI, size-limit, axe-core, k6; MongoDB + Redis via Docker for DB/integration tests | See 10_TESTING |
-| CI/CD | GitHub Actions (build, test, image build, Trivy scan, SSH deploy with approvals) | Required checks on `main` |
+| CI/CD | GitHub Actions (build, test, image build, Trivy scan, release manifest; the VPS pulls by digest — DECISIONS #27, #49) | Required checks on `main`; production behind manual approval |
 
 **Rejected:** Next.js (DECISIONS #5), Mongoose (#25), self-hosting MongoDB on the VPS (#6), serverless hosting (owner chose VPS — #21), Firebase (vendor lock-in), payment gateways (#11), analytics SDKs (#17).
 

@@ -144,7 +144,7 @@ X-Frame-Options: DENY
 - GitHub Actions: pinned action SHAs, `permissions: contents: read` default, `packages: write` only in the image job, secrets only in deployment **environments** (`staging`, `production`) with required reviewers for production.
 - CodeQL (JS/TS), Semgrep (OWASP + custom rules: no `dangerouslySetInnerHTML`, no `systemScope` outside jobs/scripts, no `hookScope` outside hooks, no `mongodb` imports outside `packages/db`, no `$where`/`$function`, no `router.<verb>` outside `defineRoute`, no `console.log`), gitleaks, osv-scanner, `pnpm audit --prod` (fail on high/critical), **Trivy** image + config scan (fail on high/critical), `hadolint` for Dockerfiles.
 - Nightly: OWASP ZAP baseline scan against staging (both origins), Lighthouse, dependency report, Trivy re-scan of deployed digests.
-- Deploys: build once → push to GHCR → deploy by digest over SSH with a restricted deploy user (can only run the deploy script — `command=` in `authorized_keys`). Production deploys and DB migrations require manual approval.
+- Deploys (DECISIONS #27, #49): build once → push to GHCR → write a release manifest of image digests. **CI never connects to the VPS**: a systemd timer on the VPS (restricted `deploy` user) pulls and verifies new manifests and deploys by digest. Owner SSH only through the self-hosted WireGuard tunnel. Production releases and DB migrations require manual approval (GitHub `production` environment).
 
 ### 12.2 VPS hardening (script in `infra/vps/`, idempotent; verified by a checklist test in Phase 0/9)
 - Ubuntu LTS minimal; automatic security updates (`unattended-upgrades`) with reboot window; NTP (`chrony`/`timesyncd`) on (CERT-In).
