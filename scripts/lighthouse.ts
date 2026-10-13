@@ -73,6 +73,11 @@ const print = (title: string, results: readonly PageResult[]) => {
     out(`  ${page.failures.length === 0 ? 'PASS' : 'FAIL'} ${page.url} (median of ${String(page.runs)})`);
     out(`       ${scores}\n       ${metrics}`);
     for (const failure of page.failures) out(`       ✗ ${failure}`);
+    // In GitHub Actions, failures also become annotations (readable without signing in — DECISIONS #49).
+    if (process.env['GITHUB_ACTIONS'] === 'true' && page.failures.length > 0) {
+      const property = `Lighthouse ${title} ${page.url}`.replace(/:/g, '%3A').replace(/,/g, '%2C');
+      out(`::error title=${property}::${[...page.failures, scores, metrics].join('%0A')}`);
+    }
   }
 };
 
