@@ -88,6 +88,8 @@ export function createConfig({ tsconfigRootDir, typeAware = true }) {
         '**/node_modules/**',
         '**/dist/**',
         '**/dist-test/**',
+        // Semgrep rule fixtures: deliberately bad code.
+        '.semgrep/**',
         '**/build/**',
         '**/coverage/**',
         '**/.turbo/**',

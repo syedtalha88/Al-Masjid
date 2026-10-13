@@ -26,6 +26,7 @@
     "i18n:check": "pnpm --filter @mc/i18n i18n:check",
     "check:dist": "node scripts/check-dist.mjs",
     "check:image": "node scripts/check-server-image.mjs",
+    "scan:bundles": "node scripts/scan-bundles.mjs --self-test && node scripts/scan-bundles.mjs",
     "pwa:assets": "node scripts/generate-pwa-assets.ts",
     "size": "size-limit",
     "lhci": "node scripts/lighthouse.ts",

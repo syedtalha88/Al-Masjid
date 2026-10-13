@@ -23,3 +23,4 @@ packages/ui/type.css
 packages/ui/fonts.css
 packages/ui/font-fallbacks.css
 packages/ui/motion.css
+.semgrep/

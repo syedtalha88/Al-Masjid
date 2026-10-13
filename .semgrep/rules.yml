@@ -1,0 +1,81 @@
+# Project Semgrep rules (04 §12.1) — a second, lint-independent layer behind the ESLint bans (DECISIONS #20).
+# Run in CI together with the registry's OWASP Top 10 rules:  semgrep scan --config .semgrep --config p/owasp-top-ten
+rules:
+  - id: mc-no-dangerously-set-inner-html
+    message: No user HTML anywhere (04 R10). React escaping only; never dangerouslySetInnerHTML.
+    severity: ERROR
+    languages: [typescript]
+    pattern-either:
+      - pattern: <$EL dangerouslySetInnerHTML={...} />
+      - pattern: <$EL dangerouslySetInnerHTML={...}>...</$EL>
+      - pattern: '{dangerouslySetInnerHTML: ...}'
+
+  - id: mc-no-server-side-js-operators
+    message: MongoDB server-side JavaScript operators ($where, $function, $accumulator) are forbidden (04 R11).
+    severity: ERROR
+    languages: [typescript, javascript]
+    # Keys (`$where: …`, `"$where": …`) and string values (`'$function'`) alike.
+    pattern-regex: (['"]\$(where|function|accumulator)['"])|(\$(where|function|accumulator)\s*:)
+
+  - id: mc-mongodb-only-in-db
+    message: The MongoDB driver may only be imported inside packages/db (DECISIONS #20, #25).
+    severity: ERROR
+    languages: [typescript, javascript]
+    pattern-either:
+      - pattern: import $X from 'mongodb'
+      - pattern: import { ... } from 'mongodb'
+      - pattern: import * as $X from 'mongodb'
+      - pattern: import('mongodb')
+      - pattern: require('mongodb')
+    paths:
+      exclude: ['packages/db/**']
+
+  - id: mc-system-scope-only-in-jobs
+    message: systemScope() may only be used in packages/api/src/jobs/** (worker) and scripts/** (DECISIONS #7, #20).
+    severity: ERROR
+    languages: [typescript]
+    pattern-either:
+      - pattern: import { ..., systemScope, ... } from '$MOD'
+      - pattern: systemScope(...)
+    paths:
+      exclude: ['packages/api/src/jobs/**', 'scripts/**', 'packages/db/**']
+
+  - id: mc-hook-scope-only-in-hooks
+    message: hookScope() may only be used in packages/api/src/hooks/** (DECISIONS #20).
+    severity: ERROR
+    languages: [typescript]
+    pattern-either:
+      - pattern: import { ..., hookScope, ... } from '$MOD'
+      - pattern: hookScope(...)
+    paths:
+      exclude: ['packages/api/src/hooks/**', 'packages/db/**']
+
+  - id: mc-routes-only-via-define-route
+    message: HTTP routes are declared only through defineRoute() (CLAUDE.md §6) — no raw router/app verbs.
+    severity: ERROR
+    languages: [typescript]
+    patterns:
+      - pattern-either:
+          - pattern: $R.get($PATH, ...)
+          - pattern: $R.post($PATH, ...)
+          - pattern: $R.put($PATH, ...)
+          - pattern: $R.patch($PATH, ...)
+          - pattern: $R.delete($PATH, ...)
+      - metavariable-regex:
+          metavariable: $R
+          regex: ^(router|app|api|server)$
+      - metavariable-regex:
+          metavariable: $PATH
+          regex: ^['"`]/
+    paths:
+      include: ['packages/api/**', 'apps/server/**']
+      exclude: ['packages/api/src/http/define-route.ts', '**/test/**', '**/*.test.ts']
+
+  - id: mc-no-console-log
+    message: Use the structured logger (CLAUDE.md §6); console.log is not allowed in shipped code.
+    severity: ERROR
+    languages: [typescript]
+    pattern: console.log(...)
+    paths:
+      include: ['apps/*/src/**', 'packages/*/src/**']
+      exclude: ['**/*.test.ts', '**/*.test.tsx']
