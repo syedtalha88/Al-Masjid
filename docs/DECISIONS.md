@@ -355,6 +355,15 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **Found by CI on Linux:** the Redis ACL file (mode 600, host user) is unreadable for the container's `redis` user through a bind mount — Docker Desktop hid it; it is now copied in as `redis:redis 400` before start, like the MongoDB keyfile.
 **Consequences:** The owner must enable branch protection with the required checks (instructions in the Phase 00 report). Main stays deployable: nothing merges without all five CI jobs green.
 
+### #50 — Security headers, CSP and Trusted Types (T0.5) — ACCEPTED (14 Oct 2026)
+**Decision:**
+- **Where:** Caddy sets the 04 §7 set on everything it serves itself (SPA, `offline.html`, assets, manifest, `boot.js`) through snippets inside the SPA handler, so proxied API responses keep the Express set (`default-src 'none'; frame-ancestors 'none'`, T0.4). Caddy's own `/api/*` 404 uses the API set. `Server` is removed. Hosts come from env: `MEDIA_ORIGIN` (img-src) and `CSP_CONNECT_EXTRA` (extra connect-src, e.g. the Sentry ingest host in T0.13; empty by default).
+- **Per origin:** the musalli CSP allows `https://challenges.cloudflare.com` (Turnstile: script, connect, frame) and `https://www.youtube-nocookie.com` (frame, DECISIONS #39). The admin CSP drops both (`script-src 'self'`, `frame-src 'none'`) — 04 §7 "minus YouTube/Turnstile where unused"; revisit if an admin preview embeds YouTube (Phase 6) or admin login uses Turnstile (Phase 1). No `'unsafe-inline'` / `'unsafe-eval'` anywhere; the built HTML has no inline script, style, `style=""` or `on*=` (e2e checks).
+- **Deviations from the 04 §7 text:** HSTS without `preload` (#29), no `interest-cohort` (#33), and `trusted-types default` **without `dompurify`** — we ship no DOMPurify (CLAUDE.md §2: no user HTML anywhere), so allowing that policy name would only widen the surface.
+- **Trusted Types:** `@mc/ui/security` installs the `default` policy as the first module each app evaluates. It allows exactly one script URL — same-origin `/sw.js` without query (the service-worker registration, the only sink the apps use) — and rejects every HTML/script value: throws (naming the sink) in dev, returns `null` in production so the browser blocks the sink and fires `securitypolicyviolation` (to be reported to Sentry in T0.13 — PROGRESS F26). Unit-tested with a fake factory; e2e proves an `innerHTML` assignment is blocked and reported in Chromium **and** WebKit.
+- **Testing under CSP:** the T0.12 CSP guard now fails any spec with a violation; the full suite (99 e2e, showcase 19, perf, Lighthouse 99/100/100) passes. Playwright injects a `<style>` while screenshotting; Chromium exempts it from the page CSP, WebKit reports it — the `capture()` helper drops exactly those inline-style reports raised during its own screenshot.
+- **Grades:** securityheaders.com and Mozilla Observatory need a public URL → verified on staging in T0.14 (owner guide 0.2).
+
 ## OPEN
 
 _None._

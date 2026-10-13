@@ -51,6 +51,9 @@ Links from Claude Code: staging app, staging admin, and `/_dev/showcase` on both
 | 0.12 | Update | Tell Claude Code you're ready; it deploys a tiny change; reopen the app | "Update available" message appears; tapping it refreshes |
 | 0.13 | Server locked down | Read the `check.sh` result in the report. Then on your laptop open `https://<your VPS IP address>` in a browser | Report shows all **PASS**. The IP address does **not** open the app (connection refused / error) — only the real domain works |
 | 0.14 | Rollback | Ask Claude Code to demonstrate a rollback on staging | Previous version is back within a few minutes; then the latest is redeployed |
+| 0.15 | Branch protection on | GitHub → your repo → **Settings → Rules → Rulesets → New branch ruleset**. Name `main`, Enforcement **Active**, Target **Default branch**. Tick **Restrict deletions**, **Block force pushes**, **Require a pull request before merging** (0 approvals is fine while you work alone), **Require status checks to pass** → add these 6 checks: `Typecheck · lint · format · i18n`, `Unit + component tests (coverage gates)`, `Security scans`, `Integration tests (MongoDB + Redis)`, `Build · budgets · images · e2e · Lighthouse`, `CodeQL (javascript-typescript)`. Save | The ruleset shows **Active** |
+| 0.16 | A failing test is blocked *(T0.3 acceptance — you chose to test this yourself, 14 Oct 2026)* | Ask Claude Code for a throw-away branch with one deliberately failing test, open a pull request for it on GitHub | The PR shows a red ✗ from CI and the **Merge** button is blocked. Then close the PR and delete the branch |
+| 0.17 | Production needs your approval | GitHub → Settings → **Environments** → `production` (create it if missing) → **Required reviewers** → add yourself | Any production release waits for your click |
 
 ---
 
