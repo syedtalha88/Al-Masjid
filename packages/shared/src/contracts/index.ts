@@ -1,0 +1,2 @@
+// Zod wire contracts shared by the API (server) and the PWAs (clients) — 03 header.
+export * from './problem.ts';

@@ -8,7 +8,8 @@
     "./vitest": "./src/vitest.ts",
     "./tsconfig.base.json": "./tsconfig.base.json",
     "./tsconfig.node.json": "./tsconfig.node.json",
-    "./tsconfig.react.json": "./tsconfig.react.json"
+    "./tsconfig.react.json": "./tsconfig.react.json",
+    "./playwright": "./src/playwright/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -17,7 +18,9 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-jsx-a11y-x": "0.2.0",
     "eslint-plugin-react-hooks": "7.1.1",

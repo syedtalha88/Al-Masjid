@@ -10,7 +10,10 @@
     "./brand": "./src/brand.ts",
     "./brand-mark": "./src/brand-mark.ts",
     "./pwa": "./src/pwa.ts",
-    "./clock": "./src/clock.ts"
+    "./clock": "./src/clock.ts",
+    "./contracts": "./src/contracts/index.ts",
+    "./http": "./src/http/request-json.ts",
+    "./testing/msw": "./src/testing/msw.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -23,6 +26,7 @@
     "@types/node": "24.19.1",
     "@vitest/coverage-v8": "5.0.3",
     "eslint": "10.12.0",
+    "msw": "2.15.0",
     "typescript": "6.0.3",
     "vitest": "5.0.3"
   },

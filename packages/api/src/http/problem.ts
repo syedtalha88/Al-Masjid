@@ -1,25 +1,9 @@
+import type { ProblemCode, ProblemFieldError } from '@mc/shared/contracts';
 import type { Response } from 'express';
 
-/** Stable error codes; the client maps each to an `errors.<CODE>` i18n key (09 §2). */
-export type ProblemCode =
-  | 'NOT_FOUND'
-  | 'METHOD_NOT_ALLOWED'
-  | 'VALIDATION_FAILED'
-  | 'UNSAFE_INPUT'
-  | 'INVALID_JSON'
-  | 'PAYLOAD_TOO_LARGE'
-  | 'UNSUPPORTED_MEDIA_TYPE'
-  | 'CORS_NOT_ALLOWED'
-  | 'INTERNAL_ERROR';
+export type { ProblemCode, ProblemFieldError };
 
-export interface ProblemFieldError {
-  /** Dotted path of the offending field, e.g. `body.locale`. */
-  readonly path: string;
-  /** Machine-readable reason (Zod issue code). */
-  readonly code: string;
-}
-
-/** RFC 9457 problem details body (03 header). */
+/** RFC 9457 problem details body (03 header); the wire contract is `problemSchema` in `@mc/shared/contracts`. */
 export interface ProblemBody {
   readonly type: string;
   readonly title: string;

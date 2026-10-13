@@ -1,3 +1,4 @@
+import { problemSchema } from '@mc/shared/contracts';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
@@ -18,6 +19,8 @@ const expectProblem = (response: request.Response, status: number, code: string)
   const body = JSON.parse(response.text) as Record<string, unknown>; // problem+json body
   expect(body).toMatchObject({ status, code, type: expect.stringMatching(/^urn:masjid-connect:problem:/) as unknown });
   expect(body).not.toHaveProperty('stack');
+  // The wire contract the clients parse (requestJson in @mc/shared/http).
+  expect(problemSchema.safeParse(body).success).toBe(true);
   return body;
 };
 

@@ -13,5 +13,7 @@ allowBuilds:
   lefthook: true
   # Optional native accelerator for msgpackr (BullMQ); the pure-JS fallback is used. No native builds in images.
   msgpackr-extract: false
+  # Its postinstall only copies the browser mock worker into a public/ folder; tests use msw/node only.
+  msw: false
 # Don't install versions younger than 1 day (pnpm default since v11, made explicit).
 minimumReleaseAge: 1440
