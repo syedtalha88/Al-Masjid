@@ -9,7 +9,8 @@
     "./tsconfig.base.json": "./tsconfig.base.json",
     "./tsconfig.node.json": "./tsconfig.node.json",
     "./tsconfig.react.json": "./tsconfig.react.json",
-    "./playwright": "./src/playwright/index.ts"
+    "./playwright": "./src/playwright/index.ts",
+    "./lighthouse": "./src/lighthouse.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
