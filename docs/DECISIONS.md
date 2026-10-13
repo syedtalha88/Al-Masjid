@@ -324,6 +324,11 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **Caddy:** `offline.html` no-cache, `.webmanifest` served as `application/manifest+json`, icons/splash 1 day.
 - **Tests:** Chromium refuses service workers on a self-signed origin even with `ignoreHTTPSErrors`, so the Pixel 7 project launches with `--ignore-certificate-errors` (test browsers only). Installability (CDP), admin-no-API, offline reload and the two-build update flow run on Chromium; Playwright's WebKit is not used for service-worker lifecycle checks — the owner's iPhone install check (guide 0.10) covers iOS.
 
+### #47 — Phase 00 exit JS budget raised to 220 KB — ACCEPTED (owner, 13 Oct 2026)
+**Context:** PHASE_00 exit criteria set the musalli initial JS (shell, showcase excluded) at ≤ 120 KB gz. Measured 163.2 KB after T0.11: react-dom ≈ 43 %, router, i18n ≈ 29 KB (#38), Motion runtime + animation engine ≈ 23 KB (#43, #44 — kept under the owner's "quality over bundle size" rule). T0.13 adds the Sentry browser SDK.
+**Decision:** For **Phase 00 only**, the exit budget for `/` initial JS is **≤ 220 KB gz**; `pnpm size` enforces 220 KB until Phase 00 is DONE. From Phase 01 the 01 §9 budget (≤ 170 KB) applies again, so anything Phase 00 adds above 170 KB must be removed or deferred (lazy Sentry, ICU precompile F14, deferring non-shell code) before Phase 01 closes. All other 01 §9 budgets are unchanged.
+**Consequences:** F15 closed for Phase 00; follow-up F23 tracks the return to 170 KB in Phase 01.
+
 ## OPEN
 
 _None._

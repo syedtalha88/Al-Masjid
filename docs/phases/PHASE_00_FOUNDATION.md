@@ -94,4 +94,4 @@ Database collections/auth (Phase 1 — but local MongoDB + Redis containers alre
 ---
 
 ## Phase exit criteria
-All tasks' acceptance boxes ticked with evidence; `pnpm verify` green; budgets: app initial JS (shell + showcase excluded) ≤ 120 KB gz at this stage; staging VPS hardening checklist PASS; Trivy clean; phase-verifier PASS; security-reviewer no HIGH/MEDIUM; report written; owner guide Phase 00 handed over.
+All tasks' acceptance boxes ticked with evidence; `pnpm verify` green; budgets: app initial JS (shell + showcase excluded) ≤ 220 KB gz at this stage (raised from 120 KB by the owner — DECISIONS #47; back to 170 KB from Phase 01); staging VPS hardening checklist PASS; Trivy clean; phase-verifier PASS; security-reviewer no HIGH/MEDIUM; report written; owner guide Phase 00 handed over.
