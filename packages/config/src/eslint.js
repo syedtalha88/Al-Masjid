@@ -87,6 +87,7 @@ export function createConfig({ tsconfigRootDir, typeAware = true }) {
       ignores: [
         '**/node_modules/**',
         '**/dist/**',
+        '**/dist-test/**',
         '**/build/**',
         '**/coverage/**',
         '**/.turbo/**',

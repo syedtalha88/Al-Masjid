@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { ManualClock, systemClock } from './clock.ts';
+import { ManualClock, ShiftableClock, systemClock } from './clock.ts';
 
 describe('Clock', () => {
   it('systemClock follows the real (here: faked) time', () => {
@@ -31,6 +31,35 @@ describe('Clock', () => {
     }).toThrow(RangeError);
     expect(() => {
       clock.set(new Date(Number.NaN));
+    }).toThrow(RangeError);
+  });
+});
+
+describe('ShiftableClock', () => {
+  it('follows its source until moved, then keeps flowing from the new instant', () => {
+    let real = Date.parse('2026-10-13T10:00:00Z');
+    const clock = new ShiftableClock(() => real);
+    expect(clock.now().toISOString()).toBe('2026-10-13T10:00:00.000Z');
+    clock.set(new Date('2026-10-20T00:00:00Z'));
+    real += 5_000;
+    expect(clock.now().toISOString()).toBe('2026-10-20T00:00:05.000Z');
+    clock.advance(24 * 60 * 60_000);
+    expect(clock.now().toISOString()).toBe('2026-10-21T00:00:05.000Z');
+    clock.reset();
+    expect(clock.now().toISOString()).toBe('2026-10-13T10:00:05.000Z');
+  });
+
+  it('defaults to Date.now and rejects invalid input', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-26T03:30:00Z'));
+    const clock = new ShiftableClock();
+    expect(clock.now().toISOString()).toBe('2026-09-26T03:30:00.000Z');
+    vi.useRealTimers();
+    expect(() => {
+      clock.set(new Date('nope'));
+    }).toThrow(RangeError);
+    expect(() => {
+      clock.advance(Number.POSITIVE_INFINITY);
     }).toThrow(RangeError);
   });
 });

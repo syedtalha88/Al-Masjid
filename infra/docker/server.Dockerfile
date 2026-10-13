@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 # Server image for api-public, api-admin, worker and migrate (one image; the command selects the process).
 # Build context = repository root:  docker build -f infra/docker/server.Dockerfile --target runtime .
+# Targets (DECISIONS #31): runtime = shipped image; runtime-test = runtime + the e2e test-hook module (CI/local only).
 # Base images are pinned by digest (04 §2 R9); Renovate proposes updates.
 
 ARG NODE_IMAGE=node:24.21.0-trixie-slim@sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66
@@ -29,8 +30,9 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm install --frozen-lo
 # ---------------------------------------------------------------------------------------------------
 # Build the server bundles and prune to production dependencies (bullmq + ioredis — DECISIONS #34).
 FROM deps AS build
+# The build also moves the test-hook module to dist-test/ and fails if dist/ contains any hook code.
 RUN pnpm --filter @mc/server build && \
-    rm -f apps/server/dist/*.map
+    rm -f apps/server/dist/*.map apps/server/dist-test/*.map
 # deploy copies the package (incl. dist/, per "files" in package.json) + its production node_modules.
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm --filter @mc/server --prod deploy /out
@@ -51,3 +53,10 @@ HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
     CMD ["/nodejs/bin/node", "dist/healthcheck.mjs", "api-public"]
 # Distroless entrypoint is node; the command selects the process: dist/public.mjs | admin.mjs | worker.mjs | migrate.mjs
 CMD ["dist/public.mjs"]
+
+# ---------------------------------------------------------------------------------------------------
+# E2E only (never deployed): the shipped runtime + the test-hook module, which the API entrypoints load only
+# when APP_ENV=local and NODE_ENV=test (10 §3). Staging/production refuse NODE_ENV=test at boot (env.ts).
+FROM runtime AS runtime-test
+ENV NODE_ENV=test
+COPY --from=build --chown=65532:65532 /repo/apps/server/dist-test/test-hooks.mjs ./dist/test-hooks.mjs

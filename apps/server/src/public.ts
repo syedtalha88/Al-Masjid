@@ -2,10 +2,18 @@
 import { createLogger, createPublicApp, startHttpServer } from '@mc/api';
 
 import { bootEnv, onShutdownSignal } from './lifecycle.ts';
+import { loadTestHooks } from './test-hooks-loader.ts';
 
 const env = bootEnv('api-public', process);
 const logger = createLogger({ process: 'api-public', level: env.LOG_LEVEL, release: env.RELEASE });
-const { app } = createPublicApp({ logger, release: env.RELEASE, trustedProxyMode: env.TRUSTED_PROXY_MODE });
+// e2e hooks only for APP_ENV=local + NODE_ENV=test AND a runtime-test build (10 §3, DECISIONS #31).
+const hooks = await loadTestHooks(env, 'api-public', logger);
+const { app } = createPublicApp({
+  logger,
+  release: env.RELEASE,
+  trustedProxyMode: env.TRUSTED_PROXY_MODE,
+  ...(hooks ? { clock: hooks.clock, testRoutes: hooks.routes } : {}),
+});
 const server = await startHttpServer(app, env.PORT, '0.0.0.0', logger);
 logger.info({ port: server.port, appEnv: env.APP_ENV }, 'api-public listening');
 

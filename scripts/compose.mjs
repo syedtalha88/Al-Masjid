@@ -1,6 +1,7 @@
 // Wrapper for local Docker Compose commands (`pnpm db:start`, `db:stop`, `stack:up`, `stack:down`).
 // Checks prerequisites and prints a clear message instead of a cryptic compose error.
-//   node scripts/compose.mjs <dev|stack> <up|down|logs|ps> [extra compose args…]
+//   node scripts/compose.mjs <dev|stack|stack-test> <up|down|logs|ps> [extra compose args…]
+// stack-test = the stack with the runtime-test server image (e2e test hooks — DECISIONS #31).
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -12,6 +13,11 @@ const [target = '', action = '', ...extra] = process.argv.slice(2);
 const FILES = {
   dev: ['infra/compose/docker-compose.dev.yml'],
   stack: ['infra/compose/docker-compose.dev.yml', 'infra/compose/docker-compose.stack.yml'],
+  'stack-test': [
+    'infra/compose/docker-compose.dev.yml',
+    'infra/compose/docker-compose.stack.yml',
+    'infra/compose/docker-compose.stack-test.yml',
+  ],
 };
 const ACTIONS = {
   // No --remove-orphans: dev and stack share one compose project, so `dev up` must not remove stack services.
@@ -24,7 +30,7 @@ const ACTIONS = {
 const files = FILES[/** @type {keyof typeof FILES} */ (target)];
 const actionArgs = ACTIONS[/** @type {keyof typeof ACTIONS} */ (action)];
 if (!files || !actionArgs) {
-  process.stderr.write('usage: node scripts/compose.mjs <dev|stack> <up|down|logs|ps> [args…]\n');
+  process.stderr.write('usage: node scripts/compose.mjs <dev|stack|stack-test> <up|down|logs|ps> [args…]\n');
   process.exit(2);
 }
 

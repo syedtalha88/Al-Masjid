@@ -2,10 +2,18 @@
 import { createAdminApp, createLogger, startHttpServer } from '@mc/api';
 
 import { bootEnv, onShutdownSignal } from './lifecycle.ts';
+import { loadTestHooks } from './test-hooks-loader.ts';
 
 const env = bootEnv('api-admin', process);
 const logger = createLogger({ process: 'api-admin', level: env.LOG_LEVEL, release: env.RELEASE });
-const { app } = createAdminApp({ logger, release: env.RELEASE, trustedProxyMode: env.TRUSTED_PROXY_MODE });
+// e2e hooks only for APP_ENV=local + NODE_ENV=test AND a runtime-test build (10 §3, DECISIONS #31).
+const hooks = await loadTestHooks(env, 'api-admin', logger);
+const { app } = createAdminApp({
+  logger,
+  release: env.RELEASE,
+  trustedProxyMode: env.TRUSTED_PROXY_MODE,
+  ...(hooks ? { clock: hooks.clock, testRoutes: hooks.routes } : {}),
+});
 const server = await startHttpServer(app, env.PORT, '0.0.0.0', logger);
 logger.info({ port: server.port, appEnv: env.APP_ENV }, 'api-admin listening');
 

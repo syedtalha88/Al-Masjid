@@ -1,0 +1,21 @@
+# E2E variant of the local stack (`pnpm stack:up:test`), layered on docker-compose.stack.yml: the server
+# services run the `runtime-test` image (shipped runtime + the e2e test-hook module — DECISIONS #31) with
+# NODE_ENV=test, so the APIs mount /api/v1/test/* and /api/admin/test/* (10 §3). `pnpm stack:up` switches
+# back to the shipped `runtime` image. Never used for staging or production.
+
+x-test-server: &test-server
+  image: mc-server:test
+  build:
+    context: ../..
+    dockerfile: infra/docker/server.Dockerfile
+    target: runtime-test
+  environment:
+    NODE_ENV: test
+
+services:
+  api-public:
+    <<: *test-server
+  api-admin:
+    <<: *test-server
+  worker:
+    <<: *test-server

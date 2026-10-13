@@ -7,7 +7,15 @@ import { defineConfig } from 'tsdown';
  * files at runtime — and are installed in the image by `pnpm deploy --prod`.
  */
 export default defineConfig({
-  entry: ['src/public.ts', 'src/admin.ts', 'src/worker.ts', 'src/migrate.ts', 'src/healthcheck.ts'],
+  // `test-hooks` is moved to dist-test/ right after the build (scripts/split-test-hooks.mjs — DECISIONS #31).
+  entry: [
+    'src/public.ts',
+    'src/admin.ts',
+    'src/worker.ts',
+    'src/migrate.ts',
+    'src/healthcheck.ts',
+    'src/test-hooks.ts',
+  ],
   format: ['esm'],
   platform: 'node',
   target: 'node24',

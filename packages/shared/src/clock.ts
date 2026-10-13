@@ -43,3 +43,48 @@ export class ManualClock implements Clock {
     this.#now = ManualClock.#valid(this.#now + ms);
   }
 }
+
+/** A clock tests can move while time keeps flowing (e2e time travel through `/test/clock` — 10 §3). */
+export interface AdjustableClock extends Clock {
+  /** From now on, `now()` reads `instant` plus the time elapsed since this call. */
+  set(instant: Date): void;
+  /** Shifts time forward (or back, with a negative value) by `ms`. */
+  advance(ms: number): void;
+  /** Back to the real time. */
+  reset(): void;
+}
+
+/**
+ * Real time plus an offset. Used by the servers only in test-hook mode (APP_ENV=local, NODE_ENV=test), so
+ * an e2e test can jump a day ahead (e.g. the 24 h UPI change hold) while timers and timeouts keep running.
+ *
+ * @throws RangeError when set to an invalid date or advanced by a non-finite amount.
+ */
+export class ShiftableClock implements AdjustableClock {
+  #offset = 0;
+  readonly #source: () => number;
+
+  /** @param source - the underlying time source (default `Date.now`; injectable for tests). */
+  constructor(source: () => number = Date.now) {
+    this.#source = source;
+  }
+
+  now(): Date {
+    return new Date(this.#source() + this.#offset);
+  }
+
+  set(instant: Date): void {
+    const time = instant.getTime();
+    if (!Number.isFinite(time)) throw new RangeError('ShiftableClock: invalid time');
+    this.#offset = time - this.#source();
+  }
+
+  advance(ms: number): void {
+    if (!Number.isFinite(ms)) throw new RangeError('ShiftableClock: invalid time');
+    this.#offset += ms;
+  }
+
+  reset(): void {
+    this.#offset = 0;
+  }
+}

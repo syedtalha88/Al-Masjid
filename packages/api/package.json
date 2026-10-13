@@ -6,7 +6,8 @@
   "description": "Express apps (createPublicApp / createAdminApp), routes, services, jobs, hooks. From T0.4.",
   "exports": {
     ".": "./src/index.ts",
-    "./testing": "./src/testing/index.ts"
+    "./testing": "./src/testing/index.ts",
+    "./test-hooks": "./src/test-hooks/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

@@ -1,4 +1,5 @@
 import { OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
+import { type Clock, systemClock } from '@mc/shared/clock';
 import express, { type Express, type Router } from 'express';
 import type { Logger } from 'pino';
 
@@ -19,6 +20,13 @@ export interface AppDependencies {
   readonly trustedProxyMode: TrustedProxyMode;
   /** Extra routes (tests, and later phases' feature routers). */
   readonly routes?: readonly RouteDefinition[];
+  /** Time source for services and jobs (default: the real clock; a ShiftableClock in test-hook mode). */
+  readonly clock?: Clock;
+  /**
+   * E2E test hooks (`@mc/api/test-hooks`), only ever passed by the entrypoints in test-hook mode. Mounted
+   * under the prefix but never registered in OpenAPI, so they cannot appear in the published contract.
+   */
+  readonly testRoutes?: readonly RouteDefinition[];
 }
 
 export interface CreatedApp {
@@ -49,13 +57,18 @@ const newRouter = (): Router => express.Router({ strict: true, caseSensitive: tr
 function assemble(
   service: 'api-public' | 'api-admin',
   prefix: string,
-  { logger, release, routes = [] }: AppDependencies,
+  { logger, release, routes = [], clock = systemClock, testRoutes = [] }: AppDependencies,
   noindex: boolean,
 ): CreatedApp {
   const app = createBaseApp();
+  app.locals['clock'] = clock; // services read it from Phase 1 on
   const registry = new OpenAPIRegistry();
   const router = newRouter();
   mountRoutes(router, prefix, [healthRoute(service, release), ...routes], registry);
+  if (testRoutes.length > 0) {
+    mountRoutes(router, prefix, testRoutes); // no registry: never in openapi.json
+    logger.warn({ service, routes: testRoutes.length }, 'TEST HOOKS ENABLED (APP_ENV=local, NODE_ENV=test)');
+  }
 
   app.use(requestId()); // 1
   app.use(requestLogger(logger));
