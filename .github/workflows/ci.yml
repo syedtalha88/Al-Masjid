@@ -125,9 +125,11 @@ jobs:
         run: pnpm --filter @mc/server verify:local
       - run: pnpm test:int
       - run: pnpm db:test
-      - name: Service logs
+      - name: Service diagnostics (annotations)
         if: failure()
-        run: node scripts/compose.mjs dev logs
+        run: |
+          node scripts/ci-annotate.mjs 'dev services' node scripts/compose.mjs dev ps -a
+          node scripts/ci-annotate.mjs 'dev service logs' node scripts/compose.mjs dev logs
 
   # ------------------------------------------------------------------------------------------------
   build-e2e:
@@ -191,9 +193,11 @@ jobs:
           E2E_TEST_HOOKS: '1'
         run: pnpm exec playwright test e2e/smoke/test-hooks.spec.ts --project=pixel-7
 
-      - name: Stack logs
+      - name: Stack diagnostics (annotations)
         if: failure()
-        run: node scripts/compose.mjs stack-test logs
+        run: |
+          node scripts/ci-annotate.mjs 'stack services' node scripts/compose.mjs stack-test ps -a
+          node scripts/ci-annotate.mjs 'stack logs' node scripts/compose.mjs stack-test logs
       - name: Reports (Playwright, screenshots, Lighthouse)
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

@@ -1,0 +1,102 @@
+# Nightly checks (10 §7, 04 §12.1): fresh vulnerability data against unchanged code, repeated motion-perf runs,
+# and — once staging exists (T0.14: repository variables STAGING_APP_URL / STAGING_ADMIN_URL) — an OWASP ZAP
+# baseline and Lighthouse against staging. GitHub e-mails the owner when a scheduled run fails.
+# Phase 1+ adds: retention-job dry run on staging, `db:verify-roles` against staging Atlas.
+name: Nightly
+
+on:
+  schedule:
+    - cron: '30 21 * * *' # 03:00 IST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CI: 'true'
+  LEFTHOOK: '0'
+  TZ: Asia/Kolkata
+  OSV_IMAGE: ghcr.io/google/osv-scanner:v2.7.0@sha256:4f3b7e2c64b9d38a5febc5a7e4a3dfef1d1362f726dea7a2ef4762b46469fcd0
+  TRIVY_IMAGE: aquasec/trivy:0.75.0@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa
+  ZAP_IMAGE: ghcr.io/zaproxy/zaproxy:2.17.0@sha256:7aaa659b0d43078febd82e29bad112285c370727e86ab8340444220e17d9f0d2
+
+jobs:
+  dependencies:
+    name: Dependency vulnerabilities (fresh advisories)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: docker run --rm -v "$PWD:/src" "$OSV_IMAGE" scan source --lockfile /src/pnpm-lock.yaml
+      - run: pnpm audit --prod --audit-level high
+
+  images-perf:
+    name: Images (Trivy, fresh DB) · motion perf ×3
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: pnpm setup:local
+      - run: echo "127.0.0.1 app.localhost admin.localhost" | sudo tee -a /etc/hosts
+      - run: pnpm --filter @mc/app --filter @mc/admin build
+      - run: node scripts/compose.mjs stack up --build
+      - name: Trivy (all fixable HIGH/CRITICAL)
+        run: |
+          for image in mc-server:local mc-caddy:local; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" image \
+              --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "$image"
+          done
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Motion performance, three repeats (08 §8 — catches rare long tasks, PROGRESS F20)
+        run: pnpm exec playwright test --project=perf --workers=1 --repeat-each=3
+      - name: Reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: nightly-perf
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  staging:
+    name: Staging — ZAP baseline · Lighthouse
+    if: vars.STAGING_APP_URL != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: OWASP ZAP baseline (passive) — both origins, fail on medium+
+        env:
+          APP: ${{ vars.STAGING_APP_URL }}
+          ADMIN: ${{ vars.STAGING_ADMIN_URL }}
+        run: |
+          mkdir -p zap && chmod 777 zap
+          for target in "$APP" "$ADMIN"; do
+            docker run --rm -v "$PWD/zap:/zap/wrk" "$ZAP_IMAGE" zap-baseline.py -t "$target" -l WARN -I \
+              -r "$(echo "$target" | sed 's|https://||; s|/.*||').html"
+          done
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Lighthouse budgets against staging
+        env:
+          E2E_APP_URL: ${{ vars.STAGING_APP_URL }}
+          E2E_ADMIN_URL: ${{ vars.STAGING_ADMIN_URL }}
+        run: pnpm lhci
+      - name: Reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: nightly-staging
+          path: |
+            zap/
+            .lighthouseci/
+          retention-days: 14
+          if-no-files-found: ignore
