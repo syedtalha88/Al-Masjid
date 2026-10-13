@@ -35,7 +35,13 @@ mkdirSync(OUT, { recursive: true });
 // The local stack uses Caddy's internal CA; staging/CI targets have real certificates.
 const chrome = await chromeLauncher.launch({
   chromePath: chromium.executablePath(),
-  chromeFlags: ['--headless=new', '--ignore-certificate-errors'],
+  chromeFlags: [
+    '--headless=new',
+    '--ignore-certificate-errors',
+    // Ubuntu 24.04 (CI runners) blocks the unprivileged user namespaces Chromium's sandbox needs; Playwright
+    // launches without it by default for the same reason. We only audit our own pages.
+    ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
+  ],
 });
 
 /** One Lighthouse run; `warm` keeps storage (service worker + caches) from the previous run. */

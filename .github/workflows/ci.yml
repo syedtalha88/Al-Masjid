@@ -181,7 +181,12 @@ jobs:
       - name: Motion performance (08 §8, 4× CPU)
         run: pnpm test:perf
       - name: Lighthouse budgets (01 §9)
-        run: pnpm lhci
+        run: |
+          set -o pipefail
+          pnpm lhci 2>&1 | tee lhci.log
+      - name: Lighthouse diagnostics (annotation)
+        if: failure() && hashFiles('lhci.log') != ''
+        run: node scripts/ci-annotate.mjs 'lighthouse output' tail -n 80 lhci.log
 
       # The e2e image: hooks present and working through Caddy.
       - name: Test stack (runtime-test image) up
