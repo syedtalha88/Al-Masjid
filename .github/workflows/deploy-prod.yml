@@ -1,0 +1,86 @@
+# Production release (DECISIONS #21, #27; 04 §12.1): manual only, gated by the `production` environment's
+# required reviewer (the owner). Promotes the server image that staging ran — by digest, never rebuilt — builds
+# the web image with production's public variables, and writes the production release manifest. The VPS pulls it
+# (T0.14 / Phase 9: manifest signing + publishing, migrations with approval — PROGRESS F25).
+name: Deploy production
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Commit SHA that is running on staging (full 40 characters)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io/syedtalha88
+
+jobs:
+  publish:
+    name: Promote server image · build web · release manifest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    environment: production # owner approval required (Settings → Environments → production → Required reviewers)
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Validate input
+        env:
+          INPUT_RELEASE: ${{ inputs.release }}
+        run: |
+          [[ "$INPUT_RELEASE" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::release must be a full commit SHA"; exit 1; }
+          echo "RELEASE=$INPUT_RELEASE" >> "$GITHUB_ENV"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ inputs.release }}
+      - name: Log in to GHCR
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+
+      - name: Promote the staging server image (same digest)
+        run: |
+          source="$REGISTRY/al-masjid-server:sha-$RELEASE"
+          digest=$(docker buildx imagetools inspect "$source" --format '{{json .Manifest}}' | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).digest")
+          docker buildx imagetools create --tag "$REGISTRY/al-masjid-server:prod-sha-$RELEASE" "$REGISTRY/al-masjid-server@$digest"
+          echo "SERVER_DIGEST=$digest" >> "$GITHUB_ENV"
+
+      - name: Web image (Caddy + both PWAs built for production)
+        env:
+          VITE_PUBLIC_API_BASE: ${{ vars.VITE_PUBLIC_API_BASE }}
+          VITE_PUBLIC_APP_ORIGIN: ${{ vars.VITE_PUBLIC_APP_ORIGIN }}
+          VITE_PUBLIC_MEDIA_ORIGIN: ${{ vars.VITE_PUBLIC_MEDIA_ORIGIN }}
+          VITE_PUBLIC_VAPID_PUBLIC_KEY: ${{ vars.VITE_PUBLIC_VAPID_PUBLIC_KEY }}
+          VITE_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.VITE_PUBLIC_TURNSTILE_SITE_KEY }}
+          VITE_PUBLIC_SENTRY_DSN: ${{ vars.VITE_PUBLIC_SENTRY_DSN }}
+        run: |
+          docker buildx build --push --provenance=false \
+            -f infra/docker/caddy.Dockerfile --target runtime \
+            --build-arg RELEASE="$RELEASE" \
+            --build-arg VITE_PUBLIC_API_BASE --build-arg VITE_PUBLIC_APP_ORIGIN --build-arg VITE_PUBLIC_MEDIA_ORIGIN \
+            --build-arg VITE_PUBLIC_VAPID_PUBLIC_KEY --build-arg VITE_PUBLIC_TURNSTILE_SITE_KEY \
+            --build-arg VITE_PUBLIC_SENTRY_DSN \
+            --label org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}" \
+            --label org.opencontainers.image.revision="$RELEASE" \
+            -t "$REGISTRY/al-masjid-web:prod-sha-$RELEASE" \
+            --metadata-file web.json .
+          echo "WEB_DIGEST=$(node -p "require('./web.json')['containerimage.digest']")" >> "$GITHUB_ENV"
+
+      - name: Release manifest
+        env:
+          ENVIRONMENT: production
+        run: node scripts/release-manifest.mjs
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-manifest-production
+          path: release-manifest.json
+          retention-days: 400

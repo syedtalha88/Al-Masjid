@@ -37,9 +37,20 @@
       "allowedVersions": "<6.1.0"
     },
     {
-      "description": "Docker base images and GitHub Actions: pinned by digest, reviewed manually.",
-      "matchManagers": ["dockerfile", "docker-compose", "github-actions"],
+      "description": "Docker base images, scanner images and GitHub Actions: pinned by digest, reviewed manually.",
+      "matchManagers": ["dockerfile", "docker-compose", "github-actions", "custom.regex"],
       "automerge": false
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Images pinned as name:tag@sha256 in workflow env (*_IMAGE) and Dockerfile ARGs (T0.3).",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/", "/^infra/docker/.+\\.Dockerfile$/"],
+      "matchStrings": [
+        "(?:_IMAGE:\\s*|ARG [A-Z_]+=)(?<depName>[a-z0-9][a-z0-9./_-]*):(?<currentValue>[A-Za-z0-9._-]+)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "datasourceTemplate": "docker"
     }
   ]
 }

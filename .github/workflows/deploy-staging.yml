@@ -1,0 +1,93 @@
+# Staging release (DECISIONS #21, #27, #42): after CI passes on main, build the server and web images from that
+# exact commit, push them to GHCR, and write a release manifest of their digests. CI never connects to the VPS
+# (#27): the VPS polls for new manifests and deploys by digest (T0.14 — manifest signing + publishing, PROGRESS F25).
+# The web image needs the staging environment's public build variables (Settings → Environments → staging →
+# Variables: VITE_PUBLIC_API_BASE, VITE_PUBLIC_APP_ORIGIN, VITE_PUBLIC_MEDIA_ORIGIN, VITE_PUBLIC_VAPID_PUBLIC_KEY,
+# VITE_PUBLIC_TURNSTILE_SITE_KEY, VITE_PUBLIC_SENTRY_DSN); until they exist the web image is skipped with a notice.
+name: Deploy staging
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io/syedtalha88
+
+jobs:
+  publish:
+    name: Build · push by digest · release manifest
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    environment: staging
+    permissions:
+      contents: read
+      packages: write # push images to GHCR
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The commit CI just tested, not whatever main points to now.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Release id
+        run: echo "RELEASE=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Log in to GHCR
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+
+      - name: Server image (runtime target — no test hooks)
+        run: |
+          docker buildx build --push --provenance=false \
+            -f infra/docker/server.Dockerfile --target runtime \
+            --build-arg RELEASE="$RELEASE" \
+            --label org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}" \
+            --label org.opencontainers.image.revision="$RELEASE" \
+            -t "$REGISTRY/al-masjid-server:sha-$RELEASE" \
+            --metadata-file server.json .
+          echo "SERVER_DIGEST=$(node -p "require('./server.json')['containerimage.digest']")" >> "$GITHUB_ENV"
+
+      - name: Web image (Caddy + both PWAs built for staging)
+        if: vars.VITE_PUBLIC_APP_ORIGIN != ''
+        env:
+          VITE_PUBLIC_API_BASE: ${{ vars.VITE_PUBLIC_API_BASE }}
+          VITE_PUBLIC_APP_ORIGIN: ${{ vars.VITE_PUBLIC_APP_ORIGIN }}
+          VITE_PUBLIC_MEDIA_ORIGIN: ${{ vars.VITE_PUBLIC_MEDIA_ORIGIN }}
+          VITE_PUBLIC_VAPID_PUBLIC_KEY: ${{ vars.VITE_PUBLIC_VAPID_PUBLIC_KEY }}
+          VITE_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.VITE_PUBLIC_TURNSTILE_SITE_KEY }}
+          VITE_PUBLIC_SENTRY_DSN: ${{ vars.VITE_PUBLIC_SENTRY_DSN }}
+        run: |
+          docker buildx build --push --provenance=false \
+            -f infra/docker/caddy.Dockerfile --target runtime \
+            --build-arg RELEASE="$RELEASE" \
+            --build-arg VITE_PUBLIC_API_BASE --build-arg VITE_PUBLIC_APP_ORIGIN --build-arg VITE_PUBLIC_MEDIA_ORIGIN \
+            --build-arg VITE_PUBLIC_VAPID_PUBLIC_KEY --build-arg VITE_PUBLIC_TURNSTILE_SITE_KEY \
+            --build-arg VITE_PUBLIC_SENTRY_DSN \
+            --label org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}" \
+            --label org.opencontainers.image.revision="$RELEASE" \
+            -t "$REGISTRY/al-masjid-web:staging-sha-$RELEASE" \
+            --metadata-file web.json .
+          echo "WEB_DIGEST=$(node -p "require('./web.json')['containerimage.digest']")" >> "$GITHUB_ENV"
+      - name: Web image skipped
+        if: vars.VITE_PUBLIC_APP_ORIGIN == ''
+        run: echo "::notice title=Web image skipped::Set the staging environment variables (VITE_PUBLIC_*) — T0.14."
+
+      - name: Release manifest (digests the VPS deploys)
+        env:
+          ENVIRONMENT: staging
+        run: node scripts/release-manifest.mjs
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-manifest-staging
+          path: release-manifest.json
+          retention-days: 90
