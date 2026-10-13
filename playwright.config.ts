@@ -14,6 +14,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env['CI']),
   retries: process.env['CI'] ? 1 : 0,
+  // Gesture specs replay finger movements in real time (velocity decides snap vs dismiss). On a shared 4-vCPU CI
+  // runner two workers distorted that timing (Sheet drag, T0.3), so CI runs one worker; locally, parallel.
+  ...(process.env['CI'] ? { workers: 1 } : {}),
   reporter: process.env['CI'] ? [['github'], ['html', { open: 'never' }]] : [['list']],
   use: {
     ignoreHTTPSErrors: true,

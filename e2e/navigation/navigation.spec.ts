@@ -43,10 +43,16 @@ test.beforeEach(async ({ page }) => {
   await expectTop(page, 'Masjid Connect');
 });
 
-test('push and back: new screen on top, focus on its title, previous screen inert and restored', async ({
-  page,
-  browserName,
-}) => {
+test('push and back: new screen on top, focus on its title, previous screen inert and restored', async ({ page }) => {
+  // Whether a click focuses the button differs by engine and platform (Chromium and Linux WebKit do, WebKit on
+  // macOS/Windows/iOS does not), so record it instead of assuming it from the browser name.
+  await page.evaluate(() => {
+    const trail: string[] = [];
+    (window as unknown as { __focusTrail: string[] }).__focusTrail = trail; // test-only global
+    document.addEventListener('focusin', (event) => {
+      trail.push((event.target as HTMLElement).textContent); // focusin targets are elements
+    });
+  });
   await openNext(page);
   await expectTop(page, 'Screen 2');
   await settle(page);
@@ -57,8 +63,10 @@ test('push and back: new screen on top, focus on its title, previous screen iner
   await page.locator('section[data-screen]:not([inert])').getByRole('button', { name: 'Back' }).click();
   await expectTop(page, 'Masjid Connect');
   await settle(page);
-  // Focus returns to the control that opened the screen (WebKit does not focus buttons on tap → the title).
-  await expect(page.locator(':focus')).toHaveText(browserName === 'webkit' ? 'Masjid Connect' : 'Open next screen');
+  // Focus returns to the control that opened the screen if it had focus; otherwise to the title (DECISIONS #44).
+  const trail = await page.evaluate(() => (window as unknown as { __focusTrail: string[] }).__focusTrail);
+  const openerHadFocus = trail.includes('Open next screen');
+  await expect(page.locator(':focus')).toHaveText(openerHadFocus ? 'Open next screen' : 'Masjid Connect');
 });
 
 test('Android / browser back pops, forward pushes again', async ({ page }) => {
