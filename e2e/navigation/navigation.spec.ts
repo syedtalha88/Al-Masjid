@@ -1,5 +1,5 @@
-import AxeBuilder from '@axe-core/playwright';
-import { expect, type Page, test } from '@playwright/test';
+import { expect, settle, test } from '@mc/config/playwright';
+import type { Page } from '@playwright/test';
 
 import { APP_URL } from '../../playwright.config.ts';
 
@@ -36,11 +36,6 @@ async function drag(page: Page, fromX: number, toX: number, durationMs: number) 
     await page.waitForTimeout(durationMs / steps);
   }
   await page.mouse.up();
-}
-
-/** Waits until no navigator layer is moving (the driver marks moving layers with `data-animating`). */
-async function settle(page: Page) {
-  await page.waitForFunction(() => document.querySelector('[data-animating]') === null);
 }
 
 test.beforeEach(async ({ page }) => {
@@ -187,17 +182,12 @@ test('Urdu (RTL): push, back and swipe from the right edge work', async ({ page 
   await expect(page).not.toHaveURL(/\/demo\//);
 });
 
-test('no accessibility violations on a tab root, a pushed screen and the modal', async ({ page }) => {
-  const scan = async () => {
-    await settle(page);
-    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
-    expect(results.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
-  };
-  await scan();
+test('no accessibility violations on a tab root, a pushed screen and the modal', async ({ page, expectAxeClean }) => {
+  await expectAxeClean();
   await openNext(page);
   await expectTop(page, 'Screen 2');
-  await scan();
+  await expectAxeClean();
   await page.getByRole('button', { name: 'Scan QR code' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
-  await scan();
+  await expectAxeClean();
 });

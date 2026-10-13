@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '@mc/config/playwright';
 
 import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
 

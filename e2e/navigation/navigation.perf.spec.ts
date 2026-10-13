@@ -1,25 +1,24 @@
-import { expect, type Page, test } from '@playwright/test';
+import { expect, expectSmooth, settle, test } from '@mc/config/playwright';
+import type { Page } from '@playwright/test';
 
 import { APP_URL } from '../../playwright.config.ts';
 
-// T0.9 acceptance / 08 §8: push and pop under 4× CPU throttling never block the main thread > 50 ms; swipe
-// release velocity (F19).
-// Runs in the `perf` project only (Chromium, one worker): `pnpm test:perf`.
+// T0.9 acceptance / 08 §8: push and pop under 4× CPU throttling never block the main thread > 50 ms, drop
+// < 5 % of frames and force no layout from animation frames; swipe release velocity (F19).
+// Runs in the `perf` project only (Chromium, one worker): `pnpm test:perf`. A failure lists every long task
+// with what ran inside it (input handler, chunk evaluation, animation frame…) and attaches the raw trace.
 
 const title = (page: Page) => page.locator('section[data-screen]:not([inert]) h1');
 const expectTop = (page: Page, name: string) => expect(title(page)).toHaveText(name);
 const openNext = (page: Page) =>
   page.locator('section[data-screen]:not([inert])').getByRole('button', { name: 'Open next screen' }).click();
-async function settle(page: Page) {
-  await page.waitForFunction(() => document.querySelector('[data-animating]') === null);
-}
 
 test.beforeEach(async ({ page }) => {
   await page.goto(APP_URL);
   await expectTop(page, 'Masjid Connect');
 });
 
-test('push/pop with 4× CPU throttling has no long task over 50 ms', async ({ page }) => {
+test('push/pop with 4× CPU throttling: no long task over 50 ms, smooth frames', async ({ page, perfTrace }) => {
   // Warm-up: the first visit of a route loads and evaluates its code chunk (not a transition cost; tab
   // roots are preloaded while idle and pushed screens on press — DECISIONS #44).
   await openNext(page);
@@ -28,15 +27,7 @@ test('push/pop with 4× CPU throttling has no long task over 50 ms', async ({ pa
   await page.goBack();
   await expectTop(page, 'Masjid Connect');
   await settle(page);
-  const cdp = await page.context().newCDPSession(page);
-  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
-  await page.evaluate(() => {
-    const tasks: number[] = [];
-    (window as unknown as { __longTasks: number[] }).__longTasks = tasks;
-    new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) tasks.push(entry.duration);
-    }).observe({ type: 'longtask' });
-  });
+  await perfTrace.start();
   for (let round = 0; round < 3; round += 1) {
     await openNext(page);
     await expectTop(page, 'Screen 2');
@@ -45,12 +36,7 @@ test('push/pop with 4× CPU throttling has no long task over 50 ms', async ({ pa
     await expectTop(page, 'Masjid Connect');
     await settle(page);
   }
-  const longTasks = await page.evaluate(() => (window as unknown as { __longTasks: number[] }).__longTasks);
-  expect(
-    longTasks.filter((duration) => duration > 50),
-    `long tasks (ms): ${JSON.stringify(longTasks)}`,
-  ).toEqual([]);
-  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+  expectSmooth(await perfTrace.stop());
 });
 
 test('swipe-back release velocity: a short fast flick pops; flicking back towards the edge cancels', async ({

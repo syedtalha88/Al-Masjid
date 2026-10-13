@@ -95,6 +95,26 @@ describe('import bans: allowed areas', () => {
   });
 });
 
+describe('Playwright: no async waitForFunction predicates', () => {
+  const page = 'declare const page: { waitForFunction(fn: () => unknown): Promise<unknown> };\n';
+
+  it('rejects async arrow and function predicates (a Promise is truthy — the wait returns at once)', async () => {
+    for (const fn of ['async () => (await caches.keys()).length > 0', 'async function () { return false; }']) {
+      expect(await ruleIds('e2e/x.spec.ts', `${page}await page.waitForFunction(${fn});\n`)).toContain(
+        'no-restricted-syntax',
+      );
+    }
+  });
+
+  it('allows synchronous predicates, also where the mongodb syntax rule is off', async () => {
+    const sync = `${page}await page.waitForFunction(() => document.title === 'x');\n`;
+    expect(await ruleIds('e2e/x.spec.ts', sync)).not.toContain('no-restricted-syntax');
+    expect(
+      await ruleIds('packages/db/test/x.test.ts', `${page}await page.waitForFunction(async () => false);\n`),
+    ).toContain('no-restricted-syntax');
+  });
+});
+
 describe('mc/no-physical-direction', () => {
   const file = 'packages/ui/src/components/Sample.tsx';
 

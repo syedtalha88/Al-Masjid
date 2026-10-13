@@ -3,7 +3,8 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { expect, type Page, test } from '@playwright/test';
+import { expect, test } from '@mc/config/playwright';
+import type { Page } from '@playwright/test';
 
 import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
 import { startStaticServer } from './static-server.ts';
@@ -66,8 +67,22 @@ test('offline reload (Urdu): the shell, the cached locale and the offline banner
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await controlled(page);
-  // The first visit's locale chunk and fonts are handed to the worker (CACHE_URLS); let it store them.
-  await page.waitForFunction(async () => (await caches.keys()).some((name) => name.startsWith('mc-assets')));
+  // The first visit's locale chunk and fonts are handed to the worker (CACHE_URLS); wait until every asset the
+  // page loaded is in Cache Storage (precache or mc-assets). `expect.poll`, not `waitForFunction`: the latter
+  // does not await an async predicate (a Promise is truthy), so the previous wait returned at once and the
+  // test went offline before the locale chunks were stored (≈ 1 in 2 runs failed under parallel load).
+  await expect
+    .poll(() =>
+      page.evaluate(async () => {
+        const assets = performance
+          .getEntriesByType('resource')
+          .map((entry) => new URL(entry.name))
+          .filter((url) => url.origin === location.origin && url.pathname.startsWith('/assets/'));
+        const cached = await Promise.all(assets.map((url) => caches.match(url.href, { ignoreSearch: true })));
+        return assets.length > 0 && cached.every((response) => response !== undefined);
+      }),
+    )
+    .toBe(true);
   await context.setOffline(true);
   await page.reload();
   await expect(page.locator('section[data-screen]:not([inert]) h1')).toBeVisible();

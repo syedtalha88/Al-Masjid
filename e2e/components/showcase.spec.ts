@@ -1,7 +1,5 @@
-import { join } from 'node:path';
-
-import AxeBuilder from '@axe-core/playwright';
-import { expect, type Page, test } from '@playwright/test';
+import { APP_LOCALES, expect, test } from '@mc/config/playwright';
+import type { Page } from '@playwright/test';
 
 import { APP_URL } from '../../playwright.config.ts';
 
@@ -12,7 +10,8 @@ import { APP_URL } from '../../playwright.config.ts';
 
 const DEV_URL = process.env['E2E_DEV_APP_URL'] ?? 'http://localhost:5173';
 const SHOWCASE = `${DEV_URL}/_dev/showcase`;
-const LOCALES = ['en', 'hi', 'ur', 'te'] as const;
+/** Dev chrome (locale/motion toggles), English-only tooling — not part of the product UI. */
+const CONTROLS = '[data-showcase-section="controls"]';
 const SECTIONS = [
   'buttons',
   'cards',
@@ -28,62 +27,44 @@ const SECTIONS = [
   'feedback',
 ] as const;
 
-async function openShowcase(page: Page, locale: (typeof LOCALES)[number] = 'en') {
-  await page.goto(DEV_URL);
-  await page.evaluate((value) => {
-    localStorage.setItem('mc.locale', value);
-  }, locale);
+async function openShowcase(page: Page) {
   await page.goto(SHOWCASE);
   await expect(page.locator('[data-showcase-section="buttons"]')).toBeVisible();
 }
 
-const axe = (page: Page) =>
-  new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).exclude('[data-showcase-section="controls"]');
+for (const locale of APP_LOCALES) {
+  test.describe(`showcase (${locale})`, () => {
+    test.use({ appLocale: locale });
 
-/** Waits until nothing animates (axe measures contrast; a mid-fade frame is not the real colors). */
-const still = (page: Page) => page.waitForFunction(() => document.querySelector('[data-animating]') === null);
-
-const violations = async (page: Page) =>
-  (await axe(page).analyze()).violations.map(
-    (violation) => `${violation.id}: ${violation.help} (${String(violation.nodes.length)})`,
-  );
-
-for (const locale of LOCALES) {
-  test(`showcase (${locale}): axe clean, screenshot per section`, async ({ page }, info) => {
-    await openShowcase(page, locale);
-    await expect(page.locator('html')).toHaveAttribute('dir', locale === 'ur' ? 'rtl' : 'ltr');
-    expect(await violations(page)).toEqual([]);
-    for (const section of SECTIONS) {
-      const element = page.locator(`[data-showcase-section="${section}"]`);
-      await element.scrollIntoViewIfNeeded();
-      await element.screenshot({
-        path: join(info.project.outputDir, 'showcase', info.project.name, locale, `${section}.png`),
-        animations: 'disabled',
+    test('axe clean, screenshot per section', async ({ page, expectAxeClean, capture }) => {
+      await openShowcase(page);
+      await expect(page.locator('html')).toHaveAttribute('dir', locale === 'ur' ? 'rtl' : 'ltr');
+      await expectAxeClean({ exclude: [CONTROLS] });
+      for (const section of SECTIONS) {
+        const element = page.locator(`[data-showcase-section="${section}"]`);
+        await element.scrollIntoViewIfNeeded();
         // The fixed tab bar would cover the bottom of each section.
-        style: 'nav[aria-label] { visibility: hidden !important; }',
-      });
-    }
+        await capture(`showcase-${section}`, { target: element, hide: 'nav[aria-label]' });
+      }
+    });
   });
 }
 
-test('overlays are axe clean: sheet, dialog, date picker', async ({ page }) => {
+test('overlays are axe clean: sheet, dialog, date picker', async ({ page, expectAxeClean }) => {
   await openShowcase(page);
   await page.getByRole('button', { name: 'Open sheet' }).click();
   await expect(page.getByRole('dialog', { name: 'Donate via UPI' })).toBeVisible();
-  await still(page);
-  expect(await violations(page)).toEqual([]);
+  await expectAxeClean({ exclude: [CONTROLS] });
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.getByRole('button', { name: 'Open dialog' }).click();
   await expect(page.getByRole('alertdialog')).toBeVisible();
-  await still(page);
-  expect(await violations(page)).toEqual([]);
+  await expectAxeClean({ exclude: [CONTROLS] });
   await page.keyboard.press('Escape');
   await expect(page.getByRole('alertdialog')).toHaveCount(0);
   await page.getByRole('button', { name: '2026-09-26' }).click();
   await expect(page.getByRole('dialog', { name: 'Choose date' })).toBeVisible();
-  await still(page);
-  expect(await violations(page)).toEqual([]);
+  await expectAxeClean({ exclude: [CONTROLS] });
 });
 
 /** Vertical drag on an element's center (mouse pointer events), `steps` moves over `durationMs`. */

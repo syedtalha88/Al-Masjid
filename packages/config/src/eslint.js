@@ -41,6 +41,19 @@ const dynamicMongodbSyntax = [
 ];
 
 /**
+ * Playwright's `waitForFunction` does not await a Promise: an async predicate is truthy at once and the wait
+ * is a no-op (found in T0.12 — it made the PWA offline spec flaky). Poll async checks with `expect.poll`.
+ */
+const asyncWaitForFunctionSyntax = [
+  {
+    selector:
+      "CallExpression[callee.property.name='waitForFunction'] > :matches(ArrowFunctionExpression, FunctionExpression)[async=true]",
+    message:
+      'waitForFunction() does not await async predicates (a Promise is truthy, so it returns at once). Use expect.poll(() => page.evaluate(async () => …)).',
+  },
+];
+
+/**
  * @param {{ systemScope: boolean, hookScope: boolean, mongodb: boolean }} allowed
  * @returns {import('eslint').Linter.RulesRecord}
  */
@@ -52,7 +65,7 @@ function importRestrictions(allowed) {
   ];
   return {
     'no-restricted-imports': ['error', { paths: allowed.mongodb ? [] : restrictMongodb.paths, patterns }],
-    'no-restricted-syntax': allowed.mongodb ? 'off' : ['error', ...dynamicMongodbSyntax],
+    'no-restricted-syntax': ['error', ...(allowed.mongodb ? [] : dynamicMongodbSyntax), ...asyncWaitForFunctionSyntax],
   };
 }
 
