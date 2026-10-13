@@ -1,9 +1,10 @@
 # Build context = repository root. Keep secrets and junk out of every image layer (04 §12, security-reviewer).
 .env
 .env.*
-!.env.example
 **/.env
 **/.env.*
+# Documentation only (no values); needed by scripts/scan-bundles.mjs. Must come after the patterns above.
+!.env.example
 **/*.pem
 **/*.key
 infra/compose/.local/
