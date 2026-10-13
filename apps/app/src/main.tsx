@@ -1,3 +1,5 @@
+// Must stay the first import (see trusted-types.ts).
+import './trusted-types.ts';
 import './styles.css';
 
 import { StrictMode } from 'react';

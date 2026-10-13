@@ -18,7 +18,8 @@
     "./navigation": "./src/navigation/index.ts",
     "./showcase": "./src/showcase/Showcase.tsx",
     "./pwa": "./src/pwa/index.ts",
-    "./vite": "./src/vite/pwa.ts"
+    "./vite": "./src/vite/pwa.ts",
+    "./security": "./src/security/trusted-types.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

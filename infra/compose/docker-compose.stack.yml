@@ -76,6 +76,8 @@ services:
       APP_HOST: app.localhost
       ADMIN_HOST: admin.localhost
       CADDY_TLS: local
+      # Image host for the CSP img-src (staging/production: https://media[-staging].<domain>).
+      MEDIA_ORIGIN: https://media.localhost:8443
       API_PUBLIC_UPSTREAM: api-public:8787
       API_ADMIN_UPSTREAM: api-admin:8788
     # Non-root (04 §12.2). Locally the internal CA lives in tmpfs (regenerated on restart); on the VPS

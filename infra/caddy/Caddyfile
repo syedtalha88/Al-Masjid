@@ -43,6 +43,42 @@ http://:8081 {
 
 }
 
+# Security headers for everything Caddy serves itself (04 §7, T0.5). Proxied API responses carry their own, set
+# by Express (packages/api security-headers.ts). HSTS without preload until launch (DECISIONS #29);
+# Permissions-Policy without interest-cohort (#33).
+(security-headers) {
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(self), geolocation=(self), accelerometer=(self), gyroscope=(self), magnetometer=(self), microphone=(), payment=(), usb=(), bluetooth=()"
+		Cross-Origin-Opener-Policy "same-origin"
+		Cross-Origin-Resource-Policy "same-site"
+		X-Frame-Options "DENY"
+	}
+}
+
+# CSP for the musalli app: Turnstile (device registration, reports, grievances) and the YouTube embed after a
+# tap (DECISIONS #39). Trusted Types: only the `default` policy (apps/*/src/trusted-types.ts). MEDIA_ORIGIN = the
+# image host; CSP_CONNECT_EXTRA = extra connect-src sources (the Sentry ingest host, T0.13), empty by default.
+(csp-app) {
+	header Content-Security-Policy "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self'; img-src 'self' data: blob: {$MEDIA_ORIGIN}; media-src 'self' blob:; font-src 'self'; connect-src 'self' https://challenges.cloudflare.com {$CSP_CONNECT_EXTRA:}; frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types default"
+}
+
+# CSP for the admin app: the same without Turnstile and YouTube (unused there — 04 §7 "minus … where unused").
+(csp-admin) {
+	header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: {$MEDIA_ORIGIN}; media-src 'self' blob:; font-src 'self'; connect-src 'self' {$CSP_CONNECT_EXTRA:}; frame-src 'none'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types default"
+}
+
+# Caddy's own JSON 404 for unknown /api paths: the API header set (04 §7 "API JSON responses").
+(api-not-found) {
+	import security-headers
+	header Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
+	header Content-Type "application/problem+json"
+	header Cache-Control "no-store"
+	respond `{"type":"urn:masjid-connect:problem:not-found","title":"Not Found","status":404,"code":"NOT_FOUND"}` 404
+}
+
 # Static SPA: hashed assets immutable, entry points always revalidated (01 §5.2), SPA fallback.
 (spa) {
 	root * {args[0]}
@@ -74,9 +110,7 @@ https://{$APP_HOST} {
 	}
 	# Any other /api path on this origin does not exist (never falls through to the SPA).
 	handle /api/* {
-		header Content-Type "application/problem+json"
-		header Cache-Control "no-store"
-		respond `{"type":"urn:masjid-connect:problem:not-found","title":"Not Found","status":404,"code":"NOT_FOUND"}` 404
+		import api-not-found
 	}
 	# Source maps are uploaded to Sentry only; never served (T0.13). Must precede the SPA catch-all.
 	@maps path *.map
@@ -84,6 +118,8 @@ https://{$APP_HOST} {
 		respond 404
 	}
 	handle {
+		import security-headers
+		import csp-app
 		import spa /srv/app
 	}
 }
@@ -97,9 +133,7 @@ https://{$ADMIN_HOST} {
 		reverse_proxy {$API_ADMIN_UPSTREAM}
 	}
 	handle /api/* {
-		header Content-Type "application/problem+json"
-		header Cache-Control "no-store"
-		respond `{"type":"urn:masjid-connect:problem:not-found","title":"Not Found","status":404,"code":"NOT_FOUND"}` 404
+		import api-not-found
 	}
 	# Source maps are uploaded to Sentry only; never served (T0.13). Must precede the SPA catch-all.
 	@maps path *.map
@@ -107,6 +141,8 @@ https://{$ADMIN_HOST} {
 		respond 404
 	}
 	handle {
+		import security-headers
+		import csp-admin
 		import spa /srv/admin
 	}
 }
