@@ -41,12 +41,20 @@ services:
 
   redis:
     image: redis:8.10.2-alpine@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0
-    command: ['redis-server', '/usr/local/etc/redis/redis.conf']
+    # The ACL file (mode 600, owned by the host user) is not readable by the container's redis user through a
+    # Linux bind mount (Docker Desktop hides this), so — like the MongoDB keyfile — it is copied in as
+    # redis:redis 400 before the server starts.
+    entrypoint:
+      - sh
+      - -c
+      - >-
+        install -m 400 -o redis -g redis /run/mc/users.acl /usr/local/etc/redis/users.acl &&
+        exec docker-entrypoint.sh redis-server /usr/local/etc/redis/redis.conf
     environment:
       REDIS_HEALTH_PASSWORD: ${REDIS_HEALTH_PASSWORD:?run `pnpm setup:local` first}
     volumes:
       - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
-      - ./.local/redis-users.acl:/usr/local/etc/redis/users.acl:ro
+      - ./.local/redis-users.acl:/run/mc/users.acl:ro
       - redis-data:/data
     ports:
       - '127.0.0.1:6379:6379'
