@@ -23,6 +23,9 @@ const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const CSP_CONSOLE =
   /content security policy|refused to (load|execute|apply|connect|frame|evaluate|create)|trusted type/i;
 
+/** CSP reports caused by Playwright's own screenshot stylesheet (WebKit): inline style blocked. */
+const SCREENSHOT_STYLE = /^style-src(?:-elem|-attr)? blocked (?:inline|\(inline\))|^console: Refused to apply .*style/i;
+
 /** Trace categories holding every event `analyzeTrace` reads (checked against a real trace). */
 const TRACE_CATEGORIES = [
   'devtools.timeline',
@@ -136,7 +139,7 @@ export const test = base.extend<McFixtures>({
     });
   },
 
-  capture: async ({ page }, use, testInfo) => {
+  capture: async ({ page, cspViolations }, use, testInfo) => {
     await use(async (name, { target, hide } = {}) => {
       await settle(page);
       const lang = await page.evaluate(() => document.documentElement.lang);
@@ -147,8 +150,14 @@ export const test = base.extend<McFixtures>({
         animations: 'disabled' as const,
         ...(hide === undefined ? {} : { style: `${hide} { visibility: hidden !important; }` }),
       };
+      const before = cspViolations.length;
       if (target === undefined) await page.screenshot({ ...options, fullPage: true });
       else await target.screenshot(options);
+      // Playwright injects a <style> element while screenshotting (caret, animations, `style`). Chromium exempts
+      // it from the page CSP; WebKit reports it. Drop exactly those reports — everything else still fails.
+      await page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 50)));
+      const during = cspViolations.splice(before);
+      cspViolations.push(...during.filter((violation) => !SCREENSHOT_STYLE.test(violation)));
       await testInfo.attach(`${locale}/${name}`, { path, contentType: 'image/png' });
       return path;
     });
