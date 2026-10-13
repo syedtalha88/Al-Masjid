@@ -12,7 +12,7 @@ ARG CADDY_BUILDER_IMAGE=caddy:2.11.7-builder-alpine@sha256:d6161a2c82fd58b320504
 # Caddy 2.11.7 compiled from source (DECISIONS #49): the official 2.11.7 binary is built with Go 1.26.8 and
 # golang.org/x/net 0.59.0, which carry HIGH HTTP/2 + Range-header DoS CVEs (Trivy, 14 Oct 2026). The builder
 # image ships Go 1.27.2; x/net is raised to the fixed 0.60.0. Back to the official binary once a Caddy release
-# includes the fixes (PROGRESS F24). The result has no file capabilities (non-root, high ports only).
+# includes the fixes (PROGRESS F24).
 FROM ${CADDY_BUILDER_IMAGE} AS caddy-build
 RUN xcaddy build v2.11.7 \
       --output /usr/bin/caddy \
@@ -20,7 +20,15 @@ RUN xcaddy build v2.11.7 \
 
 FROM ${CADDY_IMAGE} AS base
 COPY --from=caddy-build /usr/bin/caddy /usr/bin/caddy
-RUN addgroup -S -g 1000 caddy && adduser -S -u 1000 -G caddy -H -s /sbin/nologin caddy
+# Caddy's builder also gives the binary the cap_net_bind_service file capability (for ports < 1024). With
+# no-new-privileges + cap_drop ALL a non-root user may not exec a binary with file capabilities ("operation not
+# permitted"), and we listen on high ports anyway — so strip it. libcap is a build-time tool removed in the same
+# layer, so its version isn't pinned (Alpine drops old package versions); the base image is pinned by digest.
+# hadolint ignore=DL3018
+RUN apk add --no-cache --virtual .setcap libcap && \
+    setcap -r /usr/bin/caddy && \
+    apk del .setcap && \
+    addgroup -S -g 1000 caddy && adduser -S -u 1000 -G caddy -H -s /sbin/nologin caddy
 COPY infra/caddy/Caddyfile /etc/caddy/Caddyfile
 USER 1000:1000
 EXPOSE 8443 8080
