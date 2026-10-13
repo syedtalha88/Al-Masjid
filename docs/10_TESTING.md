@@ -36,7 +36,7 @@
 - Tests are deterministic: fixed clock (`vi.setSystemTime` + an injectable `Clock` in services/jobs), fixed time zone `Asia/Kolkata` (`TZ=Asia/Kolkata` in test env), seeded randomness, no external network (MSW for client tests; Cloudinary/YouTube-oEmbed/push/Cloudflare/Turnstile adapters mocked in API/job tests with contract-shaped fakes). MongoDB and Redis are **real** (Docker) — each test file uses its own database name / Redis key prefix so files run in parallel.
 - No `.only`, no unexplained `.skip` (CI greps).
 - Each bug fixed gets a regression test first.
-- E2E uses **dev-only test hooks** (e.g. `/api/test/seed`, `/api/test/clock`, `/api/test/run-job`) registered only when `APP_ENV=local` **and** `NODE_ENV=test`; a build check ensures they are absent from production bundles, images and route tables.
+- E2E uses **dev-only test hooks** under each API's prefix (`/api/v1/test/*`, `/api/admin/test/*` — e.g. `test/clock`; later `test/seed`, `test/run-job`) registered only when `APP_ENV=local` **and** `NODE_ENV=test` **and** the `runtime-test` image (or source) provides the module; a build check ensures they are absent from production bundles, images and route tables (DECISIONS #31, #48).
 - Passkeys in e2e: Playwright with Chromium **virtual authenticator** (CDP `WebAuthn.addVirtualAuthenticator`, `hasUserVerification: true`, `isUserVerified: true`). WebKit e2e skips passkey ceremonies and uses a test-only session injection hook.
 - Push in e2e: assert outbox document + BullMQ job enqueued + payload built; actual delivery verified manually on devices (owner guide) and with a local web-push receiver test harness.
 
