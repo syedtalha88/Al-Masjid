@@ -106,8 +106,15 @@ jobs:
             docker run --rm -i "$HADOLINT_IMAGE" < "$file"
             echo "::endgroup::"
           done
-      - name: shellcheck (VPS scripts)
-        run: docker run --rm -v "$PWD:/mnt" -w /mnt "$SHELLCHECK_IMAGE" infra/vps/*.sh infra/vps/test/*.sh
+      - name: shellcheck + executable bit (VPS scripts)
+        run: |
+          docker run --rm -v "$PWD:/mnt" -w /mnt "$SHELLCHECK_IMAGE" infra/vps/*.sh infra/vps/test/*.sh
+          # systemd runs these directly (infra/vps/systemd) — a missing +x is a 203/EXEC on the server.
+          not_exec=$(git ls-files -s -- 'infra/vps/*.sh' | awk '$1 != "100755" {print $4}')
+          if [ -n "$not_exec" ]; then
+            echo "::error::not executable in git (git update-index --chmod=+x): $not_exec"
+            exit 1
+          fi
       - name: VPS deploy — release verification tests (DECISIONS #55)
         run: docker run --rm -v "$PWD/infra/vps:/vps:ro" "$UBUNTU_IMAGE" bash /vps/test/deploy-verify.test.sh
       - name: Trivy config (Dockerfiles, compose)

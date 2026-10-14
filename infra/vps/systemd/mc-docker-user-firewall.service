@@ -1,5 +1,5 @@
-# Re-apply the Cloudflare-only rule after Docker starts (Docker creates DOCKER-USER; the rule must exist before
-# any container publishes 443).
+# Re-apply the Cloudflare-only rule (ipsets are lost on reboot) right after Docker starts and creates DOCKER-USER.
+# Restarted with Docker (PartOf). The few seconds before it runs are covered by Authenticated Origin Pulls.
 [Unit]
 Description=Masjid Connect: Cloudflare-only 443 in DOCKER-USER
 After=docker.service
