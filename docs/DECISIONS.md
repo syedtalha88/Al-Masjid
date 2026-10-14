@@ -397,6 +397,21 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 | CI scanners (by digest) | gitleaks 8.30.1 · Semgrep 1.180.0 · osv-scanner 2.7.0 · hadolint 2.15.1 · Trivy 0.75.0 · actionlint 1.7.12 · ZAP 2.17.0 · sentry-cli 3.8.0 (#49, #52) |
 **Pending:** the iOS swipe-back finding T0.15 also asks for needs the owner's iPhone on staging (PROGRESS F17, after T0.14).
 
+### #54 — One VPS: an SNI router in front of the per-environment Caddies — ACCEPTED (Claude Code during the owner-authorised autonomous session, 14 Oct 2026 — **owner to review in T0.14**)
+**Context:** #42 left open how staging and production (separate Compose projects) share the VPS's port 443: "a small host-level router, or one Caddy with strictly separate site blocks — chosen in T0.14".
+**Decision:** A third Compose project `mc-edge` runs **HAProxy in TCP mode** (official `haproxy` Alpine image, pinned by digest, non-root, read-only) that routes TLS connections by **SNI** to `mc-staging`'s or `mc-production`'s web container and closes anything else. It never decrypts, holds no certificates or keys, and needs no change to our Caddyfile: each environment's Caddy keeps terminating TLS with its own Cloudflare Origin CA certificate and enforcing Authenticated Origin Pulls (`CADDY_TLS=origin`). Port 80 is not opened (Cloudflare redirects to HTTPS and connects to the origin on 443 only).
+**Why not one shared Caddy:** it would hold both environments' certificates and route plaintext for both — a staging config mistake could expose production traffic; the TCP router keeps the environments' TLS and headers fully separate. **Why HAProxy:** standard SNI routing without plugins (Caddy needs the non-standard layer4 module for this), tiny, well-audited.
+**Consequences:** one extra small container; the edge is a single point of failure for both environments (as the host is anyway — #42). Plan: `docs/runbooks/T0.14_STAGING_SESSION_PLAN.md`.
+
+### #55 — Release delivery to the VPS: SSH-signed manifests on a GitHub pre-release — ACCEPTED (Claude Code during the owner-authorised autonomous session, 14 Oct 2026 — **owner to review in T0.14**; closes the design part of PROGRESS F25)
+**Context:** #27 requires pull deploys with a *signed* release manifest and no external service that may start charging; the VPS needs a place to fetch manifests from without credentials.
+**Decision:**
+- **Signature:** OpenSSH's built-in file signing (`ssh-keygen -Y sign`, namespace `masjid-connect-release`), verified on the VPS with `ssh-keygen -Y verify` against `/etc/masjid-connect/<env>/allowed_signers`. No extra tools, no external signing service, no account. **One key per environment**, generated on the server; the private key is stored only as a GitHub *environment* secret (`staging` / `production` — the latter behind the owner's required approval) and then deleted from the server.
+- **Delivery:** the release job uploads `release-manifest.json` + `.sig` to a fixed GitHub **pre-release** per environment (`staging-current`, `production-current`), replacing the assets each time (`gh release upload --clobber`, `contents: write` only in that job). The VPS fetches both with plain `curl` from the public download URLs every minute (no API token, no rate-limited API calls).
+- The VPS deploys only when the signature verifies and the manifest names a different release; every deploy is appended to `deploy/releases.log` together with the full manifest, so rollback re-deploys a previous verified manifest.
+- Rejected: Sigstore/cosign keyless (an external public service — free today, but the owner prefers none) and an OCI artifact in GHCR (needs `oras` on the server).
+**Consequences:** implemented in T0.14 together with the owner (the keys are created on the server). Until then the release job keeps writing the unsigned manifest as a workflow artifact.
+
 ## OPEN
 
 _None._
