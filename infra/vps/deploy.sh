@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Pull deploy for one environment (DECISIONS #27, #55; PHASE_00 T0.14). Run by the restricted `deploy` user from a
-# systemd timer every minute; never by CI (CI has no access to the server).
+# Pull deploy for one environment (DECISIONS #27, #55, #56; PHASE_00 T0.14). Run as root by the mc-deploy@<env>
+# systemd timer every minute (env files are root 600 — 04 §12.2); never by CI (CI has no access to the server).
 #   deploy.sh <staging|production>                 fetch, verify, deploy if new
 #   deploy.sh <staging|production> --check-only    fetch + verify + print the plan, change nothing
 #   deploy.sh <staging|production> --rollback      redeploy the previous verified release from the local history
@@ -17,7 +17,8 @@ REPO=${MC_RELEASE_REPO:-syedtalha88/Al-Masjid}
 BASE_URL=${MC_RELEASE_BASE_URL:-https://github.com/$REPO/releases/download/$ENVIRONMENT-current}
 CONFIG_DIR=${MC_CONFIG_DIR:-/etc/masjid-connect/$ENVIRONMENT}   # allowed_signers, env files, certs (root, 600/644)
 STATE_DIR=${MC_STATE_DIR:-/var/lib/masjid-connect/$ENVIRONMENT} # releases/, releases.log (deploy user)
-COMPOSE_FILE=${MC_COMPOSE_FILE:-/opt/masjid-connect/infra/compose/docker-compose.vps.yml}
+REPO_DIR=${MC_REPO_DIR:-/opt/masjid-connect}
+COMPOSE_FILE=${MC_COMPOSE_FILE:-$REPO_DIR/infra/compose/docker-compose.vps.yml}
 NAMESPACE=masjid-connect-release
 SIGNER=masjid-connect-$ENVIRONMENT
 REGISTRY_RE='^ghcr\.io/syedtalha88/al-masjid-(server|web)@sha256:[0-9a-f]{64}$'
@@ -75,6 +76,10 @@ if [ "$MODE" = --check-only ]; then
 fi
 
 log "deploying $release"
+# Compose files, Caddy/Redis config and these scripts come from the same commit as the images (the release SHA is
+# signed; git checks every object against it).
+git -C "$REPO_DIR" fetch --quiet --depth 1 origin "$release"
+git -C "$REPO_DIR" checkout --quiet --detach "$release"
 export MC_ENV=$ENVIRONMENT SERVER_IMAGE=$server_image
 [ -n "$web_image" ] && export WEB_IMAGE=$web_image
 compose() { docker compose -p "mc-$ENVIRONMENT" -f "$COMPOSE_FILE" "$@"; }

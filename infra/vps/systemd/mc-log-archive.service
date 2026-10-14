@@ -1,0 +1,8 @@
+# Daily encrypted container-log archive, kept 200 days (CERT-In ≥ 180 — DECISIONS #40).
+[Unit]
+Description=Masjid Connect: archive container logs
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/masjid-connect/infra/vps/log-archive.sh

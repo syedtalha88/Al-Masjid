@@ -1,0 +1,9 @@
+# Refresh Cloudflare's IP ranges and the DOCKER-USER rule (04 §12.2).
+[Unit]
+Description=Masjid Connect: refresh Cloudflare IP ranges
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/masjid-connect/infra/vps/cloudflare-ips.sh

@@ -1,0 +1,12 @@
+# Pull deploy for one environment (DECISIONS #27, #55, #56): verify the signed manifest, deploy by digest.
+# Runs as root (env files are root 600 — 04 §12.2); no network entry point exists.
+[Unit]
+Description=Masjid Connect pull deploy (%i)
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/masjid-connect/infra/vps/deploy.sh %i
+TimeoutStartSec=15min

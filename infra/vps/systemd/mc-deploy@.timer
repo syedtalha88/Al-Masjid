@@ -1,0 +1,10 @@
+[Unit]
+Description=Check for a new %i release every minute
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+RandomizedDelaySec=10s
+
+[Install]
+WantedBy=timers.target
