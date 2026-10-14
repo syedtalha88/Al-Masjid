@@ -67,6 +67,9 @@ const FORBIDDEN: Readonly<Record<ServerProcess, readonly Matcher[]>> = {
     'SESSION_PEPPER',
     /^FIELD_ENCRYPTION_KEY/,
     'FIELD_ENCRYPTION_OLD_KEYS',
+    // Other processes' Redis ACL users (security review S-L5): admin/worker reach the job queues.
+    'REDIS_URL_ADMIN',
+    'REDIS_URL_WORKER',
   ],
   'api-admin': [
     'MONGODB_URI_SYSTEM',
@@ -74,8 +77,17 @@ const FORBIDDEN: Readonly<Record<ServerProcess, readonly Matcher[]>> = {
     'MONGODB_URI_PUBLIC',
     'VAPID_PRIVATE_KEY',
     'CF_API_TOKEN_PURGE',
+    'REDIS_URL_PUBLIC',
+    'REDIS_URL_WORKER',
   ],
-  worker: ['MONGODB_URI_PUBLIC', 'MONGODB_URI_ADMIN', 'MONGODB_URI_MIGRATOR', 'SESSION_PEPPER'],
+  worker: [
+    'MONGODB_URI_PUBLIC',
+    'MONGODB_URI_ADMIN',
+    'MONGODB_URI_MIGRATOR',
+    'SESSION_PEPPER',
+    'REDIS_URL_PUBLIC',
+    'REDIS_URL_ADMIN',
+  ],
   // Not listed in 01 §7; least privilege: the migrator holds only its own DB credential.
   migrate: [
     'MONGODB_URI_PUBLIC',
@@ -87,6 +99,7 @@ const FORBIDDEN: Readonly<Record<ServerProcess, readonly Matcher[]>> = {
     'CF_API_TOKEN_PURGE',
     /^FIELD_ENCRYPTION_KEY/,
     'FIELD_ENCRYPTION_OLD_KEYS',
+    /^REDIS_URL_/,
   ],
 };
 
@@ -181,9 +194,13 @@ const mongoUri = (user: string, isLocal: boolean) =>
     .refine((value) => new RegExp(`^mongodb(\\+srv)?://${user}:[^@/]+@`).test(value), {
       error: `must authenticate as the "${user}" user (one MongoDB user per process — DECISIONS #7)`,
     })
-    .refine((value) => isLocal || value.startsWith('mongodb+srv://') || /[?&](tls|ssl)=true(&|$)/.test(value), {
-      error: 'must use TLS outside local (mongodb+srv:// or tls=true)',
-    });
+    .refine(
+      (value) =>
+        isLocal ||
+        ((value.startsWith('mongodb+srv://') || /[?&](tls|ssl)=true(&|$)/i.test(value)) &&
+          !/[?&](tls|ssl)=false(&|$)/i.test(value)),
+      { error: 'must use TLS outside local (mongodb+srv:// or tls=true, never tls=false)' },
+    );
 
 /** `redis[s]://<acl-user>:<password>@host:port` with the process's own ACL user (04 §12.2). */
 const redisUrl = (user: string) =>
@@ -343,10 +360,35 @@ const SERVER_SCHEMAS = {
 /** Parsed, validated environment of one server process. */
 export type ServerEnv<P extends ServerProcess> = z.output<ReturnType<(typeof SERVER_SCHEMAS)[P]>>;
 
+/**
+ * Values that pass the schemas but must never reach production (security review S-M2): Cloudflare's documented
+ * Turnstile test secrets and the placeholders `infra/vps/make-env.sh` writes for services a phase does not use yet
+ * (PROGRESS F31). Name → test; the value itself is never echoed.
+ */
+const PRODUCTION_PLACEHOLDERS: Readonly<Record<string, (value: string) => boolean>> = {
+  TURNSTILE_SECRET: (value) => /^[123]x0+AA$/.test(value),
+  MONGODB_URI_PUBLIC: (value) => /not-set/i.test(value),
+  MONGODB_URI_ADMIN: (value) => /not-set/i.test(value),
+  MONGODB_URI_SYSTEM: (value) => /not-set/i.test(value),
+  MONGODB_URI_MIGRATOR: (value) => /not-set/i.test(value),
+  CLOUDINARY_API_KEY: (value) => /^0+$/.test(value),
+  CLOUDINARY_API_SECRET: (value) => /not-set/i.test(value),
+  CF_API_TOKEN_PURGE: (value) => /not-set/i.test(value),
+  CF_ZONE_ID: (value) => /^0+$/.test(value),
+};
+
 /** Cross-field rules that only make sense on the whole object. */
 function crossFieldProblems(env: Record<string, unknown>): EnvProblem[] {
   const problems: EnvProblem[] = [];
   const appEnv = env['APP_ENV'];
+  if (appEnv === 'production') {
+    for (const [name, isPlaceholder] of Object.entries(PRODUCTION_PLACEHOLDERS)) {
+      const value = env[name];
+      if (typeof value === 'string' && isPlaceholder(value)) {
+        problems.push({ name, reason: 'is a test/placeholder value — set the real one before production' });
+      }
+    }
+  }
   if (appEnv !== 'local') {
     if (env['NODE_ENV'] !== 'production')
       problems.push({ name: 'NODE_ENV', reason: `must be production when APP_ENV=${String(appEnv)}` });

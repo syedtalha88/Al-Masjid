@@ -4,7 +4,7 @@
 # rollback / replay / compose-policy / lock flow with git and docker replaced by stubs that record their calls.
 # Run (from the repo root):
 #   docker run --rm -v "$PWD/infra/vps:/vps:ro" ubuntu:24.04 bash /vps/test/deploy-verify.test.sh
-# shellcheck disable=SC2016 # check() conditions are single-quoted on purpose: they are eval'd after each run
+# shellcheck disable=SC2016,SC2034 # check() conditions are single-quoted and eval'd after each run (they read got, old_api)
 set -uo pipefail
 
 export DEBIAN_FRONTEND=noninteractive

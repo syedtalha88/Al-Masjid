@@ -115,8 +115,15 @@ jobs:
             echo "::error::not executable in git (git update-index --chmod=+x): $not_exec"
             exit 1
           fi
-      - name: VPS deploy — release verification tests (DECISIONS #55)
+      - name: VPS deploy — verification, rolling, rollback, replay, policy, lock tests (DECISIONS #55, #59)
         run: docker run --rm -v "$PWD/infra/vps:/vps:ro" "$UBUNTU_IMAGE" bash /vps/test/deploy-verify.test.sh
+      - name: VPS env files — generation, --force keeps values, valid against the env schemas (review S-M2/S-M3)
+        run: |
+          out="$RUNNER_TEMP/make-env"
+          mkdir -p "$out"
+          docker run --rm -v "$PWD/infra/vps:/vps:ro" -v "$out:/out" "$UBUNTU_IMAGE" bash /vps/test/make-env.test.sh
+          node scripts/check-make-env.mjs "$out"
+          rm -rf "$out"
       - name: Trivy config (Dockerfiles, compose)
         run: docker run --rm -v "$PWD:/src" "$TRIVY_IMAGE" config --severity HIGH,CRITICAL --exit-code 1 /src/infra
 

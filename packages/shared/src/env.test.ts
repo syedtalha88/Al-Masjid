@@ -209,6 +209,22 @@ describe('forbidden variables (boot refuses to start — DECISIONS #7)', () => {
     ).toEqual(['CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'FIELD_ENCRYPTION_KEY_ID']);
   });
 
+  it("forbids other processes' Redis URLs (security review S-L5)", () => {
+    expect(findForbiddenVars('api-public', { REDIS_URL_ADMIN: 'x', REDIS_URL_WORKER: 'x' })).toEqual([
+      'REDIS_URL_ADMIN',
+      'REDIS_URL_WORKER',
+    ]);
+    expect(findForbiddenVars('api-admin', { REDIS_URL_PUBLIC: 'x', REDIS_URL_WORKER: 'x' })).toEqual([
+      'REDIS_URL_PUBLIC',
+      'REDIS_URL_WORKER',
+    ]);
+    expect(findForbiddenVars('worker', { REDIS_URL_PUBLIC: 'x', REDIS_URL_ADMIN: 'x' })).toEqual([
+      'REDIS_URL_ADMIN',
+      'REDIS_URL_PUBLIC',
+    ]);
+    expect(findForbiddenVars('migrate', { REDIS_URL_WORKER: 'x' })).toEqual(['REDIS_URL_WORKER']);
+  });
+
   it('treats an empty-but-present forbidden variable as present', () => {
     expect(findForbiddenVars('worker', { MONGODB_URI_PUBLIC: '' })).toEqual(['MONGODB_URI_PUBLIC']);
     expect(findForbiddenVars('worker', { MONGODB_URI_PUBLIC: undefined })).toEqual([]);
@@ -260,6 +276,46 @@ describe('field rules', () => {
     expect(() => loadServerEnv('api-public', { ...LOCAL['api-public'], MONGODB_URI_PUBLIC: plain })).not.toThrow();
   });
 
+  it('rejects tls=false / ssl=false outside local, even on mongodb+srv (security review S-L5)', () => {
+    for (const uri of [`${ATLAS('mc_public')}&tls=false`, `${ATLAS('mc_public')}&ssl=FALSE`]) {
+      expect(
+        reasonFor(
+          envError(() => loadServerEnv('api-public', { ...prodPublic, MONGODB_URI_PUBLIC: uri })),
+          'MONGODB_URI_PUBLIC',
+        ),
+      ).toMatch(/TLS/);
+    }
+  });
+
+  it('production refuses test/placeholder values that staging accepts (security review S-M2, PROGRESS F31)', () => {
+    const placeholders = {
+      TURNSTILE_SECRET: '1x0000000000000000000000000000000AA',
+      MONGODB_URI_ADMIN: 'mongodb+srv://mc_admin:PHASE1-ATLAS-NOT-SET@not-set.invalid/',
+      CLOUDINARY_API_KEY: '000000',
+      CLOUDINARY_API_SECRET: 'PHASE3-cloudinary-not-set',
+    };
+    const error = envError(() => loadServerEnv('api-admin', { ...prodAdmin, ...placeholders }));
+    expect(error.problems.map((problem) => problem.name).sort()).toEqual(Object.keys(placeholders).sort());
+    for (const value of Object.values(placeholders)) expect(error.message).not.toContain(value);
+    expect(() => loadServerEnv('api-admin', { ...prodAdmin, ...placeholders, APP_ENV: 'staging' })).not.toThrow();
+    const worker = envError(() =>
+      loadServerEnv('worker', {
+        ...prodWorker,
+        CF_API_TOKEN_PURGE: 'PHASE3-not-set',
+        CF_ZONE_ID: '0'.repeat(32),
+      }),
+    );
+    expect(worker.problems.map((problem) => problem.name).sort()).toEqual(['CF_API_TOKEN_PURGE', 'CF_ZONE_ID']);
+    for (const secret of ['2x0000000000000000000000000000000AA', '3x0000000000000000000000000000000AA']) {
+      expect(
+        reasonFor(
+          envError(() => loadServerEnv('api-public', { ...prodPublic, TURNSTILE_SECRET: secret })),
+          'TURNSTILE_SECRET',
+        ),
+      ).toMatch(/placeholder/);
+    }
+  });
+
   it('rejects a non-mongodb URI', () => {
     const error = envError(() =>
       loadServerEnv('migrate', { ...PRODUCTION.migrate, MONGODB_URI_MIGRATOR: 'postgres://x' }),
@@ -291,7 +347,7 @@ describe('field rules', () => {
     ).toMatch(/≥ 1/);
   });
 
-  it('outside local: requires NODE_ENV=production, Cloudflare proxy mode and S3 in ap-south-1', () => {
+  it('outside local: requires NODE_ENV=production and Cloudflare proxy mode', () => {
     expect(
       reasonFor(
         envError(() => loadServerEnv('api-public', { ...prodPublic, NODE_ENV: 'development' })),
