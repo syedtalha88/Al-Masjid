@@ -91,6 +91,27 @@ async function settled(page: Page) {
   await page.waitForFunction(() => document.querySelector('[data-sheet][data-animating]') === null);
 }
 
+/**
+ * The sheet's top once it is at rest: two equal reads 100 ms apart. `settled` alone can run in the frame before an
+ * animation starts (no `data-animating` yet) — on Linux WebKit that read a mid-animation baseline (CI, T0.13).
+ */
+async function restingTop(page: Page): Promise<number> {
+  await settled(page);
+  let last = Number.NaN;
+  await expect
+    .poll(
+      async () => {
+        const now = await sheetTop(page);
+        const same = now === last;
+        last = now;
+        return same;
+      },
+      { intervals: [100] },
+    )
+    .toBe(true);
+  return last;
+}
+
 test('sheet: focus moves in and is trapped; Esc closes and focus returns to the opener', async ({
   page,
   browserName,
@@ -117,11 +138,9 @@ test('sheet: a short drag snaps back, a long drag dismisses', async ({ page }) =
   await openShowcase(page);
   await page.getByRole('button', { name: 'Open sheet' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
-  await settled(page);
-  const open = await sheetTop(page);
+  const open = await restingTop(page);
   await dragY(page, '[data-sheet-handle]', 40, 400);
-  await settled(page);
-  expect(Math.abs((await sheetTop(page)) - open)).toBeLessThan(3);
+  expect(Math.abs((await restingTop(page)) - open)).toBeLessThan(3);
   await dragY(page, '[data-sheet-handle]', 260, 200);
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });
