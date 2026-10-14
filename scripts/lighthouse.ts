@@ -16,6 +16,7 @@ import {
   COLD_BUDGETS,
   evaluateBudgets,
   type LighthouseBudgets,
+  median,
   type PageResult,
   type RunSummary,
   summarizeRun,
@@ -64,6 +65,9 @@ async function run(url: string, label: string, warm: boolean): Promise<RunSummar
 /** Writes one line to stdout (scripts print with process.stdout, not console). */
 const out = (line: string) => process.stdout.write(`${line}\n`);
 
+/** Median machine benchmark of all runs (Lighthouse benchmarkIndex; ≈ 1000+ is a fast desktop). */
+let machine = 'unknown';
+
 const print = (title: string, results: readonly PageResult[]) => {
   out(`\n${title}`);
   for (const page of results) {
@@ -82,7 +86,7 @@ const print = (title: string, results: readonly PageResult[]) => {
     // In GitHub Actions, failures also become annotations (readable without signing in — DECISIONS #49).
     if (process.env['GITHUB_ACTIONS'] === 'true' && page.failures.length > 0) {
       const property = `Lighthouse ${title} ${page.url}`.replace(/:/g, '%3A').replace(/,/g, '%2C');
-      out(`::error title=${property}::${[...page.failures, scores, metrics].join('%0A')}`);
+      out(`::error title=${property}::${[...page.failures, scores, metrics, `benchmarkIndex ${machine}`].join('%0A')}`);
     }
   }
 };
@@ -97,6 +101,9 @@ try {
       warm.push(await run(url, `warm-${String(index)}`, true));
     }
   }
+  const index = median([...cold, ...warm].flatMap((summary) => summary.benchmarkIndex ?? []));
+  machine = index === undefined ? 'unknown' : String(Math.round(index));
+  out(`Machine benchmarkIndex (median): ${machine}`);
   // Warm runs keep storage on purpose, so Lighthouse's "stored data may affect loading" warning is expected there.
   for (const summary of cold) {
     for (const warning of summary.warnings) out(`  ! ${summary.url}: ${warning}`);

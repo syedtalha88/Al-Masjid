@@ -178,9 +178,15 @@ jobs:
           node -e "const {chromium}=require('@playwright/test');(async()=>{const b=await chromium.launch();const p=await b.newPage();await p.goto('http://localhost:5173/_dev/showcase');await p.waitForSelector('[data-showcase-section=buttons]',{timeout:120000});await b.close()})()"
       - name: E2E (Pixel 7 + iPhone 14) — axe, CSP guard, per-locale screenshots
         run: pnpm test:e2e
+      # Measurements below need a quiet machine: the dev server (showcase only) is no longer needed.
+      - name: Stop the Vite dev server
+        if: always()
+        run: pkill -f 'vite.*--port 5173' || true
       - name: Motion performance (08 §8, 4× CPU)
         run: pnpm test:perf
-      - name: Lighthouse budgets (01 §9)
+      - name: Lighthouse budgets (01 §9) — median of 5 runs per page
+        env:
+          LHCI_RUNS: '5'
         run: |
           set -o pipefail
           pnpm lhci 2>&1 | tee lhci.log

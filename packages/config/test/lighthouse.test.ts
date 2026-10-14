@@ -53,6 +53,13 @@ describe('summarizeRun', () => {
     expect(summary.warnings).toEqual(['The page did not paint any content.']);
   });
 
+  it('keeps the machine benchmark when Lighthouse reports it', () => {
+    expect(summarizeRun({ ...lhr('https://app/'), environment: { benchmarkIndex: 1234.5 } }).benchmarkIndex).toBe(
+      1234.5,
+    );
+    expect(summarizeRun(lhr('https://app/'))).not.toHaveProperty('benchmarkIndex');
+  });
+
   it('rejects anything that is not a Lighthouse result', () => {
     expect(() => summarizeRun({})).toThrow('not a Lighthouse result');
     expect(() => summarizeRun(null)).toThrow('not a Lighthouse result');

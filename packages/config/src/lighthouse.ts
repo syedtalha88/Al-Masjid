@@ -36,6 +36,8 @@ export interface RunSummary {
   readonly metrics: Readonly<Partial<Record<MetricId, number>>>;
   /** Lighthouse's own run warnings and a top-level runtime error, if any. */
   readonly warnings: readonly string[];
+  /** Lighthouse's CPU benchmark of the machine (higher = faster); explains CI-vs-local differences. */
+  readonly benchmarkIndex?: number;
 }
 
 const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
@@ -65,11 +67,13 @@ export function summarizeRun(lhr: unknown): RunSummary {
   const runWarnings = field(lhr, 'runWarnings');
   const warnings = Array.isArray(runWarnings) ? runWarnings.filter((item) => typeof item === 'string') : [];
   const runtimeError = field(field(lhr, 'runtimeError'), 'message');
+  const benchmarkIndex = field(field(lhr, 'environment'), 'benchmarkIndex');
   return {
     url,
     categories,
     metrics,
     warnings: typeof runtimeError === 'string' ? [runtimeError, ...warnings] : warnings,
+    ...(typeof benchmarkIndex === 'number' ? { benchmarkIndex } : {}),
   };
 }
 
