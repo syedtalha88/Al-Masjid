@@ -6,4 +6,4 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/opt/masjid-connect/infra/vps/cloudflare-ips.sh
+ExecStart=/usr/local/lib/masjid-connect/cloudflare-ips.sh

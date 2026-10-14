@@ -423,6 +423,17 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 **Decision:** zone-level AOP. On the VPS (root, `/etc/masjid-connect/aop/`, 700): RSA-2048 CA (10 years; `ca.key` stays there, root 600, only for renewals) and an RSA-2048 client certificate (2 years, `basicConstraints CA:FALSE`, `extendedKeyUsage clientAuth`), uploaded to Cloudflare with its key; the key is then deleted from the server. Caddy's `trust_pool` = our CA (`certs/cloudflare-origin-pull-ca.pem`). The `certs/` directory is `root:1000 750`, files `640` — Caddy runs as uid 1000 in the web container (fixes `provision.sh`, which made it root 700).
 **Consequences:** renewal every 2 years (Cloudflare e-mails 30 and 14 days before expiry; DEPLOY runbook). Generation tested in ubuntu:24.04 (`openssl verify -purpose sslclient` OK). Production uses the same zone-level certificate (same zone).
 
+### #59 — VPS layout after the Phase 00 security review: host scripts apart from release checkouts — ACCEPTED (14 Oct 2026; amends #42, #56)
+**Context:** security review S-H1 — with one shared checkout, every staging release (auto-signed from `main`) moved the code that root timers, the production deploy and production bind mounts used, so `main` + the staging key = root over production; deploys could also race. S-H3 — recreated containers lost their logs.
+**Decision:**
+- **Host layer** (`/usr/local/lib/masjid-connect`, root-owned): `deploy.sh`, `cloudflare-ips.sh`, `log-archive.sh`, `check.sh`, `make-env.sh`, the edge router config + compose file, and the systemd units — installed **only** by `provision.sh host <reviewed commit SHA>` (also run by `base`, which now needs `--ref`). Never from a release.
+- **Release layer**: one checkout per environment (`/srv/masjid-connect/<env>`), moved only by that environment's signed releases. Its compose file must pass a **hardening policy** in `deploy.sh` before it runs (every service read-only, `cap_drop: ALL`, `no-new-privileges`, no `privileged`/`cap_add`/devices/published ports/host namespaces, bind mounts only from the environment's config directory or its own `infra/`).
+- One host-wide **deploy lock** (`flock`); **replay protection** (a manifest must be newer than every deployed one — S-M1); **rolling replacement** of api-public, api-admin and web (new containers healthy before the old ones drain — PHASE_00 T0.14 step 4); HAProxy `server-template` for the two web containers during a roll.
+- **Logs**: archived hourly per container from the last archived timestamp, and by `deploy.sh` right before it removes any container (production refuses to remove a container whose logs could not be archived).
+- **Firewall**: the Cloudflare-only rule matches only traffic **arriving on the public interface** (S-H2 — container egress to :443 is untouched), is applied **before Docker starts** (S-M5) and again after; containers cannot reach the cloud metadata address (S-L8).
+**Residual risk (accepted for staging + production on one host, #42):** a malicious staging compose file is limited by the policy above, but staging still runs containers on the production host. Revisit before launch (Phase 9): a separate production VPS removes this entirely.
+**Owner impact:** the server needs `provision.sh host <sha>` once (it migrates the 14 Oct layout) — part of owner list O1.
+
 ## OPEN
 
 ### #58 — Component showcase on staging? — OPEN (14 Oct 2026, T0.14)

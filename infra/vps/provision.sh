@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 # VPS provisioning (04 §12.2, DECISIONS #21, #27, #40, #42, #54–#56; PHASE_00 T0.14). Idempotent; run as root.
 # Stages, so a mistake cannot lock the owner out:
-#   provision.sh base --admin <name> --admin-key '<ssh-ed25519 …>'   packages, updates, NTP, admin user, SSH hardening
-#                                                                    (SSH still open), Docker, ufw, fail2ban, dirs,
-#                                                                    Cloudflare-only 443, systemd units, repo checkout
+#   provision.sh base --ref <sha> --admin <name> --admin-key '<ssh-ed25519 …>'
+#                                                                    packages, updates, NTP, admin user (+ sudo
+#                                                                    password), SSH hardening (SSH still open), Docker,
+#                                                                    ufw, fail2ban, dirs, then the `host` stage
+#   provision.sh host <sha>                                          (re)install host scripts, edge router config and
+#                                                                    systemd units from the reviewed commit <sha> into
+#                                                                    /usr/local/lib/masjid-connect (root-owned; never
+#                                                                    run from a release checkout — review S-H1)
 #   provision.sh wireguard                                           WireGuard server on wg0 (10.66.0.1/24, UDP 51820)
 #   provision.sh wg-peer <name> <public-key> <10.66.0.N>             add a device (keys are generated on the device)
 #   provision.sh lockdown                                            close public SSH — refuses unless THIS session
@@ -12,7 +17,8 @@
 set -euo pipefail
 
 REPO_URL=https://github.com/syedtalha88/Al-Masjid.git
-REPO_DIR=/opt/masjid-connect
+LIB=/usr/local/lib/masjid-connect   # host scripts + edge config, changed only by `provision.sh host <sha>`
+SRV=/srv/masjid-connect             # one release checkout per environment, moved only by that environment's deploys
 ETC=/etc/masjid-connect
 WG_NET=10.66.0
 WG_PORT=51820
@@ -25,9 +31,10 @@ die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 grep -q 'VERSION_ID="24.04"' /etc/os-release || die "expected Ubuntu 24.04"
 
 base() {
-  local admin='' key=''
+  local admin='' key='' ref=''
   while [ $# -gt 0 ]; do
     case "$1" in
+      --ref) ref=$2; shift 2 ;;
       --admin) admin=$2; shift 2 ;;
       --admin-key) key=$2; shift 2 ;;
       *) die "unknown option $1" ;;
@@ -36,6 +43,7 @@ base() {
   [[ "$admin" =~ ^[a-z][a-z0-9-]{2,30}$ ]] && [ "$admin" != admin ] && [ "$admin" != ubuntu ] ||
     die "--admin: a non-default lower-case user name (04 §12.2)"
   [[ "$key" =~ ^ssh-ed25519\ [A-Za-z0-9+/=]+(\ .*)?$ ]] || die "--admin-key: an ssh-ed25519 public key"
+  [[ "$ref" =~ ^[0-9a-f]{40}$ ]] || die "--ref: the full commit SHA reviewed with the owner (review S-L4)"
 
   say "packages"
   export DEBIAN_FRONTEND=noninteractive
@@ -54,13 +62,18 @@ Unattended-Upgrade::Automatic-Reboot-Time "22:00";
 EOF
   timedatectl set-ntp true
 
-  say "admin user $admin (key only; set a sudo password with: passwd $admin)"
+  say "admin user $admin (logs in with the key only; the password is for sudo)"
   id "$admin" >/dev/null 2>&1 || adduser --disabled-password --gecos '' "$admin" >/dev/null
   usermod -aG sudo "$admin"
   install -d -m 700 -o "$admin" -g "$admin" "/home/$admin/.ssh"
   grep -qxF "$key" "/home/$admin/.ssh/authorized_keys" 2>/dev/null || printf '%s\n' "$key" >>"/home/$admin/.ssh/authorized_keys"
   chown "$admin:$admin" "/home/$admin/.ssh/authorized_keys"
   chmod 600 "/home/$admin/.ssh/authorized_keys"
+  # The next step switches root login off — make sure the admin can use sudo first (review S-L2).
+  if [ "$(passwd -S "$admin" | awk '{print $2}')" != P ]; then
+    echo "Choose the sudo password for $admin now (nothing shows while you type):"
+    passwd "$admin"
+  fi
 
   say "SSH hardening (port 22 stays reachable until 'lockdown')"
   cat >/etc/ssh/sshd_config.d/10-masjid-connect.conf <<EOF
@@ -121,14 +134,36 @@ EOF
     chown 999:1000 "$ETC/$env/redis-users.acl" # read by the Redis container's own user (F29)
   done
   install -d -m 700 /var/log/masjid-connect /var/log/masjid-connect/archive
-  [ -d "$REPO_DIR/.git" ] || git clone --quiet "$REPO_URL" "$REPO_DIR"
+  host "$ref"
+}
 
-  say "Cloudflare-only 443 + systemd units (deploy, Cloudflare refresh, firewall at boot, log archive)"
-  bash "$REPO_DIR/infra/vps/cloudflare-ips.sh"
-  install -m 644 "$REPO_DIR"/infra/vps/systemd/*.service "$REPO_DIR"/infra/vps/systemd/*.timer /etc/systemd/system/
+# Installs the host-level pieces from one reviewed commit: the scripts that run as root on the host, the edge router's
+# config and the systemd units. Release checkouts never provide any of these (review S-H1).
+host() {
+  local ref=${1:-} src
+  [[ "$ref" =~ ^[0-9a-f]{40}$ ]] || die "usage: provision.sh host <full commit SHA reviewed with the owner>"
+  say "host scripts from $ref"
+  src=$(mktemp -d)
+  git clone --quiet --no-checkout "$REPO_URL" "$src"
+  git -C "$src" checkout --quiet --detach "$ref"
+  install -d -m 755 "$LIB" "$LIB/edge"
+  install -m 755 "$src"/infra/vps/{deploy,cloudflare-ips,log-archive,check,make-env}.sh "$LIB/"
+  install -m 644 "$src"/infra/edge/haproxy.cfg "$src"/infra/compose/docker-compose.edge.yml "$LIB/edge/"
+  install -m 644 "$src"/infra/vps/systemd/*.service "$src"/infra/vps/systemd/*.timer /etc/systemd/system/
+  printf '%s\n' "$ref" >"$LIB/VERSION"
+  rm -rf "$src"
+  install -d -m 755 "$SRV"
+  if [ -d /opt/masjid-connect/.git ]; then # layout of 14 Oct 2026 (one shared checkout) → per-environment checkouts
+    rm -rf /opt/masjid-connect
+    echo "removed the old shared checkout /opt/masjid-connect"
+  fi
+
+  say "Cloudflare-only 443 (before and after Docker) + timers (Cloudflare refresh, hourly log archive)"
+  "$LIB/cloudflare-ips.sh"
   systemctl daemon-reload
-  systemctl enable --now mc-docker-user-firewall.service mc-cloudflare-ips.timer mc-log-archive.timer >/dev/null
-  echo "The deploy timer is enabled per environment once its env files and signing key exist:"
+  systemctl enable --now mc-firewall-early.service mc-docker-user-firewall.service mc-cloudflare-ips.timer \
+    mc-log-archive.timer >/dev/null
+  echo "Installed $LIB at $ref. Deploy timers are enabled per environment once its env files and signing key exist:"
   echo "  systemctl enable --now mc-deploy@staging.timer"
 }
 
@@ -157,7 +192,9 @@ wg_peer() {
 }
 
 lockdown() {
+  # sudo drops SSH_CONNECTION by default (review S-L1): fall back to the address `who -m` shows for this terminal.
   local client=${SSH_CONNECTION%% *}
+  [ -n "$client" ] || client=$(who -m 2>/dev/null | sed -n 's/.*(\([0-9a-f.:]*\)).*/\1/p')
   [[ "$client" == "$WG_NET".* ]] ||
     die "this SSH session comes from '$client', not through WireGuard ($WG_NET.x) — connect via the tunnel first"
   say "SSH only through WireGuard"
@@ -170,8 +207,9 @@ stage=${1:-}
 shift || true
 case "$stage" in
   base) base "$@" ;;
+  host) host "$@" ;;
   wireguard) wireguard ;;
   wg-peer) wg_peer "$@" ;;
   lockdown) lockdown ;;
-  *) die "usage: provision.sh base|wireguard|wg-peer|lockdown (see the header)" ;;
+  *) die "usage: provision.sh base|host|wireguard|wg-peer|lockdown (see the header)" ;;
 esac

@@ -52,15 +52,35 @@ ipset swap cloudflare6-new cloudflare6
 ipset destroy cloudflare4-new
 ipset destroy cloudflare6-new
 
-# DOCKER-USER sees packets after Docker's DNAT, so match the ORIGINAL destination port with conntrack.
-# Anything to host port 443 that is not from Cloudflare is dropped before it reaches the edge router.
-apply_rule() { # <iptables binary> <set>
-  local bin=$1 set=$2
-  "$bin" -N DOCKER-USER 2>/dev/null || true
-  local rule=(-p tcp -m conntrack --ctstate NEW --ctorigdstport "$PORT" -m set ! --match-set "$set" src
-    -m comment --comment mc-cloudflare-only -j DROP)
-  "$bin" -C DOCKER-USER "${rule[@]}" 2>/dev/null || "$bin" -I DOCKER-USER 1 "${rule[@]}"
+# DOCKER-USER (FORWARD) sees packets after Docker's DNAT, so match the ORIGINAL destination port with conntrack, and
+# only traffic that ARRIVES on the public interface: container egress to any :443 (push services, Cloudinary,
+# Turnstile, Sentry, the purge API) also passes DOCKER-USER and must not match (review S-H2).
+ext_if() { # <ip family flag> — the interface of the default route
+  local dev
+  dev=$(ip "$1" -o route show default 2>/dev/null | awk '{for (i = 1; i < NF; i++) if ($i == "dev") {print $(i + 1); exit}}')
+  if [[ "$dev" =~ ^[a-zA-Z0-9._@-]{1,15}$ ]]; then printf '%s' "$dev"; fi
 }
-apply_rule iptables cloudflare4
-apply_rule ip6tables cloudflare6
-log "DOCKER-USER: port $PORT accepts only the Cloudflare sets"
+EXT_IF=$(ext_if -4)
+[ -n "$EXT_IF" ] || { log "no IPv4 default route — cannot tell the public interface"; exit 1; }
+EXT_IF6=$(ext_if -6)
+EXT_IF6=${EXT_IF6:-$EXT_IF}
+
+apply_rules() { # <iptables binary> <set> <public interface>
+  local bin=$1 set=$2 dev=$3
+  "$bin" -N DOCKER-USER 2>/dev/null || true
+  local cf=(-i "$dev" -p tcp -m conntrack --ctstate NEW --ctorigdstport "$PORT" -m set ! --match-set "$set" src
+    -m comment --comment mc-cloudflare-only -j DROP)
+  "$bin" -C DOCKER-USER "${cf[@]}" 2>/dev/null || "$bin" -I DOCKER-USER 1 "${cf[@]}"
+  # Remove older forms of our rule (e.g. without the interface match) only after the current one is in place.
+  local line old
+  while read -r line; do
+    read -r -a old <<<"${line/-A DOCKER-USER/}"
+    "$bin" -D DOCKER-USER "${old[@]}"
+  done < <("$bin" -S DOCKER-USER | grep -- '--comment mc-cloudflare-only' | grep -vF -- "-i $dev " || true)
+}
+apply_rules iptables cloudflare4 "$EXT_IF"
+apply_rules ip6tables cloudflare6 "$EXT_IF6"
+# Containers never need the cloud metadata service (SSRF hardening, review S-L8): forwarded traffic only.
+meta=(! -i "$EXT_IF" -d 169.254.169.254 -m comment --comment mc-no-metadata -j DROP)
+iptables -C DOCKER-USER "${meta[@]}" 2>/dev/null || iptables -I DOCKER-USER 1 "${meta[@]}"
+log "DOCKER-USER: port $PORT on $EXT_IF/$EXT_IF6 accepts only the Cloudflare sets; container egress unaffected"

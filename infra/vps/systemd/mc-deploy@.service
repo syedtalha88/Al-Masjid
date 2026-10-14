@@ -8,5 +8,5 @@ Requires=docker.service
 
 [Service]
 Type=oneshot
-ExecStart=/opt/masjid-connect/infra/vps/deploy.sh %i
+ExecStart=/usr/local/lib/masjid-connect/deploy.sh %i
 TimeoutStartSec=15min

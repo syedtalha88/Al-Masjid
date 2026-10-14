@@ -65,7 +65,7 @@ if has iptables; then
   # Docker bypasses ufw; DOCKER-USER must drop non-Cloudflare traffic to host port 443 (04 §12.2). The rule matches
   # the ORIGINAL destination port (conntrack) because DOCKER-USER sees packets after Docker's DNAT.
   # (cloudflare-ips.sh writes exactly this rule.)
-  cf_rule='--ctorigdstport 443 -m set ! --match-set cloudflare4 src .*-j DROP'
+  cf_rule='-i [^ ]+ -p tcp -m conntrack --ctstate NEW --ctorigdstport 443 -m set ! --match-set cloudflare4 src .*-j DROP'
   if iptables -S DOCKER-USER 2>/dev/null | grep -Eq -- "$cf_rule"; then
     ok "firewall: DOCKER-USER drops non-Cloudflare IPv4 to 443"
   else

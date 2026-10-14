@@ -1,8 +1,9 @@
 [Unit]
-Description=Daily log archive (03:15 IST)
+Description=Hourly container-log archive
 
 [Timer]
-OnCalendar=*-*-* 21:45:00 UTC
+OnCalendar=hourly
+RandomizedDelaySec=5min
 Persistent=true
 
 [Install]

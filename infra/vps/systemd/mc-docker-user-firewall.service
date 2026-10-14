@@ -9,7 +9,7 @@ PartOf=docker.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/opt/masjid-connect/infra/vps/cloudflare-ips.sh --apply
+ExecStart=/usr/local/lib/masjid-connect/cloudflare-ips.sh --apply
 
 [Install]
 WantedBy=multi-user.target

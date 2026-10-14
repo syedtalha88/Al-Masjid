@@ -1,0 +1,17 @@
+# Cloudflare-only 443 BEFORE Docker starts (review S-M5): Docker starts `restart: unless-stopped` containers while it
+# starts, so without this unit 443 would be reachable from any IP until mc-docker-user-firewall.service runs. Docker
+# keeps an existing DOCKER-USER chain and only adds its jump; mc-docker-user-firewall.service re-applies after Docker
+# (and on every Docker restart) as a safety net.
+[Unit]
+Description=Masjid Connect: Cloudflare-only 443 before Docker starts
+After=network-online.target
+Wants=network-online.target
+Before=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/lib/masjid-connect/cloudflare-ips.sh --apply
+
+[Install]
+WantedBy=docker.service
