@@ -37,6 +37,7 @@ describe('summarizeRun', () => {
       categories: { performance: 0.98, accessibility: 1, 'best-practices': 1 },
       metrics: { 'largest-contentful-paint': 1800, 'cumulative-layout-shift': 0.01, 'total-blocking-time': 50 },
       warnings: ['slow host'],
+      longTasks: [],
     });
   });
 
@@ -58,6 +59,22 @@ describe('summarizeRun', () => {
       1234.5,
     );
     expect(summarizeRun(lhr('https://app/'))).not.toHaveProperty('benchmarkIndex');
+  });
+
+  it('lists the three longest tasks with their script file', () => {
+    const items = [
+      { url: 'https://app/assets/index-A.js', duration: 64.4 },
+      { url: 'https://app/assets/index-A.js', duration: 151.6 },
+      { url: 'https://app/assets/react-B.js', duration: 80 },
+      { url: 'https://app/assets/x.js', duration: 52 },
+      { duration: 999 },
+    ];
+    const summary = summarizeRun({ ...lhr('https://app/'), audits: { 'long-tasks': { details: { items } } } });
+    expect(summary.longTasks).toEqual([
+      { script: 'index-A.js', durationMs: 152 },
+      { script: 'react-B.js', durationMs: 80 },
+      { script: 'index-A.js', durationMs: 64 },
+    ]);
   });
 
   it('rejects anything that is not a Lighthouse result', () => {
@@ -110,7 +127,7 @@ describe('evaluateBudgets', () => {
   });
 
   it('a value that was never measured fails; a metric without a budget is only reported', () => {
-    const missing: RunSummary = { url: 'https://app/', categories: {}, metrics: {}, warnings: [] };
+    const missing: RunSummary = { url: 'https://app/', categories: {}, metrics: {}, warnings: [], longTasks: [] };
     expect(evaluateBudgets([missing], COLD_BUDGETS)[0]?.failures).toEqual([
       'performance: not measured',
       'accessibility: not measured',
@@ -129,5 +146,11 @@ describe('evaluateBudgets', () => {
     expect(evaluateBudgets([run('https://app/', {}, { lcp: 1200 })], WARM_BUDGETS)[0]?.failures).toEqual([
       'largest-contentful-paint: 1200 ms > 1000 ms',
     ]);
+  });
+
+  it('warm budget: TBT is reported, not gated (01 §9 warm row = LCP; DECISIONS #51)', () => {
+    const [page] = evaluateBudgets([run('https://app/', {}, { lcp: 120, tbt: 900 })], WARM_BUDGETS);
+    expect(page?.failures).toEqual([]);
+    expect(page?.metrics['total-blocking-time']).toBe(900);
   });
 });

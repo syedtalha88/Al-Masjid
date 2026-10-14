@@ -118,6 +118,19 @@ try {
     check('Cold load (01 §9)', cold, COLD_BUDGETS),
     check('Warm load, service worker (01 §9)', warm, WARM_BUDGETS),
   ].every(Boolean);
+  // Warm TBT is reported, not gated (DECISIONS #51): show what the worst warm run spent its main thread on.
+  out('\nWarm start — long tasks of the worst run per page (TBT is reported, not gated; PROGRESS F27)');
+  for (const url of PAGES) {
+    const runs = warm.filter((summary) => summary.url === url);
+    const worst = runs.reduce<RunSummary | undefined>((acc, summary) => {
+      const tbt = summary.metrics['total-blocking-time'] ?? 0;
+      return acc === undefined || tbt > (acc.metrics['total-blocking-time'] ?? 0) ? summary : acc;
+    }, undefined);
+    const tasks = worst?.longTasks.map((task) => `${task.script} ${String(task.durationMs)} ms`).join(', ');
+    out(
+      `  ${url}: TBT ${String(Math.round(worst?.metrics['total-blocking-time'] ?? 0))} ms — ${tasks || 'no long tasks'}`,
+    );
+  }
   process.exitCode = passed ? 0 : 1;
   out(`\nReports: ${OUT}`);
 } finally {
