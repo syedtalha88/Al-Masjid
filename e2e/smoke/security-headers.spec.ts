@@ -45,6 +45,8 @@ test.describe('static responses (Caddy)', () => {
       const response = await request.get(`${APP_URL}${path}`);
       expect(response.status()).toBe(200);
       expectCommon(response);
+      // The local stack is configured like staging: not indexable (T0.14; production sends "all").
+      expect(response.headers()['x-robots-tag']).toBe('noindex, nofollow');
       const policy = csp(response);
       expect(policy.get('default-src')).toEqual(["'self'"]);
       expect(policy.get('script-src')).toEqual(["'self'", 'https://challenges.cloudflare.com']);

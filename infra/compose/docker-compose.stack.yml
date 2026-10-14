@@ -82,6 +82,7 @@ services:
     environment:
       APP_HOST: app.localhost
       ADMIN_HOST: admin.localhost
+      APP_ROBOTS: noindex, nofollow # like staging (T0.14)
       CADDY_TLS: local
       # Image host for the CSP img-src (staging/production: https://media[-staging].<domain>).
       MEDIA_ORIGIN: https://media.localhost:8443

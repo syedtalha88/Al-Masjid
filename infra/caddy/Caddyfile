@@ -5,6 +5,7 @@
 #                             origin → Cloudflare Origin CA certificate + Authenticated Origin Pulls
 #                                      (Caddy rejects TLS without Cloudflare's client certificate — 04 §12.2)
 #   API_PUBLIC_UPSTREAM, API_ADMIN_UPSTREAM   e.g. api-public:8787, api-admin:8788
+#   APP_ROBOTS                X-Robots-Tag of the app origin: "noindex, nofollow" on staging, default "all"
 # Security headers for static files (exact 04 §7 set incl. CSP) are completed in T0.5.
 
 {
@@ -103,6 +104,8 @@ http://:8081 {
 
 https://{$APP_HOST} {
 	import common
+	# Staging (and the local stack): "noindex, nofollow" (PHASE_00 T0.14); production: unset → "all".
+	header X-Robots-Tag "{$APP_ROBOTS:all}"
 
 	# Public API → api-public (×2 replicas in staging/production; Docker DNS round-robin).
 	handle /api/v1/* {
