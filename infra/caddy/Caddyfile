@@ -80,12 +80,37 @@ http://:8081 {
 	respond `{"type":"urn:masjid-connect:problem:not-found","title":"Not Found","status":404,"code":"NOT_FOUND"}` 404
 }
 
+# API reverse proxy (args[0] = upstream, e.g. api-public:8787 — two replicas behind Docker DNS).
+(api-proxy) {
+	reverse_proxy {args[0]} {
+		# Rolling restarts (infra/vps/deploy.sh): a dial to a container that just left is retried (Docker DNS then
+		# answers with the remaining replicas) instead of failing the request (PHASE_00 T0.14).
+		lb_try_duration 5s
+		lb_try_interval 250ms
+		# The request id is Caddy's; a client-supplied one is never trusted for log correlation (review S-L11).
+		header_up X-Request-Id {http.request.uuid}
+		transport http {
+			# Shorter than Node's keep-alive (65 s), so Caddy — not Node — closes idle connections (review S-L12).
+			keepalive 30s
+		}
+	}
+}
+
 # Static SPA: hashed assets immutable, entry points always revalidated (01 §5.2), SPA fallback.
 (spa) {
 	root * {args[0]}
 
-	@immutable path /assets/*
+	@immutable {
+		path /assets/*
+		file
+	}
 	header @immutable Cache-Control "public, max-age=31536000, immutable"
+	# An unknown /assets/* URL is a plain, uncacheable 404 — never the app shell under an immutable URL (S-L6).
+	@missingAsset {
+		path /assets/*
+		not file
+	}
+	header @missingAsset Cache-Control "no-store"
 
 	@entry path / /index.html /boot.js /sw.js /manifest.webmanifest /offline.html
 	header @entry Cache-Control "no-cache"
@@ -96,7 +121,11 @@ http://:8081 {
 	@pwaImages path /icons/* /splash/*
 	header @pwaImages Cache-Control "public, max-age=86400"
 
-	try_files {path} /index.html
+	@spaFallback {
+		not path /assets/*
+		not file
+	}
+	rewrite @spaFallback /index.html
 	file_server {
 		precompressed br gzip
 	}
@@ -109,7 +138,7 @@ https://{$APP_HOST} {
 
 	# Public API → api-public (×2 replicas in staging/production; Docker DNS round-robin).
 	handle /api/v1/* {
-		reverse_proxy {$API_PUBLIC_UPSTREAM}
+		import api-proxy {$API_PUBLIC_UPSTREAM}
 	}
 	# Any other /api path on this origin does not exist (never falls through to the SPA).
 	handle /api/* {
@@ -133,7 +162,7 @@ https://{$ADMIN_HOST} {
 
 	@adminApi path /api/admin/* /api/super/* /api/hooks/*
 	handle @adminApi {
-		reverse_proxy {$API_ADMIN_UPSTREAM}
+		import api-proxy {$API_ADMIN_UPSTREAM}
 	}
 	handle /api/* {
 		import api-not-found

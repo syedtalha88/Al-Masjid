@@ -42,6 +42,14 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ inputs.release }}
+          fetch-depth: 0
+      # Only commits that are on main, and only this workflow as it is on main (review S-M4): a dispatch from another
+      # branch would run that branch's copy of this file with the production signing key.
+      - name: Release is on main, workflow dispatched from main
+        run: |
+          [ "$GITHUB_REF" = refs/heads/main ] || { echo "::error::dispatch this workflow from main (got $GITHUB_REF)"; exit 1; }
+          git fetch --quiet --no-tags origin main
+          git merge-base --is-ancestor "$RELEASE" FETCH_HEAD || { echo "::error::$RELEASE is not on main"; exit 1; }
       - name: Log in to GHCR
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}

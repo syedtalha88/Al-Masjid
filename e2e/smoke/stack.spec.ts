@@ -34,6 +34,23 @@ test.describe('musalli app (app origin)', () => {
     expect(response.status()).toBe(404);
     expect(await response.json()).toMatchObject({ code: 'NOT_FOUND', status: 404 });
   });
+
+  test('unknown hashed asset → uncacheable 404, never the app shell (review S-L6)', async ({ request }) => {
+    for (const url of [APP_URL, ADMIN_URL]) {
+      const response = await request.get(`${url}/assets/does-not-exist-0000.js`);
+      expect(response.status(), url).toBe(404);
+      expect(response.headers()['cache-control'], url).toBe('no-store');
+      expect(await response.text(), url).not.toContain('<div id="root"');
+    }
+  });
+
+  test('Caddy sets the request id; a client-supplied one is replaced (review S-L11)', async ({ request }) => {
+    const spoofed = 'client-chosen-request-id-0001';
+    const response = await request.get(`${APP_URL}/api/v1/health`, { headers: { 'X-Request-Id': spoofed } });
+    expect(response.status()).toBe(200);
+    expect(response.headers()['x-request-id']).toMatch(/^[0-9a-f-]{36}$/);
+    expect(response.headers()['x-request-id']).not.toBe(spoofed);
+  });
 });
 
 test.describe('locale boot (T0.7, 09 §5)', () => {

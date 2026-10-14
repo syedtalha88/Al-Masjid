@@ -84,8 +84,10 @@ fi
 if has ss; then
   public=$(ss -H -tuln 2>/dev/null | awk '{print $1, $5}' |
     grep -Ev ' (127\.[0-9.]+|\[::1\]|::1|10\.[0-9.]+|\[fd[0-9a-f:]*\])(%[a-z0-9]+)?:[0-9]+$' || true)
+  # sshd keeps listening on all addresses after `lockdown`; whether :22 is reachable is ufw's job, checked above
+  # ("SSH not open to Anywhere"), so :22 is not an unexpected listener here (review S-L3).
   unexpected=$(awk -v wg=":${WG_PORT}\$" '
-    $1=="tcp" && ($2 ~ /:443$/ || $2 ~ /:80$/) {next}
+    $1=="tcp" && ($2 ~ /:443$/ || $2 ~ /:80$/ || $2 ~ /:22$/) {next}
     $1=="udp" && $2 ~ wg {next}
     {print}' <<<"$public")
   if [ -z "$unexpected" ]; then ok "only 443/80 (TCP) and WireGuard (UDP) listen publicly"; else bad "unexpected public listeners: $(tr '\n' ' ' <<<"$unexpected")"; fi
@@ -135,6 +137,17 @@ if has docker; then
   done
 else
   bad "Docker not installed"
+fi
+
+# --- Container egress (review S-H2): the Cloudflare-only rule must not block outbound HTTPS from the APIs ----------
+if has docker; then
+  for env in staging production; do
+    api=$(docker ps -q --filter "label=com.docker.compose.project=mc-$env" \
+      --filter "label=com.docker.compose.service=api-public" | head -n 1)
+    [ -n "$api" ] || continue
+    probe="fetch('https://api.cloudflare.com/client/v4/ips',{signal:AbortSignal.timeout(8000)}).then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"
+    check "$env: containers reach the internet over HTTPS (egress not blocked)" "docker exec $api /nodejs/bin/node -e \"$probe\""
+  done
 fi
 
 # --- Secrets and logs on disk ---------------------------------------------------------------------------
