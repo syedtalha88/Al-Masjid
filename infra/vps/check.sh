@@ -62,12 +62,19 @@ else
   bad "Cloudflare IP list present ($CF_IPS_FILE)"
 fi
 if has iptables; then
-  docker_user=$(iptables -S DOCKER-USER 2>/dev/null)
-  # Docker bypasses ufw; DOCKER-USER must restrict the published ports to Cloudflare (04 §12.2).
-  if grep -q -- '--dport 443' <<<"$docker_user" && grep -Eq -- '-j (DROP|REJECT)' <<<"$docker_user"; then
-    ok "firewall: DOCKER-USER chain restricts published 443"
+  # Docker bypasses ufw; DOCKER-USER must drop non-Cloudflare traffic to host port 443 (04 §12.2). The rule matches
+  # the ORIGINAL destination port (conntrack) because DOCKER-USER sees packets after Docker's DNAT.
+  # (cloudflare-ips.sh writes exactly this rule.)
+  cf_rule='--ctorigdstport 443 -m set ! --match-set cloudflare4 src .*-j DROP'
+  if iptables -S DOCKER-USER 2>/dev/null | grep -Eq -- "$cf_rule"; then
+    ok "firewall: DOCKER-USER drops non-Cloudflare IPv4 to 443"
   else
-    bad "firewall: DOCKER-USER chain restricts published 443"
+    bad "firewall: DOCKER-USER drops non-Cloudflare IPv4 to 443"
+  fi
+  if ip6tables -S DOCKER-USER 2>/dev/null | grep -Eq -- "${cf_rule/cloudflare4/cloudflare6}"; then
+    ok "firewall: DOCKER-USER drops non-Cloudflare IPv6 to 443"
+  else
+    bad "firewall: DOCKER-USER drops non-Cloudflare IPv6 to 443"
   fi
 else
   bad "firewall: iptables not available to inspect DOCKER-USER"
