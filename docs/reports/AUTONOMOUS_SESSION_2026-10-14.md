@@ -39,3 +39,5 @@
 | 04:35 | Logger redaction + passkey material/email/vpa/pepper (+1 test); `e2e/smoke/observability.spec.ts` (maps 404, no Sentry download without DSN) | api 14/14 units; e2e 8/8 |
 | 04:45 | Scrubber lint fix (no dynamic delete); `pnpm verify:quick`, `pnpm test:coverage`; full e2e + `pnpm test:perf` + `LHCI_RUNS=3 pnpm lhci` on the T0.13 stack | all green: e2e 107 passed, perf 2/2, Lighthouse PASS; warm admin spike = "Unattributable" 372 ms browser task |
 | 04:50 | **Decision DECISIONS #52** (observability: Sentry 11.6, privacy settings, lazy browser SDK, source maps, log rotation, two suggested Sentry projects); PROGRESS: T0.13 ticked, F26 closed, F28 added; owner guide 0.18 (optional Sentry setup) | docs updated |
+| 04:55 | T0.5 CI run 38493740698: **all 5 jobs green** → `git checkout main && git merge --ff-only ci/t0.5 && git push origin main` | `main` = `755944f` (T0.3 + T0.5 + Lighthouse fix); CI + release run on main |
+| 04:56 | T0.13: 4 commits on `ci/t0.13`, `git push -u origin ci/t0.13` | CI running |

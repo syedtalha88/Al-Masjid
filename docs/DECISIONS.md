@@ -383,6 +383,20 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **Two Sentry projects suggested** (free plan): `mc-web` (app + admin, DSN is public by design) and `mc-server` (all processes). The owner must enable **"Prevent Storing of IP Addresses"** and **Data Scrubber** in both projects — Sentry still sees the sender's IP at ingest; that setting keeps it from being stored (CLAUDE.md §2.1). When a DSN is set, Caddy's `CSP_CONNECT_EXTRA` must list the Sentry ingest host or the browser SDK's requests are blocked by the CSP.
 **Consequences:** PROGRESS F28 — once the owner creates the Sentry projects: verify one test event end to end (arrives scrubbed, stack trace resolves through the uploaded maps, no CSP block).
 
+### #53 — Phase 00 pinned versions (snapshot) — ACCEPTED (14 Oct 2026, T0.15)
+**Decision:** The major libraries as pinned at the end of Phase 00 work (exact versions, `saveExact`; Renovate proposes updates weekly, 3-day minimum age, trust policy — #49). Reasons for the non-obvious picks are in the entries named.
+| Area | Pinned |
+|---|---|
+| Runtime | Node 24 (`>=24.15 <25`; Node 26 after 28 Oct 2026 — F1) · pnpm 12.10.1 · Turborepo 2.11.7 (#32) |
+| Language & lint | TypeScript 6.0.3 (held < 6.1 for typescript-eslint — #32) · ESLint 10.12.0 · typescript-eslint 8.71.1 · Prettier 3.9.9 |
+| Front end | React 19.3.0 · Vite 8.3.3 · TanStack Router 1.170.41 / Query 5.104.1 (#36) · Tailwind CSS 4.3.3 (#41) · Motion 14.0.0 (#43, #44) · vite-plugin-pwa 1.3.0 (#46) · i18next 26.4.2 / react-i18next 17.0.16 (#38) |
+| Server | Express 5.2.1 · helmet 8.3.0 · pino 10.4.0 · Zod 4.6.5 · BullMQ 6.3.11 / ioredis 6.0.0 (#34) · mongodb driver 7.6.0 · tsdown 0.23.0 (#34) |
+| Observability | Sentry 11.6.0 (`@sentry/browser`, `@sentry/node` — #52) |
+| Testing | Vitest 5.0.3 · Playwright 1.63.0 · @axe-core/playwright 4.13.0 · MSW 2.15.0 (#48) · fast-check 4.10.2 · Lighthouse 13.5.0 · size-limit 14.2.0 (#48) |
+| Images (by digest) | node 24.21.0-trixie-slim · distroless nodejs24-debian13 · Caddy 2.11.7 built from source (#49) · mongo 8.0.32 · redis 8.10.2 (#37) |
+| CI scanners (by digest) | gitleaks 8.30.1 · Semgrep 1.180.0 · osv-scanner 2.7.0 · hadolint 2.15.1 · Trivy 0.75.0 · actionlint 1.7.12 · ZAP 2.17.0 · sentry-cli 3.8.0 (#49, #52) |
+**Pending:** the iOS swipe-back finding T0.15 also asks for needs the owner's iPhone on staging (PROGRESS F17, after T0.14).
+
 ## OPEN
 
 _None._
