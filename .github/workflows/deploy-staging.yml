@@ -80,6 +80,45 @@ jobs:
         if: vars.VITE_PUBLIC_APP_ORIGIN == ''
         run: echo "::notice title=Web image skipped::Set the staging environment variables (VITE_PUBLIC_*) — T0.14."
 
+      # Source maps go to Sentry only (never served, never in an image — T0.13). Skipped until the owner creates
+      # the Sentry projects: secret SENTRY_AUTH_TOKEN, variables SENTRY_ORG, SENTRY_PROJECT_WEB, SENTRY_PROJECT_SERVER.
+      - name: Source maps → Sentry (when configured)
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT_WEB: ${{ vars.SENTRY_PROJECT_WEB }}
+          SENTRY_PROJECT_SERVER: ${{ vars.SENTRY_PROJECT_SERVER }}
+          SENTRY_CLI_IMAGE: getsentry/sentry-cli:3.8.0@sha256:973a77ecc96852081f946e36a8f090ed74a02249009594aff51575e593871427
+          WEB_BUILT: ${{ vars.VITE_PUBLIC_APP_ORIGIN != '' }}
+          WEB_URL_PREFIX: '~/assets' # Sentry's URL-prefix syntax (any host), not a home directory
+          VITE_PUBLIC_API_BASE: ${{ vars.VITE_PUBLIC_API_BASE }}
+          VITE_PUBLIC_APP_ORIGIN: ${{ vars.VITE_PUBLIC_APP_ORIGIN }}
+          VITE_PUBLIC_MEDIA_ORIGIN: ${{ vars.VITE_PUBLIC_MEDIA_ORIGIN }}
+          VITE_PUBLIC_VAPID_PUBLIC_KEY: ${{ vars.VITE_PUBLIC_VAPID_PUBLIC_KEY }}
+          VITE_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.VITE_PUBLIC_TURNSTILE_SITE_KEY }}
+          VITE_PUBLIC_SENTRY_DSN: ${{ vars.VITE_PUBLIC_SENTRY_DSN }}
+        run: |
+          if [ -z "$SENTRY_AUTH_TOKEN" ] || [ -z "$SENTRY_ORG" ]; then
+            echo "::notice title=Source maps not uploaded::Sentry is not configured yet (DECISIONS #35)."
+            exit 0
+          fi
+          upload() { # <project> <dir> <url-prefix>
+            docker run --rm -v "$PWD/maps:/maps:ro" -e SENTRY_AUTH_TOKEN -e SENTRY_ORG "$SENTRY_CLI_IMAGE" \
+              sourcemaps upload --project "$1" --release "$RELEASE" --url-prefix "$3" "$2"
+          }
+          docker buildx build -f infra/docker/server.Dockerfile --target server-maps \
+            --build-arg RELEASE="$RELEASE" --output type=local,dest=maps/server .
+          upload "$SENTRY_PROJECT_SERVER" /maps/server '/app/dist'
+          if [ "$WEB_BUILT" = 'true' ]; then
+            docker buildx build -f infra/docker/caddy.Dockerfile --target web-maps \
+              --build-arg RELEASE="$RELEASE" \
+              --build-arg VITE_PUBLIC_API_BASE --build-arg VITE_PUBLIC_APP_ORIGIN --build-arg VITE_PUBLIC_MEDIA_ORIGIN \
+              --build-arg VITE_PUBLIC_VAPID_PUBLIC_KEY --build-arg VITE_PUBLIC_TURNSTILE_SITE_KEY \
+              --build-arg VITE_PUBLIC_SENTRY_DSN --output type=local,dest=maps/web .
+            upload "$SENTRY_PROJECT_WEB" /maps/web/app "$WEB_URL_PREFIX"
+            upload "$SENTRY_PROJECT_WEB" /maps/web/admin "$WEB_URL_PREFIX"
+          fi
+
       - name: Release manifest (digests the VPS deploys)
         env:
           ENVIRONMENT: staging

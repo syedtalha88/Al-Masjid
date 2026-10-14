@@ -17,6 +17,13 @@ x-server: &server
   security_opt:
     - no-new-privileges:true
   restart: unless-stopped
+  # Rotated container logs (T0.13): Docker local driver, ≤ 5 × 10 MB per container. The VPS adds the 200-day
+  # encrypted archive (DECISIONS #40, T0.14).
+  logging:
+    driver: local
+    options:
+      max-size: 10m
+      max-file: '5'
   depends_on:
     mongo:
       condition: service_healthy
@@ -105,6 +112,11 @@ services:
       timeout: 3s
       retries: 3
     restart: unless-stopped
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+        max-file: '5'
     depends_on:
       api-public:
         condition: service_healthy

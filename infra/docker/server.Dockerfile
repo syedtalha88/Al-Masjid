@@ -31,8 +31,13 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm install --frozen-lo
 # Build the server bundles and prune to production dependencies (bullmq + ioredis — DECISIONS #34).
 FROM deps AS build
 # The build also moves the test-hook module to dist-test/ and fails if dist/ contains any hook code.
+# Source maps (+ their bundles) move to /maps for the optional Sentry upload (server-maps stage, T0.13); the
+# shipped dist/ keeps none.
 RUN pnpm --filter @mc/server build && \
-    rm -f apps/server/dist/*.map apps/server/dist-test/*.map
+    mkdir -p /maps && \
+    cp apps/server/dist/*.mjs /maps/ && \
+    mv apps/server/dist/*.map /maps/ && \
+    rm -f apps/server/dist-test/*.map
 # deploy copies the package (incl. dist/, per "files" in package.json) + its production node_modules.
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm --filter @mc/server --prod deploy /out
@@ -60,3 +65,9 @@ CMD ["dist/public.mjs"]
 FROM runtime AS runtime-test
 ENV NODE_ENV=test
 COPY --from=build --chown=65532:65532 /repo/apps/server/dist-test/test-hooks.mjs ./dist/test-hooks.mjs
+
+# ---------------------------------------------------------------------------------------------------
+# Export-only (never an image): the server bundles + source maps for the Sentry upload in deploy-staging.yml.
+#   docker buildx build -f infra/docker/server.Dockerfile --target server-maps --output type=local,dest=maps .
+FROM scratch AS server-maps
+COPY --from=build /maps /

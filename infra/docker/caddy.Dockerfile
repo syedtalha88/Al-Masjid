@@ -57,8 +57,14 @@ ARG VITE_PUBLIC_API_BASE \
     VITE_PUBLIC_VAPID_PUBLIC_KEY \
     VITE_PUBLIC_TURNSTILE_SITE_KEY \
     VITE_PUBLIC_SENTRY_DSN
+# Source maps (+ their bundles) move to /maps for the optional Sentry upload (web-maps stage, T0.13); the served
+# dist/ keeps none. Then: no dev-only code, no secrets in the bundles.
 RUN MC_RELEASE="${RELEASE}" pnpm --filter @mc/app --filter @mc/admin build && \
-    find apps/app/dist apps/admin/dist -name '*.map' -delete && \
+    for app in app admin; do \
+      mkdir -p "/maps/$app" && \
+      cp apps/$app/dist/assets/*.js "/maps/$app/" && \
+      find apps/$app/dist -name '*.map' -exec mv {} "/maps/$app/" \; ; \
+    done && \
     node scripts/check-dist.mjs && \
     node scripts/scan-bundles.mjs
 
@@ -66,3 +72,9 @@ RUN MC_RELEASE="${RELEASE}" pnpm --filter @mc/app --filter @mc/admin build && \
 FROM base AS runtime
 COPY --from=web-build --chown=0:0 /repo/apps/app/dist /srv/app
 COPY --from=web-build --chown=0:0 /repo/apps/admin/dist /srv/admin
+
+# ---------------------------------------------------------------------------------------------------
+# Export-only (never an image): both apps' bundles + source maps for the Sentry upload in deploy-staging.yml.
+# Built with the same build args as `runtime`, so it reuses the identical web-build layer.
+FROM scratch AS web-maps
+COPY --from=web-build /maps /
