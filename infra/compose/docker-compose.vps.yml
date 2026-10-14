@@ -1,0 +1,147 @@
+# One environment on the VPS (DECISIONS #21, #42, #54) — run by infra/vps/deploy.sh, never by hand in normal use:
+#   MC_ENV=staging SERVER_IMAGE=<digest ref> WEB_IMAGE=<digest ref> \
+#     docker compose -p mc-staging -f docker-compose.vps.yml up -d --wait
+# Images come by digest from the verified release manifest (#55). Secrets live only in
+# /etc/masjid-connect/<env>/ (mode 600, root): api-public.env, api-admin.env, worker.env, web.env, the Origin CA
+# certificate + Cloudflare origin-pull CA in certs/, and redis-users.acl (owned by Redis' uid, 400).
+# Networks: `edge` (from mc-edge) reaches only `web`; `app` = web ↔ APIs; `backend` (no internet) = APIs/worker ↔
+# Redis; `egress` = APIs/worker → Atlas, Cloudinary, push services. DRAFT 14 Oct 2026 — first run in T0.14.
+
+x-hardened: &hardened
+  read_only: true
+  cap_drop: [ALL]
+  security_opt:
+    - no-new-privileges:true
+  restart: unless-stopped
+  logging:
+    driver: local
+    options:
+      max-size: 10m
+      max-file: '5'
+
+x-server: &server
+  <<: *hardened
+  image: ${SERVER_IMAGE:?set by deploy.sh from the verified release manifest}
+  tmpfs:
+    - /tmp:size=16m
+  depends_on:
+    redis:
+      condition: service_healthy
+
+services:
+  web:
+    <<: *hardened
+    image: ${WEB_IMAGE:?set by deploy.sh from the verified release manifest}
+    user: '1000:1000'
+    env_file: ${MC_CONFIG_DIR:-/etc/masjid-connect/${MC_ENV}}/web.env # APP_HOST, ADMIN_HOST, MEDIA_ORIGIN, CSP_CONNECT_EXTRA, CADDY_TLS=origin
+    environment:
+      API_PUBLIC_UPSTREAM: api-public:8787
+      API_ADMIN_UPSTREAM: api-admin:8788
+    volumes:
+      - ${MC_CONFIG_DIR:-/etc/masjid-connect/${MC_ENV}}/certs:/certs:ro
+    tmpfs:
+      - /data:uid=1000,gid=1000,size=8m
+      - /config:uid=1000,gid=1000,size=1m
+    networks:
+      app: {}
+      edge:
+        aliases: ['web-${MC_ENV}'] # the router's backend name (infra/edge/haproxy.cfg)
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:8081/healthz']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits: { cpus: '0.50', memory: 128m }
+    depends_on:
+      api-public:
+        condition: service_healthy
+      api-admin:
+        condition: service_healthy
+
+  api-public:
+    <<: *server
+    command: ['dist/public.mjs']
+    env_file: ${MC_CONFIG_DIR:-/etc/masjid-connect/${MC_ENV}}/api-public.env
+    networks: [app, backend, egress]
+    healthcheck:
+      test: ['CMD', '/nodejs/bin/node', 'dist/healthcheck.mjs', 'api-public']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      replicas: 2
+      resources:
+        limits: { cpus: '0.75', memory: 384m }
+
+  api-admin:
+    <<: *server
+    command: ['dist/admin.mjs']
+    env_file: ${MC_CONFIG_DIR:-/etc/masjid-connect/${MC_ENV}}/api-admin.env
+    networks: [app, backend, egress]
+    healthcheck:
+      test: ['CMD', '/nodejs/bin/node', 'dist/healthcheck.mjs', 'api-admin']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      replicas: 2
+      resources:
+        limits: { cpus: '0.75', memory: 384m }
+
+  worker:
+    <<: *server
+    command: ['dist/worker.mjs']
+    env_file: ${MC_CONFIG_DIR:-/etc/masjid-connect/${MC_ENV}}/worker.env
+    networks: [backend, egress]
+    healthcheck:
+      test: ['CMD', '/nodejs/bin/node', 'dist/healthcheck.mjs', 'worker']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits: { cpus: '0.75', memory: 512m }
+
+  # Hardened Redis (PROGRESS F29): its own user from the start (no root entrypoint), no capabilities, read-only root,
+  # AOF on a volume, no published port, no internet.
+  redis:
+    <<: *hardened
+    image: redis:8.10.2-alpine@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0
+    user: '999:1000' # the image's redis user
+    entrypoint: ['redis-server', '/usr/local/etc/redis/redis.conf']
+    volumes:
+      - ${MC_INFRA_DIR:-/opt/masjid-connect/infra}/compose/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ${MC_CONFIG_DIR:-/etc/masjid-connect/${MC_ENV}}/redis-users.acl:/usr/local/etc/redis/users.acl:ro
+      - redis-data:/data
+    tmpfs:
+      - /tmp:size=8m
+    networks: [backend]
+    healthcheck:
+      # The `health` ACL user may only PING (redis.conf / users.acl).
+      test:
+        ['CMD-SHELL', 'redis-cli --no-auth-warning --user health --pass "$$REDIS_HEALTH_PASSWORD" ping | grep -q PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    env_file: ${MC_CONFIG_DIR:-/etc/masjid-connect/${MC_ENV}}/redis.env # REDIS_HEALTH_PASSWORD only
+    deploy:
+      resources:
+        limits: { cpus: '0.50', memory: 512m }
+
+networks:
+  app:
+    internal: true
+  backend:
+    internal: true
+  egress: {}
+  edge:
+    external: true
+    name: mc-edge-${MC_ENV:?MC_ENV must be staging or production}
+
+volumes:
+  redis-data: {}

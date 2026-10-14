@@ -1,0 +1,43 @@
+# VPS edge (DECISIONS #54): the only container that publishes a port. Routes TLS by SNI to mc-staging / mc-production.
+#   docker compose -p mc-edge -f docker-compose.edge.yml up -d --wait          (once; restarts on its own)
+# Creates the two edge networks that each environment's `web` joins (as an external network).
+# DRAFT 14 Oct 2026 — first run with the owner in T0.14.
+
+services:
+  router:
+    image: haproxy:3.4.6-alpine@sha256:7af8255207ee9964ccb4eec8ce4b7a40b777769665e3ae83897fb01b24d8a43a
+    user: '99:99' # haproxy
+    read_only: true
+    tmpfs:
+      - /tmp:size=8m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      # Host 443 → 8443 (non-root). ufw + DOCKER-USER allow only Cloudflare's ranges (infra/vps/provision.sh).
+      - '443:8443'
+    volumes:
+      - /opt/masjid-connect/infra/edge/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      - edge-staging
+      - edge-production
+    healthcheck:
+      test: ['CMD', 'haproxy', '-c', '-q', '-f', '/usr/local/etc/haproxy/haproxy.cfg']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits: { cpus: '0.50', memory: 64m }
+    restart: unless-stopped
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+        max-file: '5'
+
+networks:
+  edge-staging:
+    name: mc-edge-staging
+  edge-production:
+    name: mc-edge-production
