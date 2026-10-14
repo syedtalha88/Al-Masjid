@@ -31,6 +31,8 @@ env:
   SHELLCHECK_IMAGE: koalaman/shellcheck:v0.11.0@sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d
   UBUNTU_IMAGE: ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55
   TRIVY_IMAGE: aquasec/trivy:0.75.0@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa
+  # Same Caddy as infra/docker/caddy.Dockerfile (CADDY_IMAGE there) — for the origin-TLS test.
+  CADDY_IMAGE: caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f
 
 jobs:
   # ------------------------------------------------------------------------------------------------
@@ -108,15 +110,19 @@ jobs:
           done
       - name: shellcheck + executable bit (VPS scripts)
         run: |
-          docker run --rm -v "$PWD:/mnt" -w /mnt "$SHELLCHECK_IMAGE" infra/vps/*.sh infra/vps/test/*.sh
+          docker run --rm -v "$PWD:/mnt" -w /mnt "$SHELLCHECK_IMAGE" infra/vps/*.sh infra/vps/test/*.sh infra/caddy/test/*.sh
           # systemd runs these directly (infra/vps/systemd) — a missing +x is a 203/EXEC on the server.
-          not_exec=$(git ls-files -s -- 'infra/vps/*.sh' | awk '$1 != "100755" {print $4}')
+          not_exec=$(git ls-files -s -- 'infra/vps/*.sh' 'infra/caddy/test/*.sh' | awk '$1 != "100755" {print $4}')
           if [ -n "$not_exec" ]; then
             echo "::error::not executable in git (git update-index --chmod=+x): $not_exec"
             exit 1
           fi
       - name: VPS deploy — verification, rolling, rollback, replay, policy, lock tests (DECISIONS #55, #59)
         run: docker run --rm -v "$PWD/infra/vps:/vps:ro" "$UBUNTU_IMAGE" bash /vps/test/deploy-verify.test.sh
+      - name: Origin TLS — Caddy accepts only our origin-pull client certificate (DECISIONS #57)
+        env:
+          TOOLS_IMAGE: ${{ env.UBUNTU_IMAGE }}
+        run: bash infra/caddy/test/origin-tls.test.sh
       - name: VPS env files — generation, --force keeps values, valid against the env schemas (review S-M2/S-M3)
         run: |
           out="$RUNNER_TEMP/make-env"
