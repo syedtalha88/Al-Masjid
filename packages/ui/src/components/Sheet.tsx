@@ -38,6 +38,25 @@ const PROJECTION_S = 0.2;
 /** Flick speed (px/s) that always dismisses, wherever the sheet is. */
 const FLING_DISMISS = 1200;
 
+/**
+ * Release velocity (px/s) from recent pointer samples. Uses the last 100 ms; when those samples span under 30 ms
+ * (events delivered in a bunch after a main-thread stall — GC on a slow phone, a busy CI runner) the estimate
+ * would turn a gentle nudge into a "flick", so it falls back to the oldest sample within 300 ms. Returns 0 when
+ * no baseline of at least 10 ms exists.
+ */
+export function releaseVelocity(
+  samples: readonly (readonly [y: number, time: number])[],
+  y: number,
+  time: number,
+): number {
+  const recent = samples.find(([, at]) => time - at <= 100);
+  const longer = samples.find(([, at]) => time - at <= 300);
+  const base = recent && time - recent[1] >= 30 ? recent : (longer ?? recent ?? samples.at(-1));
+  if (!base) return 0;
+  const elapsed = (time - base[1]) / 1000;
+  return elapsed >= 0.01 ? (y - base[0]) / elapsed : 0;
+}
+
 /** Rubber band past the top snap (08 §5.3): resistance grows with distance (`d^0.7`). */
 const rubber = (distance: number) => distance ** 0.7;
 
@@ -172,9 +191,7 @@ export function Sheet({ open, onClose, title, snaps = ['content'], closeButton =
 
   const endDrag = (state: DragState, y: number, time: number) => {
     state.release();
-    const recent = state.samples.find(([, at]) => time - at <= 100) ?? state.samples.at(-1);
-    const elapsed = recent ? (time - recent[1]) / 1000 : 0;
-    const velocity = recent && elapsed >= 0.01 ? (y - recent[0]) / elapsed : 0;
+    const velocity = releaseVelocity(state.samples, y, time);
     const current = offset();
     const projected = current + velocity * PROJECTION_S;
     const closed = height();
