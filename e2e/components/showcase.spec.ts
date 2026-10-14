@@ -43,8 +43,9 @@ for (const locale of APP_LOCALES) {
       for (const section of SECTIONS) {
         const element = page.locator(`[data-showcase-section="${section}"]`);
         await element.scrollIntoViewIfNeeded();
-        // The fixed tab bar would cover the bottom of each section.
-        await capture(`showcase-${section}`, { target: element, hide: 'nav[aria-label]' });
+        // The fixed tab bar would cover the bottom of each section. Sections taller than the screen (Urdu's Nastaliq)
+        // are captured beyond the viewport, which would also show the offline banner waiting above it (V-18).
+        await capture(`showcase-${section}`, { target: element, hide: 'nav[aria-label], [data-offline-banner]' });
       }
     });
   });

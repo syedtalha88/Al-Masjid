@@ -147,7 +147,7 @@ host() {
   git clone --quiet --no-checkout "$REPO_URL" "$src"
   git -C "$src" checkout --quiet --detach "$ref"
   install -d -m 755 "$LIB" "$LIB/edge"
-  install -m 755 "$src"/infra/vps/{deploy,cloudflare-ips,log-archive,check,make-env}.sh "$LIB/"
+  install -m 755 "$src"/infra/vps/{provision,deploy,cloudflare-ips,log-archive,check,make-env}.sh "$LIB/"
   install -m 644 "$src"/infra/edge/haproxy.cfg "$src"/infra/compose/docker-compose.edge.yml "$LIB/edge/"
   install -m 644 "$src"/infra/vps/systemd/*.service "$src"/infra/vps/systemd/*.timer /etc/systemd/system/
   printf '%s\n' "$ref" >"$LIB/VERSION"

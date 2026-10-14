@@ -20,7 +20,7 @@ on:
         # environment: staging GitHub uses the environment's secret (DECISIONS #55). Declared for the linter.
         description: Staging release-signing key (environment secret)
         required: false
-  workflow_dispatch: # manual re-release of main (repository writers only)
+  # No workflow_dispatch: a staging release only ever follows a green CI run on main (review S-L13).
 
 permissions:
   contents: read

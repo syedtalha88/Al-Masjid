@@ -20,6 +20,7 @@ import {
   Skeleton,
   SkeletonGroup,
   SkeletonText,
+  Spinner,
   Tag,
   VerifiedBadge,
 } from '../src/components/index.ts';
@@ -285,5 +286,23 @@ describe('Skeleton', () => {
     expect(status.getAttribute('aria-busy')).toBe('true');
     expect(status.textContent).toBe('Loading…');
     expect(container.querySelectorAll('.skeleton')).toHaveLength(4);
+  });
+});
+
+describe('Spinner', () => {
+  it('with a label it is a status the screen reader announces; without one it is decorative', async () => {
+    const { container } = await renderUi(
+      <>
+        <Spinner label="Saving" size={28} />
+        <Spinner />
+      </>,
+    );
+    const status = screen.getByRole('status', { name: 'Saving' });
+    expect(status.querySelector('svg')?.getAttribute('width')).toBe('28');
+    expect(status.querySelector('svg')?.getAttribute('focusable')).toBe('false');
+    const spinners = container.querySelectorAll('svg.spin');
+    expect(spinners).toHaveLength(2);
+    expect(spinners[1]?.parentElement?.getAttribute('aria-hidden')).toBe('true');
+    expect(screen.getAllByRole('status')).toHaveLength(1);
   });
 });

@@ -15,10 +15,12 @@
       "outputs": []
     },
     "test": {
+      "dependsOn": ["^typecheck"],
       "outputs": [],
       "env": ["TZ"]
     },
     "test:coverage": {
+      "dependsOn": ["^typecheck"],
       "outputs": ["coverage/**"],
       "env": ["TZ"]
     },

@@ -51,6 +51,11 @@ pnpm stack:down
 Open https://app.localhost:8443 and https://admin.localhost:8443 (Caddy's internal CA — the browser warns locally).
 These are the URLs the e2e tests and Lighthouse use.
 
+Browsers resolve `*.localhost` to your machine by themselves; Node (Playwright `request`, Lighthouse) may not on macOS
+and some Linux setups. If e2e/Lighthouse fail with `ENOTFOUND app.localhost`, add
+`127.0.0.1 app.localhost admin.localhost media.localhost` to `/etc/hosts` (CI does the same). The security scans
+(gitleaks, Semgrep, osv-scanner, Trivy, hadolint, shellcheck, the VPS script tests) run in CI only.
+
 ## Environment
 
 Every process validates its own variables at boot (`packages/shared/src/env.ts`) and refuses to start with a
@@ -67,20 +72,20 @@ checks the output.
 
 ## Commands
 
-| Command                                     | What it does                                                                                       |
-| ------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `pnpm verify:quick`                         | typecheck + lint + unit tests + Prettier — run before every commit                                 |
-| `pnpm test` / `pnpm test:coverage`          | unit + component tests (Vitest) / with the coverage gates of `docs/10_TESTING.md` §2               |
-| `pnpm test:int`                             | integration tests against the Docker MongoDB/Redis (each file gets its own database / key prefix)  |
-| `pnpm test:e2e`                             | Playwright on Pixel 7 (Chromium) + iPhone 14 (WebKit) against `stack:up`; CSP guard + axe built in |
-| `pnpm test:perf`                            | motion performance traces (Chromium, 4× CPU throttle, one worker)                                  |
-| `pnpm i18n:check`                           | missing/extra keys, ICU syntax, placeholder parity in all four locales                             |
-| `pnpm size`                                 | bundle budgets (needs the production builds)                                                       |
-| `pnpm lhci`                                 | Lighthouse budgets (cold + warm) against the running stack                                         |
-| `pnpm check:dist` / `pnpm scan:bundles`     | no dev-only code / no secrets in the production builds                                             |
-| `pnpm check:image <image> [--expect-hooks]` | the shipped server image has no e2e test hooks                                                     |
-| `pnpm db:*`                                 | database commands — the runner, migrations and policy tests arrive in Phase 1                      |
-| `pnpm verify`                               | everything CI runs (needs Docker and the stack)                                                    |
+| Command                                     | What it does                                                                                                                                      |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm verify:quick`                         | typecheck + lint + unit tests + Prettier — run before every commit                                                                                |
+| `pnpm test` / `pnpm test:coverage`          | unit + component tests (Vitest) / with the coverage gates of `docs/10_TESTING.md` §2                                                              |
+| `pnpm test:int`                             | integration tests against the Docker MongoDB/Redis (each file gets its own database / key prefix)                                                 |
+| `pnpm test:e2e`                             | Playwright on Pixel 7 (Chromium) + iPhone 14 (WebKit) against `stack:up`; CSP guard + axe built in                                                |
+| `pnpm test:perf`                            | motion performance traces (Chromium, 4× CPU throttle, one worker)                                                                                 |
+| `pnpm i18n:check`                           | missing/extra keys, ICU syntax, placeholder parity in all four locales                                                                            |
+| `pnpm size`                                 | bundle budgets (needs the production builds)                                                                                                      |
+| `pnpm lhci`                                 | Lighthouse budgets (cold + warm) against the running stack                                                                                        |
+| `pnpm check:dist` / `pnpm scan:bundles`     | no dev-only code / no secrets in the production builds                                                                                            |
+| `pnpm check:image <image> [--expect-hooks]` | the shipped server image has no e2e test hooks                                                                                                    |
+| `pnpm db:*`                                 | database commands — the runner, migrations and policy tests arrive in Phase 1                                                                     |
+| `pnpm verify`                               | everything CI runs except the Docker-image security scans — needs Docker, `pnpm stack:up` and `pnpm dev:app` (the dev-only showcase spec) running |
 
 The showcase e2e spec runs against a Vite dev server: start `pnpm dev:app` before `pnpm test:e2e` locally.
 

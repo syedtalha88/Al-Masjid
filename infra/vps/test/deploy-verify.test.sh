@@ -191,5 +191,8 @@ sleep 4
 run rel-6; got=$?
 check "with the lock free, the hardened release deploys" '[ "$got" -eq 0 ] && [ "$(running)" = "$(rel 6)" ]'
 
+rm -f "$STUB_STATE"/api-public; : >"$STUB_CALLS"; run rel-6 --restart; got=$?
+check "--restart re-deploys the current release (rolling) without a new manifest"   '[ "$got" -eq 0 ] && [ "$(running)" = "$(rel 6)" ] && grep -q -- "--scale api-public=2 api-public" "$STUB_CALLS" && grep -q "restarting $(rel 6)" "$root/out"'
+
 echo "== $failures failure(s)"
 [ "$failures" -eq 0 ]

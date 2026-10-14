@@ -65,7 +65,7 @@ jobs:
           if-no-files-found: ignore
 
   staging:
-    name: Staging — ZAP baseline · Lighthouse
+    name: Staging — ZAP baseline · security headers · Lighthouse
     if: vars.STAGING_APP_URL != ''
     runs-on: ubuntu-24.04
     timeout-minutes: 40
@@ -78,13 +78,24 @@ jobs:
         env:
           APP: ${{ vars.STAGING_APP_URL }}
           ADMIN: ${{ vars.STAGING_ADMIN_URL }}
+        # zap-baseline.py reports every rule as WARN and -I keeps WARN from failing the script, so the gate is applied
+        # here from the JSON report: any alert with risk Medium (2) or High (3) fails the job (review S-L13, V-4).
         run: |
           mkdir -p zap && chmod 777 zap
           for target in "$APP" "$ADMIN"; do
+            name=$(echo "$target" | sed 's|https://||; s|/.*||')
             docker run --rm -v "$PWD/zap:/zap/wrk" "$ZAP_IMAGE" zap-baseline.py -t "$target" -l WARN -I \
-              -r "$(echo "$target" | sed 's|https://||; s|/.*||').html"
+              -r "$name.html" -J "$name.json"
           done
+          node scripts/zap-gate.mjs zap
       - run: pnpm exec playwright install --with-deps chromium
+      # The deploy itself smoke-tests inside the server (infra/vps/deploy.sh); the public header set (04 §7, CSP,
+      # Trusted Types, noindex) is checked here against the live staging hosts through Cloudflare (verifier V-4).
+      - name: Security headers on staging (04 §7)
+        env:
+          E2E_APP_URL: ${{ vars.STAGING_APP_URL }}
+          E2E_ADMIN_URL: ${{ vars.STAGING_ADMIN_URL }}
+        run: pnpm exec playwright test e2e/smoke/security-headers.spec.ts --project=pixel-7
       - name: Lighthouse budgets against staging
         env:
           E2E_APP_URL: ${{ vars.STAGING_APP_URL }}

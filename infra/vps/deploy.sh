@@ -3,6 +3,8 @@
 # systemd timer every minute (env files are root 600 — 04 §12.2); never by CI (CI has no access to the server).
 #   deploy.sh <staging|production>                 fetch, verify, deploy if new
 #   deploy.sh <staging|production> --check-only    fetch + verify + print the plan, change nothing
+#   deploy.sh <staging|production> --restart       rolling re-deploy of the current release (after an env file
+#                                                  or certificate change — containers read them at creation)
 #   deploy.sh <staging|production> --rollback      redeploy the previous verified release from the local history
 #                                                  (each run goes further back; releases rolled back from are
 #                                                  skipped until a newer one is published — to go forward again
@@ -19,8 +21,8 @@ set -euo pipefail
 main() {
   ENVIRONMENT=${1:-}
   MODE=${2:-deploy}
-  case "$ENVIRONMENT" in staging | production) ;; *) echo "usage: deploy.sh <staging|production> [--check-only|--rollback]" >&2; exit 2 ;; esac
-  case "$MODE" in deploy | --check-only | --rollback) ;; *) echo "unknown option: $MODE" >&2; exit 2 ;; esac
+  case "$ENVIRONMENT" in staging | production) ;; *) echo "usage: deploy.sh <staging|production> [--check-only|--restart|--rollback]" >&2; exit 2 ;; esac
+  case "$MODE" in deploy | --check-only | --restart | --rollback) ;; *) echo "unknown option: $MODE" >&2; exit 2 ;; esac
 
   REPO=${MC_RELEASE_REPO:-syedtalha88/Al-Masjid}
   BASE_URL=${MC_RELEASE_BASE_URL:-https://github.com/$REPO/releases/download/$ENVIRONMENT-current}
@@ -56,6 +58,13 @@ main() {
     cp "$STATE_DIR/releases/$previous.json" "$work/manifest.json"
     cp "$STATE_DIR/releases/$previous.json.sig" "$work/manifest.json.sig"
     log "rolling back to $previous"
+  elif [ "$MODE" = --restart ]; then
+    local current
+    current=$(current_release)
+    [ -n "$current" ] || die "nothing deployed yet"
+    cp "$STATE_DIR/releases/$current.json" "$work/manifest.json"
+    cp "$STATE_DIR/releases/$current.json.sig" "$work/manifest.json.sig"
+    log "restarting $current (rolling) to pick up changed env files"
   else
     curl -fsSL --max-time 20 -o "$work/manifest.json" "$BASE_URL/release-manifest.json" || die "cannot fetch manifest"
     curl -fsSL --max-time 20 -o "$work/manifest.json.sig" "$BASE_URL/release-manifest.json.sig" || die "cannot fetch signature"
@@ -73,7 +82,7 @@ main() {
   if [ "$MODE" = deploy ] && grep -qxF "$release" "$STATE_DIR/rolled-back" 2>/dev/null; then
     exit 0 # rolled back from this release; wait for a newer one
   fi
-  if [ "$MODE" != --rollback ]; then
+  if [ "$MODE" = deploy ] || [ "$MODE" = --check-only ]; then
     # Replay protection (review S-M1): a validly signed but OLDER manifest (re-uploaded by anyone with write access to
     # the repository) must never downgrade the environment. Rollbacks use the local history instead.
     local newest created

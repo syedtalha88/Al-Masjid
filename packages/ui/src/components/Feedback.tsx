@@ -15,6 +15,11 @@ const subscribeOnline = (callback: () => void) => {
   };
 };
 
+/** Offset that hides the offline banner completely above the viewport: its own height plus a small margin. */
+function hiddenY(element: HTMLElement | null): number {
+  return -((element?.offsetHeight ?? 0) + 8);
+}
+
 /** `navigator.onLine`, live. Assumes online where the API is missing. */
 export function useOnlineStatus(): boolean {
   return useSyncExternalStore(
@@ -33,20 +38,41 @@ export function OfflineBanner({ offline }: { readonly offline: boolean }) {
   const { reduced } = useMotionPrefs();
   const node = useRef<HTMLDivElement>(null);
   const first = useRef(true);
+  const hidden = useRef(!offline);
 
   useLayoutEffect(() => {
+    hidden.current = !offline;
     const start = first.current;
     first.current = false;
     if (start) {
-      initLayer(node.current, offline ? { y: 0, opacity: 1 } : reduced ? { opacity: 0 } : { y: -110 });
+      initLayer(node.current, offline ? { y: 0, opacity: 1 } : reduced ? { opacity: 0 } : { y: hiddenY(node.current) });
       return;
     }
     if (reduced) void animateChannel(node.current, 'opacity', offline ? 1 : 0, 'fade');
-    else void animateChannel(node.current, 'y', offline ? 0 : -110, 'smooth');
+    else void animateChannel(node.current, 'y', offline ? 0 : hiddenY(node.current), 'smooth');
   }, [offline, reduced]);
 
+  // The banner's height depends on the script (Nastaliq lines are much taller) and the safe area, so the hidden
+  // offset follows it — a fixed offset let the bottom of the bar peek out in Urdu (verifier V-18).
+  useEffect(() => {
+    const element = node.current;
+    if (!element || reduced || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => {
+      if (hidden.current) initLayer(element, { y: hiddenY(element) });
+    });
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+    };
+  }, [reduced]);
+
   return (
-    <div ref={node} aria-hidden={!offline} className="pointer-events-none fixed inset-x-0 top-0 z-40 pt-safe">
+    <div
+      ref={node}
+      aria-hidden={!offline}
+      data-offline-banner=""
+      className="pointer-events-none fixed inset-x-0 top-0 z-40 pt-safe"
+    >
       <div className="mx-auto flex max-w-content items-center justify-center gap-2 bg-text px-screen py-2 type-footnote text-surface">
         <WifiOffIcon size={18} />
         <span role="status">{offline ? t('ui.offline') : ''}</span>

@@ -1,8 +1,9 @@
 # Deploy runbook
 
 > For the owner. How a change gets from GitHub to staging and production, how to undo it, and where secrets live.
-> Background: DECISIONS #21, #27, #42, #49. **Status (14 Oct 2026):** the GitHub side works today; the VPS side
-> (sections marked **T0.14**) is built together with the owner when the staging server is set up.
+> Background: DECISIONS #21, #27, #42, #49, #55, #57, #59. **Status (14 Oct 2026):** the GitHub side works today; the
+> VPS side is prepared and tested in CI; it goes live with the owner's steps in
+> `docs/runbooks/T0.14_STAGING_SESSION_PLAN.md` (PROGRESS owner list O1).
 
 ## 1. How a release happens
 
@@ -12,7 +13,11 @@ push to main ──► CI (5 checks) ──► all green? ──► "Release to 
                                                      pushes them to GitHub's registry (GHCR) by digest,
                                                      writes a release manifest (the digests)
                                                             │
-             VPS (staging) pulls the manifest, verifies it, deploys by digest, checks health   ◄── T0.14
+                                                     signs it with the staging key (GitHub pre-release
+                                                     "staging-current")
+                                                            │
+             VPS (staging), every minute: fetch → verify signature → newer than what runs? → compose policy
+             → rolling replacement by digest (health first, logs archived) → smoke checks
 ```
 
 - **Nobody and nothing logs in to the server to deploy.** GitHub never has a key to the VPS (DECISIONS #27). The
@@ -30,14 +35,14 @@ push to main ──► CI (5 checks) ──► all green? ──► "Release to 
 
 Database migrations will also need your approval in production (Phase 1 adds them).
 
-## 3. Rollback — **T0.14**
+## 3. Rollback
 
 Every deployed (signed) manifest is kept on the server and recorded in
 `/var/lib/masjid-connect/<environment>/releases.log`. Rolling back = deploying an earlier manifest's digests again;
 no rebuild:
 
 ```
-sudo /opt/masjid-connect/infra/vps/deploy.sh staging --rollback
+sudo /usr/local/lib/masjid-connect/deploy.sh staging --rollback
 ```
 
 Each run goes one release further back. The releases you rolled back from are skipped by the every-minute timer
@@ -56,22 +61,41 @@ staging is owner check 0.14.
 
 Never paste a secret into a chat, an issue, a commit or a screenshot.
 
-### Add or change a server secret — **T0.14**
+### Add or change a server secret
 
-Connect through the WireGuard tunnel, edit the process's env file as root (keep mode 600), then restart that
-process. The precise commands are added with the staging server.
+Connect (through the WireGuard tunnel once F30 is done), then:
+
+```
+sudo nano /etc/masjid-connect/staging/api-admin.env     # one file per process; keeps mode 600 root
+sudo /usr/local/lib/masjid-connect/deploy.sh staging --restart
+```
+
+Containers read their env file only when they are created, so `--restart` re-deploys the current release with a
+rolling replacement (no downtime). The same applies after replacing a certificate in `certs/`. Never regenerate
+existing keys with `make-env.sh` — `--force` keeps every value; rotating a key is a deliberate step (Claude Code
+prepares it with you; FIELD_ENCRYPTION_KEY moves to FIELD_ENCRYPTION_OLD_KEYS with a new id, the VAPID key never
+changes after Phase 4).
 
 ### Add or change a public build value
 
 GitHub → Settings → Environments → `staging` (or `production`) → Variables → edit → re-run the release (push a
-commit, or Actions → *Deploy staging* → Run workflow).
+commit — a staging release always follows a green CI run on `main`).
 
-## 5. If something goes wrong
+## 5. Maintenance
+
+| When | What |
+|---|---|
+| New host scripts / router config / systemd units (a commit Claude Code tells you about) | `curl -fsSLO …/<sha>/infra/vps/provision.sh` + sha256 check, then `sudo bash provision.sh host <sha>` — the host layer never updates itself from a release (DECISIONS #59) |
+| Cloudflare e-mails "Authenticated Origin Pulls certificate expires" (30 and 14 days before; the client certificate is valid 2 years from 14 Oct 2026) | As root in `/etc/masjid-connect/aop/`: create a new key + CSR and sign it with `ca.key` exactly as in DECISIONS #57 / `infra/cloudflare/README.md` §2, upload it in **SSL/TLS → Origin Server → Authenticated Origin Pulls → Zone-level**, delete the new `leaf.key` from the server. The server side (our CA) does not change. |
+| Origin CA certificate (15 years from 14 Oct 2026) | Create a new one in **SSL/TLS → Origin Server**, replace `certs/origin.pem` + `origin-key.pem` (root:1000, 640), then `deploy.sh <env> --restart` |
+| Production goes live (Phase 9) | Production signing key exactly like staging's (T0.14 plan step B) but with `masjid-connect-production` and the `production` environment (secret `RELEASE_SIGNING_KEY`, deployment branches = `main`, required reviewer = you); `make-env.sh production`; fill the external values it leaves empty; `systemctl enable --now mc-deploy@production.timer` |
+
+## 6. If something goes wrong
 
 | Situation | First action |
 |---|---|
 | CI is red on `main` | Nothing reaches staging — fix forward or revert the commit |
-| Staging broken after a release | Roll back (section 3) — **T0.14** |
+| Staging broken after a release | Roll back (section 3) |
 | Attack / traffic spike | Cloudflare → *Under Attack* mode (04 §13) |
 | Suspected leaked secret | Rotate it at the source (Atlas user, Redis ACL, Cloudinary key, …), update the env file, restart — then tell Claude Code to review logs |
 | Notifications must stop now | Stop the `worker` container (Phase 4 adds the "pause all push" switch) |
