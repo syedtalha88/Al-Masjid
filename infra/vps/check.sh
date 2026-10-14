@@ -45,7 +45,7 @@ if has ufw; then
   ufw_status=$(ufw status verbose 2>/dev/null)
   if grep -q '^Status: active' <<<"$ufw_status"; then ok "firewall: ufw active"; else bad "firewall: ufw active"; fi
   if grep -q 'Default: deny (incoming)' <<<"$ufw_status"; then ok "firewall: default deny incoming"; else bad "firewall: default deny incoming"; fi
-  if grep -Eq '^(22|22/tcp|OpenSSH)[[:space:]]+ALLOW IN[[:space:]]+Anywhere' <<<"$ufw_status"; then
+  if grep -Eq '^(22|22/tcp|OpenSSH)( \(v6\))?[[:space:]]+ALLOW IN[[:space:]]+Anywhere' <<<"$ufw_status"; then
     bad "firewall: SSH must not be open to Anywhere (WireGuard only — DECISIONS #27)"
   else
     ok "firewall: SSH not open to Anywhere"
@@ -83,7 +83,7 @@ fi
 # --- What listens on public interfaces ------------------------------------------------------------------
 if has ss; then
   public=$(ss -H -tuln 2>/dev/null | awk '{print $1, $5}' |
-    grep -Ev ' (127\.[0-9.]+|\[::1\]|::1|10\.[0-9.]+|\[fd[0-9a-f:]*\]):[0-9]+$' || true)
+    grep -Ev ' (127\.[0-9.]+|\[::1\]|::1|10\.[0-9.]+|\[fd[0-9a-f:]*\])(%[a-z0-9]+)?:[0-9]+$' || true)
   unexpected=$(awk -v wg=":${WG_PORT}\$" '
     $1=="tcp" && ($2 ~ /:443$/ || $2 ~ /:80$/) {next}
     $1=="udp" && $2 ~ wg {next}
@@ -120,7 +120,7 @@ if has docker; then
     health=$(docker inspect -f '{{if .Config.Healthcheck}}yes{{end}}' "$id")
     mounts=$(docker inspect -f '{{range .Mounts}}{{.Source}} {{end}}' "$id")
     case "$name" in
-      *mongo*|*redis*) : ;; # official images drop privileges in their entrypoint; read-only not supported locally only
+      *mongo*) : ;; # local dev stack only (Atlas in staging/production); the image drops privileges itself
       *)
         if [ -n "$user" ] && [ "$user" != "root" ] && [ "$user" != "0" ] && [ "$user" != "0:0" ]; then ok "$name: non-root user ($user)"; else bad "$name: non-root user"; fi
         if [ "$readonly_fs" = "true" ]; then ok "$name: read-only root filesystem"; else bad "$name: read-only root filesystem"; fi
