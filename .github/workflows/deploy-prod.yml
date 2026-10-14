@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 40
     environment: production # owner approval required (Settings → Environments → production → Required reviewers)
     permissions:
-      contents: read
+      contents: write # the production-current pre-release assets (DECISIONS #55)
       packages: write
     steps:
       - name: Validate input
@@ -79,8 +79,34 @@ jobs:
         env:
           ENVIRONMENT: production
         run: node scripts/release-manifest.mjs
+
+      # DECISIONS #55: production has its own signing key (secret of the production environment, so it is only
+      # usable after the owner approves this run). Without it the release stops here — production never runs an
+      # unsigned manifest.
+      - name: Sign and publish the manifest for the VPS
+        env:
+          RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$RELEASE_SIGNING_KEY" ]; then
+            echo '::error title=No production signing key::Create it on the server and add it to the production environment (DECISIONS #55).'
+            exit 1
+          fi
+          umask 077
+          key="$RUNNER_TEMP/release-signing-key"
+          printf '%s\n' "$RELEASE_SIGNING_KEY" >"$key"
+          ssh-keygen -q -Y sign -f "$key" -n masjid-connect-release release-manifest.json
+          rm -f "$key"
+          if ! gh release view production-current >/dev/null 2>&1; then
+            gh release create production-current --prerelease --title 'Production (current release)' \
+              --notes 'Signed release manifest the production server deploys (DECISIONS #55). Replaced on every release.'
+          fi
+          gh release upload production-current release-manifest.json release-manifest.json.sig --clobber
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-manifest-production
-          path: release-manifest.json
           retention-days: 400
+          if-no-files-found: error
+          path: |
+            release-manifest.json
+            release-manifest.json.sig
