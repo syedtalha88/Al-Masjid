@@ -43,28 +43,33 @@ No record may be "DNS only" (grey cloud): the origin accepts only Cloudflare (fi
 
 ## 4. Caching (01 §5.2, DECISIONS #8)
 
-Cache Rules (Rules → Cache Rules), in this order:
+Cache Rules (**Caching → Cache Rules**; when several rules match, the **last** matching rule wins for a setting —
+Cloudflare docs, checked 14 Oct 2026):
 
-| #   | When                                                                                                          | Then                                                                                                                                                                                                                   |
-| --- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Host is `admin-staging.almasjids.com` (later also `admin.almasjids.com`) **and** URI path starts with `/api/` | **Bypass cache**                                                                                                                                                                                                       |
-| 2   | Request method is not `GET`                                                                                   | **Bypass cache**                                                                                                                                                                                                       |
-| 3   | Host is `app-staging.almasjids.com` **and** URI path starts with `/api/v1/` **and** method `GET`              | **Eligible for cache**; Edge TTL **"Use cache-control header if present, bypass cache if not"**; Browser TTL **respect origin**; Cache key: **include the full query string** (versioned URLs `?v=` are the cache key) |
-| 4   | Host is `media-staging.almasjids.com`                                                                         | Eligible for cache; Edge TTL respect origin (`immutable`, 1 year) — Phase 3                                                                                                                                            |
+| #   | Name               | When                                                                                                                    | Then                                                                                                                            |
+| --- | ------------------ | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | App API (origin)   | Hostname equals `app-staging.almasjids.com` **and** URI Path starts with `/api/v1/` **and** Request Method equals `GET` | **Eligible for cache**; Edge TTL **"Use cache-control header if present, bypass cache if not"**; Browser TTL **Respect origin** |
+| 2   | Admin API (bypass) | Hostname equals `admin-staging.almasjids.com` **and** URI Path starts with `/api/`                                      | **Bypass cache** (last, so nothing can override it)                                                                             |
+| –   | Media (Phase 3)    | Hostname equals `media-staging.almasjids.com`                                                                           | Eligible for cache; Edge TTL from origin (`immutable`, 1 year)                                                                  |
 
-Static assets (`/assets/*` with hashes) are cached by Cloudflare's defaults and our `Cache-Control: immutable`;
-`index.html`, `sw.js`, `boot.js`, the manifest and `offline.html` are `no-cache` at the origin and must stay so.
-Purge: the worker purges by cache tag / URL with a scoped API token (`CF_API_TOKEN_PURGE`, Phase 3/8).
+The default cache key already includes the full query string (versioned `?v=` URLs); query-string customisation is
+not available on Free and not needed. Non-GET requests are never cached by Cloudflare. Static assets (`/assets/*`
+with hashes) are cached by Cloudflare's defaults and our `Cache-Control: immutable`; `index.html`, `sw.js`,
+`boot.js`, the manifest and `offline.html` are `no-cache` at the origin and must stay so. Purge: the worker purges
+by URL with a scoped API token (`CF_API_TOKEN_PURGE`, Phase 3/8).
 
 ## 5. Security / WAF (04 §9)
 
-- [ ] **Managed rules on** (the Free managed ruleset).
-- [ ] **Rate limiting rule** on `app-staging.almasjids.com` path `/api/` — coarse outer limit (e.g. 600 requests /
-      1 min per IP → block 1 min). Our own per-device limits (03 §2) are the real ones; this only stops floods.
-      Indian carrier CGNAT puts many users behind one IP — keep it generous.
+- [ ] **Managed rules:** the Free managed ruleset is deployed automatically — leave it on.
+- [ ] **Rate limiting rule** (Free plan, checked 14 Oct 2026: **1 rule, counting by IP, period 10 s, block 10 s,
+      only Path / Verified Bot fields** — so it covers both hosts): **Security rules → Create rule → Rate limiting
+      rules**, name `API flood guard`, URI Path starts with `/api/`, **100 requests / 10 s** per IP → **Block, 10 s**.
+      Coarse outer limit only — our own per-device limits (03 §2) are the real ones; Indian carrier CGNAT puts many
+      users behind one IP, so it stays generous.
 - [ ] **Bot Fight Mode: off** until tested with the installed PWA and the service worker (04 §9 "evaluated for
       compatibility"); Turnstile protects the sensitive endpoints instead.
-- [ ] **Security Level:** Medium. **"Under Attack" mode** is the incident switch (DEPLOY runbook §5) — off normally.
+- [ ] **"Under Attack" mode** is the incident switch (DEPLOY runbook §5) — off normally. (Security Level, where the
+      dashboard still shows it: default.)
 - [ ] Block AI crawlers / verified bots? The admin origin is `noindex`; the app has no public content worth crawling
       — leave defaults, decide in Phase 9.
 
