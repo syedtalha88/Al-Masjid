@@ -11,6 +11,15 @@ name: Deploy staging
 
 on:
   workflow_call:
+    secrets:
+      SENTRY_AUTH_TOKEN:
+        description: Optional — source-map upload (DECISIONS #52)
+        required: false
+      RELEASE_SIGNING_KEY:
+        # Never passed by the caller: it is a secret of the staging environment, and for a job with
+        # environment: staging GitHub uses the environment's secret (DECISIONS #55). Declared for the linter.
+        description: Staging release-signing key (environment secret)
+        required: false
   workflow_dispatch: # manual re-release of main (repository writers only)
 
 permissions:
@@ -30,7 +39,7 @@ jobs:
       group: deploy-staging
       cancel-in-progress: false
     permissions:
-      contents: read
+      contents: write # the staging-current pre-release assets (DECISIONS #55)
       packages: write # push images to GHCR
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -123,8 +132,33 @@ jobs:
         env:
           ENVIRONMENT: staging
         run: node scripts/release-manifest.mjs
+
+      # DECISIONS #55: OpenSSH signature + a fixed pre-release the VPS polls with curl. Skipped until the staging
+      # signing key exists (created on the server in T0.14 → environment secret RELEASE_SIGNING_KEY).
+      - name: Sign and publish the manifest for the VPS
+        env:
+          RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$RELEASE_SIGNING_KEY" ]; then
+            echo "::notice title=Manifest not signed::No staging signing key yet (T0.14, DECISIONS #55)."
+            exit 0
+          fi
+          umask 077
+          key="$RUNNER_TEMP/release-signing-key"
+          printf '%s\n' "$RELEASE_SIGNING_KEY" >"$key"
+          ssh-keygen -q -Y sign -f "$key" -n masjid-connect-release release-manifest.json
+          rm -f "$key"
+          if ! gh release view staging-current >/dev/null 2>&1; then
+            gh release create staging-current --prerelease --title 'Staging (current release)' \
+              --notes 'Signed release manifest the staging server deploys (DECISIONS #55). Replaced on every release.'
+          fi
+          gh release upload staging-current release-manifest.json release-manifest.json.sig --clobber
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-manifest-staging
-          path: release-manifest.json
           retention-days: 90
+          if-no-files-found: error
+          path: |
+            release-manifest.json
+            release-manifest.json.sig

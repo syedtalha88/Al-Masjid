@@ -28,6 +28,8 @@ env:
   OSV_IMAGE: ghcr.io/google/osv-scanner:v2.7.0@sha256:4f3b7e2c64b9d38a5febc5a7e4a3dfef1d1362f726dea7a2ef4762b46469fcd0
   HADOLINT_IMAGE: hadolint/hadolint:v2.15.1@sha256:32dac94127fd60b7b7e3fbfc65e1383b9b5e25c9bfd7b8536de7a539fe68a12d
   ACTIONLINT_IMAGE: rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+  SHELLCHECK_IMAGE: koalaman/shellcheck:v0.11.0@sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d
+  UBUNTU_IMAGE: ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55
   TRIVY_IMAGE: aquasec/trivy:0.75.0@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa
 
 jobs:
@@ -104,6 +106,10 @@ jobs:
             docker run --rm -i "$HADOLINT_IMAGE" < "$file"
             echo "::endgroup::"
           done
+      - name: shellcheck (VPS scripts)
+        run: docker run --rm -v "$PWD:/mnt" -w /mnt "$SHELLCHECK_IMAGE" infra/vps/*.sh infra/vps/test/*.sh
+      - name: VPS deploy — release verification tests (DECISIONS #55)
+        run: docker run --rm -v "$PWD/infra/vps:/vps:ro" "$UBUNTU_IMAGE" bash /vps/test/deploy-verify.test.sh
       - name: Trivy config (Dockerfiles, compose)
         run: docker run --rm -v "$PWD:/src" "$TRIVY_IMAGE" config --severity HIGH,CRITICAL --exit-code 1 /src/infra
 
@@ -229,6 +235,10 @@ jobs:
     needs: [static, unit, security, integration, build-e2e]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'syedtalha88/Al-Masjid'
     permissions:
-      contents: read
+      contents: write # release assets (DECISIONS #55)
       packages: write
     uses: ./.github/workflows/deploy-staging.yml
+    # Only the one repository secret the release needs (least privilege; environment secrets such as the signing
+    # key reach the called job through its environment: staging).
+    secrets:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
