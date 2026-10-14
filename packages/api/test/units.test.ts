@@ -102,6 +102,29 @@ describe('logger', () => {
       token: '[redacted]',
     });
   });
+
+  it('redacts passkey material, emails, UPI ids and peppers (CLAUDE.md §6 never-log list)', () => {
+    const chunks: string[] = [];
+    const logger = createLogger({
+      process: 'api-admin',
+      level: 'info',
+      release: 'abc123',
+      destination: { write: (chunk: string) => chunks.push(chunk) },
+    });
+    logger.info(
+      {
+        email: 'E-SECRET',
+        payment: { vpa: 'V-SECRET' },
+        pepper: 'P-SECRET',
+        response: { clientDataJSON: 'C-SECRET', authenticatorData: 'AD-SECRET', signature: 'S-SECRET' },
+        registration: { credential: 'CR-SECRET', attestationObject: 'AO-SECRET', userHandle: 'U-SECRET' },
+      },
+      'passkey',
+    );
+    expect(chunks.join('')).not.toMatch(
+      /E-SECRET|V-SECRET|P-SECRET|C-SECRET|AD-SECRET|S-SECRET|CR-SECRET|AO-SECRET|U-SECRET/,
+    );
+  });
 });
 
 describe('OpenAPI document', () => {

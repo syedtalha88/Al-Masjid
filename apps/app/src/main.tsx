@@ -2,6 +2,7 @@
 import './trusted-types.ts';
 import './styles.css';
 
+import { startErrorReporting } from '@mc/ui/observability';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -15,3 +16,7 @@ createRoot(container).render(
     <AppProviders />
   </StrictMode>,
 );
+
+// Sentry only when a DSN was built in (validated by parseClientEnv); loaded lazily after first paint (T0.13).
+const dsn: unknown = import.meta.env['VITE_PUBLIC_SENTRY_DSN'];
+startErrorReporting({ dsn: typeof dsn === 'string' ? dsn : undefined, app: 'app' });

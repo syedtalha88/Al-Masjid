@@ -393,3 +393,45 @@ describe('access log', () => {
     expect(entry).toHaveProperty('durationMs');
   });
 });
+
+describe('error reporting hook (T0.13)', () => {
+  const boom = defineRoute({
+    method: 'get',
+    path: '/boom',
+    summary: 'throws',
+    auth: 'none',
+    responses: { 200: z.object({}) },
+    handler: () => {
+      throw new Error('kaboom');
+    },
+  });
+  const notFoundProblem = defineRoute({
+    method: 'get',
+    path: '/missing',
+    summary: 'expected problem',
+    auth: 'none',
+    responses: { 200: z.object({}) },
+    handler: () => {
+      throw new ApiProblem(404, 'NOT_FOUND');
+    },
+  });
+
+  it('reports unexpected errors (500) with the request id, never expected problems', async () => {
+    const reported: { error: unknown; requestId: string | undefined }[] = [];
+    const { app } = createPublicApp({
+      logger: silentLogger(),
+      release: 'test-sha',
+      trustedProxyMode: 'none',
+      routes: [boom, notFoundProblem],
+      reportError: (error, { requestId }) => {
+        reported.push({ error, requestId });
+      },
+    });
+    const failed = await request(app).get('/api/v1/boom').set('X-Request-Id', 'req-123');
+    expect(failed.status).toBe(500);
+    expect((await request(app).get('/api/v1/missing')).status).toBe(404);
+    expect(reported).toHaveLength(1);
+    expect(reported[0]?.requestId).toBe(failed.headers['x-request-id']);
+    expect(reported[0]?.error).toBeInstanceOf(Error);
+  });
+});

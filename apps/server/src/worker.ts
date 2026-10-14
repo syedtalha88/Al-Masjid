@@ -6,9 +6,16 @@ import { Redis } from 'ioredis';
 
 import { startHeartbeat } from './heartbeat.ts';
 import { bootEnv, onShutdownSignal } from './lifecycle.ts';
+import { startServerSentry } from './sentry.ts';
 
 const env = bootEnv('worker', process);
 const logger = createLogger({ process: 'worker', level: env.LOG_LEVEL, release: env.RELEASE });
+const sentry = startServerSentry({
+  dsn: env.SENTRY_DSN,
+  release: env.RELEASE,
+  environment: env.APP_ENV,
+  process: 'worker',
+});
 
 // BullMQ workers need maxRetriesPerRequest: null (blocking commands). Never use ioredis keyPrefix with BullMQ.
 const redis = new Redis(env.REDIS_URL_WORKER, { maxRetriesPerRequest: null, connectionName: 'mc-worker' });
@@ -21,6 +28,7 @@ await systemQueue.waitUntilReady();
 
 const stopHeartbeat = startHeartbeat(redis, (error) => {
   logger.error({ err: error }, 'heartbeat failed');
+  sentry?.report(error);
 });
 logger.info({ appEnv: env.APP_ENV }, 'worker ready (no processors yet)');
 
@@ -29,5 +37,6 @@ onShutdownSignal(async (signal) => {
   stopHeartbeat();
   await systemQueue.close();
   await redis.quit();
+  await sentry?.flush();
   logger.info('worker stopped');
 }, process);

@@ -31,7 +31,10 @@ function isBodyParserError(error: unknown): error is BodyParserError {
  * Request validation errors arrive as ApiProblem (from defineRoute); a bare ZodError reaching this point
  * means server-side data failed a schema, so it is deliberately a 500 rather than a 400.
  */
-export function errorMapper(logger: Logger): ErrorRequestHandler {
+/** Receives unexpected errors (the 500s) for error tracking; set by the entrypoints (Sentry — T0.13). */
+export type ErrorReporter = (error: unknown, context: { readonly requestId: string | undefined }) => void;
+
+export function errorMapper(logger: Logger, reportError?: ErrorReporter): ErrorRequestHandler {
   return (error: unknown, _req, res, next) => {
     if (res.headersSent) {
       next(error);
@@ -62,6 +65,7 @@ export function errorMapper(logger: Logger): ErrorRequestHandler {
     }
 
     logger.error({ err: error, requestId }, 'unhandled error');
+    reportError?.(error, { requestId });
     sendProblem(res, problemBody(500, 'INTERNAL_ERROR', { requestId }));
   };
 }

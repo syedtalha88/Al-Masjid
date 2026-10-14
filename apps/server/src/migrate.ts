@@ -3,7 +3,15 @@
 import { createLogger } from '@mc/api';
 
 import { bootEnv } from './lifecycle.ts';
+import { startServerSentry } from './sentry.ts';
 
 const env = bootEnv('migrate', process);
 const logger = createLogger({ process: 'migrate', level: env.LOG_LEVEL, release: env.RELEASE });
+const sentry = startServerSentry({
+  dsn: env.SENTRY_DSN,
+  release: env.RELEASE,
+  environment: env.APP_ENV,
+  process: 'migrate',
+});
 logger.info({ appEnv: env.APP_ENV }, 'no migrations yet — the migration runner is added in Phase 1');
+await sentry?.flush();

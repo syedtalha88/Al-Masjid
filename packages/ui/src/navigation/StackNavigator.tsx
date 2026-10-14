@@ -17,6 +17,7 @@ import {
 import { trackMotion } from '../motion/lite.ts';
 import { useMotionPrefs } from '../motion/MotionProvider.tsx';
 import { navigation } from '../motion/tokens.ts';
+import { reportError } from '../observability/errors.ts';
 import type { AdapterLocation, NavAdapter, ResolvedScreen } from './adapter.ts';
 import { type NavigatorApi, NavigatorContext, ScreenContext, type ScreenInfo } from './context.ts';
 import { animateChannel, getChannel, holdLayer, initLayer, setChannel, translateX } from './driver.ts';
@@ -703,6 +704,11 @@ class ScreenBoundary extends Component<ScreenBoundaryProps, { failed: boolean }>
 
   static getDerivedStateFromError(): { failed: boolean } {
     return { failed: true };
+  }
+
+  /** Sends the error to Sentry when reporting is on (T0.13); the screen shows the friendly fallback. */
+  override componentDidCatch(error: unknown): void {
+    reportError(error);
   }
 
   override render() {

@@ -6,7 +6,7 @@ import type { Logger } from 'pino';
 import { jsonBody } from './http/body.ts';
 import type { TrustedProxyMode } from './http/client-ip.ts';
 import { mountRoutes, type RouteDefinition } from './http/define-route.ts';
-import { errorMapper, notFound } from './http/errors.ts';
+import { errorMapper, type ErrorReporter, notFound } from './http/errors.ts';
 import { rejectPreflight } from './http/no-cors.ts';
 import { requestId } from './http/request-id.ts';
 import { requestLogger } from './http/request-logger.ts';
@@ -27,6 +27,8 @@ export interface AppDependencies {
    * under the prefix but never registered in OpenAPI, so they cannot appear in the published contract.
    */
   readonly testRoutes?: readonly RouteDefinition[];
+  /** Unexpected errors (500s) go here as well as to the log — Sentry when configured (T0.13). */
+  readonly reportError?: ErrorReporter;
 }
 
 export interface CreatedApp {
@@ -57,7 +59,7 @@ const newRouter = (): Router => express.Router({ strict: true, caseSensitive: tr
 function assemble(
   service: 'api-public' | 'api-admin',
   prefix: string,
-  { logger, release, routes = [], clock = systemClock, testRoutes = [] }: AppDependencies,
+  { logger, release, routes = [], clock = systemClock, testRoutes = [], reportError }: AppDependencies,
   noindex: boolean,
 ): CreatedApp {
   const app = createBaseApp();
@@ -78,7 +80,7 @@ function assemble(
   // 4 (origin/CSRF, admin), 5 (auth), 6 (rate limit) arrive in Phase 1; 7 (validation) is in defineRoute.
   app.use(prefix, router); // 8
   app.use(notFound()); // 9
-  app.use(errorMapper(logger)); // 10
+  app.use(errorMapper(logger, reportError)); // 10
   return { app, registry };
 }
 
