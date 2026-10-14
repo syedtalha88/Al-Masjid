@@ -5,7 +5,7 @@
 # Not triggered by workflow_run: that event also fires for pull requests from forks whose branch is named `main`
 # and would build untrusted code with packages: write (Semgrep: workflow-run-target-code-checkout).
 # The web image needs the staging environment's public build variables (Settings → Environments → staging →
-# Variables: VITE_PUBLIC_API_BASE, VITE_PUBLIC_APP_ORIGIN, VITE_PUBLIC_MEDIA_ORIGIN, VITE_PUBLIC_VAPID_PUBLIC_KEY,
+# Variables: VITE_PUBLIC_APP_ORIGIN, VITE_PUBLIC_MEDIA_ORIGIN, VITE_PUBLIC_VAPID_PUBLIC_KEY,
 # VITE_PUBLIC_TURNSTILE_SITE_KEY, VITE_PUBLIC_SENTRY_DSN); until they exist the web image is skipped with a notice.
 name: Deploy staging
 
@@ -67,7 +67,6 @@ jobs:
       - name: Web image (Caddy + both PWAs built for staging)
         if: vars.VITE_PUBLIC_APP_ORIGIN != ''
         env:
-          VITE_PUBLIC_API_BASE: ${{ vars.VITE_PUBLIC_API_BASE }}
           VITE_PUBLIC_APP_ORIGIN: ${{ vars.VITE_PUBLIC_APP_ORIGIN }}
           VITE_PUBLIC_MEDIA_ORIGIN: ${{ vars.VITE_PUBLIC_MEDIA_ORIGIN }}
           VITE_PUBLIC_VAPID_PUBLIC_KEY: ${{ vars.VITE_PUBLIC_VAPID_PUBLIC_KEY }}
@@ -77,7 +76,7 @@ jobs:
           docker buildx build --push --provenance=false \
             -f infra/docker/caddy.Dockerfile --target runtime \
             --build-arg RELEASE="$RELEASE" \
-            --build-arg VITE_PUBLIC_API_BASE --build-arg VITE_PUBLIC_APP_ORIGIN --build-arg VITE_PUBLIC_MEDIA_ORIGIN \
+            --build-arg VITE_PUBLIC_APP_ORIGIN --build-arg VITE_PUBLIC_MEDIA_ORIGIN \
             --build-arg VITE_PUBLIC_VAPID_PUBLIC_KEY --build-arg VITE_PUBLIC_TURNSTILE_SITE_KEY \
             --build-arg VITE_PUBLIC_SENTRY_DSN \
             --label org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}" \
@@ -100,7 +99,6 @@ jobs:
           SENTRY_CLI_IMAGE: getsentry/sentry-cli:3.8.0@sha256:973a77ecc96852081f946e36a8f090ed74a02249009594aff51575e593871427
           WEB_BUILT: ${{ vars.VITE_PUBLIC_APP_ORIGIN != '' }}
           WEB_URL_PREFIX: '~/assets' # Sentry's URL-prefix syntax (any host), not a home directory
-          VITE_PUBLIC_API_BASE: ${{ vars.VITE_PUBLIC_API_BASE }}
           VITE_PUBLIC_APP_ORIGIN: ${{ vars.VITE_PUBLIC_APP_ORIGIN }}
           VITE_PUBLIC_MEDIA_ORIGIN: ${{ vars.VITE_PUBLIC_MEDIA_ORIGIN }}
           VITE_PUBLIC_VAPID_PUBLIC_KEY: ${{ vars.VITE_PUBLIC_VAPID_PUBLIC_KEY }}
@@ -121,7 +119,7 @@ jobs:
           if [ "$WEB_BUILT" = 'true' ]; then
             docker buildx build -f infra/docker/caddy.Dockerfile --target web-maps \
               --build-arg RELEASE="$RELEASE" \
-              --build-arg VITE_PUBLIC_API_BASE --build-arg VITE_PUBLIC_APP_ORIGIN --build-arg VITE_PUBLIC_MEDIA_ORIGIN \
+              --build-arg VITE_PUBLIC_APP_ORIGIN --build-arg VITE_PUBLIC_MEDIA_ORIGIN \
               --build-arg VITE_PUBLIC_VAPID_PUBLIC_KEY --build-arg VITE_PUBLIC_TURNSTILE_SITE_KEY \
               --build-arg VITE_PUBLIC_SENTRY_DSN --output type=local,dest=maps/web .
             upload "$SENTRY_PROJECT_WEB" /maps/web/app "$WEB_URL_PREFIX"

@@ -425,4 +425,9 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 
 ## OPEN
 
-_None._
+### #58 — Component showcase on staging? — OPEN (14 Oct 2026, T0.14)
+**Conflict:** PHASE_00 T0.14 acceptance ("showcase reachable on staging only") and owner guide 0.3–0.5 (check the showcase on your phone via the staging links) vs **#45** (showcase in **dev builds only**; production builds contain no showcase code, enforced by `check:dist`). Staging runs production builds, so today staging has no showcase.
+**Options:**
+- **A (recommended):** a build flag `VITE_PUBLIC_SHOWCASE=true` set **only** by `deploy-staging.yml`. The staging bundles then include the showcase as a lazily loaded chunk (initial JS unchanged); `deploy-prod.yml` never sets it and `check:dist` keeps failing a production build that contains showcase code. Amends #45.
+- **B:** keep #45 as is; the owner checks 0.3–0.5 run against `pnpm dev` on the PC, with the phone on the same Wi-Fi (harder for the owner, not on HTTPS, not the real staging stack).
+- **C:** a separate staging-only showcase host — more DNS/Caddy/router configuration for no extra benefit over A.

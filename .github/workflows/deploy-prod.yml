@@ -56,7 +56,6 @@ jobs:
 
       - name: Web image (Caddy + both PWAs built for production)
         env:
-          VITE_PUBLIC_API_BASE: ${{ vars.VITE_PUBLIC_API_BASE }}
           VITE_PUBLIC_APP_ORIGIN: ${{ vars.VITE_PUBLIC_APP_ORIGIN }}
           VITE_PUBLIC_MEDIA_ORIGIN: ${{ vars.VITE_PUBLIC_MEDIA_ORIGIN }}
           VITE_PUBLIC_VAPID_PUBLIC_KEY: ${{ vars.VITE_PUBLIC_VAPID_PUBLIC_KEY }}
@@ -66,7 +65,7 @@ jobs:
           docker buildx build --push --provenance=false \
             -f infra/docker/caddy.Dockerfile --target runtime \
             --build-arg RELEASE="$RELEASE" \
-            --build-arg VITE_PUBLIC_API_BASE --build-arg VITE_PUBLIC_APP_ORIGIN --build-arg VITE_PUBLIC_MEDIA_ORIGIN \
+            --build-arg VITE_PUBLIC_APP_ORIGIN --build-arg VITE_PUBLIC_MEDIA_ORIGIN \
             --build-arg VITE_PUBLIC_VAPID_PUBLIC_KEY --build-arg VITE_PUBLIC_TURNSTILE_SITE_KEY \
             --build-arg VITE_PUBLIC_SENTRY_DSN \
             --label org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}" \
