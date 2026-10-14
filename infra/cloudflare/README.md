@@ -21,10 +21,15 @@ No record may be "DNS only" (grey cloud): the origin accepts only Cloudflare (fi
 - [ ] **Overview → Full (strict)**.
 - [ ] **Origin Server → Create certificate** (RSA 2048 or ECC, hostnames `*.almasjids.com` + `almasjids.com`, 15 years).
       Save the certificate and key **only on the server**: `/etc/masjid-connect/staging/certs/origin.pem` and
-      `origin-key.pem` (root, 600; the web container reads them read-only).
-- [ ] **Origin Server → Authenticated Origin Pulls: On** (zone-level). Download Cloudflare's origin-pull CA to
-      `/etc/masjid-connect/staging/certs/cloudflare-origin-pull-ca.pem` — Caddy rejects TLS without that client
-      certificate (`CADDY_TLS=origin`, 04 §12.2).
+      `origin-key.pem` (root:1000, 640 — Caddy runs as uid 1000 in the web container and reads them read-only).
+- [ ] **Authenticated Origin Pulls — zone-level, with our own CA** (DECISIONS #57; _not_ the global AOP certificate,
+      which Cloudflare shares across all accounts). On the server, as root, in `/etc/masjid-connect/aop/` (700):
+      a 10-year CA (`ca.key` stays here, root 600, for renewals) and a 2-year client certificate with
+      `extendedKeyUsage=clientAuth`. Upload `leaf.crt` + `leaf.key` in **SSL/TLS → Origin Server → Authenticated
+      Origin Pulls → Zone-level → Upload certificate**, then delete `leaf.key`/`leaf.csr` from the server; switch
+      **Zone-level** on. Install `ca.crt` as `/etc/masjid-connect/staging/certs/cloudflare-origin-pull-ca.pem`
+      (root:1000, 640) — Caddy rejects TLS without a client certificate from that CA (`CADDY_TLS=origin`,
+      04 §12.2). Renewal: Cloudflare e-mails 30 and 14 days before expiry → sign a new leaf with `ca.key`, upload.
 - [ ] **Edge Certificates:** Always Use HTTPS **on**; Minimum TLS Version **1.2**; TLS 1.3 **on**; Automatic HTTPS
       Rewrites **on**; HSTS **off here** (the origin sends HSTS itself — DECISIONS #29).
 

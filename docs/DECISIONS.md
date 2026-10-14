@@ -418,6 +418,11 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 **Provisioning** (`infra/vps/provision.sh`) is staged so it cannot lock the owner out: `base` keeps port 22 open; `lockdown` closes it and **refuses to run unless the current SSH session already arrives through WireGuard**. SSH config is validated with `sshd -t` before reload; Docker's apt key fingerprint is checked before it is trusted.
 **Consequences:** the T0.14 session plan and `check.sh` reflect this; tested locally: firewall script (privileged Ubuntu container), log archive (encrypt → decrypt, retention, refusal of a bad key), unit syntax (`systemd-analyze verify`), shellcheck on every script. `provision.sh` itself runs for the first time on the server with the owner.
 
+### #57 — Authenticated Origin Pulls: zone-level with our own CA, not the global certificate — ACCEPTED (14 Oct 2026, T0.14 with the owner)
+**Context:** `infra/cloudflare/README.md` planned Cloudflare's downloadable origin-pull CA. Cloudflare's docs (checked 14 Oct 2026) call that **global** AOP certificate "shared across all Cloudflare accounts": it proves a request comes from Cloudflare, not from *our* zone — anyone could proxy their own Cloudflare zone to our IP and pass both the IP allow-list and the client-certificate check. **Zone-level** AOP uses a certificate the customer uploads ("exclusive to your account"); available on the Free plan.
+**Decision:** zone-level AOP. On the VPS (root, `/etc/masjid-connect/aop/`, 700): RSA-2048 CA (10 years; `ca.key` stays there, root 600, only for renewals) and an RSA-2048 client certificate (2 years, `basicConstraints CA:FALSE`, `extendedKeyUsage clientAuth`), uploaded to Cloudflare with its key; the key is then deleted from the server. Caddy's `trust_pool` = our CA (`certs/cloudflare-origin-pull-ca.pem`). The `certs/` directory is `root:1000 750`, files `640` — Caddy runs as uid 1000 in the web container (fixes `provision.sh`, which made it root 700).
+**Consequences:** renewal every 2 years (Cloudflare e-mails 30 and 14 days before expiry; DEPLOY runbook). Generation tested in ubuntu:24.04 (`openssl verify -purpose sslclient` OK). Production uses the same zone-level certificate (same zone).
+
 ## OPEN
 
 _None._

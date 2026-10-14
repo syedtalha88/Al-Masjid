@@ -111,7 +111,9 @@ EOF
   say "directories: secrets (root 700/600), state, log archive (700), repository checkout"
   install -d -m 755 "$ETC"
   for env in staging production; do
-    install -d -m 700 "$ETC/$env" "$ETC/$env/certs" "/var/lib/masjid-connect/$env"
+    install -d -m 700 "$ETC/$env" "/var/lib/masjid-connect/$env"
+    # Read by Caddy inside the web container (uid/gid 1000) through the bind mount: dir 750, files 640, root:1000.
+    install -d -m 750 -o root -g 1000 "$ETC/$env/certs"
     for file in api-public api-admin worker web redis; do
       [ -e "$ETC/$env/$file.env" ] || install -m 600 /dev/null "$ETC/$env/$file.env"
     done
