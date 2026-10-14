@@ -46,7 +46,7 @@
 | F2 | T0.2 | ~~Prove client bundles contain only `VITE_PUBLIC_*`~~ — **closed 14 Oct 2026**: `envPrefix` + `parseClientEnv` at build (T0.4) and `pnpm scan:bundles` in CI and inside the web image build (T0.3, DECISIONS #49) | – |
 | F9 | Audit 9 Oct | ~~SSH-from-CI deploy texts~~ — **closed 14 Oct 2026**: 04 §12.1, 01 §4, PHASE_00 T0.3/T0.14 and HANDOFF now describe pull deploys (DECISIONS #27, #49) | – |
 | F10 | Audit 9 Oct | Owner wants no paid services. Phase 1 needs an Atlas staging tier with custom roles + views + transactions — likely not the free tier (verify). Decide before Phase 1: paid Atlas tier vs. self-hosted MongoDB for staging. Production Atlas M10 (~$60–80/mo) is in the plan. | Before Phase 1 (owner) |
-| F11 | Audit 9 Oct | Vendored `.claude/skills` (ui-ux-pro-max, MIT) — keep an MIT LICENSE notice in the folder (public repo). | T0.15 |
+| F11 | Audit 9 Oct | ~~MIT notice for vendored `.claude/skills`~~ — **closed 14 Oct 2026**: upstream MIT `LICENSE` (© 2024 Next Level Builder, fetched from the upstream repo) + `THIRD_PARTY_NOTICES.md` | – |
 | F12 | T0.4 | ~~`runtime-test` image target + check that `runtime` has no hooks~~ — **closed 13 Oct 2026** (T0.12, DECISIONS #48; CI runs the checks from T0.3) | – |
 | F13 | T0.7 | Hijri month names: Intl gives English names for `te` and odd ordering for `hi` — add per-locale month-name fallback table (09 §4) | Phase 2 T2.1 |
 | F14 | T0.7 | i18n runtime is ≈29 KB gzip of the initial JS; if the 170 KB budget gets tight, precompile ICU messages to ASTs at build time and drop the parser (~8 KB gzip) (DECISIONS #38) | When `pnpm size` nears budget |
