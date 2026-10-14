@@ -32,9 +32,18 @@ Database migrations will also need your approval in production (Phase 1 adds the
 
 ## 3. Rollback — **T0.14**
 
-Every deployed manifest is recorded on the server in `deploy/releases.log`. Rolling back = telling the VPS to
-deploy the previous manifest's digests again; no rebuild. The exact command and a demonstration (guide 0.14) are
-added when the staging server exists.
+Every deployed (signed) manifest is kept on the server and recorded in
+`/var/lib/masjid-connect/<environment>/releases.log`. Rolling back = deploying an earlier manifest's digests again;
+no rebuild:
+
+```
+sudo /opt/masjid-connect/infra/vps/deploy.sh staging --rollback
+```
+
+Each run goes one release further back. The releases you rolled back from are skipped by the every-minute timer
+until a **newer** release is published (fix → merge → CI). To return to the published release sooner:
+`sudo rm /var/lib/masjid-connect/staging/rolled-back` (the timer redeploys it within a minute). A demonstration on
+staging is owner check 0.14.
 
 ## 4. Where configuration and secrets live
 
