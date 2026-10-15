@@ -1,9 +1,12 @@
 # Deploy runbook
 
 > For the owner. How a change gets from GitHub to staging and production, how to undo it, and where secrets live.
-> Background: DECISIONS #21, #27, #42, #49, #55, #57, #59. **Status (14 Oct 2026):** the GitHub side works today; the
-> VPS side is prepared and tested in CI; it goes live with the owner's steps in
-> `docs/runbooks/T0.14_STAGING_SESSION_PLAN.md` (PROGRESS owner list O1).
+> Background: DECISIONS #21, #27, #42, #49, #55, #57, #59. **Status (16 Oct 2026): staging is live** —
+> https://app-staging.almasjids.com and https://admin-staging.almasjids.com, deployed automatically from `main`.
+> Production goes live in Phase 9.
+
+**Reaching the server:** WireGuard app → activate `masjid-server` → `ssh talha@10.66.0.1`. Public SSH is closed. If
+the tunnel ever fails, the Hostinger panel's browser terminal (VNC console) always works.
 
 ## 1. How a release happens
 
@@ -35,6 +38,19 @@ push to main ──► CI (5 checks) ──► all green? ──► "Release to 
 
 Database migrations will also need your approval in production (Phase 1 adds them).
 
+### What is running, and why did a deploy fail?
+
+```
+sudo tail -n 3 /var/lib/masjid-connect/staging/releases.log     # deployed releases (newest last)
+sudo journalctl -u mc-deploy@staging -n 40 --no-pager            # the last deploy runs (quiet = already up to date)
+sudo docker ps --format '{{.Names}} | {{.Status}}'               # containers and health
+sudo /usr/local/lib/masjid-connect/check.sh | grep -E "^(FAIL|WARN|==)"   # hardening check: expect 0 FAIL
+```
+
+A failing deploy keeps the old containers running and retries every minute. The journal shows the failing
+container's last log lines (F33). To pause the retries while you look: `sudo systemctl stop mc-deploy@staging.timer`
+(and `start` it again afterwards).
+
 ## 3. Rollback
 
 Every deployed (signed) manifest is kept on the server and recorded in
@@ -47,8 +63,9 @@ sudo /usr/local/lib/masjid-connect/deploy.sh staging --rollback
 
 Each run goes one release further back. The releases you rolled back from are skipped by the every-minute timer
 until a **newer** release is published (fix → merge → CI). To return to the published release sooner:
-`sudo rm /var/lib/masjid-connect/staging/rolled-back` (the timer redeploys it within a minute). A demonstration on
-staging is owner check 0.14.
+`sudo rm /var/lib/masjid-connect/staging/rolled-back` (the timer redeploys it within a minute). Demonstrated on
+staging on 16 Oct 2026 (owner check 0.14): `6bde56e` → `eae9d1c` in about a minute with the site up throughout, then
+forward again automatically with the next release.
 
 ## 4. Where configuration and secrets live
 
@@ -63,7 +80,7 @@ Never paste a secret into a chat, an issue, a commit or a screenshot.
 
 ### Add or change a server secret
 
-Connect (through the WireGuard tunnel once F30 is done), then:
+Connect through the WireGuard tunnel (`ssh talha@10.66.0.1`), then:
 
 ```
 sudo nano /etc/masjid-connect/staging/api-admin.env     # one file per process; keeps mode 600 root
@@ -87,7 +104,7 @@ commit — a staging release always follows a green CI run on `main`).
 |---|---|
 | New host scripts / router config / systemd units (a commit Claude Code tells you about) | `curl -fsSLO …/<sha>/infra/vps/provision.sh` + sha256 check, then `sudo bash provision.sh host <sha>` — the host layer never updates itself from a release (DECISIONS #59) |
 | Cloudflare e-mails "Authenticated Origin Pulls certificate expires" (30 and 14 days before; the client certificate is valid 2 years from 14 Oct 2026) | As root in `/etc/masjid-connect/aop/`: create a new key + CSR and sign it with `ca.key` exactly as in DECISIONS #57 / `infra/cloudflare/README.md` §2, upload it in **SSL/TLS → Origin Server → Authenticated Origin Pulls → Zone-level**, delete the new `leaf.key` from the server. The server side (our CA) does not change. |
-| Origin CA certificate (15 years from 14 Oct 2026) | Create a new one in **SSL/TLS → Origin Server**, replace `certs/origin.pem` + `origin-key.pem` (root:1000, 640), then `deploy.sh <env> --restart` |
+| Origin CA certificate (valid until Oct 2041) | Create a new one in **SSL/TLS → Origin Server**, replace `certs/origin.pem` + `origin-key.pem` (root:1000, 640) — **including the `-----BEGIN …-----` and `-----END …-----` lines** (on 16 Oct 2026 they were missing and Caddy refused to start). Run `check.sh` (it now checks that both files parse and match), then `deploy.sh <env> --restart` |
 | Production goes live (Phase 9) | Production signing key exactly like staging's (T0.14 plan step B) but with `masjid-connect-production` and the `production` environment (secret `RELEASE_SIGNING_KEY`, deployment branches = `main`, required reviewer = you); `make-env.sh production`; fill the external values it leaves empty; `systemctl enable --now mc-deploy@production.timer` |
 
 ## 6. If something goes wrong
@@ -96,6 +113,8 @@ commit — a staging release always follows a green CI run on `main`).
 |---|---|
 | CI is red on `main` | Nothing reaches staging — fix forward or revert the commit |
 | Staging broken after a release | Roll back (section 3) |
+| A deploy keeps failing ("Failed to start mc-deploy@…") | `sudo journalctl -u mc-deploy@staging -n 60 --no-pager` — the error and the failing container's log lines are there; the old version keeps running |
+| Cloudflare injects scripts again (console shows `cloudflareinsights` blocked by CSP) | Cloudflare → Web analytics → the site → **Disable** automatic setup (it was found re-enabled on 16 Oct 2026) |
 | Attack / traffic spike | Cloudflare → *Under Attack* mode (04 §13) |
 | Suspected leaked secret | Rotate it at the source (Atlas user, Redis ACL, Cloudinary key, …), update the env file, restart — then tell Claude Code to review logs |
 | Notifications must stop now | Stop the `worker` container (Phase 4 adds the "pause all push" switch) |
