@@ -129,7 +129,9 @@ jobs:
           mkdir -p "$out"
           docker run --rm -v "$PWD/infra/vps:/vps:ro" -v "$out:/out" "$UBUNTU_IMAGE" bash /vps/test/make-env.test.sh
           node scripts/check-make-env.mjs "$out"
-          rm -rf "$out"
+          # The container wrote staging/ + production/ as root: the runner user cannot delete inside them.
+          docker run --rm -v "$out:/out" "$UBUNTU_IMAGE" rm -rf /out/staging /out/production
+          rmdir "$out"
       - name: Trivy config (Dockerfiles, compose)
         run: docker run --rm -v "$PWD:/src" "$TRIVY_IMAGE" config --severity HIGH,CRITICAL --exit-code 1 /src/infra
 
