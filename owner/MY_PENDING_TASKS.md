@@ -3,93 +3,221 @@
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
 > Last updated: 15 Oct 2026.
+>
+> **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
+> Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.
 
 ## Done
 
-- [x] **O1 — Release-signing key + GitHub `staging` environment** (15 Oct 2026)
+- [x] **O1** — Release-signing key + GitHub `staging` environment (15 Oct 2026)
+- [x] **O4** — Showcase on staging: **yes** (15 Oct 2026)
+- [x] **O5** — Web font: **keep as is** (15 Oct 2026). I'll judge the opening smoothness on the Poco F7 during O7.
 
 ---
 
-## Quick answers (no computer work, just tell Claude Code)
+## The order I'll do the rest in
 
-### O4 — Show the component showcase on staging?
-The showcase is the demo page I use for phone checks 0.3–0.5. Right now it exists only on the dev PC.
-- **A (recommended):** yes. It's switched on only for staging and never for production.
-- **B:** no. I'd do checks 0.3–0.5 on the PC's dev server, with the phone on the same Wi-Fi.
-- **C:** a separate showcase website. More setup for no real gain.
-
-➡️ Answer: **A**, **B** or **C**
-
-### O5 — Web-font choice (F27)
-On the second visit, the page lays itself out twice when the font finishes loading. That's about 15–20 ms on a real phone.
-- **Keep as is.** The cost is small.
-- **`font-display: optional`.** No second layout, but the very first visit may show a similar-looking backup font.
-- **Smaller font file.** Less to load, more work.
-
-➡️ Answer: **keep**, **optional** or **smaller**
+| Step | What | When | Time |
+|---|---|---|---|
+| 1 | **First staging deploy** (with Claude Code, a few server commands) | next session | 15 min |
+| 2 | **O2** — WireGuard tunnel + close public SSH | right after step 1 | 20 min |
+| 3 | **O3** — Log-archive key | right after step 2 | 5 min |
+| 4 | **O6** — GitHub checks 0.15–0.17 | after step 1 | 15 min |
+| 5 | **O7** — Phone checks 0.1–0.14 | after step 1 | 30–45 min |
+| 6 | **F10** — MongoDB choice for staging | before Phase 01 | 1 answer |
+| 7 | **O8** — Accounts for later phases | Phase 01 onwards | per phase |
 
 ---
 
-## Server work (best done in a session with Claude Code)
+## O2 — WireGuard tunnel + close public SSH (about 20 min)
 
-### O2 — WireGuard tunnel + close public SSH (about 15 min) — must be done before T0.14 can be ticked
-Until this is done, SSH on the server is open to the internet. It's key-only and protected by fail2ban.
-Claude Code gives the exact commands in the session. Rough outline:
-1. On the server, set up WireGuard (`provision.sh wireguard`).
-2. On my PC, install the **WireGuard** app (wireguard.com/install) and create a tunnel with Address `10.66.0.2`.
-3. Give the server my PC's **public** key (`provision.sh wg-peer talha-pc <PC public key> 10.66.0.2`).
-4. Test `ssh talha@10.66.0.1` through the tunnel.
-5. Close public SSH (`provision.sh lockdown`).
-6. Optional: add my phone as a second tunnel.
+**Why:** today anyone on the internet can *try* to SSH into the server. It's key-only and fail2ban blocks
+repeated failures, but after this step the server only accepts SSH through a private tunnel from my PC.
+**Needed before:** T0.14 can be ticked.
+**Do it:** after the first staging deploy, with Claude Code in the session (it installs the scripts used below).
 
-⚠️ Do this **after** the first staging deploy. That's when Claude Code installs the scripts these commands use.
-
-### O3 — Log-archive key (about 5 min)
-The server keeps logs for 180 days (required by Indian law, CERT-In), encrypted so that only I can read them.
-1. On my PC (PowerShell), install the tool `age`: `winget install FiloSottile.age`, then reopen PowerShell.
-2. Create the key: `age-keygen -o masjid-logs.key`
-   - It prints `Public key: age1…`. Copy that line's `age1…` part.
-   - **`masjid-logs.key` is my private key.** Keep it somewhere safe and offline, such as a USB drive or a password manager. Never send it to anyone.
-3. On the server:
+**A. On the server, start WireGuard**
+1. Log in as usual: `ssh talha@<server IP>`
+2. Run:
    ```
-   echo 'age1…paste-here…' | sudo tee /etc/masjid-connect/log-archive.pub
+   sudo bash /usr/local/lib/masjid-connect/provision.sh wireguard
    ```
-4. Tell Claude Code "O3 done" so it can check that the archive works.
+3. It prints `Server public key (put it in each device's WireGuard config): …`. **Copy that key** (it's public).
+
+**B. On my Windows PC, create the tunnel**
+1. Install the **WireGuard** app from **wireguard.com/install** (Windows installer).
+2. Open it → arrow next to **Add Tunnel** → **Add empty tunnel…**
+3. The app fills in a `PrivateKey` line itself and shows a **Public key** at the top. **Copy that public key**.
+   (Never copy or share the `PrivateKey` line.)
+4. Name: `masjid-server`. Below the `PrivateKey` line, the text box should end up looking like this:
+   ```
+   [Interface]
+   PrivateKey = (already filled in by the app — leave it)
+   Address = 10.66.0.2/32
+
+   [Peer]
+   PublicKey = <server public key from A.3>
+   AllowedIPs = 10.66.0.1/32
+   Endpoint = <server IP>:51820
+   PersistentKeepalive = 25
+   ```
+5. Click **Save**. Don't activate it yet.
+
+**C. On the server, allow my PC into the tunnel**
+1. In the server terminal (replace with the public key from B.3):
+   ```
+   sudo bash /usr/local/lib/masjid-connect/provision.sh wg-peer talha-pc <PC public key> 10.66.0.2
+   ```
+   It prints `peer talha-pc (10.66.0.2) added`.
+
+**D. Test the tunnel (keep the old terminal open!)**
+1. In the WireGuard app, click **Activate**. It should show *Active*, with "Latest handshake" a few seconds ago.
+   - No handshake? In the Hostinger panel check whether a VPS firewall is on. If it is, allow **UDP 51820**.
+2. Open a **second** PowerShell window and run: `ssh talha@10.66.0.1`
+3. On the server in that second window, run: `echo $SSH_CONNECTION`. It must **start with `10.66.0.2`**.
+   If it doesn't, stop and tell Claude Code.
+
+**E. Close public SSH**
+1. Only in the **second** window (the tunnel one), run:
+   ```
+   sudo SSH_CONNECTION="$SSH_CONNECTION" bash /usr/local/lib/masjid-connect/provision.sh lockdown
+   ```
+   It prints the firewall rules. Port 22 should be allowed only on `wg0`.
+2. Test in a **third** window: `ssh talha@<server IP>`. This must now **fail / time out**. That's correct.
+3. `ssh talha@10.66.0.1` (with the tunnel active) must still work.
+4. Now it's safe to close the old windows.
+
+**From now on:** to reach the server, first **activate the tunnel** in the WireGuard app, then `ssh talha@10.66.0.1`.
+**If I'm ever locked out:** the Hostinger panel has a **browser terminal / VNC console** that always works.
+
+*(Optional)* My phone as a second way in: same steps B–C with the WireGuard phone app, Address `10.66.0.3/32`,
+and name `talha-phone` in C.1.
+
+Tell Claude Code "**O2 done**". It runs `check.sh`, and the 2 SSH/WireGuard FAILs should turn into PASS.
 
 ---
 
-## GitHub settings
+## O3 — Log-archive key (about 5 min)
 
-### O6 — Owner checks 0.15–0.17 (about 15 min)
-Full instructions are in `owner/PHASE_TESTING_GUIDE.md` → Phase 00.
-- [ ] **0.15 Branch protection.** GitHub → repo → Settings → Rules → Rulesets → New branch ruleset. Follow the guide (6 required checks). Do this **after** Claude Code has merged the T0.14 work.
-- [ ] **0.16 A failing PR gets blocked.** Ask Claude Code for a throw-away branch with one failing test, open a PR, and check that the Merge button is blocked.
-- [ ] **0.17 Production needs my approval.** Settings → Environments → `production` (create it if it's missing):
-  - **Required reviewers** → add myself
-  - **Deployment branches and tags** → Selected branches → `main`
-- [ ] *(Optional)* **0.18 Sentry error reporting.** Free account, 2 projects. Steps are in the guide.
+**Why:** Indian law (CERT-In) needs the server's logs kept for 180 days. They are stored **encrypted** so that
+only I can read them, using a key that never leaves my PC.
+
+1. On my PC, open **PowerShell** and install the tool:
+   ```
+   winget install FiloSottile.age
+   ```
+   Then **close and reopen** PowerShell.
+2. Go to a safe folder (for example `cd $HOME\Documents`) and create the key:
+   ```
+   age-keygen -o masjid-logs.key
+   ```
+   It prints `Public key: age1…`. **Copy the `age1…` text** (it's public).
+3. **`masjid-logs.key` is my private key.** Copy it to a USB drive or a password manager as well.
+   If it's lost, the archived logs can never be read. Never send it to anyone.
+4. On the server (through the tunnel), with my own `age1…` key pasted in:
+   ```
+   echo 'age1...' | sudo tee /etc/masjid-connect/log-archive.pub
+   ```
+5. Tell Claude Code "**O3 done**". It checks that the hourly archive now runs.
 
 ---
 
-## After staging is live
+## O6 — GitHub checks 0.15–0.17 (about 15 min)
 
-### O7 — Phone checks 0.1–0.14 (about 30 min)
-On the iPhone and the Poco F7, using the staging links Claude Code gives me. Steps are in `owner/PHASE_TESTING_GUIDE.md` → Phase 00.
-This includes **F17**: on the iPhone, check that swiping back from the left edge works smoothly, both in Safari and in the installed app, and doesn't animate twice.
+Do these **after** Claude Code has merged the T0.14 work into `main`.
+
+**0.15 — Branch protection**
+1. Go to github.com/syedtalha88/Al-Masjid → **Settings** → **Rules** → **Rulesets** → **New ruleset** → **New branch ruleset**.
+2. **Ruleset name:** `main` · **Enforcement status:** **Active**.
+3. **Target branches** → **Add target** → **Include default branch**.
+4. Tick:
+   - **Restrict deletions**
+   - **Block force pushes**
+   - **Require a pull request before merging** → required approvals **0** (fine while I work alone)
+   - **Require status checks to pass** → **Add checks** → add these 6, typing each name:
+     - `Typecheck · lint · format · i18n`
+     - `Unit + component tests (coverage gates)`
+     - `Security scans`
+     - `Integration tests (MongoDB + Redis)`
+     - `Build · budgets · images · e2e · Lighthouse`
+     - `CodeQL (javascript-typescript)`
+5. **Create**. ✅ The ruleset shows **Active**.
+
+**0.16 — A failing change is blocked**
+1. Tell Claude Code: "make the 0.16 test PR". It pushes a branch with one deliberately failing test.
+2. On GitHub → **Pull requests** → open the PR it names.
+3. ✅ CI shows a red ✗ and the **Merge** button is blocked.
+4. Click **Close pull request**, then **Delete branch**.
+
+**0.17 — Production needs my approval**
+1. **Settings** → **Environments** → `production` (if it's missing: **New environment** → `production` → **Configure environment**).
+2. Tick **Required reviewers** → add **syedtalha88** → **Save protection rules**.
+3. **Deployment branches and tags** → **Selected branches and tags** → **Add deployment branch or tag rule** → `main` → **Add rule**.
+4. ✅ Any production release will wait for my click.
+
+**0.18 — Error reporting (optional, free)**
+1. Create a free account at **sentry.io** and turn on 2-factor login.
+2. Create 2 projects: `mc-web` (Browser JavaScript) and `mc-server` (Node.js).
+3. In **each** project → **Settings** → **Security & Privacy**: turn ON *Prevent Storing of IP Addresses*,
+   *Data Scrubber* and *Use Default Scrubbers*.
+4. Give Claude Code the **org slug** and the **two DSNs** (not secret).
+5. **Settings** → **Auth Tokens** → create a token with scope *project:releases* → paste it **only** into
+   GitHub → Settings → Secrets and variables → Actions → **New repository secret** `SENTRY_AUTH_TOKEN`.
+
+Tell Claude Code "**O6 done**" (and whether I did 0.18).
 
 ---
 
-## Before Phase 01
+## O7 — Phone checks 0.1–0.14 (30–45 min)
 
-### F10 — MongoDB for staging: decide
-The free MongoDB Atlas tier probably can't do the custom roles and views we need.
-- **Paid Atlas tier for staging**, or
-- **Run MongoDB ourselves on the VPS** for staging (free, but more work for Claude Code)
+**Needs:** the staging links from Claude Code (app, admin, and `/_dev/showcase` on both).
+**Phones:** iPhone + Poco F7. **Mark each ✅ / ❌.** For every ❌, take a screen recording.
 
-➡️ Ask Claude Code for the comparison when we get there.
+| # | Check | How | ✅ when |
+|---|---|---|---|
+| 0.1 | App opens | Open the staging app link on both phones | Opens fast, warm off-white background, no errors |
+| 0.2 | Security grade | On the laptop, paste the app URL and then the admin URL into **securityheaders.com** | **A+** for both |
+| 0.3 | Looks premium | Open `/_dev/showcase`, scroll everything | Same green, mint panels, rounded cards, clean fonts as the reference images |
+| 0.4 | Languages | In the showcase switch English → हिन्दी → اردو → తెలుగు | All text changes; **Urdu flips the layout right-to-left**; no "□" boxes |
+| 0.5 | Navigation | Open the demo screens; go forward and back; swipe from the left edge (from the right in Urdu) | iPhone-like slide; follows the finger; stopping halfway returns smoothly |
+| 0.6 | Android back | Poco F7: system back button on a demo screen | Goes back one screen with animation; doesn't exit |
+| 0.7 | Bottom sheets | Open the demo sheet; drag up/down; flick down | Moves with the finger, snaps, flick closes it |
+| 0.8 | Tab bar | Tap each tab and the green centre Scan button | Active tab turns green; centre button presses and bounces back |
+| 0.9 | Reduced motion | Poco: Settings → Accessibility → *Remove animations* ON. iPhone: Accessibility → Motion → *Reduce Motion*. Reopen the app | Screens **fade** instead of slide. Turn it **OFF** again afterwards |
+| 0.10 | Install | Poco: Chrome menu ⋮ → *Install app*. iPhone: **Safari** → Share → *Add to Home Screen* | Icon on the home screen; opens full screen without the browser bar |
+| 0.11 | Offline | Open the installed app → Airplane mode ON → close it fully → reopen | App opens with an offline message, not the browser's "no internet" page |
+| 0.12 | Update | Tell Claude Code "ready for 0.12"; it deploys a tiny change; reopen the app | "Update available" appears; tapping it refreshes |
+| 0.13 | Server locked | Read the `check.sh` result Claude Code gives me. Then on the laptop open `https://<server IP>` | All **PASS**; the IP address does **not** open the app |
+| 0.14 | Rollback | Tell Claude Code "show me a rollback" | The previous version is back within minutes, then the latest is redeployed |
 
-### O8 — Accounts for later phases
-- **Phase 01:** MongoDB Atlas project `mc-staging` (region Mumbai, ap-south-1) + DB users, and a real Cloudflare **Turnstile** widget.
-- **Phase 03:** Cloudinary API keys (one for api-admin, one for worker).
-- **Phase 03/08:** Cloudflare purge API token.
-- **Before Phase 04:** back up the VAPID private key from the server (`worker.env`). It must never change.
+**Extra for the iPhone (F17):**
+- In **Safari** and in the **installed app**, swipe back from the left edge on a demo screen.
+  It must slide back **once**, smoothly, with no double animation.
+- In the showcase, check that **bold text looks bold**, and that dragging a sheet and then scrolling inside it feels natural.
+
+**Opening smoothness (O5):** open the installed app a few times on the Poco F7. If the text visibly jumps or
+flickers as it opens, tell Claude Code.
+
+Tell Claude Code "**O7 done**", with the ❌ list if there is one.
+
+---
+
+## F10 — MongoDB for staging (decide before Phase 01)
+
+The free MongoDB Atlas tier probably can't do the custom roles and views the security design needs.
+1. Ask Claude Code: "**give me the F10 comparison**". It checks current Atlas tiers and prices.
+2. Choose one:
+   - **Paid Atlas tier for staging** (monthly cost, matches production exactly), or
+   - **MongoDB on our own VPS for staging** (free, more setup and maintenance work for Claude Code).
+
+---
+
+## O8 — Accounts for later phases (when Claude Code asks)
+
+| When | What | Steps |
+|---|---|---|
+| Phase 01 | **MongoDB Atlas** project `mc-staging` (only if F10 = Atlas) | Claude Code gives click-by-click steps: region **Mumbai (ap-south-1)**, DB users, IP access |
+| Phase 01 | **Cloudflare Turnstile** widget (the "I'm not a robot" check) | Cloudflare dashboard → Turnstile → Add widget → domains `admin-staging.almasjids.com`. Site key → Claude Code; secret key → server env file only |
+| Phase 03 | **Cloudinary API keys** (2 keys: api-admin + worker) | Cloudinary → Settings → API Keys → Generate. They go only into the server env files |
+| Phase 03/08 | **Cloudflare purge token** | Cloudflare → My Profile → API Tokens → Create → *Cache Purge* for almasjids.com only |
+| Before Phase 04 | **Back up the VAPID private key** | Claude Code gives the command. Store it with the log key. It must never change once push goes live |
