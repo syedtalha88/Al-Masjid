@@ -90,7 +90,10 @@ case "$args" in
     touch "$STUB_STATE/$svc"
     while [ "$(wc -l <"$STUB_STATE/$svc")" -lt "$n" ]; do echo "$svc-$RANDOM$RANDOM" >>"$STUB_STATE/$svc"; done ;;
   *" up "*) [ -z "${STUB_FAIL_UP:-}" ] ;;
-  *" inspect "*) echo healthy ;;
+  *" inspect "*)
+    # STUB_UNHEALTHY=<service>: that service's containers have exited (e.g. Caddy refusing a broken certificate).
+    if [ -n "${STUB_UNHEALTHY:-}" ] && [[ "${*: -1}" == "$STUB_UNHEALTHY"-* ]]; then echo exited; else echo healthy; fi ;;
+  " logs "*) echo "stub: loading certificates: tls: failed to find any PEM data" ;;
   " rm "* | " rm -f "*)
     for id in "$@"; do
       for f in "$STUB_STATE"/*; do grep -vxF -- "$id" "$f" >"$f.t"; mv "$f.t" "$f"; done
@@ -193,6 +196,12 @@ check "with the lock free, the hardened release deploys" '[ "$got" -eq 0 ] && [ 
 
 rm -f "$STUB_STATE"/api-public; : >"$STUB_CALLS"; run rel-6 --restart; got=$?
 check "--restart re-deploys the current release (rolling) without a new manifest"   '[ "$got" -eq 0 ] && [ "$(running)" = "$(rel 6)" ] && grep -q -- "--scale api-public=2 api-public" "$STUB_CALLS" && grep -q "restarting $(rel 6)" "$root/out"'
+
+publish rel-7 7 "$web"
+old_web=$(cat "$STUB_STATE/web")
+: >"$STUB_CALLS"; STUB_UNHEALTHY=web run rel-7; got=$?
+new_web=$(grep -oE "log-archive --container web-[0-9]+" "$STUB_CALLS" | awk '{print $3}' | head -n 1)
+check "failed new container: its last log lines reach the journal, its logs are archived, then it is removed (F33)"   '[ "$got" -eq 1 ] && [ "$(running)" = "$(rel 6)" ] && grep -q "failed to find any PEM data" "$root/out" && [ -n "$new_web" ] && [ "$new_web" != "$old_web" ] && grep -q "rm -f $new_web" "$STUB_CALLS" && [ "$(cat "$STUB_STATE/web")" = "$old_web" ]'
 
 echo "== $failures failure(s)"
 [ "$failures" -eq 0 ]

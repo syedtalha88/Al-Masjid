@@ -189,7 +189,16 @@ rolling() { # <service> <replicas>
   compose up -d --no-deps --no-recreate --scale "$svc=$((replicas + ${#old[@]}))" "$svc" || return 1
   mapfile -t new < <(compose ps -q "$svc" | { grep -vxF -f <(printf '%s\n' "${old[@]}") || true; })
   if [ "${#new[@]}" -eq 0 ] || ! wait_healthy "${new[@]}"; then
-    [ "${#new[@]}" -eq 0 ] || docker rm -f "${new[@]}" >/dev/null 2>&1 || true
+    if [ "${#new[@]}" -gt 0 ]; then
+      # The reason it failed is in its logs: show them in the journal and archive them before removing (F33).
+      local id
+      for id in "${new[@]}"; do
+        log "$svc: new container ${id:0:12} failed — its last log lines:"
+        docker logs --tail 30 "$id" 2>&1 | sed 's/^/    /' || true
+      done
+      archive_logs "${new[@]}"
+      docker rm -f "${new[@]}" >/dev/null 2>&1 || true
+    fi
     return 1
   fi
   if [ "${#old[@]}" -gt 0 ]; then
