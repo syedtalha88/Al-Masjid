@@ -23,8 +23,12 @@ const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const CSP_CONSOLE =
   /content security policy|refused to (load|execute|apply|connect|frame|evaluate|create)|trusted type/i;
 
-/** CSP reports caused by Playwright's own screenshot stylesheet (WebKit): inline style blocked. */
-const SCREENSHOT_STYLE = /^style-src(?:-elem|-attr)? blocked (?:inline|\(inline\))|^console: Refused to apply .*style/i;
+/**
+ * CSP reports caused by Playwright's own screenshot stylesheet: inline style blocked. WebKit always reports it;
+ * Chromium (Playwright 1.63) logs "Applying inline style violates …" when the screenshot uses the `style` option.
+ */
+const SCREENSHOT_STYLE =
+  /^style-src(?:-elem|-attr)? blocked (?:inline|\(inline\))|^console: (?:Refused to apply .*style|Applying inline style violates)/i;
 
 /** Trace categories holding every event `analyzeTrace` reads (checked against a real trace). */
 const TRACE_CATEGORIES = [
@@ -153,8 +157,8 @@ export const test = base.extend<McFixtures>({
       const before = cspViolations.length;
       if (target === undefined) await page.screenshot({ ...options, fullPage: true });
       else await target.screenshot(options);
-      // Playwright injects a <style> element while screenshotting (caret, animations, `style`). Chromium exempts
-      // it from the page CSP; WebKit reports it. Drop exactly those reports — everything else still fails.
+      // Playwright injects a <style> element while screenshotting (caret, animations, `style`); the page CSP
+      // reports it (WebKit always, Chromium for `style`). Drop exactly those reports — everything else still fails.
       await page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 50)));
       const during = cspViolations.splice(before);
       cspViolations.push(...during.filter((violation) => !SCREENSHOT_STYLE.test(violation)));
