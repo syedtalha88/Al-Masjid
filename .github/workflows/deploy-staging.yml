@@ -72,13 +72,14 @@ jobs:
           VITE_PUBLIC_VAPID_PUBLIC_KEY: ${{ vars.VITE_PUBLIC_VAPID_PUBLIC_KEY }}
           VITE_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.VITE_PUBLIC_TURNSTILE_SITE_KEY }}
           VITE_PUBLIC_SENTRY_DSN: ${{ vars.VITE_PUBLIC_SENTRY_DSN }}
+          VITE_PUBLIC_SHOWCASE: 'true' # staging only: /_dev/showcase for the owner's checks (DECISIONS #58)
         run: |
           docker buildx build --push --provenance=false \
             -f infra/docker/caddy.Dockerfile --target runtime \
             --build-arg RELEASE="$RELEASE" \
             --build-arg VITE_PUBLIC_APP_ORIGIN --build-arg VITE_PUBLIC_MEDIA_ORIGIN \
             --build-arg VITE_PUBLIC_VAPID_PUBLIC_KEY --build-arg VITE_PUBLIC_TURNSTILE_SITE_KEY \
-            --build-arg VITE_PUBLIC_SENTRY_DSN \
+            --build-arg VITE_PUBLIC_SENTRY_DSN --build-arg VITE_PUBLIC_SHOWCASE \
             --label org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}" \
             --label org.opencontainers.image.revision="$RELEASE" \
             -t "$REGISTRY/al-masjid-web:staging-sha-$RELEASE" \
@@ -104,6 +105,7 @@ jobs:
           VITE_PUBLIC_VAPID_PUBLIC_KEY: ${{ vars.VITE_PUBLIC_VAPID_PUBLIC_KEY }}
           VITE_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.VITE_PUBLIC_TURNSTILE_SITE_KEY }}
           VITE_PUBLIC_SENTRY_DSN: ${{ vars.VITE_PUBLIC_SENTRY_DSN }}
+          VITE_PUBLIC_SHOWCASE: 'true' # same build args as the web image, so the same build layer is reused
         run: |
           if [ -z "$SENTRY_AUTH_TOKEN" ] || [ -z "$SENTRY_ORG" ]; then
             echo "::notice title=Source maps not uploaded::Sentry is not configured yet (DECISIONS #35)."
@@ -121,7 +123,7 @@ jobs:
               --build-arg RELEASE="$RELEASE" \
               --build-arg VITE_PUBLIC_APP_ORIGIN --build-arg VITE_PUBLIC_MEDIA_ORIGIN \
               --build-arg VITE_PUBLIC_VAPID_PUBLIC_KEY --build-arg VITE_PUBLIC_TURNSTILE_SITE_KEY \
-              --build-arg VITE_PUBLIC_SENTRY_DSN --output type=local,dest=maps/web .
+              --build-arg VITE_PUBLIC_SENTRY_DSN --build-arg VITE_PUBLIC_SHOWCASE --output type=local,dest=maps/web .
             upload "$SENTRY_PROJECT_WEB" /maps/web/app "$WEB_URL_PREFIX"
             upload "$SENTRY_PROJECT_WEB" /maps/web/admin "$WEB_URL_PREFIX"
           fi

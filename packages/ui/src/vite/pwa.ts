@@ -21,6 +21,7 @@ export const PRECACHE = {
     '**/*.map',
     'assets/common-*.js',
     'assets/errors-*.js',
+    'assets/Showcase-*.js', // staging-only showcase chunk (DECISIONS #58) — never downloaded by a normal visit
     'assets/noto-*.woff2',
     'assets/amiri-*.woff2',
     'splash/**',

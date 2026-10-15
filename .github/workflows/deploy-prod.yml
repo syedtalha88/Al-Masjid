@@ -76,6 +76,7 @@ jobs:
             --build-arg VITE_PUBLIC_APP_ORIGIN --build-arg VITE_PUBLIC_MEDIA_ORIGIN \
             --build-arg VITE_PUBLIC_VAPID_PUBLIC_KEY --build-arg VITE_PUBLIC_TURNSTILE_SITE_KEY \
             --build-arg VITE_PUBLIC_SENTRY_DSN \
+            --build-arg VITE_PUBLIC_SHOWCASE= \
             --label org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}" \
             --label org.opencontainers.image.revision="$RELEASE" \
             -t "$REGISTRY/al-masjid-web:prod-sha-$RELEASE" \

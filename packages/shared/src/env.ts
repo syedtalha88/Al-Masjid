@@ -471,13 +471,22 @@ const apiBase = nonEmpty.regex(/^\/[a-z0-9/_-]*$/, {
   error: 'must be a same-origin path like /api/v1 (APIs are same-origin, no CORS — DECISIONS #6)',
 });
 
+/**
+ * An optional client variable where `''` means unset: CI passes every variable to the Docker build
+ * (`--build-arg NAME`), and a GitHub variable that does not exist arrives as an empty string.
+ */
+const optionalClient = <T extends z.ZodType>(schema: T) =>
+  z.preprocess((value) => (value === '' ? undefined : value), schema.optional());
+
 const adminClientSchema = z.object({
   VITE_PUBLIC_API_BASE: apiBase,
   // Admins receive alert pushes (01 §5.8 alert-send), so the admin bundle needs the public VAPID key too.
   VITE_PUBLIC_VAPID_PUBLIC_KEY: vapidPublicKey,
-  VITE_PUBLIC_SENTRY_DSN: z.url({ protocol: /^https$/, error: 'must be an https Sentry DSN' }).optional(),
+  VITE_PUBLIC_SENTRY_DSN: optionalClient(z.url({ protocol: /^https$/, error: 'must be an https Sentry DSN' })),
   VITE_PUBLIC_APP_ORIGIN: origin(false),
   VITE_PUBLIC_MEDIA_ORIGIN: origin(false),
+  // Staging builds only (deploy-staging.yml): ships /_dev/showcase as a lazy chunk (DECISIONS #58).
+  VITE_PUBLIC_SHOWCASE: optionalClient(z.enum(['true', 'false'], { error: 'must be true or false' })),
 });
 
 const appClientSchema = adminClientSchema.extend({

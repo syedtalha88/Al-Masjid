@@ -55,10 +55,12 @@ ARG VITE_PUBLIC_APP_ORIGIN \
     VITE_PUBLIC_MEDIA_ORIGIN \
     VITE_PUBLIC_VAPID_PUBLIC_KEY \
     VITE_PUBLIC_TURNSTILE_SITE_KEY \
-    VITE_PUBLIC_SENTRY_DSN
+    VITE_PUBLIC_SENTRY_DSN \
+    VITE_PUBLIC_SHOWCASE
 # The API base differs per app and is fixed by design (same-origin paths, DECISIONS #6), so it is set here per build.
 # Source maps (+ their bundles) move to /maps for the optional Sentry upload (web-maps stage, T0.13); the served
-# dist/ keeps none. Then: no dev-only code, no secrets in the bundles.
+# dist/ keeps none. Then: no dev-only code, no secrets in the bundles. Staging builds (VITE_PUBLIC_SHOWCASE=true, set
+# only by deploy-staging.yml — DECISIONS #58) may carry the showcase, but only as a lazy, non-precached chunk.
 RUN MC_RELEASE="${RELEASE}" VITE_PUBLIC_API_BASE=/api/v1 pnpm --filter @mc/app build && \
     MC_RELEASE="${RELEASE}" VITE_PUBLIC_API_BASE=/api/admin pnpm --filter @mc/admin build && \
     for app in app admin; do \
@@ -66,7 +68,8 @@ RUN MC_RELEASE="${RELEASE}" VITE_PUBLIC_API_BASE=/api/v1 pnpm --filter @mc/app b
       cp apps/$app/dist/assets/*.js "/maps/$app/" && \
       find apps/$app/dist -name '*.map' -exec mv {} "/maps/$app/" \; ; \
     done && \
-    node scripts/check-dist.mjs && \
+    if [ "$VITE_PUBLIC_SHOWCASE" = true ]; then node scripts/check-dist.mjs --allow-showcase; \
+    else node scripts/check-dist.mjs; fi && \
     node scripts/scan-bundles.mjs
 
 # Deployable web image (staging/production): Caddy + the built apps baked in, pulled by digest.

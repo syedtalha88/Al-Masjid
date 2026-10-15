@@ -522,6 +522,24 @@ describe('parseClientEnv', () => {
       parseClientEnv('app', { ...APP_CLIENT, VITE_PUBLIC_APP_ORIGIN: 'http://localhost:5173' }).VITE_PUBLIC_APP_ORIGIN,
     ).toBe('http://localhost:5173');
   });
+
+  it('treats an empty optional variable as unset (an unset GitHub variable reaches the Docker build as "")', () => {
+    const env = parseClientEnv('app', { ...APP_CLIENT, VITE_PUBLIC_SENTRY_DSN: '', VITE_PUBLIC_SHOWCASE: '' });
+    expect(env.VITE_PUBLIC_SENTRY_DSN).toBeUndefined();
+    expect(env.VITE_PUBLIC_SHOWCASE).toBeUndefined();
+  });
+
+  it('accepts only "true" or "false" for the staging showcase flag (DECISIONS #58)', () => {
+    expect(parseClientEnv('admin', { ...ADMIN_CLIENT, VITE_PUBLIC_SHOWCASE: 'true' }).VITE_PUBLIC_SHOWCASE).toBe(
+      'true',
+    );
+    expect(
+      reasonFor(
+        envError(() => parseClientEnv('admin', { ...ADMIN_CLIENT, VITE_PUBLIC_SHOWCASE: 'yes' })),
+        'VITE_PUBLIC_SHOWCASE',
+      ),
+    ).toMatch(/true or false/);
+  });
 });
 
 // ---------------------------------------------------------------------------------------------------
@@ -555,6 +573,7 @@ describe('.env.example', () => {
       'VITE_PUBLIC_SENTRY_DSN',
       'VITE_PUBLIC_APP_ORIGIN',
       'VITE_PUBLIC_MEDIA_ORIGIN',
+      'VITE_PUBLIC_SHOWCASE',
     ];
     expect(client.filter((name) => !documented.has(name))).toEqual([]);
     expect([...documented].filter((name) => name.startsWith('VITE_') && !name.startsWith('VITE_PUBLIC_'))).toEqual([]);

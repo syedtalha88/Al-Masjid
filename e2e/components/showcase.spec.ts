@@ -5,8 +5,10 @@ import { APP_URL } from '../../playwright.config.ts';
 
 // PHASE_00 T0.10 acceptance (06 §6, 08 §5.3): the component showcase in every locale — axe clean, a screenshot
 // per section and locale — and the Sheet's drag, snap, dismiss, focus trap, Esc and scroll hand-off. The
-// showcase exists only in dev builds: these run against a Vite dev server (E2E_DEV_APP_URL, default
-// http://localhost:5173 — start it with `pnpm dev:app`); the last test checks the production build hides it.
+// showcase exists only in dev builds and staging builds (VITE_PUBLIC_SHOWCASE=true, DECISIONS #58): these run
+// against a Vite dev server (E2E_DEV_APP_URL, default http://localhost:5173 — start it with `pnpm dev:app`), or
+// against the Caddy stack serving a staging build (E2E_DEV_APP_URL=https://app.localhost:8443, under the real
+// CSP); the last test checks the production build hides it.
 
 const DEV_URL = process.env['E2E_DEV_APP_URL'] ?? 'http://localhost:5173';
 const SHOWCASE = `${DEV_URL}/_dev/showcase`;

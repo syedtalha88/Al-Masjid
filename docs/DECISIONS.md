@@ -300,7 +300,7 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **Icons:** tab/back/close/scan icons drawn by us on Phosphor's grid (the `@phosphor-icons/*` packages last released 17 months ago — CLAUDE.md §6 dependency rule).
 - **Initial JS:** `/` = 149.0 KB gz at T0.9 (navigator + 6 placeholder routes + tab bar ≈ 7.8 KB over T0.8); 162.1 KB after the Motion amendment above. Tracked in F15.
 
-### #45 — Component library (T0.10) — ACCEPTED (11 Oct 2026)
+### #45 — Component library (T0.10) — ACCEPTED (11 Oct 2026; showcase on staging: amended by #58)
 **Decision:**
 - **Where:** `@mc/ui/components` (06 §6 generic + controls + overlays + feedback), `@mc/ui/icons` (our glyphs on Phosphor's grid — DECISIONS #44), `NavBar`/`ScanFab` in `@mc/ui/navigation`. `AppShell` (06 §6) is the existing `StackNavigator` + `TabBar` pair — no separate component. TabBar items take a `badge` count (Updates).
 - **Motion:** everything that moves under a finger or must keep velocity uses the navigator's MotionValue driver (`navigation/driver.ts`: Sheet, Toast, TabPanels swipe, Dialog, OfflineBanner); sliding selection indicators (tab underline, segmented thumb, switch thumb) are compositor CSS transitions on the generated spring curves (they re-target smoothly; no velocity needed). Loop/feedback timings (`loop.*`, `feedback.*`) are tokens generated into `motion.css` (spin, shimmer, shake, ripple, image fade).
@@ -435,11 +435,15 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 **Residual risk (accepted for staging + production on one host, #42):** a malicious staging compose file is limited by the policy above, but staging still runs containers on the production host. Revisit before launch (Phase 9): a separate production VPS removes this entirely.
 **Owner impact:** the server needs `provision.sh host <sha>` once (it migrates the 14 Oct layout) — part of owner list O1.
 
+### #58 — Component showcase on staging: a staging-only build flag — ACCEPTED (owner chose option A, 15 Oct 2026; implemented 16 Oct 2026, T0.14; amends #45)
+**Context:** PHASE_00 T0.14 ("showcase reachable on staging only") and owner checks 0.3–0.5 (showcase on the phone via the staging links) vs #45 (showcase in dev builds only). Staging runs production builds. Options were A (build flag set only by `deploy-staging.yml`), B (owner checks against `pnpm dev` on the PC over Wi-Fi), C (a separate showcase host).
+**Decision (A):**
+- Client variable `VITE_PUBLIC_SHOWCASE` (`true`/`false`, empty = unset; `packages/shared/src/env.ts`, documented in `.env.example`). The `/_dev/showcase` route in both apps loads the showcase when `import.meta.env.DEV || import.meta.env.VITE_PUBLIC_SHOWCASE === 'true'` — dot access, so Vite replaces it at build time and every other build drops the import.
+- Set **only** in `deploy-staging.yml` (hard-coded `'true'`, not a GitHub variable). `deploy-prod.yml` passes `--build-arg VITE_PUBLIC_SHOWCASE=` (empty) explicitly, so no environment variable can switch it on in production.
+- `check:dist` stays strict by default (CI, `pnpm verify`, production image). The web image runs `check-dist --allow-showcase` only when the flag is `true`; that mode requires the showcase to be present **and** every dev-only marker to sit in a lazy JS chunk that neither `index.html` nor the service-worker precache references. The precache ignores `assets/Showcase-*.js` — a normal staging visit never downloads it; initial JS is unchanged.
+**Verified (16 Oct 2026):** builds without the flag: strict check passes, no showcase chunk. With the flag: strict check fails (5 markers × 2 apps, all in `Showcase-*.js`), `--allow-showcase` passes; planting the chunk name in `sw.js` makes it fail. Staging-style web image built locally (`docker buildx … --target runtime`): both checks + bundle scan pass. Showcase e2e through the Caddy stack under the real CSP/Trusted Types: 17 passed (Pixel 7 + iPhone 14, 4 locales, axe, sheet gestures); admin showcase renders with no console/CSP errors on both engines.
+**Found on the way:** (1) An unset GitHub variable reaches the Docker build as `""` and Vite keeps empty variables, so the first staging web image would have failed on `VITE_PUBLIC_SENTRY_DSN=""` (not an https URL). Optional client variables now treat `""` as unset (unit tested). (2) Chromium (Playwright 1.63) reports Playwright's own screenshot `<style>` as "Applying inline style violates …" when the `style` option is used — the e2e CSP guard's screenshot filter only knew WebKit's wording; extended (the app itself raises no violation).
+
 ## OPEN
 
-### #58 — Component showcase on staging? — OPEN (14 Oct 2026, T0.14)
-**Conflict:** PHASE_00 T0.14 acceptance ("showcase reachable on staging only") and owner guide 0.3–0.5 (check the showcase on your phone via the staging links) vs **#45** (showcase in **dev builds only**; production builds contain no showcase code, enforced by `check:dist`). Staging runs production builds, so today staging has no showcase.
-**Options:**
-- **A (recommended):** a build flag `VITE_PUBLIC_SHOWCASE=true` set **only** by `deploy-staging.yml`. The staging bundles then include the showcase as a lazily loaded chunk (initial JS unchanged); `deploy-prod.yml` never sets it and `check:dist` keeps failing a production build that contains showcase code. Amends #45.
-- **B:** keep #45 as is; the owner checks 0.3–0.5 run against `pnpm dev` on the PC, with the phone on the same Wi-Fi (harder for the owner, not on HTTPS, not the real staging stack).
-- **C:** a separate staging-only showcase host — more DNS/Caddy/router configuration for no extra benefit over A.
+_None._
