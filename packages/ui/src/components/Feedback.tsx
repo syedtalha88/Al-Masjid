@@ -15,10 +15,19 @@ const subscribeOnline = (callback: () => void) => {
   };
 };
 
-/** Offset that hides the offline banner completely above the viewport: its own height plus a small margin. */
-function hiddenY(element: HTMLElement | null): number {
-  return -((element?.offsetHeight ?? 0) + 8);
+/**
+ * The `y` that hides the offline banner completely above the viewport, in **percent of its own height** — the
+ * navigation driver renders `y` as `translateY(<y>%)`: all of its height plus an 8 px margin. A pixel value here once
+ * left a 20 px strip of the banner visible on every screen (verifier V-19).
+ *
+ * @param height - the banner's rendered height in px (0 before layout).
+ * @returns a negative percentage; −110 % when the height is not known yet.
+ */
+export function hiddenBannerY(height: number): number {
+  return height > 0 ? -(100 + (8 / height) * 100) : -110;
 }
+
+const hiddenY = (element: HTMLElement | null) => hiddenBannerY(element?.offsetHeight ?? 0);
 
 /** `navigator.onLine`, live. Assumes online where the API is missing. */
 export function useOnlineStatus(): boolean {

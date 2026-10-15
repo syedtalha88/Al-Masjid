@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, renderHook, screen, waitFor } from '@testing-l
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { hiddenBannerY } from '../src/components/Feedback.tsx';
 import {
   Image,
   InstallPrompt,
@@ -141,6 +142,14 @@ describe('offline + update surfaces (08 §5.10)', () => {
     });
     expect(result.current).toBe(false);
     vi.restoreAllMocks();
+  });
+
+  it('hidden banner offset is a percentage of its height that clears the viewport (V-19)', () => {
+    // The driver renders y as translateY(<y>%): −100 % is exactly the banner's height, plus an 8 px margin.
+    expect(hiddenBannerY(40)).toBe(-120);
+    expect(hiddenBannerY(80)).toBe(-110);
+    expect(hiddenBannerY(0)).toBe(-110);
+    for (const height of [20, 34, 52, 96]) expect((hiddenBannerY(height) / 100) * height).toBeCloseTo(-(height + 8));
   });
 
   it('offline banner announces only while offline', async () => {
