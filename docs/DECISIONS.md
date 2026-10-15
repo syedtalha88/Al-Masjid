@@ -446,4 +446,10 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 
 ## OPEN
 
-_None._
+### #60 — MongoDB for staging and production (PROGRESS F10) — OPEN (16 Oct 2026, before Phase 01)
+**Context:** Phase 01 needs a MongoDB replica set with custom roles (#20), views, `$jsonSchema` validators and multi-document transactions. F10 assumed Atlas's free tier could not do this. **Checked against the Atlas docs on 16 Oct 2026:** Free (M0) and Flex clusters **do** support custom roles (created through the Atlas UI/Admin API — `createRole`/`createUser` commands are blocked on *every* Atlas tier, so our design creates users and roles through Atlas anyway); `collMod`, `createIndexes`, `create` (views, validators) are not on the unsupported list; transactions work on any replica set. Limits: M0 = 512 MB, 100 ops/s, 10 GB transfer per 7 days, no backups/auditing; Flex = 5 GB, 500 ops/s, one daily snapshot, **no continuous backup / point-in-time restore, no auditing**, $8–30/month. Dedicated M10 = $0.08/h ≈ $57/month base (US list price; Mumbai shown in the Atlas console may be slightly higher) + Continuous Cloud Backup (storage-based, small at our size).
+**Options:**
+- **A (recommended): staging on Atlas M0 Free (Mumbai, ₹0); production on Atlas M10 + Continuous Cloud Backup from Phase 9 only** (≈ $60–70/month ≈ ₹5,000–6,000, plus GST if charged). Staging data is tiny and test-only; production needs point-in-time restore and auditing (#6), which only dedicated tiers offer. Nothing is paid before launch.
+- **B:** staging on Atlas Flex ($8–30/month) — more headroom than M0, still no PITR; not needed for staging traffic.
+- **C:** self-hosted MongoDB on the VPS for staging (₹0) — works, but staging then differs from production (Atlas user/role management, TLS, limits), so Atlas-specific problems would first appear in production. Self-hosting production was rejected in #6 (backups, encryption at rest, patching become the owner's job).
+**Recommendation:** A. If staging ever outgrows M0 (100 ops/s, 512 MB), move it to Flex.
