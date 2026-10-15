@@ -260,7 +260,9 @@ jobs:
       contents: write # release assets (DECISIONS #55)
       packages: write
     uses: ./.github/workflows/deploy-staging.yml
-    # Only the one repository secret the release needs (least privilege; environment secrets such as the signing
-    # key reach the called job through its environment: staging).
+    # Only the secrets the release needs (least privilege). The signing key exists only in the `staging` environment,
+    # but a reusable workflow still receives it only when the caller passes it by name — otherwise it resolves to ""
+    # (GitHub docs, "Reuse workflows", checked 16 Oct 2026); the called job's `environment: staging` supplies the value.
     secrets:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}

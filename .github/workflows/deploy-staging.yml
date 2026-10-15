@@ -16,10 +16,10 @@ on:
         description: Optional — source-map upload (DECISIONS #52)
         required: false
       RELEASE_SIGNING_KEY:
-        # Never passed by the caller: it is a secret of the staging environment, and for a job with
-        # environment: staging GitHub uses the environment's secret (DECISIONS #55). Declared for the linter.
+        # A secret of the staging environment only (DECISIONS #55). The caller must still pass it by name, or it
+        # resolves to "" here; with `environment: staging` on the job, GitHub supplies the environment's value.
         description: Staging release-signing key (environment secret)
-        required: false
+        required: true
   # No workflow_dispatch: a staging release only ever follows a green CI run on main (review S-L13).
 
 permissions:
@@ -133,16 +133,16 @@ jobs:
           ENVIRONMENT: staging
         run: node scripts/release-manifest.mjs
 
-      # DECISIONS #55: OpenSSH signature + a fixed pre-release the VPS polls with curl. Skipped until the staging
-      # signing key exists (created on the server in T0.14 → environment secret RELEASE_SIGNING_KEY).
+      # DECISIONS #55: OpenSSH signature + a fixed pre-release the VPS polls with curl. The key exists since 15 Oct 2026
+      # (environment secret RELEASE_SIGNING_KEY), so a missing key now fails the release instead of skipping quietly.
       - name: Sign and publish the manifest for the VPS
         env:
           RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
           GH_TOKEN: ${{ github.token }}
         run: |
           if [ -z "$RELEASE_SIGNING_KEY" ]; then
-            echo "::notice title=Manifest not signed::No staging signing key yet (T0.14, DECISIONS #55)."
-            exit 0
+            echo "::error title=Manifest not signed::RELEASE_SIGNING_KEY is empty — check the staging environment secret and that ci.yml passes it (DECISIONS #55)."
+            exit 1
           fi
           umask 077
           key="$RUNNER_TEMP/release-signing-key"
