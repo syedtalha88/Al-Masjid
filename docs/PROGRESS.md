@@ -20,6 +20,7 @@
 
 ## Waiting for the owner (ask after every task — owner's instruction, 14 Oct 2026)
 
+> Owner-friendly checklist with steps: `owner/MY_PENDING_TASKS.md` (keep both in sync).
 > The owner deferred these on purpose and wants to be **asked after each completed task** whether they are available
 > for them or whether one is needed to move forward. Not "at the very end" — roughly within the next phase.
 
