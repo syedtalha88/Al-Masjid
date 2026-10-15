@@ -12,6 +12,8 @@
 - [x] **O1** — Release-signing key + GitHub `staging` environment (15 Oct 2026)
 - [x] **O4** — Showcase on staging: **yes** (15 Oct 2026)
 - [x] **O5** — Web font: **keep as is** (15 Oct 2026). I'll judge the opening smoothness on the Poco F7 during O7.
+- [x] **Server scripts** installed from the tested commit `9f664d3` (`provision.sh host`, fingerprint checked) (16 Oct 2026)
+- [x] **O3** — Log-archive key: created on my PC (`Documentsmasjid-logs.key`, backed up), public key on the server; hourly archive runs (16 Oct 2026)
 
 ---
 
@@ -21,7 +23,6 @@
 |---|---|---|---|
 | 1 | **First staging deploy** (with Claude Code, a few server commands) | next session | 15 min |
 | 2 | **O2** — WireGuard tunnel + close public SSH | right after step 1 | 20 min |
-| 3 | **O3** — Log-archive key | right after step 2 | 5 min |
 | 4 | **O6** — GitHub checks 0.15–0.17 | after step 1 | 15 min |
 | 5 | **O7** — Phone checks 0.1–0.14 | after step 1 | 30–45 min |
 | 6 | **F10** — MongoDB choice for staging | before Phase 01 | 1 answer |
