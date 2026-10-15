@@ -18,7 +18,6 @@ set -euo pipefail
 
 REPO_URL=https://github.com/syedtalha88/Al-Masjid.git
 LIB=/usr/local/lib/masjid-connect   # host scripts + edge config, changed only by `provision.sh host <sha>`
-SRV=/srv/masjid-connect             # one release checkout per environment, moved only by that environment's deploys
 ETC=/etc/masjid-connect
 WG_NET=10.66.0
 WG_PORT=51820
@@ -146,13 +145,18 @@ host() {
   src=$(mktemp -d)
   git clone --quiet --no-checkout "$REPO_URL" "$src"
   git -C "$src" checkout --quiet --detach "$ref"
-  install -d -m 755 "$LIB" "$LIB/edge"
+  install -d -m 755 "$LIB" "$LIB/edge" "$LIB/compose"
   install -m 755 "$src"/infra/vps/{provision,deploy,cloudflare-ips,log-archive,check,make-env}.sh "$LIB/"
   install -m 644 "$src"/infra/edge/haproxy.cfg "$src"/infra/compose/docker-compose.edge.yml "$LIB/edge/"
+  # Each environment's compose file + redis.conf: part of the reviewed host layer, never taken from a release (#61).
+  install -m 644 "$src"/infra/compose/docker-compose.vps.yml "$src"/infra/compose/redis.conf "$LIB/compose/"
   install -m 644 "$src"/infra/vps/systemd/*.service "$src"/infra/vps/systemd/*.timer /etc/systemd/system/
   printf '%s\n' "$ref" >"$LIB/VERSION"
   rm -rf "$src"
-  install -d -m 755 "$SRV"
+  if [ -d /srv/masjid-connect ]; then # per-environment release checkouts (#59) are no longer used (#61)
+    rm -rf /srv/masjid-connect
+    echo "removed the release checkouts in /srv/masjid-connect (no longer used)"
+  fi
   if [ -d /opt/masjid-connect/.git ]; then # layout of 14 Oct 2026 (one shared checkout) → per-environment checkouts
     rm -rf /opt/masjid-connect
     echo "removed the old shared checkout /opt/masjid-connect"

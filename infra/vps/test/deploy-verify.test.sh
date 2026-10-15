@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tests infra/vps/deploy.sh (DECISIONS #55, #56, #59) without a server or Docker daemon: a throwaway signing key,
+# Tests infra/vps/deploy.sh (DECISIONS #55, #56, #59, #61) without a server or Docker daemon: a throwaway signing key,
 # manifests served by a local HTTP server; release verification via `--check-only`, then the deploy / rolling restart /
 # rollback / replay / compose-policy / lock flow with git and docker replaced by stubs that record their calls.
 # Run (from the repo root):
@@ -17,11 +17,14 @@ ssh-keygen -q -t ed25519 -N '' -C other -f "$root/other-key"
 printf 'masjid-connect-staging namespaces="masjid-connect-release" %s\n' "$(cat "$root/key.pub")" >"$root/config/allowed_signers"
 
 digest() { printf 'sha256:%064d' "$1"; }
+# HOST_LAYER (JSON, optional): the manifest's hostLayer hashes; unset = an older manifest without them.
 manifest() { # <dir> <environment> <server image> [web image] [release] [created]
   local web=${4:-} release=${5:-0123456789abcdef0123456789abcdef01234567} created=${6:-2026-10-14T00:00:00.000Z}
   jq -n --arg env "$2" --arg server "$3" --arg web "$web" --arg release "$release" --arg created "$created" \
+    --argjson host "${HOST_LAYER:-null}" \
     '{environment: $env, release: $release, created: $created,
-      images: ({server: $server} + (if $web == "" then {} else {web: $web} end))}' >"$1/release-manifest.json"
+      images: ({server: $server} + (if $web == "" then {} else {web: $web} end))}
+     + (if $host == null then {} else {hostLayer: $host} end)' >"$1/release-manifest.json"
 }
 sign() { ssh-keygen -q -Y sign -f "$2" -n masjid-connect-release "$1/release-manifest.json"; } # writes .sig
 
@@ -71,16 +74,25 @@ expect "a missing manifest is an error" 1 nowhere staging
 
 # --- Deploy flow: git and docker are stubs (no daemon, no repository) ------------------------------------------------
 # The docker stub records every call, keeps a per-service list of fake container ids (so the rolling restart can be
-# followed), prints a compose config for the hardening policy, and reports every container healthy.
+# followed), prints a compose config for the hardening policy, and reports every container healthy. A deploy must never
+# call git: the compose file comes from the host layer (DECISIONS #61), not from a release checkout.
 stub=$root/stub
-mkdir -p "$stub/lib" "$root/stub-state"
+mkdir -p "$stub/lib/compose" "$root/stub-state"
+printf 'services: {}\n' >"$stub/lib/compose/docker-compose.vps.yml"
+printf 'aclfile /usr/local/etc/redis/users.acl\n' >"$stub/lib/compose/redis.conf"
+sha() { sha256sum <"$1" | cut -d" " -f1; }
+HOST_LAYER=$(jq -nc --arg c "$(sha "$stub/lib/compose/docker-compose.vps.yml")" --arg r "$(sha "$stub/lib/compose/redis.conf")" \
+  '{compose: $c, redis: $r}')
 cat >"$stub/docker" <<'STUB'
 #!/bin/bash
 echo "$(basename "$0") WEB_IMAGE=${WEB_IMAGE:-} $*" >>"$STUB_CALLS"
 [ "$(basename "$0")" = docker ] || exit 0
 args=" $* "
 case "$args" in
-  *" config --format json "*) cat "$STUB_COMPOSE_JSON" ;;
+  *" config --format json "*)
+    jq --arg s "${SERVER_IMAGE:-}" --arg w "${WEB_IMAGE:-}" \
+      '.services |= map_values(if .image == "@SERVER@" then .image = $s elif .image == "@WEB@" then .image = $w else . end)' \
+      "$STUB_COMPOSE_JSON" ;;
   *" ps -q "*)
     for svc in "$@"; do if [ -f "$STUB_STATE/$svc" ]; then cat "$STUB_STATE/$svc"; fi; done ;;
   *" up "*" --scale "*)
@@ -106,23 +118,35 @@ printf '#!/bin/sh\necho "log-archive $*" >>"$STUB_CALLS"\n' >"$stub/lib/log-arch
 chmod +x "$stub/docker" "$stub/git" "$stub/lib/log-archive.sh"
 export STUB_CALLS=$root/calls STUB_STATE=$root/stub-state
 # Compose configs as `docker compose config --format json` prints them: hardened (passes) and with one bad service.
-service() { # <bind source or "">
-  jq -n --arg src "$1" '{read_only: true, cap_drop: ["ALL"], security_opt: ["no-new-privileges:true"],
+service() { # <image> <bind source or "">
+  jq -n --arg image "$1" --arg src "$2" '{image: $image, read_only: true, cap_drop: ["ALL"],
+    security_opt: ["no-new-privileges:true"],
     volumes: (if $src == "" then [] else [{type: "bind", source: $src, target: "/x", read_only: true}] end)}'
 }
-jq -n --argjson web "$(service "$root/config/certs")" --argjson redis "$(service "$root/repo/infra/compose/redis.conf")" \
-  --argjson api "$(service "")" \
-  '{services: {web: $web, redis: $redis, "api-public": $api, "api-admin": $api, worker: $api}}' >"$root/compose-ok.json"
+redis_image="redis:8.10.2-alpine@$(digest 7)"
+jq -n --argjson web "$(service @WEB@ "$root/config/certs")" --argjson redis "$(service "$redis_image" "$stub/lib/compose/redis.conf")" \
+  --argjson api "$(service @SERVER@ "")" \
+  '{services: {web: $web, redis: $redis, "api-public": $api, "api-admin": $api, worker: $api},
+    networks: {edge: {external: true, name: "mc-edge-staging"}}, volumes: {"redis-data": {}}}' >"$root/compose-ok.json"
 jq '.services.worker.privileged = true' "$root/compose-ok.json" >"$root/compose-privileged.json"
 jq '.services.worker.volumes = [{type: "bind", source: "/", target: "/host"}]' "$root/compose-ok.json" >"$root/compose-hostmount.json"
 jq '.services.web.ports = [{target: 8443, published: "443"}]' "$root/compose-ok.json" >"$root/compose-ports.json"
+# Review H1 (16 Oct 2026): bypasses of the earlier deny-list.
+jq '.volumes.x = {driver: "local", driver_opts: {type: "none", o: "bind", device: "/"}}' "$root/compose-ok.json" >"$root/compose-namedvolume.json"
+jq '.secrets = {s: {file: "/etc/masjid-connect/production/worker.env"}}' "$root/compose-ok.json" >"$root/compose-secrets.json"
+jq '.networks.edge.name = "mc-edge-production"' "$root/compose-ok.json" >"$root/compose-prodedge.json"
+jq '.services.worker.image = "docker.io/library/alpine:latest"' "$root/compose-ok.json" >"$root/compose-image.json"
+jq '.services.worker.security_opt = ["no-new-privileges:true", "seccomp:unconfined"]' "$root/compose-ok.json" >"$root/compose-seccomp.json"
+jq '.services.worker.build = {context: "."}' "$root/compose-ok.json" >"$root/compose-build.json"
+jq '.services.worker.user = "0:0"' "$root/compose-ok.json" >"$root/compose-root.json"
+jq '.services.worker.uts = "host"' "$root/compose-ok.json" >"$root/compose-uts.json"
 export STUB_COMPOSE_JSON=$root/compose-ok.json
 state=$root/flow-state
 run() { # <case dir> [deploy.sh option]
   local dir=$1
   shift
   PATH="$stub:$PATH" MC_RELEASE_BASE_URL="http://127.0.0.1:8999/$dir" MC_CONFIG_DIR="$root/config" \
-    MC_STATE_DIR="$state" MC_REPO_DIR="$root/repo" MC_LIB_DIR="$stub/lib" MC_LOCK_FILE="$root/lock" \
+    MC_STATE_DIR="$state" MC_LIB_DIR="$stub/lib" MC_LOCK_FILE="$root/lock" \
     bash /vps/deploy.sh staging "$@" >"$root/out" 2>&1
 }
 check() { # <label> <condition>
@@ -149,8 +173,8 @@ check "first release without a web image is refused (nothing to keep)" '[ "$got"
 STUB_FAIL_UP=1 run rel-1; got=$?
 check "unhealthy services: release not recorded" '[ "$got" -eq 1 ] && [ "$(deployed)" -eq 0 ]'
 rm -f "$STUB_STATE"/*; : >"$STUB_CALLS"; run rel-1; got=$?
-check "release 1 deploys: checkout of the signed commit, images exported, 2 + 2 + 1 containers" \
-  '[ "$got" -eq 0 ] && [ "$(running)" = "$(rel 1)" ] && grep -q "checkout --quiet --detach $(rel 1)" "$STUB_CALLS" && grep -q "WEB_IMAGE=$web compose .* up " "$STUB_CALLS" && [ "$(lines "$STUB_STATE/api-public")" -eq 2 ] && [ "$(lines "$STUB_STATE/web")" -eq 1 ]'
+check "release 1 deploys: host-layer compose file, no git, images exported, 2 + 2 + 1 containers" \
+  '[ "$got" -eq 0 ] && [ "$(running)" = "$(rel 1)" ] && ! grep -q "^git " "$STUB_CALLS" && grep -q -- "-f $stub/lib/compose/docker-compose.vps.yml" "$STUB_CALLS" && grep -q "WEB_IMAGE=$web compose .* up " "$STUB_CALLS" && [ "$(lines "$STUB_STATE/api-public")" -eq 2 ] && [ "$(lines "$STUB_STATE/web")" -eq 1 ]'
 : >"$STUB_CALLS"; run rel-1; got=$?
 check "same release again is a quiet no-op" '[ "$got" -eq 0 ] && [ "$(deployed)" -eq 1 ] && [ ! -s "$STUB_CALLS" ] && [ ! -s "$root/out" ]'
 old_api=$(tr '\n' ' ' <"$STUB_STATE/api-public" | sed 's/ $//')
@@ -181,9 +205,9 @@ run rel-5; got=$?
 check "replay: a signed but OLDER manifest is refused (review S-M1)" \
   '[ "$got" -eq 1 ] && [ "$(running)" = "$(rel 4)" ] && grep -q "not newer" "$root/out"'
 publish rel-6 6 "$web"
-for bad in privileged hostmount ports; do
+for bad in privileged hostmount ports namedvolume secrets prodedge image seccomp build root uts; do
   STUB_COMPOSE_JSON=$root/compose-$bad.json run rel-6; got=$?
-  check "compose policy refuses a release whose compose file has: $bad (review S-H1)" \
+  check "compose policy refuses a compose file with: $bad (review S-H1, H1)" \
     '[ "$got" -eq 1 ] && [ "$(running)" = "$(rel 4)" ] && grep -q "hardening policy" "$root/out"'
 done
 (flock "$root/lock" sleep 4 &)
@@ -202,6 +226,16 @@ old_web=$(cat "$STUB_STATE/web")
 : >"$STUB_CALLS"; STUB_UNHEALTHY=web run rel-7; got=$?
 new_web=$(grep -oE "log-archive --container web-[0-9]+" "$STUB_CALLS" | awk '{print $3}' | head -n 1)
 check "failed new container: its last log lines reach the journal, its logs are archived, then it is removed (F33)"   '[ "$got" -eq 1 ] && [ "$(running)" = "$(rel 6)" ] && grep -q "failed to find any PEM data" "$root/out" && [ -n "$new_web" ] && [ "$new_web" != "$old_web" ] && grep -q "rm -f $new_web" "$STUB_CALLS" && [ "$(cat "$STUB_STATE/web")" = "$old_web" ]'
+
+# A release built for other host-layer files (its compose file changed) must not run with the installed ones.
+HOST_LAYER='{"compose":"0000000000000000000000000000000000000000000000000000000000000000","redis":"x"}' publish rel-8 8 "$web"
+: >"$STUB_CALLS"; run rel-8; got=$?
+check "release for another host layer: refused with the provision.sh host command to run (DECISIONS #61)" \
+  '[ "$got" -eq 1 ] && [ "$(running)" = "$(rel 6)" ] && grep -q "provision.sh host $(rel 8)" "$root/out" && ! grep -q " up " "$STUB_CALLS"'
+HOST_LAYER=null publish rel-9 9 "$web"
+run rel-9; got=$?
+check "older manifest without host-layer hashes: deploys with a warning" \
+  '[ "$got" -eq 0 ] && [ "$(running)" = "$(rel 9)" ] && grep -q "names no host layer" "$root/out"'
 
 echo "== $failures failure(s)"
 [ "$failures" -eq 0 ]

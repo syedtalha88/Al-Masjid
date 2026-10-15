@@ -10,8 +10,10 @@
 #                                                  skipped until a newer one is published — to go forward again
 #                                                  sooner: rm <state>/rolled-back)
 # Installed as a root-owned copy in /usr/local/lib/masjid-connect by `provision.sh host <sha>` — it never runs from a
-# release checkout (review S-H1). Each environment has its own checkout (/srv/masjid-connect/<env>) that only its own
-# signed releases move; the compose file from that checkout must pass the hardening policy below before it runs.
+# release checkout (review S-H1). The compose file and redis.conf are part of that reviewed host layer too (DECISIONS
+# #61, review H1 of 16 Oct 2026): a release supplies only signed image digests, never configuration that root Docker
+# runs. Its manifest names the host-layer files it was built for; a mismatch stops the deploy with the
+# `provision.sh host <sha>` to run. The hardening policy below still checks the rendered compose file.
 # A staging manifest without a web image (staging build variables not set yet) keeps the running web image.
 # Verification, deploy, rolling restart and rollback logic are tested with stubbed git/docker
 # (infra/vps/test/deploy-verify.test.sh, CI); docker itself runs first on the server.
@@ -28,10 +30,10 @@ main() {
   BASE_URL=${MC_RELEASE_BASE_URL:-https://github.com/$REPO/releases/download/$ENVIRONMENT-current}
   CONFIG_DIR=${MC_CONFIG_DIR:-/etc/masjid-connect/$ENVIRONMENT}   # allowed_signers, env files, certs (root)
   STATE_DIR=${MC_STATE_DIR:-/var/lib/masjid-connect/$ENVIRONMENT} # releases/, releases.log, rolled-back (root)
-  REPO_DIR=${MC_REPO_DIR:-/srv/masjid-connect/$ENVIRONMENT}       # this environment's own checkout
-  LIB_DIR=${MC_LIB_DIR:-/usr/local/lib/masjid-connect}            # host scripts (log-archive.sh)
+  LIB_DIR=${MC_LIB_DIR:-/usr/local/lib/masjid-connect}            # host layer: scripts, compose file, redis.conf
+  COMPOSE_DIR=$LIB_DIR/compose
   LOCK_FILE=${MC_LOCK_FILE:-/run/lock/masjid-connect-deploy.lock}
-  COMPOSE_FILE=$REPO_DIR/infra/compose/docker-compose.vps.yml
+  COMPOSE_FILE=$COMPOSE_DIR/docker-compose.vps.yml
   NAMESPACE=masjid-connect-release
   SIGNER=masjid-connect-$ENVIRONMENT
   REGISTRY_RE='^ghcr\.io/syedtalha88/al-masjid-(server|web)@sha256:[0-9a-f]{64}$'
@@ -105,14 +107,11 @@ main() {
     [ -n "$web_image" ] || die "manifest has no web image and none is running yet (staging build variables — DEPLOY.md)"
   fi
 
+  host_layer_matches "$work/manifest.json" ||
+    die "release $release needs the host layer from its own commit — run: sudo bash provision.sh host $release"
   log "deploying $release"
-  # Compose files and Caddy/Redis config come from this environment's checkout at the signed commit (git checks every
-  # object against the SHA). Nothing from this checkout runs on the host itself.
-  [ -d "$REPO_DIR/.git" ] || git clone --quiet "https://github.com/$REPO.git" "$REPO_DIR"
-  git -C "$REPO_DIR" fetch --quiet --depth 1 origin "$release"
-  git -C "$REPO_DIR" checkout --quiet --detach "$release"
-  export MC_ENV=$ENVIRONMENT MC_CONFIG_DIR=$CONFIG_DIR MC_INFRA_DIR=$REPO_DIR/infra SERVER_IMAGE=$server_image WEB_IMAGE=$web_image
-  compose_policy || die "compose file of $release breaks the hardening policy — refusing"
+  export MC_ENV=$ENVIRONMENT MC_CONFIG_DIR=$CONFIG_DIR MC_COMPOSE_DIR=$COMPOSE_DIR SERVER_IMAGE=$server_image WEB_IMAGE=$web_image
+  compose_policy || die "the installed compose file breaks the hardening policy — refusing"
   compose pull --quiet
   # Migrations arrive in Phase 1: `compose run --rm migrate` here, production only after the owner's approval.
 
@@ -208,13 +207,42 @@ rolling() { # <service> <replicas>
   fi
 }
 
-# Hardening policy for the release's compose file (review S-H1): a compose file can otherwise ask root Docker for
-# anything. Every service must keep the 04 §12.2 settings, publish no port, and bind-mount only from this
-# environment's config directory or its own checkout's infra/ directory.
+# The manifest's hostLayer hashes (written by CI from the release commit) must match the installed compose file and
+# redis.conf, so images never run with configuration from another commit. Manifests from before 16 Oct 2026 have
+# no hashes: allowed with a warning (rollback to them stays possible).
+host_layer_matches() {
+  local want_compose want_redis
+  want_compose=$(jq -r '.hostLayer.compose // empty' "$1")
+  want_redis=$(jq -r '.hostLayer.redis // empty' "$1")
+  if [ -z "$want_compose" ] || [ -z "$want_redis" ]; then
+    log "WARNING: manifest names no host layer (older release) — using the installed compose file"
+    return 0
+  fi
+  [ "$(sha256sum <"$COMPOSE_FILE" | cut -d' ' -f1)" = "$want_compose" ] &&
+    [ "$(sha256sum <"$COMPOSE_DIR/redis.conf" | cut -d' ' -f1)" = "$want_redis" ]
+}
+
+# Hardening policy (review S-H1, H1): defence in depth on the rendered compose file, although it now comes only from the
+# reviewed host layer. Every service keeps the 04 §12.2 settings, runs one of the release's images or the pinned
+# Redis, publishes no port, builds nothing, mounts only this environment's config directory or the host layer's
+# compose directory, and joins no external network except this environment's edge network.
 compose_policy() {
   local problems
-  problems=$(compose config --format json | jq -r --arg cfg "$CONFIG_DIR/" --arg infra "$REPO_DIR/infra/" '
-    .services | to_entries[] | .key as $n | .value |
+  problems=$(compose config --format json | jq -r --arg cfg "$CONFIG_DIR/" --arg cmp "$COMPOSE_DIR/" \
+    --arg server "$SERVER_IMAGE" --arg web "$WEB_IMAGE" --arg edge "mc-edge-$ENVIRONMENT" '
+    (if ((.secrets // {}) | length) > 0 or ((.configs // {}) | length) > 0 then "secrets/configs not allowed" else empty end),
+    ((.volumes // {}) | to_entries[] | select(.value.driver != null or .value.driver_opts != null)
+      | "volume \(.key): driver options"),
+    ((.networks // {}) | to_entries[] | select(.value.external == true and .value.name != $edge)
+      | "network \(.key): external \(.value.name)"),
+    (.services | to_entries[] | .key as $n | .value |
+    (if (.image == $server or .image == $web or (.image // "" | test("^redis:[0-9.]+-alpine@sha256:[0-9a-f]{64}$"))) | not
+      then "\($n): image \(.image)" else empty end),
+    (if .build != null then "\($n): build" else empty end),
+    (if (.security_opt // []) != ["no-new-privileges:true"] then "\($n): security_opt must be exactly no-new-privileges" else empty end),
+    (if (.user // "") | test("^(root|0)(:|$)") then "\($n): runs as root" else empty end),
+    (if (.uts // .cgroup) != null then "\($n): host uts/cgroup" else empty end),
+    (if ((.sysctls // {}) | length) > 0 then "\($n): sysctls" else empty end),
     (if .privileged == true then "\($n): privileged" else empty end),
     (if ((.cap_add // []) | length) > 0 then "\($n): cap_add" else empty end),
     (if ((.cap_drop // []) | index("ALL")) == null then "\($n): cap_drop ALL missing" else empty end),
@@ -226,8 +254,8 @@ compose_policy() {
       then "\($n): host/shared namespace setting" else empty end),
     ((.volumes // [])[] | select(.type != "volume")
       | select(.type != "bind" or (.source | contains("/../")) or
-          ((.source | startswith($cfg)) or (.source | startswith($infra)) | not))
-      | "\($n): mount \(.type) \(.source)")')
+          ((.source | startswith($cfg)) or (.source | startswith($cmp)) | not))
+      | "\($n): mount \(.type) \(.source)"))')
   [ -z "$problems" ] && return 0
   log "compose policy violations:"
   printf '  %s\n' "$problems" >&2

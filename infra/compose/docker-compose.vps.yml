@@ -1,4 +1,6 @@
-# One environment on the VPS (DECISIONS #21, #42, #54) — run by infra/vps/deploy.sh, never by hand in normal use:
+# One environment on the VPS (DECISIONS #21, #42, #54, #61) — run by infra/vps/deploy.sh, never by hand in normal use.
+# Installed with redis.conf into /usr/local/lib/masjid-connect/compose by `provision.sh host <reviewed sha>` only —
+# a release never brings its own compose file (review H1, 16 Oct 2026):
 #   MC_ENV=staging SERVER_IMAGE=<digest ref> WEB_IMAGE=<digest ref> \
 #     docker compose -p mc-staging -f docker-compose.vps.yml up -d --wait
 # Images come by digest from the verified release manifest (#55). Secrets live only in
@@ -115,7 +117,7 @@ services:
     user: '999:1000' # the image's redis user
     entrypoint: ['redis-server', '/usr/local/etc/redis/redis.conf']
     volumes:
-      - ${MC_INFRA_DIR:-/srv/masjid-connect/${MC_ENV}/infra}/compose/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ${MC_COMPOSE_DIR:-/usr/local/lib/masjid-connect/compose}/redis.conf:/usr/local/etc/redis/redis.conf:ro
       - ${MC_CONFIG_DIR:-/etc/masjid-connect/${MC_ENV}}/redis-users.acl:/usr/local/etc/redis/users.acl:ro
       - redis-data:/data
     tmpfs:
