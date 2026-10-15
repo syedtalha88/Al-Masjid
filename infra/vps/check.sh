@@ -159,6 +159,24 @@ for file in "$ENV_ROOT"/staging/*.env "$ENV_ROOT"/production/*.env; do
   if [ "$mode" = "600 root" ]; then ok "env file $file is 600 root"; else bad "env file $file is 600 root (is $mode)"; fi
 done
 [ "$found_env" -eq 1 ] || bad "env files present under $ENV_ROOT/<environment>/"
+# --- Origin TLS files per environment (PROGRESS F34): Caddy refuses to start on a malformed file --------------------
+for env in staging production; do
+  ls "$ENV_ROOT/$env"/*.env >/dev/null 2>&1 || continue # environment not set up on this host
+  certs=$ENV_ROOT/$env/certs
+  if ! has openssl; then note "$env: openssl missing — origin certificate files not checked"; continue; fi
+  check "$env: origin certificate parses (PEM)" "openssl x509 -in $certs/origin.pem -noout"
+  check "$env: origin key parses (PEM)" "openssl pkey -in $certs/origin-key.pem -noout"
+  check "$env: origin key matches the certificate" \
+    "p=\$(openssl x509 -in $certs/origin.pem -noout -pubkey) && k=\$(openssl pkey -in $certs/origin-key.pem -pubout) && [ -n \"\$p\" ] && [ \"\$p\" = \"\$k\" ]"
+  check "$env: origin certificate valid for 30+ days" "openssl x509 -in $certs/origin.pem -noout -checkend 2592000"
+  check "$env: Cloudflare origin-pull CA parses (PEM)" "openssl x509 -in $certs/cloudflare-origin-pull-ca.pem -noout"
+  for file in "$certs"/origin.pem "$certs"/origin-key.pem "$certs"/cloudflare-origin-pull-ca.pem; do
+    [ -e "$file" ] || continue
+    mode=$(stat -c '%a %u:%g' "$file")
+    if [ "$mode" = "640 0:1000" ]; then ok "$file is 640 root:1000"; else bad "$file is 640 root:1000 (is $mode)"; fi
+  done
+done
+
 if [ -d "$LOG_ARCHIVE" ]; then
   if [ "$(stat -c '%a' "$LOG_ARCHIVE")" = "700" ]; then ok "log archive directory is 700"; else bad "log archive directory is 700"; fi
 else
