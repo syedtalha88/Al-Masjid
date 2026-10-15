@@ -444,12 +444,14 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 **Verified (16 Oct 2026):** builds without the flag: strict check passes, no showcase chunk. With the flag: strict check fails (5 markers × 2 apps, all in `Showcase-*.js`), `--allow-showcase` passes; planting the chunk name in `sw.js` makes it fail. Staging-style web image built locally (`docker buildx … --target runtime`): both checks + bundle scan pass. Showcase e2e through the Caddy stack under the real CSP/Trusted Types: 17 passed (Pixel 7 + iPhone 14, 4 locales, axe, sheet gestures); admin showcase renders with no console/CSP errors on both engines.
 **Found on the way:** (1) An unset GitHub variable reaches the Docker build as `""` and Vite keeps empty variables, so the first staging web image would have failed on `VITE_PUBLIC_SENTRY_DSN=""` (not an https URL). Optional client variables now treat `""` as unset (unit tested). (2) Chromium (Playwright 1.63) reports Playwright's own screenshot `<style>` as "Applying inline style violates …" when the `style` option is used — the e2e CSP guard's screenshot filter only knew WebKit's wording; extended (the app itself raises no violation).
 
-## OPEN
-
-### #60 — MongoDB for staging and production (PROGRESS F10) — OPEN (16 Oct 2026, before Phase 01)
+### #60 — MongoDB for staging and production (PROGRESS F10) — ACCEPTED (owner, 16 Oct 2026: "go with the free one for now")
 **Context:** Phase 01 needs a MongoDB replica set with custom roles (#20), views, `$jsonSchema` validators and multi-document transactions. F10 assumed Atlas's free tier could not do this. **Checked against the Atlas docs on 16 Oct 2026:** Free (M0) and Flex clusters **do** support custom roles (created through the Atlas UI/Admin API — `createRole`/`createUser` commands are blocked on *every* Atlas tier, so our design creates users and roles through Atlas anyway); `collMod`, `createIndexes`, `create` (views, validators) are not on the unsupported list; transactions work on any replica set. Limits: M0 = 512 MB, 100 ops/s, 10 GB transfer per 7 days, no backups/auditing; Flex = 5 GB, 500 ops/s, one daily snapshot, **no continuous backup / point-in-time restore, no auditing**, $8–30/month. Dedicated M10 = $0.08/h ≈ $57/month base (US list price; Mumbai shown in the Atlas console may be slightly higher) + Continuous Cloud Backup (storage-based, small at our size).
 **Options:**
 - **A (recommended): staging on Atlas M0 Free (Mumbai, ₹0); production on Atlas M10 + Continuous Cloud Backup from Phase 9 only** (≈ $60–70/month ≈ ₹5,000–6,000, plus GST if charged). Staging data is tiny and test-only; production needs point-in-time restore and auditing (#6), which only dedicated tiers offer. Nothing is paid before launch.
 - **B:** staging on Atlas Flex ($8–30/month) — more headroom than M0, still no PITR; not needed for staging traffic.
 - **C:** self-hosted MongoDB on the VPS for staging (₹0) — works, but staging then differs from production (Atlas user/role management, TLS, limits), so Atlas-specific problems would first appear in production. Self-hosting production was rejected in #6 (backups, encryption at rest, patching become the owner's job).
-**Recommendation:** A. If staging ever outgrows M0 (100 ops/s, 512 MB), move it to Flex.
+**Decision:** **A for staging — Atlas M0 Free in Mumbai (ap-south-1), ₹0.** If staging outgrows M0 (100 ops/s, 512 MB), move it to Flex. Production stays planned as M10 + Continuous Cloud Backup and is confirmed with the owner (price from the Atlas console) when it is created in Phase 9. Closes PROGRESS F10. Accounts/cluster: owner, with Claude Code at the start of Phase 01 (O8).
+
+## OPEN
+
+_None._
