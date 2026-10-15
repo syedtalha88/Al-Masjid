@@ -11,10 +11,14 @@ runs:
         node-version-file: .nvmrc
     - name: pnpm (corepack)
       shell: bash
+      # A failed pnpm download once left the store path empty, and actions/cache then failed with "Input required
+      # and not supplied: path" (16 Oct 2026). Retry the download; never continue with an empty path.
       run: |
         corepack enable
-        corepack install
-        echo "PNPM_STORE=$(pnpm store path --silent)" >> "$GITHUB_ENV"
+        for attempt in 1 2 3; do corepack install && break; [ "$attempt" -lt 3 ] || exit 1; sleep $((attempt * 10)); done
+        store=$(pnpm store path --silent)
+        [ -n "$store" ] || { echo "::error title=pnpm store path empty::pnpm store path printed nothing"; exit 1; }
+        echo "PNPM_STORE=$store" >> "$GITHUB_ENV"
     - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ${{ env.PNPM_STORE }}
