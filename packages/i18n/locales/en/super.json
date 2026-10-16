@@ -1,0 +1,155 @@
+{
+  "title": "Super Admin",
+  "nav": {
+    "label": "Super Admin sections",
+    "dashboard": "Dashboard",
+    "masjids": "Masjids",
+    "settings": "Settings",
+    "audit": "Audit log"
+  },
+  "status": {
+    "pending": "Pending",
+    "active": "Active",
+    "suspended": "Suspended",
+    "deleted": "Deleted"
+  },
+  "dashboard": {
+    "pending": "Waiting for activation",
+    "noPending": "No masjids are waiting for activation.",
+    "counts": "Masjids"
+  },
+  "masjids": {
+    "search": "Search by name, city or code",
+    "all": "All",
+    "new": "New masjid",
+    "empty": "No masjids found",
+    "loadMore": "Show more",
+    "admins": "{count, plural, one {# admin} other {# admins}}"
+  },
+  "form": {
+    "newTitle": "New masjid",
+    "editTitle": "Edit masjid",
+    "name": "Name (English)",
+    "nameHi": "Name in Hindi",
+    "nameUr": "Name in Urdu",
+    "nameTe": "Name in Telugu",
+    "area": "Area",
+    "city": "City",
+    "state": "State",
+    "address": "Address",
+    "location": "Location",
+    "locationHint": "Paste a Google Maps link, or type it like 17.3850, 78.4867.",
+    "locationInvalid": "No location found. In Google Maps, open the place, tap Share, and paste the link here.",
+    "locationOutside": "This place is outside India.",
+    "locationFound": "Location: {latitude}, {longitude}",
+    "calcMethod": "Prayer time calculation",
+    "calcMethods": {
+      "karachi": "Karachi (University of Islamic Sciences)",
+      "mwl": "Muslim World League",
+      "isna": "ISNA (North America)",
+      "egypt": "Egyptian General Authority",
+      "umm_al_qura": "Umm al-Qura (Makkah)",
+      "other_custom": "Custom"
+    },
+    "asrMadhab": "Asr time",
+    "madhabs": {
+      "hanafi": "Hanafi",
+      "shafi": "Shafi’i, Maliki, Hanbali"
+    },
+    "hijriOffset": "Hijri date adjustment (days)",
+    "hijriOffsetNone": "Use the global setting",
+    "quota": "Notifications per day",
+    "create": "Create masjid",
+    "save": "Save changes",
+    "required": "Required"
+  },
+  "detail": {
+    "followers": "{count, plural, one {# follower} other {# followers}}",
+    "followCode": "Follow code",
+    "activate": "Activate",
+    "activateHint": "Needs at least one admin who has logged in and accepted the undertaking.",
+    "suspend": "Suspend",
+    "unsuspend": "Unsuspend",
+    "delete": "Delete masjid",
+    "reason": "Reason",
+    "reasonHint": "Recorded in the audit log.",
+    "deleteConfirmTitle": "Delete this masjid?",
+    "deleteConfirmBody": "It disappears from the app for everyone. The record is kept as the law requires.",
+    "edit": "Edit",
+    "admins": "Admins",
+    "noAdmins": "No admins yet. Add one to activate this masjid.",
+    "addAdmin": "Add admin",
+    "changed": "Saved"
+  },
+  "admin": {
+    "name": "Name",
+    "phone": "Phone",
+    "phoneHint": "Optional. Stored encrypted; viewing it is recorded.",
+    "language": "App language",
+    "role": "Role",
+    "roles": {
+      "owner": "Owner",
+      "editor": "Editor"
+    },
+    "statuses": {
+      "invited": "Invited",
+      "active": "Active",
+      "disabled": "Disabled"
+    },
+    "create": "Create admin",
+    "newLink": "New login link",
+    "recoveryLink": "Lost phone: new login",
+    "revokeSessions": "Log out everywhere",
+    "revokePasskeys": "Remove all logins",
+    "remove": "Remove from masjid",
+    "viewPhone": "Show phone",
+    "noPhone": "No phone saved",
+    "removeConfirmTitle": "Remove this admin?",
+    "removeConfirmBody": "They will no longer be able to manage this masjid.",
+    "passkeysConfirmTitle": "Remove all logins?",
+    "passkeysConfirmBody": "Their phones are logged out and can’t log in again until you send a new login link.",
+    "inviteReady": "Login link ready",
+    "inviteLead": "Send this link to the admin. It works once, until {date}.",
+    "copy": "Copy link",
+    "copied": "Link copied",
+    "shareWhatsApp": "Send on WhatsApp",
+    "whatsAppMessage": "Assalamu Alaikum {name}. Your Masjid Connect admin login link: {url}",
+    "sessionsEnded": "{count, plural, =0 {No devices were logged in.} one {# device logged out.} other {# devices logged out.}}"
+  },
+  "stepUp": {
+    "title": "Confirm it’s you",
+    "body": "This action needs your screen lock again.",
+    "confirm": "Confirm",
+    "failed": "Couldn’t confirm. Please try again."
+  },
+  "settings": {
+    "hijri": "Hijri date adjustment for all masjids (days)",
+    "quota": "Default notifications per day",
+    "whatsapp": "Support WhatsApp number",
+    "whatsappHint": "Shown to admins who need help. With country code, e.g. +91…",
+    "officer": "Grievance officer",
+    "officerName": "Name",
+    "officerEmail": "Email",
+    "officerAddress": "Address",
+    "officerCity": "City",
+    "versions": "Document versions",
+    "undertakingVersion": "Admin undertaking",
+    "privacyVersion": "Privacy policy",
+    "termsVersion": "Terms of use",
+    "versionHint": "Changing the undertaking version asks every masjid admin to accept it again.",
+    "save": "Save settings",
+    "saved": "Settings saved"
+  },
+  "audit": {
+    "action": "Action",
+    "allActions": "All actions",
+    "from": "From",
+    "to": "Until",
+    "export": "Download CSV",
+    "empty": "No entries for these filters.",
+    "loadMore": "Show more",
+    "by": "By {actor}",
+    "details": "Details",
+    "request": "Request {id}"
+  }
+}

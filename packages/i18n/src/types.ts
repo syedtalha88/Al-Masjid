@@ -3,11 +3,13 @@
 import type admin from '../locales/en/admin.json';
 import type common from '../locales/en/common.json';
 import type errors from '../locales/en/errors.json';
+import type superAdmin from '../locales/en/super.json';
 
 export interface Resources {
   admin: typeof admin;
   common: typeof common;
   errors: typeof errors;
+  super: typeof superAdmin;
 }
 
 declare module 'i18next' {

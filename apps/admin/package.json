@@ -34,6 +34,7 @@
     "workbox-strategies": "7.4.1"
   },
   "dependencies": {
+    "@mc/domain": "workspace:*",
     "@mc/i18n": "workspace:*",
     "@mc/shared": "workspace:*",
     "@mc/ui": "workspace:*",

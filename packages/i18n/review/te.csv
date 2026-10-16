@@ -149,3 +149,128 @@ errors,ADMIN_NOT_FOUND,We couldn’t find this admin.,ఈ అడ్మిన్ 
 errors,NOTHING_TO_UPDATE,Nothing was changed.,ఏదీ మార్చలేదు.,no
 errors,INVALID_CURSOR,This list changed. Please reload it.,ఈ జాబితా మారింది. దయచేసి మళ్లీ లోడ్ చేయండి.,no
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,మీరు ఆఫ్‌లైన్‌లో ఉన్నట్లున్నారు. దయచేసి కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి.,no
+super,title,Super Admin,సూపర్ అడ్మిన్,no
+super,nav.label,Super Admin sections,సూపర్ అడ్మిన్ విభాగాలు,no
+super,nav.dashboard,Dashboard,డాష్‌బోర్డ్,no
+super,nav.masjids,Masjids,మస్జిద్‌లు,no
+super,nav.settings,Settings,సెట్టింగ్స్,no
+super,nav.audit,Audit log,ఆడిట్ లాగ్,no
+super,status.pending,Pending,పెండింగ్,no
+super,status.active,Active,యాక్టివ్,no
+super,status.suspended,Suspended,నిలిపివేయబడింది,no
+super,status.deleted,Deleted,తొలగించబడింది,no
+super,dashboard.pending,Waiting for activation,యాక్టివేషన్ కోసం ఎదురుచూస్తున్నవి,no
+super,dashboard.noPending,No masjids are waiting for activation.,యాక్టివేషన్ కోసం ఏ మస్జిద్ ఎదురుచూడటం లేదు.,no
+super,dashboard.counts,Masjids,మస్జిద్‌లు,no
+super,masjids.search,"Search by name, city or code","పేరు, నగరం లేదా కోడ్‌తో వెతకండి",no
+super,masjids.all,All,అన్నీ,no
+super,masjids.new,New masjid,కొత్త మస్జిద్,no
+super,masjids.empty,No masjids found,మస్జిద్‌లు కనబడలేదు,no
+super,masjids.loadMore,Show more,మరిన్ని చూపించు,no
+super,masjids.admins,"{count, plural, one {# admin} other {# admins}}","{count, plural, one {# అడ్మిన్} other {# అడ్మిన్‌లు}}",no
+super,form.newTitle,New masjid,కొత్త మస్జిద్,no
+super,form.editTitle,Edit masjid,మస్జిద్ మార్చండి,no
+super,form.name,Name (English),పేరు (ఇంగ్లీష్),no
+super,form.nameHi,Name in Hindi,హిందీలో పేరు,no
+super,form.nameUr,Name in Urdu,ఉర్దూలో పేరు,no
+super,form.nameTe,Name in Telugu,తెలుగులో పేరు,no
+super,form.area,Area,ప్రాంతం,no
+super,form.city,City,నగరం,no
+super,form.state,State,రాష్ట్రం,no
+super,form.address,Address,చిరునామా,no
+super,form.location,Location,స్థానం,no
+super,form.locationHint,"Paste a Google Maps link, or type it like 17.3850, 78.4867.","గూగుల్ మ్యాప్స్ లింక్ పేస్ట్ చేయండి, లేదా ఇలా టైప్ చేయండి: 17.3850, 78.4867",no
+super,form.locationInvalid,"No location found. In Google Maps, open the place, tap Share, and paste the link here.","స్థానం కనబడలేదు. గూగుల్ మ్యాప్స్‌లో ప్రదేశాన్ని తెరిచి, షేర్ నొక్కి, లింక్‌ను ఇక్కడ పేస్ట్ చేయండి.",no
+super,form.locationOutside,This place is outside India.,ఈ ప్రదేశం భారతదేశం వెలుపల ఉంది.,no
+super,form.locationFound,"Location: {latitude}, {longitude}","స్థానం: {latitude}, {longitude}",no
+super,form.calcMethod,Prayer time calculation,నమాజ్ సమయాల లెక్కింపు,no
+super,form.calcMethods.karachi,Karachi (University of Islamic Sciences),కరాచీ (ఇస్లామిక్ సైన్సెస్ విశ్వవిద్యాలయం),no
+super,form.calcMethods.mwl,Muslim World League,ముస్లిం వరల్డ్ లీగ్,no
+super,form.calcMethods.isna,ISNA (North America),ఐఎస్ఎన్ఏ (ఉత్తర అమెరికా),no
+super,form.calcMethods.egypt,Egyptian General Authority,ఈజిప్షియన్ జనరల్ అథారిటీ,no
+super,form.calcMethods.umm_al_qura,Umm al-Qura (Makkah),ఉమ్ముల్ ఖురా (మక్కా),no
+super,form.calcMethods.other_custom,Custom,కస్టమ్,no
+super,form.asrMadhab,Asr time,అసర్ సమయం,no
+super,form.madhabs.hanafi,Hanafi,హనఫీ,no
+super,form.madhabs.shafi,"Shafi’i, Maliki, Hanbali","షాఫయీ, మాలికీ, హంబలీ",no
+super,form.hijriOffset,Hijri date adjustment (days),హిజ్రీ తేదీ సర్దుబాటు (రోజులు),no
+super,form.hijriOffsetNone,Use the global setting,సాధారణ సెట్టింగ్ ఉపయోగించండి,no
+super,form.quota,Notifications per day,రోజువారీ నోటిఫికేషన్‌లు,no
+super,form.create,Create masjid,మస్జిద్ సృష్టించండి,no
+super,form.save,Save changes,మార్పులు సేవ్ చేయండి,no
+super,form.required,Required,తప్పనిసరి,no
+super,detail.followers,"{count, plural, one {# follower} other {# followers}}","{count, plural, one {# ఫాలోవర్} other {# ఫాలోవర్లు}}",no
+super,detail.followCode,Follow code,ఫాలో కోడ్,no
+super,detail.activate,Activate,యాక్టివేట్ చేయండి,no
+super,detail.activateHint,Needs at least one admin who has logged in and accepted the undertaking.,లాగిన్ అయి హామీ పత్రం అంగీకరించిన కనీసం ఒక అడ్మిన్ ఉండాలి.,no
+super,detail.suspend,Suspend,నిలిపివేయండి,no
+super,detail.unsuspend,Unsuspend,మళ్లీ ప్రారంభించండి,no
+super,detail.delete,Delete masjid,మస్జిద్ తొలగించండి,no
+super,detail.reason,Reason,కారణం,no
+super,detail.reasonHint,Recorded in the audit log.,ఆడిట్ లాగ్‌లో నమోదవుతుంది.,no
+super,detail.deleteConfirmTitle,Delete this masjid?,ఈ మస్జిద్ తొలగించాలా?,no
+super,detail.deleteConfirmBody,It disappears from the app for everyone. The record is kept as the law requires.,ఇది అందరికీ యాప్ నుండి కనిపించకుండా పోతుంది. చట్టం ప్రకారం రికార్డు ఉంచబడుతుంది.,no
+super,detail.edit,Edit,మార్చండి,no
+super,detail.admins,Admins,అడ్మిన్‌లు,no
+super,detail.noAdmins,No admins yet. Add one to activate this masjid.,ఇంకా అడ్మిన్‌లు లేరు. మస్జిద్‌ను యాక్టివేట్ చేయడానికి ఒకరిని జోడించండి.,no
+super,detail.addAdmin,Add admin,అడ్మిన్‌ను జోడించండి,no
+super,detail.changed,Saved,సేవ్ అయింది,no
+super,admin.name,Name,పేరు,no
+super,admin.phone,Phone,ఫోన్,no
+super,admin.phoneHint,Optional. Stored encrypted; viewing it is recorded.,ఐచ్ఛికం. ఎన్‌క్రిప్ట్ చేసి ఉంచబడుతుంది; చూసినప్పుడు నమోదవుతుంది.,no
+super,admin.language,App language,యాప్ భాష,no
+super,admin.role,Role,పాత్ర,no
+super,admin.roles.owner,Owner,యజమాని,no
+super,admin.roles.editor,Editor,ఎడిటర్,no
+super,admin.statuses.invited,Invited,ఆహ్వానించబడింది,no
+super,admin.statuses.active,Active,యాక్టివ్,no
+super,admin.statuses.disabled,Disabled,నిలిపివేయబడింది,no
+super,admin.create,Create admin,అడ్మిన్‌ను సృష్టించండి,no
+super,admin.newLink,New login link,కొత్త లాగిన్ లింక్,no
+super,admin.recoveryLink,Lost phone: new login,ఫోన్ పోయింది: కొత్త లాగిన్,no
+super,admin.revokeSessions,Log out everywhere,అన్ని చోట్ల నుండి లాగౌట్,no
+super,admin.revokePasskeys,Remove all logins,అన్ని లాగిన్‌లను తొలగించండి,no
+super,admin.remove,Remove from masjid,మస్జిద్ నుండి తొలగించండి,no
+super,admin.viewPhone,Show phone,ఫోన్ చూపించు,no
+super,admin.noPhone,No phone saved,ఫోన్ సేవ్ చేయలేదు,no
+super,admin.removeConfirmTitle,Remove this admin?,ఈ అడ్మిన్‌ను తొలగించాలా?,no
+super,admin.removeConfirmBody,They will no longer be able to manage this masjid.,వారు ఇకపై ఈ మస్జిద్‌ను నిర్వహించలేరు.,no
+super,admin.passkeysConfirmTitle,Remove all logins?,అన్ని లాగిన్‌లను తొలగించాలా?,no
+super,admin.passkeysConfirmBody,Their phones are logged out and can’t log in again until you send a new login link.,"వారి ఫోన్‌లు లాగౌట్ అవుతాయి, మీరు కొత్త లాగిన్ లింక్ పంపే వరకు మళ్లీ లాగిన్ కాలేరు.",no
+super,admin.inviteReady,Login link ready,లాగిన్ లింక్ సిద్ధంగా ఉంది,no
+super,admin.inviteLead,"Send this link to the admin. It works once, until {date}.",ఈ లింక్‌ను అడ్మిన్‌కు పంపండి. ఇది {date} వరకు ఒక్కసారే పనిచేస్తుంది.,no
+super,admin.copy,Copy link,లింక్ కాపీ చేయండి,no
+super,admin.copied,Link copied,లింక్ కాపీ అయింది,no
+super,admin.shareWhatsApp,Send on WhatsApp,వాట్సాప్‌లో పంపండి,no
+super,admin.whatsAppMessage,Assalamu Alaikum {name}. Your Masjid Connect admin login link: {url},అస్సలాము అలైకుమ్ {name}. మీ మస్జిద్ కనెక్ట్ అడ్మిన్ లాగిన్ లింక్: {url},no
+super,admin.sessionsEnded,"{count, plural, =0 {No devices were logged in.} one {# device logged out.} other {# devices logged out.}}","{count, plural, =0 {ఏ పరికరమూ లాగిన్ అయి లేదు.} one {# పరికరం లాగౌట్ అయింది.} other {# పరికరాలు లాగౌట్ అయ్యాయి.}}",no
+super,stepUp.title,Confirm it’s you,ఇది మీరేనని నిర్ధారించండి,no
+super,stepUp.body,This action needs your screen lock again.,ఈ పనికి మీ స్క్రీన్ లాక్ మళ్లీ అవసరం.,no
+super,stepUp.confirm,Confirm,నిర్ధారించండి,no
+super,stepUp.failed,Couldn’t confirm. Please try again.,నిర్ధారించలేకపోయాం. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+super,settings.hijri,Hijri date adjustment for all masjids (days),అన్ని మస్జిద్‌లకు హిజ్రీ తేదీ సర్దుబాటు (రోజులు),no
+super,settings.quota,Default notifications per day,డిఫాల్ట్ రోజువారీ నోటిఫికేషన్‌లు,no
+super,settings.whatsapp,Support WhatsApp number,సహాయ వాట్సాప్ నంబర్,no
+super,settings.whatsappHint,"Shown to admins who need help. With country code, e.g. +91…","సహాయం కావాల్సిన అడ్మిన్‌లకు చూపబడుతుంది. దేశ కోడ్‌తో, ఉదా. +91…",no
+super,settings.officer,Grievance officer,ఫిర్యాదుల అధికారి,no
+super,settings.officerName,Name,పేరు,no
+super,settings.officerEmail,Email,ఈమెయిల్,no
+super,settings.officerAddress,Address,చిరునామా,no
+super,settings.officerCity,City,నగరం,no
+super,settings.versions,Document versions,పత్రాల వెర్షన్‌లు,no
+super,settings.undertakingVersion,Admin undertaking,అడ్మిన్ హామీ పత్రం,no
+super,settings.privacyVersion,Privacy policy,గోప్యతా విధానం,no
+super,settings.termsVersion,Terms of use,వినియోగ నిబంధనలు,no
+super,settings.versionHint,Changing the undertaking version asks every masjid admin to accept it again.,హామీ పత్రం వెర్షన్ మార్చితే ప్రతి మస్జిద్ అడ్మిన్ దాన్ని మళ్లీ అంగీకరించాలి.,no
+super,settings.save,Save settings,సెట్టింగ్స్ సేవ్ చేయండి,no
+super,settings.saved,Settings saved,సెట్టింగ్స్ సేవ్ అయ్యాయి,no
+super,audit.action,Action,చర్య,no
+super,audit.allActions,All actions,అన్ని చర్యలు,no
+super,audit.from,From,నుండి,no
+super,audit.to,Until,వరకు,no
+super,audit.export,Download CSV,సీఎస్‌వీ డౌన్‌లోడ్ చేయండి,no
+super,audit.empty,No entries for these filters.,ఈ ఫిల్టర్‌లకు ఏమీ లేదు.,no
+super,audit.loadMore,Show more,మరిన్ని చూపించు,no
+super,audit.by,By {actor},{actor} ద్వారా,no
+super,audit.details,Details,వివరాలు,no
+super,audit.request,Request {id},అభ్యర్థన {id},no

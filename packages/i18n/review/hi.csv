@@ -149,3 +149,128 @@ errors,ADMIN_NOT_FOUND,We couldn’t find this admin.,यह एडमिन न
 errors,NOTHING_TO_UPDATE,Nothing was changed.,कुछ भी नहीं बदला गया।,no
 errors,INVALID_CURSOR,This list changed. Please reload it.,यह सूची बदल गई है। कृपया इसे फिर से लोड करें।,no
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,लगता है आप ऑफ़लाइन हैं। कृपया कनेक्शन जाँचकर फिर कोशिश करें।,no
+super,title,Super Admin,सुपर एडमिन,no
+super,nav.label,Super Admin sections,सुपर एडमिन के हिस्से,no
+super,nav.dashboard,Dashboard,डैशबोर्ड,no
+super,nav.masjids,Masjids,मस्जिदें,no
+super,nav.settings,Settings,सेटिंग,no
+super,nav.audit,Audit log,ऑडिट लॉग,no
+super,status.pending,Pending,बाक़ी,no
+super,status.active,Active,चालू,no
+super,status.suspended,Suspended,रोकी गई,no
+super,status.deleted,Deleted,हटाई गई,no
+super,dashboard.pending,Waiting for activation,चालू होने का इंतज़ार,no
+super,dashboard.noPending,No masjids are waiting for activation.,कोई मस्जिद चालू होने का इंतज़ार नहीं कर रही।,no
+super,dashboard.counts,Masjids,मस्जिदें,no
+super,masjids.search,"Search by name, city or code","नाम, शहर या कोड से खोजें",no
+super,masjids.all,All,सभी,no
+super,masjids.new,New masjid,नई मस्जिद,no
+super,masjids.empty,No masjids found,कोई मस्जिद नहीं मिली,no
+super,masjids.loadMore,Show more,और दिखाएँ,no
+super,masjids.admins,"{count, plural, one {# admin} other {# admins}}","{count, plural, one {# एडमिन} other {# एडमिन}}",no
+super,form.newTitle,New masjid,नई मस्जिद,no
+super,form.editTitle,Edit masjid,मस्जिद बदलें,no
+super,form.name,Name (English),नाम (अंग्रेज़ी),no
+super,form.nameHi,Name in Hindi,हिंदी में नाम,no
+super,form.nameUr,Name in Urdu,उर्दू में नाम,no
+super,form.nameTe,Name in Telugu,तेलुगु में नाम,no
+super,form.area,Area,इलाक़ा,no
+super,form.city,City,शहर,no
+super,form.state,State,राज्य,no
+super,form.address,Address,पता,no
+super,form.location,Location,जगह,no
+super,form.locationHint,"Paste a Google Maps link, or type it like 17.3850, 78.4867.","गूगल मैप्स का लिंक डालें, या ऐसे लिखें: 17.3850, 78.4867",no
+super,form.locationInvalid,"No location found. In Google Maps, open the place, tap Share, and paste the link here.","जगह नहीं मिली। गूगल मैप्स में जगह खोलें, शेयर दबाएँ और लिंक यहाँ डालें।",no
+super,form.locationOutside,This place is outside India.,यह जगह भारत से बाहर है।,no
+super,form.locationFound,"Location: {latitude}, {longitude}","जगह: {latitude}, {longitude}",no
+super,form.calcMethod,Prayer time calculation,नमाज़ के समय की गणना,no
+super,form.calcMethods.karachi,Karachi (University of Islamic Sciences),कराची (इस्लामिक साइंसेज़ विश्वविद्यालय),no
+super,form.calcMethods.mwl,Muslim World League,मुस्लिम वर्ल्ड लीग,no
+super,form.calcMethods.isna,ISNA (North America),आईएसएनए (उत्तरी अमेरिका),no
+super,form.calcMethods.egypt,Egyptian General Authority,मिस्री जनरल अथॉरिटी,no
+super,form.calcMethods.umm_al_qura,Umm al-Qura (Makkah),उम्मुल क़ुरा (मक्का),no
+super,form.calcMethods.other_custom,Custom,अपनी पसंद का,no
+super,form.asrMadhab,Asr time,अस्र का समय,no
+super,form.madhabs.hanafi,Hanafi,हनफ़ी,no
+super,form.madhabs.shafi,"Shafi’i, Maliki, Hanbali","शाफ़ई, मालिकी, हंबली",no
+super,form.hijriOffset,Hijri date adjustment (days),हिजरी तारीख़ में बदलाव (दिन),no
+super,form.hijriOffsetNone,Use the global setting,सामान्य सेटिंग इस्तेमाल करें,no
+super,form.quota,Notifications per day,रोज़ाना सूचनाएँ,no
+super,form.create,Create masjid,मस्जिद बनाएँ,no
+super,form.save,Save changes,बदलाव सहेजें,no
+super,form.required,Required,ज़रूरी,no
+super,detail.followers,"{count, plural, one {# follower} other {# followers}}","{count, plural, one {# फ़ॉलोअर} other {# फ़ॉलोअर}}",no
+super,detail.followCode,Follow code,फ़ॉलो कोड,no
+super,detail.activate,Activate,चालू करें,no
+super,detail.activateHint,Needs at least one admin who has logged in and accepted the undertaking.,कम से कम एक एडमिन चाहिए जिसने लॉग इन करके वचन-पत्र स्वीकार किया हो।,no
+super,detail.suspend,Suspend,रोकें,no
+super,detail.unsuspend,Unsuspend,फिर से चालू करें,no
+super,detail.delete,Delete masjid,मस्जिद हटाएँ,no
+super,detail.reason,Reason,वजह,no
+super,detail.reasonHint,Recorded in the audit log.,ऑडिट लॉग में दर्ज होगी।,no
+super,detail.deleteConfirmTitle,Delete this masjid?,यह मस्जिद हटाएँ?,no
+super,detail.deleteConfirmBody,It disappears from the app for everyone. The record is kept as the law requires.,यह सबके लिए ऐप से गायब हो जाएगी। रिकॉर्ड क़ानून के अनुसार रखा जाएगा।,no
+super,detail.edit,Edit,बदलें,no
+super,detail.admins,Admins,एडमिन,no
+super,detail.noAdmins,No admins yet. Add one to activate this masjid.,अभी कोई एडमिन नहीं। मस्जिद चालू करने के लिए एक जोड़ें।,no
+super,detail.addAdmin,Add admin,एडमिन जोड़ें,no
+super,detail.changed,Saved,सहेज लिया,no
+super,admin.name,Name,नाम,no
+super,admin.phone,Phone,फ़ोन,no
+super,admin.phoneHint,Optional. Stored encrypted; viewing it is recorded.,वैकल्पिक। एन्क्रिप्ट करके रखा जाता है; देखने पर दर्ज होता है।,no
+super,admin.language,App language,ऐप की भाषा,no
+super,admin.role,Role,भूमिका,no
+super,admin.roles.owner,Owner,मालिक,no
+super,admin.roles.editor,Editor,संपादक,no
+super,admin.statuses.invited,Invited,आमंत्रित,no
+super,admin.statuses.active,Active,सक्रिय,no
+super,admin.statuses.disabled,Disabled,बंद,no
+super,admin.create,Create admin,एडमिन बनाएँ,no
+super,admin.newLink,New login link,नया लॉग इन लिंक,no
+super,admin.recoveryLink,Lost phone: new login,फ़ोन खो गया: नया लॉग इन,no
+super,admin.revokeSessions,Log out everywhere,हर जगह से लॉग आउट,no
+super,admin.revokePasskeys,Remove all logins,सभी लॉग इन हटाएँ,no
+super,admin.remove,Remove from masjid,मस्जिद से हटाएँ,no
+super,admin.viewPhone,Show phone,फ़ोन दिखाएँ,no
+super,admin.noPhone,No phone saved,कोई फ़ोन नहीं सहेजा गया,no
+super,admin.removeConfirmTitle,Remove this admin?,इस एडमिन को हटाएँ?,no
+super,admin.removeConfirmBody,They will no longer be able to manage this masjid.,वे इस मस्जिद को संभाल नहीं पाएँगे।,no
+super,admin.passkeysConfirmTitle,Remove all logins?,सभी लॉग इन हटाएँ?,no
+super,admin.passkeysConfirmBody,Their phones are logged out and can’t log in again until you send a new login link.,उनके फ़ोन लॉग आउट हो जाएँगे और नया लॉग इन लिंक भेजने तक लॉग इन नहीं कर सकेंगे।,no
+super,admin.inviteReady,Login link ready,लॉग इन लिंक तैयार है,no
+super,admin.inviteLead,"Send this link to the admin. It works once, until {date}.",यह लिंक एडमिन को भेजें। यह {date} तक एक ही बार काम करेगा।,no
+super,admin.copy,Copy link,लिंक कॉपी करें,no
+super,admin.copied,Link copied,लिंक कॉपी हो गया,no
+super,admin.shareWhatsApp,Send on WhatsApp,व्हाट्सऐप पर भेजें,no
+super,admin.whatsAppMessage,Assalamu Alaikum {name}. Your Masjid Connect admin login link: {url},अस्सलामु अलैकुम {name}। आपका मस्जिद कनेक्ट एडमिन लॉग इन लिंक: {url},no
+super,admin.sessionsEnded,"{count, plural, =0 {No devices were logged in.} one {# device logged out.} other {# devices logged out.}}","{count, plural, =0 {कोई डिवाइस लॉग इन नहीं था।} one {# डिवाइस लॉग आउट हुआ।} other {# डिवाइस लॉग आउट हुए।}}",no
+super,stepUp.title,Confirm it’s you,पुष्टि करें कि यह आप हैं,no
+super,stepUp.body,This action needs your screen lock again.,इस काम के लिए फिर से आपका स्क्रीन लॉक चाहिए।,no
+super,stepUp.confirm,Confirm,पुष्टि करें,no
+super,stepUp.failed,Couldn’t confirm. Please try again.,पुष्टि नहीं हो सकी। कृपया फिर से कोशिश करें।,no
+super,settings.hijri,Hijri date adjustment for all masjids (days),सभी मस्जिदों के लिए हिजरी तारीख़ में बदलाव (दिन),no
+super,settings.quota,Default notifications per day,रोज़ाना सूचनाओं की सामान्य सीमा,no
+super,settings.whatsapp,Support WhatsApp number,मदद के लिए व्हाट्सऐप नंबर,no
+super,settings.whatsappHint,"Shown to admins who need help. With country code, e.g. +91…","मदद चाहने वाले एडमिन को दिखता है। देश कोड के साथ, जैसे +91…",no
+super,settings.officer,Grievance officer,शिकायत अधिकारी,no
+super,settings.officerName,Name,नाम,no
+super,settings.officerEmail,Email,ईमेल,no
+super,settings.officerAddress,Address,पता,no
+super,settings.officerCity,City,शहर,no
+super,settings.versions,Document versions,दस्तावेज़ों के संस्करण,no
+super,settings.undertakingVersion,Admin undertaking,एडमिन वचन-पत्र,no
+super,settings.privacyVersion,Privacy policy,निजता नीति,no
+super,settings.termsVersion,Terms of use,इस्तेमाल की शर्तें,no
+super,settings.versionHint,Changing the undertaking version asks every masjid admin to accept it again.,वचन-पत्र का संस्करण बदलने पर हर मस्जिद एडमिन को उसे फिर से स्वीकार करना होगा।,no
+super,settings.save,Save settings,सेटिंग सहेजें,no
+super,settings.saved,Settings saved,सेटिंग सहेज ली गईं,no
+super,audit.action,Action,काम,no
+super,audit.allActions,All actions,सभी काम,no
+super,audit.from,From,से,no
+super,audit.to,Until,तक,no
+super,audit.export,Download CSV,सीएसवी डाउनलोड करें,no
+super,audit.empty,No entries for these filters.,इन फ़िल्टर के लिए कुछ नहीं मिला।,no
+super,audit.loadMore,Show more,और दिखाएँ,no
+super,audit.by,By {actor},{actor} द्वारा,no
+super,audit.details,Details,विवरण,no
+super,audit.request,Request {id},अनुरोध {id},no

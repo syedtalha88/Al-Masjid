@@ -4,7 +4,7 @@ import ICU from 'i18next-icu';
 import { DEFAULT_LOCALE, type Locale, LOCALES } from './locales.ts';
 
 /** Namespaces (09 §2). Feature namespaces are added with their features and loaded per route. */
-export const NAMESPACES = ['common', 'errors', 'admin'] as const;
+export const NAMESPACES = ['common', 'errors', 'admin', 'super'] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 /** Loaded up front by every app; feature namespaces (e.g. `admin`) are requested by the app that needs them. */
 export const BASE_NAMESPACES: readonly Namespace[] = ['common', 'errors'];

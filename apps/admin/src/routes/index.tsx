@@ -67,7 +67,7 @@ function Home() {
             label={t('home.superAdmin')}
             className="min-h-0 flex-row items-center justify-start"
             onPress={() => {
-              navigator.push('/soon/superAdmin');
+              navigator.push('/super');
             }}
           />
         </div>

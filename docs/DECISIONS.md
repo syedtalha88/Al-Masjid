@@ -548,6 +548,15 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **New icons** drawn on the shared 256-grid stroke: play-circle, chart-bar, crescent, list, gear, fingerprint, sign-out, device, globe, shield-check, user-circle; `AdminTile` in `@mc/ui/admin`.
 - **Screens verified** by Playwright screenshots in English and Urdu (RTL) against the local stack (sessions created directly in the local dev database for the screenshots, since passkey login is not wired yet).
 
+### #73 — Super Admin screens (PHASE_01 T1.11 UI) — ACCEPTED (Claude Code, owner-authorised autopilot session, 16 Oct 2026)
+**Decision:**
+- **Layout:** the Super Admin screens live in the admin app's stack under `/super/*`; from 1024px a sidebar (Dashboard · Masjids · Settings · Audit log) sits next to the content, on phones the dashboard lists the sections. Same tokens and components as the rest of the app. The `super` strings form their own i18n namespace, loaded only when a Super Admin opens these screens.
+- **★ step-up in the client:** a ★ call that answers `STEP_UP_REQUIRED` opens a small "Confirm it's you" dialog; its Confirm tap runs the passkey assertion (browsers — notably Safari — only allow the passkey prompt right after a tap, and the tap that started the action was used by the request), then the action is retried once. Closing the dialog cancels silently.
+- **C2 masjids:** literal search + status chips + "Show more"; create/edit share one form; the location field takes typed coordinates or a pasted Google Maps link (`@lat,lng`, `q=`/`query=`/`ll=`/`destination=`, `!3d…!4d…` place pins — `@mc/domain/geo`, unit-tested), shows what it read and refuses places outside India (short `maps.app.goo.gl` links carry no coordinates and are not resolved — that would need a network call). Edits send only changed fields. Masjid page: profile facts, status actions (activate; ★ suspend/unsuspend with a reason; ★ delete with an optional reason), daily notification quota, admins with a per-admin sheet (★ new login link — `register` for invited admins, `add_device` otherwise —, ★ lost-phone recovery link, ★ log out everywhere, ★ remove all logins, ★ remove from masjid, ★ show phone). New links open a sheet with copy + WhatsApp share; they are never stored client-side.
+- **C10 settings / C11 audit:** settings send only changed fields; audit list filters by action (identifiers shown as written — they are log keys), rows expand to their details, ★ CSV export downloads the current filter.
+- **Contracts:** every `/api/super` schema moved to `packages/shared/src/contracts/super.ts` (API and PWA share them); a test keeps the copied enums and India bounds equal to `@mc/db/schema`.
+- **Found while testing:** i18next treats an interpolation value named `lng` as the language option — the location hint placeholders are `{latitude}`/`{longitude}` for that reason.
+
 ## OPEN
 
 ### #70 — Where the server-side Super Admin bootstrap runs (PHASE_01 T1.9) — OPEN (Claude Code, autopilot session, 16 Oct 2026)

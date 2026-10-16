@@ -96,7 +96,7 @@ export interface TextFieldProps extends Omit<ComponentPropsWithoutRef<'input'>, 
   readonly optional?: boolean;
   readonly hint?: ReactNode;
   /** Error message (translated); marks the field invalid, shakes it and announces the message. */
-  readonly error?: string;
+  readonly error?: string | undefined;
   readonly className?: string;
 }
 
@@ -132,7 +132,7 @@ export interface TextAreaProps extends Omit<ComponentPropsWithoutRef<'textarea'>
   readonly hideLabel?: boolean;
   readonly optional?: boolean;
   readonly hint?: ReactNode;
-  readonly error?: string;
+  readonly error?: string | undefined;
   /** Character limit: shown as a live "120/500" counter (Latin digits) and enforced by `maxLength`. */
   readonly maxLength?: number;
   readonly className?: string;

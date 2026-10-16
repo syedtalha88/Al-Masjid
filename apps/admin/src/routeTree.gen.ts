@@ -13,6 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase'
 import { Route as SoonTileRouteImport } from './routes/soon.$tile'
+import { Route as SuperIndexRouteImport } from './routes/super.index'
+import { Route as SuperAuditRouteImport } from './routes/super.audit'
+import { Route as SuperSettingsRouteImport } from './routes/super.settings'
+import { Route as SuperMasjidsIndexRouteImport } from './routes/super.masjids.index'
+import { Route as SuperMasjidsIdRouteImport } from './routes/super.masjids.$id'
+import { Route as SuperMasjidsNewRouteImport } from './routes/super.masjids.new'
+import { Route as SuperMasjidsIdEditRouteImport } from './routes/super.masjids.$id.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,18 +41,67 @@ const SoonTileRoute = SoonTileRouteImport.update({
   path: '/soon/$tile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperIndexRoute = SuperIndexRouteImport.update({
+  id: '/super/',
+  path: '/super/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperAuditRoute = SuperAuditRouteImport.update({
+  id: '/super/audit',
+  path: '/super/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperSettingsRoute = SuperSettingsRouteImport.update({
+  id: '/super/settings',
+  path: '/super/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperMasjidsIndexRoute = SuperMasjidsIndexRouteImport.update({
+  id: '/super/masjids/',
+  path: '/super/masjids/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperMasjidsIdRoute = SuperMasjidsIdRouteImport.update({
+  id: '/super/masjids/$id',
+  path: '/super/masjids/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperMasjidsNewRoute = SuperMasjidsNewRouteImport.update({
+  id: '/super/masjids/new',
+  path: '/super/masjids/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperMasjidsIdEditRoute = SuperMasjidsIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => SuperMasjidsIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/soon/$tile': typeof SoonTileRoute
+  '/super/audit': typeof SuperAuditRoute
+  '/super/settings': typeof SuperSettingsRoute
+  '/super/': typeof SuperIndexRoute
+  '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren
+  '/super/masjids/new': typeof SuperMasjidsNewRoute
+  '/super/masjids/': typeof SuperMasjidsIndexRoute
+  '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/soon/$tile': typeof SoonTileRoute
+  '/super/audit': typeof SuperAuditRoute
+  '/super/settings': typeof SuperSettingsRoute
+  '/super': typeof SuperIndexRoute
+  '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren
+  '/super/masjids/new': typeof SuperMasjidsNewRoute
+  '/super/masjids': typeof SuperMasjidsIndexRoute
+  '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +109,54 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/soon/$tile': typeof SoonTileRoute
+  '/super/audit': typeof SuperAuditRoute
+  '/super/settings': typeof SuperSettingsRoute
+  '/super/': typeof SuperIndexRoute
+  '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren
+  '/super/masjids/new': typeof SuperMasjidsNewRoute
+  '/super/masjids/': typeof SuperMasjidsIndexRoute
+  '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/account' | '/_dev/showcase' | '/soon/$tile'
+  fullPaths:
+    | '/'
+    | '/account'
+    | '/_dev/showcase'
+    | '/soon/$tile'
+    | '/super/audit'
+    | '/super/settings'
+    | '/super/'
+    | '/super/masjids/$id'
+    | '/super/masjids/new'
+    | '/super/masjids/'
+    | '/super/masjids/$id/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/account' | '/_dev/showcase' | '/soon/$tile'
-  id: '__root__' | '/' | '/account' | '/_dev/showcase' | '/soon/$tile'
+  to:
+    | '/'
+    | '/account'
+    | '/_dev/showcase'
+    | '/soon/$tile'
+    | '/super/audit'
+    | '/super/settings'
+    | '/super'
+    | '/super/masjids/$id'
+    | '/super/masjids/new'
+    | '/super/masjids'
+    | '/super/masjids/$id/edit'
+  id:
+    | '__root__'
+    | '/'
+    | '/account'
+    | '/_dev/showcase'
+    | '/soon/$tile'
+    | '/super/audit'
+    | '/super/settings'
+    | '/super/'
+    | '/super/masjids/$id'
+    | '/super/masjids/new'
+    | '/super/masjids/'
+    | '/super/masjids/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +164,12 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   DevShowcaseRoute: typeof DevShowcaseRoute
   SoonTileRoute: typeof SoonTileRoute
+  SuperAuditRoute: typeof SuperAuditRoute
+  SuperSettingsRoute: typeof SuperSettingsRoute
+  SuperIndexRoute: typeof SuperIndexRoute
+  SuperMasjidsIdRoute: typeof SuperMasjidsIdRouteWithChildren
+  SuperMasjidsNewRoute: typeof SuperMasjidsNewRoute
+  SuperMasjidsIndexRoute: typeof SuperMasjidsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,14 +202,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SoonTileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/super/': {
+      id: '/super/'
+      path: '/super'
+      fullPath: '/super/'
+      preLoaderRoute: typeof SuperIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super/audit': {
+      id: '/super/audit'
+      path: '/super/audit'
+      fullPath: '/super/audit'
+      preLoaderRoute: typeof SuperAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super/settings': {
+      id: '/super/settings'
+      path: '/super/settings'
+      fullPath: '/super/settings'
+      preLoaderRoute: typeof SuperSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super/masjids/': {
+      id: '/super/masjids/'
+      path: '/super/masjids'
+      fullPath: '/super/masjids/'
+      preLoaderRoute: typeof SuperMasjidsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super/masjids/$id': {
+      id: '/super/masjids/$id'
+      path: '/super/masjids/$id'
+      fullPath: '/super/masjids/$id'
+      preLoaderRoute: typeof SuperMasjidsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super/masjids/new': {
+      id: '/super/masjids/new'
+      path: '/super/masjids/new'
+      fullPath: '/super/masjids/new'
+      preLoaderRoute: typeof SuperMasjidsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super/masjids/$id/edit': {
+      id: '/super/masjids/$id/edit'
+      path: '/edit'
+      fullPath: '/super/masjids/$id/edit'
+      preLoaderRoute: typeof SuperMasjidsIdEditRouteImport
+      parentRoute: typeof SuperMasjidsIdRoute
+    }
   }
 }
+
+interface SuperMasjidsIdRouteChildren {
+  SuperMasjidsIdEditRoute: typeof SuperMasjidsIdEditRoute
+}
+
+const SuperMasjidsIdRouteChildren: SuperMasjidsIdRouteChildren = {
+  SuperMasjidsIdEditRoute: SuperMasjidsIdEditRoute,
+}
+
+const SuperMasjidsIdRouteWithChildren = SuperMasjidsIdRoute._addFileChildren(
+  SuperMasjidsIdRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
   DevShowcaseRoute: DevShowcaseRoute,
   SoonTileRoute: SoonTileRoute,
+  SuperAuditRoute: SuperAuditRoute,
+  SuperSettingsRoute: SuperSettingsRoute,
+  SuperIndexRoute: SuperIndexRoute,
+  SuperMasjidsIdRoute: SuperMasjidsIdRouteWithChildren,
+  SuperMasjidsNewRoute: SuperMasjidsNewRoute,
+  SuperMasjidsIndexRoute: SuperMasjidsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
