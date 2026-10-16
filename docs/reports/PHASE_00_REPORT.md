@@ -58,7 +58,31 @@ signed manifests) is prepared and waits for the staging server session.
 ## 4. Screenshots
 
 Showcase sections × 4 locales × 2 devices (`test-results/screens/…` in the CI `e2e-reports` artifact). No product
-screens yet (Phase 2). Visual comparison with `docs/design-references` was documented per component in T0.10.
+screens yet (Phase 2).
+
+### 4.1 Visual comparison with the reference images (T0.10 acceptance; re-review V-6)
+
+Captured 16 Oct 2026 from staging `/_dev/showcase` (Pixel 7, English, reduced motion) — files in
+`docs/reports/evidence/PHASE_00_T0.10_visual/`. Refs: **R1** `ref-1_home_my-masjids_detail_timings.png`,
+**R2** `ref-2_announcements_hadith_donation-detail_updates.png`, **R3** `ref-3_announcements_hadith_dua_donation-campaign.png`
+(screen numbers as printed under each phone).
+
+| Component | Reference | Capture | Match | Differences (and why) |
+| --- | --- | --- | --- | --- |
+| Button variants | R3 #13 "Donate Now" (filled), "Show UPI QR Code" (tonal); R3 #11 "Share" (outline), "Read Full" (tonal); R1 #7 "Add Another Masjid" (outline, full width) | `buttons.png` | ✅ | Filled / tonal / outline / text pills, full-width and inline sizes, leading icon. Extra states the refs don't show: destructive, loading spinner, disabled (06 §6). |
+| ChipGroup | R3 #10 and #12 (All · General · Events · Facilities; All · Illness · Inteqal · Other) | `tabs.png` | ✅ | Selected = filled primary pill, others neutral surface — R3 style. R2 #10 draws a lighter tonal + underline chip; 06 §6 follows R3 (one chip style app-wide). |
+| SegmentedControl | R3 #11 (Hadith / Quran) | `tabs.png` | ✅ | Filled primary thumb on a neutral track, as R3. R2 #11 uses a tonal underline variant — not adopted (same reason as chips). |
+| UnderlineTabs | R1 #8 (Overview · Prayer Timings · Announcements), R1 #9 (Daily Timings · Jumu'ah · Special Dates) | `tabs.png` | ✅ | Active label primary + bold with the primary indicator (06 §6: 2.5 px, slides between tabs) under the full tab, hairline track. |
+| TabBar + ScanFab | R1 #6/#7, R2 #13, R3 (all) | `navbar.png` (bottom) | ✅ | Five slots Home · My Masjids · (Scan) · Updates · Settings; raised primary circle with scan glyph, active tab filled icon + primary label. Ours has a surface-coloured ring around the FAB, which R1 #6 shows only faintly — owner to judge with the design notes (O7); the "My Masjids" glyph is our masjid outline instead of R1's calendar-like icon (06 icon set). |
+| ListRow with IconCircle | R1 #6 "Recent Updates", R2 #13 "Updates", R2 #10 | `cards.png` | ✅ | Tinted icon circle per category (megaphone red, dua pink, book blue), bold title, 2-line clamp body, meta "masjid • time", count badge + chevron, inset divider. Text in captures = clearly fake fixtures (CLAUDE.md §2.3). |
+| Tag colors | R2 #10 Important (red) · Event (green) · General (grey); R3 #12 Illness (pink) · Inteqal (grey-blue); R1 #8 Verified | `tags.png` | ✅ | Same hues on tinted backgrounds. "Facilities" (amber, `sun-bg` / `#9A6A00` — 06 icon table) has no example in the refs. |
+| InfoNote | R1 #9 ("Timings may change…"), R3 #13 ("Payments are made directly…") | `tags.png` | ✅ | Neutral rounded panel, outlined info icon at the start, secondary text. |
+| ProgressBar | R2 #12, R3 #13 (72 %) | `progress.png` | ✅ | Rounded primary-500 fill on a neutral track. The "72 %" / "₹72,000 raised" labels belong to the campaign composite (Phase 5), not the bar. |
+| NavBar large | R1 #6 "Assalamu Alaikum" + lead, R1 #7 "My Masjids", R2 #13 "Updates" | `navbar-large.png` (top), `cards.png` (collapsed) | ✅ | Large left-aligned title with a secondary lead line; on scroll it collapses into a centered inline title (08 §4). |
+| NavBar inline | R2 #10 "Announcements / Masjid Al-Noor", R1 #9, R3 (all) | `navbar.png` | ✅ | Back chevron, centered headline title with caption subtitle, trailing action. The showcase wraps it in a card only to set it apart from the page. |
+
+Not compared here (no product screens until Phase 2): photo headers, MasjidCard, PrayerStrip, campaign cards — they
+are composites built in their own phases against the same refs.
 
 ## 5. Deviations from spec
 

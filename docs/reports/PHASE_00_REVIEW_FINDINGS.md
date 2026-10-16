@@ -39,7 +39,7 @@ HIGH/MEDIUM is fixed; LOW findings are fixed or justified in `PHASE_00_REPORT.md
 | V-3 | Signing-key environments not limited to `main` (= S-M4) | owner (environment branch rule, O1/O6) |
 | V-4 | No post-deploy header check; ZAP can never fail (= S-L13) | fixed (nightly staging header check + ZAP medium+ gate) |
 | V-5 | Turbo `test` cache not invalidated by dependency changes (false green locally) | fixed (turbo test dependsOn ^typecheck) |
-| V-6 | T0.10 visual comparison with the reference images not documented | open |
+| V-6 | T0.10 visual comparison with the reference images not documented | fixed (PHASE_00_REPORT §4.1 table, 11 components vs R1–R3; captures in `docs/reports/evidence/PHASE_00_T0.10_visual/`) |
 | V-7 | T0.9 screen-reader manual note missing | open |
 | V-8 | 01 §9 font budgets not enforced | fixed (fonts.spec.ts sums woff2 bytes per locale: first load en/ur ≤ 120 KB, hi/te ≤ 180 KB, Nastaliq ≤ 350 KB — staging: 48 / 169 / 172 KB + Nastaliq 239 KB) |
 | V-9 | DEPLOY.md: secret-change procedure, `--recreate`, AOP renewal, production signing key missing | fixed (DEPLOY.md §4–5, deploy.sh --restart) |
@@ -69,7 +69,7 @@ Security: the HIGH (H1) was fixed by DECISIONS #61; M1 is the owner's environmen
 | L7 | LOW | ZAP gate passes with zero reports | fixed (one non-empty report per target required) |
 | L8 | LOW | Production environment: admins can bypass the required reviewer | owner (O6) |
 | L9 | LOW | `cloudflare-ips.sh` would accept very wide prefixes (e.g. 0.0.0.0/0) | fixed (IPv4 < /8, IPv6 < /20 refused; CI test) — host layer: owner reinstalls |
-| V-6 | — | T0.10 visual comparison table with the reference images | open |
+| V-6 | — | T0.10 visual comparison table with the reference images | fixed (report §4.1) |
 | V-8 | LOW-MED | 01 §9 font budgets not enforced | fixed (e2e font byte budgets per locale) |
 | V-19 | MED | Offline banner black strip while online | fixed (owner check pending, O7) |
 | V-20 | MED | Nightly staging job never runs (variables) and would fail on `Server: cloudflare` | fixed in the spec (only `Server: cloudflare` accepted behind Cloudflare — verified read-only against staging); owner sets the variables (O11) |
