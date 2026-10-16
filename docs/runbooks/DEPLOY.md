@@ -119,6 +119,18 @@ commit — a staging release always follows a green CI run on `main`).
 | Suspected leaked secret | Rotate it at the source (Atlas user, Redis ACL, Cloudinary key, …), update the env file, restart — then tell Claude Code to review logs |
 | Notifications must stop now | Stop the `worker` container (Phase 4 adds the "pause all push" switch) |
 
+## 7. First Super Admin (once per environment)
+
+The first Super Admin is created by a one-off command that prints a **one-time invite link** (72 h). Open it on your
+phone and create the passkey there; then add a **second passkey** on another device (Account → Add device) so losing
+one phone never locks you out (04 §3).
+
+- **Local:** `pnpm bootstrap:super-admin --name "Your Name"` (refuses when one exists; `--force-additional` adds
+  another).
+- **Staging / production:** waits for DECISIONS #70 (which container runs it). The link is printed once in your SSH
+  session — never paste it into chat, e-mail or a ticket; if it leaks or expires, run the command again with
+  `--force-additional` and disable the unused admin later.
+
 ## 8. One-time: internal edge networks (re-review S-L9, after the host-layer update of Oct 2026)
 
 The edge networks between the router and each environment's `web` container became `internal` (no internet route
@@ -134,15 +146,3 @@ docker compose -p mc-edge -f edge/docker-compose.edge.yml up -d --wait   # route
 ./deploy.sh staging --restart                                            # web rejoins; site back
 ./check.sh                                                               # then send Claude Code the output
 ```
-
-## 7. First Super Admin (once per environment)
-
-The first Super Admin is created by a one-off command that prints a **one-time invite link** (72 h). Open it on your
-phone and create the passkey there; then add a **second passkey** on another device (Account → Add device) so losing
-one phone never locks you out (04 §3).
-
-- **Local:** `pnpm bootstrap:super-admin --name "Your Name"` (refuses when one exists; `--force-additional` adds
-  another).
-- **Staging / production:** waits for DECISIONS #70 (which container runs it). The link is printed once in your SSH
-  session — never paste it into chat, e-mail or a ticket; if it leaks or expires, run the command again with
-  `--force-additional` and disable the unused admin later.
