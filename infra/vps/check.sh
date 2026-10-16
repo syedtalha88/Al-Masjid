@@ -160,8 +160,14 @@ for file in "$ENV_ROOT"/staging/*.env "$ENV_ROOT"/production/*.env; do
 done
 [ "$found_env" -eq 1 ] || bad "env files present under $ENV_ROOT/<environment>/"
 # --- Origin TLS files per environment (PROGRESS F34): Caddy refuses to start on a malformed file --------------------
+STATE_ROOT=${MC_STATE_ROOT:-/var/lib/masjid-connect}
 for env in staging production; do
   ls "$ENV_ROOT/$env"/*.env >/dev/null 2>&1 || continue # environment not set up on this host
+  # Only a deployed environment must have its certificates (production's env files exist before it goes live).
+  if [ ! -s "$STATE_ROOT/$env/releases.log" ]; then
+    note "$env: not deployed yet — origin certificate files not checked"
+    continue
+  fi
   certs=$ENV_ROOT/$env/certs
   if ! has openssl; then note "$env: openssl missing — origin certificate files not checked"; continue; fi
   check "$env: origin certificate parses (PEM)" "openssl x509 -in $certs/origin.pem -noout"

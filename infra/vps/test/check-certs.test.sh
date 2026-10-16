@@ -19,6 +19,9 @@ new_pair() {
 
 d=/etc/masjid-connect/staging
 mkdir -p "$d/certs" && touch "$d/api-public.env" && chmod 600 "$d/api-public.env"
+# Staging is deployed (a release is recorded); production has env files but was never deployed and has no certs.
+mkdir -p /var/lib/masjid-connect/staging && echo "2026-10-16T00:00:00Z abc def" >/var/lib/masjid-connect/staging/releases.log
+mkdir -p /etc/masjid-connect/production && touch /etc/masjid-connect/production/api-public.env
 cd "$d/certs" || exit 1
 openssl req -x509 -newkey rsa:2048 -nodes -keyout /tmp/ca.key -out cloudflare-origin-pull-ca.pem -days 365 -subj /CN=ca 2>/dev/null
 new_pair
@@ -46,5 +49,12 @@ expect "certificate expiring within 30 days fails" FAIL "staging: origin certifi
 chmod 644 origin-key.pem
 expect "world-readable key fails" FAIL "$d/certs/origin-key.pem is 640 root:1000"
 
+out=$(bash /vps/check.sh 2>/dev/null)
+if grep -q "^WARN  production: not deployed yet" <<<"$out" && ! grep -q "^FAIL  production:" <<<"$out"; then
+  echo "PASS  an environment that was never deployed is noted, not failed, for missing certificates"
+else
+  echo "FAIL  an environment that was never deployed is noted, not failed, for missing certificates"
+  failures=$((failures + 1))
+fi
 echo "== $failures failure(s)"
 [ "$failures" -eq 0 ]
