@@ -30,6 +30,8 @@
 | 16 Oct (autopilot) | T1.6 API framework pieces (DECISIONS #68): rate limiter + buckets, error codes + i18n drafts (hi/ur/te need translator review), health with MongoDB/Redis, ACL test. Added dependency `rate-limiter-flexible` 11.2.1 to `packages/api` (server only). `pnpm setup:local` now also writes three local-only Redis test URLs. **Heads-up:** after the next deploy, staging `/health` returns 503 whenever Atlas or Redis is unreachable — by design | local commit |
 | 16 Oct (autopilot) | The owner declined the `@simplewebauthn/server` install prompt → not retried; the WebAuthn routes wait (A6). Linked the workspace package `@mc/db` into `@mc/api` instead (offline, no download) | — |
 | 16 Oct (autopilot) | T1.8 part 1 (DECISIONS #69): auth data layer + session/CSRF/challenge plumbing + session routes, tested against MongoDB/Redis and smoke-tested on the built api-admin. **Found + fixed:** `decryptField` accepted non-canonical base64url (a randomly failing property test exposed it; no forgery possible, now strict). `packages/api` coverage now gated on the integration run | local commits |
+| 16 Oct (autopilot) | **Found + fixed (security):** the API access log recorded `GET /auth/invite/<token>` paths verbatim → live invite tokens would have reached the 180-day log archive. Token-like path segments are now logged as `:redacted` | `7ac5325` (local) |
+| 16 Oct (autopilot) | T1.9 local part: bootstrap function + CLI (`pnpm bootstrap:super-admin`), ran against the local dev DB (one local Super Admin "Local Test Owner" now exists there — harmless, `pnpm db:reset` removes it). Found a doc conflict (worker vs session pepper) → **DECISIONS #70 OPEN**, owner item A8 | local commit |
 
 ## For the owner (collected during the session)
 
@@ -41,4 +43,5 @@
 | A4 | ~~Atlas users via atlas-users.sh~~ | **done 16 Oct 2026** | – |
 | A5 | ~~Host layer update~~ | **done 16 Oct 2026** (`a33610e`) | – |
 | A6 | Allow installing `@simplewebauthn/server` 14.0.3 (passkeys; named in 01 §4) — or tell Claude Code why not | T1.8 login/registration routes | Yes, for T1.8 |
+| A8 | Answer DECISIONS #70 (where the server-side Super Admin bootstrap runs; A recommended) | T1.9 on staging | Yes, for T1.9 on servers |
 | A7 | Pushing: commits since `7cb3555` are local only (push was declined) — say when to push | Staging gets nothing new until then | No |

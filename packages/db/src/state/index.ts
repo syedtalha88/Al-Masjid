@@ -28,6 +28,7 @@ export {
   revokeSessions,
   SESSION_LIFETIMES,
 } from './auth.ts';
+export { bootstrapSuperAdmin } from './bootstrap.ts';
 export { followMasjid, MAX_FOLLOWS_PER_DEVICE, unfollowMasjid } from './follows.ts';
 export { requireSuper, STEP_UP_WINDOW_MS } from './guards.ts';
 export * from './later.ts';

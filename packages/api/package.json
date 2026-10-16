@@ -7,7 +7,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./testing": "./src/testing/index.ts",
-    "./test-hooks": "./src/test-hooks/index.ts"
+    "./test-hooks": "./src/test-hooks/index.ts",
+    "./jobs/bootstrap-super-admin": "./src/jobs/bootstrap-super-admin.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

@@ -84,7 +84,8 @@ checks the output.
 | `pnpm lhci`                                 | Lighthouse budgets (cold + warm) against the running stack                                                                                        |
 | `pnpm check:dist` / `pnpm scan:bundles`     | no dev-only code / no secrets in the production builds                                                                                            |
 | `pnpm check:image <image> [--expect-hooks]` | the shipped server image has no e2e test hooks                                                                                                    |
-| `pnpm db:*`                                 | database commands — the runner, migrations and policy tests arrive in Phase 1                                                                     |
+| `pnpm db:reset` / `pnpm db:migrate`         | local database: drop + users + all migrations / pending migrations only                                                                           |
+| `pnpm bootstrap:super-admin --name "…"`     | local only: first Super Admin + one-time invite link (`--locale`, `--force-additional`); servers: `docs/runbooks/DEPLOY.md` §7                    |
 | `pnpm verify`                               | everything CI runs except the Docker-image security scans — needs Docker, `pnpm stack:up` and `pnpm dev:app` (the dev-only showcase spec) running |
 
 The showcase e2e spec runs against a Vite dev server: start `pnpm dev:app` before `pnpm test:e2e` locally.
