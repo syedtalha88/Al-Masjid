@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { createAdminApp, createPublicApp } from '../src/app.ts';
 import { defineRoute, type RouteDefinition } from '../src/http/define-route.ts';
 import { ApiProblem } from '../src/http/problem.ts';
+import { redactPath } from '../src/http/request-logger.ts';
 import { PROBE_TIMEOUT_MS } from '../src/routes/health.ts';
 import { captureLogger, silentLogger } from './helpers.ts';
 
@@ -445,6 +446,20 @@ describe('access log', () => {
       level: 40,
     });
     expect(entry).toHaveProperty('durationMs');
+  });
+
+  it('redacts token-like path segments (an invite token in the path never reaches the log archive)', async () => {
+    const { logger, lines } = captureLogger();
+    const token = 'Zx9_-'.repeat(8) + 'abc'; // 43 base64url characters
+    await request(publicApp([], logger)).get(`/api/v1/auth/invite/${token}`);
+    expect(JSON.stringify(lines())).not.toContain(token);
+    expect(lines().find((line) => line['msg'] === 'request completed')).toMatchObject({
+      req: { path: '/api/v1/auth/invite/:redacted' },
+    });
+    expect(redactPath('/api/admin/masjids/8f14e45f-ceea-467a-9a1b-2b3c4d5e6f70/items')).toBe(
+      '/api/admin/masjids/8f14e45f-ceea-467a-9a1b-2b3c4d5e6f70/items',
+    ); // ids stay readable
+    expect(redactPath(`/a/${token}/b/${token}`)).toBe('/a/:redacted/b/:redacted');
   });
 });
 
