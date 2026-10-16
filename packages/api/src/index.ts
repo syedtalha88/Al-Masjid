@@ -7,6 +7,17 @@ export {
   createPublicApp,
   PUBLIC_API_PREFIX,
 } from './app.ts';
+export {
+  decryptField,
+  encryptField,
+  FieldCryptoError,
+  type FieldKeyRing,
+  hashToken,
+  keyRingFromEnv,
+  needsReEncryption,
+  newToken,
+  tokensEqual,
+} from './crypto/field.ts';
 export { clientIp, type TrustedProxyMode } from './http/client-ip.ts';
 export { defineRoute, type RouteDefinition } from './http/define-route.ts';
 export type { ErrorReporter } from './http/errors.ts';

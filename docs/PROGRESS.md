@@ -67,7 +67,7 @@
 - [ ] T1.4 — Policy layer + full matrix tests — **policy layer done (16 Oct 2026, DECISIONS #65):** every 02 §4.1 cell in `policy.ts`, `scoped()` gateway, matrix test 984/984 cells against an independent table, cross-masjid isolation incl. crafted ids and injected `$or`, empty-membership admin, writable allow-lists, hidden fields, redaction, forged scopes, operator-key guard. **Remaining:** typed repositories per aggregate (built with T1.8/T1.11).
 - [x] T1.5 — DB client layer (16 Oct 2026, DECISIONS #65): lazy single client with 01 §5.1 options, ping/close, `withTransaction` (transient error retried → committed exactly once), scopes never leak across 50 concurrent transactions, `toInt64`/`fromInt64`/UUID helpers; cross-masjid read through the gateway proven in the T1.4 suite. ESLint/Semgrep `systemScope`/`hookScope`/`mongodb` bans already target `@mc/db`.
 - [ ] T1.6 — API framework pieces
-- [ ] T1.7 — Field encryption
+- [x] T1.7 — Field encryption (16 Oct 2026, DECISIONS #66): AES-256-GCM key ring with rotation, values bound to their field, uniform decryption errors, token hash with pepper + constant-time compare; 10 tests incl. fast-check properties; api coverage 99 %
 - [ ] T1.8 — Passkey authentication & sessions
 - [ ] T1.9 — Bootstrap Super Admin
 - [ ] T1.10 — Admin app shell & screens
