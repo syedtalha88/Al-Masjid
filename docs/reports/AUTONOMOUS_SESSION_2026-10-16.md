@@ -14,11 +14,9 @@
 | 16 Oct | T1.1 local: roles single source, local applier, `db:reset`, privilege tests as each user (≈ 500 checks), 100 % db coverage on the integration run | DECISIONS #63 |
 | 16 Oct | T1.1 Atlas tooling: Atlas Admin API checked in the docs; `atlas-users.sh` + mock-API test (13 checks) — the test caught a real bug (token passed through an already-closed pipe) | — |
 | 16 Oct | Flaky `navigation-driver` timing test (failed once under load: spring momentum vs. a fixed +25 px margin) — now asserts "continues from the interrupt point, never restarts from the old target" | — |
-
 | 16 Oct | T1.1 pushed; CI green on Linux (privilege tests, mock-Atlas test) | `4ebc9b0` |
 | 16 Oct | T1.2: schema DSL + all collections/views, migration runner + 7 migrations, drift check, server migrate entry, VPS migrate step; 61 db tests, 95.8 % coverage; found + fixed: drift check compared promoted longs as ints; a stub `case` result ignored by `exit 0` | DECISIONS #64 |
 | 16 Oct | Same driver timing test flaky again under load (first-frame margin) — now asserts the real property only (never behind the interrupt point, never back at the old target) | — |
-
 | 16 Oct | T1.5 client/scopes/transactions + T1.4 policy gateway and 984-cell matrix test (built before T1.3, which needs both); 92 db tests, 97 % coverage; found + fixed: tests that depended on each other's fixtures | DECISIONS #65 |
 
 ## For the owner (collected during the session)
