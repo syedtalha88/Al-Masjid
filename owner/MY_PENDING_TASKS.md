@@ -2,7 +2,7 @@
 
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
-> Last updated: 15 Oct 2026.
+> Last updated: 16 Oct 2026.
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
 > Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.
@@ -15,18 +15,30 @@
 - [x] **Server scripts** installed from the tested commit `9f664d3` (`provision.sh host`, fingerprint checked) (16 Oct 2026)
 - [x] **O2** — WireGuard tunnel (`masjid-server` on my PC) + public SSH closed. To reach the server: activate the tunnel, then `ssh talha@10.66.0.1` (16 Oct 2026)
 - [x] **First staging deploy**, reboot test, Cloudflare analytics off (16 Oct 2026)
-- [x] **O3** — Log-archive key: created on my PC (`Documentsmasjid-logs.key`, backed up), public key on the server; hourly archive runs (16 Oct 2026)
+- [x] **Phase 00 accepted** by me (16 Oct 2026) — the remaining review items are finished alongside Phase 01 (DECISIONS #62)
+- [x] **F10 / DECISIONS #60** — MongoDB for staging: **Atlas M0 Free** (Mumbai); production M10 is decided in Phase 9
+- [x] **Staging only from `main`** — GitHub → Environments → staging → deployment branch `main` (16 Oct 2026)
+- [x] **Cloudflare Web Analytics** auto-injection disabled (16 Oct 2026)
+- [x] **Atlas** — project `mc-staging`, free cluster in Mumbai, network access = server IP only; `atlas-users.sh staging` created the 4 database users; temporary service account and the wizard's user deleted (16 Oct 2026)
+- [x] **Server scripts** updated to `a33610e` (16 Oct 2026)
+- [x] **O7 (most of it)** — phone checks passed on iPhone + Poco F7, incl. the update prompt (0.12) and rollback (0.14) (16 Oct 2026)
+- [x] **O3** — Log-archive key: created on my PC (`Documents\masjid-logs.key`, backed up), public key on the server; hourly archive runs (16 Oct 2026)
 
 ---
 
-## The order I'll do the rest in
+## Still to do (in this order)
 
-| Step | What | When | Time |
+| # | What | Time | Notes |
 |---|---|---|---|
-| 4 | **O6** — GitHub checks 0.15–0.17 | after step 1 | 15 min |
-| 5 | **O7** — Phone checks 0.1–0.14 | after step 1 | 30–45 min |
-| 6 | **F10** — MongoDB choice for staging | before Phase 01 | 1 answer |
-| 7 | **O8** — Accounts for later phases | Phase 01 onwards | per phase |
+| 1 | **GitHub → Settings → Environments → production** → untick **"Allow administrators to bypass configured protection rules"** → Save | 1 min | security review L8 |
+| 2 | **Latency test** on the server (O9) — the command is in `docs/PROGRESS.md` → O9; paste the 9 lines to Claude Code | 1 min | |
+| 3 | **Cloudflare → Caching → Configuration → Browser Cache TTL → "Respect Existing Headers"** (O10) | 1 min | |
+| 4 | **GitHub → Settings → Secrets and variables → Actions → Variables**: `STAGING_APP_URL` = `https://app-staging.almasjids.com`, `STAGING_ADMIN_URL` = `https://admin-staging.almasjids.com` (O11) | 2 min | turns on the nightly staging scan |
+| 5 | **Design notes** from the phone checks → send to Claude Code (list or screenshots); is the thin black strip at the top gone now? | — | |
+| 6 | **iPhone swipe-back (F17)**: in Safari *and* the installed app, does swiping back from the left edge slide back once, smoothly? yes/no | 2 min | |
+| 7 | **Turnstile widget** (Cloudflare → Turnstile → Add widget, hostname `app-staging.almasjids.com`, Managed) — send the **site key** only, keep the secret | 3 min | needed from Phase 2 |
+| 8 | **Super Admin passkey** on staging with my phone — Claude Code sends a private one-time link when the login screens are ready | 5 min | Phase 01 T1.9 |
+| 9 | **O6 last:** GitHub branch ruleset (0.15) + the failing-PR test (0.16) — after this, `main` changes only through pull requests | 15 min | at the very end of Phase 01 work |
 
 ---
 

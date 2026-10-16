@@ -20,6 +20,7 @@
 | 16 Oct | T1.5 client/scopes/transactions + T1.4 policy gateway and 984-cell matrix test (built before T1.3, which needs both); 92 db tests, 97 % coverage; found + fixed: tests that depended on each other's fixtures | DECISIONS #65 |
 | 16 Oct | Owner: host layer `a33610e` installed (atlas-users.sh shipped; check.sh fix for never-deployed production: certs noted, not failed); staging moved forward to `bdc4247` by itself (first release needing the new compose file) | `a33610e` |
 | 16 Oct | Owner: `atlas-users.sh staging` run with a temporary service account → 4 custom roles + 4 users on Atlas, connection strings written on the server only, `deploy.sh staging --restart` ran the first migrations on Atlas, no errors; service account deleted, wizard user deleted | A4, A5 done |
+| 16 Oct | **Session ended by the owner** ("back from autopilot"): normal rules apply again from the next session (CLAUDE.md §3–§5; ask before outward-facing actions). Records updated: PROGRESS (phase table, T1.x, owner list O6–O12), owner/MY_PENDING_TASKS.md, this log | — |
 
 ## For the owner (collected during the session)
 
