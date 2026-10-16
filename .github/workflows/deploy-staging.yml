@@ -39,8 +39,9 @@ jobs:
       group: deploy-staging
       cancel-in-progress: false
     permissions:
-      contents: write # the staging-current pre-release assets (DECISIONS #55)
       packages: write # push images to GHCR
+    outputs:
+      manifest: ${{ steps.manifest.outputs.b64 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -129,12 +130,55 @@ jobs:
           fi
 
       - name: Release manifest (digests the VPS deploys)
+        id: manifest
         env:
           ENVIRONMENT: staging
-        run: node scripts/release-manifest.mjs
+        run: |
+          node scripts/release-manifest.mjs
+          echo "b64=$(base64 -w0 release-manifest.json)" >> "$GITHUB_OUTPUT"
 
+  # Signing runs in its own job (re-review S-L13): the build steps above execute third-party package code and never
+  # share a job with the signing key; this job has no checkout and only the token scope the pre-release needs.
+  sign:
+    name: Sign · publish the release manifest
+    needs: publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: staging
+    concurrency:
+      group: deploy-staging-sign
+      cancel-in-progress: false
+    permissions:
+      contents: write # the staging-current pre-release assets (DECISIONS #55)
+    steps:
+      - name: Manifest from the build job, checked before signing
+        env:
+          MANIFEST_B64: ${{ needs.publish.outputs.manifest }}
+        run: |
+          printf '%s' "$MANIFEST_B64" | base64 -d > release-manifest.json
+          jq -e --arg sha "$GITHUB_SHA" '
+            .environment == "staging" and .release == $sha
+            and (.images.server | test("^ghcr[.]io/syedtalha88/al-masjid-server@sha256:[0-9a-f]{64}$"))
+            and ((.images.web // "ghcr.io/syedtalha88/al-masjid-web@sha256:" + ("0" * 64))
+                 | test("^ghcr[.]io/syedtalha88/al-masjid-web@sha256:[0-9a-f]{64}$"))
+          ' release-manifest.json >/dev/null
+      # A re-run of an old run would re-sign an old commit with a fresh `created` and the VPS would accept the
+      # downgrade (re-review L1): only a first attempt, for the commit that is still main's tip, is signed.
+      - name: Only the first attempt for main's current tip
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$GITHUB_RUN_ATTEMPT" != 1 ]; then
+            echo "::error title=Not signed::re-runs never sign a release (attempt $GITHUB_RUN_ATTEMPT) — push a new commit instead."
+            exit 1
+          fi
+          tip=$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq .commit.sha)
+          if [ "$tip" != "$GITHUB_SHA" ]; then
+            echo "::error title=Not signed::main moved on to $tip — the newer CI run releases it."
+            exit 1
+          fi
       # DECISIONS #55: OpenSSH signature + a fixed pre-release the VPS polls with curl. The key exists since 15 Oct 2026
-      # (environment secret RELEASE_SIGNING_KEY), so a missing key now fails the release instead of skipping quietly.
+      # (environment secret RELEASE_SIGNING_KEY), so a missing key fails the release instead of skipping quietly.
       - name: Sign and publish the manifest for the VPS
         env:
           RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
@@ -149,11 +193,12 @@ jobs:
           printf '%s\n' "$RELEASE_SIGNING_KEY" >"$key"
           ssh-keygen -q -Y sign -f "$key" -n masjid-connect-release release-manifest.json
           rm -f "$key"
-          if ! gh release view staging-current >/dev/null 2>&1; then
-            gh release create staging-current --prerelease --title 'Staging (current release)' \
+          if ! gh release view staging-current --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create staging-current --repo "$GITHUB_REPOSITORY" --prerelease \
+              --title 'Staging (current release)' \
               --notes 'Signed release manifest the staging server deploys (DECISIONS #55). Replaced on every release.'
           fi
-          gh release upload staging-current release-manifest.json release-manifest.json.sig --clobber
+          gh release upload staging-current release-manifest.json release-manifest.json.sig --repo "$GITHUB_REPOSITORY" --clobber
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-manifest-staging

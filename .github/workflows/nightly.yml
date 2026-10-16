@@ -64,6 +64,39 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+  # The images actually deployed to staging (the digests in the published manifest), scanned with today's advisories:
+  # the job above scans fresh local builds, which can differ from what is running (re-review S-L13).
+  deployed-images:
+    name: Deployed staging images (Trivy, fresh DB)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read # the staging-current pre-release
+      packages: read # pull the deployed images from GHCR
+    steps:
+      - name: Deployed digests from the published manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release download staging-current --repo "$GITHUB_REPOSITORY" -p release-manifest.json; then
+            echo "::notice title=No staging release yet::nothing deployed to scan"
+            echo "IMAGES=" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          echo "IMAGES=$(jq -r '.images | to_entries | map(.value) | join(" ")' release-manifest.json)" >> "$GITHUB_ENV"
+      - name: Trivy (all fixable HIGH/CRITICAL)
+        if: env.IMAGES != ''
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          echo "$TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          for image in $IMAGES; do
+            case "$image" in ghcr.io/syedtalha88/*@sha256:*) ;; *) echo "::error::unexpected image $image"; exit 1 ;; esac
+            docker pull -q "$image"
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" image \
+              --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "$image"
+          done
+
   staging:
     name: Staging — ZAP baseline · security headers · Lighthouse
     if: vars.STAGING_APP_URL != ''

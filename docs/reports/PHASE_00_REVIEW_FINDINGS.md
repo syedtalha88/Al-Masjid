@@ -28,7 +28,7 @@ HIGH/MEDIUM is fixed; LOW findings are fixed or justified in `PHASE_00_REPORT.md
 | S-L10 | LOW | Redis has no `maxmemory` under the 512m limit | fixed 0a3e5ec |
 | S-L11 | LOW | Client-supplied `X-Request-Id` accepted (log correlation spoofable) | fixed 0a3e5ec |
 | S-L12 | LOW | Node keep-alive 65 s < Caddy's 2 min idle → sporadic 502s | fixed 0a3e5ec |
-| S-L13 | LOW | ZAP `-I` never fails; `workflow_dispatch` releases without green CI; deploy images not re-scanned; signing step shares the build job's write token | open |
+| S-L13 | LOW | ZAP `-I` never fails; `workflow_dispatch` releases without green CI; deploy images not re-scanned; signing step shares the build job's write token | fixed (ZAP gate + per-target reports; no dispatch; nightly Trivy of the deployed digests; signing in its own job without packages:write) |
 
 ## Phase verifier (FAIL items; PENDING-OWNER items are in PROGRESS)
 
@@ -60,7 +60,7 @@ Security: the HIGH (H1) was fixed by DECISIONS #61; M1 is the owner's environmen
 
 | Id | Sev | Finding | Status |
 |---|---|---|---|
-| L1 | LOW | "Re-run" of an old `main` CI run re-signs the old commit with a fresh `created` → downgrade accepted | open |
+| L1 | LOW | "Re-run" of an old `main` CI run re-signs the old commit with a fresh `created` → downgrade accepted | fixed (sign job: first attempt only, release must be main's tip; first real run after the push) |
 | L2 | LOW | Log gaps during deploy: worker/redis logs between archive and recreate; `up --remove-orphans` unarchived; `log-archive.sh` no lock, file-name collisions | open |
 | L3 | LOW | Cloudflare Browser Cache TTL overrides `no-cache` on `/boot.js`, `/sw.js` | owner (O10) |
 | L4 | LOW | Script injection by Cloudflare not detected (only inline scripts checked); NEL/Report-To headers | fixed (spec: same-origin `<script src>` only, no `cdn-cgi`/beacon); NEL/Report-To → DECISIONS #74 |
