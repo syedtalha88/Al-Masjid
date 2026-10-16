@@ -12,7 +12,6 @@ import {
   listMasjids,
   type MasjidRow,
 } from '@mc/db/repos';
-import { ASR_MADHAB, CALC_METHOD, INDIA, MASJID_STATUS } from '@mc/db/schema';
 import {
   changeMasjidStatus,
   createAdminForMasjid,
@@ -25,6 +24,33 @@ import {
   updateMasjid,
   updateSettings,
 } from '@mc/db/state';
+import {
+  adminPhoneSchema,
+  type ASR_MADHABS,
+  auditPageSchema,
+  auditQuerySchema,
+  type CALC_METHODS,
+  changedSchema,
+  countSchema,
+  type hijriOffsetSchema,
+  inviteLinkSchema,
+  invitePurposeSchema,
+  MASJID_STATUSES,
+  nameI18nSchema,
+  reasonSchema,
+  superAdminCreatedSchema,
+  superAdminCreateSchema,
+  superAdminListSchema,
+  superDashboardSchema,
+  superMasjidCreatedSchema,
+  superMasjidCreateSchema,
+  superMasjidDetailSchema,
+  superMasjidListSchema,
+  superMasjidPatchSchema,
+  superQuotaSchema,
+  superSettingsPatchSchema,
+  superSettingsSchema,
+} from '@mc/shared/contracts';
 import { z } from 'zod';
 
 import { decryptField, encryptField, type FieldKeyRing, hashToken, newToken } from '../crypto/field.ts';
@@ -42,27 +68,13 @@ export interface SuperRouteDeps {
 }
 
 const PHONE_CONTEXT = 'admin_users.phone_enc';
-const LOCALE = z.enum(['en', 'hi', 'ur', 'te']);
 const Id = z.string().max(64);
-const text = (max: number, min = 0) => z.string().trim().min(min).max(max);
-const Lat = z.number().min(INDIA.lat[0]).max(INDIA.lat[1]);
-const Lng = z.number().min(INDIA.lng[0]).max(INDIA.lng[1]);
-const HijriOffset = z.union([z.literal(-2), z.literal(-1), z.literal(0), z.literal(1), z.literal(2)]);
-const NameI18n = z.object({ hi: text(120).optional(), ur: text(120).optional(), te: text(120).optional() });
-const Reason = z.object({ reason: text(300, 3) });
+const Empty = z.object({});
+const NameI18n = nameI18nSchema;
+const Reason = reasonSchema;
+const AuditQuery = auditQuerySchema;
+const SettingsOut = superSettingsSchema;
 
-const MasjidRowOut = z
-  .object({
-    id: z.string(),
-    name: z.string(),
-    area: z.string(),
-    city: z.string(),
-    status: z.enum(MASJID_STATUS),
-    followCode: z.string(),
-    adminCount: z.number(),
-    createdAt: z.iso.datetime(),
-  })
-  .meta({ id: 'SuperMasjidRow' });
 const rowOut = (row: MasjidRow) => ({
   id: idText(row.id),
   name: row.name,
@@ -74,46 +86,6 @@ const rowOut = (row: MasjidRow) => ({
   createdAt: row.createdAt.toISOString(),
 });
 
-const AdminOut = z
-  .object({
-    id: z.string(),
-    displayName: z.string(),
-    role: z.enum(['owner', 'editor']),
-    status: z.enum(['invited', 'active', 'disabled']),
-    uiLocale: LOCALE,
-    hasPhone: z.boolean(),
-    undertakingVersion: z.string().optional(),
-    lastLoginAt: z.iso.datetime().optional(),
-  })
-  .meta({ id: 'SuperMasjidAdmin' });
-
-const MasjidDetailOut = z
-  .object({
-    masjid: z.object({
-      id: z.string(),
-      followCode: z.string(),
-      name: z.string(),
-      nameI18n: NameI18n,
-      area: z.string(),
-      city: z.string(),
-      state: z.string(),
-      address: z.string(),
-      lat: z.number(),
-      lng: z.number(),
-      status: z.enum(MASJID_STATUS),
-      calcMethod: z.enum(CALC_METHOD),
-      asrMadhab: z.enum(ASR_MADHAB),
-      hijriOffset: HijriOffset.optional(),
-      pushDailyQuota: z.number(),
-      adminCount: z.number(),
-      verifiedAt: z.iso.datetime().optional(),
-      createdAt: z.iso.datetime(),
-    }),
-    followers: z.number(),
-    admins: z.array(AdminOut),
-  })
-  .meta({ id: 'SuperMasjidDetail' });
-
 const adminOut = (a: AdminOfMasjid) => ({
   id: idText(a.id),
   displayName: a.displayName,
@@ -124,38 +96,6 @@ const adminOut = (a: AdminOfMasjid) => ({
   ...(a.undertakingVersion ? { undertakingVersion: a.undertakingVersion } : {}),
   ...(a.lastLoginAt ? { lastLoginAt: a.lastLoginAt.toISOString() } : {}),
 });
-
-const InviteOut = z.object({ inviteUrl: z.url(), expiresAt: z.iso.datetime() }).meta({ id: 'SuperInvite' });
-const Empty = z.object({});
-const Count = z.object({ count: z.number() }).meta({ id: 'SuperCount' });
-
-const SettingsOut = z
-  .object({
-    globalHijriOffset: z.number(),
-    defaultPushQuota: z.number(),
-    supportWhatsapp: z.string().optional(),
-    grievanceOfficer: z.object({ name: z.string(), email: z.string(), address: z.string(), city: z.string() }),
-    undertakingVersion: z.string(),
-    privacyVersion: z.string(),
-    termsVersion: z.string(),
-    updatedAt: z.iso.datetime(),
-  })
-  .meta({ id: 'SuperSettings' });
-
-const AuditRowOut = z
-  .object({
-    id: z.string(),
-    at: z.iso.datetime(),
-    actorType: z.string(),
-    actorId: z.string().optional(),
-    action: z.string(),
-    masjidId: z.string().optional(),
-    targetType: z.string().optional(),
-    targetId: z.string().optional(),
-    meta: z.record(z.string(), z.unknown()).optional(),
-    requestId: z.string().optional(),
-  })
-  .meta({ id: 'SuperAuditRow' });
 
 /** Drops `undefined` values so optional input fields stay absent (exactOptionalPropertyTypes). */
 function defined<T extends object>(value: T): { [K in keyof T]?: Exclude<T[K], undefined> } {
@@ -180,17 +120,6 @@ const csvCell = (value: unknown): string => {
   return `"${safe.replace(/"/g, '""')}"`;
 };
 
-const AuditQuery = z.object({
-  actor: Id.optional(),
-  masjid: Id.optional(),
-  action: z
-    .string()
-    .regex(/^[a-z_]+\.[a-z_]+$/)
-    .optional(),
-  from: z.iso.datetime().optional(),
-  to: z.iso.datetime().optional(),
-  cursor: z.string().max(200).optional(),
-});
 const auditFilters = (query: z.infer<typeof AuditQuery>) => {
   const actorId = query.actor ? parseId(query.actor) : undefined;
   const masjidId = query.masjid ? parseId(query.masjid) : undefined;
@@ -218,12 +147,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       tags: ['super'],
       auth: 'super',
       responses: {
-        200: z
-          .object({
-            pending: z.array(MasjidRowOut),
-            counts: z.object({ pending: z.number(), active: z.number(), suspended: z.number(), deleted: z.number() }),
-          })
-          .meta({ id: 'SuperDashboard' }),
+        200: superDashboardSchema,
       },
       handler: async ({ auth, reply }) => {
         const dashboard = await getDashboard(db, auth.scope);
@@ -239,12 +163,12 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       request: {
         query: z.object({
           q: z.string().max(80).optional(),
-          status: z.enum(MASJID_STATUS).optional(),
+          status: z.enum(MASJID_STATUSES).optional(),
           cursor: z.string().max(200).optional(),
         }),
       },
       responses: {
-        200: z.object({ masjids: z.array(MasjidRowOut), next: z.string().optional() }).meta({ id: 'SuperMasjidList' }),
+        200: superMasjidListSchema,
       },
       handler: async ({ auth, query, reply }) => {
         const page = await listMasjids(db, auth.scope, {
@@ -263,21 +187,9 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       auth: 'super',
       rateLimit: writes,
       request: {
-        body: z.object({
-          name: text(120, 1),
-          nameI18n: NameI18n.optional(),
-          area: text(80),
-          city: text(80, 1),
-          state: text(80, 1),
-          address: text(300),
-          lat: Lat,
-          lng: Lng,
-          calcMethod: z.enum(CALC_METHOD).optional(),
-          asrMadhab: z.enum(ASR_MADHAB).optional(),
-          hijriOffset: HijriOffset.optional(),
-        }),
+        body: superMasjidCreateSchema,
       },
-      responses: { 201: z.object({ id: z.string(), followCode: z.string() }).meta({ id: 'SuperMasjidCreated' }) },
+      responses: { 201: superMasjidCreatedSchema },
       handler: async ({ auth, body, requestId, reply }) => {
         const { id, followCode } = await createMasjid(
           db,
@@ -307,7 +219,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       tags: ['super'],
       auth: 'super',
       request: { params: z.object({ id: Id }) },
-      responses: { 200: MasjidDetailOut },
+      responses: { 200: superMasjidDetailSchema },
       handler: async ({ auth, params, reply }) => {
         const detail = await getMasjidDetail(db, auth.scope, idOr404(params.id, 'MASJID_NOT_FOUND'));
         if (!detail) throw new ApiProblem(404, 'MASJID_NOT_FOUND');
@@ -324,11 +236,11 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
             address: String(m['address']),
             lat: Number(m['lat']),
             lng: Number(m['lng']),
-            status: m['status'] as (typeof MASJID_STATUS)[number], // validator-enforced enum
-            calcMethod: m['calc_method'] as (typeof CALC_METHOD)[number], // validator-enforced enum
-            asrMadhab: m['asr_madhab'] as (typeof ASR_MADHAB)[number], // validator-enforced enum
+            status: m['status'] as (typeof MASJID_STATUSES)[number], // validator-enforced enum
+            calcMethod: m['calc_method'] as (typeof CALC_METHODS)[number], // validator-enforced enum
+            asrMadhab: m['asr_madhab'] as (typeof ASR_MADHABS)[number], // validator-enforced enum
             ...(typeof m['hijri_offset'] === 'number'
-              ? { hijriOffset: m['hijri_offset'] as z.infer<typeof HijriOffset> } // validator: -2..2
+              ? { hijriOffset: m['hijri_offset'] as z.infer<typeof hijriOffsetSchema> } // validator: -2..2
               : {}),
             pushDailyQuota: Number(m['push_daily_quota']),
             adminCount: Number(m['admin_count']),
@@ -349,21 +261,9 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       rateLimit: writes,
       request: {
         params: z.object({ id: Id }),
-        body: z.object({
-          name: text(120, 1).optional(),
-          nameI18n: NameI18n.optional(),
-          area: text(80).optional(),
-          city: text(80, 1).optional(),
-          state: text(80, 1).optional(),
-          address: text(300).optional(),
-          lat: Lat.optional(),
-          lng: Lng.optional(),
-          calcMethod: z.enum(CALC_METHOD).optional(),
-          asrMadhab: z.enum(ASR_MADHAB).optional(),
-          hijriOffset: HijriOffset.nullable().optional(),
-        }),
+        body: superMasjidPatchSchema,
       },
-      responses: { 200: z.object({ changed: z.array(z.string()) }).meta({ id: 'SuperChanged' }) },
+      responses: { 200: changedSchema },
       handler: async ({ auth, params, body, requestId, reply }) => {
         const { nameI18n, ...rest } = body;
         const changed = await updateMasjid(db, auth.scope, {
@@ -381,8 +281,8 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       tags: ['super'],
       auth: 'super',
       rateLimit: writes,
-      request: { params: z.object({ id: Id }), body: z.object({ pushDailyQuota: z.int().min(0).max(50) }) },
-      responses: { 200: z.object({ changed: z.array(z.string()) }) },
+      request: { params: z.object({ id: Id }), body: superQuotaSchema },
+      responses: { 200: changedSchema },
       handler: async ({ auth, params, body, requestId, reply }) => {
         const changed = await updateMasjid(db, auth.scope, {
           masjidId: idOr404(params.id, 'MASJID_NOT_FOUND'),
@@ -439,18 +339,9 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       auth: 'super',
       rateLimit: writes,
       request: {
-        body: z.object({
-          displayName: text(80, 1),
-          phone: z
-            .string()
-            .regex(/^\+?[0-9]{10,15}$/)
-            .optional(),
-          uiLocale: LOCALE,
-          masjidId: Id,
-          role: z.enum(['owner', 'editor']),
-        }),
+        body: superAdminCreateSchema,
       },
-      responses: { 201: InviteOut.extend({ adminId: z.string() }).meta({ id: 'SuperAdminCreated' }) },
+      responses: { 201: superAdminCreatedSchema },
       handler: async ({ auth, body, requestId, reply }) => {
         const token = newToken();
         const { adminId, expiresAt } = await createAdminForMasjid(db, auth.scope, {
@@ -476,7 +367,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       tags: ['super'],
       auth: 'super',
       request: { query: z.object({ masjidId: Id }) },
-      responses: { 200: z.object({ admins: z.array(AdminOut) }).meta({ id: 'SuperAdminList' }) },
+      responses: { 200: superAdminListSchema },
       handler: async ({ auth, query, reply }) => {
         const detail = await getMasjidDetail(db, auth.scope, idOr404(query.masjidId, 'MASJID_NOT_FOUND'));
         if (!detail) throw new ApiProblem(404, 'MASJID_NOT_FOUND');
@@ -494,9 +385,9 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       rateLimit: writes,
       request: {
         params: z.object({ id: Id }),
-        body: z.object({ purpose: z.enum(['register', 'add_device', 'recovery']) }),
+        body: invitePurposeSchema,
       },
-      responses: { 201: InviteOut },
+      responses: { 201: inviteLinkSchema },
       handler: async ({ auth, params, body, clock, requestId, reply }) => {
         const token = newToken();
         const expiresAt = await createInvite(db, auth.scope, {
@@ -517,7 +408,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       auth: 'super_step_up',
       rateLimit: writes,
       request: { params: z.object({ id: Id }) },
-      responses: { 200: Count },
+      responses: { 200: countSchema },
       handler: async ({ auth, params, clock, requestId, reply }) => {
         const count = await revokeAdminSessions(db, auth.scope, {
           adminId: idOr404(params.id, 'ADMIN_NOT_FOUND'),
@@ -535,7 +426,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       auth: 'super_step_up',
       rateLimit: writes,
       request: { params: z.object({ id: Id }) },
-      responses: { 200: Count },
+      responses: { 200: countSchema },
       handler: async ({ auth, params, clock, requestId, reply }) => {
         const count = await revokeAdminPasskeys(db, auth.scope, {
           adminId: idOr404(params.id, 'ADMIN_NOT_FOUND'),
@@ -571,7 +462,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       tags: ['super'],
       auth: 'super_step_up',
       request: { params: z.object({ id: Id }) },
-      responses: { 200: z.object({ phone: z.string().nullable() }).meta({ id: 'SuperAdminPhone' }) },
+      responses: { 200: adminPhoneSchema },
       handler: async ({ auth, params, clock, requestId, reply }) => {
         const encrypted = await readAdminPhone(db, auth.scope, {
           adminId: idOr404(params.id, 'ADMIN_NOT_FOUND'),
@@ -610,23 +501,9 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       auth: 'super',
       rateLimit: writes,
       request: {
-        body: z.object({
-          globalHijriOffset: HijriOffset.optional(),
-          defaultPushQuota: z.int().min(0).max(50).optional(),
-          supportWhatsapp: z
-            .string()
-            .regex(/^\+?[0-9]{8,15}$/)
-            .nullable()
-            .optional(),
-          grievanceOfficer: z
-            .object({ name: text(120, 1), email: z.email().max(200), address: text(300, 1), city: text(80, 1) })
-            .optional(),
-          undertakingVersion: text(20, 1).optional(),
-          privacyVersion: text(20, 1).optional(),
-          termsVersion: text(20, 1).optional(),
-        }),
+        body: superSettingsPatchSchema,
       },
-      responses: { 200: z.object({ changed: z.array(z.string()) }) },
+      responses: { 200: changedSchema },
       handler: async ({ auth, body, clock, requestId, reply }) => {
         const changed = await updateSettings(db, auth.scope, {
           patch: defined(body),
@@ -644,7 +521,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       auth: 'super',
       request: { query: AuditQuery },
       responses: {
-        200: z.object({ entries: z.array(AuditRowOut), next: z.string().optional() }).meta({ id: 'SuperAuditPage' }),
+        200: auditPageSchema,
       },
       handler: async ({ auth, query, reply }) => {
         const page = await listAudit(db, auth.scope, {

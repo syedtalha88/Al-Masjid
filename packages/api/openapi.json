@@ -641,23 +641,6 @@
           "admins"
         ]
       },
-      "SuperInvite": {
-        "type": "object",
-        "properties": {
-          "inviteUrl": {
-            "type": "string",
-            "format": "uri"
-          },
-          "expiresAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "inviteUrl",
-          "expiresAt"
-        ]
-      },
       "SuperCount": {
         "type": "object",
         "properties": {
@@ -1585,18 +1568,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "changed": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "required": [
-                    "changed"
-                  ]
+                  "$ref": "#/components/schemas/SuperChanged"
                 }
               }
             }
@@ -1858,7 +1830,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuperInvite"
+                  "$ref": "#/components/schemas/InviteLink"
                 }
               }
             }
@@ -2126,18 +2098,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "changed": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "required": [
-                    "changed"
-                  ]
+                  "$ref": "#/components/schemas/SuperChanged"
                 }
               }
             }
