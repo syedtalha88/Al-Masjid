@@ -461,6 +461,13 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - Tests: one deploy test per bypass (11 policy cases), host-layer mismatch and old-manifest cases; the policy run against the real rendered compose file (passes) and against the named-volume bypass rendered by real Docker Compose (refused).
 **Consequences:** a change to the compose file or `redis.conf` now needs the owner's `provision.sh host <sha>` before the release that uses it deploys (the deploy says so). Still recommended before production goes live (Phase 9): one Cloudflare Origin CA certificate **per environment** limited to its own host names, so even a misrouted connection could never terminate the other environment's TLS.
 
+### #62 — Phase 01 starts before Phase 00's formal close; closure items run alongside — ACCEPTED (owner, 16 Oct 2026, option B)
+**Context:** CLAUDE.md §3/§5 start a phase only after the previous one is DONE (report, verifier + security review clean, owner verification). On 16 Oct 2026 the owner reviewed staging (phone checks, `check.sh` 100 PASS · 0 FAIL, A+, rollback/auto-deploy demos) and said: "I'm already happy with the output — close Phase 0 as soon as possible and start Phase 1" (option B). The Phase 00 re-review had just found 1 HIGH (fixed: #61), 1 MEDIUM (owner setting) and LOW/report items.
+**Decision:** Phase 00 is **accepted by the owner** (16 Oct 2026). Phase 01 starts now. These closure items stay tracked in PROGRESS ("Phase 00 closure") and are finished alongside Phase 01, before Phase 01 itself can be DONE:
+- owner: staging environment deployment branches = `main` (review M1); host layer `dfac60e` installed (#61, F33, F34) + `check.sh` output; production environment admin-bypass off (L8); Cloudflare Browser Cache TTL "Respect Existing Headers" (L3); variables `STAGING_APP_URL`/`STAGING_ADMIN_URL` (V-20); iPhone swipe-back answer (F17); design notes; branch ruleset + failing-PR proof (0.15/0.16, last);
+- Claude Code: the security review's LOW items (L1, L2, L4–L7, L9, S-L7, S-L9, S-L13) fixed or justified; nightly staging spec accepting `Server: cloudflare` (V-20); `Via` header (V-30); raw-route lint (V-25); font budgets (V-8); userns-remap decision (V-24); deferral entries for F13/F18/F20/F22/F31 (V-26); visual comparison table (V-6); VPS → ap-south-1 latency, measured once the Atlas cluster exists (V-21); stale docs (V-27); `pnpm verify` starting the dev server for the showcase spec; the final Phase 00 report (V-22) and a last verifier/security-reviewer run.
+**Consequences:** Phase 01 work and Phase 00 closure commits are interleaved; Phase 01 cannot be marked DONE while any item above is open.
+
 ## OPEN
 
 _None._

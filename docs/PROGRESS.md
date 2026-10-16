@@ -7,8 +7,8 @@
 
 | Phase | Title | Status | Report | Owner verified on |
 |---|---|---|---|---|
-| 00 | Foundation, tooling & design system | IN PROGRESS | – | – |
-| 01 | Database, security core, passkey auth, Super Admin | NOT STARTED | – | – |
+| 00 | Foundation, tooling & design system | **Accepted by the owner** — closure items alongside Phase 01 (DECISIONS #62) | draft | 16 Oct 2026 |
+| 01 | Database, security core, passkey auth, Super Admin | IN PROGRESS (from 16 Oct 2026, DECISIONS #62) | – | – |
 | 02 | Musalli app core (follow, timings, feed, offline, install) | NOT STARTED | – | – |
 | 03 | Masjid Admin content tools | NOT STARTED | – | – |
 | 04 | Push notifications | NOT STARTED | – | – |
