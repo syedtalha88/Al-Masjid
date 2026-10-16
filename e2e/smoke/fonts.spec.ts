@@ -14,6 +14,13 @@ const FONT = {
 } as const;
 type FontName = keyof typeof FONT;
 
+/**
+ * 01 §9 font budgets (re-review V-8), bytes actually downloaded: the first-load set (everything but the lazily loaded
+ * Nastaliq) ≤ 120 KB for en/ur and ≤ 180 KB for hi/te; Nastaliq on its own ≤ 350 KB.
+ */
+const FIRST_LOAD_BUDGET: Record<string, number> = { en: 120_000, ur: 120_000, hi: 180_000, te: 180_000 };
+const NASTALIQ_BUDGET = 350_000;
+
 const EXPECTED: Record<string, FontName[]> = {
   en: ['inter'],
   hi: ['inter', 'devanagari'],
@@ -28,8 +35,20 @@ for (const [locale, expected] of Object.entries(EXPECTED)) {
         localStorage.setItem('mc.locale', value);
       }, locale);
       const fonts = new Set<string>();
+      const sizes = new Map<string, Promise<number>>();
       page.on('request', (request) => {
         if (request.url().endsWith('.woff2')) fonts.add(request.url());
+      });
+      page.on('response', (response) => {
+        if (response.url().endsWith('.woff2')) {
+          sizes.set(
+            response.url(),
+            response.body().then(
+              (body) => body.length,
+              () => 0,
+            ),
+          );
+        }
       });
       await page.goto(url);
       await page.evaluate(() => document.fonts.ready.then(() => undefined));
@@ -39,6 +58,12 @@ for (const [locale, expected] of Object.entries(EXPECTED)) {
         [...fonts].some((fontUrl) => FONT[name].test(fontUrl)),
       );
       expect(downloaded.sort()).toEqual([...expected].sort());
+
+      const bytes = await Promise.all([...sizes].map(async ([fontUrl, size]) => [fontUrl, await size] as const));
+      const nastaliq = bytes.filter(([fontUrl]) => FONT.nastaliq.test(fontUrl)).reduce((sum, [, n]) => sum + n, 0);
+      const firstLoad = bytes.filter(([fontUrl]) => !FONT.nastaliq.test(fontUrl)).reduce((sum, [, n]) => sum + n, 0);
+      expect(firstLoad, `${locale} first-load fonts (bytes)`).toBeLessThanOrEqual(FIRST_LOAD_BUDGET[locale] ?? 0);
+      expect(nastaliq, 'Nastaliq (bytes)').toBeLessThanOrEqual(NASTALIQ_BUDGET);
     });
   }
 }
