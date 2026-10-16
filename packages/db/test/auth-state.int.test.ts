@@ -376,6 +376,7 @@ describe('sessions (04 §4)', () => {
       adminId: r.adminId,
       role: 'masjid_admin',
       masjids: [{ id: r.masjidId, role: 'owner' }],
+      undertakingCurrent: false,
     });
     expect((await seen()).getTime()).toBe(start.getTime()); // < 5 min: not written
     await resolveSession(h(), publicScope(), { tokenHash: r.sessionHash, now: at(LAST_SEEN_THROTTLE_MS) });

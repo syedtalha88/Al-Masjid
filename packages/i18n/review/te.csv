@@ -72,4 +72,9 @@ errors,ALREADY_MEMBER,This person is already an admin of this masjid.,ఈ వ్
 errors,NOT_MEMBER,This person is not an admin of this masjid.,ఈ వ్యక్తి ఈ మస్జిద్ అడ్మిన్ కాదు.,no
 errors,INVALID_TRANSITION,This change isn’t possible right now.,ఈ మార్పు ప్రస్తుతం సాధ్యం కాదు.,no
 errors,ACTIVATION_REQUIREMENTS,This masjid needs an active admin who has accepted the undertaking before it can go live.,మస్జిద్‌ను ప్రారంభించే ముందు హామీ పత్రాన్ని అంగీకరించిన ఒక యాక్టివ్ అడ్మిన్ ఉండాలి.,no
+errors,UNDERTAKING_REQUIRED,Please read and accept the admin undertaking first.,దయచేసి ముందుగా అడ్మిన్ హామీ పత్రాన్ని చదివి అంగీకరించండి.,no
+errors,UNDERTAKING_VERSION_MISMATCH,The undertaking was updated. Please read the new version and accept it.,హామీ పత్రం మారింది. దయచేసి కొత్తదాన్ని చదివి అంగీకరించండి.,no
+errors,ADMIN_NOT_FOUND,We couldn’t find this admin.,ఈ అడ్మిన్ కనబడలేదు.,no
+errors,NOTHING_TO_UPDATE,Nothing was changed.,ఏదీ మార్చలేదు.,no
+errors,INVALID_CURSOR,This list changed. Please reload it.,ఈ జాబితా మారింది. దయచేసి మళ్లీ లోడ్ చేయండి.,no
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,మీరు ఆఫ్‌లైన్‌లో ఉన్నట్లున్నారు. దయచేసి కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి.,no

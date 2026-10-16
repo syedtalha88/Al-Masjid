@@ -231,3 +231,95 @@ export async function consumeInvite(
     return { adminId: invite.admin_id, purpose: invite.purpose };
   });
 }
+
+/**
+ * Creates a masjid admin, adds them to the masjid and opens their `register` invite — ONE transaction, so a refused
+ * addition (limit, unknown masjid) leaves no orphan admin behind (C2 "create admin" → `POST /api/super/admins`).
+ *
+ * @param phoneEnc - already encrypted (`encryptField`, T1.7).
+ * @param inviteTokenHash - `hashToken(token, pepper)`; the token is returned to the Super Admin inside the link.
+ * @throws StateError FORBIDDEN, MASJID_NOT_FOUND, ADMIN_LIMIT_REACHED, INVALID_TOKEN_HASH.
+ */
+export async function createAdminForMasjid(
+  handle: DbHandle,
+  scope: Scope,
+  input: {
+    displayName: string;
+    uiLocale: 'en' | 'hi' | 'ur' | 'te';
+    phoneEnc?: string;
+    masjidId: UUID;
+    role: 'owner' | 'editor';
+    inviteTokenHash: Buffer;
+    requestId?: string;
+    now?: Date;
+  },
+): Promise<{ adminId: UUID; expiresAt: Date }> {
+  const actor = requireSuper(scope);
+  if (input.inviteTokenHash.length !== 32) throw new StateError('INVALID_TOKEN_HASH');
+  return withTransaction(handle, scope, async (ctx) => {
+    const session = { session: ctx.session };
+    const now = input.now ?? new Date();
+    const masjids = ctx.db.collection<{ _id: UUID; admin_count: number; deleted_at?: Date }>('masjids');
+    const counted = await masjids.updateOne(
+      { _id: input.masjidId, admin_count: { $lt: MAX_ADMINS_PER_MASJID }, deleted_at: { $exists: false } },
+      { $inc: { admin_count: 1 }, $set: { updated_at: now } },
+      session,
+    );
+    if (counted.matchedCount !== 1) {
+      const exists = await masjids.countDocuments({ _id: input.masjidId, deleted_at: { $exists: false } }, session);
+      throw new StateError(exists ? 'ADMIN_LIMIT_REACHED' : 'MASJID_NOT_FOUND');
+    }
+    const adminId = newId();
+    await ctx.db.collection<IdDoc>('admin_users').insertOne(
+      {
+        _id: adminId,
+        display_name: input.displayName,
+        role: 'masjid_admin',
+        status: 'invited',
+        ...(input.phoneEnc ? { phone_enc: input.phoneEnc } : {}),
+        ui_locale: input.uiLocale,
+        user_handle: new Binary(randomBytes(32)),
+        undertaking_history: [],
+        created_at: now,
+        updated_at: now,
+      },
+      session,
+    );
+    await ctx.db.collection<IdDoc>('masjid_admins').insertOne(
+      {
+        _id: newId(),
+        masjid_id: input.masjidId,
+        admin_id: adminId,
+        role: input.role,
+        added_by: actor.adminId,
+        created_at: now,
+      },
+      session,
+    );
+    const expiresAt = new Date(now.getTime() + INVITE_TTL_MS);
+    await ctx.db.collection<IdDoc>('admin_invites').insertOne(
+      {
+        _id: newId(),
+        admin_id: adminId,
+        purpose: 'register',
+        token_hash: new Binary(input.inviteTokenHash),
+        expires_at: expiresAt,
+        open: true,
+        created_by: actor.adminId,
+        created_at: now,
+      },
+      session,
+    );
+    const requestId = input.requestId ? { requestId: input.requestId } : {};
+    const target = { targetType: 'admin', targetId: adminId.toHexString(), ...requestId };
+    await writeAudit(ctx, { action: 'admin.create', ...target, meta: { role: 'masjid_admin' } });
+    await writeAudit(ctx, {
+      action: 'admin.add_to_masjid',
+      masjidId: input.masjidId,
+      ...target,
+      meta: { role: input.role },
+    });
+    await writeAudit(ctx, { action: 'admin.invite', ...target, meta: { purpose: 'register' } });
+    return { adminId, expiresAt };
+  });
+}

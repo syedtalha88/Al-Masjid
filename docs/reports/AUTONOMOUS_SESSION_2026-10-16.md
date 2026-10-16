@@ -32,6 +32,7 @@
 | 16 Oct (autopilot) | T1.8 part 1 (DECISIONS #69): auth data layer + session/CSRF/challenge plumbing + session routes, tested against MongoDB/Redis and smoke-tested on the built api-admin. **Found + fixed:** `decryptField` accepted non-canonical base64url (a randomly failing property test exposed it; no forgery possible, now strict). `packages/api` coverage now gated on the integration run | local commits |
 | 16 Oct (autopilot) | **Found + fixed (security):** the API access log recorded `GET /auth/invite/<token>` paths verbatim → live invite tokens would have reached the 180-day log archive. Token-like path segments are now logged as `:redacted` | `7ac5325` (local) |
 | 16 Oct (autopilot) | T1.9 local part: bootstrap function + CLI (`pnpm bootstrap:super-admin`), ran against the local dev DB (one local Super Admin "Local Test Owner" now exists there — harmless, `pnpm db:reset` removes it). Found a doc conflict (worker vs session pepper) → **DECISIONS #70 OPEN**, owner item A8 | local commit |
+| 16 Oct (autopilot) | T1.10/T1.11 API parts (DECISIONS #71): Super Admin API behind a router-level guard, undertaking gate, typed read repositories, atomic admin creation; fixed a `keyRingFromEnv` type mismatch with the env parser; CSV export guards against spreadsheet formula injection. 141 db + 107 api integration tests green; coverage db 98.2 % lines, api 99.3 % lines / 88.2 % branches | local commits |
 
 ## For the owner (collected during the session)
 

@@ -3,6 +3,7 @@ export {
   addAdminToMasjid,
   consumeInvite,
   createAdmin,
+  createAdminForMasjid,
   createInvite,
   INVITE_TTL_MS,
   type InvitePurpose,

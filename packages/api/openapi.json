@@ -195,6 +195,549 @@
         "required": [
           "sessions"
         ]
+      },
+      "SuperDashboard": {
+        "type": "object",
+        "properties": {
+          "pending": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuperMasjidRow"
+            }
+          },
+          "counts": {
+            "type": "object",
+            "properties": {
+              "pending": {
+                "type": "number"
+              },
+              "active": {
+                "type": "number"
+              },
+              "suspended": {
+                "type": "number"
+              },
+              "deleted": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "pending",
+              "active",
+              "suspended",
+              "deleted"
+            ]
+          }
+        },
+        "required": [
+          "pending",
+          "counts"
+        ]
+      },
+      "SuperMasjidRow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "active",
+              "suspended",
+              "deleted"
+            ]
+          },
+          "followCode": {
+            "type": "string"
+          },
+          "adminCount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "area",
+          "city",
+          "status",
+          "followCode",
+          "adminCount",
+          "createdAt"
+        ]
+      },
+      "SuperMasjidList": {
+        "type": "object",
+        "properties": {
+          "masjids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuperMasjidRow"
+            }
+          },
+          "next": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "masjids"
+        ]
+      },
+      "SuperMasjidCreated": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "followCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "followCode"
+        ]
+      },
+      "SuperMasjidDetail": {
+        "type": "object",
+        "properties": {
+          "masjid": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "followCode": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "nameI18n": {
+                "type": "object",
+                "properties": {
+                  "hi": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 120
+                  },
+                  "ur": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 120
+                  },
+                  "te": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 120
+                  }
+                }
+              },
+              "area": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string"
+              },
+              "address": {
+                "type": "string"
+              },
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "active",
+                  "suspended",
+                  "deleted"
+                ]
+              },
+              "calcMethod": {
+                "type": "string",
+                "enum": [
+                  "karachi",
+                  "mwl",
+                  "isna",
+                  "egypt",
+                  "umm_al_qura",
+                  "other_custom"
+                ]
+              },
+              "asrMadhab": {
+                "type": "string",
+                "enum": [
+                  "hanafi",
+                  "shafi"
+                ]
+              },
+              "hijriOffset": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "enum": [
+                      -2
+                    ]
+                  },
+                  {
+                    "type": "number",
+                    "enum": [
+                      -1
+                    ]
+                  },
+                  {
+                    "type": "number",
+                    "enum": [
+                      0
+                    ]
+                  },
+                  {
+                    "type": "number",
+                    "enum": [
+                      1
+                    ]
+                  },
+                  {
+                    "type": "number",
+                    "enum": [
+                      2
+                    ]
+                  }
+                ]
+              },
+              "pushDailyQuota": {
+                "type": "number"
+              },
+              "adminCount": {
+                "type": "number"
+              },
+              "verifiedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "id",
+              "followCode",
+              "name",
+              "nameI18n",
+              "area",
+              "city",
+              "state",
+              "address",
+              "lat",
+              "lng",
+              "status",
+              "calcMethod",
+              "asrMadhab",
+              "pushDailyQuota",
+              "adminCount",
+              "createdAt"
+            ]
+          },
+          "followers": {
+            "type": "number"
+          },
+          "admins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuperMasjidAdmin"
+            }
+          }
+        },
+        "required": [
+          "masjid",
+          "followers",
+          "admins"
+        ]
+      },
+      "SuperMasjidAdmin": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "editor"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "invited",
+              "active",
+              "disabled"
+            ]
+          },
+          "uiLocale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
+          },
+          "hasPhone": {
+            "type": "boolean"
+          },
+          "undertakingVersion": {
+            "type": "string"
+          },
+          "lastLoginAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "displayName",
+          "role",
+          "status",
+          "uiLocale",
+          "hasPhone"
+        ]
+      },
+      "SuperChanged": {
+        "type": "object",
+        "properties": {
+          "changed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "changed"
+        ]
+      },
+      "SuperAdminCreated": {
+        "type": "object",
+        "properties": {
+          "inviteUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "adminId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "inviteUrl",
+          "expiresAt",
+          "adminId"
+        ]
+      },
+      "SuperAdminList": {
+        "type": "object",
+        "properties": {
+          "admins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuperMasjidAdmin"
+            }
+          }
+        },
+        "required": [
+          "admins"
+        ]
+      },
+      "SuperInvite": {
+        "type": "object",
+        "properties": {
+          "inviteUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "inviteUrl",
+          "expiresAt"
+        ]
+      },
+      "SuperCount": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "count"
+        ]
+      },
+      "SuperAdminPhone": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "phone"
+        ]
+      },
+      "SuperSettings": {
+        "type": "object",
+        "properties": {
+          "globalHijriOffset": {
+            "type": "number"
+          },
+          "defaultPushQuota": {
+            "type": "number"
+          },
+          "supportWhatsapp": {
+            "type": "string"
+          },
+          "grievanceOfficer": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "address": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "email",
+              "address",
+              "city"
+            ]
+          },
+          "undertakingVersion": {
+            "type": "string"
+          },
+          "privacyVersion": {
+            "type": "string"
+          },
+          "termsVersion": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "globalHijriOffset",
+          "defaultPushQuota",
+          "grievanceOfficer",
+          "undertakingVersion",
+          "privacyVersion",
+          "termsVersion",
+          "updatedAt"
+        ]
+      },
+      "SuperAuditPage": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuperAuditRow"
+            }
+          },
+          "next": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "entries"
+        ]
+      },
+      "SuperAuditRow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actorType": {
+            "type": "string"
+          },
+          "actorId": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "masjidId": {
+            "type": "string"
+          },
+          "targetType": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": "string"
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "requestId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "at",
+          "actorType",
+          "action"
+        ]
       }
     },
     "parameters": {}
@@ -354,6 +897,39 @@
         }
       }
     },
+    "/api/admin/auth/undertaking": {
+      "post": {
+        "summary": "Accept the current admin undertaking (B2)",
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  }
+                },
+                "required": [
+                  "version"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
     "/api/admin/auth/logout": {
       "post": {
         "summary": "Sign out this session",
@@ -363,6 +939,1193 @@
         "responses": {
           "204": {
             "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/super/dashboard": {
+      "get": {
+        "summary": "Pending activations and masjid counts (C1)",
+        "tags": [
+          "super"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperDashboard"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/masjids": {
+      "get": {
+        "summary": "List and search masjids (C2)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 80
+            },
+            "required": false,
+            "name": "q",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "active",
+                "suspended",
+                "deleted"
+              ]
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperMasjidList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a masjid (pending until activated)",
+        "tags": [
+          "super"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "nameI18n": {
+                    "type": "object",
+                    "properties": {
+                      "hi": {
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 120
+                      },
+                      "ur": {
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 120
+                      },
+                      "te": {
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 120
+                      }
+                    }
+                  },
+                  "area": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 80
+                  },
+                  "city": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "state": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "address": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 300
+                  },
+                  "lat": {
+                    "type": "number",
+                    "minimum": 6,
+                    "maximum": 37.5
+                  },
+                  "lng": {
+                    "type": "number",
+                    "minimum": 68,
+                    "maximum": 97.5
+                  },
+                  "calcMethod": {
+                    "type": "string",
+                    "enum": [
+                      "karachi",
+                      "mwl",
+                      "isna",
+                      "egypt",
+                      "umm_al_qura",
+                      "other_custom"
+                    ]
+                  },
+                  "asrMadhab": {
+                    "type": "string",
+                    "enum": [
+                      "hanafi",
+                      "shafi"
+                    ]
+                  },
+                  "hijriOffset": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "enum": [
+                          -2
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "enum": [
+                          -1
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "enum": [
+                          2
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "area",
+                  "city",
+                  "state",
+                  "address",
+                  "lat",
+                  "lng"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperMasjidCreated"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/masjids/{id}": {
+      "get": {
+        "summary": "Masjid page: profile, followers, admins (C2)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperMasjidDetail"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Edit a masjid profile (bumps its content version)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "nameI18n": {
+                    "type": "object",
+                    "properties": {
+                      "hi": {
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 120
+                      },
+                      "ur": {
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 120
+                      },
+                      "te": {
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 120
+                      }
+                    }
+                  },
+                  "area": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 80
+                  },
+                  "city": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "state": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "address": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 300
+                  },
+                  "lat": {
+                    "type": "number",
+                    "minimum": 6,
+                    "maximum": 37.5
+                  },
+                  "lng": {
+                    "type": "number",
+                    "minimum": 68,
+                    "maximum": 97.5
+                  },
+                  "calcMethod": {
+                    "type": "string",
+                    "enum": [
+                      "karachi",
+                      "mwl",
+                      "isna",
+                      "egypt",
+                      "umm_al_qura",
+                      "other_custom"
+                    ]
+                  },
+                  "asrMadhab": {
+                    "type": "string",
+                    "enum": [
+                      "hanafi",
+                      "shafi"
+                    ]
+                  },
+                  "hijriOffset": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "enum": [
+                          -2
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "enum": [
+                          -1
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "enum": [
+                          2
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperChanged"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "★ Delete (soft; retention applies)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 300
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/super/masjids/{id}/quotas": {
+      "patch": {
+        "summary": "Set the masjid’s daily notification quota",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pushDailyQuota": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 50
+                  }
+                },
+                "required": [
+                  "pushDailyQuota"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "changed": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "changed"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/masjids/{id}/activate": {
+      "post": {
+        "summary": "Activate (needs an active admin who accepted the undertaking)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/super/masjids/{id}/suspend": {
+      "post": {
+        "summary": "★ Suspend with a reason",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 300
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/super/masjids/{id}/unsuspend": {
+      "post": {
+        "summary": "★ Unsuspend with a reason",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 300
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/super/admins": {
+      "post": {
+        "summary": "Create a masjid admin and their one-time invite link",
+        "tags": [
+          "super"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "displayName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "phone": {
+                    "type": "string",
+                    "pattern": "^\\+?[0-9]{10,15}$"
+                  },
+                  "uiLocale": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ]
+                  },
+                  "masjidId": {
+                    "type": "string",
+                    "maxLength": 64
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "owner",
+                      "editor"
+                    ]
+                  }
+                },
+                "required": [
+                  "displayName",
+                  "uiLocale",
+                  "masjidId",
+                  "role"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperAdminCreated"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Admins of a masjid",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperAdminList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/admins/{id}/invites": {
+      "post": {
+        "summary": "★ New invite link (closes the previous one of the same purpose)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "purpose": {
+                    "type": "string",
+                    "enum": [
+                      "register",
+                      "add_device",
+                      "recovery"
+                    ]
+                  }
+                },
+                "required": [
+                  "purpose"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperInvite"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/admins/{id}/revoke-sessions": {
+      "post": {
+        "summary": "★ Sign the admin out everywhere",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperCount"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/admins/{id}/revoke-passkeys": {
+      "post": {
+        "summary": "★ Revoke all passkeys (and sessions) of the admin",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperCount"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/admins/{id}/masjids/{masjidId}": {
+      "delete": {
+        "summary": "★ Remove the admin from a masjid",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/super/admins/{id}/phone": {
+      "get": {
+        "summary": "★ Decrypt and show the admin’s phone (audited)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperAdminPhone"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/settings": {
+      "get": {
+        "summary": "Global settings (C10)",
+        "tags": [
+          "super"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperSettings"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Edit global settings (C10)",
+        "tags": [
+          "super"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "globalHijriOffset": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "enum": [
+                          -2
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "enum": [
+                          -1
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "enum": [
+                          2
+                        ]
+                      }
+                    ]
+                  },
+                  "defaultPushQuota": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 50
+                  },
+                  "supportWhatsapp": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "pattern": "^\\+?[0-9]{8,15}$"
+                  },
+                  "grievanceOfficer": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "email": {
+                        "type": "string",
+                        "maxLength": 200,
+                        "format": "email"
+                      },
+                      "address": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "city": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "email",
+                      "address",
+                      "city"
+                    ]
+                  },
+                  "undertakingVersion": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "privacyVersion": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "termsVersion": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "changed": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "changed"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/audit": {
+      "get": {
+        "summary": "Audit log (C11)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": false,
+            "name": "actor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": false,
+            "name": "masjid",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z_]+\\.[a-z_]+$"
+            },
+            "required": false,
+            "name": "action",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "to",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperAuditPage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/audit/export.csv": {
+      "get": {
+        "summary": "★ Audit log as CSV (same filters, at most 10 000 rows)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": false,
+            "name": "actor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": false,
+            "name": "masjid",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z_]+\\.[a-z_]+$"
+            },
+            "required": false,
+            "name": "action",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "to",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }

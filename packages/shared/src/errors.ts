@@ -25,6 +25,8 @@ export const API_ERRORS = {
   STEP_UP_REQUIRED: 403,
   PASSKEY_FAILED: 401,
   INVITE_INVALID: 404, // 03 §4: uniform 404 for unknown, used, superseded and expired invites
+  UNDERTAKING_REQUIRED: 403,
+  UNDERTAKING_VERSION_MISMATCH: 409,
   // State rules (02 §3/§5)
   MASJID_NOT_FOUND: 404,
   FOLLOW_LIMIT_REACHED: 409,
@@ -33,6 +35,9 @@ export const API_ERRORS = {
   NOT_MEMBER: 404,
   INVALID_TRANSITION: 409,
   ACTIVATION_REQUIREMENTS: 409,
+  ADMIN_NOT_FOUND: 404,
+  NOTHING_TO_UPDATE: 400,
+  INVALID_CURSOR: 400,
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

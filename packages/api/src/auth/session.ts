@@ -3,7 +3,7 @@
 import { type AdminScope, adminScope, type DbHandle, publicScope, type SuperScope, superScope } from '@mc/db';
 import { type ResolvedSession, resolveSession, STEP_UP_WINDOW_MS } from '@mc/db/state';
 import type { Clock } from '@mc/shared/clock';
-import type { Request, Response } from 'express';
+import type { Request } from 'express';
 
 import { hashToken } from '../crypto/field.ts';
 import { ApiProblem } from '../http/problem.ts';
@@ -43,17 +43,10 @@ export function sessionAuthenticator(deps: { db: DbHandle; pepper: Buffer; clock
 }
 
 const AUTHENTICATE = 'authenticate';
-const AUTHED = 'mcAuth';
 
 /** Stores the app's authenticator (read by {@link authenticateRequest}). */
 export function installAuthenticator(locals: Record<string, unknown>, authenticate: Authenticate | undefined): void {
   if (authenticate) locals[AUTHENTICATE] = authenticate;
-}
-
-/** The authenticated session of this request, once {@link authenticateRequest} ran (rate-limit keys use it). */
-export function authedOf(res: Response): AuthedSession | undefined {
-  const value: unknown = res.locals[AUTHED];
-  return typeof value === 'object' && value !== null && 'session' in value ? (value as AuthedSession) : undefined; // set below
 }
 
 /**
@@ -64,7 +57,6 @@ export function authedOf(res: Response): AuthedSession | undefined {
  */
 export async function authenticateRequest(
   req: Request,
-  res: Response,
   auth: RouteAuth,
   now: Date,
 ): Promise<AuthedSession | undefined> {
@@ -78,6 +70,5 @@ export async function authenticateRequest(
     const at = authed.session.stepUpAt;
     if (!at || now.getTime() - at.getTime() > STEP_UP_WINDOW_MS) throw new ApiProblem(403, 'STEP_UP_REQUIRED');
   }
-  res.locals[AUTHED] = authed;
   return authed;
 }

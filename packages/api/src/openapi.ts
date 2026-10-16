@@ -13,7 +13,15 @@ export function buildOpenApiDocument(): ReturnType<OpenApiGeneratorV31['generate
   const deps = { logger: pino({ level: 'silent' }), release: 'openapi', trustedProxyMode: 'none' as const };
   // Routes are only registered here, never called: the handle is created but never connects.
   const db = createDbHandle({ uri: 'mongodb://openapi.invalid', database: 'openapi', process: 'script', local: true });
-  const admin = createAdminApp({ ...deps, routes: adminRoutes({ db, pepper: Buffer.alloc(32) }) });
+  const admin = createAdminApp({
+    ...deps,
+    ...adminRoutes({
+      db,
+      pepper: Buffer.alloc(32),
+      adminOrigin: 'https://admin.example',
+      keyRing: { currentId: 'openapi', keys: new Map([['openapi', Buffer.alloc(32)]]) },
+    }),
+  });
   const definitions = [createPublicApp(deps).registry, admin.registry].flatMap((registry) => registry.definitions);
   return new OpenApiGeneratorV31(definitions).generateDocument({
     openapi: '3.1.0',

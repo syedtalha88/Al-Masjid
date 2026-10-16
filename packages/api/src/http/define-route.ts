@@ -33,7 +33,8 @@ export interface RouteContext<P, Q, B, R extends Responses, A extends RouteAuth 
   readonly params: P;
   readonly query: Q;
   readonly body: B;
-  readonly requestId: string | undefined;
+  /** Always set: the request-id middleware runs before every route (03 §0 step 1). */
+  readonly requestId: string;
   readonly req: Request;
   readonly res: Response;
   /** Builds the handler result; only declared statuses, with a body matching that status's schema. */
@@ -53,10 +54,20 @@ export interface RouteSpec<
   readonly summary: string;
   readonly tags?: readonly string[];
   readonly auth: A;
+  /**
+   * Masjid admins must accept the current undertaking before any write (T1.10, `UNDERTAKING_REQUIRED`). `exempt`
+   * only for what must work before that: accepting it, logging out, ending sessions.
+   */
+  readonly undertaking?: 'exempt';
   /** Rate-limit rules (03 §2), applied in order after auth and before validation. */
   readonly rateLimit?: readonly RateLimitRule[];
   /** `Cache-Control` for successful responses (01 §5.2). Default `no-store`. */
   readonly cacheControl?: string;
+  /**
+   * Success bodies are JSON unless this says otherwise: `text/csv` sends the (string) body as an attachment with this
+   * file name — exports only.
+   */
+  readonly csvAttachment?: string;
   readonly request?: { readonly params?: P; readonly query?: Q; readonly body?: B };
   readonly responses: R;
   readonly handler: (
@@ -143,7 +154,15 @@ export function defineRoute<
 
   const handle: RequestHandler = async (req, res) => {
     const clock = clockOf(req);
-    const authed = await authenticateRequest(req, res, spec.auth, clock.now());
+    const authed = await authenticateRequest(req, spec.auth, clock.now());
+    if (
+      authed?.session.role === 'masjid_admin' &&
+      !authed.session.undertakingCurrent &&
+      spec.method !== 'get' &&
+      spec.undertaking !== 'exempt'
+    ) {
+      throw new ApiProblem(403, 'UNDERTAKING_REQUIRED');
+    }
     await enforceRateLimits(req, rateLimit, authed?.session.sessionId.toHexString());
     const params = parsePart('params', paramsSchema, req.params) as z.output<P>; // parsed by P's schema
     const query = parsePart('query', querySchema, req.query) as z.output<Q>; // parsed by Q's schema
@@ -156,7 +175,7 @@ export function defineRoute<
       params,
       query,
       body,
-      requestId: getRequestId(res),
+      requestId: getRequestId(res) ?? 'missing-request-id',
       req,
       res,
       reply,
@@ -179,7 +198,12 @@ export function defineRoute<
 
     res.status(result.status).set('Cache-Control', cacheControl);
     if (result.status === 204) res.end();
-    else res.json(output);
+    else if (spec.csvAttachment !== undefined && typeof output === 'string') {
+      res
+        .type('text/csv; charset=utf-8')
+        .set('Content-Disposition', `attachment; filename="${spec.csvAttachment}"`)
+        .send(output);
+    } else res.json(output);
   };
 
   const openapi: Omit<RouteConfig, 'path'> = {
@@ -196,7 +220,12 @@ export function defineRoute<
     responses: Object.fromEntries(
       Object.entries(spec.responses).map(([status, schema]) => [
         status,
-        { description: `HTTP ${status}`, ...(status === '204' ? {} : { content: { 'application/json': { schema } } }) },
+        {
+          description: `HTTP ${status}`,
+          ...(status === '204'
+            ? {}
+            : { content: { [spec.csvAttachment === undefined ? 'application/json' : 'text/csv']: { schema } } }),
+        },
       ]),
     ),
   };

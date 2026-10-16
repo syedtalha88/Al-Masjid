@@ -7,6 +7,7 @@ import type { CollectionSpec } from './types.ts';
 
 export * from './dsl.ts';
 export * from './enums.ts';
+export { INDIA } from './masjids.ts';
 export type { CollectionSpec, IndexSpec } from './types.ts';
 export { VIEWS, type ViewSpec } from './views.ts';
 

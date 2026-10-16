@@ -72,4 +72,9 @@ errors,ALREADY_MEMBER,This person is already an admin of this masjid.,यह व
 errors,NOT_MEMBER,This person is not an admin of this masjid.,यह व्यक्ति इस मस्जिद का एडमिन नहीं है।,no
 errors,INVALID_TRANSITION,This change isn’t possible right now.,यह बदलाव अभी नहीं हो सकता।,no
 errors,ACTIVATION_REQUIREMENTS,This masjid needs an active admin who has accepted the undertaking before it can go live.,मस्जिद चालू करने से पहले एक सक्रिय एडमिन चाहिए जिसने वचन-पत्र स्वीकार किया हो।,no
+errors,UNDERTAKING_REQUIRED,Please read and accept the admin undertaking first.,कृपया पहले एडमिन वचन-पत्र पढ़कर स्वीकार करें।,no
+errors,UNDERTAKING_VERSION_MISMATCH,The undertaking was updated. Please read the new version and accept it.,वचन-पत्र बदल गया है। कृपया नया वचन-पत्र पढ़कर स्वीकार करें।,no
+errors,ADMIN_NOT_FOUND,We couldn’t find this admin.,यह एडमिन नहीं मिला।,no
+errors,NOTHING_TO_UPDATE,Nothing was changed.,कुछ भी नहीं बदला गया।,no
+errors,INVALID_CURSOR,This list changed. Please reload it.,यह सूची बदल गई है। कृपया इसे फिर से लोड करें।,no
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,लगता है आप ऑफ़लाइन हैं। कृपया कनेक्शन जाँचकर फिर कोशिश करें।,no

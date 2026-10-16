@@ -4,7 +4,7 @@ import express, { type Express, type Router } from 'express';
 import type { Logger } from 'pino';
 
 import { requireAdminOrigin } from './auth/csrf.ts';
-import { type Authenticate, installAuthenticator } from './auth/session.ts';
+import { type Authenticate, authenticateRequest, installAuthenticator } from './auth/session.ts';
 import { jsonBody } from './http/body.ts';
 import type { TrustedProxyMode } from './http/client-ip.ts';
 import { mountRoutes, type RouteDefinition } from './http/define-route.ts';
@@ -30,6 +30,8 @@ export interface AppDependencies {
    * under the prefix but never registered in OpenAPI, so they cannot appear in the published contract.
    */
   readonly testRoutes?: readonly RouteDefinition[];
+  /** api-admin: Super Admin routes, mounted under `/api/super` behind a router-level role guard (04 §5). */
+  readonly superRoutes?: readonly RouteDefinition[];
   /** Unexpected errors (500s) go here as well as to the log — Sentry when configured (T0.13). */
   readonly reportError?: ErrorReporter;
   /** The process's rate limiter (Redis in the entrypoints, memory in tests); routes with limits need it (T1.6). */
@@ -51,6 +53,7 @@ export interface CreatedApp {
 /** API mount points per process (01 §2). */
 export const PUBLIC_API_PREFIX = '/api/v1';
 export const ADMIN_API_PREFIX = '/api/admin';
+export const SUPER_API_PREFIX = '/api/super';
 
 /** Express settings shared by both processes (03 §0 "App settings"). */
 function createBaseApp(): Express {
@@ -82,6 +85,7 @@ function assemble(
     health,
     authenticate,
     adminOrigin,
+    superRoutes = [],
   }: AppDependencies,
   noindex: boolean,
 ): CreatedApp {
@@ -105,6 +109,20 @@ function assemble(
   if (service === 'api-admin') app.use(requireAdminOrigin(adminOrigin)); // 4
   // 5 (auth), 6 (rate limit) and 7 (validation) run per route in defineRoute.
   app.use(prefix, router); // 8
+  if (service === 'api-admin') {
+    // Separate router, role guard at the router level (04 §5): every /api/super/* request — known route or not — is
+    // authenticated and refused unless the session is a Super Admin's; routes add their own (step-up) checks.
+    const superRouter = newRouter();
+    mountRoutes(superRouter, SUPER_API_PREFIX, superRoutes, registry);
+    app.use(
+      SUPER_API_PREFIX,
+      async (req, _res, next) => {
+        await authenticateRequest(req, 'super', clock.now());
+        next();
+      },
+      superRouter,
+    );
+  }
   app.use(notFound()); // 9
   app.use(errorMapper(logger, reportError)); // 10
   return { app, registry };

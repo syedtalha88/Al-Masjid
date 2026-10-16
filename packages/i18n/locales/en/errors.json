@@ -24,5 +24,10 @@
   "NOT_MEMBER": "This person is not an admin of this masjid.",
   "INVALID_TRANSITION": "This change isn’t possible right now.",
   "ACTIVATION_REQUIREMENTS": "This masjid needs an active admin who has accepted the undertaking before it can go live.",
+  "UNDERTAKING_REQUIRED": "Please read and accept the admin undertaking first.",
+  "UNDERTAKING_VERSION_MISMATCH": "The undertaking was updated. Please read the new version and accept it.",
+  "ADMIN_NOT_FOUND": "We couldn’t find this admin.",
+  "NOTHING_TO_UPDATE": "Nothing was changed.",
+  "INVALID_CURSOR": "This list changed. Please reload it.",
   "NETWORK": "You seem to be offline. Please check your connection and try again."
 }

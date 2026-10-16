@@ -1,5 +1,12 @@
 // Entrypoint: api-admin (admin.<domain>/api/admin/*, /api/super/*, /api/hooks/*). No business logic here.
-import { adminRoutes, createAdminApp, createLogger, sessionAuthenticator, startHttpServer } from '@mc/api';
+import {
+  adminRoutes,
+  createAdminApp,
+  createLogger,
+  keyRingFromEnv,
+  sessionAuthenticator,
+  startHttpServer,
+} from '@mc/api';
 import { systemClock } from '@mc/shared/clock';
 
 import { openApiConnections } from './connections.ts';
@@ -32,7 +39,7 @@ const pepper = Buffer.from(env.SESSION_PEPPER, 'base64'); // validated: ≥ 32 b
 const { app } = createAdminApp({
   adminOrigin: env.ADMIN_ORIGIN,
   authenticate: sessionAuthenticator({ db: connections.db, pepper, clock }),
-  routes: adminRoutes({ db: connections.db, pepper }),
+  ...adminRoutes({ db: connections.db, pepper, adminOrigin: env.ADMIN_ORIGIN, keyRing: keyRingFromEnv(env) }),
   rateLimiter: connections.rateLimiter,
   health: connections.health,
   logger,

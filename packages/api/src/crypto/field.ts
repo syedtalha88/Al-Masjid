@@ -38,12 +38,20 @@ const decodeKey = (text: string): Buffer => {
 export function keyRingFromEnv(env: {
   readonly FIELD_ENCRYPTION_KEY: string;
   readonly FIELD_ENCRYPTION_KEY_ID: string;
-  readonly FIELD_ENCRYPTION_OLD_KEYS?: string | undefined;
+  /** The raw `id:base64,…` text, or the `{ id, key }` pairs `@mc/shared/env` parses it into. */
+  readonly FIELD_ENCRYPTION_OLD_KEYS?: string | readonly { readonly id: string; readonly key: string }[] | undefined;
 }): FieldKeyRing {
   if (!KEY_ID.test(env.FIELD_ENCRYPTION_KEY_ID)) throw new FieldCryptoError('malformed key id');
   const keys = new Map<string, Buffer>([[env.FIELD_ENCRYPTION_KEY_ID, decodeKey(env.FIELD_ENCRYPTION_KEY)]]);
-  for (const entry of (env.FIELD_ENCRYPTION_OLD_KEYS ?? '').split(',').filter(Boolean)) {
-    const [id = '', key = '', ...rest] = entry.split(':');
+  const old = env.FIELD_ENCRYPTION_OLD_KEYS;
+  const entries =
+    typeof old === 'string'
+      ? old
+          .split(',')
+          .filter(Boolean)
+          .map((entry) => entry.split(':'))
+      : (old ?? []).map((entry) => [entry.id, entry.key]);
+  for (const [id = '', key = '', ...rest] of entries) {
     if (rest.length > 0 || !KEY_ID.test(id) || keys.has(id)) throw new FieldCryptoError('malformed old key entry');
     keys.set(id, decodeKey(key));
   }

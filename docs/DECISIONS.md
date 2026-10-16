@@ -527,6 +527,15 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **Coverage:** `packages/api` now gates coverage on the integration run (like `packages/db`): lines 98.8 %, branches 89.4 %.
 - **On hold:** registration/login/step-up options + verify need `@simplewebauthn/server` (named in 01 §4). The owner declined the install prompt during the autopilot session, so the dependency waits for the owner (owner list A6); the e2e with a virtual authenticator needs the admin screens (T1.10).
 
+### #71 — Super Admin API and the undertaking gate (PHASE_01 T1.10/T1.11, API part) — ACCEPTED (Claude Code, owner-authorised autopilot session, 16 Oct 2026)
+**Decision:**
+- **`/api/super` router** on api-admin with a router-level guard (04 §5): every request under it — known route or not — is authenticated and refused unless the session belongs to a Super Admin (401 / 403 `FORBIDDEN`); routes add `super_step_up` for ★ actions. Tested for all 21 routes plus an unknown path, as anonymous and as a masjid admin.
+- **Endpoints (03 §5, Phase 1 part):** dashboard; masjids list/search/create/detail/edit/quotas/activate/★suspend/★unsuspend/★delete (unsuspend is ★ per the phase file, stricter than 03); admins create (one transaction: admin + membership + invite — a refusal at the 5-admin limit leaves no orphan), list, ★re-invite, ★revoke sessions, ★revoke passkeys, ★remove from masjid, ★phone view (decrypted in the API, audited in the data layer); settings get/patch; audit list with filters + ★CSV export (≤ 10 000 rows, cells starting with `= + - @` prefixed with `'` against spreadsheet formula injection). Invite links are `ADMIN_ORIGIN/invite#<token>` everywhere (DECISIONS #70 note).
+- **Undertaking gate (T1.10):** `resolveSession` reports whether the admin accepted the CURRENT `app_settings.undertaking_version`; any non-GET route answers 403 `UNDERTAKING_REQUIRED` to a masjid admin who has not, except routes marked `undertaking: 'exempt'` (accept it, logout, end sessions). `POST /auth/undertaking {version}` refuses an outdated version (`UNDERTAKING_VERSION_MISMATCH`). Super Admins are not gated.
+- **State errors → API codes** in one place (the error mapper): only client-facing refusals are mapped; internal ones stay 500. New codes: `UNDERTAKING_REQUIRED`, `UNDERTAKING_VERSION_MISMATCH`, `ADMIN_NOT_FOUND`, `NOTHING_TO_UPDATE`, `INVALID_CURSOR` (4 locales; drafts in review CSVs).
+- **Typed read repositories** (`@mc/db/repos`, the T1.4 remainder for these aggregates): masjid list (literal case-insensitive search — user text never becomes a regex), masjid detail with admins (phone presence only), audit list, settings, dashboard — all through `scoped()`; opaque base64url cursors validated on the way in.
+- **Smaller:** `keyRingFromEnv` accepts the parsed old-key pairs from `@mc/shared/env` (type mismatch found while wiring); `RouteContext.requestId` is always a string (the middleware always sets it).
+
 ## OPEN
 
 ### #70 — Where the server-side Super Admin bootstrap runs (PHASE_01 T1.9) — OPEN (Claude Code, autopilot session, 16 Oct 2026)

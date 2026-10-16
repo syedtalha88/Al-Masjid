@@ -16,6 +16,7 @@ import {
   acceptUndertaking,
   addAdminToMasjid,
   createAdmin,
+  createAdminForMasjid,
   createMasjid,
   readAdminPhone,
   resolveSession,
@@ -197,6 +198,49 @@ describe('★ admin actions', () => {
     });
     const noPhone = await createAdmin(h(), fresh(), { displayName: 'Test Admin', uiLocale: 'en' });
     expect(await readAdminPhone(h(), fresh(), { adminId: noPhone })).toBeNull();
+  });
+});
+
+describe('createAdminForMasjid (one transaction)', () => {
+  it('admin + membership + invite + 3 audits; at the limit nothing is left behind', async () => {
+    const { id } = await masjid();
+    const create = (name: string) =>
+      createAdminForMasjid(h(), fresh(), {
+        displayName: name,
+        uiLocale: 'hi',
+        phoneEnc: PHONE_ENC,
+        masjidId: id,
+        role: 'editor',
+        inviteTokenHash: randomBytes(32),
+      });
+    const { adminId } = await create('Test Admin 0');
+    expect(await raw('admin_users').findOne({ _id: adminId })).toMatchObject({
+      status: 'invited',
+      phone_enc: PHONE_ENC,
+    });
+    expect(await raw('admin_invites').findOne({ admin_id: adminId })).toMatchObject({
+      purpose: 'register',
+      open: true,
+    });
+    expect(
+      (await raw('audit_log').find({ target_id: adminId.toHexString() }).toArray()).map((a) => a['action']).sort(),
+    ).toEqual(['admin.add_to_masjid', 'admin.create', 'admin.invite']);
+    for (let i = 1; i < 5; i += 1) await create(`Test Admin ${String(i)}`);
+    const before = await raw('admin_users').countDocuments({});
+    expect(await code(create('Test Admin 5'))).toBe('ADMIN_LIMIT_REACHED');
+    expect(await raw('admin_users').countDocuments({})).toBe(before);
+    expect(
+      await code(
+        createAdminForMasjid(h(), fresh(), {
+          displayName: 'x',
+          uiLocale: 'en',
+          masjidId: newId(),
+          role: 'owner',
+          inviteTokenHash: randomBytes(32),
+        }),
+      ),
+    ).toBe('MASJID_NOT_FOUND');
+    expect(await raw('admin_users').countDocuments({})).toBe(before);
   });
 });
 

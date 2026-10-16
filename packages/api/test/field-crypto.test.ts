@@ -55,6 +55,28 @@ describe('encryptField / decryptField', () => {
     );
   });
 
+  it('accepts the old keys as text or as the pairs @mc/shared/env parses them into', () => {
+    const oldKey = key();
+    const asText = keyRingFromEnv({
+      FIELD_ENCRYPTION_KEY: key(),
+      FIELD_ENCRYPTION_KEY_ID: 'k2027',
+      FIELD_ENCRYPTION_OLD_KEYS: `k2026:${oldKey}`,
+    });
+    const asPairs = keyRingFromEnv({
+      FIELD_ENCRYPTION_KEY: key(),
+      FIELD_ENCRYPTION_KEY_ID: 'k2027',
+      FIELD_ENCRYPTION_OLD_KEYS: [{ id: 'k2026', key: oldKey }],
+    });
+    expect(asPairs.keys.get('k2026')).toEqual(asText.keys.get('k2026'));
+    expect(() =>
+      keyRingFromEnv({
+        FIELD_ENCRYPTION_KEY: key(),
+        FIELD_ENCRYPTION_KEY_ID: 'k1',
+        FIELD_ENCRYPTION_OLD_KEYS: [{ id: 'k1', key: oldKey }],
+      }),
+    ).toThrow(FieldCryptoError);
+  });
+
   it('accepts only the canonical base64url form (unused padding bits of the last character changed → refused)', () => {
     // 15-byte plaintext + 16-byte tag = 31 bytes → 42 characters, the last carrying 4 unused bits.
     for (let i = 0; i < 50; i += 1) {

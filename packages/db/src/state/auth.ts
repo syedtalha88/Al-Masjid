@@ -492,6 +492,8 @@ export interface ResolvedSession {
   readonly displayName: string;
   readonly uiLocale: AdminDoc['ui_locale'];
   readonly undertakingVersion: string | undefined;
+  /** The admin accepted the CURRENT undertaking version (app_settings) — masjid admins may not write until then. */
+  readonly undertakingCurrent: boolean;
   readonly stepUpAt: Date | undefined;
   readonly masjids: readonly { readonly id: UUID; readonly role: 'owner' | 'editor' }[];
 }
@@ -530,6 +532,9 @@ export async function resolveSession(
     .collection<{ masjid_id: UUID; admin_id: UUID; role: 'owner' | 'editor' }>('masjid_admins')
     .find({ admin_id: admin._id })
     .toArray();
+  const settings = await db
+    .collection<{ _id: string; undertaking_version?: string }>('app_settings')
+    .findOne({ _id: 'global' }, { projection: { undertaking_version: 1 } });
   return {
     sessionId: found._id,
     adminId: admin._id,
@@ -537,6 +542,8 @@ export async function resolveSession(
     displayName: admin.display_name,
     uiLocale: admin.ui_locale,
     undertakingVersion: admin.undertaking_version,
+    undertakingCurrent:
+      settings?.undertaking_version !== undefined && admin.undertaking_version === settings.undertaking_version,
     stepUpAt: found.step_up_at,
     masjids: memberships.map((m) => ({ id: m.masjid_id, role: m.role })),
   };

@@ -1,8 +1,38 @@
+import { StateError } from '@mc/db';
+import { API_ERRORS, type ApiErrorCode } from '@mc/shared/errors';
 import type { ErrorRequestHandler, RequestHandler } from 'express';
 import type { Logger } from 'pino';
 
 import { ApiProblem, problemBody, sendProblem } from './problem.ts';
 import { getRequestId } from './request-id.ts';
+
+/**
+ * State-function refusals (`StateError` from `@mc/db`) that are answers for the client, mapped to API codes. Anything
+ * else a state function throws (an internal invariant such as AUDIT_META or COUNTER_REGRESSION handled by its route)
+ * stays a 500, so internal codes never leak.
+ */
+const STATE_CODES: Readonly<Record<string, ApiErrorCode>> = {
+  FORBIDDEN: 'FORBIDDEN',
+  STEP_UP_REQUIRED: 'STEP_UP_REQUIRED',
+  MASJID_NOT_FOUND: 'MASJID_NOT_FOUND',
+  ADMIN_NOT_FOUND: 'ADMIN_NOT_FOUND',
+  INVALID_TRANSITION: 'INVALID_TRANSITION',
+  ACTIVATION_REQUIREMENTS: 'ACTIVATION_REQUIREMENTS',
+  ADMIN_LIMIT_REACHED: 'ADMIN_LIMIT_REACHED',
+  FOLLOW_LIMIT_REACHED: 'FOLLOW_LIMIT_REACHED',
+  ALREADY_MEMBER: 'ALREADY_MEMBER',
+  NOT_MEMBER: 'NOT_MEMBER',
+  INVITE_INVALID: 'INVITE_INVALID',
+  NOTHING_TO_UPDATE: 'NOTHING_TO_UPDATE',
+  INVALID_CURSOR: 'INVALID_CURSOR',
+  UNDERTAKING_VERSION_MISMATCH: 'UNDERTAKING_VERSION_MISMATCH',
+};
+
+/** The API problem for a client-facing state refusal, or `undefined` for internal ones. */
+export function stateProblem(error: StateError): ApiProblem | undefined {
+  const code = STATE_CODES[error.code];
+  return code ? new ApiProblem(API_ERRORS[code], code) : undefined;
+}
 
 /** Middleware 9 (03 §0): unknown API route → problem+json 404 (uniform, reveals nothing). */
 export function notFound(): RequestHandler {
@@ -48,6 +78,11 @@ export function errorMapper(logger: Logger, reportError?: ErrorReporter): ErrorR
         res,
         problemBody(error.status, error.code, { detail: error.detail, errors: error.errors, requestId }),
       );
+      return;
+    }
+    const mapped = error instanceof StateError ? stateProblem(error) : undefined;
+    if (mapped) {
+      sendProblem(res, problemBody(mapped.status, mapped.code, { requestId }));
       return;
     }
     if (isBodyParserError(error)) {

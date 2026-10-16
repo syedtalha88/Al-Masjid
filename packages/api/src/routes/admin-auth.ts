@@ -1,7 +1,7 @@
 // api-admin auth endpoints that need no WebAuthn verification (03 §4, PHASE_01 T1.8): invite read, current admin,
 // own sessions, logout. Registration, login and step-up (SimpleWebAuthn) are added next to these.
 import { type DbHandle, idText, isId, parseId, publicScope, scoped } from '@mc/db';
-import { listSessions, readInvite, revokeSessions } from '@mc/db/state';
+import { acceptUndertaking, listSessions, readInvite, revokeSessions } from '@mc/db/state';
 import { z } from 'zod';
 
 import { clearCookie, SESSION_COOKIE } from '../auth/cookies.ts';
@@ -106,8 +106,6 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
             if (isId(id) && typeof doc['name'] === 'string') names.set(idText(id), doc['name']);
           }
         }
-        const settings = await scoped({ scope, db }, 'app_settings').findOne({ _id: 'global' });
-        const current = typeof settings?.['undertaking_version'] === 'string' ? settings['undertaking_version'] : '';
         return reply(200, {
           admin: {
             id: idText(session.adminId),
@@ -120,7 +118,7 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
             name: names.get(idText(m.id)) ?? '',
             role: m.role,
           })),
-          undertakingRequired: session.role === 'masjid_admin' && session.undertakingVersion !== current,
+          undertakingRequired: session.role === 'masjid_admin' && !session.undertakingCurrent,
         });
       },
     }),
@@ -150,6 +148,7 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
       summary: 'Sign out one of your own sessions (204 even for unknown ids)',
       tags: ['auth'],
       auth: 'session',
+      undertaking: 'exempt',
       rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
       request: { params: z.object({ id: z.string().max(64) }) },
       responses: { 204: Empty },
@@ -160,10 +159,29 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
             sessionId: id,
             reason: 'revoked_by_admin',
             now: clock.now(),
-            ...(requestId ? { requestId } : {}),
+            requestId,
           });
           if (id.equals(auth.session.sessionId)) clearCookie(res, SESSION_COOKIE);
         }
+        return reply(204, {});
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/auth/undertaking',
+      summary: 'Accept the current admin undertaking (B2)',
+      tags: ['auth'],
+      auth: 'session',
+      undertaking: 'exempt',
+      rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
+      request: { body: z.object({ version: z.string().min(1).max(20) }) },
+      responses: { 204: Empty },
+      handler: async ({ auth, body, clock, requestId, reply }) => {
+        await acceptUndertaking(deps.db, auth.scope, {
+          version: body.version,
+          now: clock.now(),
+          requestId,
+        });
         return reply(204, {});
       },
     }),
@@ -173,6 +191,7 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
       summary: 'Sign out this session',
       tags: ['auth'],
       auth: 'session',
+      undertaking: 'exempt',
       rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
       responses: { 204: Empty },
       handler: async ({ auth, clock, requestId, res, reply }) => {
@@ -180,7 +199,7 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
           sessionId: auth.session.sessionId,
           reason: 'logout',
           now: clock.now(),
-          ...(requestId ? { requestId } : {}),
+          requestId,
         });
         clearCookie(res, SESSION_COOKIE);
         return reply(204, {});
