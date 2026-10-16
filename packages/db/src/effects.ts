@@ -85,6 +85,7 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'auth.login_failed': ['credential_hash'],
   'auth.step_up': [],
   'auth.logout': [],
+  'credential.revoke': ['reason', 'credential'],
   'session.revoke': ['reason', 'count'],
   'settings.update': ['fields'],
 };
@@ -119,14 +120,14 @@ const actorOf = (scope: Scope) => {
  * Appends one audit entry in the caller's transaction (append-only: no user but mc_system can update/remove — 02 §4.3).
  *
  * @param actor - set only by state functions acting for someone not authenticated yet (an invitee consuming an
- *   invite); otherwise the actor is the scope's and the policy gateway writes the entry.
+ *   invite, an admin logging in) or recording what the system decided (a revoked credential, a failed login); otherwise the actor is the scope's and the policy gateway writes the entry.
  * @throws StateError AUDIT_ACTION (unknown action), AUDIT_META (key not allowed for the action, or meta > 4 KB),
  *   AUDIT_ACTOR (public/hook scope without an explicit actor).
  */
 export async function writeAudit(
   ctx: TxContext,
   entry: AuditEntry,
-  actor?: { readonly type: 'admin'; readonly id: UUID },
+  actor?: { readonly type: 'admin'; readonly id: UUID } | { readonly type: 'system' },
 ): Promise<void> {
   const allowed = AUDIT_ACTIONS[entry.action];
   if (!allowed) throw new StateError('AUDIT_ACTION', `unknown audit action ${entry.action}`);
@@ -137,7 +138,7 @@ export async function writeAudit(
   const doc = {
     _id: new ObjectId(),
     at: new Date(),
-    ...(actor ? { actor_type: actor.type, actor_id: actor.id } : actorOf(ctx.scope)),
+    ...(actor ? { actor_type: actor.type, ...('id' in actor ? { actor_id: actor.id } : {}) } : actorOf(ctx.scope)),
     action: entry.action,
     ...(entry.masjidId ? { masjid_id: entry.masjidId } : {}),
     ...(entry.targetType ? { target_type: entry.targetType } : {}),
