@@ -103,6 +103,7 @@ case "$args" in
     while [ "$(wc -l <"$STUB_STATE/$svc")" -lt "$n" ]; do echo "$svc-$RANDOM$RANDOM" >>"$STUB_STATE/$svc"; done ;;
   *" up "*) [ -z "${STUB_FAIL_UP:-}" ] ;;
   *" run --rm --no-deps migrate"*) [ -z "${STUB_FAIL_MIGRATE:-}" ] || exit 1 ;;
+  *" dist/verify-roles.mjs"*) case "$args" in *" ${STUB_FAIL_VERIFY:-none} "*) exit 1 ;; esac ;;
   *" inspect "*)
     # STUB_UNHEALTHY=<service>: that service's containers have exited (e.g. Caddy refusing a broken certificate).
     if [ -n "${STUB_UNHEALTHY:-}" ] && [[ "${*: -1}" == "$STUB_UNHEALTHY"-* ]]; then echo exited; else echo healthy; fi ;;
@@ -249,6 +250,14 @@ check "with migrate.env: migrations run before the rolling update"   '[ "$got" -
 publish rel-12 12 "$web"
 : >"$STUB_CALLS"; STUB_FAIL_MIGRATE=1 run rel-12; got=$?
 check "failed migration: refused, nothing replaced, release not recorded"   '[ "$got" -eq 1 ] && [ "$(running)" = "$(rel 11)" ] && grep -q "migrations failed" "$root/out" && ! grep -q -- "--scale" "$STUB_CALLS"'
+rm -f "$root/config/migrate.env"
+
+# --verify-roles (PHASE_01 T1.1): read-only, runs the check in each process's container, never deploys or replaces.
+: >"$STUB_CALLS"; run rel-11 --verify-roles; got=$?
+check "--verify-roles runs the check in api-public, api-admin and worker (no migrate.env) and changes nothing"   '[ "$got" -eq 0 ] && [ "$(grep -c "dist/verify-roles.mjs" "$STUB_CALLS")" -eq 3 ] && ! grep -q -- "--scale" "$STUB_CALLS" && ! grep -q " pull " "$STUB_CALLS" && [ "$(running)" = "$(rel 11)" ]'
+touch "$root/config/migrate.env"
+: >"$STUB_CALLS"; STUB_FAIL_VERIFY=api-admin run rel-11 --verify-roles; got=$?
+check "--verify-roles: a failing process fails the run; migrate is checked when it has credentials"   '[ "$got" -eq 1 ] && [ "$(grep -c "dist/verify-roles.mjs" "$STUB_CALLS")" -eq 4 ] && grep -q "privileges differ" "$root/out"'
 rm -f "$root/config/migrate.env"
 
 echo "== $failures failure(s)"

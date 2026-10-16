@@ -13,6 +13,7 @@ export default defineConfig({
     'src/admin.ts',
     'src/worker.ts',
     'src/migrate.ts',
+    'src/verify-roles.ts',
     'src/healthcheck.ts',
     'src/test-hooks.ts',
   ],

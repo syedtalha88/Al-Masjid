@@ -20,3 +20,4 @@ export {
 } from './roles-local.ts';
 export * from './scope.ts';
 export * from './values.ts';
+export { type RoleCheck, URI_VARIABLE, userFromEnv, verifyRoles } from './verify-roles.ts';

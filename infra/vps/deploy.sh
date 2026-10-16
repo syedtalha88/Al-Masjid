@@ -3,6 +3,8 @@
 # systemd timer every minute (env files are root 600 — 04 §12.2); never by CI (CI has no access to the server).
 #   deploy.sh <staging|production>                 fetch, verify, deploy if new
 #   deploy.sh <staging|production> --check-only    fetch + verify + print the plan, change nothing
+#   deploy.sh <staging|production> --verify-roles  READ-ONLY: each process checks its own MongoDB privileges against
+#                                                  02 §4.3 (connectionStatus) inside its container (PHASE_01 T1.1)
 #   deploy.sh <staging|production> --restart       rolling re-deploy of the current release (after an env file
 #                                                  or certificate change — containers read them at creation)
 #   deploy.sh <staging|production> --rollback      redeploy the previous verified release from the local history
@@ -23,8 +25,8 @@ set -euo pipefail
 main() {
   ENVIRONMENT=${1:-}
   MODE=${2:-deploy}
-  case "$ENVIRONMENT" in staging | production) ;; *) echo "usage: deploy.sh <staging|production> [--check-only|--restart|--rollback]" >&2; exit 2 ;; esac
-  case "$MODE" in deploy | --check-only | --restart | --rollback) ;; *) echo "unknown option: $MODE" >&2; exit 2 ;; esac
+  case "$ENVIRONMENT" in staging | production) ;; *) echo "usage: deploy.sh <staging|production> [--check-only|--restart|--rollback|--verify-roles]" >&2; exit 2 ;; esac
+  case "$MODE" in deploy | --check-only | --restart | --rollback | --verify-roles) ;; *) echo "unknown option: $MODE" >&2; exit 2 ;; esac
 
   REPO=${MC_RELEASE_REPO:-syedtalha88/Al-Masjid}
   BASE_URL=${MC_RELEASE_BASE_URL:-https://github.com/$REPO/releases/download/$ENVIRONMENT-current}
@@ -60,13 +62,13 @@ main() {
     cp "$STATE_DIR/releases/$previous.json" "$work/manifest.json"
     cp "$STATE_DIR/releases/$previous.json.sig" "$work/manifest.json.sig"
     log "rolling back to $previous"
-  elif [ "$MODE" = --restart ]; then
+  elif [ "$MODE" = --restart ] || [ "$MODE" = --verify-roles ]; then
     local current
     current=$(current_release)
     [ -n "$current" ] || die "nothing deployed yet"
     cp "$STATE_DIR/releases/$current.json" "$work/manifest.json"
     cp "$STATE_DIR/releases/$current.json.sig" "$work/manifest.json.sig"
-    log "restarting $current (rolling) to pick up changed env files"
+    if [ "$MODE" = --restart ]; then log "restarting $current (rolling) to pick up changed env files"; fi
   else
     curl -fsSL --max-time 20 -o "$work/manifest.json" "$BASE_URL/release-manifest.json" || die "cannot fetch manifest"
     curl -fsSL --max-time 20 -o "$work/manifest.json.sig" "$BASE_URL/release-manifest.json.sig" || die "cannot fetch signature"
@@ -112,6 +114,17 @@ main() {
   log "deploying $release"
   export MC_ENV=$ENVIRONMENT MC_CONFIG_DIR=$CONFIG_DIR MC_COMPOSE_DIR=$COMPOSE_DIR SERVER_IMAGE=$server_image WEB_IMAGE=$web_image
   compose_policy || die "the installed compose file breaks the hardening policy — refusing"
+  if [ "$MODE" = --verify-roles ]; then
+    # Each one-off container holds only its own credential; the check reads (connectionStatus), never writes.
+    local svc failed=0
+    for svc in api-public api-admin worker migrate; do
+      [ "$svc" != migrate ] || [ -f "$CONFIG_DIR/migrate.env" ] || { log "migrate: no migrate.env — skipped"; continue; }
+      compose --profile migrate run --rm --no-deps -T "$svc" dist/verify-roles.mjs || failed=1
+    done
+    [ "$failed" -eq 0 ] || die "database privileges differ from 02 §4.3 (see FAIL lines above)"
+    log "verify-roles: every process has exactly its 02 §4.3 privileges"
+    exit 0
+  fi
   compose pull --quiet
   # Migrations first (PHASE_01 T1.2): a failure stops here, before any container changes. Production releases are
   # approved by the owner in GitHub (deploy-prod) before their manifest exists, which covers their migrations.
