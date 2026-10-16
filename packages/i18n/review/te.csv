@@ -56,4 +56,20 @@ errors,PAYLOAD_TOO_LARGE,That is too large to send. Please try something smaller
 errors,UNSUPPORTED_MEDIA_TYPE,Something went wrong sending your request. Please try again.,మీ అభ్యర్థన పంపడంలో సమస్య వచ్చింది. దయచేసి మళ్లీ ప్రయత్నించండి.,no
 errors,CORS_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
 errors,INTERNAL_ERROR,Something went wrong on our side. Please try again in a moment.,మా వైపు ఏదో సమస్య వచ్చింది. దయచేసి కొద్దిసేపటి తర్వాత మళ్లీ ప్రయత్నించండి.,no
+errors,RATE_LIMITED,Too many tries. Please wait a little and try again.,చాలా ప్రయత్నాలు జరిగాయి. కొద్దిసేపు ఆగి మళ్లీ ప్రయత్నించండి.,no
+errors,SERVICE_UNAVAILABLE,The service is busy right now. Please try again in a moment.,సేవ ప్రస్తుతం బిజీగా ఉంది. కొద్దిసేపటి తర్వాత మళ్లీ ప్రయత్నించండి.,no
+errors,DEVICE_AUTH_REQUIRED,"Please close and reopen the app, then try again.",దయచేసి యాప్‌ను మూసి మళ్లీ తెరిచి ప్రయత్నించండి.,no
+errors,SESSION_REQUIRED,Please sign in again.,దయచేసి మళ్లీ సైన్ ఇన్ చేయండి.,no
+errors,ORIGIN_REJECTED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
+errors,FORBIDDEN,You don’t have permission to do this.,దీన్ని చేయడానికి మీకు అనుమతి లేదు.,no
+errors,STEP_UP_REQUIRED,Please confirm with your screen lock to continue.,కొనసాగడానికి మీ స్క్రీన్ లాక్‌తో నిర్ధారించండి.,no
+errors,PASSKEY_FAILED,Sign-in didn’t work. Please try again with your screen lock.,సైన్ ఇన్ కాలేదు. మీ స్క్రీన్ లాక్‌తో మళ్లీ ప్రయత్నించండి.,no
+errors,INVITE_INVALID,This invite link has expired or was already used. Please ask for a new one.,ఈ ఆహ్వాన లింక్ గడువు ముగిసింది లేదా ఇప్పటికే ఉపయోగించబడింది. దయచేసి కొత్త లింక్ అడగండి.,no
+errors,MASJID_NOT_FOUND,We couldn’t find this masjid. Please check the code and try again.,ఈ మస్జిద్ కనబడలేదు. దయచేసి కోడ్ సరిచూసి మళ్లీ ప్రయత్నించండి.,no
+errors,FOLLOW_LIMIT_REACHED,You already follow the most masjids allowed. Unfollow one to add another.,మీరు ఇప్పటికే గరిష్ఠ సంఖ్యలో మస్జిద్‌లను ఫాలో చేస్తున్నారు. కొత్తది జోడించడానికి ఒకదాన్ని అన్‌ఫాలో చేయండి.,no
+errors,ADMIN_LIMIT_REACHED,This masjid already has the most admins allowed.,ఈ మస్జిద్‌కు ఇప్పటికే గరిష్ఠ సంఖ్యలో అడ్మిన్‌లు ఉన్నారు.,no
+errors,ALREADY_MEMBER,This person is already an admin of this masjid.,ఈ వ్యక్తి ఇప్పటికే ఈ మస్జిద్ అడ్మిన్.,no
+errors,NOT_MEMBER,This person is not an admin of this masjid.,ఈ వ్యక్తి ఈ మస్జిద్ అడ్మిన్ కాదు.,no
+errors,INVALID_TRANSITION,This change isn’t possible right now.,ఈ మార్పు ప్రస్తుతం సాధ్యం కాదు.,no
+errors,ACTIVATION_REQUIREMENTS,This masjid needs an active admin who has accepted the undertaking before it can go live.,మస్జిద్‌ను ప్రారంభించే ముందు హామీ పత్రాన్ని అంగీకరించిన ఒక యాక్టివ్ అడ్మిన్ ఉండాలి.,no
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,మీరు ఆఫ్‌లైన్‌లో ఉన్నట్లున్నారు. దయచేసి కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి.,no

@@ -3,6 +3,7 @@ import type { Request, RequestHandler, Response, Router } from 'express';
 import { z } from 'zod';
 
 import { ApiProblem } from './problem.ts';
+import { enforceRateLimits, type RateLimitRule } from './rate-limit.ts';
 import { getRequestId } from './request-id.ts';
 import { findUnsafeKey } from './unsafe-keys.ts';
 
@@ -39,6 +40,8 @@ export interface RouteSpec<P extends z.ZodObject, Q extends z.ZodObject, B exten
   readonly summary: string;
   readonly tags?: readonly string[];
   readonly auth: RouteAuth;
+  /** Rate-limit rules (03 §2), applied in order after auth and before validation. */
+  readonly rateLimit?: readonly RateLimitRule[];
   /** `Cache-Control` for successful responses (01 §5.2). Default `no-store`. */
   readonly cacheControl?: string;
   readonly request?: { readonly params?: P; readonly query?: Q; readonly body?: B };
@@ -91,9 +94,11 @@ export const toOpenApiPath = (path: string): string => path.replace(/:([A-Za-z0-
 /**
  * Declares an HTTP route (03 header, CLAUDE.md §6). The **only** place raw Express routing is allowed
  * (lint rule `mc/no-raw-routes`). The returned definition:
- * 1. rejects `$`/`.` keys anywhere in params/query/body (R11),
- * 2. validates params/query/body with strict Zod objects → 400 `VALIDATION_FAILED` with field paths,
- * 3. (Phase 1) applies auth + rate limit per `auth`,
+ * 1. applies the route's rate limits — 03 §0 step 6, after auth (T1.8) and before validation → 429 `RATE_LIMITED`
+ *    with `Retry-After`,
+ * 2. rejects `$`/`.` keys anywhere in params/query/body (R11),
+ * 3. validates params/query/body with strict Zod objects → 400 `VALIDATION_FAILED` with field paths (never the raw
+ *    input),
  * 4. calls the handler and validates its body against the declared response schema — undeclared fields
  *    are stripped, so internal fields can't leak; a contract violation is a 500 (logged),
  * 5. sets `Cache-Control` (default `no-store`).
@@ -111,7 +116,10 @@ export function defineRoute<
   const bodySchema = spec.request?.body ? strict(spec.request.body) : z.undefined();
   const cacheControl = spec.cacheControl ?? 'no-store';
 
+  const rateLimit = spec.rateLimit ?? [];
+
   const handle: RequestHandler = async (req, res) => {
+    await enforceRateLimits(req, rateLimit);
     const params = parsePart('params', paramsSchema, req.params) as z.output<P>; // parsed by P's schema
     const query = parsePart('query', querySchema, req.query) as z.output<Q>; // parsed by Q's schema
     const body = parsePart('body', bodySchema, req.body) as z.output<B>; // parsed by B's schema

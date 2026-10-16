@@ -207,6 +207,10 @@ writeEnvFile(
   {
     MONGODB_URI_TEST: mongo('root', compose.MONGO_ROOT_PASSWORD),
     REDIS_URL_TEST: redis('test', compose.REDIS_TEST_PASSWORD),
+    // T1.6 ACL test: each process user must be confined to its own key prefixes (local Docker only).
+    REDIS_URL_TEST_RL_PUBLIC: redis('rl_public', compose.REDIS_RL_PUBLIC_PASSWORD),
+    REDIS_URL_TEST_ADMIN: redis('admin', compose.REDIS_ADMIN_PASSWORD),
+    REDIS_URL_TEST_WORKER: redis('worker', compose.REDIS_WORKER_PASSWORD),
   },
   { mergeMissing: true },
 );

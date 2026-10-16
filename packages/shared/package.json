@@ -12,6 +12,7 @@
     "./pwa": "./src/pwa.ts",
     "./clock": "./src/clock.ts",
     "./contracts": "./src/contracts/index.ts",
+    "./errors": "./src/errors.ts",
     "./http": "./src/http/request-json.ts",
     "./testing/msw": "./src/testing/msw.ts",
     "./observability": "./src/observability/scrub.ts"

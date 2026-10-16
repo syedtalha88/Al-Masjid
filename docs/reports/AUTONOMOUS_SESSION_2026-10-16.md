@@ -26,6 +26,8 @@
 | 16 Oct (normal mode) | T1.7 field encryption + token helpers (DECISIONS #66) | `78b3807` |
 | 16 Oct | **Autopilot resumed** by the owner ("continue on autopilot for this message… keep things required from me on hold but mark it down… keep moving to next subphases… mark down all the things you did"). Same limits as before: no secrets, no SSH, no paid services, no weakening of security/privacy/legal posture. Next: T1.3 state functions | — |
 | 16 Oct (autopilot) | T1.3 state functions + side effects (DECISIONS #67). **Found + fixed a security bug before it shipped:** content-write confinement could overwrite the tenant filter (cross-masjid write); now `$and`. Also: admin edits of a masjid's own fields now go through `contentWrite()` (02 §5 "masjids (public fields)" bump) — one policy test updated for it. One db-suite run reported 107/113 with no failure printed; did not reproduce in 4 further runs (watching) | see git log |
+| 16 Oct (autopilot) | The owner declined one push (`git push` of T1.3 to the branch and main). Since then: **commits stay local, nothing is pushed** until the owner says so | — |
+| 16 Oct (autopilot) | T1.6 API framework pieces (DECISIONS #68): rate limiter + buckets, error codes + i18n drafts (hi/ur/te need translator review), health with MongoDB/Redis, ACL test. Added dependency `rate-limiter-flexible` 11.2.1 to `packages/api` (server only). `pnpm setup:local` now also writes three local-only Redis test URLs. **Heads-up:** after the next deploy, staging `/health` returns 503 whenever Atlas or Redis is unreachable — by design | local commit |
 
 ## For the owner (collected during the session)
 

@@ -1,6 +1,7 @@
 // Entrypoint: api-public (app.<domain>/api/v1/*). No business logic here (01 §3).
 import { createLogger, createPublicApp, startHttpServer } from '@mc/api';
 
+import { openApiConnections } from './connections.ts';
 import { bootEnv, onShutdownSignal } from './lifecycle.ts';
 import { startServerSentry } from './sentry.ts';
 import { loadTestHooks } from './test-hooks-loader.ts';
@@ -15,7 +16,19 @@ const sentry = startServerSentry({
 });
 // e2e hooks only for APP_ENV=local + NODE_ENV=test AND a runtime-test build (10 §3, DECISIONS #31).
 const hooks = await loadTestHooks(env, 'api-public', logger);
+const connections = openApiConnections(
+  {
+    process: 'api-public',
+    mongoUri: env.MONGODB_URI_PUBLIC,
+    database: env.MONGODB_DB_NAME,
+    redisUrl: env.REDIS_URL_PUBLIC,
+    local: env.APP_ENV === 'local',
+  },
+  logger,
+);
 const { app } = createPublicApp({
+  rateLimiter: connections.rateLimiter,
+  health: connections.health,
   logger,
   release: env.RELEASE,
   trustedProxyMode: env.TRUSTED_PROXY_MODE,
@@ -28,6 +41,7 @@ logger.info({ port: server.port, appEnv: env.APP_ENV }, 'api-public listening');
 onShutdownSignal(async (signal) => {
   logger.info({ signal }, 'shutting down: draining in-flight requests');
   await server.shutdown();
+  await connections.close();
   await sentry?.flush();
   logger.info('api-public stopped');
 }, process);

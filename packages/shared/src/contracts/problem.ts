@@ -1,23 +1,15 @@
 import { z } from 'zod';
 
-/**
- * Error codes the API emits today (03 header). The client maps each to an `errors.<CODE>` i18n key; a code it
- * does not know (a newer server) falls back to a generic message, so the wire schema accepts any code-shaped
- * string while the server side stays a closed union.
- */
-export const PROBLEM_CODES = [
-  'NOT_FOUND',
-  'METHOD_NOT_ALLOWED',
-  'VALIDATION_FAILED',
-  'UNSAFE_INPUT',
-  'INVALID_JSON',
-  'PAYLOAD_TOO_LARGE',
-  'UNSUPPORTED_MEDIA_TYPE',
-  'CORS_NOT_ALLOWED',
-  'INTERNAL_ERROR',
-] as const;
+import { API_ERROR_CODES, type ApiErrorCode } from '../errors.ts';
 
-export type ProblemCode = (typeof PROBLEM_CODES)[number];
+/**
+ * Error codes the API emits (the list lives in `../errors.ts` with each code's status). The client maps each to an
+ * `errors.<CODE>` i18n key; a code it does not know (a newer server) falls back to a generic message, so the wire
+ * schema accepts any code-shaped string while the server side stays a closed union.
+ */
+export const PROBLEM_CODES = API_ERROR_CODES;
+
+export type ProblemCode = ApiErrorCode;
 
 /** One invalid field: dotted path (e.g. `body.locale`) and a machine-readable reason (Zod issue code). */
 export const problemFieldErrorSchema = z.object({

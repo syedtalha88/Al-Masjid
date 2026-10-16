@@ -8,10 +8,11 @@ import type { TrustedProxyMode } from './http/client-ip.ts';
 import { mountRoutes, type RouteDefinition } from './http/define-route.ts';
 import { errorMapper, type ErrorReporter, notFound } from './http/errors.ts';
 import { rejectPreflight } from './http/no-cors.ts';
+import { installRateLimiter, type RateLimiter } from './http/rate-limit.ts';
 import { requestId } from './http/request-id.ts';
 import { requestLogger } from './http/request-logger.ts';
 import { securityHeaders } from './http/security-headers.ts';
-import { healthRoute } from './routes/health.ts';
+import { type HealthProbes, healthRoute } from './routes/health.ts';
 
 export interface AppDependencies {
   readonly logger: Logger;
@@ -29,6 +30,10 @@ export interface AppDependencies {
   readonly testRoutes?: readonly RouteDefinition[];
   /** Unexpected errors (500s) go here as well as to the log — Sentry when configured (T0.13). */
   readonly reportError?: ErrorReporter;
+  /** The process's rate limiter (Redis in the entrypoints, memory in tests); routes with limits need it (T1.6). */
+  readonly rateLimiter?: RateLimiter;
+  /** MongoDB + Redis pings for `/health` (the entrypoints always pass both). */
+  readonly health?: Partial<HealthProbes>;
 }
 
 export interface CreatedApp {
@@ -59,14 +64,25 @@ const newRouter = (): Router => express.Router({ strict: true, caseSensitive: tr
 function assemble(
   service: 'api-public' | 'api-admin',
   prefix: string,
-  { logger, release, routes = [], clock = systemClock, testRoutes = [], reportError }: AppDependencies,
+  {
+    logger,
+    release,
+    trustedProxyMode,
+    routes = [],
+    clock = systemClock,
+    testRoutes = [],
+    reportError,
+    rateLimiter,
+    health,
+  }: AppDependencies,
   noindex: boolean,
 ): CreatedApp {
   const app = createBaseApp();
   app.locals['clock'] = clock; // services read it from Phase 1 on
+  installRateLimiter(app.locals, rateLimiter, trustedProxyMode);
   const registry = new OpenAPIRegistry();
   const router = newRouter();
-  mountRoutes(router, prefix, [healthRoute(service, release), ...routes], registry);
+  mountRoutes(router, prefix, [healthRoute(service, release, health), ...routes], registry);
   if (testRoutes.length > 0) {
     mountRoutes(router, prefix, testRoutes); // no registry: never in openapi.json
     logger.warn({ service, routes: testRoutes.length }, 'TEST HOOKS ENABLED (APP_ENV=local, NODE_ENV=test)');
@@ -77,7 +93,7 @@ function assemble(
   app.use(securityHeaders({ noindex })); // 2
   app.use(rejectPreflight());
   app.use(jsonBody()); // 3
-  // 4 (origin/CSRF, admin), 5 (auth), 6 (rate limit) arrive in Phase 1; 7 (validation) is in defineRoute.
+  // 4 (origin/CSRF, admin) and 5 (auth) arrive with T1.8; 6 (rate limit) and 7 (validation) run in defineRoute.
   app.use(prefix, router); // 8
   app.use(notFound()); // 9
   app.use(errorMapper(logger, reportError)); // 10

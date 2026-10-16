@@ -22,7 +22,7 @@ test.describe('musalli app (app origin)', () => {
   test('public API health through Caddy; admin API is not served here', async ({ request }) => {
     const health = await request.get(`${APP_URL}/api/v1/health`);
     expect(health.status()).toBe(200);
-    expect(await health.json()).toMatchObject({ ok: true, service: 'api-public' });
+    expect(await health.json()).toMatchObject({ ok: true, service: 'api-public', db: 'ok', redis: 'ok' });
 
     const admin = await request.get(`${APP_URL}/api/admin/health`);
     expect(admin.status()).toBe(404);
@@ -90,7 +90,7 @@ test.describe('admin app (admin origin)', () => {
   test('admin API health through Caddy; public API is not served here', async ({ request }) => {
     const health = await request.get(`${ADMIN_URL}/api/admin/health`);
     expect(health.status()).toBe(200);
-    expect(await health.json()).toMatchObject({ ok: true, service: 'api-admin' });
+    expect(await health.json()).toMatchObject({ ok: true, service: 'api-admin', db: 'ok', redis: 'ok' });
     expect((await request.get(`${ADMIN_URL}/api/v1/health`)).status()).toBe(404);
   });
 });

@@ -16,12 +16,16 @@ export interface ProblemBody {
 
 const TITLES: Record<number, string> = {
   400: 'Bad Request',
+  401: 'Unauthorized',
   403: 'Forbidden',
   404: 'Not Found',
   405: 'Method Not Allowed',
+  409: 'Conflict',
   413: 'Content Too Large',
   415: 'Unsupported Media Type',
+  429: 'Too Many Requests',
   500: 'Internal Server Error',
+  503: 'Service Unavailable',
 };
 
 /**
@@ -34,13 +38,22 @@ export class ApiProblem extends Error {
   readonly code: ProblemCode;
   readonly detail: string | undefined;
   readonly errors: readonly ProblemFieldError[] | undefined;
+  /** Response headers that belong to the problem (e.g. `Retry-After` on a 429). */
+  readonly headers: Readonly<Record<string, string>>;
 
-  constructor(status: number, code: ProblemCode, detail?: string, errors?: readonly ProblemFieldError[]) {
+  constructor(
+    status: number,
+    code: ProblemCode,
+    detail?: string,
+    errors?: readonly ProblemFieldError[],
+    headers: Readonly<Record<string, string>> = {},
+  ) {
     super(`${String(status)} ${code}${detail === undefined ? '' : `: ${detail}`}`);
     this.status = status;
     this.code = code;
     this.detail = detail;
     this.errors = errors;
+    this.headers = headers;
   }
 }
 

@@ -508,6 +508,17 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **Audit:** actions come from an allow-list, `meta` keys from an allow-list and ≤ 4 KB; public/hook scopes cannot be actors unless the state function names one.
 - **Validated fixtures:** partial test documents are fine for inserts with `bypassDocumentValidation`, but later updates are validated — fixtures that a state function updates are complete documents.
 
+### #68 — Rate limits, error codes and health checks (PHASE_01 T1.6) — ACCEPTED (Claude Code, owner-authorised autopilot session, 16 Oct 2026)
+**Decision:**
+- **Library:** `rate-limiter-flexible` **11.2.1** (ISC, server-only, in `packages/api` — no client bundle impact). 11.2.2 was 3 days old, so the month-old release was pinned; Renovate moves it on. The 03 §2 buckets are constants in `http/rate-limit.ts`; routes declare `rateLimit: [{ bucket, key }]` in `defineRoute`, applied after auth and **before validation** (03 §0 order — invalid requests count too).
+- **Keys:** `<rl:pub:|rl:adm:><bucket>:<hash>`, the hash being 128 bits of SHA-256 of the device/session/credential id or IP, so no IP or session id is ever stored in Redis in clear text (03 §0 "never stored"). TTL = the bucket window.
+- **Redis outage:** each limiter has an in-memory insurance limiter (same bucket, per process). Chosen over failing closed (an outage would take the API down) and failing open (no limits at all): limits still hold per process. A route that declares limits on an app without a limiter answers 500 — wiring mistakes cannot silently disable limiting.
+- **429:** `RATE_LIMITED` problem+json with `Retry-After` in seconds (`ApiProblem` can now carry headers).
+- **Error codes:** `packages/shared/src/errors.ts` (`API_ERRORS`: code → status); `PROBLEM_CODES` is derived from it. 16 Phase-1 codes added (auth, step-up, invites, limits, state rules, `RATE_LIMITED`, `SERVICE_UNAVAILABLE`) with English + draft hi/ur/te messages (in the review CSVs). Messages carry no numbers (limits may change; 09 §2). A test keeps the code list and `errors.json` identical.
+- **Health:** `{ok, service, version, db, redis}`; each ping has a 2 s timeout; 200 when both are up, else **503**. Consequence: while Atlas or Redis is unreachable the containers report unhealthy — a deploy then stops instead of rolling into an outage (nothing auto-restarts on unhealthy, so no restart loop). `unchecked` appears only in tests that build an app without probes; the entrypoints always pass both (`apps/server/src/connections.ts`), and the e2e stack test now requires `db`/`redis` = `ok`.
+- **Redis ACL test:** `pnpm setup:local` also writes `REDIS_URL_TEST_RL_PUBLIC/_ADMIN/_WORKER` (local Docker only) into `.env.local.test`; the integration test proves each process user reaches only its own prefixes and none of FLUSHALL/CONFIG/KEYS, and that `rl_public` can run the limiter's Lua under `rl:pub:`.
+- **OpenAPI:** generation + committed snapshot + CI diff already existed (Phase 0); regenerated for the health contract.
+
 ## OPEN
 
 _None._

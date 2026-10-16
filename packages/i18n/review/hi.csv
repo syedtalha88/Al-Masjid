@@ -56,4 +56,20 @@ errors,PAYLOAD_TOO_LARGE,That is too large to send. Please try something smaller
 errors,UNSUPPORTED_MEDIA_TYPE,Something went wrong sending your request. Please try again.,आपका अनुरोध भेजने में दिक्कत हुई। कृपया फिर कोशिश करें।,no
 errors,CORS_NOT_ALLOWED,That action isn’t available here.,यह काम यहाँ उपलब्ध नहीं है।,no
 errors,INTERNAL_ERROR,Something went wrong on our side. Please try again in a moment.,हमारी तरफ़ से कुछ गड़बड़ हुई। कृपया थोड़ी देर में फिर कोशिश करें।,no
+errors,RATE_LIMITED,Too many tries. Please wait a little and try again.,बहुत ज़्यादा कोशिशें हो गईं। थोड़ा रुककर फिर से कोशिश करें।,no
+errors,SERVICE_UNAVAILABLE,The service is busy right now. Please try again in a moment.,सेवा अभी व्यस्त है। थोड़ी देर बाद फिर से कोशिश करें।,no
+errors,DEVICE_AUTH_REQUIRED,"Please close and reopen the app, then try again.","कृपया ऐप बंद करके दोबारा खोलें, फिर कोशिश करें।",no
+errors,SESSION_REQUIRED,Please sign in again.,कृपया फिर से साइन इन करें।,no
+errors,ORIGIN_REJECTED,That action isn’t available here.,यह काम यहाँ उपलब्ध नहीं है।,no
+errors,FORBIDDEN,You don’t have permission to do this.,आपको यह करने की अनुमति नहीं है।,no
+errors,STEP_UP_REQUIRED,Please confirm with your screen lock to continue.,आगे बढ़ने के लिए अपने स्क्रीन लॉक से पुष्टि करें।,no
+errors,PASSKEY_FAILED,Sign-in didn’t work. Please try again with your screen lock.,साइन इन नहीं हो सका। अपने स्क्रीन लॉक से फिर से कोशिश करें।,no
+errors,INVITE_INVALID,This invite link has expired or was already used. Please ask for a new one.,यह आमंत्रण लिंक पुराना हो गया है या पहले ही इस्तेमाल हो चुका है। कृपया नया लिंक माँगें।,no
+errors,MASJID_NOT_FOUND,We couldn’t find this masjid. Please check the code and try again.,यह मस्जिद नहीं मिली। कृपया कोड जाँचकर फिर से कोशिश करें।,no
+errors,FOLLOW_LIMIT_REACHED,You already follow the most masjids allowed. Unfollow one to add another.,आप पहले से ही सबसे ज़्यादा मस्जिदें फ़ॉलो कर रहे हैं। नई जोड़ने के लिए एक को अनफ़ॉलो करें।,no
+errors,ADMIN_LIMIT_REACHED,This masjid already has the most admins allowed.,इस मस्जिद में पहले से ही सबसे ज़्यादा एडमिन हैं।,no
+errors,ALREADY_MEMBER,This person is already an admin of this masjid.,यह व्यक्ति पहले से इस मस्जिद का एडमिन है।,no
+errors,NOT_MEMBER,This person is not an admin of this masjid.,यह व्यक्ति इस मस्जिद का एडमिन नहीं है।,no
+errors,INVALID_TRANSITION,This change isn’t possible right now.,यह बदलाव अभी नहीं हो सकता।,no
+errors,ACTIVATION_REQUIREMENTS,This masjid needs an active admin who has accepted the undertaking before it can go live.,मस्जिद चालू करने से पहले एक सक्रिय एडमिन चाहिए जिसने वचन-पत्र स्वीकार किया हो।,no
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,लगता है आप ऑफ़लाइन हैं। कृपया कनेक्शन जाँचकर फिर कोशिश करें।,no

@@ -43,6 +43,7 @@ export function errorMapper(logger: Logger, reportError?: ErrorReporter): ErrorR
     const requestId = getRequestId(res);
 
     if (error instanceof ApiProblem) {
+      res.set(error.headers);
       sendProblem(
         res,
         problemBody(error.status, error.code, { detail: error.detail, errors: error.errors, requestId }),

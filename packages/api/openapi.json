@@ -11,10 +11,7 @@
         "type": "object",
         "properties": {
           "ok": {
-            "type": "boolean",
-            "enum": [
-              true
-            ]
+            "type": "boolean"
           },
           "service": {
             "type": "string",
@@ -25,12 +22,30 @@
           },
           "version": {
             "type": "string"
+          },
+          "db": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "down",
+              "unchecked"
+            ]
+          },
+          "redis": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "down",
+              "unchecked"
+            ]
           }
         },
         "required": [
           "ok",
           "service",
-          "version"
+          "version",
+          "db",
+          "redis"
         ]
       }
     },
@@ -39,7 +54,7 @@
   "paths": {
     "/api/v1/health": {
       "get": {
-        "summary": "Liveness and build version",
+        "summary": "Liveness, dependency pings and build version",
         "tags": [
           "system"
         ],
@@ -53,19 +68,39 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "HTTP 503",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/admin/health": {
       "get": {
-        "summary": "Liveness and build version",
+        "summary": "Liveness, dependency pings and build version",
         "tags": [
           "system"
         ],
         "responses": {
           "200": {
             "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "HTTP 503",
             "content": {
               "application/json": {
                 "schema": {

@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { createAdminApp, createPublicApp } from '../src/app.ts';
 import { defineRoute, type RouteDefinition } from '../src/http/define-route.ts';
 import { ApiProblem } from '../src/http/problem.ts';
+import { PROBE_TIMEOUT_MS } from '../src/routes/health.ts';
 import { captureLogger, silentLogger } from './helpers.ts';
 
 const publicApp = (routes: RouteDefinition[] = [], logger = silentLogger()) =>
@@ -24,18 +25,43 @@ const expectProblem = (response: request.Response, status: number, code: string)
   return body;
 };
 
-describe('health', () => {
-  it('GET /api/v1/health returns version info only', async () => {
-    const response = await request(publicApp()).get('/api/v1/health');
+describe('health (03 §3, 01 §10)', () => {
+  const withProbes = (db: () => Promise<boolean>, redis: () => Promise<boolean>) =>
+    createPublicApp({ logger: silentLogger(), release: 'test-sha', trustedProxyMode: 'none', health: { db, redis } })
+      .app;
+  const up = () => Promise.resolve(true);
+
+  it('GET /api/v1/health: both dependencies up → 200 with the build version and nothing else', async () => {
+    const response = await request(withProbes(up, up)).get('/api/v1/health');
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ ok: true, service: 'api-public', version: 'test-sha' });
+    expect(response.body).toEqual({ ok: true, service: 'api-public', version: 'test-sha', db: 'ok', redis: 'ok' });
     expect(response.headers['cache-control']).toBe('no-store');
   });
 
-  it('GET /api/admin/health returns version info only', async () => {
+  it('a dependency down, throwing or hanging → 503 naming which one', async () => {
+    const down = await request(withProbes(up, () => Promise.resolve(false))).get('/api/v1/health');
+    expect(down.status).toBe(503);
+    expect(down.body).toMatchObject({ ok: false, db: 'ok', redis: 'down' });
+    const thrown = await request(withProbes(() => Promise.reject(new Error('boom')), up)).get('/api/v1/health');
+    expect(thrown.status).toBe(503);
+    expect(thrown.body).toMatchObject({ ok: false, db: 'down', redis: 'ok' });
+    expect(JSON.stringify(thrown.body)).not.toContain('boom');
+    const started = Date.now();
+    const hanging = await request(withProbes(() => new Promise<boolean>(() => undefined), up)).get('/api/v1/health');
+    expect(hanging.body).toMatchObject({ ok: false, db: 'down' });
+    expect(Date.now() - started).toBeLessThan(PROBE_TIMEOUT_MS + 1_000);
+  });
+
+  it('GET /api/admin/health without probes (tests only) reports them unchecked', async () => {
     const response = await request(adminApp()).get('/api/admin/health');
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ ok: true, service: 'api-admin', version: 'test-sha' });
+    expect(response.body).toEqual({
+      ok: true,
+      service: 'api-admin',
+      version: 'test-sha',
+      db: 'unchecked',
+      redis: 'unchecked',
+    });
   });
 });
 
