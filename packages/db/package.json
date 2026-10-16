@@ -10,7 +10,8 @@
     "./schema": "./src/schema/index.ts",
     "./migrate": "./src/migrate/index.ts",
     "./migrations": "./migrations/index.ts",
-    "./migrations/areas": "./migrations/areas.ts"
+    "./migrations/areas": "./migrations/areas.ts",
+    "./state": "./src/state/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

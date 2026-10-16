@@ -4,7 +4,7 @@
 // (`$…`, dotted) in data — the NoSQL-injection guard of 02 §0.
 import { Binary, type Document, type Filter, Long, ObjectId, type UpdateFilter } from 'mongodb';
 
-import type { Namespace } from './collections.ts';
+import { CONTENT_COLLECTIONS, type Namespace } from './collections.ts';
 import { type Cell, cellFor, type Operation, type PolicyContext, PolicyDeniedError } from './policy.ts';
 
 const ALLOWED_UPDATE_OPERATORS = new Set(['$set', '$unset', '$inc', '$push', '$pull', '$setOnInsert', '$addToSet']);
@@ -48,6 +48,9 @@ const same = (a: unknown, b: unknown): boolean => {
 /** Whether a document satisfies a tenant filter (top-level equality and `$in` — the only shapes cells produce). */
 export function matchesTenant(doc: Document, filter: Filter<Document>): boolean {
   return Object.entries(filter).every(([field, condition]) => {
+    if (field === '$and' && Array.isArray(condition)) {
+      return (condition as Filter<Document>[]).every((part) => matchesTenant(doc, part));
+    }
     const value: unknown = doc[field];
     if (isPlain(condition) && '$in' in condition && Array.isArray(condition['$in'])) {
       return (condition['$in'] as unknown[]).some((candidate) => same(value, candidate));
@@ -101,9 +104,38 @@ export interface ScopedCollection {
  * @throws PolicyDeniedError from each method when the scope has no cell for that operation, an insert lies outside the
  *   tenant, an update touches a non-writable field or uses another operator, or data carries operator-shaped keys.
  */
+/**
+ * Content writes (02 §5): outside the system scope they need `contentWrite()` and are confined to its masjid — the
+ * field naming the masjid is `_id` for masjid_timings, `masjid_id` elsewhere.
+ */
+function contentConfinement(ctx: PolicyContext, namespace: Namespace, operation: Operation): Filter<Document> {
+  if (
+    !(CONTENT_COLLECTIONS as readonly Namespace[]).includes(namespace) ||
+    operation === 'find' ||
+    (namespace === 'masjids' && operation === 'insert') ||
+    ctx.scope.kind === 'system'
+  ) {
+    return {};
+  }
+  if (!ctx.contentMasjidId) {
+    throw new PolicyDeniedError(namespace, operation, ctx.scope.kind, 'content writes go through contentWrite()');
+  }
+  return { [namespace === 'masjid_timings' || namespace === 'masjids' ? '_id' : 'masjid_id']: ctx.contentMasjidId };
+}
+
 export function scoped(ctx: PolicyContext, namespace: Namespace): ScopedCollection {
   const collection = ctx.db.collection(namespace);
   const cell = (operation: Operation) => cellFor(namespace, ctx.scope, operation);
+  /** Tenant filter plus, for content writes, the contentWrite() masjid. */
+  // Combined with $and, never merged: both may constrain the same field (masjid_id), and a merge would let the
+  // contentWrite() masjid replace the tenant filter (caught by the isolation test, 16 Oct 2026).
+  const fence = async (c: Cell, operation: Operation): Promise<Filter<Document>> => {
+    const parts = [await tenantOf(c, ctx), contentConfinement(ctx, namespace, operation)].filter(
+      (part) => Object.keys(part).length > 0,
+    );
+    if (parts.length === 0) return {};
+    return parts.length === 1 ? (parts[0] ?? {}) : { $and: parts };
+  };
   return {
     async find(filter, options = {}) {
       const c = cell('find');
@@ -131,7 +163,7 @@ export function scoped(ctx: PolicyContext, namespace: Namespace): ScopedCollecti
     async insertOne(doc) {
       const c = cell('insert');
       assertSafeKeys(doc, namespace);
-      const tenant = await tenantOf(c, ctx);
+      const tenant = await fence(c, 'insert');
       if (!matchesTenant(doc, tenant))
         throw new PolicyDeniedError(namespace, 'insert', ctx.scope.kind, 'outside tenant');
       await collection.insertOne(doc, sessionOf(ctx));
@@ -139,7 +171,7 @@ export function scoped(ctx: PolicyContext, namespace: Namespace): ScopedCollecti
     async updateOne(filter, update, options = {}) {
       const c = cell('update');
       assertWritable(c, namespace, ctx.scope.kind, update);
-      const result = await collection.updateOne(withTenant(filter, await tenantOf(c, ctx)), update, {
+      const result = await collection.updateOne(withTenant(filter, await fence(c, 'update')), update, {
         ...sessionOf(ctx),
         ...(options.upsert ? { upsert: true } : {}),
       });
@@ -148,12 +180,12 @@ export function scoped(ctx: PolicyContext, namespace: Namespace): ScopedCollecti
     async updateMany(filter, update) {
       const c = cell('update');
       assertWritable(c, namespace, ctx.scope.kind, update);
-      const result = await collection.updateMany(withTenant(filter, await tenantOf(c, ctx)), update, sessionOf(ctx));
+      const result = await collection.updateMany(withTenant(filter, await fence(c, 'update')), update, sessionOf(ctx));
       return result.matchedCount;
     },
     async deleteOne(filter) {
       const c = cell('delete');
-      const result = await collection.deleteOne(withTenant(filter, await tenantOf(c, ctx)), sessionOf(ctx));
+      const result = await collection.deleteOne(withTenant(filter, await fence(c, 'delete')), sessionOf(ctx));
       return result.deletedCount;
     },
   };

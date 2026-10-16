@@ -5,7 +5,7 @@
 import { type Db, UUID } from 'mongodb';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { COLLECTIONS, type Namespace, NAMESPACES, VIEW_SOURCES } from '../src/collections.ts';
+import { COLLECTIONS, CONTENT_COLLECTIONS, type Namespace, NAMESPACES, VIEW_SOURCES } from '../src/collections.ts';
 import { type Operation, PolicyDeniedError } from '../src/policy.ts';
 import { adminScope, deviceScope, hookScope, publicScope, type Scope, superScope, systemScope } from '../src/scope.ts';
 import { scoped } from '../src/scoped.ts';
@@ -79,12 +79,13 @@ const SCOPES: readonly { name: string; scope: Scope; column?: Column }[] = [
   { name: 'system', scope: systemScope() },
 ];
 
-/** A document inside the scope's tenant, so an allowed insert is not refused for being outside it. */
-function docFor(namespace: Namespace, scope: Scope): Record<string, unknown> {
+/** A document inside the scope's tenant (and its content masjid), so an allowed insert is not refused for that. */
+function docFor(namespace: Namespace, scope: Scope, contentId: UUID): Record<string, unknown> {
   const tenantId = namespace === 'masjids' || namespace === 'masjid_timings' || namespace === 'masjid_stats';
+  const masjid = scope.kind === 'admin' ? masjidA : contentId;
   return {
-    _id: scope.kind === 'admin' && tenantId ? masjidA : new UUID(),
-    masjid_id: masjidA,
+    _id: tenantId ? masjid : new UUID(),
+    masjid_id: masjid,
     device_id: scope.kind === 'device' ? scope.deviceId : new UUID(),
     admin_id: scope.kind === 'admin' || scope.kind === 'super' ? scope.adminId : new UUID(),
     status: 'verified',
@@ -93,10 +94,16 @@ function docFor(namespace: Namespace, scope: Scope): Record<string, unknown> {
 }
 
 async function attempt(namespace: Namespace, scope: Scope, operation: Operation): Promise<'allowed' | 'denied'> {
-  const repo = scoped({ scope, db: db() }, namespace);
+  // Content writes are measured inside a contentWrite() context (the enforcement itself has its own tests): an admin's
+  // own masjid, otherwise a fresh masjid id per attempt so inserts keyed by the masjid id never collide.
+  const contentId = scope.kind === 'admin' ? masjidA : new UUID();
+  const content = (CONTENT_COLLECTIONS as readonly Namespace[]).includes(namespace)
+    ? { contentMasjidId: contentId }
+    : {};
+  const repo = scoped({ scope, db: db(), ...content }, namespace);
   try {
     if (operation === 'find') await repo.findOne({});
-    if (operation === 'insert') await repo.insertOne(docFor(namespace, scope));
+    if (operation === 'insert') await repo.insertOne(docFor(namespace, scope, contentId));
     if (operation === 'update') await repo.updateOne({ _id: new UUID() }, { $set: { updated_at: new Date() } });
     if (operation === 'delete') await repo.deleteOne({ _id: new UUID() });
     return 'allowed';
@@ -192,11 +199,12 @@ describe('tenant isolation', () => {
   });
 
   it('an admin of another masjid cannot insert into, update or delete masjid C', async () => {
-    const items = scoped({ scope: adminOfD, db: db() }, 'items');
+    // Even inside a content context that claims masjid C, the tenant filter keeps it out.
+    const items = scoped({ scope: adminOfD, db: db(), contentMasjidId: masjidC }, 'items');
     await expect(items.insertOne({ _id: new UUID(), masjid_id: masjidC })).rejects.toBeInstanceOf(PolicyDeniedError);
     expect(await items.updateOne({ masjid_id: masjidC }, { $set: { title: 'pwned' } })).toBe(0);
     expect(await items.updateMany({}, { $set: { title: 'pwned' } })).toBe(0);
-    const timings = scoped({ scope: adminOfD, db: db() }, 'masjid_timings');
+    const timings = scoped({ scope: adminOfD, db: db(), contentMasjidId: masjidC }, 'masjid_timings');
     expect(await timings.deleteOne({ _id: masjidC })).toBe(0);
     expect(await db().collection('items').countDocuments({ title: 'pwned' })).toBe(0);
   });
@@ -226,7 +234,7 @@ describe('fields', () => {
   });
 
   it('admin updates of non-allow-listed masjid fields are rejected', async () => {
-    const masjids = scoped({ scope: adminOfA, db: db() }, 'masjids');
+    const masjids = scoped({ scope: adminOfA, db: db(), contentMasjidId: masjidA }, 'masjids');
     for (const field of ['status', 'follow_code', 'content_version', 'push_daily_quota', 'admin_count', 'name']) {
       await expect(masjids.updateOne({ _id: masjidA }, { $set: { [field]: 1 } })).rejects.toBeInstanceOf(
         PolicyDeniedError,
@@ -236,6 +244,11 @@ describe('fields', () => {
       PolicyDeniedError,
     );
     expect(await masjids.updateOne({ _id: masjidA }, { $set: { show_chanda: true } })).toBe(1);
+    // Outside contentWrite() even an allow-listed field is refused: it would skip the version bump (02 §5).
+    const outside = scoped({ scope: adminOfA, db: db() }, 'masjids');
+    await expect(outside.updateOne({ _id: masjidA }, { $set: { show_chanda: true } })).rejects.toBeInstanceOf(
+      PolicyDeniedError,
+    );
   });
 
   it('only the listed update operators are allowed', async () => {
@@ -254,6 +267,7 @@ describe('fields', () => {
     });
     const admins = await scoped({ scope: superScope(new UUID()), db: db() }, 'admin_users').find({});
     expect(admins.some((doc) => 'phone_enc' in doc)).toBe(false);
+    await raw('reports').insertOne({ _id: new UUID(), masjid_id: masjidA, device_id: new UUID(), reason: 'other' });
     const reports = await scoped({ scope: adminOfA, db: db() }, 'reports').find({});
     expect(reports.length).toBeGreaterThan(0);
     expect(reports.some((doc) => 'device_id' in doc)).toBe(false);

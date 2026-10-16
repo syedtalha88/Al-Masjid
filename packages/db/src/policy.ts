@@ -26,6 +26,8 @@ export interface PolicyContext {
   readonly scope: Scope;
   readonly db: Db;
   readonly session?: ClientSession | undefined;
+  /** Set only by `contentWrite()`: the one masjid whose content this context may write (02 §5). */
+  readonly contentMasjidId?: UUID | undefined;
 }
 
 export interface Cell {

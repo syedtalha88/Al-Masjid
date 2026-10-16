@@ -64,6 +64,20 @@ export type CollectionName = (typeof COLLECTIONS)[number];
 export type ViewName = (typeof PUBLIC_VIEWS)[number] | (typeof ADMIN_VIEWS)[number];
 export type Namespace = CollectionName | ViewName;
 
+/**
+ * Collections whose writes change what musallis see (02 §5 "Version bump"): every non-system write goes through
+ * `contentWrite()`, which bumps the masjid's `content_version` in the same transaction (enforced by the gateway).
+ * `masjids` counts for updates of its own fields; its insert is `createMasjid` (version 1).
+ */
+export const CONTENT_COLLECTIONS: readonly CollectionName[] = [
+  'masjids',
+  'items',
+  'masjid_timings',
+  'special_timings',
+  'chanda_weeks',
+  'payment_profiles',
+];
+
 /** Every namespace (collections + views), in a stable order. */
 export const NAMESPACES: readonly Namespace[] = [...COLLECTIONS, ...PUBLIC_VIEWS, ...ADMIN_VIEWS];
 

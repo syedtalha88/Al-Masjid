@@ -25,6 +25,7 @@
 | 16 Oct (normal mode) | Owner allowed pushing tested work to main without asking (memory saved) | — |
 | 16 Oct (normal mode) | T1.7 field encryption + token helpers (DECISIONS #66) | `78b3807` |
 | 16 Oct | **Autopilot resumed** by the owner ("continue on autopilot for this message… keep things required from me on hold but mark it down… keep moving to next subphases… mark down all the things you did"). Same limits as before: no secrets, no SSH, no paid services, no weakening of security/privacy/legal posture. Next: T1.3 state functions | — |
+| 16 Oct (autopilot) | T1.3 state functions + side effects (DECISIONS #67). **Found + fixed a security bug before it shipped:** content-write confinement could overwrite the tenant filter (cross-masjid write); now `$and`. Also: admin edits of a masjid's own fields now go through `contentWrite()` (02 §5 "masjids (public fields)" bump) — one policy test updated for it. One db-suite run reported 107/113 with no failure printed; did not reproduce in 4 further runs (watching) | see git log |
 
 ## For the owner (collected during the session)
 
