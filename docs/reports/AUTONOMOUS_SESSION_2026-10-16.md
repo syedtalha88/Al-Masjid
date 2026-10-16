@@ -18,6 +18,8 @@
 | 16 Oct | T1.2: schema DSL + all collections/views, migration runner + 7 migrations, drift check, server migrate entry, VPS migrate step; 61 db tests, 95.8 % coverage; found + fixed: drift check compared promoted longs as ints; a stub `case` result ignored by `exit 0` | DECISIONS #64 |
 | 16 Oct | Same driver timing test flaky again under load (first-frame margin) — now asserts the real property only (never behind the interrupt point, never back at the old target) | — |
 | 16 Oct | T1.5 client/scopes/transactions + T1.4 policy gateway and 984-cell matrix test (built before T1.3, which needs both); 92 db tests, 97 % coverage; found + fixed: tests that depended on each other's fixtures | DECISIONS #65 |
+| 16 Oct | Owner: host layer `a33610e` installed (atlas-users.sh shipped; check.sh fix for never-deployed production: certs noted, not failed); staging moved forward to `bdc4247` by itself (first release needing the new compose file) | `a33610e` |
+| 16 Oct | Owner: `atlas-users.sh staging` run with a temporary service account → 4 custom roles + 4 users on Atlas, connection strings written on the server only, `deploy.sh staging --restart` ran the first migrations on Atlas, no errors; service account deleted, wizard user deleted | A4, A5 done |
 
 ## For the owner (collected during the session)
 
@@ -26,5 +28,5 @@
 | A1 | Turnstile widget (site key to Claude Code, secret kept) | Phase 2 uses it; Phase 01 prerequisite | No (owner: "later") |
 | A2 | GitHub → Environments → production → untick "Allow administrators to bypass" | Security review L8 | No |
 | A3 | Latency test on the VPS (command in the chat of 16 Oct) | Phase 00 closure V-21 | No |
-| A4 | Atlas: create a temporary **service account** (Project Owner on `mc-staging`), run `sudo bash /usr/local/lib/masjid-connect/atlas-users.sh staging` on the VPS, then delete the service account (step-by-step in the chat) | T1.1/T1.2 on staging; from T1.6 the APIs' health checks need MongoDB | Yes, before T1.6 deploys |
-| A5 | Install the host layer from the latest `main` commit (`provision.sh host <sha>`) — the compose file gained the `migrate` service, so staging deploys pause until then (by design, DECISIONS #61) | Staging deploys of Phase 01 | Yes, for staging deploys |
+| A4 | ~~Atlas users via atlas-users.sh~~ | **done 16 Oct 2026** | – |
+| A5 | ~~Host layer update~~ | **done 16 Oct 2026** (`a33610e`) | – |
