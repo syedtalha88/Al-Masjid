@@ -79,7 +79,7 @@ Security: the HIGH (H1) was fixed by DECISIONS #61; M1 is the owner's environmen
 | V-24 | LOW | Docker userns-remap WARN has no DECISIONS entry | justified (DECISIONS #74 — revisit Phase 9) |
 | V-25 | LOW | Raw-route ban matches names only (`r.get`, `express.Router().get` pass) | fixed (type-aware rule + factory-only `express()`/`Router()`, ESLint + Semgrep) |
 | V-26 | MED | Deferral entries for F13/F18/F20/F22/F31; F-table cleanup | fixed (DECISIONS #74; PROGRESS F-table updated) |
-| V-27 | LOW | Stale docs (PROGRESS T0.14/O7/T0.15 lines, Cloudflare README §7 boxes, owner file path) | open |
+| V-27 | LOW | Stale docs (PROGRESS T0.14/O7/T0.15 lines, Cloudflare README §7 boxes, owner file path) | fixed (PROGRESS lines current; README §7 ticked with evidence — health `DYNAMIC`, hashed bundle `HIT` re-checked read-only; owner file path already correct) |
 | V-28 | LOW | S-L7, S-L9, S-L13 still open | fixed (all three resolved above) |
 | V-29 | LOW | `pnpm dev` health through the Vite proxy has no automated check | open |
 | V-30 | LOW | `Via` header; `X-Robots-Tag` twice on admin API responses | fixed (Caddy drops `Via` and the upstream robots header; spec checks both) |

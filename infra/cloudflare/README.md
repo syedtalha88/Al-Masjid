@@ -84,9 +84,10 @@ on the server only.
 
 ## 7. Verification (T0.14 acceptance)
 
-- [ ] `https://app-staging.almasjids.com` and `admin-staging.` load on a phone; securityheaders.com and Mozilla
-      Observatory **A+** (owner guide 0.2).
-- [ ] `curl -I https://<VPS IP>` from any network → connection refused / TLS failure (no Cloudflare client cert) —
-      owner guide 0.13.
-- [ ] `curl -I https://app-staging.almasjids.com/api/v1/health` twice → `cf-cache-status: BYPASS` or `DYNAMIC`
-      (health is `no-store`); a versioned bundle URL (Phase 2) → `HIT` on the second request.
+- [x] `https://app-staging.almasjids.com` and `admin-staging.` load on a phone; securityheaders.com and Mozilla
+      Observatory **A+** (owner guide 0.2) — 16 Oct 2026 (Observatory 135, 12/12, both hosts).
+- [x] `curl -I https://<VPS IP>` from any network → connection refused / TLS failure (no Cloudflare client cert) —
+      owner guide 0.13 — 16 Oct 2026 (`tlsv13 alert certificate required`; also probed by `check.sh`).
+- [x] `curl -I https://app-staging.almasjids.com/api/v1/health` twice → `cf-cache-status: BYPASS` or `DYNAMIC`
+      (health is `no-store`); a versioned bundle URL (Phase 2) → `HIT` on the second request — 16 Oct 2026
+      (health `DYNAMIC` both times; `/assets/index-*.js` `HIT`, `immutable`).
