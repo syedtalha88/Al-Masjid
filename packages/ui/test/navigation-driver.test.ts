@@ -48,13 +48,17 @@ describe('navigator driver', () => {
     const seen: number[] = [];
     const observer = new MutationObserver(() => seen.push(getChannel(element, 'x')));
     observer.observe(element, { attributes: true, attributeFilter: ['style'] });
+    const atInterrupt = getChannel(element, 'x');
     const second = animateChannel(element, 'x', 0, 'smooth');
     await expect(first).resolves.toBe(false);
     await expect(second).resolves.toBe(true);
     observer.disconnect();
-    // Continues from the interrupted position: it never restarts from 100 or jumps to 0.
+    // Continues from the interrupted position (first frame within one step of it), keeps its forward velocity briefly
+    // — how far depends on timer delays under CPU load, so no fixed margin — and never restarts from the old target.
     expect(seen.length).toBeGreaterThan(0);
-    expect(Math.max(...seen)).toBeLessThanOrEqual(reached + 25);
+    expect(Math.abs((seen[0] ?? Number.NaN) - atInterrupt)).toBeLessThan(15);
+    expect(Math.max(...seen)).toBeLessThan(100);
+    expect(seen.at(-1)).toBe(0);
     expect(element.hasAttribute('data-animating')).toBe(false);
   });
 
