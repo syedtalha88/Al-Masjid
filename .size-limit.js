@@ -7,8 +7,8 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-/** Musalli `/`: 170 kB from 01 §9; 220 kB for Phase 00 only (owner, DECISIONS #47; back to 170 kB → F23). */
-const APP_INITIAL_JS = '220 kB';
+/** Musalli `/`: 170 kB (01 §9; Phase 00 ran at 220 kB — DECISIONS #47, back to 170 kB with F23). */
+const APP_INITIAL_JS = '170 kB';
 const ADMIN_INITIAL_JS = '220 kB';
 const INITIAL_CSS = '25 kB';
 const LAZY_CHUNK = '60 kB';

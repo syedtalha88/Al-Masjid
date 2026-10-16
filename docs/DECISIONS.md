@@ -329,6 +329,7 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 **Context:** PHASE_00 exit criteria set the musalli initial JS (shell, showcase excluded) at ≤ 120 KB gz. Measured 163.2 KB after T0.11: react-dom ≈ 43 %, router, i18n ≈ 29 KB (#38), Motion runtime + animation engine ≈ 23 KB (#43, #44 — kept under the owner's "quality over bundle size" rule). T0.13 adds the Sentry browser SDK.
 **Decision:** For **Phase 00 only**, the exit budget for `/` initial JS is **≤ 220 KB gz**; `pnpm size` enforces 220 KB until Phase 00 is DONE. From Phase 01 the 01 §9 budget (≤ 170 KB) applies again, so anything Phase 00 adds above 170 KB must be removed or deferred (lazy Sentry, ICU precompile F14, deferring non-shell code) before Phase 01 closes. All other 01 §9 budgets are unchanged.
 **Consequences:** F15 closed for Phase 00; follow-up F23 tracks the return to 170 KB in Phase 01.
+**Closed 16 Oct 2026 (F23):** `/` measures 165.4 KB gz after T1.1–T1.12; `pnpm size` enforces 170 KB again.
 
 ### #48 — Testing infrastructure (T0.12) — ACCEPTED (13 Oct 2026)
 **Decision:**
