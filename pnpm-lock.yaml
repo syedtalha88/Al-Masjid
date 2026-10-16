@@ -415,6 +415,9 @@ importers:
       '@asteasolutions/zod-to-openapi':
         specifier: 9.1.0
         version: 9.1.0(zod@4.6.5)
+      '@mc/db':
+        specifier: workspace:*
+        version: link:../db
       '@mc/shared':
         specifier: workspace:*
         version: link:../shared
