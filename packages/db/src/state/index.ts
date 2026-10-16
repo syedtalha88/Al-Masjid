@@ -39,3 +39,13 @@ export {
   mirrorVisibility,
   type NewMasjid,
 } from './masjids.ts';
+export {
+  acceptUndertaking,
+  type MasjidPatch,
+  readAdminPhone,
+  revokeAdminPasskeys,
+  revokeAdminSessions,
+  type SettingsPatch,
+  updateMasjid,
+  updateSettings,
+} from './super.ts';

@@ -77,6 +77,8 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'admin.add_to_masjid': ['role'],
   'admin.remove_from_masjid': [],
   'admin.invite': ['purpose'],
+  'admin.phone_view': [],
+  'admin.undertaking_accept': ['version'],
   'invite.consume': ['purpose'],
   'device.follow': [],
   'device.unfollow': [],

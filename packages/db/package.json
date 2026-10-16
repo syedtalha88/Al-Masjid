@@ -11,7 +11,8 @@
     "./migrate": "./src/migrate/index.ts",
     "./migrations": "./migrations/index.ts",
     "./migrations/areas": "./migrations/areas.ts",
-    "./state": "./src/state/index.ts"
+    "./state": "./src/state/index.ts",
+    "./repos": "./src/repos/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
