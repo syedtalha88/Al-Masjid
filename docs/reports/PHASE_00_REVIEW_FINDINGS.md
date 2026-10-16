@@ -61,11 +61,11 @@ Security: the HIGH (H1) was fixed by DECISIONS #61; M1 is the owner's environmen
 | Id | Sev | Finding | Status |
 |---|---|---|---|
 | L1 | LOW | "Re-run" of an old `main` CI run re-signs the old commit with a fresh `created` → downgrade accepted | fixed (sign job: first attempt only, release must be main's tip; first real run after the push) |
-| L2 | LOW | Log gaps during deploy: worker/redis logs between archive and recreate; `up --remove-orphans` unarchived; `log-archive.sh` no lock, file-name collisions | open |
+| L2 | LOW | Log gaps during deploy: worker/redis logs between archive and recreate; `up --remove-orphans` unarchived; `log-archive.sh` no lock, file-name collisions | fixed (stop → archive → start for redis/worker, orphans archived, `flock`, unique names; deploy test) — host layer: owner reinstalls (O17) |
 | L3 | LOW | Cloudflare Browser Cache TTL overrides `no-cache` on `/boot.js`, `/sw.js` | owner (O10) |
 | L4 | LOW | Script injection by Cloudflare not detected (only inline scripts checked); NEL/Report-To headers | fixed (spec: same-origin `<script src>` only, no `cdn-cgi`/beacon); NEL/Report-To → DECISIONS #74 |
 | L5 | LOW | Proxied API responses expose `via: 1.1 Caddy` (= V-30) | fixed (Caddy `header_down -Via`; spec forbids `via`) |
-| L6 | LOW | `check.sh`: no live AOP probe, no log-archive freshness, no host-layer owner/mode/VERSION check; no `OnFailure=` alerts | open |
+| L6 | LOW | `check.sh`: no live AOP probe, no log-archive freshness, no host-layer owner/mode/VERSION check; no `OnFailure=` alerts | fixed (all four in `check.sh` + `mc-failure@` markers via `OnFailure=`; CI test with a real TLS server) — host layer: O17; push/email alerts with monitoring (Phase 9) |
 | L7 | LOW | ZAP gate passes with zero reports | fixed (one non-empty report per target required) |
 | L8 | LOW | Production environment: admins can bypass the required reviewer | owner (O6) |
 | L9 | LOW | `cloudflare-ips.sh` would accept very wide prefixes (e.g. 0.0.0.0/0) | fixed (IPv4 < /8, IPv6 < /20 refused; CI test) — host layer: owner reinstalls |

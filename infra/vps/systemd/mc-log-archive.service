@@ -2,7 +2,10 @@
 [Unit]
 Description=Masjid Connect: archive container logs
 After=docker.service
+OnFailure=mc-failure@%n.service
 
 [Service]
 Type=oneshot
 ExecStart=/usr/local/lib/masjid-connect/log-archive.sh
+# A success clears an earlier failure marker (re-review L6).
+ExecStartPost=/bin/rm -f /var/lib/masjid-connect/failures/%n

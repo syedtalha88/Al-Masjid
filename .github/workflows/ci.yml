@@ -123,6 +123,8 @@ jobs:
         run: docker run --rm -v "$PWD/infra/vps:/vps:ro" "$UBUNTU_IMAGE" bash /vps/test/check-certs.test.sh
       - name: cloudflare-ips.sh list validation (re-review L9)
         run: docker run --rm -v "$PWD/infra/vps:/vps:ro" "$UBUNTU_IMAGE" bash /vps/test/cloudflare-ips.test.sh
+      - name: VPS check.sh — failures, log-archive freshness, host layer, live origin lock (re-review L6)
+        run: docker run --rm -v "$PWD/infra/vps:/vps:ro" "$UBUNTU_IMAGE" bash /vps/test/check-ops.test.sh
       - name: Atlas users script against a mock Atlas API — roles, users, env files, no secrets in output (PHASE_01 T1.1)
         run: docker run --rm -v "$PWD/infra:/infra:ro" "$UBUNTU_IMAGE" bash /infra/vps/test/atlas-users.test.sh
       - name: Origin TLS — Caddy accepts only our origin-pull client certificate (DECISIONS #57)

@@ -185,9 +185,61 @@ done
 
 if [ -d "$LOG_ARCHIVE" ]; then
   if [ "$(stat -c '%a' "$LOG_ARCHIVE")" = "700" ]; then ok "log archive directory is 700"; else bad "log archive directory is 700"; fi
+  # The hourly timer must actually be producing archives (re-review L6): the newest one is less than 2 hours old.
+  if [ -n "$(find "$LOG_ARCHIVE" -name '*.log.gz.age' -mmin -120 -print -quit 2>/dev/null)" ]; then
+    ok "log archive is fresh (an archive from the last 2 hours)"
+  else
+    bad "log archive is fresh (an archive from the last 2 hours)"
+  fi
 else
   bad "log archive directory exists ($LOG_ARCHIVE)"
 fi
+
+# --- Silent failures, host layer, origin lock (re-review L6) --------------------------------------------------------
+FAILURES=${MC_FAILURES_DIR:-$STATE_ROOT/failures}
+failed_units=0
+for marker in "$FAILURES"/*; do
+  [ -e "$marker" ] || continue
+  failed_units=$((failed_units + 1))
+  bad "unit $(basename "$marker") failed at $(cat "$marker") and has not succeeded since"
+done
+[ "$failed_units" -gt 0 ] || ok "no recorded deploy / log-archive failures"
+
+HOST_LAYER=${MC_LIB_DIR:-/usr/local/lib/masjid-connect}
+if [ -d "$HOST_LAYER" ]; then
+  owner=$(stat -c '%U' "$HOST_LAYER")
+  writable=$(find "$HOST_LAYER" \( -perm -g+w -o -perm -o+w \) -print -quit 2>/dev/null)
+  if [ "$owner" = root ] && [ -z "$writable" ]; then
+    ok "host layer is root-owned and not group/world-writable"
+  else
+    bad "host layer is root-owned and not group/world-writable (owner $owner${writable:+, writable: $writable})"
+  fi
+  if [[ "$(cat "$HOST_LAYER/VERSION" 2>/dev/null)" =~ ^[0-9a-f]{40}$ ]]; then
+    ok "host layer VERSION $(cut -c1-12 "$HOST_LAYER/VERSION")"
+  else
+    bad "host layer VERSION records the reviewed commit"
+  fi
+else
+  bad "host layer installed ($HOST_LAYER)"
+fi
+
+# Authenticated Origin Pulls, live (04 §14): without Cloudflare's client certificate the origin must refuse the TLS
+# handshake. "Nothing listening" proves nothing, so only a TLS-level refusal passes.
+for env in staging production; do
+  [ -s "$STATE_ROOT/$env/releases.log" ] || continue
+  host=$(sed -n 's/^APP_HOST=//p' "$ENV_ROOT/$env/web.env" 2>/dev/null)
+  if [ -z "$host" ] || ! has curl; then
+    note "$env: origin lock not probed (APP_HOST or curl missing)"
+    continue
+  fi
+  curl -sk --max-time 10 --resolve "$host:443:127.0.0.1" -o /dev/null "https://$host/"
+  code=$?
+  case "$code" in
+    35 | 56 | 16 | 92) ok "$env: origin refuses TLS without the Cloudflare client certificate" ;;
+    0) bad "$env: origin answered without the Cloudflare client certificate" ;;
+    *) bad "$env: origin lock probe inconclusive (curl exit $code — is the edge router up?)" ;;
+  esac
+done
 
 echo "== $pass PASS · $fail FAIL · $warn WARN"
 [ "$fail" -eq 0 ]

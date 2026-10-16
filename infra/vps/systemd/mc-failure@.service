@@ -1,0 +1,8 @@
+# Records that a Masjid Connect unit failed (re-review L6): check.sh reports the marker until the unit succeeds again.
+# Instance = the failed unit name (OnFailure=mc-failure@%n.service). Real alerting arrives with monitoring (Phase 9).
+[Unit]
+Description=Masjid Connect: record failure of %i
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'install -d -m 700 /var/lib/masjid-connect/failures && date -u +%%Y-%%m-%%dT%%H:%%M:%%SZ >/var/lib/masjid-connect/failures/%i'

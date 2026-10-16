@@ -185,8 +185,12 @@ check "server-only release keeps the running web image" \
   '[ "$got" -eq 0 ] && [ "$(running)" = "$(rel 2)" ] && grep -q "WEB_IMAGE=$web compose .* up " "$STUB_CALLS"'
 check "rolling restart: 2 new api-public containers next to the 2 old ones, then the old ones stopped, archived, removed" \
   'grep -q -- "--scale api-public=4 api-public" "$STUB_CALLS" && [ "$(lines "$STUB_STATE/api-public")" -eq 2 ] && ! grep -qwF -e "${old_api%% *}" -e "${old_api##* }" "$STUB_STATE/api-public" && grep -q "stop -t 30 $old_api" "$STUB_CALLS" && grep -q "log-archive --container $old_api" "$STUB_CALLS"'
-run rel-3; got=$?
+echo "worker-old1" >"$STUB_STATE/worker"
+: >"$STUB_CALLS"; run rel-3; got=$?
 check "release 3 deploys" '[ "$got" -eq 0 ] && [ "$(running)" = "$(rel 3)" ]'
+order=$(grep -nE "stop -t 30 worker-old1|log-archive --container worker-old1|up -d --no-deps --wait --wait-timeout 120 worker" "$STUB_CALLS" | cut -d: -f1 | tr '\n' ' ')
+check "single containers: worker stopped, then archived, then replaced — no unarchived gap (re-review L2)" \
+  '[ "$(echo "$order" | wc -w)" -eq 3 ] && [ "$(echo "$order" | awk "{print (\$1 < \$2 && \$2 < \$3)}")" = 1 ]'
 : >"$STUB_CALLS"; run rel-3 --rollback; got=$?
 check "rollback returns to release 2 with the web image it ran with; 3 is skipped" \
   '[ "$got" -eq 0 ] && [ "$(running)" = "$(rel 2)" ] && grep -qx "$(rel 3)" "$state/rolled-back" && grep -q "WEB_IMAGE=$web compose .* up " "$STUB_CALLS"'

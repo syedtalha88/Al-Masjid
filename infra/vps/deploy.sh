@@ -139,14 +139,12 @@ main() {
 
   # Rolling replacement (PHASE_00 T0.14, 01 §8): stateless services get their new containers next to the old ones,
   # healthy first, then the old ones drain and go. Logs of every container are archived before it is removed (S-H3).
-  local singles
-  mapfile -t singles < <(compose ps -q redis worker 2>/dev/null || true)
-  archive_logs "${singles[@]}"
-  compose up -d --no-deps --wait --wait-timeout 120 redis || die "redis did not become healthy"
+  replace_single redis || die "redis did not become healthy"
   rolling api-public 2 || die "api-public: new containers unhealthy — old ones kept running"
   rolling api-admin 2 || die "api-admin: new containers unhealthy — old ones kept running"
-  compose up -d --no-deps --wait --wait-timeout 120 worker || die "worker did not become healthy — run: deploy.sh $ENVIRONMENT --rollback"
+  replace_single worker || die "worker did not become healthy — run: deploy.sh $ENVIRONMENT --rollback"
   rolling web 1 || die "web: new container unhealthy — old one kept running"
+  archive_orphans
   compose up -d --remove-orphans --wait --wait-timeout 120 || die "services did not converge — run: deploy.sh $ENVIRONMENT --rollback"
 
   # Smoke checks inside the project (the public port only accepts Cloudflare's client certificate).
@@ -183,6 +181,29 @@ archive_logs() {
   "$LIB_DIR/log-archive.sh" --container "$@" && return 0
   [ "$ENVIRONMENT" = production ] && die "log archive failed — refusing to remove containers (CERT-In)"
   log "WARNING: log archive failed for $* (archive key missing? PROGRESS O3)"
+}
+
+# Single-container services (redis, worker): stop the old container, archive its logs, then let compose start the new
+# one — stop first, so no log line falls between the archive and the replacement (re-review L2).
+replace_single() { # <service>
+  local svc=$1 old
+  mapfile -t old < <(compose ps -q "$svc" 2>/dev/null || true)
+  if [ "${#old[@]}" -gt 0 ]; then
+    docker stop -t 30 "${old[@]}" >/dev/null
+    archive_logs "${old[@]}"
+  fi
+  compose up -d --no-deps --wait --wait-timeout 120 "$svc"
+}
+
+# Containers of this project whose service is no longer in the compose file: `up --remove-orphans` deletes them, so
+# their logs are archived first (re-review L2).
+archive_orphans() {
+  local services orphans
+  services=" $(compose config --services 2>/dev/null | tr '\n' ' ') "
+  mapfile -t orphans < <(docker ps -a --filter "label=com.docker.compose.project=mc-$ENVIRONMENT" \
+    --format '{{.ID}} {{.Label "com.docker.compose.service"}}' 2>/dev/null |
+    awk -v keep="$services" 'NF == 2 && index(keep, " " $2 " ") == 0 { print $1 }')
+  archive_logs "${orphans[@]}"
 }
 
 # Waits until every given container is healthy (or running, without a healthcheck); fails on unhealthy/exited/timeout.
