@@ -71,6 +71,20 @@ rules:
       include: ['packages/api/**', 'apps/server/**']
       exclude: ['packages/api/src/http/define-route.ts', '**/test/**', '**/*.test.ts']
 
+  - id: mc-express-created-only-by-the-app-factory
+    message: >-
+      Express apps and routers are created only by the app factory (packages/api/src/app.ts); register routes with
+      defineRoute() (CLAUDE.md §6, Phase 00 re-review V-25 — a router under any name could register raw routes).
+    severity: ERROR
+    languages: [typescript]
+    pattern-either:
+      - pattern: express()
+      - pattern: express.Router(...)
+      - pattern: Router(...)
+    paths:
+      include: ['packages/api/**', 'apps/server/**']
+      exclude: ['packages/api/src/app.ts', '**/test/**', '**/*.test.ts']
+
   - id: mc-no-console-log
     message: Use the structured logger (CLAUDE.md §6); console.log is not allowed in shipped code.
     severity: ERROR

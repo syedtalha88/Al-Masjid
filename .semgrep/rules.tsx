@@ -28,6 +28,13 @@ router.get('/masjids', handler);
 // ok: mc-routes-only-via-define-route
 map.get('key');
 
+// ruleid: mc-express-created-only-by-the-app-factory
+const server = express();
+// ruleid: mc-express-created-only-by-the-app-factory
+const routes = express.Router();
+// ok: mc-express-created-only-by-the-app-factory
+const cache = new Map();
+
 // ruleid: mc-no-console-log
 console.log('debug');
 // ok: mc-no-console-log

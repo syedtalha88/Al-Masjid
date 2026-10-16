@@ -52,3 +52,35 @@ HIGH/MEDIUM is fixed; LOW findings are fixed or justified in `PHASE_00_REPORT.md
 | V-16 | `media-staging` DNS/route has no Caddy site until Phase 3 | fixed (documented in infra/cloudflare/README.md) |
 | V-17 | `make-env.sh` output not tested against the env schemas in CI | fixed 1aa7333 |
 | V-18 | Urdu showcase screenshot shows a black offline bar without text — check | fixed (screenshot artifact: capture beyond the viewport; banner hidden in captures; hidden offset now measured) |
+
+## Re-review (16 Oct 2026, `security-reviewer` + `phase-verifier`)
+
+Recorded here on 16 Oct 2026 (autopilot) from the review transcripts — the closure items of DECISIONS #62.
+Security: the HIGH (H1) was fixed by DECISIONS #61; M1 is the owner's environment setting.
+
+| Id | Sev | Finding | Status |
+|---|---|---|---|
+| L1 | LOW | "Re-run" of an old `main` CI run re-signs the old commit with a fresh `created` → downgrade accepted | open |
+| L2 | LOW | Log gaps during deploy: worker/redis logs between archive and recreate; `up --remove-orphans` unarchived; `log-archive.sh` no lock, file-name collisions | open |
+| L3 | LOW | Cloudflare Browser Cache TTL overrides `no-cache` on `/boot.js`, `/sw.js` | owner (O10) |
+| L4 | LOW | Script injection by Cloudflare not detected (only inline scripts checked); NEL/Report-To headers | open |
+| L5 | LOW | Proxied API responses expose `via: 1.1 Caddy` (= V-30) | open |
+| L6 | LOW | `check.sh`: no live AOP probe, no log-archive freshness, no host-layer owner/mode/VERSION check; no `OnFailure=` alerts | open |
+| L7 | LOW | ZAP gate passes with zero reports | open |
+| L8 | LOW | Production environment: admins can bypass the required reviewer | owner (O6) |
+| L9 | LOW | `cloudflare-ips.sh` would accept very wide prefixes (e.g. 0.0.0.0/0) | open |
+| V-6 | — | T0.10 visual comparison table with the reference images | open |
+| V-8 | LOW-MED | 01 §9 font budgets not enforced | open |
+| V-19 | MED | Offline banner black strip while online | fixed (owner check pending, O7) |
+| V-20 | MED | Nightly staging job never runs (variables) and would fail on `Server: cloudflare` | open + owner (O11) |
+| V-21 | MED | VPS → ap-south-1 latency not measured | owner (O9) |
+| V-22 | MED | Final `PHASE_00_REPORT.md` | open (last) |
+| V-23 | MED | Host layer + `check.sh` output for the report | fixed (owner ran it 16 Oct, 100 PASS) |
+| V-24 | LOW | Docker userns-remap WARN has no DECISIONS entry | open |
+| V-25 | LOW | Raw-route ban matches names only (`r.get`, `express.Router().get` pass) | fixed (type-aware rule + factory-only `express()`/`Router()`, ESLint + Semgrep) |
+| V-26 | MED | Deferral entries for F13/F18/F20/F22/F31; F-table cleanup | open |
+| V-27 | LOW | Stale docs (PROGRESS T0.14/O7/T0.15 lines, Cloudflare README §7 boxes, owner file path) | open |
+| V-28 | LOW | S-L7, S-L9, S-L13 still open | open |
+| V-29 | LOW | `pnpm dev` health through the Vite proxy has no automated check | open |
+| V-30 | LOW | `Via` header; `X-Robots-Tag` twice on admin API responses | open |
+| V-31 | MED | security-reviewer to re-run on the phase diff | open (with the phase close) |

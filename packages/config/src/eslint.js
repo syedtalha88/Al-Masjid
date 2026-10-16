@@ -193,6 +193,12 @@ export function createConfig({ tsconfigRootDir, typeAware = true }) {
       files: ['packages/api/src/http/define-route.ts'],
       rules: { 'mc/no-raw-routes': 'off' },
     },
+    {
+      // The app factory creates the Express apps and routers; tests build small apps around single helpers.
+      name: 'mc/api-app-factory',
+      files: ['packages/api/src/app.ts', 'packages/api/test/**', 'apps/server/test/**'],
+      rules: { 'mc/no-raw-routes': ['error', { allowCreate: true }] },
+    },
 
     // Import bans (CLAUDE.md §6 Structure). Later entries override earlier ones for their files.
     { name: 'mc/imports-default', rules: importRestrictions({ mongodb: false, systemScope: false, hookScope: false }) },

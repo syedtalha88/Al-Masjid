@@ -233,6 +233,25 @@ describe('mc/no-raw-routes', () => {
     ).toHaveLength(3);
   });
 
+  it('rejects creating apps/routers outside the app factory, and verbs chained on them (V-25)', async () => {
+    const code = [
+      "import express, { Router } from 'express';",
+      'export const a = express();',
+      'export const r = Router();',
+      "express.Router().get('/x', () => undefined);",
+      '',
+    ].join('\n');
+    const ids = (await ruleIds('packages/api/src/routes/x.ts', code)).filter((id) => id === 'mc/no-raw-routes');
+    expect(ids).toHaveLength(4); // express(), Router(), express.Router() and its .get(…)
+    const factory = [
+      "import express from 'express';",
+      'export const app = express();',
+      'export const r = express.Router();',
+      '',
+    ].join('\n');
+    expect(await ruleIds('packages/api/src/app.ts', factory)).not.toContain('mc/no-raw-routes');
+  });
+
   it("allows app.get('setting') and the defineRoute implementation", async () => {
     const read = "declare const app: { get(k: string): unknown };\nexport const proxy = app.get('trust proxy');\n";
     expect(await ruleIds('packages/api/src/app.ts', read)).not.toContain('mc/no-raw-routes');
