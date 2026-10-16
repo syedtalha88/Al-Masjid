@@ -39,6 +39,14 @@
 | 7 | **Turnstile widget** (Cloudflare → Turnstile → Add widget, hostname `app-staging.almasjids.com`, Managed) — send the **site key** only, keep the secret | 3 min | needed from Phase 2 |
 | 8 | **Super Admin passkey** on staging with my phone — Claude Code sends a private one-time link when the login screens are ready | 5 min | Phase 01 T1.9 |
 | 9 | **O6 last:** GitHub branch ruleset (0.15) + the failing-PR test (0.16) — after this, `main` changes only through pull requests | 15 min | at the very end of Phase 01 work |
+| 10 | **Push** the local commits (Claude Code did not push during the 16 Oct autopilot — you declined the push prompt) | 1 answer | A7 |
+| 11 | **Allow installing the passkey library** `@simplewebauthn/server` (O13) | 1 answer | Phase 01 T1.8 |
+| 12 | **Answer DECISIONS #70** — how the Super Admin bootstrap runs on the server (O14) | 1 answer | before item 8 |
+| 13 | **Cloudflare "Network Error Logging" switch** — turn off if it exists (O15) | 2 min | |
+| 14 | **Host-layer reinstall** after the push (O17) — Claude Code gives the sha + checksum; then `check.sh` output to Claude Code | 3 min | after item 10 |
+| 15 | **VPS backups** — check / enable the provider's backup feature; ask first if it costs money (O18) | 5 min | |
+| 16 | **Screen-reader check** (O19): TalkBack on the Poco F7, VoiceOver on the iPhone — steps in `docs/PROGRESS.md` → O19 | 5 min | |
+| — | **Low-end Android phone** (≈ ₹8,000) for the performance check (O16) | when available | Phase 2 |
 
 ---
 

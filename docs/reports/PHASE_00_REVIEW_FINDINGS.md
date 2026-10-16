@@ -40,7 +40,7 @@ HIGH/MEDIUM is fixed; LOW findings are fixed or justified in `PHASE_00_REPORT.md
 | V-4 | No post-deploy header check; ZAP can never fail (= S-L13) | fixed (nightly staging header check + ZAP medium+ gate) |
 | V-5 | Turbo `test` cache not invalidated by dependency changes (false green locally) | fixed (turbo test dependsOn ^typecheck) |
 | V-6 | T0.10 visual comparison with the reference images not documented | fixed (PHASE_00_REPORT §4.1 table, 11 components vs R1–R3; captures in `docs/reports/evidence/PHASE_00_T0.10_visual/`) |
-| V-7 | T0.9 screen-reader manual note missing | open |
+| V-7 | T0.9 screen-reader manual note missing | owner (O19 — TalkBack + VoiceOver pass on the two phones; focus order itself is asserted in `e2e/navigation/navigation.spec.ts`) |
 | V-8 | 01 §9 font budgets not enforced | fixed (fonts.spec.ts sums woff2 bytes per locale: first load en/ur ≤ 120 KB, hi/te ≤ 180 KB, Nastaliq ≤ 350 KB — staging: 48 / 169 / 172 KB + Nastaliq 239 KB) |
 | V-9 | DEPLOY.md: secret-change procedure, `--recreate`, AOP renewal, production signing key missing | fixed (DEPLOY.md §4–5, deploy.sh --restart) |
 | V-10 | `pnpm infra:check` is a stub | fixed |
