@@ -196,6 +196,66 @@
           "sessions"
         ]
       },
+      "AdminPasskeyList": {
+        "type": "object",
+        "properties": {
+          "passkeys": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deviceType": {
+                  "type": "string"
+                },
+                "backedUp": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "lastUsedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "label",
+                "deviceType",
+                "backedUp",
+                "createdAt"
+              ]
+            }
+          }
+        },
+        "required": [
+          "passkeys"
+        ]
+      },
+      "AdminAddDeviceInvite": {
+        "type": "object",
+        "properties": {
+          "inviteUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "inviteUrl",
+          "expiresAt"
+        ]
+      },
       "SuperDashboard": {
         "type": "object",
         "properties": {
@@ -871,6 +931,17 @@
             }
           }
         }
+      },
+      "delete": {
+        "summary": "Sign out on every device, this one included",
+        "tags": [
+          "auth"
+        ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
       }
     },
     "/api/admin/auth/sessions/{id}": {
@@ -926,6 +997,90 @@
         "responses": {
           "204": {
             "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/auth/passkeys": {
+      "get": {
+        "summary": "Own passkeys (labels and dates only)",
+        "tags": [
+          "auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPasskeyList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/passkeys/{id}": {
+      "patch": {
+        "summary": "Rename one of your passkeys",
+        "tags": [
+          "auth"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
+                  }
+                },
+                "required": [
+                  "label"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/auth/passkeys/invite": {
+      "post": {
+        "summary": "Link to add a passkey on another device (72 h, one use)",
+        "tags": [
+          "auth"
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAddDeviceInvite"
+                }
+              }
+            }
           }
         }
       }

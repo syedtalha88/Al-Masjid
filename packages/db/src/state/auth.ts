@@ -10,7 +10,7 @@ import { type DbHandle, type TxContext, withTransaction } from '../client.ts';
 import { StateError, writeAudit } from '../effects.ts';
 import type { Scope } from '../scope.ts';
 import { newId } from '../values.ts';
-import type { InvitePurpose } from './admins.ts';
+import { INVITE_TTL_MS, type InvitePurpose } from './admins.ts';
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -624,4 +624,115 @@ export async function listSessions(
     uaSummary: s.ua_summary,
     stepUpAt: s.step_up_at,
   }));
+}
+
+export interface PasskeyView {
+  readonly id: UUID;
+  readonly label: string;
+  readonly deviceType: string;
+  readonly backedUp: boolean;
+  readonly createdAt: Date;
+  readonly lastUsedAt: Date | undefined;
+}
+
+function requireSignedIn(scope: Scope): UUID {
+  if (scope.kind !== 'admin' && scope.kind !== 'super') throw new StateError('FORBIDDEN');
+  return scope.adminId;
+}
+
+/**
+ * The scope admin's own unrevoked passkeys (B13) — never key material or credential ids.
+ *
+ * @throws StateError FORBIDDEN (not an admin/super scope).
+ */
+export async function listPasskeys(handle: DbHandle, scope: Scope): Promise<readonly PasskeyView[]> {
+  const adminId = requireSignedIn(scope);
+  const db = await handle.db();
+  const docs = await db
+    .collection<
+      CredentialDoc & { label: string; device_type: string; backed_up: boolean; created_at: Date; last_used_at?: Date }
+    >('webauthn_credentials')
+    .find(
+      { admin_id: adminId, revoked_at: { $exists: false } },
+      { projection: { public_key: 0, credential_id: 0 }, sort: { created_at: 1 } },
+    )
+    .toArray();
+  return docs.map((d) => ({
+    id: d._id,
+    label: d.label,
+    deviceType: d.device_type,
+    backedUp: d.backed_up,
+    createdAt: d.created_at,
+    lastUsedAt: d.last_used_at,
+  }));
+}
+
+/**
+ * Renames one of the scope admin's own passkeys.
+ *
+ * @returns `false` when it is not theirs (or revoked) — callers answer 404, never revealing other admins' ids.
+ * @throws StateError FORBIDDEN (not an admin/super scope).
+ */
+export async function renamePasskey(
+  handle: DbHandle,
+  scope: Scope,
+  input: { passkeyId: UUID; label: string },
+): Promise<boolean> {
+  const adminId = requireSignedIn(scope);
+  const db = await handle.db();
+  const result = await db
+    .collection<{ _id: UUID; admin_id: UUID; label: string; revoked_at?: Date }>('webauthn_credentials')
+    .updateOne(
+      { _id: input.passkeyId, admin_id: adminId, revoked_at: { $exists: false } },
+      { $set: { label: input.label.slice(0, 60) } },
+    );
+  return result.matchedCount === 1;
+}
+
+/**
+ * "Add another device" (B13, T1.9): the signed-in admin opens an `add_device` invite for themselves — the link is
+ * opened on the new device, which registers a second passkey. Closes their previous open `add_device` invite.
+ *
+ * @returns when the invite expires.
+ * @throws StateError FORBIDDEN (not an admin/super scope), INVALID_TOKEN_HASH.
+ */
+export async function createAddDeviceInvite(
+  handle: DbHandle,
+  scope: Scope,
+  input: { tokenHash: Buffer; requestId?: string; now?: Date },
+): Promise<Date> {
+  const adminId = requireSignedIn(scope);
+  if (input.tokenHash.length !== 32) throw new StateError('INVALID_TOKEN_HASH');
+  return withTransaction(handle, scope, async (ctx) => {
+    const session = { session: ctx.session };
+    const now = input.now ?? new Date();
+    const invites = ctx.db.collection<IdDoc>('admin_invites');
+    await invites.updateMany(
+      { admin_id: adminId, purpose: 'add_device', open: true },
+      { $set: { open: false } },
+      session,
+    );
+    const expiresAt = new Date(now.getTime() + INVITE_TTL_MS);
+    await invites.insertOne(
+      {
+        _id: newId(),
+        admin_id: adminId,
+        purpose: 'add_device',
+        token_hash: binary(input.tokenHash),
+        expires_at: expiresAt,
+        open: true,
+        created_by: adminId,
+        created_at: now,
+      },
+      session,
+    );
+    await writeAudit(ctx, {
+      action: 'admin.invite',
+      targetType: 'admin',
+      targetId: adminId.toHexString(),
+      meta: { purpose: 'add_device' },
+      ...(input.requestId ? { requestId: input.requestId } : {}),
+    });
+    return expiresAt;
+  });
 }

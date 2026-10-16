@@ -1,11 +1,19 @@
 // api-admin auth endpoints that need no WebAuthn verification (03 §4, PHASE_01 T1.8): invite read, current admin,
 // own sessions, logout. Registration, login and step-up (SimpleWebAuthn) are added next to these.
 import { type DbHandle, idText, isId, parseId, publicScope, scoped } from '@mc/db';
-import { acceptUndertaking, listSessions, readInvite, revokeSessions } from '@mc/db/state';
+import {
+  acceptUndertaking,
+  createAddDeviceInvite,
+  listPasskeys,
+  listSessions,
+  readInvite,
+  renamePasskey,
+  revokeSessions,
+} from '@mc/db/state';
 import { z } from 'zod';
 
 import { clearCookie, SESSION_COOKIE } from '../auth/cookies.ts';
-import { hashToken } from '../crypto/field.ts';
+import { hashToken, newToken } from '../crypto/field.ts';
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
 import { ApiProblem } from '../http/problem.ts';
 
@@ -13,6 +21,8 @@ export interface AdminAuthDeps {
   readonly db: DbHandle;
   /** `SESSION_PEPPER` bytes. */
   readonly pepper: Buffer;
+  /** `ADMIN_ORIGIN` — "Add another device" links point there. */
+  readonly adminOrigin: string;
 }
 
 /** Invite and session tokens: 32 random bytes, base64url (43 characters). */
@@ -56,6 +66,21 @@ export const SessionList = z
   .meta({ id: 'AdminSessionList' });
 
 const Empty = z.object({}).meta({ id: 'Empty' });
+
+export const PasskeyList = z
+  .object({
+    passkeys: z.array(
+      z.object({
+        id: z.string(),
+        label: z.string(),
+        deviceType: z.string(),
+        backedUp: z.boolean(),
+        createdAt: z.iso.datetime(),
+        lastUsedAt: z.iso.datetime().optional(),
+      }),
+    ),
+  })
+  .meta({ id: 'AdminPasskeyList' });
 
 /** The auth routes of api-admin that do not verify passkeys. */
 export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
@@ -183,6 +208,87 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
           requestId,
         });
         return reply(204, {});
+      },
+    }),
+    defineRoute({
+      method: 'delete',
+      path: '/auth/sessions',
+      summary: 'Sign out on every device, this one included',
+      tags: ['auth'],
+      auth: 'session',
+      undertaking: 'exempt',
+      rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
+      responses: { 204: Empty },
+      handler: async ({ auth, clock, requestId, res, reply }) => {
+        await revokeSessions(deps.db, auth.scope, { reason: 'logout', now: clock.now(), requestId });
+        clearCookie(res, SESSION_COOKIE);
+        return reply(204, {});
+      },
+    }),
+    defineRoute({
+      method: 'get',
+      path: '/auth/passkeys',
+      summary: 'Own passkeys (labels and dates only)',
+      tags: ['auth'],
+      auth: 'session',
+      responses: { 200: PasskeyList },
+      handler: async ({ auth, reply }) => {
+        const passkeys = await listPasskeys(deps.db, auth.scope);
+        return reply(200, {
+          passkeys: passkeys.map((p) => ({
+            id: idText(p.id),
+            label: p.label,
+            deviceType: p.deviceType,
+            backedUp: p.backedUp,
+            createdAt: p.createdAt.toISOString(),
+            ...(p.lastUsedAt ? { lastUsedAt: p.lastUsedAt.toISOString() } : {}),
+          })),
+        });
+      },
+    }),
+    defineRoute({
+      method: 'patch',
+      path: '/auth/passkeys/:id',
+      summary: 'Rename one of your passkeys',
+      tags: ['auth'],
+      auth: 'session',
+      undertaking: 'exempt',
+      rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
+      request: {
+        params: z.object({ id: z.string().max(64) }),
+        body: z.object({ label: z.string().trim().min(1).max(60) }),
+      },
+      responses: { 204: Empty },
+      handler: async ({ auth, params, body, reply }) => {
+        const id = parseId(params.id);
+        if (!id || !(await renamePasskey(deps.db, auth.scope, { passkeyId: id, label: body.label }))) {
+          throw new ApiProblem(404, 'NOT_FOUND');
+        }
+        return reply(204, {});
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/auth/passkeys/invite',
+      summary: 'Link to add a passkey on another device (72 h, one use)',
+      tags: ['auth'],
+      auth: 'session',
+      undertaking: 'exempt',
+      rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
+      responses: {
+        201: z.object({ inviteUrl: z.url(), expiresAt: z.iso.datetime() }).meta({ id: 'AdminAddDeviceInvite' }),
+      },
+      handler: async ({ auth, clock, requestId, reply }) => {
+        const token = newToken();
+        const expiresAt = await createAddDeviceInvite(deps.db, auth.scope, {
+          tokenHash: hashToken(token, deps.pepper),
+          now: clock.now(),
+          requestId,
+        });
+        return reply(201, {
+          inviteUrl: `${new URL('/invite', deps.adminOrigin).toString()}#${token}`,
+          expiresAt: expiresAt.toISOString(),
+        });
       },
     }),
     defineRoute({

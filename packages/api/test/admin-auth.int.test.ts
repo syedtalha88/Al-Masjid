@@ -65,7 +65,7 @@ const app = () =>
     clock,
     rateLimiter: memoryRateLimiter(),
     authenticate: sessionAuthenticator({ db: h(), pepper, clock }),
-    routes: [...adminSessionRoutes({ db: h(), pepper }), probe('super'), probe('super_step_up')],
+    routes: [...adminSessionRoutes({ db: h(), pepper, adminOrigin: ORIGIN }), probe('super'), probe('super_step_up')],
   }).app;
 
 /** A masjid admin with an open invite (token returned in clear, as the invite link carries it). */
@@ -226,6 +226,44 @@ describe('session cookie authentication', () => {
       '__Host-mc_sess=; Max-Age=0; Path=/; Secure; HttpOnly; SameSite=Strict',
     ]);
     expect((await request(app()).get('/api/admin/auth/me').set('Cookie', s.cookie)).status).toBe(401);
+  });
+
+  it('passkeys: list, rename own (404 otherwise), add-device link; log out everywhere', async () => {
+    const s = await signedIn();
+    const other = await signedIn();
+    const list = await request(app()).get('/api/admin/auth/passkeys').set('Cookie', s.cookie);
+    const [passkey] = (list.body as { passkeys: { id: string; label: string }[] }).passkeys;
+    expect(passkey?.label).toBe('Test phone');
+    expect(JSON.stringify(list.body)).not.toMatch(/public|credential/i);
+    const renamed = await request(app())
+      .patch(`/api/admin/auth/passkeys/${String(passkey?.id)}`)
+      .set(CSRF)
+      .set('Cookie', s.cookie)
+      .send({ label: 'Redmi 12' });
+    expect(renamed.status).toBe(204);
+    const theirs = (
+      (await request(app()).get('/api/admin/auth/passkeys').set('Cookie', other.cookie)).body as {
+        passkeys: { id: string }[];
+      }
+    ).passkeys[0]?.id;
+    const cross = await request(app())
+      .patch(`/api/admin/auth/passkeys/${String(theirs)}`)
+      .set(CSRF)
+      .set('Cookie', s.cookie)
+      .send({ label: 'x' });
+    expect(cross.status).toBe(404);
+    const link = await request(app()).post('/api/admin/auth/passkeys/invite').set(CSRF).set('Cookie', s.cookie);
+    expect(link.status).toBe(201);
+    const token = new URL((link.body as { inviteUrl: string }).inviteUrl).hash.slice(1);
+    expect((await request(app()).get(`/api/admin/auth/invite/${token}`)).body).toMatchObject({ purpose: 'add_device' });
+
+    const all = await request(app()).delete('/api/admin/auth/sessions').set(CSRF).set('Cookie', s.cookie);
+    expect(all.status).toBe(204);
+    expect(all.headers['set-cookie']).toEqual([
+      '__Host-mc_sess=; Max-Age=0; Path=/; Secure; HttpOnly; SameSite=Strict',
+    ]);
+    expect((await request(app()).get('/api/admin/auth/me').set('Cookie', s.cookie)).status).toBe(401);
+    expect((await request(app()).get('/api/admin/auth/me').set('Cookie', other.cookie)).status).toBe(200);
   });
 
   it('super and step-up routes: masjid admins get 403 FORBIDDEN; a stale step-up gets STEP_UP_REQUIRED', async () => {

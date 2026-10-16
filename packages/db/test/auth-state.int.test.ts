@@ -17,6 +17,7 @@ import {
   addAdminToMasjid,
   completeAssertion,
   counterAdvances,
+  createAddDeviceInvite,
   createAdmin,
   createInvite,
   createMasjid,
@@ -25,11 +26,13 @@ import {
   INVITE_TTL_MS,
   type InvitePurpose,
   LAST_SEEN_THROTTLE_MS,
+  listPasskeys,
   listSessions,
   type NewCredential,
   readInvite,
   recordLoginFailure,
   registerCredential,
+  renamePasskey,
   resolveSession,
   revokeSessions,
   SESSION_LIFETIMES,
@@ -438,6 +441,38 @@ describe('sessions (04 §4)', () => {
     expect(await raw('audit_log').countDocuments({ action: 'auth.logout', actor_id: r.adminId })).toBe(1);
     expect(await code(revokeSessions(h(), publicScope(), { reason: 'logout' }))).toBe('FORBIDDEN');
     expect(await code(listSessions(h(), systemScope()))).toBe('FORBIDDEN');
+  });
+});
+
+describe('own passkeys and "Add another device" (B13)', () => {
+  it('lists only own unrevoked passkeys without key material; renames own only; self add_device invite', async () => {
+    const r = await registeredAdmin();
+    const me = adminScope({ adminId: r.adminId, masjids: [] });
+    const passkeys = await listPasskeys(h(), me);
+    expect(passkeys).toEqual([
+      expect.objectContaining({
+        id: r.credentialDocId,
+        label: 'Test phone',
+        deviceType: 'multiDevice',
+        backedUp: true,
+      }),
+    ]);
+    expect(JSON.stringify(passkeys)).not.toMatch(/public_key|credential_id/);
+    expect(await renamePasskey(h(), me, { passkeyId: r.credentialDocId, label: 'Redmi 12' })).toBe(true);
+    const other = await registeredAdmin();
+    expect(await renamePasskey(h(), me, { passkeyId: other.credentialDocId, label: 'mine now' })).toBe(false);
+    expect((await listPasskeys(h(), adminScope({ adminId: other.adminId, masjids: [] })))[0]?.label).toBe('Test phone');
+
+    const first = randomBytes(32);
+    const second = randomBytes(32);
+    await createAddDeviceInvite(h(), me, { tokenHash: first });
+    await createAddDeviceInvite(h(), me, { tokenHash: second });
+    expect(await readInvite(h(), publicScope(), { tokenHash: first })).toBeNull(); // superseded
+    const view = await readInvite(h(), publicScope(), { tokenHash: second });
+    expect(view).toMatchObject({ adminId: r.adminId, purpose: 'add_device' });
+    expect(view?.existingCredentials).toHaveLength(1);
+    expect(await code(createAddDeviceInvite(h(), publicScope(), { tokenHash: randomBytes(32) }))).toBe('FORBIDDEN');
+    expect(await code(listPasskeys(h(), publicScope()))).toBe('FORBIDDEN');
   });
 });
 
