@@ -22,9 +22,9 @@ HIGH/MEDIUM is fixed; LOW findings are fixed or justified in `PHASE_00_REPORT.md
 | S-L4 | LOW | `provision.sh` trusts unpinned `main` | fixed f0d8ed3 |
 | S-L5 | LOW | `env.ts`: `tls=false` passes the TLS check; other processes' Redis URLs not forbidden | fixed 1aa7333 |
 | S-L6 | LOW | Unknown `/assets/*` → `index.html` with `immutable` 1-year cache | fixed 0a3e5ec |
-| S-L7 | LOW | HAProxy logs at `notice` drop tcplog; no Caddy access log; no VPS backup of logs as 05 claims | open |
+| S-L7 | LOW | HAProxy logs at `notice` drop tcplog; no Caddy access log; no VPS backup of logs as 05 claims | fixed (HAProxy `info`) + justified (no Caddy access log — DECISIONS #74) + owner (VPS backups, O18) |
 | S-L8 | LOW | Containers can reach `169.254.169.254` | fixed f0d8ed3 |
-| S-L9 | LOW | Edge networks not `internal` (web has egress); HAProxy healthcheck only validates config | open |
+| S-L9 | LOW | Edge networks not `internal` (web has egress); HAProxy healthcheck only validates config | fixed (internal edge networks + ingress network; healthcheck checks the listener) — server step DEPLOY.md §8 (O17) |
 | S-L10 | LOW | Redis has no `maxmemory` under the 512m limit | fixed 0a3e5ec |
 | S-L11 | LOW | Client-supplied `X-Request-Id` accepted (log correlation spoofable) | fixed 0a3e5ec |
 | S-L12 | LOW | Node keep-alive 65 s < Caddy's 2 min idle → sporadic 502s | fixed 0a3e5ec |
@@ -80,7 +80,7 @@ Security: the HIGH (H1) was fixed by DECISIONS #61; M1 is the owner's environmen
 | V-25 | LOW | Raw-route ban matches names only (`r.get`, `express.Router().get` pass) | fixed (type-aware rule + factory-only `express()`/`Router()`, ESLint + Semgrep) |
 | V-26 | MED | Deferral entries for F13/F18/F20/F22/F31; F-table cleanup | fixed (DECISIONS #74; PROGRESS F-table updated) |
 | V-27 | LOW | Stale docs (PROGRESS T0.14/O7/T0.15 lines, Cloudflare README §7 boxes, owner file path) | open |
-| V-28 | LOW | S-L7, S-L9, S-L13 still open | open |
+| V-28 | LOW | S-L7, S-L9, S-L13 still open | fixed (all three resolved above) |
 | V-29 | LOW | `pnpm dev` health through the Vite proxy has no automated check | open |
 | V-30 | LOW | `Via` header; `X-Robots-Tag` twice on admin API responses | fixed (Caddy drops `Via` and the upstream robots header; spec checks both) |
 | V-31 | MED | security-reviewer to re-run on the phase diff | open (with the phase close) |

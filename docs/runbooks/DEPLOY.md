@@ -119,6 +119,22 @@ commit — a staging release always follows a green CI run on `main`).
 | Suspected leaked secret | Rotate it at the source (Atlas user, Redis ACL, Cloudinary key, …), update the env file, restart — then tell Claude Code to review logs |
 | Notifications must stop now | Stop the `worker` container (Phase 4 adds the "pause all push" switch) |
 
+## 8. One-time: internal edge networks (re-review S-L9, after the host-layer update of Oct 2026)
+
+The edge networks between the router and each environment's `web` container became `internal` (no internet route
+for `web`). Docker cannot change that on an existing network, so after `provision.sh host <sha>` run once, as root
+(staging is offline for about a minute):
+
+```bash
+cd /usr/local/lib/masjid-connect
+docker compose -p mc-edge -f edge/docker-compose.edge.yml down          # router off
+docker ps -q --filter network=mc-edge-staging | xargs -r docker stop     # web containers off the old network
+docker network rm mc-edge-staging mc-edge-production
+docker compose -p mc-edge -f edge/docker-compose.edge.yml up -d --wait   # router + new internal networks
+./deploy.sh staging --restart                                            # web rejoins; site back
+./check.sh                                                               # then send Claude Code the output
+```
+
 ## 7. First Super Admin (once per environment)
 
 The first Super Admin is created by a one-off command that prints a **one-time invite link** (72 h). Open it on your

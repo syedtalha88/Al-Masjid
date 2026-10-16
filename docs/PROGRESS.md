@@ -41,7 +41,8 @@
 | O14 | **Answer DECISIONS #70** — where the Super Admin bootstrap runs on servers (A: one-off api-admin container — recommended; B: dedicated bootstrap env; C: pepper in worker) | T1.9 server part, then O12 | 1 answer | pending |
 | O15 | **Cloudflare → look for a "Network Error Logging" switch** for the zone and turn it off if it exists (otherwise nothing to do — the privacy notice will name it) | Re-review L4 / DECISIONS #74 | 2 min | pending |
 | O16 | **A low-end Android test phone** (≈ ₹8,000 class, e.g. a 3–4 GB RAM model) for the real-device performance check | F20 / DECISIONS #74 — the Poco F7 is too fast to prove the budget | when available (Phase 2) | pending |
-| O17 | **Host-layer reinstall** after the next push: `provision.sh host <sha>` (Claude Code gives the sha + checksum) — brings the new `cloudflare-ips.sh` range check, the log-archive lock, the deploy log-gap fix, the new `check.sh` checks and the `mc-failure@` unit to the server; then run `check.sh` once and send the output | Re-review L9 | 3 min | after the push |
+| O17 | **Host-layer reinstall** after the next push: `provision.sh host <sha>` (Claude Code gives the sha + checksum) — brings the new `cloudflare-ips.sh` range check, the log-archive lock, the deploy log-gap fix, the new `check.sh` checks and the `mc-failure@` unit to the server; then the one-time edge network step in DEPLOY.md §8, then run `check.sh` once and send the output | Re-review L9 | 3 min | after the push |
+| O18 | **VPS provider backups**: check the VPS plan's backup/snapshot feature and enable it (05 §2 says the 200-day log archive is "included in VPS backups"; tell Claude Code if it costs money first) | Re-review S-L7 / 05 §2 | 5 min | pending |
 | O12 | **Super Admin passkey** on staging with the owner's phone (private one-time link from Claude Code) | Phase 01 T1.9 | 5 min | later (when T1.8–T1.10 are ready) |
 
 ## Current phase task checklist
