@@ -4,7 +4,7 @@ import './types.ts';
 
 export { applyDocumentLocale, persistLocaleMirror } from './document.ts';
 export { type DateStyle, DISPLAY_TIME_ZONE, type Formatters, formatters, type TimeParts } from './format.ts';
-export { createI18n, DEFAULT_NAMESPACE, type Namespace, NAMESPACES } from './i18n.ts';
+export { BASE_NAMESPACES, createI18n, DEFAULT_NAMESPACE, type Namespace, NAMESPACES } from './i18n.ts';
 export {
   DEFAULT_LOCALE,
   directionOf,

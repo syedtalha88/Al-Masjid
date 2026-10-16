@@ -1,0 +1,87 @@
+{
+  "login": {
+    "title": "Masjid Admin",
+    "lead": "Assalamu Alaikum. Log in with your phone’s screen lock.",
+    "button": "Log in",
+    "screenLockHint": "Your phone will ask for your screen lock (PIN, pattern, face or fingerprint).",
+    "trouble": "Having trouble? Contact the Masjid Connect team",
+    "failed": "Login didn’t work. Please try again.",
+    "cancelled": "Login was cancelled. Tap “Log in” to try again.",
+    "noScreenLock": "Your phone needs a screen lock to log in. Set one in your phone’s settings, then try again.",
+    "sessionEnded": "You were logged out. Please log in again."
+  },
+  "invite": {
+    "greeting": "Assalamu Alaikum, {name}",
+    "forMasjids": "{count, plural, one {Admin of this masjid:} other {Admin of these masjids:}}",
+    "chooseLanguage": "Choose your language",
+    "create": "Create my login",
+    "addDevice": "Add this phone",
+    "addDeviceLead": "This adds a login for this phone to your admin account.",
+    "recoveryLead": "Create a new login for your admin account. Your old phone will be logged out.",
+    "invalidTitle": "This invite link can’t be used",
+    "invalidBody": "It was already used or has expired. Ask the Masjid Connect team for a new link.",
+    "missingTitle": "Open your invite link",
+    "missingBody": "Open the link the Masjid Connect team sent you, on the phone you will use as admin.",
+    "done": "Your login is ready"
+  },
+  "undertaking": {
+    "title": "Before you start",
+    "lead": "Please read these points. They keep your masjid’s page trustworthy.",
+    "agree": "I have read and I agree",
+    "continue": "Continue",
+    "version": "Version {version}",
+    "outdated": "This text was updated. Please close and reopen the app to read the new version.",
+    "accepted": "You accepted version {version}"
+  },
+  "home": {
+    "title": "My Masjid",
+    "chooseMasjid": "Choose a masjid",
+    "switchMasjid": "Switch masjid",
+    "noMasjidTitle": "No masjid yet",
+    "noMasjidBody": "You are not an admin of any masjid yet. The Masjid Connect team will add you.",
+    "account": "My account",
+    "tiles": {
+      "prayerTimes": "Prayer Times",
+      "notice": "Notice",
+      "hadithAyah": "Hadith / Ayah",
+      "dua": "Dua Request",
+      "donation": "Donation Drive",
+      "chanda": "Chanda",
+      "video": "Bayan Video",
+      "specialDates": "Special Dates & Ramadan",
+      "myPosts": "My Posts",
+      "profile": "Masjid Profile"
+    },
+    "superAdmin": "Super Admin"
+  },
+  "comingSoon": {
+    "title": "Coming soon",
+    "body": "This part of the app is being built. It will appear here in an update."
+  },
+  "account": {
+    "title": "My account",
+    "language": "Language",
+    "sessions": "Logged-in devices",
+    "thisDevice": "This phone",
+    "unknownDevice": "Unknown device",
+    "lastUsed": "Last used {time}",
+    "signOutDevice": "Log out this device",
+    "signOut": "Log out",
+    "signOutAll": "Log out all devices",
+    "signOutAllConfirmTitle": "Log out everywhere?",
+    "signOutAllConfirmBody": "Every phone and computer logged in to your account will be logged out, this one too.",
+    "passkeys": "Logins",
+    "passkeysLead": "Each login is your screen lock on one phone.",
+    "passkeyAdded": "Added {date}",
+    "rename": "Rename",
+    "renameLabel": "Name",
+    "save": "Save",
+    "addDevice": "Add another phone",
+    "addDeviceLead": "Open this link on your other phone within 3 days. It works once.",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "shareWhatsApp": "Send on WhatsApp",
+    "whatsAppMessage": "My Masjid Connect admin login link: {url}",
+    "undertaking": "Admin undertaking"
+  }
+}

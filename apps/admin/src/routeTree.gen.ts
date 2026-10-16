@@ -10,11 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase'
+import { Route as SoonTileRouteImport } from './routes/soon.$tile'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DevShowcaseRoute = DevShowcaseRouteImport.update({
@@ -22,31 +29,44 @@ const DevShowcaseRoute = DevShowcaseRouteImport.update({
   path: '/_dev/showcase',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SoonTileRoute = SoonTileRouteImport.update({
+  id: '/soon/$tile',
+  path: '/soon/$tile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/_dev/showcase': typeof DevShowcaseRoute
+  '/soon/$tile': typeof SoonTileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/_dev/showcase': typeof DevShowcaseRoute
+  '/soon/$tile': typeof SoonTileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/_dev/showcase': typeof DevShowcaseRoute
+  '/soon/$tile': typeof SoonTileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/_dev/showcase'
+  fullPaths: '/' | '/account' | '/_dev/showcase' | '/soon/$tile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/_dev/showcase'
-  id: '__root__' | '/' | '/_dev/showcase'
+  to: '/' | '/account' | '/_dev/showcase' | '/soon/$tile'
+  id: '__root__' | '/' | '/account' | '/_dev/showcase' | '/soon/$tile'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
   DevShowcaseRoute: typeof DevShowcaseRoute
+  SoonTileRoute: typeof SoonTileRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,6 +78,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_dev/showcase': {
       id: '/_dev/showcase'
       path: '/_dev/showcase'
@@ -65,12 +92,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevShowcaseRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/soon/$tile': {
+      id: '/soon/$tile'
+      path: '/soon/$tile'
+      fullPath: '/soon/$tile'
+      preLoaderRoute: typeof SoonTileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
   DevShowcaseRoute: DevShowcaseRoute,
+  SoonTileRoute: SoonTileRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

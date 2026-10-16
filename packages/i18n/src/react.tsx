@@ -6,7 +6,7 @@ import { I18nextProvider, useTranslation } from 'react-i18next';
 
 import { applyDocumentLocale, persistLocaleMirror } from './document.ts';
 import { type Formatters, formatters } from './format.ts';
-import { createI18n } from './i18n.ts';
+import { createI18n, type Namespace } from './i18n.ts';
 import { DEFAULT_LOCALE, isLocale, type Locale } from './locales.ts';
 
 interface LocaleContextValue {
@@ -31,17 +31,19 @@ export interface I18nProviderProps {
   readonly fallback?: ReactNode;
   /** Pre-built instance (tests). */
   readonly instance?: I18n;
+  /** Namespaces to load before rendering (default: `common` + `errors`; the admin app adds `admin`). */
+  readonly namespaces?: readonly Namespace[];
 }
 
 /** Provides i18next + the locale switcher + memoized formatters to the app. */
-export function I18nProvider({ children, initialLocale, fallback = null, instance }: I18nProviderProps) {
+export function I18nProvider({ children, initialLocale, fallback = null, instance, namespaces }: I18nProviderProps) {
   const [i18n, setI18n] = useState<I18n | null>(instance ?? null);
   const [locale, setLocaleState] = useState<Locale>(() => initialLocale ?? initialDocumentLocale());
 
   useEffect(() => {
     if (i18n) return;
     let cancelled = false;
-    void createI18n(locale).then((created) => {
+    void createI18n(locale, namespaces).then((created) => {
       if (!cancelled) setI18n(created);
     });
     return () => {

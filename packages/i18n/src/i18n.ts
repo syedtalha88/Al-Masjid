@@ -4,8 +4,10 @@ import ICU from 'i18next-icu';
 import { DEFAULT_LOCALE, type Locale, LOCALES } from './locales.ts';
 
 /** Namespaces (09 §2). Feature namespaces are added with their features and loaded per route. */
-export const NAMESPACES = ['common', 'errors'] as const;
+export const NAMESPACES = ['common', 'errors', 'admin'] as const;
 export type Namespace = (typeof NAMESPACES)[number];
+/** Loaded up front by every app; feature namespaces (e.g. `admin`) are requested by the app that needs them. */
+export const BASE_NAMESPACES: readonly Namespace[] = ['common', 'errors'];
 export const DEFAULT_NAMESPACE: Namespace = 'common';
 
 /**
@@ -42,7 +44,7 @@ const lazyJsonBackend: BackendModule = {
  * @param namespaces - namespaces to load up front (others load on demand via `useTranslation(ns)`).
  * @returns the initialized instance (resolves after the initial namespaces are loaded).
  */
-export async function createI18n(locale: Locale, namespaces: readonly Namespace[] = NAMESPACES): Promise<I18n> {
+export async function createI18n(locale: Locale, namespaces: readonly Namespace[] = BASE_NAMESPACES): Promise<I18n> {
   const instance = i18next.createInstance();
   instance.use(ICU).use(lazyJsonBackend);
   await instance.init({

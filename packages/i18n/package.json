@@ -9,7 +9,8 @@
     "./locales": "./src/locales.ts",
     "./react": "./src/react.tsx",
     "./vite": "./src/vite-plugin.ts",
-    "./format": "./src/format.ts"
+    "./format": "./src/format.ts",
+    "./legal": "./src/legal.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

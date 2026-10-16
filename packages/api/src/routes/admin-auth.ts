@@ -10,6 +10,15 @@ import {
   renamePasskey,
   revokeSessions,
 } from '@mc/db/state';
+import {
+  adminMeSchema,
+  adminPasskeyListSchema,
+  adminSessionListSchema,
+  inviteInfoSchema,
+  inviteLinkSchema,
+  passkeyLabelSchema,
+  undertakingAcceptSchema,
+} from '@mc/shared/contracts';
 import { z } from 'zod';
 
 import { clearCookie, SESSION_COOKIE } from '../auth/cookies.ts';
@@ -27,60 +36,7 @@ export interface AdminAuthDeps {
 
 /** Invite and session tokens: 32 random bytes, base64url (43 characters). */
 const TOKEN = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
-const LOCALE = z.enum(['en', 'hi', 'ur', 'te']);
-
-export const InviteInfo = z
-  .object({
-    adminDisplayName: z.string(),
-    masjidNames: z.array(z.string()),
-    purpose: z.enum(['register', 'add_device', 'recovery']),
-    uiLocale: LOCALE,
-  })
-  .meta({ id: 'InviteInfo' });
-
-export const Me = z
-  .object({
-    admin: z.object({
-      id: z.string(),
-      displayName: z.string(),
-      role: z.enum(['super_admin', 'masjid_admin']),
-      uiLocale: LOCALE,
-    }),
-    masjids: z.array(z.object({ id: z.string(), name: z.string(), role: z.enum(['owner', 'editor']) })),
-    undertakingRequired: z.boolean(),
-  })
-  .meta({ id: 'AdminMe' });
-
-export const SessionList = z
-  .object({
-    sessions: z.array(
-      z.object({
-        id: z.string(),
-        current: z.boolean(),
-        createdAt: z.iso.datetime(),
-        lastSeenAt: z.iso.datetime(),
-        device: z.string().optional(),
-      }),
-    ),
-  })
-  .meta({ id: 'AdminSessionList' });
-
 const Empty = z.object({}).meta({ id: 'Empty' });
-
-export const PasskeyList = z
-  .object({
-    passkeys: z.array(
-      z.object({
-        id: z.string(),
-        label: z.string(),
-        deviceType: z.string(),
-        backedUp: z.boolean(),
-        createdAt: z.iso.datetime(),
-        lastUsedAt: z.iso.datetime().optional(),
-      }),
-    ),
-  })
-  .meta({ id: 'AdminPasskeyList' });
 
 /** The auth routes of api-admin that do not verify passkeys. */
 export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
@@ -93,7 +49,7 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
       auth: 'none',
       rateLimit: [{ bucket: 'adminLoginIp', key: 'ip' }],
       request: { params: z.object({ token: z.string() }) },
-      responses: { 200: InviteInfo },
+      responses: { 200: inviteInfoSchema },
       handler: async ({ params, clock, reply }) => {
         // Malformed tokens get the same 404 as unknown ones (no oracle on the format either).
         const token = TOKEN.safeParse(params.token);
@@ -118,7 +74,7 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
       summary: 'The signed-in admin, their masjids and whether the undertaking must be accepted',
       tags: ['auth'],
       auth: 'session',
-      responses: { 200: Me },
+      responses: { 200: adminMeSchema },
       handler: async ({ auth, reply }) => {
         const { session, scope } = auth;
         const db = await deps.db.db();
@@ -144,6 +100,7 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
             role: m.role,
           })),
           undertakingRequired: session.role === 'masjid_admin' && !session.undertakingCurrent,
+          ...(session.undertakingVersion ? { undertakingVersion: session.undertakingVersion } : {}),
         });
       },
     }),
@@ -153,7 +110,7 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
       summary: 'Own live sessions',
       tags: ['auth'],
       auth: 'session',
-      responses: { 200: SessionList },
+      responses: { 200: adminSessionListSchema },
       handler: async ({ auth, clock, reply }) => {
         const sessions = await listSessions(deps.db, auth.scope, clock.now());
         return reply(200, {
@@ -199,7 +156,7 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
       auth: 'session',
       undertaking: 'exempt',
       rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
-      request: { body: z.object({ version: z.string().min(1).max(20) }) },
+      request: { body: undertakingAcceptSchema },
       responses: { 204: Empty },
       handler: async ({ auth, body, clock, requestId, reply }) => {
         await acceptUndertaking(deps.db, auth.scope, {
@@ -231,7 +188,7 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
       summary: 'Own passkeys (labels and dates only)',
       tags: ['auth'],
       auth: 'session',
-      responses: { 200: PasskeyList },
+      responses: { 200: adminPasskeyListSchema },
       handler: async ({ auth, reply }) => {
         const passkeys = await listPasskeys(deps.db, auth.scope);
         return reply(200, {
@@ -256,7 +213,7 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
       rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
       request: {
         params: z.object({ id: z.string().max(64) }),
-        body: z.object({ label: z.string().trim().min(1).max(60) }),
+        body: passkeyLabelSchema,
       },
       responses: { 204: Empty },
       handler: async ({ auth, params, body, reply }) => {
@@ -276,7 +233,7 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
       undertaking: 'exempt',
       rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
       responses: {
-        201: z.object({ inviteUrl: z.url(), expiresAt: z.iso.datetime() }).meta({ id: 'AdminAddDeviceInvite' }),
+        201: inviteLinkSchema,
       },
       handler: async ({ auth, clock, requestId, reply }) => {
         const token = newToken();

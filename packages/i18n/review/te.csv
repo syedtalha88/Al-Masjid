@@ -1,4 +1,75 @@
 namespace,key,en,draft,reviewed
+admin,login.title,Masjid Admin,మస్జిద్ అడ్మిన్,no
+admin,login.lead,Assalamu Alaikum. Log in with your phone’s screen lock.,అస్సలాము అలైకుమ్. మీ ఫోన్ స్క్రీన్ లాక్‌తో లాగిన్ అవ్వండి.,no
+admin,login.button,Log in,లాగిన్,no
+admin,login.screenLockHint,"Your phone will ask for your screen lock (PIN, pattern, face or fingerprint).","మీ ఫోన్ మీ స్క్రీన్ లాక్ (పిన్, ప్యాటర్న్, ముఖం లేదా వేలిముద్ర) అడుగుతుంది.",no
+admin,login.trouble,Having trouble? Contact the Masjid Connect team,ఏదైనా సమస్యా? మస్జిద్ కనెక్ట్ టీమ్‌ను సంప్రదించండి,no
+admin,login.failed,Login didn’t work. Please try again.,లాగిన్ కాలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+admin,login.cancelled,Login was cancelled. Tap “Log in” to try again.,లాగిన్ రద్దయింది. మళ్లీ ప్రయత్నించడానికి “లాగిన్” నొక్కండి.,no
+admin,login.noScreenLock,"Your phone needs a screen lock to log in. Set one in your phone’s settings, then try again.","లాగిన్ అవ్వడానికి మీ ఫోన్‌కు స్క్రీన్ లాక్ ఉండాలి. ఫోన్ సెట్టింగ్స్‌లో లాక్ పెట్టి, మళ్లీ ప్రయత్నించండి.",no
+admin,login.sessionEnded,You were logged out. Please log in again.,మీరు లాగౌట్ అయ్యారు. దయచేసి మళ్లీ లాగిన్ అవ్వండి.,no
+admin,invite.greeting,"Assalamu Alaikum, {name}","అస్సలాము అలైకుమ్, {name}",no
+admin,invite.forMasjids,"{count, plural, one {Admin of this masjid:} other {Admin of these masjids:}}","{count, plural, one {ఈ మస్జిద్ అడ్మిన్:} other {ఈ మస్జిద్‌ల అడ్మిన్:}}",no
+admin,invite.chooseLanguage,Choose your language,మీ భాషను ఎంచుకోండి,no
+admin,invite.create,Create my login,నా లాగిన్ సృష్టించండి,no
+admin,invite.addDevice,Add this phone,ఈ ఫోన్‌ను జోడించండి,no
+admin,invite.addDeviceLead,This adds a login for this phone to your admin account.,దీనితో మీ అడ్మిన్ ఖాతాకు ఈ ఫోన్ లాగిన్ జోడించబడుతుంది.,no
+admin,invite.recoveryLead,Create a new login for your admin account. Your old phone will be logged out.,మీ అడ్మిన్ ఖాతాకు కొత్త లాగిన్ సృష్టించండి. పాత ఫోన్ లాగౌట్ అవుతుంది.,no
+admin,invite.invalidTitle,This invite link can’t be used,ఈ ఆహ్వాన లింక్ ఉపయోగించలేరు,no
+admin,invite.invalidBody,It was already used or has expired. Ask the Masjid Connect team for a new link.,ఇది ఇప్పటికే ఉపయోగించబడింది లేదా గడువు ముగిసింది. మస్జిద్ కనెక్ట్ టీమ్‌ను కొత్త లింక్ అడగండి.,no
+admin,invite.missingTitle,Open your invite link,మీ ఆహ్వాన లింక్‌ను తెరవండి,no
+admin,invite.missingBody,"Open the link the Masjid Connect team sent you, on the phone you will use as admin.",మస్జిద్ కనెక్ట్ టీమ్ పంపిన లింక్‌ను మీరు అడ్మిన్‌గా ఉపయోగించే ఫోన్‌లోనే తెరవండి.,no
+admin,invite.done,Your login is ready,మీ లాగిన్ సిద్ధంగా ఉంది,no
+admin,undertaking.title,Before you start,మొదలుపెట్టే ముందు,no
+admin,undertaking.lead,Please read these points. They keep your masjid’s page trustworthy.,దయచేసి ఈ విషయాలు చదవండి. ఇవి మీ మస్జిద్ పేజీని నమ్మదగినదిగా ఉంచుతాయి.,no
+admin,undertaking.agree,I have read and I agree,"నేను చదివాను, అంగీకరిస్తున్నాను",no
+admin,undertaking.continue,Continue,కొనసాగించండి,no
+admin,undertaking.version,Version {version},వెర్షన్ {version},no
+admin,undertaking.outdated,This text was updated. Please close and reopen the app to read the new version.,ఈ వచనం మారింది. కొత్త వెర్షన్ చదవడానికి యాప్‌ను మూసి మళ్లీ తెరవండి.,no
+admin,undertaking.accepted,You accepted version {version},మీరు వెర్షన్ {version} అంగీకరించారు,no
+admin,home.title,My Masjid,నా మస్జిద్,no
+admin,home.chooseMasjid,Choose a masjid,మస్జిద్ ఎంచుకోండి,no
+admin,home.switchMasjid,Switch masjid,మస్జిద్ మార్చండి,no
+admin,home.noMasjidTitle,No masjid yet,ఇంకా మస్జిద్ లేదు,no
+admin,home.noMasjidBody,You are not an admin of any masjid yet. The Masjid Connect team will add you.,మీరు ఇంకా ఏ మస్జిద్‌కూ అడ్మిన్ కాదు. మస్జిద్ కనెక్ట్ టీమ్ మిమ్మల్ని జోడిస్తుంది.,no
+admin,home.account,My account,నా ఖాతా,no
+admin,home.tiles.prayerTimes,Prayer Times,నమాజ్ సమయాలు,no
+admin,home.tiles.notice,Notice,ప్రకటన,no
+admin,home.tiles.hadithAyah,Hadith / Ayah,హదీస్ / ఆయత్,no
+admin,home.tiles.dua,Dua Request,దువా అభ్యర్థన,no
+admin,home.tiles.donation,Donation Drive,విరాళ సేకరణ,no
+admin,home.tiles.chanda,Chanda,చందా,no
+admin,home.tiles.video,Bayan Video,బయాన్ వీడియో,no
+admin,home.tiles.specialDates,Special Dates & Ramadan,ప్రత్యేక తేదీలు & రమజాన్,no
+admin,home.tiles.myPosts,My Posts,నా పోస్ట్‌లు,no
+admin,home.tiles.profile,Masjid Profile,మస్జిద్ ప్రొఫైల్,no
+admin,home.superAdmin,Super Admin,సూపర్ అడ్మిన్,no
+admin,comingSoon.title,Coming soon,త్వరలో వస్తోంది,no
+admin,comingSoon.body,This part of the app is being built. It will appear here in an update.,యాప్‌లో ఈ భాగం తయారవుతోంది. ఇది ఒక అప్‌డేట్‌లో ఇక్కడ కనిపిస్తుంది.,no
+admin,account.title,My account,నా ఖాతా,no
+admin,account.language,Language,భాష,no
+admin,account.sessions,Logged-in devices,లాగిన్ అయిన పరికరాలు,no
+admin,account.thisDevice,This phone,ఈ ఫోన్,no
+admin,account.unknownDevice,Unknown device,తెలియని పరికరం,no
+admin,account.lastUsed,Last used {time},చివరిసారి {time},no
+admin,account.signOutDevice,Log out this device,ఈ పరికరం నుండి లాగౌట్ అవ్వండి,no
+admin,account.signOut,Log out,లాగౌట్,no
+admin,account.signOutAll,Log out all devices,అన్ని పరికరాల నుండి లాగౌట్,no
+admin,account.signOutAllConfirmTitle,Log out everywhere?,అన్ని చోట్ల నుండి లాగౌట్ అవ్వాలా?,no
+admin,account.signOutAllConfirmBody,"Every phone and computer logged in to your account will be logged out, this one too.","మీ ఖాతాలో లాగిన్ అయిన ప్రతి ఫోన్, కంప్యూటర్ లాగౌట్ అవుతుంది, ఇదీ కూడా.",no
+admin,account.passkeys,Logins,లాగిన్‌లు,no
+admin,account.passkeysLead,Each login is your screen lock on one phone.,ప్రతి లాగిన్ ఒక ఫోన్‌లో మీ స్క్రీన్ లాక్.,no
+admin,account.passkeyAdded,Added {date},జోడించింది {date},no
+admin,account.rename,Rename,పేరు మార్చండి,no
+admin,account.renameLabel,Name,పేరు,no
+admin,account.save,Save,సేవ్ చేయండి,no
+admin,account.addDevice,Add another phone,మరో ఫోన్ జోడించండి,no
+admin,account.addDeviceLead,Open this link on your other phone within 3 days. It works once.,ఈ లింక్‌ను 3 రోజుల్లో మీ మరో ఫోన్‌లో తెరవండి. ఇది ఒక్కసారే పనిచేస్తుంది.,no
+admin,account.copyLink,Copy link,లింక్ కాపీ చేయండి,no
+admin,account.linkCopied,Link copied,లింక్ కాపీ అయింది,no
+admin,account.shareWhatsApp,Send on WhatsApp,వాట్సాప్‌లో పంపండి,no
+admin,account.whatsAppMessage,My Masjid Connect admin login link: {url},నా మస్జిద్ కనెక్ట్ అడ్మిన్ లాగిన్ లింక్: {url},no
+admin,account.undertaking,Admin undertaking,అడ్మిన్ హామీ పత్రం,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no

@@ -1,4 +1,75 @@
 namespace,key,en,draft,reviewed
+admin,login.title,Masjid Admin,مسجد ایڈمن,no
+admin,login.lead,Assalamu Alaikum. Log in with your phone’s screen lock.,السلام علیکم۔ اپنے فون کے اسکرین لاک سے لاگ اِن کریں۔,no
+admin,login.button,Log in,لاگ اِن,no
+admin,login.screenLockHint,"Your phone will ask for your screen lock (PIN, pattern, face or fingerprint).",آپ کا فون آپ سے اسکرین لاک (پن، پیٹرن، چہرہ یا فنگر پرنٹ) مانگے گا۔,no
+admin,login.trouble,Having trouble? Contact the Masjid Connect team,کوئی مسئلہ؟ مسجد کنیکٹ ٹیم سے رابطہ کریں,no
+admin,login.failed,Login didn’t work. Please try again.,لاگ اِن نہیں ہو سکا۔ براہِ کرم دوبارہ کوشش کریں۔,no
+admin,login.cancelled,Login was cancelled. Tap “Log in” to try again.,لاگ اِن منسوخ ہو گیا۔ دوبارہ کوشش کے لیے “لاگ اِن” دبائیں۔,no
+admin,login.noScreenLock,"Your phone needs a screen lock to log in. Set one in your phone’s settings, then try again.",لاگ اِن کے لیے آپ کے فون میں اسکرین لاک ہونا ضروری ہے۔ فون کی سیٹنگز میں لاک لگائیں، پھر کوشش کریں۔,no
+admin,login.sessionEnded,You were logged out. Please log in again.,آپ لاگ آؤٹ ہو گئے۔ براہِ کرم دوبارہ لاگ اِن کریں۔,no
+admin,invite.greeting,"Assalamu Alaikum, {name}",السلام علیکم، {name},no
+admin,invite.forMasjids,"{count, plural, one {Admin of this masjid:} other {Admin of these masjids:}}","{count, plural, one {اس مسجد کے ایڈمن:} other {ان مساجد کے ایڈمن:}}",no
+admin,invite.chooseLanguage,Choose your language,اپنی زبان منتخب کریں,no
+admin,invite.create,Create my login,میرا لاگ اِن بنائیں,no
+admin,invite.addDevice,Add this phone,یہ فون شامل کریں,no
+admin,invite.addDeviceLead,This adds a login for this phone to your admin account.,اس سے آپ کے ایڈمن اکاؤنٹ میں اس فون کا لاگ اِن شامل ہو جائے گا۔,no
+admin,invite.recoveryLead,Create a new login for your admin account. Your old phone will be logged out.,اپنے ایڈمن اکاؤنٹ کے لیے نیا لاگ اِن بنائیں۔ پرانا فون لاگ آؤٹ ہو جائے گا۔,no
+admin,invite.invalidTitle,This invite link can’t be used,یہ دعوتی لنک استعمال نہیں ہو سکتا,no
+admin,invite.invalidBody,It was already used or has expired. Ask the Masjid Connect team for a new link.,یہ پہلے ہی استعمال ہو چکا ہے یا پرانا ہو گیا ہے۔ مسجد کنیکٹ ٹیم سے نیا لنک مانگیں۔,no
+admin,invite.missingTitle,Open your invite link,اپنا دعوتی لنک کھولیں,no
+admin,invite.missingBody,"Open the link the Masjid Connect team sent you, on the phone you will use as admin.",مسجد کنیکٹ ٹیم کا بھیجا ہوا لنک اسی فون پر کھولیں جسے آپ ایڈمن کے لیے استعمال کریں گے۔,no
+admin,invite.done,Your login is ready,آپ کا لاگ اِن تیار ہے,no
+admin,undertaking.title,Before you start,شروع کرنے سے پہلے,no
+admin,undertaking.lead,Please read these points. They keep your masjid’s page trustworthy.,براہِ کرم یہ باتیں پڑھیں۔ ان سے آپ کی مسجد کا صفحہ قابلِ بھروسہ رہتا ہے۔,no
+admin,undertaking.agree,I have read and I agree,میں نے پڑھ لیا ہے اور میں متفق ہوں,no
+admin,undertaking.continue,Continue,آگے بڑھیں,no
+admin,undertaking.version,Version {version},ورژن {version},no
+admin,undertaking.outdated,This text was updated. Please close and reopen the app to read the new version.,یہ متن تبدیل ہو گیا ہے۔ نیا ورژن پڑھنے کے لیے ایپ بند کر کے دوبارہ کھولیں۔,no
+admin,undertaking.accepted,You accepted version {version},آپ نے ورژن {version} قبول کیا,no
+admin,home.title,My Masjid,میری مسجد,no
+admin,home.chooseMasjid,Choose a masjid,مسجد منتخب کریں,no
+admin,home.switchMasjid,Switch masjid,مسجد بدلیں,no
+admin,home.noMasjidTitle,No masjid yet,ابھی کوئی مسجد نہیں,no
+admin,home.noMasjidBody,You are not an admin of any masjid yet. The Masjid Connect team will add you.,آپ ابھی کسی مسجد کے ایڈمن نہیں ہیں۔ مسجد کنیکٹ ٹیم آپ کو شامل کرے گی۔,no
+admin,home.account,My account,میرا اکاؤنٹ,no
+admin,home.tiles.prayerTimes,Prayer Times,نماز کے اوقات,no
+admin,home.tiles.notice,Notice,اعلان,no
+admin,home.tiles.hadithAyah,Hadith / Ayah,حدیث / آیت,no
+admin,home.tiles.dua,Dua Request,دعا کی درخواست,no
+admin,home.tiles.donation,Donation Drive,چندہ مہم,no
+admin,home.tiles.chanda,Chanda,چندہ,no
+admin,home.tiles.video,Bayan Video,بیان ویڈیو,no
+admin,home.tiles.specialDates,Special Dates & Ramadan,خاص تاریخیں اور رمضان,no
+admin,home.tiles.myPosts,My Posts,میری پوسٹس,no
+admin,home.tiles.profile,Masjid Profile,مسجد پروفائل,no
+admin,home.superAdmin,Super Admin,سپر ایڈمن,no
+admin,comingSoon.title,Coming soon,جلد آ رہا ہے,no
+admin,comingSoon.body,This part of the app is being built. It will appear here in an update.,ایپ کا یہ حصہ بن رہا ہے۔ یہ اگلی اپڈیٹ میں یہاں نظر آئے گا۔,no
+admin,account.title,My account,میرا اکاؤنٹ,no
+admin,account.language,Language,زبان,no
+admin,account.sessions,Logged-in devices,لاگ اِن ڈیوائسز,no
+admin,account.thisDevice,This phone,یہ فون,no
+admin,account.unknownDevice,Unknown device,نامعلوم ڈیوائس,no
+admin,account.lastUsed,Last used {time},آخری بار {time},no
+admin,account.signOutDevice,Log out this device,اس ڈیوائس سے لاگ آؤٹ کریں,no
+admin,account.signOut,Log out,لاگ آؤٹ,no
+admin,account.signOutAll,Log out all devices,تمام ڈیوائسز سے لاگ آؤٹ کریں,no
+admin,account.signOutAllConfirmTitle,Log out everywhere?,ہر جگہ سے لاگ آؤٹ کریں؟,no
+admin,account.signOutAllConfirmBody,"Every phone and computer logged in to your account will be logged out, this one too.",آپ کے اکاؤنٹ میں لاگ اِن ہر فون اور کمپیوٹر لاگ آؤٹ ہو جائے گا، یہ بھی۔,no
+admin,account.passkeys,Logins,لاگ اِن,no
+admin,account.passkeysLead,Each login is your screen lock on one phone.,ہر لاگ اِن کسی ایک فون پر آپ کا اسکرین لاک ہے۔,no
+admin,account.passkeyAdded,Added {date},شامل کیا گیا {date},no
+admin,account.rename,Rename,نام بدلیں,no
+admin,account.renameLabel,Name,نام,no
+admin,account.save,Save,محفوظ کریں,no
+admin,account.addDevice,Add another phone,دوسرا فون شامل کریں,no
+admin,account.addDeviceLead,Open this link on your other phone within 3 days. It works once.,یہ لنک 3 دن کے اندر اپنے دوسرے فون پر کھولیں۔ یہ صرف ایک بار کام کرتا ہے۔,no
+admin,account.copyLink,Copy link,لنک کاپی کریں,no
+admin,account.linkCopied,Link copied,لنک کاپی ہو گیا,no
+admin,account.shareWhatsApp,Send on WhatsApp,واٹس ایپ پر بھیجیں,no
+admin,account.whatsAppMessage,My Masjid Connect admin login link: {url},میرا مسجد کنیکٹ ایڈمن لاگ اِن لنک: {url},no
+admin,account.undertaking,Admin undertaking,ایڈمن عہد نامہ,no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no

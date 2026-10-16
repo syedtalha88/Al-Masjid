@@ -149,6 +149,9 @@
           },
           "undertakingRequired": {
             "type": "boolean"
+          },
+          "undertakingVersion": {
+            "type": "string"
           }
         },
         "required": [
@@ -239,7 +242,7 @@
           "passkeys"
         ]
       },
-      "AdminAddDeviceInvite": {
+      "InviteLink": {
         "type": "object",
         "properties": {
           "inviteUrl": {
@@ -1077,7 +1080,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AdminAddDeviceInvite"
+                  "$ref": "#/components/schemas/InviteLink"
                 }
               }
             }

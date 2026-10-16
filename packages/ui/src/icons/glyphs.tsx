@@ -261,3 +261,122 @@ export function CopyIcon(props: IconProps) {
     </IconFrame>
   );
 }
+
+/** Play button in a circle (bayan videos). */
+export function PlayCircleIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <circle cx="128" cy="128" r="96" />
+      <path d="M108 88v80l64-40Z" />
+    </IconFrame>
+  );
+}
+
+/** Bar chart (chanda). */
+export function ChartBarIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <path d="M32 216h192" />
+      <path d="M56 216v-72h40v72" />
+      <path d="M108 216V96h40v120" />
+      <path d="M160 216V48h40v168" />
+    </IconFrame>
+  );
+}
+
+/** Crescent moon (special dates & Ramadan). */
+export function CrescentIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <path d="M200 160A88 88 0 0 1 96 56a88 88 0 1 0 104 104Z" />
+    </IconFrame>
+  );
+}
+
+/** Bulleted list (my posts). */
+export function ListBulletsIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <path d="M96 64h120M96 128h120M96 192h120" />
+      <circle cx="52" cy="64" r="4" className="fill-current" />
+      <circle cx="52" cy="128" r="4" className="fill-current" />
+      <circle cx="52" cy="192" r="4" className="fill-current" />
+    </IconFrame>
+  );
+}
+
+/** Gear (masjid profile, settings). */
+export function GearIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <circle cx="128" cy="128" r="36" />
+      <path d="M128 24v28M128 204v28M24 128h28M204 128h28M54.5 54.5l19.8 19.8M181.7 181.7l19.8 19.8M54.5 201.5l19.8-19.8M181.7 74.3l19.8-19.8" />
+      <circle cx="128" cy="128" r="72" />
+    </IconFrame>
+  );
+}
+
+/** Fingerprint (passkeys / screen lock). */
+export function FingerprintIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <path d="M72 216a136 136 0 0 0 16-64 40 40 0 0 1 80 0 168 168 0 0 1-8 48" />
+      <path d="M128 152a216 216 0 0 1-24 96" />
+      <path d="M40 176a144 144 0 0 0 0-24 88 88 0 0 1 168-37" />
+      <path d="M216 152a259 259 0 0 1-4 40" />
+      <path d="M60 64a120 120 0 0 1 140 0" />
+    </IconFrame>
+  );
+}
+
+/** Sign out (door with arrow). */
+export function SignOutIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <path d="M112 40H48v176h64" />
+      <path d="M112 128h112M184 88l40 40-40 40" />
+    </IconFrame>
+  );
+}
+
+/** Mobile phone (devices, sessions). */
+export function DeviceMobileIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <rect x="64" y="24" width="128" height="208" rx="16" />
+      <path d="M64 56h128M64 200h128" />
+    </IconFrame>
+  );
+}
+
+/** Globe (language). */
+export function GlobeIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <circle cx="128" cy="128" r="96" />
+      <path d="M32 128h192" />
+      <path d="M128 32c-26 26-40 60-40 96s14 70 40 96c26-26 40-60 40-96s-14-70-40-96Z" />
+    </IconFrame>
+  );
+}
+
+/** Shield with check (undertaking, verified actions). */
+export function ShieldCheckIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <path d="M40 112V56a8 8 0 0 1 8-8h160a8 8 0 0 1 8 8v56c0 84-88 112-88 112S40 196 40 112Z" />
+      <path d="M88 136l24 24 56-56" />
+    </IconFrame>
+  );
+}
+
+/** Person in a circle (my account). */
+export function UserCircleIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <circle cx="128" cy="128" r="96" />
+      <circle cx="128" cy="112" r="36" />
+      <path d="M63.8 199.4a72 72 0 0 1 128.4 0" />
+    </IconFrame>
+  );
+}
