@@ -53,10 +53,11 @@ describe('navigator driver', () => {
     await expect(first).resolves.toBe(false);
     await expect(second).resolves.toBe(true);
     observer.disconnect();
-    // Continues from the interrupted position (first frame within one step of it), keeps its forward velocity briefly
-    // — how far depends on timer delays under CPU load, so no fixed margin — and never restarts from the old target.
+    // Continues from the interrupted position: it keeps its forward velocity briefly (how far depends on timer delays
+    // under CPU load, so no fixed margin), so the first frame is never behind the interrupt point (no jump back toward
+    // 0) and never at the old target (no restart from 100).
     expect(seen.length).toBeGreaterThan(0);
-    expect(Math.abs((seen[0] ?? Number.NaN) - atInterrupt)).toBeLessThan(15);
+    expect(seen[0] ?? Number.NaN).toBeGreaterThanOrEqual(atInterrupt - 1);
     expect(Math.max(...seen)).toBeLessThan(100);
     expect(seen.at(-1)).toBe(0);
     expect(element.hasAttribute('data-animating')).toBe(false);
