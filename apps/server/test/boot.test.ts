@@ -111,10 +111,16 @@ describe('entrypoints refuse to boot with a forbidden variable', () => {
 });
 
 describe('migrate entrypoint', () => {
-  it('validates its env and exits 0 (no migrations before Phase 1)', async () => {
-    const [, env] = cases[3] ?? ['', {}, ''];
-    const result = await runEntrypoint('src/migrate.ts', env);
-    expect(result.code).toBe(0);
-    expect(result.stdout).toContain('no migrations yet');
+  it('unreachable database: exit 1, error logged, connection string never printed (T1.2)', async () => {
+    const result = await runEntrypoint('src/migrate.ts', {
+      NODE_ENV: 'development',
+      APP_ENV: 'local',
+      MONGODB_DB_NAME: 'dev',
+      // Port 1 refuses connections at once; the password must not appear in any output.
+      MONGODB_URI_MIGRATOR: `mongodb://mc_migrator:${SECRET}@127.0.0.1:1/?serverSelectionTimeoutMS=1500`,
+    });
+    expect(result.code).toBe(1);
+    expect(result.stdout + result.stderr).toContain('migrations failed');
+    expect(result.stdout + result.stderr).not.toContain(SECRET);
   }, 30_000);
 });

@@ -385,6 +385,9 @@ importers:
       '@mc/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@mc/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@mc/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -516,6 +519,9 @@ importers:
       mongodb:
         specifier: 7.6.0
         version: 7.6.0
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
     devDependencies:
       '@mc/config':
         specifier: workspace:*

@@ -1,4 +1,4 @@
 {
   "extends": "@mc/config/tsconfig.node.json",
-  "include": ["vitest.config.ts", "src", "test"]
+  "include": ["vitest.config.ts", "src", "test", "migrations"]
 }

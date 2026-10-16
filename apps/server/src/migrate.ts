@@ -1,6 +1,9 @@
-// Entrypoint: one-off migration container. The migration runner arrives in Phase 1 (T1.x); until then
-// this only validates its env (so the deploy pipeline's migrate step is exercised) and exits.
+// Entrypoint: one-off migration container (`docker compose run --rm migrate`, PHASE_01 T1.2). Holds only the
+// migrator's credential (DECISIONS #7); applies pending migrations in order under the runner's lock, logs the ids, and
+// exits 0 — or 1 with the error (never the connection string) so a deploy stops before new code meets an old schema.
 import { createLogger } from '@mc/api';
+import { migrateDatabase } from '@mc/db/migrate';
+import { MIGRATIONS } from '@mc/db/migrations';
 
 import { bootEnv } from './lifecycle.ts';
 import { startServerSentry } from './sentry.ts';
@@ -13,5 +16,16 @@ const sentry = startServerSentry({
   environment: env.APP_ENV,
   process: 'migrate',
 });
-logger.info({ appEnv: env.APP_ENV }, 'no migrations yet — the migration runner is added in Phase 1');
-await sentry?.flush();
+
+try {
+  const { applied, skipped } = await migrateDatabase(env.MONGODB_URI_MIGRATOR, env.MONGODB_DB_NAME, MIGRATIONS);
+  logger.info({ appEnv: env.APP_ENV, applied, alreadyApplied: skipped.length }, 'migrations done');
+} catch (error) {
+  // The driver's messages name hosts, never credentials; still log only the class and message.
+  const message = error instanceof Error ? `${error.name}: ${error.message}` : 'unknown error';
+  logger.error({ appEnv: env.APP_ENV, error: message }, 'migrations failed');
+  sentry?.report(error);
+  process.exitCode = 1;
+} finally {
+  await sentry?.flush();
+}

@@ -476,6 +476,15 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **Privilege proof:** `packages/db/test/privileges.int.test.ts` connects as each user to a real MongoDB and checks every (user × collection × CRUD) cell plus view access (≈ 500 checks); capability checks (2) view without source privilege and (3) transactions pass locally. Staging verification uses `connectionStatus` (`showPrivileges`) + read-only probes — no writes to staging data — once the views exist (T1.2).
 - **Coverage gate for packages/db** (10 §2, 95 % lines) is enforced on the integration run (`test:int --coverage`: unit + integration tests), because almost all of this package needs MongoDB (`@mc/config/vitest` option `coverageRun: 'integration'`).
 
+### #64 — Schema DSL, frozen migration snapshots, drift check (PHASE_01 T1.2) — ACCEPTED (Claude Code, owner-authorised autopilot session, 16 Oct 2026)
+**Decision:**
+- **One definition per collection, two outputs:** `packages/db/src/schema/dsl.ts` field builders yield both the Zod schema (data layer) and the MongoDB `$jsonSchema` fragment, instead of deriving validators from Zod internals. They express what Zod cannot say about BSON: `long` (money in paise, versions), UUID `binData`, ObjectId, int vs double. Cross-field rules (items: exactly the detail object of the type; prayers: adhan/jamaat mode rules) are written once per side — validator `oneOf`/`allOf`, Zod `superRefine` — and both sides are tested with the same cases.
+- **Validators:** `validationLevel: strict`, `validationAction: error`, `additionalProperties: false` at every level; optional = absent (null rejected). Coordinates accept `double` or `int` (a whole degree serialises as int).
+- **Migrations:** one per area (0001–0005), views (0006), seed (0007). Schema migrations apply a **frozen snapshot** in canonical Extended JSON (`pnpm db:migration:snapshot <id>`, refuses to overwrite); the checksum is the snapshot's sha256, so an applied migration can never silently change — a schema change is a new migration. Runner: `_migrations` + expiring lock document, ordered, idempotent (`collMod` for existing collections/views, index replaced when its definition changed). Runs as `mc_migrator` (its 02 §4.3 privileges are sufficient — proven in tests).
+- **Drift:** `pnpm db:schema:check` compares validators (read with `promoteLongs: false` so int64 bounds compare exactly), validation level/action, indexes (including unexpected ones) and view pipelines with the current schema.
+- **Seed:** `app_settings` "global" is inserted once (`$setOnInsert`); the grievance officer and support contact are clearly marked placeholders ("NOT SET") until the Super Admin sets them in C10 (T1.11) — they must be real before launch (05 §2).
+- **Deploys:** the host-layer compose file gains a `migrate` service (profile, migrator credential only, outbound only); `deploy.sh` runs it before the rolling update — a failure leaves the running release untouched. Staging without `migrate.env` (Atlas users not set up yet) skips with a warning; production refuses.
+
 ## OPEN
 
 _None._

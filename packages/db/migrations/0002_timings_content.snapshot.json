@@ -1,0 +1,1574 @@
+{
+  "collections": [
+    {
+      "name": "masjid_timings",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "prayers", "jumuah", "masjid_visible", "rev", "updated_by", "updated_at"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "prayers": {
+            "bsonType": "object",
+            "required": ["fajr", "dhuhr", "asr", "maghrib", "isha"],
+            "additionalProperties": false,
+            "properties": {
+              "fajr": {
+                "bsonType": "object",
+                "required": ["adhan_mode", "adhan_adjust_min", "jamaat_mode"],
+                "additionalProperties": false,
+                "properties": {
+                  "adhan_mode": {
+                    "bsonType": "string",
+                    "enum": ["auto", "manual"]
+                  },
+                  "adhan_time": {
+                    "bsonType": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "adhan_adjust_min": {
+                    "bsonType": "int",
+                    "minimum": {
+                      "$numberInt": "-15"
+                    },
+                    "maximum": {
+                      "$numberInt": "15"
+                    }
+                  },
+                  "jamaat_mode": {
+                    "bsonType": "string",
+                    "enum": ["fixed", "offset", "none"]
+                  },
+                  "jamaat_time": {
+                    "bsonType": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "jamaat_offset_min": {
+                    "bsonType": "int",
+                    "minimum": {
+                      "$numberInt": "0"
+                    },
+                    "maximum": {
+                      "$numberInt": "60"
+                    }
+                  }
+                },
+                "allOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "adhan_mode": {
+                            "enum": ["manual"]
+                          }
+                        },
+                        "required": ["adhan_time"]
+                      },
+                      {
+                        "properties": {
+                          "adhan_mode": {
+                            "enum": ["auto"]
+                          }
+                        },
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["adhan_time"]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["fixed"]
+                          }
+                        },
+                        "required": ["jamaat_time"],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_offset_min"]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["offset"]
+                          }
+                        },
+                        "required": ["jamaat_offset_min"],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_time"]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["none"]
+                          }
+                        },
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_time"]
+                            },
+                            {
+                              "required": ["jamaat_offset_min"]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "dhuhr": {
+                "bsonType": "object",
+                "required": ["adhan_mode", "adhan_adjust_min", "jamaat_mode"],
+                "additionalProperties": false,
+                "properties": {
+                  "adhan_mode": {
+                    "bsonType": "string",
+                    "enum": ["auto", "manual"]
+                  },
+                  "adhan_time": {
+                    "bsonType": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "adhan_adjust_min": {
+                    "bsonType": "int",
+                    "minimum": {
+                      "$numberInt": "-15"
+                    },
+                    "maximum": {
+                      "$numberInt": "15"
+                    }
+                  },
+                  "jamaat_mode": {
+                    "bsonType": "string",
+                    "enum": ["fixed", "offset", "none"]
+                  },
+                  "jamaat_time": {
+                    "bsonType": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "jamaat_offset_min": {
+                    "bsonType": "int",
+                    "minimum": {
+                      "$numberInt": "0"
+                    },
+                    "maximum": {
+                      "$numberInt": "60"
+                    }
+                  }
+                },
+                "allOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "adhan_mode": {
+                            "enum": ["manual"]
+                          }
+                        },
+                        "required": ["adhan_time"]
+                      },
+                      {
+                        "properties": {
+                          "adhan_mode": {
+                            "enum": ["auto"]
+                          }
+                        },
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["adhan_time"]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["fixed"]
+                          }
+                        },
+                        "required": ["jamaat_time"],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_offset_min"]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["offset"]
+                          }
+                        },
+                        "required": ["jamaat_offset_min"],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_time"]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["none"]
+                          }
+                        },
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_time"]
+                            },
+                            {
+                              "required": ["jamaat_offset_min"]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "asr": {
+                "bsonType": "object",
+                "required": ["adhan_mode", "adhan_adjust_min", "jamaat_mode"],
+                "additionalProperties": false,
+                "properties": {
+                  "adhan_mode": {
+                    "bsonType": "string",
+                    "enum": ["auto", "manual"]
+                  },
+                  "adhan_time": {
+                    "bsonType": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "adhan_adjust_min": {
+                    "bsonType": "int",
+                    "minimum": {
+                      "$numberInt": "-15"
+                    },
+                    "maximum": {
+                      "$numberInt": "15"
+                    }
+                  },
+                  "jamaat_mode": {
+                    "bsonType": "string",
+                    "enum": ["fixed", "offset", "none"]
+                  },
+                  "jamaat_time": {
+                    "bsonType": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "jamaat_offset_min": {
+                    "bsonType": "int",
+                    "minimum": {
+                      "$numberInt": "0"
+                    },
+                    "maximum": {
+                      "$numberInt": "60"
+                    }
+                  }
+                },
+                "allOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "adhan_mode": {
+                            "enum": ["manual"]
+                          }
+                        },
+                        "required": ["adhan_time"]
+                      },
+                      {
+                        "properties": {
+                          "adhan_mode": {
+                            "enum": ["auto"]
+                          }
+                        },
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["adhan_time"]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["fixed"]
+                          }
+                        },
+                        "required": ["jamaat_time"],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_offset_min"]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["offset"]
+                          }
+                        },
+                        "required": ["jamaat_offset_min"],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_time"]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["none"]
+                          }
+                        },
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_time"]
+                            },
+                            {
+                              "required": ["jamaat_offset_min"]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "maghrib": {
+                "bsonType": "object",
+                "required": ["adhan_mode", "adhan_adjust_min", "jamaat_mode"],
+                "additionalProperties": false,
+                "properties": {
+                  "adhan_mode": {
+                    "bsonType": "string",
+                    "enum": ["auto", "manual"]
+                  },
+                  "adhan_time": {
+                    "bsonType": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "adhan_adjust_min": {
+                    "bsonType": "int",
+                    "minimum": {
+                      "$numberInt": "-15"
+                    },
+                    "maximum": {
+                      "$numberInt": "15"
+                    }
+                  },
+                  "jamaat_mode": {
+                    "bsonType": "string",
+                    "enum": ["fixed", "offset", "none"]
+                  },
+                  "jamaat_time": {
+                    "bsonType": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "jamaat_offset_min": {
+                    "bsonType": "int",
+                    "minimum": {
+                      "$numberInt": "0"
+                    },
+                    "maximum": {
+                      "$numberInt": "60"
+                    }
+                  }
+                },
+                "allOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "adhan_mode": {
+                            "enum": ["manual"]
+                          }
+                        },
+                        "required": ["adhan_time"]
+                      },
+                      {
+                        "properties": {
+                          "adhan_mode": {
+                            "enum": ["auto"]
+                          }
+                        },
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["adhan_time"]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["fixed"]
+                          }
+                        },
+                        "required": ["jamaat_time"],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_offset_min"]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["offset"]
+                          }
+                        },
+                        "required": ["jamaat_offset_min"],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_time"]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["none"]
+                          }
+                        },
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_time"]
+                            },
+                            {
+                              "required": ["jamaat_offset_min"]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "isha": {
+                "bsonType": "object",
+                "required": ["adhan_mode", "adhan_adjust_min", "jamaat_mode"],
+                "additionalProperties": false,
+                "properties": {
+                  "adhan_mode": {
+                    "bsonType": "string",
+                    "enum": ["auto", "manual"]
+                  },
+                  "adhan_time": {
+                    "bsonType": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "adhan_adjust_min": {
+                    "bsonType": "int",
+                    "minimum": {
+                      "$numberInt": "-15"
+                    },
+                    "maximum": {
+                      "$numberInt": "15"
+                    }
+                  },
+                  "jamaat_mode": {
+                    "bsonType": "string",
+                    "enum": ["fixed", "offset", "none"]
+                  },
+                  "jamaat_time": {
+                    "bsonType": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "jamaat_offset_min": {
+                    "bsonType": "int",
+                    "minimum": {
+                      "$numberInt": "0"
+                    },
+                    "maximum": {
+                      "$numberInt": "60"
+                    }
+                  }
+                },
+                "allOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "adhan_mode": {
+                            "enum": ["manual"]
+                          }
+                        },
+                        "required": ["adhan_time"]
+                      },
+                      {
+                        "properties": {
+                          "adhan_mode": {
+                            "enum": ["auto"]
+                          }
+                        },
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["adhan_time"]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["fixed"]
+                          }
+                        },
+                        "required": ["jamaat_time"],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_offset_min"]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["offset"]
+                          }
+                        },
+                        "required": ["jamaat_offset_min"],
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_time"]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "properties": {
+                          "jamaat_mode": {
+                            "enum": ["none"]
+                          }
+                        },
+                        "not": {
+                          "anyOf": [
+                            {
+                              "required": ["jamaat_time"]
+                            },
+                            {
+                              "required": ["jamaat_offset_min"]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "jumuah": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "required": ["seq", "jamaat_time"],
+              "additionalProperties": false,
+              "properties": {
+                "seq": {
+                  "bsonType": "int",
+                  "minimum": {
+                    "$numberInt": "1"
+                  },
+                  "maximum": {
+                    "$numberInt": "3"
+                  }
+                },
+                "khutbah_time": {
+                  "bsonType": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                "jamaat_time": {
+                  "bsonType": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                }
+              }
+            },
+            "maxItems": {
+              "$numberInt": "3"
+            },
+            "minItems": {
+              "$numberInt": "1"
+            }
+          },
+          "masjid_visible": {
+            "bsonType": "bool"
+          },
+          "rev": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "updated_by": {
+            "bsonType": "binData"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": []
+    },
+    {
+      "name": "special_timings",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "masjid_id",
+          "type",
+          "date",
+          "times",
+          "masjid_visible",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "type": {
+            "bsonType": "string",
+            "enum": ["eid_ul_fitr", "eid_ul_adha", "taraweeh", "shab_e_barat", "shab_e_qadr", "other"]
+          },
+          "date": {
+            "bsonType": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$"
+          },
+          "label": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "80"
+            }
+          },
+          "times": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "required": ["time"],
+              "additionalProperties": false,
+              "properties": {
+                "time": {
+                  "bsonType": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                "label": {
+                  "bsonType": "string",
+                  "maxLength": {
+                    "$numberInt": "40"
+                  }
+                }
+              }
+            },
+            "maxItems": {
+              "$numberInt": "5"
+            },
+            "minItems": {
+              "$numberInt": "1"
+            }
+          },
+          "note": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "300"
+            }
+          },
+          "masjid_visible": {
+            "bsonType": "bool"
+          },
+          "created_by": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          },
+          "deleted_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "masjid_date",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "date": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "items",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "public_id",
+          "masjid_id",
+          "type",
+          "status",
+          "audience",
+          "is_important",
+          "notify",
+          "masjid_visible",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "public_id": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "12"
+            },
+            "pattern": "^[A-Za-z0-9_-]{12}$"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "type": {
+            "bsonType": "string",
+            "enum": [
+              "announcement",
+              "daily_content",
+              "dua_request",
+              "campaign",
+              "chanda_update",
+              "video",
+              "timing_update"
+            ]
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["draft", "published", "hidden", "deleted", "removed"]
+          },
+          "audience": {
+            "bsonType": "string",
+            "enum": ["everyone", "brothers", "sisters"]
+          },
+          "title": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "120"
+            }
+          },
+          "body": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "1500"
+            }
+          },
+          "content_locale": {
+            "bsonType": "string",
+            "enum": ["en", "hi", "ur", "te"]
+          },
+          "template_key": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "64"
+            },
+            "pattern": "^[a-z0-9_]{1,64}$"
+          },
+          "template_params": {
+            "bsonType": "object"
+          },
+          "is_important": {
+            "bsonType": "bool"
+          },
+          "image_key": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "200"
+            }
+          },
+          "image_thumbhash": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "64"
+            }
+          },
+          "rights_confirmed": {
+            "bsonType": "bool"
+          },
+          "notify": {
+            "bsonType": "bool"
+          },
+          "masjid_visible": {
+            "bsonType": "bool"
+          },
+          "published_at": {
+            "bsonType": "date"
+          },
+          "published_version": {
+            "bsonType": "long",
+            "minimum": {
+              "$numberLong": "1"
+            },
+            "maximum": {
+              "$numberLong": "9007199254740991"
+            }
+          },
+          "edited_at": {
+            "bsonType": "date"
+          },
+          "created_by": {
+            "bsonType": "binData"
+          },
+          "deleted_at": {
+            "bsonType": "date"
+          },
+          "removed_at": {
+            "bsonType": "date"
+          },
+          "removed_reason": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "300"
+            }
+          },
+          "purge_after": {
+            "bsonType": "date"
+          },
+          "announcement": {
+            "bsonType": "object",
+            "required": ["category"],
+            "additionalProperties": false,
+            "properties": {
+              "category": {
+                "bsonType": "string",
+                "enum": ["general", "event", "facilities", "timing"]
+              },
+              "event_at": {
+                "bsonType": "date"
+              }
+            }
+          },
+          "daily": {
+            "bsonType": "object",
+            "required": ["library_id", "kind"],
+            "additionalProperties": false,
+            "properties": {
+              "library_id": {
+                "bsonType": "binData"
+              },
+              "kind": {
+                "bsonType": "string",
+                "enum": ["hadith", "ayah"]
+              },
+              "note": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "200"
+                }
+              }
+            }
+          },
+          "dua": {
+            "bsonType": "object",
+            "required": ["category", "name_private", "library_id"],
+            "additionalProperties": false,
+            "properties": {
+              "category": {
+                "bsonType": "string",
+                "enum": ["illness", "inteqal", "other"]
+              },
+              "person_name": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "80"
+                }
+              },
+              "name_private": {
+                "bsonType": "bool"
+              },
+              "library_id": {
+                "bsonType": "binData"
+              },
+              "janaza_at": {
+                "bsonType": "date"
+              },
+              "janaza_place": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "120"
+                }
+              },
+              "archived_at": {
+                "bsonType": "date"
+              }
+            }
+          },
+          "campaign": {
+            "bsonType": "object",
+            "required": ["purpose", "target_paise", "received_paise", "starts_on", "status", "payment_profile_id"],
+            "additionalProperties": false,
+            "properties": {
+              "purpose": {
+                "bsonType": "string",
+                "enum": ["renovation", "repair", "utilities", "welfare", "other"]
+              },
+              "target_paise": {
+                "bsonType": "long",
+                "minimum": {
+                  "$numberLong": "100000"
+                },
+                "maximum": {
+                  "$numberLong": "1000000000000"
+                }
+              },
+              "received_paise": {
+                "bsonType": "long",
+                "minimum": {
+                  "$numberLong": "0"
+                },
+                "maximum": {
+                  "$numberLong": "1000000000000"
+                }
+              },
+              "received_updated_at": {
+                "bsonType": "date"
+              },
+              "received_updated_by": {
+                "bsonType": "binData"
+              },
+              "starts_on": {
+                "bsonType": "string",
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$"
+              },
+              "ends_on": {
+                "bsonType": "string",
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$"
+              },
+              "status": {
+                "bsonType": "string",
+                "enum": ["active", "completed", "closed"]
+              },
+              "payment_profile_id": {
+                "bsonType": "binData"
+              },
+              "cover_key": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "200"
+                }
+              },
+              "cover_thumbhash": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "64"
+                }
+              }
+            }
+          },
+          "chanda": {
+            "bsonType": "object",
+            "required": ["chanda_week_id"],
+            "additionalProperties": false,
+            "properties": {
+              "chanda_week_id": {
+                "bsonType": "binData"
+              }
+            }
+          },
+          "video": {
+            "bsonType": "object",
+            "required": ["youtube_id", "thumb_key", "thumb_thumbhash"],
+            "additionalProperties": false,
+            "properties": {
+              "youtube_id": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "11"
+                },
+                "pattern": "^[A-Za-z0-9_-]{11}$"
+              },
+              "start_s": {
+                "bsonType": "int",
+                "minimum": {
+                  "$numberInt": "0"
+                },
+                "maximum": {
+                  "$numberInt": "86400"
+                }
+              },
+              "speaker": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "80"
+                }
+              },
+              "thumb_key": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "200"
+                }
+              },
+              "thumb_thumbhash": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "64"
+                }
+              }
+            }
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "type": {
+                "enum": ["announcement", "timing_update"]
+              }
+            },
+            "required": ["announcement"],
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["daily"]
+                },
+                {
+                  "required": ["dua"]
+                },
+                {
+                  "required": ["campaign"]
+                },
+                {
+                  "required": ["chanda"]
+                },
+                {
+                  "required": ["video"]
+                }
+              ]
+            }
+          },
+          {
+            "properties": {
+              "type": {
+                "enum": ["daily_content"]
+              }
+            },
+            "required": ["daily"],
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["announcement"]
+                },
+                {
+                  "required": ["dua"]
+                },
+                {
+                  "required": ["campaign"]
+                },
+                {
+                  "required": ["chanda"]
+                },
+                {
+                  "required": ["video"]
+                }
+              ]
+            }
+          },
+          {
+            "properties": {
+              "type": {
+                "enum": ["dua_request"]
+              }
+            },
+            "required": ["dua"],
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["announcement"]
+                },
+                {
+                  "required": ["daily"]
+                },
+                {
+                  "required": ["campaign"]
+                },
+                {
+                  "required": ["chanda"]
+                },
+                {
+                  "required": ["video"]
+                }
+              ]
+            }
+          },
+          {
+            "properties": {
+              "type": {
+                "enum": ["campaign"]
+              }
+            },
+            "required": ["campaign"],
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["announcement"]
+                },
+                {
+                  "required": ["daily"]
+                },
+                {
+                  "required": ["dua"]
+                },
+                {
+                  "required": ["chanda"]
+                },
+                {
+                  "required": ["video"]
+                }
+              ]
+            }
+          },
+          {
+            "properties": {
+              "type": {
+                "enum": ["chanda_update"]
+              }
+            },
+            "required": ["chanda"],
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["announcement"]
+                },
+                {
+                  "required": ["daily"]
+                },
+                {
+                  "required": ["dua"]
+                },
+                {
+                  "required": ["campaign"]
+                },
+                {
+                  "required": ["video"]
+                }
+              ]
+            }
+          },
+          {
+            "properties": {
+              "type": {
+                "enum": ["video"]
+              }
+            },
+            "required": ["video"],
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["announcement"]
+                },
+                {
+                  "required": ["daily"]
+                },
+                {
+                  "required": ["dua"]
+                },
+                {
+                  "required": ["campaign"]
+                },
+                {
+                  "required": ["chanda"]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "indexes": [
+        {
+          "name": "public_id_unique",
+          "key": {
+            "public_id": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "feed_status",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "status": {
+              "$numberInt": "1"
+            },
+            "published_at": {
+              "$numberInt": "-1"
+            },
+            "_id": {
+              "$numberInt": "-1"
+            }
+          }
+        },
+        {
+          "name": "feed_type",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "type": {
+              "$numberInt": "1"
+            },
+            "status": {
+              "$numberInt": "1"
+            },
+            "published_at": {
+              "$numberInt": "-1"
+            },
+            "_id": {
+              "$numberInt": "-1"
+            }
+          }
+        },
+        {
+          "name": "feed_audience_published",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "audience": {
+              "$numberInt": "1"
+            },
+            "status": {
+              "$numberInt": "1"
+            },
+            "published_at": {
+              "$numberInt": "-1"
+            },
+            "_id": {
+              "$numberInt": "-1"
+            }
+          },
+          "partialFilterExpression": {
+            "status": "published"
+          }
+        },
+        {
+          "name": "purge_after",
+          "key": {
+            "purge_after": {
+              "$numberInt": "1"
+            }
+          },
+          "partialFilterExpression": {
+            "purge_after": {
+              "$type": "date"
+            }
+          }
+        },
+        {
+          "name": "campaign_status_ends",
+          "key": {
+            "campaign.status": {
+              "$numberInt": "1"
+            },
+            "campaign.ends_on": {
+              "$numberInt": "1"
+            }
+          },
+          "partialFilterExpression": {
+            "type": "campaign"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ameens",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "dua_item_id", "masjid_id", "device_id", "created_at"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "dua_item_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "device_id": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "dua_device_unique",
+          "key": {
+            "dua_item_id": {
+              "$numberInt": "1"
+            },
+            "device_id": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "device",
+          "key": {
+            "device_id": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "masjid_created",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "-1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "ameen_counters",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "count", "updated_at"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "count": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": []
+    },
+    {
+      "name": "campaign_amount_history",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "campaign_item_id", "masjid_id", "received_paise", "updated_by", "created_at"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "campaign_item_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "received_paise": {
+            "bsonType": "long",
+            "minimum": {
+              "$numberLong": "0"
+            },
+            "maximum": {
+              "$numberLong": "1000000000000"
+            }
+          },
+          "updated_by": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "campaign_created",
+          "key": {
+            "campaign_item_id": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "-1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "chanda_weeks",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "masjid_id",
+          "week_start",
+          "amount_paise",
+          "visible",
+          "masjid_visible",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "week_start": {
+            "bsonType": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$"
+          },
+          "amount_paise": {
+            "bsonType": "long",
+            "minimum": {
+              "$numberLong": "0"
+            },
+            "maximum": {
+              "$numberLong": "1000000000000"
+            }
+          },
+          "note": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "200"
+            }
+          },
+          "item_id": {
+            "bsonType": "binData"
+          },
+          "visible": {
+            "bsonType": "bool"
+          },
+          "masjid_visible": {
+            "bsonType": "bool"
+          },
+          "created_by": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "masjid_week_unique",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "week_start": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        }
+      ]
+    }
+  ],
+  "views": []
+}

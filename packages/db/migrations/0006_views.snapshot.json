@@ -1,0 +1,414 @@
+{
+  "collections": [],
+  "views": [
+    {
+      "name": "v_pub_masjids",
+      "viewOn": "masjids",
+      "pipeline": [
+        {
+          "$match": {
+            "status": "active",
+            "deleted_at": {
+              "$exists": false
+            }
+          }
+        },
+        {
+          "$project": {
+            "follow_code": {
+              "$numberInt": "1"
+            },
+            "name": {
+              "$numberInt": "1"
+            },
+            "name_i18n": {
+              "$numberInt": "1"
+            },
+            "area": {
+              "$numberInt": "1"
+            },
+            "city": {
+              "$numberInt": "1"
+            },
+            "state": {
+              "$numberInt": "1"
+            },
+            "address": {
+              "$numberInt": "1"
+            },
+            "lat": {
+              "$numberInt": "1"
+            },
+            "lng": {
+              "$numberInt": "1"
+            },
+            "photo_key": {
+              "$numberInt": "1"
+            },
+            "photo_thumbhash": {
+              "$numberInt": "1"
+            },
+            "verified_at": {
+              "$numberInt": "1"
+            },
+            "calc_method": {
+              "$numberInt": "1"
+            },
+            "asr_madhab": {
+              "$numberInt": "1"
+            },
+            "hijri_offset": {
+              "$numberInt": "1"
+            },
+            "show_chanda": {
+              "$numberInt": "1"
+            },
+            "chanda_week_start": {
+              "$numberInt": "1"
+            },
+            "ramadan_start": {
+              "$numberInt": "1"
+            },
+            "ramadan_end": {
+              "$numberInt": "1"
+            },
+            "sehri_precaution_min": {
+              "$numberInt": "1"
+            },
+            "iftar_precaution_min": {
+              "$numberInt": "1"
+            },
+            "content_version": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "v_pub_masjid_status",
+      "viewOn": "masjids",
+      "pipeline": [
+        {
+          "$match": {
+            "status": {
+              "$in": ["active", "suspended"]
+            },
+            "deleted_at": {
+              "$exists": false
+            }
+          }
+        },
+        {
+          "$project": {
+            "status": {
+              "$numberInt": "1"
+            },
+            "content_version": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "v_pub_timings",
+      "viewOn": "masjid_timings",
+      "pipeline": [
+        {
+          "$match": {
+            "masjid_visible": true
+          }
+        },
+        {
+          "$project": {
+            "prayers": {
+              "$numberInt": "1"
+            },
+            "jumuah": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "v_pub_special_timings",
+      "viewOn": "special_timings",
+      "pipeline": [
+        {
+          "$match": {
+            "masjid_visible": true,
+            "deleted_at": {
+              "$exists": false
+            }
+          }
+        },
+        {
+          "$project": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "type": {
+              "$numberInt": "1"
+            },
+            "date": {
+              "$numberInt": "1"
+            },
+            "label": {
+              "$numberInt": "1"
+            },
+            "times": {
+              "$numberInt": "1"
+            },
+            "note": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "v_pub_items",
+      "viewOn": "items",
+      "pipeline": [
+        {
+          "$match": {
+            "status": "published",
+            "masjid_visible": true
+          }
+        },
+        {
+          "$unset": [
+            "created_by",
+            "notify",
+            "rights_confirmed",
+            "deleted_at",
+            "removed_at",
+            "removed_reason",
+            "purge_after"
+          ]
+        },
+        {
+          "$set": {
+            "dua": {
+              "$cond": {
+                "if": {
+                  "$eq": ["$dua.name_private", true]
+                },
+                "then": {
+                  "$unsetField": {
+                    "field": "person_name",
+                    "input": "$dua"
+                  }
+                },
+                "else": "$dua"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "v_pub_chanda_weeks",
+      "viewOn": "chanda_weeks",
+      "pipeline": [
+        {
+          "$match": {
+            "visible": true,
+            "masjid_visible": true
+          }
+        },
+        {
+          "$project": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "week_start": {
+              "$numberInt": "1"
+            },
+            "amount_paise": {
+              "$numberInt": "1"
+            },
+            "note": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "v_pub_payment_profiles",
+      "viewOn": "payment_profiles",
+      "pipeline": [
+        {
+          "$match": {
+            "status": "active",
+            "masjid_visible": true
+          }
+        },
+        {
+          "$project": {
+            "_id": {
+              "$numberInt": "0"
+            },
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "vpa": {
+              "$numberInt": "1"
+            },
+            "payee_name": {
+              "$numberInt": "1"
+            },
+            "effective_at": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "v_pub_library",
+      "viewOn": "content_library",
+      "pipeline": [
+        {
+          "$match": {
+            "status": "verified"
+          }
+        },
+        {
+          "$project": {
+            "kind": {
+              "$numberInt": "1"
+            },
+            "arabic": {
+              "$numberInt": "1"
+            },
+            "transliteration": {
+              "$numberInt": "1"
+            },
+            "translation": {
+              "$numberInt": "1"
+            },
+            "reference": {
+              "$numberInt": "1"
+            },
+            "source_name": {
+              "$numberInt": "1"
+            },
+            "source_license": {
+              "$numberInt": "1"
+            },
+            "tags": {
+              "$numberInt": "1"
+            },
+            "dua_category": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "v_pub_templates",
+      "viewOn": "notice_templates",
+      "pipeline": [
+        {
+          "$match": {
+            "status": "active"
+          }
+        },
+        {
+          "$project": {
+            "category": {
+              "$numberInt": "1"
+            },
+            "icon": {
+              "$numberInt": "1"
+            },
+            "is_important_default": {
+              "$numberInt": "1"
+            },
+            "title": {
+              "$numberInt": "1"
+            },
+            "body": {
+              "$numberInt": "1"
+            },
+            "params": {
+              "$numberInt": "1"
+            },
+            "system": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "v_pub_settings",
+      "viewOn": "app_settings",
+      "pipeline": [
+        {
+          "$match": {
+            "_id": "global"
+          }
+        },
+        {
+          "$project": {
+            "global_hijri_offset": {
+              "$numberInt": "1"
+            },
+            "maintenance_banner": {
+              "$numberInt": "1"
+            },
+            "incident_banner": {
+              "$numberInt": "1"
+            },
+            "undertaking_version": {
+              "$numberInt": "1"
+            },
+            "privacy_version": {
+              "$numberInt": "1"
+            },
+            "terms_version": {
+              "$numberInt": "1"
+            },
+            "grievance_officer": {
+              "$numberInt": "1"
+            },
+            "min_client_version": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "v_admin_follow_audience",
+      "viewOn": "device_follows",
+      "pipeline": [
+        {
+          "$project": {
+            "_id": {
+              "$numberInt": "0"
+            },
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "muted": {
+              "$numberInt": "1"
+            },
+            "push_active": {
+              "$numberInt": "1"
+            },
+            "audience_pref": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

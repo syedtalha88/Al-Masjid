@@ -1,11 +1,13 @@
-// `pnpm db:reset` — local Docker MongoDB only (CLAUDE.md §7): drop the dev database and re-create the four
-// application users with the passwords from `.env.local.compose` (02 §4.3, PHASE_01 T1.1). Migrations and the dev
-// seed join in T1.2. Never prints a password.
+// `pnpm db:reset` — local Docker MongoDB only (CLAUDE.md §7): drop the dev database, re-create the four application
+// users with the passwords from `.env.local.compose` (02 §4.3, T1.1), then run every migration as mc_migrator (T1.2).
+// The dev seed (fake masjids per 10 §5) joins with the features that need it. Never prints a password.
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { resetLocalDatabase } from '@mc/db';
+import { migrateDatabase } from '@mc/db/migrate';
+import { MIGRATIONS } from '@mc/db/migrations';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 for (const file of ['.env.local.compose', '.env.local.migrate']) {
@@ -27,4 +29,7 @@ await resetLocalDatabase(rootUri, database, [
   { user: 'mc_system', password: need('MC_SYSTEM_PASSWORD') },
   { user: 'mc_migrator', password: need('MC_MIGRATOR_PASSWORD') },
 ]);
-process.stdout.write(`db:reset — ${database} dropped; users mc_public, mc_admin, mc_system, mc_migrator applied.\n`);
+const { applied } = await migrateDatabase(need('MONGODB_URI_MIGRATOR'), database, MIGRATIONS);
+process.stdout.write(
+  `db:reset — ${database} dropped; 4 users applied; ${String(applied.length)} migrations applied.\n`,
+);

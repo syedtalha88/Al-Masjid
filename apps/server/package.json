@@ -21,6 +21,7 @@
   "devDependencies": {
     "@mc/api": "workspace:*",
     "@mc/config": "workspace:*",
+    "@mc/db": "workspace:*",
     "@mc/shared": "workspace:*",
     "@types/node": "24.19.1",
     "eslint": "10.12.0",

@@ -1,0 +1,736 @@
+{
+  "collections": [
+    {
+      "name": "reports",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "target_type",
+          "target_id",
+          "masjid_id",
+          "reason",
+          "urgent",
+          "status",
+          "sla_due_at",
+          "created_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "target_type": {
+            "bsonType": "string",
+            "enum": ["item", "masjid"]
+          },
+          "target_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "reason": {
+            "bsonType": "string",
+            "enum": ["misleading", "hateful", "off_topic", "fraud", "private_info", "copyright", "other"]
+          },
+          "details": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "500"
+            }
+          },
+          "device_id": {
+            "bsonType": "binData"
+          },
+          "urgent": {
+            "bsonType": "bool"
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["open", "actioned", "dismissed"]
+          },
+          "sla_due_at": {
+            "bsonType": "date"
+          },
+          "actioned_by": {
+            "bsonType": "binData"
+          },
+          "actioned_at": {
+            "bsonType": "date"
+          },
+          "resolution_note": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "500"
+            }
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "closed_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "status_sla",
+          "key": {
+            "status": {
+              "$numberInt": "1"
+            },
+            "sla_due_at": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "target_created",
+          "key": {
+            "target_id": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "-1"
+            }
+          }
+        },
+        {
+          "name": "masjid_created",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "-1"
+            }
+          }
+        },
+        {
+          "name": "device",
+          "key": {
+            "device_id": {
+              "$numberInt": "1"
+            }
+          },
+          "partialFilterExpression": {
+            "device_id": {
+              "$exists": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "grievances",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "public_ref",
+          "category",
+          "description",
+          "status",
+          "ack_due_at",
+          "resolve_due_at",
+          "created_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "public_ref": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "16"
+            },
+            "pattern": "^GR-\\d{4}-\\d{6}$"
+          },
+          "category": {
+            "bsonType": "string",
+            "enum": ["privacy", "content", "technical", "feedback", "other"]
+          },
+          "description": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "2000"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "contact_enc": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "1200"
+            },
+            "pattern": "^v1:[A-Za-z0-9_-]{1,32}:[A-Za-z0-9_-]{16}:[A-Za-z0-9_-]{22,}$"
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["open", "acknowledged", "resolved", "rejected"]
+          },
+          "ack_due_at": {
+            "bsonType": "date"
+          },
+          "resolve_due_at": {
+            "bsonType": "date"
+          },
+          "acknowledged_at": {
+            "bsonType": "date"
+          },
+          "resolved_at": {
+            "bsonType": "date"
+          },
+          "resolution": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "2000"
+            }
+          },
+          "handled_by": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "public_ref_unique",
+          "key": {
+            "public_ref": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "status_ack_due",
+          "key": {
+            "status": {
+              "$numberInt": "1"
+            },
+            "ack_due_at": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "grievance_seq",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "seq"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "4"
+            },
+            "pattern": "^\\d{4}$"
+          },
+          "seq": {
+            "bsonType": "long",
+            "minimum": {
+              "$numberLong": "0"
+            },
+            "maximum": {
+              "$numberLong": "9007199254740991"
+            }
+          }
+        }
+      },
+      "indexes": []
+    },
+    {
+      "name": "legal_orders",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "authority",
+          "reference_no",
+          "received_at",
+          "due_at",
+          "target_type",
+          "target_id",
+          "summary",
+          "action_log",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "authority": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "200"
+            }
+          },
+          "reference_no": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "120"
+            }
+          },
+          "received_at": {
+            "bsonType": "date"
+          },
+          "due_at": {
+            "bsonType": "date"
+          },
+          "target_type": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "40"
+            }
+          },
+          "target_id": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "64"
+            }
+          },
+          "summary": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "2000"
+            }
+          },
+          "action_taken": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "2000"
+            }
+          },
+          "action_log": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "required": ["at", "by", "note"],
+              "additionalProperties": false,
+              "properties": {
+                "at": {
+                  "bsonType": "date"
+                },
+                "by": {
+                  "bsonType": "binData"
+                },
+                "note": {
+                  "bsonType": "string",
+                  "maxLength": {
+                    "$numberInt": "500"
+                  }
+                }
+              }
+            },
+            "maxItems": {
+              "$numberInt": "200"
+            }
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["received", "actioned", "contested", "closed"]
+          },
+          "document_key": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "200"
+            }
+          },
+          "handled_by": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "status_due",
+          "key": {
+            "status": {
+              "$numberInt": "1"
+            },
+            "due_at": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "audit_log",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "at", "actor_type", "action"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "at": {
+            "bsonType": "date"
+          },
+          "actor_type": {
+            "bsonType": "string",
+            "enum": ["admin", "super_admin", "system", "device"]
+          },
+          "actor_id": {
+            "bsonType": "binData"
+          },
+          "action": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "80"
+            },
+            "pattern": "^[a-z_]+(\\.[a-z_]+)+$"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "target_type": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "40"
+            }
+          },
+          "target_id": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "64"
+            }
+          },
+          "meta": {
+            "bsonType": "object"
+          },
+          "request_id": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "64"
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "at",
+          "key": {
+            "at": {
+              "$numberInt": "-1"
+            }
+          }
+        },
+        {
+          "name": "masjid_at",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "at": {
+              "$numberInt": "-1"
+            }
+          }
+        },
+        {
+          "name": "actor_at",
+          "key": {
+            "actor_id": {
+              "$numberInt": "1"
+            },
+            "at": {
+              "$numberInt": "-1"
+            }
+          }
+        },
+        {
+          "name": "action_at",
+          "key": {
+            "action": {
+              "$numberInt": "1"
+            },
+            "at": {
+              "$numberInt": "-1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "app_settings",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "global_hijri_offset",
+          "default_push_quota",
+          "undertaking_version",
+          "privacy_version",
+          "terms_version",
+          "push_paused",
+          "admin_read_only",
+          "report_autohide_threshold",
+          "grievance_officer",
+          "min_client_version",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "string",
+            "enum": ["global"]
+          },
+          "global_hijri_offset": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "-2"
+            },
+            "maximum": {
+              "$numberInt": "2"
+            }
+          },
+          "maintenance_banner": {
+            "bsonType": "object",
+            "required": ["en", "hi", "ur", "te"],
+            "additionalProperties": false,
+            "properties": {
+              "en": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "300"
+                }
+              },
+              "hi": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "300"
+                }
+              },
+              "ur": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "300"
+                }
+              },
+              "te": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "300"
+                }
+              }
+            }
+          },
+          "incident_banner": {
+            "bsonType": "object",
+            "required": ["en", "hi", "ur", "te"],
+            "additionalProperties": false,
+            "properties": {
+              "en": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "300"
+                }
+              },
+              "hi": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "300"
+                }
+              },
+              "ur": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "300"
+                }
+              },
+              "te": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "300"
+                }
+              }
+            }
+          },
+          "default_push_quota": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "50"
+            }
+          },
+          "undertaking_version": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "20"
+            }
+          },
+          "privacy_version": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "20"
+            }
+          },
+          "terms_version": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "20"
+            }
+          },
+          "push_paused": {
+            "bsonType": "bool"
+          },
+          "admin_read_only": {
+            "bsonType": "bool"
+          },
+          "report_autohide_threshold": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "1"
+            },
+            "maximum": {
+              "$numberInt": "1000"
+            }
+          },
+          "grievance_officer": {
+            "bsonType": "object",
+            "required": ["name", "email", "address", "city"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "120"
+                }
+              },
+              "email": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "200"
+                }
+              },
+              "address": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "300"
+                }
+              },
+              "city": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "80"
+                }
+              }
+            }
+          },
+          "support_whatsapp": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "16"
+            },
+            "pattern": "^\\+?[0-9]{8,15}$"
+          },
+          "min_client_version": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "32"
+            }
+          },
+          "updated_by": {
+            "bsonType": "binData"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": []
+    },
+    {
+      "name": "stats_snapshots",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "counts", "created_at"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "13"
+            },
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}$"
+          },
+          "counts": {
+            "bsonType": "object"
+          },
+          "created_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": []
+    },
+    {
+      "name": "_migrations",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "120"
+            },
+            "pattern": "^(__lock|\\d{4}_[a-z0-9_]+)$"
+          },
+          "checksum": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "64"
+            },
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "applied_at": {
+            "bsonType": "date"
+          },
+          "duration_ms": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "86400000"
+            }
+          },
+          "locked_until": {
+            "bsonType": "date"
+          },
+          "owner": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "64"
+            }
+          }
+        }
+      },
+      "indexes": []
+    }
+  ],
+  "views": []
+}

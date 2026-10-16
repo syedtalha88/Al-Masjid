@@ -109,6 +109,22 @@ services:
       resources:
         limits: { cpus: '0.75', memory: 512m }
 
+  # One-off migration run before every rolling update (PHASE_01 T1.2): only the migrator's credential (migrate.env,
+  # written by atlas-users.sh), no Redis, outbound only. Started by deploy.sh with `--profile migrate run --rm`.
+  migrate:
+    <<: *hardened
+    image: ${SERVER_IMAGE:?set by deploy.sh from the verified release manifest}
+    command: ['dist/migrate.mjs']
+    env_file: ${MC_CONFIG_DIR:-/etc/masjid-connect/${MC_ENV}}/migrate.env
+    networks: [egress]
+    profiles: ['migrate']
+    restart: 'no'
+    tmpfs:
+      - /tmp:size=16m
+    deploy:
+      resources:
+        limits: { cpus: '0.50', memory: 256m }
+
   # Hardened Redis (PROGRESS F29): its own user from the start (no root entrypoint), no capabilities, read-only root,
   # AOF on a volume, no published port, no internet.
   redis:

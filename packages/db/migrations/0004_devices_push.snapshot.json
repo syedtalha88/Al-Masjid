@@ -1,0 +1,440 @@
+{
+  "collections": [
+    {
+      "name": "devices",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "secret_hash",
+          "locale",
+          "audience_pref",
+          "platform",
+          "push_status",
+          "privacy_version",
+          "follow_count",
+          "created_at",
+          "last_seen_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "secret_hash": {
+            "bsonType": "binData"
+          },
+          "locale": {
+            "bsonType": "string",
+            "enum": ["en", "hi", "ur", "te"]
+          },
+          "audience_pref": {
+            "bsonType": "string",
+            "enum": ["brothers", "sisters"]
+          },
+          "platform": {
+            "bsonType": "string",
+            "enum": ["android", "ios", "desktop", "other"]
+          },
+          "push_endpoint": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "1000"
+            },
+            "pattern": "^https://"
+          },
+          "push_p256dh": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "200"
+            }
+          },
+          "push_auth": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "100"
+            }
+          },
+          "push_status": {
+            "bsonType": "string",
+            "enum": ["active", "dead", "none"]
+          },
+          "push_updated_at": {
+            "bsonType": "date"
+          },
+          "privacy_version": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "20"
+            }
+          },
+          "follow_count": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "20"
+            }
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "last_seen_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "push_endpoint_unique",
+          "key": {
+            "push_endpoint": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true,
+          "partialFilterExpression": {
+            "push_endpoint": {
+              "$type": "string"
+            }
+          }
+        },
+        {
+          "name": "last_seen",
+          "key": {
+            "last_seen_at": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "push_status_updated",
+          "key": {
+            "push_status": {
+              "$numberInt": "1"
+            },
+            "push_updated_at": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "device_follows",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "device_id", "masjid_id", "muted", "audience_pref", "locale", "push_active", "created_at"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "device_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "muted": {
+            "bsonType": "bool"
+          },
+          "audience_pref": {
+            "bsonType": "string",
+            "enum": ["brothers", "sisters"]
+          },
+          "locale": {
+            "bsonType": "string",
+            "enum": ["en", "hi", "ur", "te"]
+          },
+          "push_active": {
+            "bsonType": "bool"
+          },
+          "created_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "device_masjid_unique",
+          "key": {
+            "device_id": {
+              "$numberInt": "1"
+            },
+            "masjid_id": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "fanout",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "muted": {
+              "$numberInt": "1"
+            },
+            "push_active": {
+              "$numberInt": "1"
+            },
+            "audience_pref": {
+              "$numberInt": "1"
+            },
+            "device_id": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "admin_push_subscriptions",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "admin_id", "endpoint", "p256dh", "auth", "created_at"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "admin_id": {
+            "bsonType": "binData"
+          },
+          "endpoint": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "1000"
+            },
+            "pattern": "^https://"
+          },
+          "p256dh": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "200"
+            }
+          },
+          "auth": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "100"
+            }
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "last_ok_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "endpoint_unique",
+          "key": {
+            "endpoint": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "admin",
+          "key": {
+            "admin_id": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "notification_jobs",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "item_id",
+          "masjid_id",
+          "status",
+          "audience",
+          "audience_targets",
+          "targeted",
+          "sent",
+          "failed",
+          "pruned",
+          "pending_batches",
+          "bypass_quota",
+          "created_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "item_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["pending", "running", "completed", "failed"]
+          },
+          "audience": {
+            "bsonType": "string",
+            "enum": ["everyone", "brothers", "sisters"]
+          },
+          "audience_targets": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "string",
+              "enum": ["brothers", "sisters"]
+            },
+            "maxItems": {
+              "$numberInt": "2"
+            },
+            "uniqueItems": true
+          },
+          "targeted": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "sent": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "failed": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "pruned": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "pending_batches": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "bypass_quota": {
+            "bsonType": "bool"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "started_at": {
+            "bsonType": "date"
+          },
+          "last_progress_at": {
+            "bsonType": "date"
+          },
+          "completed_at": {
+            "bsonType": "date"
+          },
+          "last_error": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "500"
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "status_created",
+          "key": {
+            "status": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "masjid_created",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "-1"
+            }
+          }
+        },
+        {
+          "name": "item",
+          "key": {
+            "item_id": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "push_quota_usage",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "masjid_id", "day", "count"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "64"
+            },
+            "pattern": "^[0-9a-f-]{36}:\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "day": {
+            "bsonType": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$"
+          },
+          "count": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "1000"
+            }
+          }
+        }
+      },
+      "indexes": []
+    }
+  ],
+  "views": []
+}

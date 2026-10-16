@@ -6,7 +6,11 @@
   "description": "MongoDB clients, schema, policy layer, scoped repositories, migrations. From Phase 1.",
   "exports": {
     ".": "./src/index.ts",
-    "./testing": "./src/testing/index.ts"
+    "./testing": "./src/testing/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./migrate": "./src/migrate/index.ts",
+    "./migrations": "./migrations/index.ts",
+    "./migrations/areas": "./migrations/areas.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -23,6 +27,7 @@
     "vitest": "5.0.3"
   },
   "dependencies": {
-    "mongodb": "7.6.0"
+    "mongodb": "7.6.0",
+    "zod": "4.6.5"
   }
 }

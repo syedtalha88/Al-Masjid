@@ -1,0 +1,476 @@
+{
+  "collections": [
+    {
+      "name": "content_library",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "kind",
+          "arabic",
+          "transliteration",
+          "translation",
+          "reference",
+          "source_name",
+          "source_license",
+          "tags",
+          "status",
+          "import_batch_id",
+          "search_text",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "kind": {
+            "bsonType": "string",
+            "enum": ["hadith", "ayah", "dua"]
+          },
+          "arabic": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "4000"
+            }
+          },
+          "transliteration": {
+            "bsonType": "object",
+            "additionalProperties": false,
+            "properties": {
+              "en": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "4000"
+                }
+              },
+              "hi": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "4000"
+                }
+              },
+              "ur": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "4000"
+                }
+              },
+              "te": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "4000"
+                }
+              }
+            }
+          },
+          "translation": {
+            "bsonType": "object",
+            "required": ["en"],
+            "additionalProperties": false,
+            "properties": {
+              "en": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "4000"
+                }
+              },
+              "hi": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "4000"
+                }
+              },
+              "ur": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "4000"
+                }
+              },
+              "te": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "4000"
+                }
+              }
+            }
+          },
+          "reference": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "200"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "source_name": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "120"
+            }
+          },
+          "source_license": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "200"
+            }
+          },
+          "tags": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "string",
+              "maxLength": {
+                "$numberInt": "40"
+              }
+            },
+            "maxItems": {
+              "$numberInt": "20"
+            }
+          },
+          "dua_category": {
+            "bsonType": "string",
+            "enum": ["illness", "inteqal", "other"]
+          },
+          "verified_by": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "120"
+            }
+          },
+          "verified_at": {
+            "bsonType": "date"
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["draft", "verified", "retired"]
+          },
+          "import_batch_id": {
+            "bsonType": "binData"
+          },
+          "search_text": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "20000"
+            }
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "kind_reference_unique",
+          "key": {
+            "kind": {
+              "$numberInt": "1"
+            },
+            "reference": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "status_kind_category",
+          "key": {
+            "status": {
+              "$numberInt": "1"
+            },
+            "kind": {
+              "$numberInt": "1"
+            },
+            "dua_category": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "search_text",
+          "key": {
+            "search_text": "text"
+          },
+          "default_language": "none"
+        }
+      ]
+    },
+    {
+      "name": "notice_templates",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "category",
+          "icon",
+          "is_important_default",
+          "title",
+          "body",
+          "params",
+          "status",
+          "translation_reviewed",
+          "system",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "64"
+            },
+            "pattern": "^[a-z0-9_]{1,64}$"
+          },
+          "category": {
+            "bsonType": "string",
+            "enum": ["general", "event", "facilities", "timing"]
+          },
+          "icon": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "40"
+            }
+          },
+          "is_important_default": {
+            "bsonType": "bool"
+          },
+          "title": {
+            "bsonType": "object",
+            "required": ["en", "hi", "ur", "te"],
+            "additionalProperties": false,
+            "properties": {
+              "en": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "120"
+                }
+              },
+              "hi": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "120"
+                }
+              },
+              "ur": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "120"
+                }
+              },
+              "te": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "120"
+                }
+              }
+            }
+          },
+          "body": {
+            "bsonType": "object",
+            "required": ["en", "hi", "ur", "te"],
+            "additionalProperties": false,
+            "properties": {
+              "en": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "1500"
+                }
+              },
+              "hi": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "1500"
+                }
+              },
+              "ur": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "1500"
+                }
+              },
+              "te": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "1500"
+                }
+              }
+            }
+          },
+          "params": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "required": ["name", "type", "required"],
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "bsonType": "string",
+                  "maxLength": {
+                    "$numberInt": "40"
+                  },
+                  "pattern": "^[a-z][a-zA-Z0-9_]*$"
+                },
+                "type": {
+                  "bsonType": "string",
+                  "enum": ["time", "date", "date_range", "time_range", "prayer", "number", "short_text"]
+                },
+                "required": {
+                  "bsonType": "bool"
+                }
+              }
+            },
+            "maxItems": {
+              "$numberInt": "10"
+            }
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["active", "retired"]
+          },
+          "translation_reviewed": {
+            "bsonType": "bool"
+          },
+          "system": {
+            "bsonType": "bool"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": []
+    },
+    {
+      "name": "payment_profiles",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "masjid_id",
+          "vpa",
+          "payee_name",
+          "status",
+          "open",
+          "requested_by",
+          "masjid_visible",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "vpa": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "100"
+            },
+            "pattern": "^[a-zA-Z0-9.\\-_]{2,256}@[a-zA-Z][a-zA-Z0-9.\\-]{1,64}$"
+          },
+          "payee_name": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "100"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["pending", "approved_on_hold", "active", "rejected", "superseded"]
+          },
+          "open": {
+            "bsonType": "bool"
+          },
+          "requested_by": {
+            "bsonType": "binData"
+          },
+          "request_note": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "300"
+            }
+          },
+          "reviewed_by": {
+            "bsonType": "binData"
+          },
+          "reviewed_at": {
+            "bsonType": "date"
+          },
+          "effective_at": {
+            "bsonType": "date"
+          },
+          "reject_reason": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "300"
+            }
+          },
+          "masjid_visible": {
+            "bsonType": "bool"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "one_active_per_masjid",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true,
+          "partialFilterExpression": {
+            "status": "active"
+          }
+        },
+        {
+          "name": "one_open_per_masjid",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "open": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true,
+          "partialFilterExpression": {
+            "open": true
+          }
+        },
+        {
+          "name": "status_effective",
+          "key": {
+            "status": {
+              "$numberInt": "1"
+            },
+            "effective_at": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "views": []
+}

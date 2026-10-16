@@ -113,7 +113,16 @@ main() {
   export MC_ENV=$ENVIRONMENT MC_CONFIG_DIR=$CONFIG_DIR MC_COMPOSE_DIR=$COMPOSE_DIR SERVER_IMAGE=$server_image WEB_IMAGE=$web_image
   compose_policy || die "the installed compose file breaks the hardening policy — refusing"
   compose pull --quiet
-  # Migrations arrive in Phase 1: `compose run --rm migrate` here, production only after the owner's approval.
+  # Migrations first (PHASE_01 T1.2): a failure stops here, before any container changes. Production releases are
+  # approved by the owner in GitHub (deploy-prod) before their manifest exists, which covers their migrations.
+  if [ -f "$CONFIG_DIR/migrate.env" ]; then
+    log "migrating $release"
+    compose --profile migrate run --rm --no-deps migrate || die "migrations failed — the running release is untouched"
+  elif [ "$ENVIRONMENT" = production ]; then
+    die "no migrate.env — run atlas-users.sh production before the first Phase 1 release"
+  else
+    log "WARNING: no $CONFIG_DIR/migrate.env (Atlas users not set up yet — atlas-users.sh) — migrations skipped"
+  fi
 
   # Rolling replacement (PHASE_00 T0.14, 01 §8): stateless services get their new containers next to the old ones,
   # healthy first, then the old ones drain and go. Logs of every container are archived before it is removed (S-H3).
@@ -228,7 +237,8 @@ host_layer_matches() {
 # compose directory, and joins no external network except this environment's edge network.
 compose_policy() {
   local problems
-  problems=$(compose config --format json | jq -r --arg cfg "$CONFIG_DIR/" --arg cmp "$COMPOSE_DIR/" \
+  # Rendered with every profile, so the one-off migrate service is checked too.
+  problems=$(compose --profile migrate config --format json | jq -r --arg cfg "$CONFIG_DIR/" --arg cmp "$COMPOSE_DIR/" \
     --arg server "$SERVER_IMAGE" --arg web "$WEB_IMAGE" --arg edge "mc-edge-$ENVIRONMENT" '
     (if ((.secrets // {}) | length) > 0 or ((.configs // {}) | length) > 0 then "secrets/configs not allowed" else empty end),
     ((.volumes // {}) | to_entries[] | select(.value.driver != null or .value.driver_opts != null)

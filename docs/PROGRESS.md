@@ -58,7 +58,7 @@
 ### Phase 01 — started 16 Oct 2026 (DECISIONS #62; autopilot session log: `docs/reports/AUTONOMOUS_SESSION_2026-10-16.md`)
 
 - [ ] T1.1 — Atlas, DB users/roles & capability verification — **local part done (16 Oct 2026, DECISIONS #63):** roles for `mc_public`/`mc_admin`/`mc_system`/`mc_migrator` from one source; `pnpm db:reset` applies them; privilege tests as each user (≈ 500 checks, view-without-source and transactions proven locally); `atlas-users.sh` + generated `atlas-roles.json` tested against a mock Atlas API. **Remaining:** owner runs `atlas-users.sh staging` with a temporary service account (owner list A4), then `db:verify-roles --env staging` (after T1.2's views exist) and the IP-access-list check; results into DECISIONS.
-- [ ] T1.2 — Schema, validators, migrations
+- [ ] T1.2 — Schema, validators, migrations — **done locally (16 Oct 2026, DECISIONS #64):** schemas for all 30 collections + 11 views, 7 migrations (frozen snapshots, checksums, lock), `pnpm db:migrate` / `db:schema:check`, `db:reset` migrates; tests as `mc_migrator`: no drift, idempotent, lock, checksum change refused, validators reject out-of-India coordinates / bad VPA / over-long text / money not int64 / unknown fields / null / wrong item detail / prayer-mode mismatches, views hide private dua names; drift fixture detected; server `migrate` entry + VPS `migrate` service before every rolling update. **Remaining:** first run against staging Atlas (needs owner A4 + host layer update A5).
 - [ ] T1.3 — Data-layer operations & side effects
 - [ ] T1.4 — Policy layer + full matrix tests
 - [ ] T1.5 — DB client layer

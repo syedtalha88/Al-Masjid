@@ -1,0 +1,742 @@
+{
+  "collections": [
+    {
+      "name": "masjids",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "follow_code",
+          "name",
+          "name_i18n",
+          "area",
+          "city",
+          "state",
+          "address",
+          "lat",
+          "lng",
+          "status",
+          "calc_method",
+          "asr_madhab",
+          "show_chanda",
+          "chanda_week_start",
+          "sehri_precaution_min",
+          "iftar_precaution_min",
+          "push_daily_quota",
+          "content_version",
+          "admin_count",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "follow_code": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "8"
+            },
+            "pattern": "^[0-9A-HJKMNP-TV-Z]{8}$"
+          },
+          "name": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "120"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "name_i18n": {
+            "bsonType": "object",
+            "additionalProperties": false,
+            "properties": {
+              "hi": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "120"
+                }
+              },
+              "ur": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "120"
+                }
+              },
+              "te": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "120"
+                }
+              }
+            }
+          },
+          "area": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "80"
+            }
+          },
+          "city": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "80"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "state": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "80"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "address": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "300"
+            }
+          },
+          "lat": {
+            "bsonType": ["double", "int"],
+            "minimum": {
+              "$numberInt": "6"
+            },
+            "maximum": {
+              "$numberDouble": "37.5"
+            }
+          },
+          "lng": {
+            "bsonType": ["double", "int"],
+            "minimum": {
+              "$numberInt": "68"
+            },
+            "maximum": {
+              "$numberDouble": "97.5"
+            }
+          },
+          "photo_key": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "200"
+            }
+          },
+          "photo_thumbhash": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "64"
+            }
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["pending", "active", "suspended", "deleted"]
+          },
+          "verified_at": {
+            "bsonType": "date"
+          },
+          "calc_method": {
+            "bsonType": "string",
+            "enum": ["karachi", "mwl", "isna", "egypt", "umm_al_qura", "other_custom"]
+          },
+          "asr_madhab": {
+            "bsonType": "string",
+            "enum": ["hanafi", "shafi"]
+          },
+          "hijri_offset": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "-2"
+            },
+            "maximum": {
+              "$numberInt": "2"
+            }
+          },
+          "show_chanda": {
+            "bsonType": "bool"
+          },
+          "chanda_week_start": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "1"
+            },
+            "maximum": {
+              "$numberInt": "7"
+            }
+          },
+          "ramadan_start": {
+            "bsonType": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$"
+          },
+          "ramadan_end": {
+            "bsonType": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$"
+          },
+          "sehri_precaution_min": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "15"
+            }
+          },
+          "iftar_precaution_min": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "10"
+            }
+          },
+          "push_daily_quota": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "50"
+            }
+          },
+          "content_version": {
+            "bsonType": "long",
+            "minimum": {
+              "$numberLong": "1"
+            },
+            "maximum": {
+              "$numberLong": "9007199254740991"
+            }
+          },
+          "admin_count": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "5"
+            }
+          },
+          "removals_90d_cache": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "10000"
+            }
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          },
+          "deleted_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "follow_code_unique",
+          "key": {
+            "follow_code": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "status_created",
+          "key": {
+            "status": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "-1"
+            }
+          }
+        },
+        {
+          "name": "name",
+          "key": {
+            "name": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "city",
+          "key": {
+            "city": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "masjid_stats",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "followers", "ameens_7d", "updated_at"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "followers": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "ameens_7d": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": []
+    },
+    {
+      "name": "admin_users",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "display_name",
+          "role",
+          "status",
+          "ui_locale",
+          "user_handle",
+          "undertaking_history",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "display_name": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "80"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "role": {
+            "bsonType": "string",
+            "enum": ["super_admin", "masjid_admin"]
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["invited", "active", "disabled"]
+          },
+          "phone_enc": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "400"
+            },
+            "pattern": "^v1:[A-Za-z0-9_-]{1,32}:[A-Za-z0-9_-]{16}:[A-Za-z0-9_-]{22,}$"
+          },
+          "ui_locale": {
+            "bsonType": "string",
+            "enum": ["en", "hi", "ur", "te"]
+          },
+          "user_handle": {
+            "bsonType": "binData"
+          },
+          "undertaking_version": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "20"
+            }
+          },
+          "undertaking_accepted_at": {
+            "bsonType": "date"
+          },
+          "undertaking_history": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "required": ["version", "accepted_at"],
+              "additionalProperties": false,
+              "properties": {
+                "version": {
+                  "bsonType": "string",
+                  "maxLength": {
+                    "$numberInt": "20"
+                  }
+                },
+                "accepted_at": {
+                  "bsonType": "date"
+                }
+              }
+            },
+            "maxItems": {
+              "$numberInt": "50"
+            }
+          },
+          "last_login_at": {
+            "bsonType": "date"
+          },
+          "removed_at": {
+            "bsonType": "date"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "role_status",
+          "key": {
+            "role": {
+              "$numberInt": "1"
+            },
+            "status": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "user_handle_unique",
+          "key": {
+            "user_handle": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        }
+      ]
+    },
+    {
+      "name": "masjid_admins",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "masjid_id", "admin_id", "role", "added_by", "created_at"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "admin_id": {
+            "bsonType": "binData"
+          },
+          "role": {
+            "bsonType": "string",
+            "enum": ["owner", "editor"]
+          },
+          "added_by": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "masjid_admin_unique",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "admin_id": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "admin",
+          "key": {
+            "admin_id": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "webauthn_credentials",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "admin_id",
+          "credential_id",
+          "public_key",
+          "sign_count",
+          "transports",
+          "backed_up",
+          "device_type",
+          "label",
+          "created_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "admin_id": {
+            "bsonType": "binData"
+          },
+          "credential_id": {
+            "bsonType": "binData"
+          },
+          "public_key": {
+            "bsonType": "binData"
+          },
+          "sign_count": {
+            "bsonType": "long",
+            "minimum": {
+              "$numberLong": "0"
+            },
+            "maximum": {
+              "$numberLong": "4294967295"
+            }
+          },
+          "transports": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "string",
+              "maxLength": {
+                "$numberInt": "20"
+              }
+            },
+            "maxItems": {
+              "$numberInt": "10"
+            }
+          },
+          "aaguid": {
+            "bsonType": "binData"
+          },
+          "backed_up": {
+            "bsonType": "bool"
+          },
+          "device_type": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "32"
+            }
+          },
+          "label": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "60"
+            }
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "last_used_at": {
+            "bsonType": "date"
+          },
+          "revoked_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "credential_id_unique",
+          "key": {
+            "credential_id": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "admin",
+          "key": {
+            "admin_id": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "admin_invites",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "admin_id", "purpose", "token_hash", "expires_at", "open", "created_by", "created_at"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "admin_id": {
+            "bsonType": "binData"
+          },
+          "purpose": {
+            "bsonType": "string",
+            "enum": ["register", "add_device", "recovery"]
+          },
+          "token_hash": {
+            "bsonType": "binData"
+          },
+          "expires_at": {
+            "bsonType": "date"
+          },
+          "used_at": {
+            "bsonType": "date"
+          },
+          "open": {
+            "bsonType": "bool"
+          },
+          "created_by": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "token_hash_unique",
+          "key": {
+            "token_hash": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "open_invite_unique",
+          "key": {
+            "admin_id": {
+              "$numberInt": "1"
+            },
+            "purpose": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true,
+          "partialFilterExpression": {
+            "open": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "admin_sessions",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "admin_id",
+          "token_hash",
+          "created_at",
+          "last_seen_at",
+          "idle_expires_at",
+          "absolute_expires_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "admin_id": {
+            "bsonType": "binData"
+          },
+          "token_hash": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "last_seen_at": {
+            "bsonType": "date"
+          },
+          "idle_expires_at": {
+            "bsonType": "date"
+          },
+          "absolute_expires_at": {
+            "bsonType": "date"
+          },
+          "step_up_at": {
+            "bsonType": "date"
+          },
+          "ua_summary": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "120"
+            }
+          },
+          "revoked_at": {
+            "bsonType": "date"
+          },
+          "revoked_reason": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "80"
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "token_hash_unique",
+          "key": {
+            "token_hash": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "admin_revoked",
+          "key": {
+            "admin_id": {
+              "$numberInt": "1"
+            },
+            "revoked_at": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "absolute_expires",
+          "key": {
+            "absolute_expires_at": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "views": []
+}

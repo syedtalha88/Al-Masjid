@@ -102,6 +102,7 @@ case "$args" in
     touch "$STUB_STATE/$svc"
     while [ "$(wc -l <"$STUB_STATE/$svc")" -lt "$n" ]; do echo "$svc-$RANDOM$RANDOM" >>"$STUB_STATE/$svc"; done ;;
   *" up "*) [ -z "${STUB_FAIL_UP:-}" ] ;;
+  *" run --rm --no-deps migrate"*) [ -z "${STUB_FAIL_MIGRATE:-}" ] || exit 1 ;;
   *" inspect "*)
     # STUB_UNHEALTHY=<service>: that service's containers have exited (e.g. Caddy refusing a broken certificate).
     if [ -n "${STUB_UNHEALTHY:-}" ] && [[ "${*: -1}" == "$STUB_UNHEALTHY"-* ]]; then echo exited; else echo healthy; fi ;;
@@ -236,6 +237,19 @@ HOST_LAYER=null publish rel-9 9 "$web"
 run rel-9; got=$?
 check "older manifest without host-layer hashes: deploys with a warning" \
   '[ "$got" -eq 0 ] && [ "$(running)" = "$(rel 9)" ] && grep -q "names no host layer" "$root/out"'
+
+# Migrations (PHASE_01 T1.2): run before any container changes; a failure keeps the running release.
+publish rel-10 10 "$web"
+: >"$STUB_CALLS"; run rel-10; got=$?
+check "staging without migrate.env: migrations skipped with a warning, release deploys"   '[ "$got" -eq 0 ] && [ "$(running)" = "$(rel 10)" ] && grep -q "migrations skipped" "$root/out" && ! grep -q "run --rm --no-deps migrate" "$STUB_CALLS"'
+touch "$root/config/migrate.env"
+publish rel-11 11 "$web"
+: >"$STUB_CALLS"; run rel-11; got=$?
+check "with migrate.env: migrations run before the rolling update"   '[ "$got" -eq 0 ] && [ "$(running)" = "$(rel 11)" ] && [ "$(grep -n "run --rm --no-deps migrate" "$STUB_CALLS" | head -1 | cut -d: -f1)" -lt "$(grep -n -- "--scale api-public" "$STUB_CALLS" | head -1 | cut -d: -f1)" ]'
+publish rel-12 12 "$web"
+: >"$STUB_CALLS"; STUB_FAIL_MIGRATE=1 run rel-12; got=$?
+check "failed migration: refused, nothing replaced, release not recorded"   '[ "$got" -eq 1 ] && [ "$(running)" = "$(rel 11)" ] && grep -q "migrations failed" "$root/out" && ! grep -q -- "--scale" "$STUB_CALLS"'
+rm -f "$root/config/migrate.env"
 
 echo "== $failures failure(s)"
 [ "$failures" -eq 0 ]
