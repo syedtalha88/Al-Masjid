@@ -21,6 +21,10 @@
 | 16 Oct | Owner: host layer `a33610e` installed (atlas-users.sh shipped; check.sh fix for never-deployed production: certs noted, not failed); staging moved forward to `bdc4247` by itself (first release needing the new compose file) | `a33610e` |
 | 16 Oct | Owner: `atlas-users.sh staging` run with a temporary service account → 4 custom roles + 4 users on Atlas, connection strings written on the server only, `deploy.sh staging --restart` ran the first migrations on Atlas, no errors; service account deleted, wizard user deleted | A4, A5 done |
 | 16 Oct | **Session ended by the owner** ("back from autopilot"): normal rules apply again from the next session (CLAUDE.md §3–§5; ask before outward-facing actions). Records updated: PROGRESS (phase table, T1.x, owner list O6–O12), owner/MY_PENDING_TASKS.md, this log | — |
+| 16 Oct (normal mode) | T1.1 read-only privilege check: `verifyRoles` + `dist/verify-roles.mjs` + `deploy.sh <env> --verify-roles`; passes for all 4 users locally; IP access list evidence = owner's Atlas screen (Atlas answers non-allowed IPs with a generic "bad auth") | `a8c824b` |
+| 16 Oct (normal mode) | Owner allowed pushing tested work to main without asking (memory saved) | — |
+| 16 Oct (normal mode) | T1.7 field encryption + token helpers (DECISIONS #66) | `78b3807` |
+| 16 Oct | **Autopilot resumed** by the owner ("continue on autopilot for this message… keep things required from me on hold but mark it down… keep moving to next subphases… mark down all the things you did"). Same limits as before: no secrets, no SSH, no paid services, no weakening of security/privacy/legal posture. Next: T1.3 state functions | — |
 
 ## For the owner (collected during the session)
 
