@@ -1,5 +1,5 @@
 import type { AnyRoute, AnyRouter } from '@tanstack/react-router';
-import type { ComponentType } from 'react';
+import { type ComponentType, lazy } from 'react';
 
 import type { NavLocation } from './model.ts';
 
@@ -81,6 +81,26 @@ export function tanstackAdapter(router: AnyRouter): NavAdapter {
   });
   const findRoute = (pathname: string) =>
     (router.getMatchedRoutes(pathname) as [unknown, unknown, AnyRoute | undefined])[2];
+  // Code-split route components (the router plugin's lazy wrappers) suspend with React 19 `use(promise)` on their
+  // first render and render synchronously afterwards — React reports that as an incorrect use of `use()`. TanStack's
+  // own <Match> loads the chunk before rendering; the navigator renders screens itself, so it does the same: each
+  // split screen is wrapped once in `React.lazy`, which loads the chunk first (found 16 Oct 2026, both PWAs).
+  const screens = new Map<string, ComponentType>();
+  const screenOf = (route: AnyRoute, component: ComponentType): ComponentType => {
+    const preload = (component as { preload?: unknown }).preload;
+    if (typeof preload !== 'function') return component;
+    const id = route.id as string;
+    let screen = screens.get(id);
+    if (!screen) {
+      screen = lazy(async () => {
+        await router.loadRouteChunk(route);
+        await (preload as () => Promise<unknown>)(); // the wrapper's own loader: afterwards it renders synchronously
+        return { default: component };
+      });
+      screens.set(id, screen);
+    }
+    return screen;
+  };
   return {
     getLocation: () => toLocation(history.location),
     subscribe: (listener) =>
@@ -105,7 +125,7 @@ export function tanstackAdapter(router: AnyRouter): NavAdapter {
       ];
       const component = (route?.options as { component?: ComponentType } | undefined)?.component;
       if (!route || !component) return null;
-      return { routeId: route.id as string, component, params: rawParams };
+      return { routeId: route.id as string, component: screenOf(route, component), params: rawParams };
     },
     preload(pathname) {
       const route = findRoute(pathname);
