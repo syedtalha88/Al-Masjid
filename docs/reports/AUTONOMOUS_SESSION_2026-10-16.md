@@ -19,6 +19,8 @@
 | 16 Oct | T1.2: schema DSL + all collections/views, migration runner + 7 migrations, drift check, server migrate entry, VPS migrate step; 61 db tests, 95.8 % coverage; found + fixed: drift check compared promoted longs as ints; a stub `case` result ignored by `exit 0` | DECISIONS #64 |
 | 16 Oct | Same driver timing test flaky again under load (first-frame margin) — now asserts the real property only (never behind the interrupt point, never back at the old target) | — |
 
+| 16 Oct | T1.5 client/scopes/transactions + T1.4 policy gateway and 984-cell matrix test (built before T1.3, which needs both); 92 db tests, 97 % coverage; found + fixed: tests that depended on each other's fixtures | DECISIONS #65 |
+
 ## For the owner (collected during the session)
 
 | # | What | Why | Blocking? |

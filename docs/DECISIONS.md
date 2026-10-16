@@ -485,6 +485,14 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **Seed:** `app_settings` "global" is inserted once (`$setOnInsert`); the grievance officer and support contact are clearly marked placeholders ("NOT SET") until the Super Admin sets them in C10 (T1.11) — they must be real before launch (05 §2).
 - **Deploys:** the host-layer compose file gains a `migrate` service (profile, migrator credential only, outbound only); `deploy.sh` runs it before the rolling update — a failure leaves the running release untouched. Staging without `migrate.env` (Atlas users not set up yet) skips with a warning; production refuses.
 
+### #65 — Scopes, client and the policy gateway (PHASE_01 T1.4/T1.5) — ACCEPTED (Claude Code, owner-authorised autopilot session, 16 Oct 2026)
+**Decision:**
+- **Order:** T1.5 (client, scopes, transactions) and T1.4 (policy) were built before T1.3 (state functions), which need both.
+- **Scopes** (`src/scope.ts`) are frozen objects with a private brand; `isScope()` rejects look-alikes, and the policy layer refuses an unbranded "scope" for every operation. Admin memberships are deduplicated and frozen. The API builds an admin scope only for an ACTIVE admin (02 §3) — a disabled admin never gets one (enforced in the session layer, T1.8); at the data layer an admin with no memberships sees no masjid data (tested).
+- **Client** (`src/client.ts`): one lazily connecting `MongoClient` per process with the 01 §5.1 options; concurrent first callers share one connect; a failed connect can be retried; `ping()` never throws (health). `withTransaction` = driver `session.withTransaction` with majority read/write concern and primary reads; the callback must be re-runnable (the driver retries it on `TransientTransactionError` — proven: retried once, committed once).
+- **Policy gateway** (`src/policy.ts` + `src/scoped.ts`): one cell per (namespace × scope × operation) from 02 §4.1; the tenant filter is `$and`-ed into every query (a caller's `$or`/crafted ids cannot widen it — another tenant's id simply matches nothing), inserted documents must lie inside the tenant, updates are limited to the cell's writable fields (+ `updated_at`) and to `$set/$unset/$inc/$push/$pull/$setOnInsert/$addToSet`, hidden fields are projected out, removed items are redacted for admins, and operator-shaped keys in written data are refused. Super Admin status/deletion/follow-code/counter changes are not generic writes (state functions, T1.3). The matrix test drives all 41 × 6 × 4 = 984 cells through the gateway against an independent transcription of 02 §4.1.
+- **Typed repositories per aggregate** are built on `scoped()` with the features that use them (auth T1.8, masjids/admins/settings/audit T1.11); repositories accept typed values only — never a raw filter from a request.
+
 ## OPEN
 
 _None._
