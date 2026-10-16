@@ -28,6 +28,8 @@
 | 16 Oct (autopilot) | T1.3 state functions + side effects (DECISIONS #67). **Found + fixed a security bug before it shipped:** content-write confinement could overwrite the tenant filter (cross-masjid write); now `$and`. Also: admin edits of a masjid's own fields now go through `contentWrite()` (02 §5 "masjids (public fields)" bump) — one policy test updated for it. One db-suite run reported 107/113 with no failure printed; did not reproduce in 4 further runs (watching) | see git log |
 | 16 Oct (autopilot) | The owner declined one push (`git push` of T1.3 to the branch and main). Since then: **commits stay local, nothing is pushed** until the owner says so | — |
 | 16 Oct (autopilot) | T1.6 API framework pieces (DECISIONS #68): rate limiter + buckets, error codes + i18n drafts (hi/ur/te need translator review), health with MongoDB/Redis, ACL test. Added dependency `rate-limiter-flexible` 11.2.1 to `packages/api` (server only). `pnpm setup:local` now also writes three local-only Redis test URLs. **Heads-up:** after the next deploy, staging `/health` returns 503 whenever Atlas or Redis is unreachable — by design | local commit |
+| 16 Oct (autopilot) | The owner declined the `@simplewebauthn/server` install prompt → not retried; the WebAuthn routes wait (A6). Linked the workspace package `@mc/db` into `@mc/api` instead (offline, no download) | — |
+| 16 Oct (autopilot) | T1.8 part 1 (DECISIONS #69): auth data layer + session/CSRF/challenge plumbing + session routes, tested against MongoDB/Redis and smoke-tested on the built api-admin. **Found + fixed:** `decryptField` accepted non-canonical base64url (a randomly failing property test exposed it; no forgery possible, now strict). `packages/api` coverage now gated on the integration run | local commits |
 
 ## For the owner (collected during the session)
 
@@ -38,3 +40,5 @@
 | A3 | Latency test on the VPS (command in the chat of 16 Oct) | Phase 00 closure V-21 | No |
 | A4 | ~~Atlas users via atlas-users.sh~~ | **done 16 Oct 2026** | – |
 | A5 | ~~Host layer update~~ | **done 16 Oct 2026** (`a33610e`) | – |
+| A6 | Allow installing `@simplewebauthn/server` 14.0.3 (passkeys; named in 01 §4) — or tell Claude Code why not | T1.8 login/registration routes | Yes, for T1.8 |
+| A7 | Pushing: commits since `7cb3555` are local only (push was declined) — say when to push | Staging gets nothing new until then | No |

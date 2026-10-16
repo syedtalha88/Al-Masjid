@@ -3,6 +3,7 @@ import { randomBytes } from 'node:crypto';
 import { Redis } from 'ioredis';
 import { afterAll, describe, expect, it } from 'vitest';
 
+import { redisChallengeStore } from '../src/auth/challenges.ts';
 import { redisRateLimiter } from '../src/http/rate-limit.ts';
 import { useTestRedis } from '../src/testing/vitest.ts';
 
@@ -23,6 +24,9 @@ const connect = async (url: string) => {
   await client.connect();
   return client;
 };
+
+let suffixValue = '';
+const suffixOf = () => (suffixValue ||= randomBytes(4).toString('hex'));
 
 afterAll(async () => {
   await Promise.all(opened.map((client) => client.quit().catch(() => undefined)));
@@ -105,5 +109,28 @@ describe('Redis ACL users (04 §12.2): each process only reaches its own key pre
     const admin = redisRateLimiter(client, 'rl:adm:', { adminWrites: { points: 1, durationSec: 60 } });
     // Without insurance the store error would surface; with it, the request is still counted in memory.
     expect(await admin.consume('adminWrites', key)).toEqual({ allowed: true });
+  });
+});
+
+describe('Redis challenge store (04 §3)', () => {
+  it('GETDEL: a challenge is returned once; 5-minute TTL; the admin ACL user may use chal:*', async () => {
+    const store = redisChallengeStore(redis().redis);
+    const challenge = await store.issue('register', 'invite-x');
+    expect(await store.take('register', 'invite-x')).toBe(challenge);
+    expect(await store.take('register', 'invite-x')).toBeUndefined();
+    await store.issue('login', 'cookie-y');
+    const [, keys] = await redis().redis.scan('0', 'MATCH', `${redis().prefix}chal:login:*`, 'COUNT', 1000);
+    expect(keys).toHaveLength(1);
+    const ttl = await redis().redis.ttl((keys[0] ?? '').slice(redis().prefix.length));
+    expect(ttl).toBeGreaterThan(290);
+    expect(ttl).toBeLessThanOrEqual(300);
+    expect(keys[0]).not.toContain('cookie-y'); // binding hashed
+
+    const admin = await connect(urlOf('REDIS_URL_TEST_ADMIN'));
+    const adminStore = redisChallengeStore(admin);
+    const issued = await adminStore.issue('step_up', `session-${suffixOf()}`);
+    expect(await adminStore.take('step_up', `session-${suffixOf()}`)).toBe(issued);
+    const publicUser = await connect(urlOf('REDIS_URL_TEST_RL_PUBLIC'));
+    await expect(redisChallengeStore(publicUser).issue('login', 'z')).rejects.toThrow(/NOPERM/);
   });
 });

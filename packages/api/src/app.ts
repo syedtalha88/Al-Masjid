@@ -3,6 +3,8 @@ import { type Clock, systemClock } from '@mc/shared/clock';
 import express, { type Express, type Router } from 'express';
 import type { Logger } from 'pino';
 
+import { requireAdminOrigin } from './auth/csrf.ts';
+import { type Authenticate, installAuthenticator } from './auth/session.ts';
 import { jsonBody } from './http/body.ts';
 import type { TrustedProxyMode } from './http/client-ip.ts';
 import { mountRoutes, type RouteDefinition } from './http/define-route.ts';
@@ -34,6 +36,10 @@ export interface AppDependencies {
   readonly rateLimiter?: RateLimiter;
   /** MongoDB + Redis pings for `/health` (the entrypoints always pass both). */
   readonly health?: Partial<HealthProbes>;
+  /** Session authentication (api-admin); routes with `auth` other than `none` need it (T1.8). */
+  readonly authenticate?: Authenticate;
+  /** api-admin: `ADMIN_ORIGIN` for the Origin/CSRF guard — without it every unsafe request is refused. */
+  readonly adminOrigin?: string;
 }
 
 export interface CreatedApp {
@@ -74,12 +80,15 @@ function assemble(
     reportError,
     rateLimiter,
     health,
+    authenticate,
+    adminOrigin,
   }: AppDependencies,
   noindex: boolean,
 ): CreatedApp {
   const app = createBaseApp();
   app.locals['clock'] = clock; // services read it from Phase 1 on
   installRateLimiter(app.locals, rateLimiter, trustedProxyMode);
+  installAuthenticator(app.locals, authenticate);
   const registry = new OpenAPIRegistry();
   const router = newRouter();
   mountRoutes(router, prefix, [healthRoute(service, release, health), ...routes], registry);
@@ -93,7 +102,8 @@ function assemble(
   app.use(securityHeaders({ noindex })); // 2
   app.use(rejectPreflight());
   app.use(jsonBody()); // 3
-  // 4 (origin/CSRF, admin) and 5 (auth) arrive with T1.8; 6 (rate limit) and 7 (validation) run in defineRoute.
+  if (service === 'api-admin') app.use(requireAdminOrigin(adminOrigin)); // 4
+  // 5 (auth), 6 (rate limit) and 7 (validation) run per route in defineRoute.
   app.use(prefix, router); // 8
   app.use(notFound()); // 9
   app.use(errorMapper(logger, reportError)); // 10

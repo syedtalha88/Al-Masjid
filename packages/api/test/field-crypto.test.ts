@@ -55,6 +55,23 @@ describe('encryptField / decryptField', () => {
     );
   });
 
+  it('accepts only the canonical base64url form (unused padding bits of the last character changed → refused)', () => {
+    // 15-byte plaintext + 16-byte tag = 31 bytes → 42 characters, the last carrying 4 unused bits.
+    for (let i = 0; i < 50; i += 1) {
+      const value = encryptField(ring, '+91 98480 22338', PHONE);
+      const last = value.at(-1) ?? 'A';
+      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+      const index = alphabet.indexOf(last);
+      const sibling = alphabet.charAt(index ^ 1); // flips the lowest (unused) bit only
+      const variant = value.slice(0, -1) + sibling;
+      expect(Buffer.from(variant.split(':')[3] ?? '', 'base64url')).toEqual(
+        Buffer.from(value.split(':')[3] ?? '', 'base64url'),
+      ); // same bytes…
+      expect(() => decryptField(ring, variant, PHONE)).toThrow(FieldCryptoError); // …still refused
+      expect(decryptField(ring, value, PHONE)).toBe('+91 98480 22338');
+    }
+  });
+
   it('is bound to its field: a value copied into another field never decrypts there', () => {
     const value = encryptField(ring, '+91 98480 22338', PHONE);
     expect(() => decryptField(ring, value, 'grievances.contact_enc')).toThrow(FieldCryptoError);

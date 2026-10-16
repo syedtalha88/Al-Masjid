@@ -1,5 +1,6 @@
 // Entrypoint: api-admin (admin.<domain>/api/admin/*, /api/super/*, /api/hooks/*). No business logic here.
-import { createAdminApp, createLogger, startHttpServer } from '@mc/api';
+import { adminRoutes, createAdminApp, createLogger, sessionAuthenticator, startHttpServer } from '@mc/api';
+import { systemClock } from '@mc/shared/clock';
 
 import { openApiConnections } from './connections.ts';
 import { bootEnv, onShutdownSignal } from './lifecycle.ts';
@@ -26,7 +27,12 @@ const connections = openApiConnections(
   },
   logger,
 );
+const clock = hooks?.clock ?? systemClock;
+const pepper = Buffer.from(env.SESSION_PEPPER, 'base64'); // validated: ≥ 32 bytes (env.ts)
 const { app } = createAdminApp({
+  adminOrigin: env.ADMIN_ORIGIN,
+  authenticate: sessionAuthenticator({ db: connections.db, pepper, clock }),
+  routes: adminRoutes({ db: connections.db, pepper }),
   rateLimiter: connections.rateLimiter,
   health: connections.health,
   logger,

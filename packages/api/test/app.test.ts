@@ -99,7 +99,35 @@ describe('security headers (04 §7 — API JSON responses)', () => {
 describe('routing', () => {
   it('unknown API route → problem+json 404', async () => {
     expectProblem(await request(publicApp()).get('/api/v1/does-not-exist'), 404, 'NOT_FOUND');
-    expectProblem(await request(adminApp()).post('/api/admin/does-not-exist'), 404, 'NOT_FOUND');
+    const guarded = createAdminApp({
+      logger: silentLogger(),
+      release: 'test-sha',
+      trustedProxyMode: 'none',
+      adminOrigin: 'https://admin.test',
+    }).app;
+    const csrf = { Origin: 'https://admin.test', 'X-MC-CSRF': '1' };
+    expectProblem(await request(guarded).post('/api/admin/does-not-exist').set(csrf), 404, 'NOT_FOUND');
+  });
+
+  it('api-admin: unsafe requests need the exact Origin AND X-MC-CSRF: 1 (03 §1), checked before routing', async () => {
+    const app = createAdminApp({
+      logger: silentLogger(),
+      release: 'test-sha',
+      trustedProxyMode: 'none',
+      adminOrigin: 'https://admin.test',
+    }).app;
+    const post = (headers: Record<string, string>) => request(app).post('/api/admin/anything').set(headers);
+    expectProblem(await post({}), 403, 'ORIGIN_REJECTED');
+    expectProblem(await post({ 'X-MC-CSRF': '1' }), 403, 'ORIGIN_REJECTED');
+    expectProblem(await post({ Origin: 'https://admin.test' }), 403, 'ORIGIN_REJECTED');
+    expectProblem(await post({ Origin: 'https://evil.test', 'X-MC-CSRF': '1' }), 403, 'ORIGIN_REJECTED');
+    expectProblem(await post({ Origin: 'https://admin.test', 'X-MC-CSRF': 'true' }), 403, 'ORIGIN_REJECTED');
+    expectProblem(await post({ Origin: 'https://admin.test', 'X-MC-CSRF': '1' }), 404, 'NOT_FOUND');
+    expect((await request(app).get('/api/admin/health')).status).toBe(200); // safe methods pass
+    // No configured origin → every unsafe request is refused (fails closed).
+    expectProblem(await request(adminApp()).delete('/api/admin/x').set({ 'X-MC-CSRF': '1' }), 403, 'ORIGIN_REJECTED');
+    // The public app has no such guard (cookie-less, device auth).
+    expectProblem(await request(publicApp()).post('/api/v1/does-not-exist'), 404, 'NOT_FOUND');
   });
 
   it('routes are case-sensitive and strict about trailing slashes', async () => {

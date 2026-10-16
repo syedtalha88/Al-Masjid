@@ -44,3 +44,6 @@ export function parseId(text: string): UUID | undefined {
 
 /** Canonical lower-case text form for API responses. */
 export const idText = (id: UUID): string => id.toHexString(true);
+
+/** True for a UUID value read from the database (documents come back untyped through the gateway). */
+export const isId = (value: unknown): value is UUID => value instanceof UUID;

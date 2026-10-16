@@ -1,7 +1,9 @@
 import type { OpenAPIRegistry, RouteConfig } from '@asteasolutions/zod-to-openapi';
+import { type Clock, systemClock } from '@mc/shared/clock';
 import type { Request, RequestHandler, Response, Router } from 'express';
 import { z } from 'zod';
 
+import { type AuthedSession, authenticateRequest, type RouteAuth } from '../auth/session.ts';
 import { ApiProblem } from './problem.ts';
 import { enforceRateLimits, type RateLimitRule } from './rate-limit.ts';
 import { getRequestId } from './request-id.ts';
@@ -12,8 +14,7 @@ type EmptyObject = typeof EMPTY;
 
 export type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
 
-/** Auth schemes (03 §1). Only `none` exists before Phase 1 adds device/session/super auth. */
-export type RouteAuth = 'none';
+export type { RouteAuth };
 
 type Responses = Readonly<Record<number, z.ZodType>>;
 
@@ -22,7 +23,13 @@ export type RouteResult<R extends Responses> = {
   [S in keyof R & number]: { readonly status: S; readonly body: z.input<R[S]> };
 }[keyof R & number];
 
-export interface RouteContext<P, Q, B, R extends Responses> {
+/** What a handler receives as `auth`: nothing on public routes, the session (and its DB scope) otherwise. */
+export type AuthFor<A extends RouteAuth> = A extends 'none' ? undefined : AuthedSession;
+
+export interface RouteContext<P, Q, B, R extends Responses, A extends RouteAuth = 'none'> {
+  readonly auth: AuthFor<A>;
+  /** The app's clock (real, or the test-hook clock in e2e). */
+  readonly clock: Clock;
   readonly params: P;
   readonly query: Q;
   readonly body: B;
@@ -33,13 +40,19 @@ export interface RouteContext<P, Q, B, R extends Responses> {
   readonly reply: <S extends keyof R & number>(status: S, body: z.input<R[S]>) => RouteResult<R>;
 }
 
-export interface RouteSpec<P extends z.ZodObject, Q extends z.ZodObject, B extends z.ZodType, R extends Responses> {
+export interface RouteSpec<
+  P extends z.ZodObject,
+  Q extends z.ZodObject,
+  B extends z.ZodType,
+  R extends Responses,
+  A extends RouteAuth = 'none',
+> {
   readonly method: HttpMethod;
   /** Express-style path relative to the router, e.g. `/masjids/:id`. */
   readonly path: string;
   readonly summary: string;
   readonly tags?: readonly string[];
-  readonly auth: RouteAuth;
+  readonly auth: A;
   /** Rate-limit rules (03 §2), applied in order after auth and before validation. */
   readonly rateLimit?: readonly RateLimitRule[];
   /** `Cache-Control` for successful responses (01 §5.2). Default `no-store`. */
@@ -47,7 +60,7 @@ export interface RouteSpec<P extends z.ZodObject, Q extends z.ZodObject, B exten
   readonly request?: { readonly params?: P; readonly query?: Q; readonly body?: B };
   readonly responses: R;
   readonly handler: (
-    context: RouteContext<z.output<P>, z.output<Q>, z.output<B>, R>,
+    context: RouteContext<z.output<P>, z.output<Q>, z.output<B>, R, A>,
   ) => RouteResult<R> | Promise<RouteResult<R>>;
 }
 
@@ -88,14 +101,23 @@ function parsePart(part: 'params' | 'query' | 'body', schema: z.ZodType, value: 
   );
 }
 
+const isClock = (value: unknown): value is Clock =>
+  typeof value === 'object' && value !== null && typeof (value as { now?: unknown }).now === 'function';
+/** The app's clock (`app.locals.clock`, set by the app factory). */
+const clockOf = (req: Request): Clock => {
+  const value: unknown = req.app.locals['clock'];
+  return isClock(value) ? value : systemClock;
+};
+
 /** `/masjids/:id` → `/masjids/{id}` for OpenAPI. */
 export const toOpenApiPath = (path: string): string => path.replace(/:([A-Za-z0-9_]+)/g, '{$1}');
 
 /**
  * Declares an HTTP route (03 header, CLAUDE.md §6). The **only** place raw Express routing is allowed
  * (lint rule `mc/no-raw-routes`). The returned definition:
- * 1. applies the route's rate limits — 03 §0 step 6, after auth (T1.8) and before validation → 429 `RATE_LIMITED`
- *    with `Retry-After`,
+ * 0. authenticates per `auth` (03 §0 step 5) → 401 `SESSION_REQUIRED` / 403 `FORBIDDEN` / 403 `STEP_UP_REQUIRED`;
+ *    the handler gets the session and its DB scope as `auth`,
+ * 1. applies the route's rate limits — step 6, before validation → 429 `RATE_LIMITED` with `Retry-After`,
  * 2. rejects `$`/`.` keys anywhere in params/query/body (R11),
  * 3. validates params/query/body with strict Zod objects → 400 `VALIDATION_FAILED` with field paths (never the raw
  *    input),
@@ -110,7 +132,8 @@ export function defineRoute<
   Q extends z.ZodObject = EmptyObject,
   B extends z.ZodType = z.ZodUndefined,
   R extends Responses = Responses,
->(spec: RouteSpec<P, Q, B, R>): RouteDefinition {
+  A extends RouteAuth = 'none',
+>(spec: RouteSpec<P, Q, B, R, A>): RouteDefinition {
   const paramsSchema = strict(spec.request?.params ?? EMPTY);
   const querySchema = strict(spec.request?.query ?? EMPTY);
   const bodySchema = spec.request?.body ? strict(spec.request.body) : z.undefined();
@@ -119,12 +142,25 @@ export function defineRoute<
   const rateLimit = spec.rateLimit ?? [];
 
   const handle: RequestHandler = async (req, res) => {
-    await enforceRateLimits(req, rateLimit);
+    const clock = clockOf(req);
+    const authed = await authenticateRequest(req, res, spec.auth, clock.now());
+    await enforceRateLimits(req, rateLimit, authed?.session.sessionId.toHexString());
     const params = parsePart('params', paramsSchema, req.params) as z.output<P>; // parsed by P's schema
     const query = parsePart('query', querySchema, req.query) as z.output<Q>; // parsed by Q's schema
     const body = parsePart('body', bodySchema, req.body) as z.output<B>; // parsed by B's schema
 
-    const result = await spec.handler({ params, query, body, requestId: getRequestId(res), req, res, reply });
+    const auth = authed as AuthFor<A>; // authenticateRequest returns a session exactly when spec.auth !== 'none'
+    const result = await spec.handler({
+      auth,
+      clock,
+      params,
+      query,
+      body,
+      requestId: getRequestId(res),
+      req,
+      res,
+      reply,
+    });
     const schema = spec.responses[result.status];
     if (schema === undefined)
       throw new Error(

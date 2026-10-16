@@ -82,12 +82,15 @@ describe('test hooks mounted (test-hook mode)', () => {
 describe('test hooks absent (every shipped configuration)', () => {
   it('/test/clock is a plain 404 on both apps', async () => {
     const publicApp = createPublicApp({ ...base, logger: silentLogger() }).app;
-    const adminApp = createAdminApp({ ...base, logger: silentLogger() }).app;
+    const adminApp = createAdminApp({ ...base, logger: silentLogger(), adminOrigin: 'https://admin.test' }).app;
     for (const [app, path] of [
       [publicApp, '/api/v1/test/clock'],
       [adminApp, '/api/admin/test/clock'],
     ] as const) {
-      const response = await request(app).put(path).send({ reset: true });
+      const response = await request(app)
+        .put(path)
+        .set({ Origin: 'https://admin.test', 'X-MC-CSRF': '1' })
+        .send({ reset: true });
       expect(response.status).toBe(404);
       expect(response.body).toMatchObject({ code: 'NOT_FOUND' });
     }

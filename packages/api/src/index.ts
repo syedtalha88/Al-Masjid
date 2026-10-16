@@ -7,6 +7,8 @@ export {
   createPublicApp,
   PUBLIC_API_PREFIX,
 } from './app.ts';
+export { type ChallengeStore, memoryChallengeStore, redisChallengeStore } from './auth/challenges.ts';
+export { type AuthedSession, type Authenticate, type RouteAuth, sessionAuthenticator } from './auth/session.ts';
 export {
   decryptField,
   encryptField,
@@ -34,4 +36,6 @@ export {
 export { DRAIN_TIMEOUT_MS, type RunningServer, SERVER_TIMEOUTS, startHttpServer } from './http/server.ts';
 export { createLogger } from './logger.ts';
 export { buildOpenApiDocument } from './openapi.ts';
+export { adminSessionRoutes } from './routes/admin-auth.ts';
 export { type HealthProbes, PROBE_TIMEOUT_MS } from './routes/health.ts';
+export { type AdminRouteDeps, adminRoutes } from './routes/index.ts';

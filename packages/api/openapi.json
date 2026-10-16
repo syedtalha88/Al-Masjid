@@ -47,6 +47,154 @@
           "db",
           "redis"
         ]
+      },
+      "InviteInfo": {
+        "type": "object",
+        "properties": {
+          "adminDisplayName": {
+            "type": "string"
+          },
+          "masjidNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "register",
+              "add_device",
+              "recovery"
+            ]
+          },
+          "uiLocale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
+          }
+        },
+        "required": [
+          "adminDisplayName",
+          "masjidNames",
+          "purpose",
+          "uiLocale"
+        ]
+      },
+      "AdminMe": {
+        "type": "object",
+        "properties": {
+          "admin": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "super_admin",
+                  "masjid_admin"
+                ]
+              },
+              "uiLocale": {
+                "type": "string",
+                "enum": [
+                  "en",
+                  "hi",
+                  "ur",
+                  "te"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "displayName",
+              "role",
+              "uiLocale"
+            ]
+          },
+          "masjids": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "owner",
+                    "editor"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "role"
+              ]
+            }
+          },
+          "undertakingRequired": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "admin",
+          "masjids",
+          "undertakingRequired"
+        ]
+      },
+      "AdminSessionList": {
+        "type": "object",
+        "properties": {
+          "sessions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "current": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "lastSeenAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "device": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "current",
+                "createdAt",
+                "lastSeenAt"
+              ]
+            }
+          }
+        },
+        "required": [
+          "sessions"
+        ]
       }
     },
     "parameters": {}
@@ -108,6 +256,113 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/invite/{token}": {
+      "get": {
+        "summary": "Read an invite without using it (uniform 404 when invalid)",
+        "tags": [
+          "auth"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "token",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/me": {
+      "get": {
+        "summary": "The signed-in admin, their masjids and whether the undertaking must be accepted",
+        "tags": [
+          "auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMe"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/sessions": {
+      "get": {
+        "summary": "Own live sessions",
+        "tags": [
+          "auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSessionList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/sessions/{id}": {
+      "delete": {
+        "summary": "Sign out one of your own sessions (204 even for unknown ids)",
+        "tags": [
+          "auth"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/auth/logout": {
+      "post": {
+        "summary": "Sign out this session",
+        "tags": [
+          "auth"
+        ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
           }
         }
       }

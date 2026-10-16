@@ -14,7 +14,7 @@
     "lint": "eslint . --max-warnings 0",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:int": "node ../../scripts/vitest-int.mjs",
+    "test:int": "node ../../scripts/vitest-int.mjs --coverage",
     "openapi:generate": "tsx scripts/generate-openapi.ts"
   },
   "devDependencies": {
@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "9.1.0",
+    "@mc/db": "workspace:*",
     "@mc/shared": "workspace:*",
     "express": "5.2.1",
     "helmet": "8.3.0",

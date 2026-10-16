@@ -69,6 +69,16 @@ export function encryptField(ring: FieldKeyRing, plaintext: string, context: str
 }
 
 /**
+ * Decodes base64url only in its canonical form: Node ignores the unused low bits of the last character, so several
+ * strings would otherwise decode to the same bytes — exactly one stored form is accepted (found by the tamper
+ * property test, 16 Oct 2026).
+ */
+function canonicalBase64url(text: string): Buffer | undefined {
+  const bytes = Buffer.from(text, 'base64url');
+  return bytes.toString('base64url') === text ? bytes : undefined;
+}
+
+/**
  * Decrypts a value written by {@link encryptField} with the current or any old key.
  *
  * @throws FieldCryptoError — one message for every cause (malformed value, unknown key id, wrong field, tampering).
@@ -77,9 +87,11 @@ export function decryptField(ring: FieldKeyRing, value: string, context: string)
   const match = VALUE.exec(value);
   const key = match ? ring.keys.get(match[1] ?? '') : undefined;
   if (!match || !key) throw new FieldCryptoError('cannot decrypt field');
-  const iv = Buffer.from(match[2] ?? '', 'base64url');
-  const body = Buffer.from(match[3] ?? '', 'base64url');
-  if (iv.length !== IV_BYTES || body.length < TAG_BYTES) throw new FieldCryptoError('cannot decrypt field');
+  const iv = canonicalBase64url(match[2] ?? '');
+  const body = canonicalBase64url(match[3] ?? '');
+  if (!iv || !body || iv.length !== IV_BYTES || body.length < TAG_BYTES) {
+    throw new FieldCryptoError('cannot decrypt field');
+  }
   try {
     const decipher = createDecipheriv(ALGORITHM, key, iv, { authTagLength: TAG_BYTES });
     decipher.setAAD(aad(context));

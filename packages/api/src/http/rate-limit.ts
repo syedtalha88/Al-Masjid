@@ -118,7 +118,7 @@ export function redisRateLimiter(
 const pointsOf = (bucket: RateLimitBucket) => ({ points: bucket.points, duration: bucket.durationSec });
 
 /** How a route names the client a bucket counts. */
-export type RateLimitKey = 'ip' | ((req: Request) => string | undefined);
+export type RateLimitKey = 'ip' | 'session' | ((req: Request) => string | undefined);
 
 /** One rate-limit rule of a route (`defineRoute({ rateLimit: [...] })`). */
 export interface RateLimitRule {
@@ -149,13 +149,17 @@ const isLimiter = (value: unknown): value is RateLimiter =>
  *
  * @throws ApiProblem 429 `RATE_LIMITED` (with `Retry-After`) when a bucket is exhausted.
  */
-export async function enforceRateLimits(req: Request, rules: readonly RateLimitRule[]): Promise<void> {
+export async function enforceRateLimits(
+  req: Request,
+  rules: readonly RateLimitRule[],
+  sessionKey?: string,
+): Promise<void> {
   if (rules.length === 0) return;
   const limiter: unknown = req.app.locals[LIMITER];
   if (!isLimiter(limiter)) throw new Error('route declares rate limits but the app has no rate limiter');
   const mode = req.app.locals[PROXY_MODE] === 'cloudflare' ? 'cloudflare' : 'none';
   for (const rule of rules) {
-    const key = rule.key === 'ip' ? clientIp(req, mode) : rule.key(req);
+    const key = rule.key === 'ip' ? clientIp(req, mode) : rule.key === 'session' ? sessionKey : rule.key(req);
     if (key === undefined || key === null) continue;
     const decision = await limiter.consume(rule.bucket, key);
     if (!decision.allowed) {
