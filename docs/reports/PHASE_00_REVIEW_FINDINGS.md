@@ -83,4 +83,4 @@ Security: the HIGH (H1) was fixed by DECISIONS #61; M1 is the owner's environmen
 | V-28 | LOW | S-L7, S-L9, S-L13 still open | fixed (all three resolved above) |
 | V-29 | LOW | `pnpm dev` health through the Vite proxy has no automated check | fixed (`pnpm check:dev-proxy`: real Vite dev servers + stub API on the setup-local ports — path, Host, Origin, Set-Cookie; CI unit job + `pnpm verify`; a wrong proxy port fails 6 checks) |
 | V-30 | LOW | `Via` header; `X-Robots-Tag` twice on admin API responses | fixed (Caddy drops `Via` and the upstream robots header; spec checks both) |
-| V-31 | MED | security-reviewer to re-run on the phase diff | open (with the phase close) |
+| V-31 | MED | security-reviewer to re-run on the phase diff | open — started 16 Oct 2026 (security-reviewer on `69ca205..HEAD` + phase-verifier), both stopped by the usage limit before reporting; re-run next session after the full verify is green |
