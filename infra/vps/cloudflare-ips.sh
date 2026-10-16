@@ -4,6 +4,7 @@
 # (mc-docker-user-firewall.service). Idempotent; atomic ipset swap, so there is no window without the rule.
 #   cloudflare-ips.sh            fetch + validate + apply
 #   cloudflare-ips.sh --apply    re-apply rules from the saved list (no network; used at boot)
+#   cloudflare-ips.sh --check <v4 file> <v6 file>   validate two lists only (tests; no network, no firewall)
 # DRAFT 14 Oct 2026 — reviewed and first run with the owner in T0.14.
 set -euo pipefail
 
@@ -14,11 +15,22 @@ PORT=443 # the host port the edge router publishes (docker-compose.edge.yml)
 
 log() { printf 'cloudflare-ips: %s\n' "$*"; }
 
+# A fetched range wider than /8 (IPv4) or /20 (IPv6) is refused: a tampered or broken list must never open 443 to
+# large parts of the internet (re-review L9). Cloudflare's own ranges are /12–/22 and /29–/32.
+too_wide() { # <list file> — prints the offending ranges
+  awk -F/ '($1 ~ /:/ && $2 < 20) || ($1 !~ /:/ && $2 < 8)' "$1"
+}
+
 if [ "${1:-}" != --apply ]; then
   tmp=$(mktemp)
   trap 'rm -f "$tmp" "$tmp.v4" "$tmp.v6"' EXIT
-  curl -fsS --max-time 20 "$URL_V4" >"$tmp.v4"
-  curl -fsS --max-time 20 "$URL_V6" >"$tmp.v6"
+  if [ "${1:-}" = --check ]; then
+    cp "$2" "$tmp.v4"
+    cp "$3" "$tmp.v6"
+  else
+    curl -fsS --max-time 20 "$URL_V4" >"$tmp.v4"
+    curl -fsS --max-time 20 "$URL_V6" >"$tmp.v6"
+  fi
   # Accept only well-formed CIDRs; refuse suspiciously small lists rather than locking Cloudflare out.
   grep -E '^[0-9]{1,3}(\.[0-9]{1,3}){3}/[0-9]{1,2}$' "$tmp.v4" >"$tmp" || true
   v4=$(wc -l <"$tmp")
@@ -27,6 +39,15 @@ if [ "${1:-}" != --apply ]; then
   if [ "$v4" -lt 5 ] || [ $((total - v4)) -lt 3 ]; then
     log "refusing: only $v4 IPv4 / $((total - v4)) IPv6 ranges received — keeping the previous list"
     exit 1
+  fi
+  wide=$(too_wide "$tmp")
+  if [ -n "$wide" ]; then
+    log "refusing: ranges wider than /8 (IPv4) or /20 (IPv6): $(echo "$wide" | tr '\n' ' ')— keeping the previous list"
+    exit 1
+  fi
+  if [ "${1:-}" = --check ]; then
+    log "check passed: $v4 IPv4 + $((total - v4)) IPv6 ranges"
+    exit 0
   fi
   install -m 644 -D "$tmp" "$LIST"
   log "saved $v4 IPv4 + $((total - v4)) IPv6 ranges to $LIST"

@@ -31,12 +31,20 @@ function csp(response: APIResponse): Map<string, string[]> {
   );
 }
 
+/**
+ * The nightly job runs this spec against staging (`E2E_APP_URL`), where Cloudflare adds `Server: cloudflare` — the
+ * only server name allowed; locally there is none (re-review V-20).
+ */
+const BEHIND_CLOUDFLARE = !new URL(APP_URL).hostname.endsWith('localhost');
+
 function expectCommon(response: APIResponse) {
   const headers = response.headers();
   expect(headers).toMatchObject(COMMON);
   expect(headers['permissions-policy']?.replace(/\s/g, '')).toBe(PERMISSIONS.replace(/\s/g, ''));
-  expect(headers).not.toHaveProperty('server');
+  if (BEHIND_CLOUDFLARE) expect(headers['server'] ?? 'cloudflare').toBe('cloudflare');
+  else expect(headers).not.toHaveProperty('server');
   expect(headers).not.toHaveProperty('x-powered-by');
+  expect(headers).not.toHaveProperty('via'); // names the proxy software (re-review L5/V-30)
 }
 
 test.describe('static responses (Caddy)', () => {
@@ -85,6 +93,23 @@ test.describe('static responses (Caddy)', () => {
     expect(response.headers()['content-security-policy']).not.toMatch(/cloudflare|youtube/);
   });
 
+  test('entry scripts are always revalidated (no CDN override of no-cache — re-review L3)', async ({ request }) => {
+    for (const url of [`${APP_URL}/boot.js`, `${APP_URL}/sw.js`, `${ADMIN_URL}/boot.js`, `${ADMIN_URL}/sw.js`]) {
+      const response = await request.get(url);
+      expect(response.status(), url).toBe(200);
+      expect(response.headers()['cache-control'], url).toContain('no-cache');
+    }
+  });
+
+  test('every script is our own: same-origin paths only, nothing injected (re-review L4)', async ({ request }) => {
+    for (const url of [APP_URL, `${APP_URL}/offline.html`, ADMIN_URL, `${ADMIN_URL}/offline.html`]) {
+      const html = await (await request.get(url)).text();
+      const sources = [...html.matchAll(/<script\b[^>]*\bsrc="([^"]*)"/gi)].map((match) => match[1] ?? '');
+      for (const src of sources) expect(src, url).toMatch(/^\/(?!\/)/);
+      expect(html, url).not.toMatch(/cdn-cgi|cloudflareinsights|beacon\.min\.js/i);
+    }
+  });
+
   test('HTML has no inline script or style (no unsafe-inline needed)', async ({ request }) => {
     for (const url of [APP_URL, `${APP_URL}/offline.html`, ADMIN_URL, `${ADMIN_URL}/offline.html`]) {
       const html = await (await request.get(url)).text();
@@ -106,6 +131,9 @@ test.describe('API responses', () => {
     test(`${new URL(url).host}${new URL(url).pathname}: API CSP`, async ({ request }) => {
       const response = await request.get(url);
       expectCommon(response);
+      // Exactly one robots header (the API's own copy is dropped by Caddy — re-review V-30).
+      const robots = response.headers()['x-robots-tag'];
+      if (robots !== undefined) expect(robots.split(',').map((v) => v.trim())).toHaveLength(robots === 'all' ? 1 : 2);
       expect(response.headers()['content-security-policy']?.replace(/\s/g, '')).toBe(
         "default-src'none';frame-ancestors'none'",
       );

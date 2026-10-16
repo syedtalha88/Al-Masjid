@@ -87,7 +87,7 @@ jobs:
             docker run --rm -v "$PWD/zap:/zap/wrk" "$ZAP_IMAGE" zap-baseline.py -t "$target" -l WARN -I \
               -r "$name.html" -J "$name.json"
           done
-          node scripts/zap-gate.mjs zap
+          node scripts/zap-gate.mjs zap "$APP" "$ADMIN"
       - run: pnpm exec playwright install --with-deps chromium
       # The deploy itself smoke-tests inside the server (infra/vps/deploy.sh); the public header set (04 §7, CSP,
       # Trusted Types, noindex) is checked here against the live staging hosts through Cloudflare (verifier V-4).

@@ -89,6 +89,10 @@ http://:8081 {
 		lb_try_interval 250ms
 		# The request id is Caddy's; a client-supplied one is never trusted for log correlation (review S-L11).
 		header_up X-Request-Id {http.request.uuid}
+		# `Via: 1.1 Caddy` would name the server software (04 §7, re-review L5/V-30); the site-level X-Robots-Tag is
+		# the only one — the API's own copy would make it appear twice on admin responses (V-30).
+		header_down -Via
+		header_down -X-Robots-Tag
 		transport http {
 			# Shorter than Node's keep-alive (65 s), so Caddy — not Node — closes idle connections (review S-L12).
 			keepalive 30s
