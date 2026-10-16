@@ -13,7 +13,7 @@
     "lint": "eslint . --max-warnings 0",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:int": "node ../../scripts/vitest-int.mjs"
+    "test:int": "node ../../scripts/vitest-int.mjs --coverage"
   },
   "devDependencies": {
     "@mc/config": "workspace:*",

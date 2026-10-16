@@ -13,9 +13,9 @@
     "dev:app": "node scripts/compose.mjs dev up && turbo run dev dev:public --filter=@mc/app --filter=@mc/server",
     "dev:admin": "node scripts/compose.mjs dev up && turbo run dev dev:admin dev:worker --filter=@mc/admin --filter=@mc/server",
     "db:start": "node scripts/compose.mjs dev up",
-    "db:reset": "node scripts/not-yet.mjs db:reset \"Phase 1\"",
+    "db:reset": "node scripts/db-reset.ts",
     "db:migrate": "node scripts/not-yet.mjs db:migrate \"Phase 1\"",
-    "db:test": "node scripts/not-yet.mjs db:test \"Phase 1\"",
+    "db:test": "pnpm --filter @mc/db test:int",
     "db:schema:check": "node scripts/not-yet.mjs db:schema:check \"Phase 1\"",
     "db:verify-roles": "node scripts/not-yet.mjs db:verify-roles \"Phase 1\"",
     "test": "turbo run test",
@@ -44,11 +44,13 @@
     "db:stop": "node scripts/compose.mjs dev down",
     "stack:down": "node scripts/compose.mjs stack down",
     "typecheck:root": "tsc --noEmit -p tsconfig.json",
-    "i18n:review": "pnpm --filter @mc/i18n i18n:review"
+    "i18n:review": "pnpm --filter @mc/i18n i18n:review",
+    "db:roles:atlas": "node scripts/db-roles-atlas.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@mc/config": "workspace:*",
+    "@mc/db": "workspace:*",
     "@playwright/test": "1.63.0",
     "@size-limit/file": "14.2.0",
     "@types/node": "24.19.1",

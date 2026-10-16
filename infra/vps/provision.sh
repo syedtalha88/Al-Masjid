@@ -145,8 +145,9 @@ host() {
   src=$(mktemp -d)
   git clone --quiet --no-checkout "$REPO_URL" "$src"
   git -C "$src" checkout --quiet --detach "$ref"
-  install -d -m 755 "$LIB" "$LIB/edge" "$LIB/compose"
-  install -m 755 "$src"/infra/vps/{provision,deploy,cloudflare-ips,log-archive,check,make-env}.sh "$LIB/"
+  install -d -m 755 "$LIB" "$LIB/edge" "$LIB/compose" "$LIB/mongo"
+  install -m 755 "$src"/infra/vps/{provision,deploy,cloudflare-ips,log-archive,check,make-env,atlas-users}.sh "$LIB/"
+  install -m 644 "$src"/infra/mongo/atlas-roles.json "$LIB/mongo/" # 02 §4.3 roles for atlas-users.sh (PHASE_01 T1.1)
   install -m 644 "$src"/infra/edge/haproxy.cfg "$src"/infra/compose/docker-compose.edge.yml "$LIB/edge/"
   # Each environment's compose file + redis.conf: part of the reviewed host layer, never taken from a release (#61).
   install -m 644 "$src"/infra/compose/docker-compose.vps.yml "$src"/infra/compose/redis.conf "$LIB/compose/"

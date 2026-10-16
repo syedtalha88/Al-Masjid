@@ -47,10 +47,15 @@ unset CLIENT_SECRET
 resp=$(mktemp)
 trap 'rm -f "$resp"' EXIT
 api() {
-  local args=(-sS -o "$resp" -w '%{http_code}' -X "$1" "$API/api/atlas/v2$2" -H "$ACCEPT"
-    -K <(printf 'header = "Authorization: Bearer %s"\n' "$TOKEN"))
-  if [ $# -ge 3 ]; then args+=(-H 'Content-Type: application/json' --data-binary @-); printf '%s' "$3" | curl "${args[@]}"
-  else curl "${args[@]}"; fi
+  # The token reaches curl through a config "file" (process substitution on the curl command itself — an array
+  # element would be closed before curl runs), so it never appears in the process list.
+  local args=(-sS -o "$resp" -w '%{http_code}' -X "$1" "$API/api/atlas/v2$2" -H "$ACCEPT")
+  if [ $# -ge 3 ]; then
+    printf '%s' "$3" | curl "${args[@]}" -H 'Content-Type: application/json' --data-binary @- \
+      -K <(printf 'header = "Authorization: Bearer %s"\n' "$TOKEN")
+  else
+    curl "${args[@]}" -K <(printf 'header = "Authorization: Bearer %s"\n' "$TOKEN")
+  fi
 }
 expect() { # <status> <allowed...>
   local got=$1; shift

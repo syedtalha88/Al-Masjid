@@ -24,6 +24,11 @@ export interface McVitestOptions {
   /** Files left out of coverage, each with a reason in the package's config (e.g. vendored code). */
   readonly coverageExclude?: readonly string[];
   readonly setupFiles?: readonly string[];
+  /**
+   * Which run enforces the coverage gate: `unit` (default — `test:coverage`) or `integration` (`test:int --coverage`
+   * runs unit + integration tests together). For packages whose code mostly needs MongoDB/Redis (packages/db).
+   */
+  readonly coverageRun?: 'unit' | 'integration';
 }
 
 const INTEGRATION = '**/*.int.test.{ts,tsx}';
@@ -45,13 +50,15 @@ export function mcVitest({
   coverageInclude = ['src/**/*.{ts,tsx}'],
   coverageExclude = [],
   setupFiles = [],
+  coverageRun = 'unit',
 }: McVitestOptions = {}): ViteUserConfig {
   const integration = isIntegrationRun();
+  const gated = integration === (coverageRun === 'integration');
   return defineConfig({
     test: {
       environment,
       env: { TZ: 'Asia/Kolkata' },
-      include: integration ? [INTEGRATION] : TESTS,
+      include: integration ? (coverageRun === 'integration' ? [INTEGRATION, ...TESTS] : [INTEGRATION]) : TESTS,
       exclude: ['**/node_modules/**', '**/dist/**', ...(integration ? [] : [INTEGRATION])],
       setupFiles: [...setupFiles],
       // Integration files talk to shared services; give them time but never retry flakiness away.
@@ -64,7 +71,7 @@ export function mcVitest({
         exclude: ['**/*.test.{ts,tsx}', '**/*.d.ts', ...coverageExclude],
         reporter: ['text-summary', 'json-summary', 'html'],
         reportsDirectory: 'coverage',
-        ...(coverage ? { thresholds: { ...coverage } } : {}),
+        ...(coverage && gated ? { thresholds: { ...coverage } } : {}),
       },
     },
   });
