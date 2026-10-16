@@ -60,6 +60,7 @@ export const noRawRoutes = {
     /** @param {import('estree').Node} node */
     const hasExpressType = (node) => {
       if (!typed) return false;
+      /** @type {import('typescript').TypeChecker} */
       const checker = typed.program.getTypeChecker();
       const type = checker.getTypeAtLocation(typed.esTreeNodeToTSNodeMap.get(node));
       const names = type.isUnion() ? type.types.map((t) => checker.typeToString(t)) : [checker.typeToString(type)];
