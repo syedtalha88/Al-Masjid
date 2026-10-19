@@ -63,6 +63,9 @@ export function mcVitest({
       setupFiles: [...setupFiles],
       // Integration files talk to shared services; give them time but never retry flakiness away.
       testTimeout: integration ? 30_000 : 10_000,
+      // Per-file setup creates a database and runs every migration; with the db and api suites running side by side
+      // (`pnpm test:int` via turbo) that took > 10 s on the dev PC (19 Oct 2026), so setup hooks get the same budget.
+      ...(integration ? { hookTimeout: 30_000 } : {}),
       passWithNoTests: true,
       restoreMocks: true,
       coverage: {
