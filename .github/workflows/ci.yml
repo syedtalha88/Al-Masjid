@@ -61,8 +61,6 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup
       - run: pnpm test:coverage
-      - name: Dev proxy wiring — `/api` reaches the local API port, Host + Origin kept (re-review V-29)
-        run: pnpm check:dev-proxy
       - name: Coverage reports
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -183,6 +181,9 @@ jobs:
         run: pnpm setup:local
       - name: Resolve *.localhost for every client (Node's resolver included)
         run: echo "127.0.0.1 app.localhost admin.localhost" | sudo tee -a /etc/hosts
+      # Needs the apps' .env.local files from setup:local (the Vite config validates VITE_PUBLIC_* at start).
+      - name: Dev proxy wiring — `/api` reaches the local API port, Host + Origin kept (re-review V-29)
+        run: pnpm check:dev-proxy
 
       # Production builds + checks on the built files.
       - name: Build both PWAs (production)
@@ -195,6 +196,12 @@ jobs:
         run: pnpm size
 
       # Images: the shipped runtime and the e2e runtime-test (DECISIONS #31).
+      # Since PHASE_01 T1.6 the APIs' /health checks MongoDB, so the stack is only healthy once the four DB users and
+      # the migrations exist (a fresh runner has neither).
+      - name: MongoDB users + migrations (db:reset)
+        run: |
+          pnpm db:start
+          pnpm db:reset
       - name: Shipped stack (runtime image) up
         run: node scripts/compose.mjs stack up --build
       - name: runtime image has no test hooks
