@@ -40,7 +40,7 @@
 | 8 | **Super Admin passkey** on staging with my phone — when Claude Code says login is ready: on the server `sudo /usr/local/lib/masjid-connect/deploy.sh staging --bootstrap-super-admin --name "<my name>"`, open the printed link on my phone (keep it private; steps in `docs/runbooks/DEPLOY.md` §7) | 5 min | Phase 01 T1.9 (O12) |
 | 9 | **O6 last:** GitHub branch ruleset (0.15) + the failing-PR test (0.16) — after this, `main` changes only through pull requests | 15 min | at the very end of Phase 01 work |
 | ~~10~~ | ~~Push~~ — **done 19 Oct 2026**: standing permission to commit + push | – | |
-| ~~11~~ | ~~Allow the passkey library~~ — **allowed 19 Oct 2026** (O13) | – | |
+| 11 | **Install the passkey library** — you allowed it, but Claude Code's permission check blocked the command. In the repo folder run `pnpm --filter @mc/api add --save-exact @simplewebauthn/server@14.0.3` (or approve the prompt next time) and tell Claude Code (O13) | 1 min | Phase 01 T1.8 |
 | ~~12~~ | ~~Answer DECISIONS #70~~ — **done 19 Oct 2026** (option A) | – | |
 | 13 | **Cloudflare "Network Error Logging" switch** — turn off if it exists (O15) | 2 min | |
 | 14 | **Host-layer reinstall** after the push (O17) — Claude Code gives the sha + checksum; then `check.sh` output to Claude Code | 3 min | after item 10 |
