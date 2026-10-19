@@ -43,7 +43,7 @@
 | 11 | **Install the passkey library** — you allowed it, but Claude Code's permission check blocked the command. In the repo folder run `pnpm --filter @mc/api add --save-exact @simplewebauthn/server@14.0.3` (or approve the prompt next time) and tell Claude Code (O13) | 1 min | Phase 01 T1.8 |
 | ~~12~~ | ~~Answer DECISIONS #70~~ — **done 19 Oct 2026** (option A) | – | |
 | 13 | **Cloudflare "Network Error Logging" switch** — turn off if it exists (O15) | 2 min | |
-| 14 | **Host-layer reinstall** after the push (O17) — Claude Code gives the sha + checksum; then `check.sh` output to Claude Code | 3 min | after item 10 |
+| 14 | **Host-layer reinstall** (O17) — wait until Claude Code says CI on `main` is green (the 19 Oct pushes failed in CI; fix pushed 20 Oct), then it gives the sha + checksum; afterwards the one-time network step (DEPLOY.md §8) and send the `check.sh` output | 5 min | next session |
 | 15 | **VPS backups** — check / enable the provider's backup feature; ask first if it costs money (O18) | 5 min | |
 | 16 | **Screen-reader check** (O19): TalkBack on the Poco F7, VoiceOver on the iPhone — steps in `docs/PROGRESS.md` → O19 | 5 min | |
 | — | **Low-end Android phone** (≈ ₹8,000) for the performance check (O16) | when available | Phase 2 |
