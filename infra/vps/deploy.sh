@@ -5,6 +5,10 @@
 #   deploy.sh <staging|production> --check-only    fetch + verify + print the plan, change nothing
 #   deploy.sh <staging|production> --verify-roles  READ-ONLY: each process checks its own MongoDB privileges against
 #                                                  02 §4.3 (connectionStatus) inside its container (PHASE_01 T1.1)
+#   deploy.sh <staging|production> --bootstrap-super-admin --name "<name>" [--locale en|hi|ur|te] [--force-additional]
+#                                                  creates a Super Admin in a one-off api-admin container and prints
+#                                                  the one-time invite link (PHASE_01 T1.9, DECISIONS #70 option A);
+#                                                  run by the owner in a terminal — the link is never logged
 #   deploy.sh <staging|production> --restart       rolling re-deploy of the current release (after an env file
 #                                                  or certificate change — containers read them at creation)
 #   deploy.sh <staging|production> --rollback      redeploy the previous verified release from the local history
@@ -25,8 +29,11 @@ set -euo pipefail
 main() {
   ENVIRONMENT=${1:-}
   MODE=${2:-deploy}
-  case "$ENVIRONMENT" in staging | production) ;; *) echo "usage: deploy.sh <staging|production> [--check-only|--restart|--rollback|--verify-roles]" >&2; exit 2 ;; esac
-  case "$MODE" in deploy | --check-only | --restart | --rollback | --verify-roles) ;; *) echo "unknown option: $MODE" >&2; exit 2 ;; esac
+  case "$ENVIRONMENT" in staging | production) ;; *) echo "usage: deploy.sh <staging|production> [--check-only|--restart|--rollback|--verify-roles|--bootstrap-super-admin …]" >&2; exit 2 ;; esac
+  case "$MODE" in deploy | --check-only | --restart | --rollback | --verify-roles | --bootstrap-super-admin) ;; *) echo "unknown option: $MODE" >&2; exit 2 ;; esac
+  # Only the bootstrap takes arguments; they go to its own parser unchanged (never through a shell).
+  BOOTSTRAP_ARGS=("${@:3}")
+  [ "$MODE" = --bootstrap-super-admin ] || [ "${#BOOTSTRAP_ARGS[@]}" -eq 0 ] || { echo "unexpected arguments after $MODE" >&2; exit 2; }
 
   REPO=${MC_RELEASE_REPO:-syedtalha88/Al-Masjid}
   BASE_URL=${MC_RELEASE_BASE_URL:-https://github.com/$REPO/releases/download/$ENVIRONMENT-current}
@@ -62,7 +69,7 @@ main() {
     cp "$STATE_DIR/releases/$previous.json" "$work/manifest.json"
     cp "$STATE_DIR/releases/$previous.json.sig" "$work/manifest.json.sig"
     log "rolling back to $previous"
-  elif [ "$MODE" = --restart ] || [ "$MODE" = --verify-roles ]; then
+  elif [ "$MODE" = --restart ] || [ "$MODE" = --verify-roles ] || [ "$MODE" = --bootstrap-super-admin ]; then
     local current
     current=$(current_release)
     [ -n "$current" ] || die "nothing deployed yet"
@@ -123,6 +130,14 @@ main() {
     done
     [ "$failed" -eq 0 ] || die "database privileges differ from 02 §4.3 (see FAIL lines above)"
     log "verify-roles: every process has exactly its 02 §4.3 privileges"
+    exit 0
+  fi
+  if [ "$MODE" = --bootstrap-super-admin ]; then
+    # api-admin's container: its own DB user (mc_admin may insert admin_users / admin_invites / audit_log) and the
+    # SESSION_PEPPER the login hashes invite tokens with — no other process needs the pepper (DECISIONS #70).
+    log "bootstrap-super-admin: one-off api-admin container of $release"
+    compose run --rm --no-deps -T api-admin dist/bootstrap-super-admin.mjs "${BOOTSTRAP_ARGS[@]}" ||
+      die "bootstrap-super-admin did not create a Super Admin (see the message above)"
     exit 0
   fi
   compose pull --quiet

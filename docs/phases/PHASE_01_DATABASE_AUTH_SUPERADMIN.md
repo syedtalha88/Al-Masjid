@@ -59,7 +59,7 @@ Musalli app features, content creation, push sending, payments, videos.
 - [ ] Revoking sessions logs the admin out on next request.
 
 ### T1.9 — Bootstrap Super Admin
-**Do:** `scripts/bootstrap-super-admin.ts` per `04 §3` (runs with the system DB user — locally via `pnpm`, on servers via `docker compose run --rm worker node dist/scripts/bootstrap-super-admin.js`; prints one-time invite URL; refuses if one exists unless `--force-additional`). Document in README and `docs/runbooks/DEPLOY.md`. Recommend owner registers **two** passkeys (phone + second device) — "Add device" flow (`invite_purpose: add_device`) available to logged-in admins from Account settings.
+**Do:** `scripts/bootstrap-super-admin.ts` per `04 §3` (locally via `pnpm` with the system DB user; on servers via `deploy.sh <env> --bootstrap-super-admin` in a one-off api-admin container — DECISIONS #70; prints one-time invite URL; refuses if one exists unless `--force-additional`). Document in README and `docs/runbooks/DEPLOY.md`. Recommend owner registers **two** passkeys (phone + second device) — "Add device" flow (`invite_purpose: add_device`) available to logged-in admins from Account settings.
 **Acceptance:** [ ] Script tested against local DB; idempotency/refusal tested.
 
 ### T1.10 — Admin app shell & screens

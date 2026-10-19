@@ -14,6 +14,7 @@ export default defineConfig({
     'src/worker.ts',
     'src/migrate.ts',
     'src/verify-roles.ts',
+    'src/bootstrap-super-admin.ts',
     'src/healthcheck.ts',
     'src/test-hooks.ts',
   ],

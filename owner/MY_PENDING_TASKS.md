@@ -37,11 +37,11 @@
 | 5 | **Design notes** from the phone checks → send to Claude Code (list or screenshots); is the thin black strip at the top gone now? | — | |
 | 6 | **iPhone swipe-back (F17)**: in Safari *and* the installed app, does swiping back from the left edge slide back once, smoothly? yes/no | 2 min | |
 | 7 | **Turnstile widget** (Cloudflare → Turnstile → Add widget, hostname `app-staging.almasjids.com`, Managed) — send the **site key** only, keep the secret | 3 min | needed from Phase 2 |
-| 8 | **Super Admin passkey** on staging with my phone — Claude Code sends a private one-time link when the login screens are ready | 5 min | Phase 01 T1.9 |
+| 8 | **Super Admin passkey** on staging with my phone — when Claude Code says login is ready: on the server `sudo /usr/local/lib/masjid-connect/deploy.sh staging --bootstrap-super-admin --name "<my name>"`, open the printed link on my phone (keep it private; steps in `docs/runbooks/DEPLOY.md` §7) | 5 min | Phase 01 T1.9 (O12) |
 | 9 | **O6 last:** GitHub branch ruleset (0.15) + the failing-PR test (0.16) — after this, `main` changes only through pull requests | 15 min | at the very end of Phase 01 work |
-| 10 | **Push** the local commits (Claude Code did not push during the 16 Oct autopilot — you declined the push prompt) | 1 answer | A7 |
-| 11 | **Allow installing the passkey library** `@simplewebauthn/server` (O13) | 1 answer | Phase 01 T1.8 |
-| 12 | **Answer DECISIONS #70** — how the Super Admin bootstrap runs on the server (O14) | 1 answer | before item 8 |
+| ~~10~~ | ~~Push~~ — **done 19 Oct 2026**: standing permission to commit + push | – | |
+| ~~11~~ | ~~Allow the passkey library~~ — **allowed 19 Oct 2026** (O13) | – | |
+| ~~12~~ | ~~Answer DECISIONS #70~~ — **done 19 Oct 2026** (option A) | – | |
 | 13 | **Cloudflare "Network Error Logging" switch** — turn off if it exists (O15) | 2 min | |
 | 14 | **Host-layer reinstall** after the push (O17) — Claude Code gives the sha + checksum; then `check.sh` output to Claude Code | 3 min | after item 10 |
 | 15 | **VPS backups** — check / enable the provider's backup feature; ask first if it costs money (O18) | 5 min | |

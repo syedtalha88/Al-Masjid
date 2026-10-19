@@ -127,9 +127,16 @@ one phone never locks you out (04 §3).
 
 - **Local:** `pnpm bootstrap:super-admin --name "Your Name"` (refuses when one exists; `--force-additional` adds
   another).
-- **Staging / production:** waits for DECISIONS #70 (which container runs it). The link is printed once in your SSH
-  session — never paste it into chat, e-mail or a ticket; if it leaks or expires, run the command again with
-  `--force-additional` and disable the unused admin later.
+- **Staging / production** (DECISIONS #70 — a one-off api-admin container; needs the host layer with this option,
+  `provision.sh host <sha>` of 19 Oct 2026 or later):
+
+  ```bash
+  sudo /usr/local/lib/masjid-connect/deploy.sh staging --bootstrap-super-admin --name "Your Name" --locale en
+  ```
+
+  The link is printed once in your SSH session — never paste it into chat, e-mail or a ticket (Claude Code does not
+  need it); if it leaks or expires, run the command again with `--force-additional` and disable the unused admin
+  later. "A Super Admin already exists" = it ran before; nothing was changed.
 
 ## 8. One-time: internal edge networks (re-review S-L9, after the host-layer update of Oct 2026)
 

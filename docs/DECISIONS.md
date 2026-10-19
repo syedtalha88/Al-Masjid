@@ -568,11 +568,12 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 
 ## OPEN
 
-### #70 — Where the server-side Super Admin bootstrap runs (PHASE_01 T1.9) — OPEN (Claude Code, autopilot session, 16 Oct 2026)
+### #70 — Where the server-side Super Admin bootstrap runs (PHASE_01 T1.9) — ACCEPTED: option A (owner, 19 Oct 2026: "do the best one")
 **Conflict:** 04 §3 / the phase file run the bootstrap in the **worker** container (system DB user). The script must store the invite as `SHA-256(token ‖ SESSION_PEPPER)` (02 §2, 04 §4) so that api-admin recognises the link — but 01 §7 and `packages/shared/src/env.ts` forbid `SESSION_PEPPER` in the worker. Both cannot hold.
 **Options:**
 - **A (recommended):** run it in a one-off **api-admin** container: `docker compose run --rm api-admin /nodejs/bin/node dist/bootstrap-super-admin.mjs --name "…"`. It already holds `SESSION_PEPPER` and `mc_admin`, whose privileges (insert `admin_users`, `admin_invites`, `audit_log`) are exactly what the bootstrap writes — no new credential anywhere; the code still acts with `systemScope()` (audit actor `system`). Deviation: 04 §3 names the system user; 04 §3 is updated.
 - **B:** a dedicated `bootstrap` one-off service/env file holding `MONGODB_URI_SYSTEM` + `SESSION_PEPPER` (new process in `env.ts`, `make-env.sh`, compose profile). Matches 04 §3 literally, but adds a second place where the pepper lives and owner steps on the VPS.
 - **C:** allow `SESSION_PEPPER` in the worker. Not recommended: widens the worker's secrets for a once-only task.
 **Built meanwhile (works with every option):** `bootstrapSuperAdmin` (system scope only; refuses while a non-disabled Super Admin exists unless `--force-additional`), `bootstrapSuperAdminInvite` (`packages/api/src/jobs/`, link `ADMIN_ORIGIN/invite#<token>` — fragment, so the token never reaches a server log or Referer), local CLI `pnpm bootstrap:super-admin` (tested against the local database: created once, refused the second time). Only the server entry waits for this answer.
+**Decision (19 Oct 2026):** option A. `apps/server/src/bootstrap-super-admin.ts` → `dist/bootstrap-super-admin.mjs` in the server image; `deploy.sh <env> --bootstrap-super-admin --name "…" [--locale …] [--force-additional]` runs it with `compose run --rm --no-deps -T api-admin` against the current verified release (arguments passed verbatim, other modes refuse extra arguments — 3 new cases in `deploy-verify.test.sh`). Verified locally as `mc_admin`: refused while a Super Admin exists, created with `--force-additional`, bad arguments exit 2. 04 §3, PHASE_01 T1.9 and DEPLOY.md §7 updated. The owner runs it on the server (the link appears only in their SSH session).
 

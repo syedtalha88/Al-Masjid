@@ -104,6 +104,7 @@ case "$args" in
   *" up "*) [ -z "${STUB_FAIL_UP:-}" ] ;;
   *" run --rm --no-deps migrate"*) [ -z "${STUB_FAIL_MIGRATE:-}" ] || exit 1 ;;
   *" dist/verify-roles.mjs"*) case "$args" in *" ${STUB_FAIL_VERIFY:-none} "*) exit 1 ;; esac ;;
+  *" dist/bootstrap-super-admin.mjs"*) printf '%s\n' "$@" >"$STUB_STATE/bootstrap-args"; [ -z "${STUB_FAIL_BOOTSTRAP:-}" ] || exit 1 ;;
   *" inspect "*)
     # STUB_UNHEALTHY=<service>: that service's containers have exited (e.g. Caddy refusing a broken certificate).
     if [ -n "${STUB_UNHEALTHY:-}" ] && [[ "${*: -1}" == "$STUB_UNHEALTHY"-* ]]; then echo exited; else echo healthy; fi ;;
@@ -263,6 +264,14 @@ touch "$root/config/migrate.env"
 : >"$STUB_CALLS"; STUB_FAIL_VERIFY=api-admin run rel-11 --verify-roles; got=$?
 check "--verify-roles: a failing process fails the run; migrate is checked when it has credentials"   '[ "$got" -eq 1 ] && [ "$(grep -c "dist/verify-roles.mjs" "$STUB_CALLS")" -eq 4 ] && grep -q "privileges differ" "$root/out"'
 rm -f "$root/config/migrate.env"
+
+# --bootstrap-super-admin (PHASE_01 T1.9, DECISIONS #70 A): one-off api-admin container, arguments passed unchanged.
+: >"$STUB_CALLS"; run rel-11 --bootstrap-super-admin --name 'Test Owner; rm -rf /' --locale ur; got=$?
+check "--bootstrap-super-admin runs once in api-admin with the arguments verbatim and changes nothing"   '[ "$got" -eq 0 ] && [ "$(grep -c "dist/bootstrap-super-admin.mjs" "$STUB_CALLS")" -eq 1 ] && grep -q "run --rm --no-deps -T api-admin dist/bootstrap-super-admin.mjs" "$STUB_CALLS" && [ "$(tail -n 4 "$root/stub-state/bootstrap-args" | paste -sd "|")" = "--name|Test Owner; rm -rf /|--locale|ur" ] && ! grep -q -- "--scale" "$STUB_CALLS" && ! grep -q " pull " "$STUB_CALLS" && [ "$(running)" = "$(rel 11)" ]'
+: >"$STUB_CALLS"; STUB_FAIL_BOOTSTRAP=1 run rel-11 --bootstrap-super-admin --name Test; got=$?
+check "--bootstrap-super-admin: a refusal (e.g. a Super Admin exists) fails the run"   '[ "$got" -eq 1 ] && grep -q "did not create a Super Admin" "$root/out"'
+run rel-11 --verify-roles --name Test; got=$?
+check "other modes refuse extra arguments"   '[ "$got" -eq 2 ] && grep -q "unexpected arguments" "$root/out"'
 
 echo "== $failures failure(s)"
 [ "$failures" -eq 0 ]

@@ -44,7 +44,7 @@ Threat actors: opportunistic bots/scrapers, fraudsters targeting donations, comm
 - Sign counter: if stored > 0 and received ≤ stored → reject, mark credential `revoked_at`, alert Super Admin, audit (possible clone). Counter 0 (synced passkeys) is accepted.
 - No username enumeration: login endpoints never reveal whether an admin exists.
 - Recovery = new invite with purpose `recovery` (Super Admin only) → old passkeys optionally revoked at the same time.
-- Bootstrap: `scripts/bootstrap-super-admin.ts` (run once by the owner on the VPS via `docker compose run --rm worker node dist/scripts/bootstrap-super-admin.js`, i.e. with the system DB user) creates the Super Admin and prints a one-time invite URL. Refuses to run if a super admin already exists unless `--force-additional`.
+- Bootstrap (DECISIONS #70): run once by the owner on the VPS via `deploy.sh <env> --bootstrap-super-admin --name "…"`, which starts a one-off **api-admin** container (`dist/bootstrap-super-admin.mjs`, the api-admin's own `mc_admin` user — it may insert `admin_users`, `admin_invites` and `audit_log` — and its `SESSION_PEPPER`, which the login needs to recognise the invite hash; the worker never holds the pepper). The code acts with `systemScope()` (audit actor `system`). Locally: `pnpm bootstrap:super-admin` (system DB user). It creates the Super Admin and prints a one-time invite URL in the owner's terminal only. Refuses to run if a super admin already exists unless `--force-additional`.
 
 ## 4. Sessions
 
