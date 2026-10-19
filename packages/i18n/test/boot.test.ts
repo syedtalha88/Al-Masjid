@@ -127,3 +127,22 @@ describe('resolveFontPreloads', () => {
     );
   });
 });
+
+describe('boot prelude (`before` functions)', () => {
+  it('runs each function first, isolated, and the locale boot still runs after a throwing one', () => {
+    const { env, documentElement } = fakeEnv({ stored: 'ur' });
+    const context: Record<string, unknown> = { window: env };
+    const script = bootScript({}, [
+      () => {
+        throw new Error('boom');
+      },
+      () => {
+        (globalThis as unknown as { early: boolean }).early = true; // test-only global in the vm realm
+      },
+    ]);
+    expect(script.indexOf('early')).toBeLessThan(script.indexOf('localStorage'));
+    runInNewContext(script, context);
+    expect(context['early']).toBe(true);
+    expect(documentElement.dir).toBe('rtl');
+  });
+});

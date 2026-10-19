@@ -16,9 +16,11 @@ async function bannerBottom(page: Page): Promise<number> {
   return box.y + box.height;
 }
 
-for (const [app, url] of [
-  ['app', APP_URL],
-  ['admin', ADMIN_URL],
+// Ready = the active screen's title. Signed out, the admin app shows its login screen (PHASE_01 T1.10 session gate);
+// the banner lives outside the gate, so it is checked there.
+for (const [app, url, ready] of [
+  ['app', APP_URL, 'section[data-screen]:not([inert]) h1'],
+  ['admin', ADMIN_URL, 'h1'],
 ] as const) {
   for (const locale of ['en', 'ur'] as const) {
     test.describe(`${app} (${locale})`, () => {
@@ -29,7 +31,7 @@ for (const [app, url] of [
         context,
       }) => {
         await page.goto(url);
-        await expect(page.locator('section[data-screen]:not([inert]) h1')).toBeVisible();
+        await expect(page.locator(ready)).toBeVisible();
         expect(await bannerBottom(page)).toBeLessThanOrEqual(0);
 
         await context.setOffline(true);

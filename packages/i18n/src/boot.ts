@@ -81,12 +81,15 @@ export function bootDocumentLocale(
  * The `/boot.js` source served by both apps (see vite-plugin.ts).
  *
  * @param preloads - locale → font URLs to preload; empty in dev (unhashed sources are not worth it).
+ * @param before - self-contained functions (no imports, no closures — serialized with `toString`) that must run
+ *   before any app module, e.g. `configureZodForCsp` from `@mc/shared/browser`; each runs in its own try/catch.
  */
-export function bootScript(preloads: FontPreloads = {}): string {
+export function bootScript(preloads: FontPreloads = {}, before: readonly (() => void)[] = []): string {
   const args = [LOCALE_STORAGE_KEY, LOCALES, RTL_LOCALES, DEFAULT_LOCALE, preloads].map((value) =>
     JSON.stringify(value),
   );
-  return `(${bootDocumentLocale.toString()})(window, ${args.join(', ')});\n`;
+  const prelude = before.map((fn) => `try { (${fn.toString()})(); } catch {}\n`).join('');
+  return `${prelude}(${bootDocumentLocale.toString()})(window, ${args.join(', ')});\n`;
 }
 
 /** Boot script without preloads (dev server). */

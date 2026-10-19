@@ -79,12 +79,13 @@ test.describe('locale boot (T0.7, 09 §5)', () => {
 });
 
 test.describe('admin app (admin origin)', () => {
-  test('loads the admin shell, noindex', async ({ page }) => {
+  test('loads the admin shell, noindex — signed out it shows the passkey login (PHASE_01 T1.10)', async ({ page }) => {
     const response = await page.goto(ADMIN_URL);
     expect(response?.status()).toBe(200);
     expect(response?.headers()['x-robots-tag']).toBe('noindex, nofollow');
     await expect(page).toHaveTitle('Masjid Connect Admin');
-    await expect(page.getByRole('heading', { level: 1, name: 'Masjid Connect Admin' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Masjid Admin' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible();
   });
 
   test('admin API health through Caddy; public API is not served here', async ({ request }) => {

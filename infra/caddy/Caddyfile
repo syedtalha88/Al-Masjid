@@ -82,6 +82,10 @@ http://:8081 {
 
 # API reverse proxy (args[0] = upstream, e.g. api-public:8787 — two replicas behind Docker DNS).
 (api-proxy) {
+	# Caddy adds `Via: 1.1 Caddy` to proxied responses itself, after `header_down` runs, so `header_down -Via` cannot
+	# remove it; a deleting `header` is deferred to the moment the response is written (found 19 Oct 2026 — Cloudflare
+	# had been hiding it on staging). It would name the server software (04 §7, re-review L5/V-30).
+	header -Via
 	reverse_proxy {args[0]} {
 		# Rolling restarts (infra/vps/deploy.sh): a dial to a container that just left is retried (Docker DNS then
 		# answers with the remaining replicas) instead of failing the request (PHASE_00 T0.14).
@@ -89,9 +93,8 @@ http://:8081 {
 		lb_try_interval 250ms
 		# The request id is Caddy's; a client-supplied one is never trusted for log correlation (review S-L11).
 		header_up X-Request-Id {http.request.uuid}
-		# `Via: 1.1 Caddy` would name the server software (04 §7, re-review L5/V-30); the site-level X-Robots-Tag is
-		# the only one — the API's own copy would make it appear twice on admin responses (V-30).
-		header_down -Via
+		# The site-level X-Robots-Tag is the only one — the API's own copy would make it appear twice on admin
+		# responses (V-30).
 		header_down -X-Robots-Tag
 		transport http {
 			# Shorter than Node's keep-alive (65 s), so Caddy — not Node — closes idle connections (review S-L12).

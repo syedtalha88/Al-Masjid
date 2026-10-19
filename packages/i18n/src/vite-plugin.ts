@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite';
 
-import { BOOT_SCRIPT, bootScript } from './boot.ts';
+import { bootScript } from './boot.ts';
 
 const BOOT_PATH = '/boot.js';
 
@@ -10,6 +10,11 @@ export interface LocaleBootOptions {
    * (e.g. `inter-latin-wght-normal`) — supplied by `@mc/ui/fonts` (09 §6).
    */
   readonly preloadFonts?: Readonly<Record<string, readonly string[]>>;
+  /**
+   * Self-contained functions run first in `/boot.js` — before any module script, so before any chunk is evaluated
+   * (see `bootScript`). Used for `configureZodForCsp` (04 §7).
+   */
+  readonly before?: readonly (() => void)[];
 }
 
 /**
@@ -33,7 +38,8 @@ export function resolveFontPreloads(
 }
 
 /**
- * Serves and emits `/boot.js` (pre-paint `<html lang dir>` + active-locale font preloads — 09 §5–6) and
+ * Serves and emits `/boot.js` (optional `before` functions, then pre-paint `<html lang dir>` + active-locale font
+ * preloads — 09 §5–6) and
  * injects a render-blocking `<script src="/boot.js">` as the first element of `<head>`. External file instead
  * of inline code so the CSP needs no `'unsafe-inline'` or hash (04 §7). Cache: Caddy serves it `no-cache`.
  */
@@ -46,12 +52,12 @@ export function mcLocaleBoot(options: LocaleBootOptions = {}): Plugin {
       server.middlewares.use(BOOT_PATH, (_req, res) => {
         res.setHeader('Content-Type', 'text/javascript; charset=utf-8');
         res.setHeader('Cache-Control', 'no-cache');
-        res.end(BOOT_SCRIPT);
+        res.end(bootScript({}, options.before));
       });
     },
     generateBundle(_outputOptions, bundle) {
       const preloads = options.preloadFonts ? resolveFontPreloads(Object.keys(bundle), options.preloadFonts) : {};
-      this.emitFile({ type: 'asset', fileName: 'boot.js', source: bootScript(preloads) });
+      this.emitFile({ type: 'asset', fileName: 'boot.js', source: bootScript(preloads, options.before) });
     },
     transformIndexHtml: () => [{ tag: 'script', attrs: { src: BOOT_PATH }, injectTo: 'head-prepend' }],
   };
