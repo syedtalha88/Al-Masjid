@@ -2,3 +2,4 @@
 export * from './admin-auth.ts';
 export * from './problem.ts';
 export * from './super.ts';
+export * from './text.ts';

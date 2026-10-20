@@ -1,5 +1,6 @@
 import type { DbHandle } from '@mc/db';
 import type { AdjustableClock } from '@mc/shared/clock';
+import { safeText } from '@mc/shared/contracts';
 import { z } from 'zod';
 
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
@@ -32,7 +33,7 @@ export interface TestHookContext {
   readonly resetRateLimits?: () => Promise<number>;
 }
 
-const InviteRequest = z.strictObject({ displayName: z.string().trim().min(1).max(60) });
+const InviteRequest = z.strictObject({ displayName: safeText(60, { min: 1 }) });
 const InviteCreated = z.object({ inviteUrl: z.url() });
 
 const ClockState = z.object({ now: z.iso.datetime(), marker: z.literal(TEST_HOOKS_MARKER) });

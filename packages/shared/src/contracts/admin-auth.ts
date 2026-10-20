@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { safeText } from './text.ts';
+
 // api-admin auth contracts (03 §4) — the server validates its responses with these, the admin PWA parses them.
 
 const LOCALE = z.enum(['en', 'hi', 'ur', 'te']);
@@ -75,7 +77,7 @@ export type InviteLink = z.infer<typeof inviteLinkSchema>;
 export const undertakingAcceptSchema = z.object({ version: z.string().min(1).max(20) });
 
 /** `PATCH /auth/passkeys/:id` body. */
-export const passkeyLabelSchema = z.object({ label: z.string().trim().min(1).max(60) });
+export const passkeyLabelSchema = z.object({ label: safeText(60, { min: 1 }) });
 
 /** 204 responses: no body. */
 export const noContentSchema = z.undefined();
@@ -123,6 +125,7 @@ export const requestOptionsSchema = z
   })
   .meta({ id: 'PasskeyRequestOptions' });
 
+// Not strict on purpose (review L10): browsers add members (authenticatorData, publicKey, …) a client may forward.
 // Credentials as JSON (WebAuthn L3 `RegistrationResponseJSON` / `AuthenticationResponseJSON`). Only what the server
 // verifies is kept (the verifiers read id, rawId, type and response); other members, e.g. clientExtensionResults,
 // are dropped. Bounds: credential ids ≤ 1023 bytes (WebAuthn §5.1), generous limits for the rest.
@@ -141,7 +144,7 @@ export const registrationResponseSchema = z.object({
   response: z.object({
     clientDataJSON: b64(4096),
     attestationObject: b64(32_768),
-    transports: z.array(z.string().max(32)).max(10).optional(),
+    transports: z.array(z.string().max(20)).max(10).optional(), // 02 §2 webauthn_credentials.transports items ≤ 20
   }),
 });
 export type RegistrationResponse = z.infer<typeof registrationResponseSchema>;
@@ -162,7 +165,7 @@ export type AuthenticationResponse = z.infer<typeof authenticationResponseSchema
 export const registerOptionsRequestSchema = z.object({ inviteToken: z.string().regex(/^[A-Za-z0-9_-]{43}$/) });
 export const registerVerifyRequestSchema = registerOptionsRequestSchema.extend({
   response: registrationResponseSchema,
-  label: z.string().trim().min(1).max(60),
+  label: safeText(60, { min: 1 }),
 });
 export const assertionVerifyRequestSchema = z.object({ response: authenticationResponseSchema });
 export type CreationOptionsJSON = z.infer<typeof creationOptionsSchema>;

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { inviteLinkSchema } from './admin-auth.ts';
+import { safeText } from './text.ts';
 
 // Super Admin contracts (03 §5): the API validates with them, the admin PWA parses with them. The enums and bounds
 // mirror `@mc/db/schema` (a test in packages/api keeps them equal — shared must not depend on the database package).
@@ -12,11 +13,13 @@ export const ASR_MADHABS = ['hanafi', 'shafi'] as const;
 export const INDIA_BOUNDS = { lat: [6, 37.5], lng: [68, 97.5] } as const;
 
 const LOCALE = z.enum(['en', 'hi', 'ur', 'te']);
-const text = (max: number, min = 0) => z.string().trim().min(min).max(max);
+/** Free text (04 §6): NFC, trimmed, no control / bidi-override characters — see ./text.ts. */
+const text = (max: number, min = 0) => safeText(max, { min });
 export const latSchema = z.number().min(INDIA_BOUNDS.lat[0]).max(INDIA_BOUNDS.lat[1]);
 export const lngSchema = z.number().min(INDIA_BOUNDS.lng[0]).max(INDIA_BOUNDS.lng[1]);
 export const hijriOffsetSchema = z.union([z.literal(-2), z.literal(-1), z.literal(0), z.literal(1), z.literal(2)]);
-export const nameI18nSchema = z.object({
+/** Nested request objects are strict too: unknown keys are refused, not dropped (04 §6, review L10). */
+export const nameI18nSchema = z.strictObject({
   hi: text(120).optional(),
   ur: text(120).optional(),
   te: text(120).optional(),
@@ -163,7 +166,7 @@ export const superSettingsPatchSchema = z.object({
     .nullable()
     .optional(),
   grievanceOfficer: z
-    .object({ name: text(120, 1), email: z.email().max(200), address: text(300, 1), city: text(80, 1) })
+    .strictObject({ name: text(120, 1), email: z.email().max(200), address: text(300, 1), city: text(80, 1) })
     .optional(),
   undertakingVersion: text(20, 1).optional(),
   privacyVersion: text(20, 1).optional(),
