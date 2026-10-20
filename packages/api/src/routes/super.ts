@@ -18,6 +18,7 @@ import {
   createInvite,
   createMasjid,
   readAdminPhone,
+  recordAuditExport,
   removeAdminFromMasjid,
   revokeAdminPasskeys,
   revokeAdminSessions,
@@ -558,7 +559,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       csvAttachment: 'audit.csv',
       request: { query: AuditQuery.omit({ cursor: true }) },
       responses: { 200: z.string() },
-      handler: async ({ auth, query, reply }) => {
+      handler: async ({ auth, query, clock, requestId, reply }) => {
         const filters = auditFilters(query);
         const lines = ['at,actor_type,actor_id,action,masjid_id,target_type,target_id,meta,request_id'];
         let cursor: string | undefined;
@@ -583,6 +584,13 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
           }
           cursor = page.next;
         } while (cursor && lines.length <= 10_000);
+        // The export itself is audited (04 R4, review L9): which filters, how many rows — never the rows.
+        await recordAuditExport(db, auth.scope, {
+          filters: Object.fromEntries(Object.entries(query).map(([key, value]) => [key, String(value)])),
+          rows: lines.length - 1,
+          requestId,
+          now: clock.now(),
+        });
         return reply(200, `${lines.join('\r\n')}\r\n`);
       },
     }),

@@ -20,6 +20,14 @@ test.describe('shipped image', () => {
       expect(response.status(), url).toBe(404);
       expect(response.headers()['content-type']).toContain('application/problem+json');
     }
+    // The seed and rate-limit hooks too (security review L1): a Super Admin must never be creatable this way.
+    const csrf = headersFor(ADMIN_URL);
+    const seed = await request.post(`${ADMIN_URL}/api/admin/test/super-admin-invite`, {
+      data: { displayName: 'E2E Owner' },
+      headers: csrf,
+    });
+    expect(seed.status()).toBe(404);
+    expect((await request.delete(`${ADMIN_URL}/api/admin/test/rate-limits`, { headers: csrf })).status()).toBe(404);
   });
 });
 

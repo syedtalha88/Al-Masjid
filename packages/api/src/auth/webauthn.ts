@@ -54,6 +54,9 @@ export type Verification<T> =
   { readonly ok: true; readonly value: T } | { readonly ok: false; readonly reason: string };
 
 const b64 = (bytes: Uint8Array) => Buffer.from(bytes).toString('base64url');
+/** WebAuthn L3 transport hints; anything else a client sends is dropped, not stored (review L5). */
+const KNOWN_TRANSPORTS = new Set(['ble', 'cable', 'hybrid', 'internal', 'nfc', 'smart-card', 'usb']);
+const knownTransports = (list: readonly string[]) => list.filter((t) => KNOWN_TRANSPORTS.has(t));
 /** The challenge is stored as base64url text; the library is given the bytes so it does not re-encode the text. */
 const challengeBytes = (challenge: string) => new Uint8Array(Buffer.from(challenge, 'base64url'));
 
@@ -155,7 +158,7 @@ export async function verifyRegistration(
         id: new Uint8Array(Buffer.from(info.credential.id, 'base64url')),
         publicKey: new Uint8Array(info.credential.publicKey),
         counter: info.credential.counter,
-        transports: info.credential.transports ?? response.response.transports ?? [],
+        transports: knownTransports(info.credential.transports ?? response.response.transports ?? []),
         aaguid: info.aaguid,
         backedUp: info.credentialBackedUp,
         deviceType: info.credentialDeviceType,

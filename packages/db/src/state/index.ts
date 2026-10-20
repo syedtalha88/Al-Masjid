@@ -48,6 +48,7 @@ export {
   acceptUndertaking,
   type MasjidPatch,
   readAdminPhone,
+  recordAuditExport,
   revokeAdminPasskeys,
   revokeAdminSessions,
   type SettingsPatch,

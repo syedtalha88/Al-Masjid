@@ -313,9 +313,22 @@ describe('invites (04 R3)', () => {
     const first = randomBytes(32);
     const second = randomBytes(32);
     const now = new Date();
-    await createInvite(h(), superNow(), { adminId, purpose: 'register', tokenHash: first, now });
-    await createInvite(h(), superNow(), { adminId, purpose: 'register', tokenHash: second, now });
+    await createInvite(h(), superScope(SUPER_ID, now), { adminId, purpose: 'register', tokenHash: first, now });
+    await createInvite(h(), superScope(SUPER_ID, now), { adminId, purpose: 'register', tokenHash: second, now });
     expect(await raw('admin_invites').countDocuments({ admin_id: adminId, open: true })).toBe(1);
+    // ★ action: the step-up is checked in the data layer too; the admin must exist (review L4).
+    const stale = superScope(SUPER_ID, new Date(now.getTime() - 6 * 60 * 1000));
+    await expect(
+      createInvite(h(), stale, { adminId, purpose: 'register', tokenHash: randomBytes(32), now }),
+    ).rejects.toMatchObject({ code: 'STEP_UP_REQUIRED' });
+    await expect(
+      createInvite(h(), superScope(SUPER_ID, now), {
+        adminId: new UUID(),
+        purpose: 'register',
+        tokenHash: randomBytes(32),
+        now,
+      }),
+    ).rejects.toMatchObject({ code: 'ADMIN_NOT_FOUND' });
     expect(await errorCode(consumeInvite(h(), publicScope(), { tokenHash: first }))).toBe('INVITE_INVALID'); // superseded
     const later = new Date(now.getTime() + INVITE_TTL_MS + 1000);
     expect(await errorCode(consumeInvite(h(), publicScope(), { tokenHash: second, now: later }))).toBe(

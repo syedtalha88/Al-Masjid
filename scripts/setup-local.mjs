@@ -226,7 +226,9 @@ writeFileSync(
   join(localDir, 'redis-users.acl'),
   [
     'user default off',
-    `user rl_public on >${compose.REDIS_RL_PUBLIC_PASSWORD} resetchannels ~rl:pub:* ${safe}`,
+    // -scan: ACL key patterns do not filter SCAN results, so it would list every key name (security review L6).
+    // `admin` keeps SCAN locally only: the e2e rate-limit reset hook needs it (the VPS ACL drops it there too).
+    `user rl_public on >${compose.REDIS_RL_PUBLIC_PASSWORD} resetchannels ~rl:pub:* ${safe} -scan`,
     `user admin on >${compose.REDIS_ADMIN_PASSWORD} resetchannels ~rl:adm:* ~chal:* ~bull:* &bull:* ${safe}`,
     `user worker on >${compose.REDIS_WORKER_PASSWORD} resetchannels ~bull:* ~push:* ~alert:* &bull:* ${safe}`,
     `user health on >${compose.REDIS_HEALTH_PASSWORD} resetkeys resetchannels -@all +ping`,

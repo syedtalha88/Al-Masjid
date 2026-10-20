@@ -148,19 +148,25 @@ export type InvitePurpose = 'register' | 'add_device' | 'recovery';
  * Creates an invite (Super Admin) and closes the admin's previous open invite for the same purpose in the same
  * transaction (02 §2: one open invite per admin and purpose; the partial unique index backs it).
  *
+ * A ★ action (03 §5 `POST /admins/:id/invites`): the step-up is checked here too, not only by the route (02 §3
+ * defence in depth — security review L4).
+ *
  * @param tokenHash - `hashToken(token, pepper)` (T1.7); the token itself never reaches the database.
  * @returns when the invite expires.
+ * @throws StateError FORBIDDEN / STEP_UP_REQUIRED, INVALID_TOKEN_HASH, ADMIN_NOT_FOUND.
  */
 export async function createInvite(
   handle: DbHandle,
   scope: Scope,
   input: { adminId: UUID; purpose: InvitePurpose; tokenHash: Buffer; requestId?: string; now?: Date },
 ): Promise<Date> {
-  const actor = requireSuper(scope);
+  const actor = requireSuper(scope, { stepUp: true, ...(input.now ? { now: input.now } : {}) });
   if (input.tokenHash.length !== 32) throw new StateError('INVALID_TOKEN_HASH');
   return withTransaction(handle, scope, async (ctx) => {
     const session = { session: ctx.session };
     const now = input.now ?? new Date();
+    const exists = await ctx.db.collection<IdDoc>('admin_users').countDocuments({ _id: input.adminId }, session);
+    if (exists === 0) throw new StateError('ADMIN_NOT_FOUND');
     const invites = ctx.db.collection<IdDoc>('admin_invites');
     await invites.updateMany(
       { admin_id: input.adminId, purpose: input.purpose, open: true },

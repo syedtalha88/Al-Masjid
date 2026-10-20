@@ -594,21 +594,16 @@
                 "type": "object",
                 "properties": {
                   "hi": {
-                    "type": "string",
-                    "minLength": 0,
-                    "maxLength": 120
+                    "type": "string"
                   },
                   "ur": {
-                    "type": "string",
-                    "minLength": 0,
-                    "maxLength": 120
+                    "type": "string"
                   },
                   "te": {
-                    "type": "string",
-                    "minLength": 0,
-                    "maxLength": 120
+                    "type": "string"
                   }
-                }
+                },
+                "additionalProperties": false
               },
               "area": {
                 "type": "string"
@@ -1232,9 +1227,7 @@
                 "type": "object",
                 "properties": {
                   "label": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 60
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -1253,7 +1246,7 @@
     },
     "/api/admin/auth/passkeys/invite": {
       "post": {
-        "summary": "Link to add a passkey on another device (72 h, one use)",
+        "summary": "Link to add a passkey on another device (72 h, one use; needs a step-up in the last 5 minutes)",
         "tags": [
           "auth"
         ],
@@ -1380,7 +1373,7 @@
                             "type": "array",
                             "items": {
                               "type": "string",
-                              "maxLength": 32
+                              "maxLength": 20
                             },
                             "maxItems": 10
                           }
@@ -1399,9 +1392,7 @@
                     ]
                   },
                   "label": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 60
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -1728,49 +1719,34 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 120
+                    "type": "string"
                   },
                   "nameI18n": {
                     "type": "object",
                     "properties": {
                       "hi": {
-                        "type": "string",
-                        "minLength": 0,
-                        "maxLength": 120
+                        "type": "string"
                       },
                       "ur": {
-                        "type": "string",
-                        "minLength": 0,
-                        "maxLength": 120
+                        "type": "string"
                       },
                       "te": {
-                        "type": "string",
-                        "minLength": 0,
-                        "maxLength": 120
+                        "type": "string"
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
                   "area": {
-                    "type": "string",
-                    "minLength": 0,
-                    "maxLength": 80
+                    "type": "string"
                   },
                   "city": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 80
+                    "type": "string"
                   },
                   "state": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 80
+                    "type": "string"
                   },
                   "address": {
-                    "type": "string",
-                    "minLength": 0,
-                    "maxLength": 300
+                    "type": "string"
                   },
                   "lat": {
                     "type": "number",
@@ -1916,49 +1892,34 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 120
+                    "type": "string"
                   },
                   "nameI18n": {
                     "type": "object",
                     "properties": {
                       "hi": {
-                        "type": "string",
-                        "minLength": 0,
-                        "maxLength": 120
+                        "type": "string"
                       },
                       "ur": {
-                        "type": "string",
-                        "minLength": 0,
-                        "maxLength": 120
+                        "type": "string"
                       },
                       "te": {
-                        "type": "string",
-                        "minLength": 0,
-                        "maxLength": 120
+                        "type": "string"
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
                   "area": {
-                    "type": "string",
-                    "minLength": 0,
-                    "maxLength": 80
+                    "type": "string"
                   },
                   "city": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 80
+                    "type": "string"
                   },
                   "state": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 80
+                    "type": "string"
                   },
                   "address": {
-                    "type": "string",
-                    "minLength": 0,
-                    "maxLength": 300
+                    "type": "string"
                   },
                   "lat": {
                     "type": "number",
@@ -2067,9 +2028,7 @@
                 "type": "object",
                 "properties": {
                   "reason": {
-                    "type": "string",
-                    "minLength": 3,
-                    "maxLength": 300
+                    "type": "string"
                   }
                 }
               }
@@ -2183,9 +2142,7 @@
                 "type": "object",
                 "properties": {
                   "reason": {
-                    "type": "string",
-                    "minLength": 3,
-                    "maxLength": 300
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -2227,9 +2184,7 @@
                 "type": "object",
                 "properties": {
                   "reason": {
-                    "type": "string",
-                    "minLength": 3,
-                    "maxLength": 300
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -2260,9 +2215,7 @@
                 "type": "object",
                 "properties": {
                   "displayName": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 80
+                    "type": "string"
                   },
                   "phone": {
                     "type": "string",
@@ -2603,9 +2556,7 @@
                     "type": "object",
                     "properties": {
                       "name": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 120
+                        "type": "string"
                       },
                       "email": {
                         "type": "string",
@@ -2613,14 +2564,10 @@
                         "format": "email"
                       },
                       "address": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 300
+                        "type": "string"
                       },
                       "city": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 80
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -2628,22 +2575,17 @@
                       "email",
                       "address",
                       "city"
-                    ]
+                    ],
+                    "additionalProperties": false
                   },
                   "undertakingVersion": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 20
+                    "type": "string"
                   },
                   "privacyVersion": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 20
+                    "type": "string"
                   },
                   "termsVersion": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 20
+                    "type": "string"
                   }
                 }
               }

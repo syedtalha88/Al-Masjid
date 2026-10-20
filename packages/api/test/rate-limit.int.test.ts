@@ -103,9 +103,8 @@ describe('Redis ACL users (04 §12.2): each process only reaches its own key pre
     const key = `acl-${suffix}`;
     expect(await limiter.consume('reports', key)).toEqual({ allowed: true });
     expect(await limiter.consume('reports', key)).toMatchObject({ allowed: false });
-    const [, keys] = await client.scan('0', 'MATCH', 'rl:pub:reports*', 'COUNT', 1000);
-    expect(keys.length).toBeGreaterThan(0);
-    await client.del(...keys);
+    // No SCAN for the API users (review L6); the counters expire with their 60-second window.
+    await expect(client.scan('0', 'MATCH', 'rl:pub:reports*')).rejects.toThrow(/NOPERM/);
     const admin = redisRateLimiter(client, 'rl:adm:', { adminWrites: { points: 1, durationSec: 60 } });
     // Without insurance the store error would surface; with it, the request is still counted in memory.
     expect(await admin.consume('adminWrites', key)).toEqual({ allowed: true });
@@ -132,6 +131,8 @@ describe('Redis challenge store (04 §3)', () => {
     expect(await adminStore.take('step_up', `session-${suffixOf()}`)).toBe(issued);
     const publicUser = await connect(urlOf('REDIS_URL_TEST_RL_PUBLIC'));
     await expect(redisChallengeStore(publicUser).issue('login', 'z')).rejects.toThrow(/NOPERM/);
+    // ACL key patterns do not filter SCAN results: the API users may not list key names (review L6).
+    await expect(publicUser.scan('0', 'MATCH', '*')).rejects.toThrow(/NOPERM/);
   });
 });
 

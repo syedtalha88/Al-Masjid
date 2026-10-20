@@ -346,5 +346,13 @@ describe('masjid edits, settings, CSV export', () => {
     expect(lines[0]).toBe('at,actor_type,actor_id,action,masjid_id,target_type,target_id,meta,request_id');
     expect(csv.text).not.toMatch(/(^|,)"=/m);
     expect(csv.text).toContain('"masjid.create"');
+    // The export is audited itself (review L9): filters and row count, never the rows.
+    const exported = await t()
+      .db.collection('audit_log')
+      .find({ action: 'audit.export' })
+      .sort({ _id: -1 })
+      .limit(1)
+      .next();
+    expect(exported?.['meta']).toEqual({ filters: { action: 'masjid.create' }, rows: lines.length - 1 });
   });
 });

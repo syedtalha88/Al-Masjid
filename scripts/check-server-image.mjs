@@ -6,6 +6,8 @@
 import { spawnSync } from 'node:child_process';
 
 const MARKER = 'mc-test-hooks-module';
+/** Every hook route path (security review L1): a hook moved out of the marker module would still be found. */
+const HOOK_PATHS = ['/test/clock', '/test/super-admin-invite', '/test/rate-limits'];
 const args = process.argv.slice(2);
 const expectHooks = args.includes('--expect-hooks');
 const image = args.find((arg) => !arg.startsWith('--'));
@@ -18,7 +20,8 @@ if (!image) {
 const probe = `
 const fs = require('node:fs');
 const files = fs.readdirSync('/app/dist');
-const withMarker = files.filter((file) => file.endsWith('.mjs') && fs.readFileSync('/app/dist/' + file, 'utf8').includes(${JSON.stringify(MARKER)}));
+const needles = [${JSON.stringify(MARKER)}, ...${JSON.stringify(HOOK_PATHS)}.map((path) => "'" + path + "'")];
+const withMarker = files.filter((file) => file.endsWith('.mjs') && needles.some((needle) => fs.readFileSync('/app/dist/' + file, 'utf8').includes(needle)));
 const extraDirs = fs.readdirSync('/app').filter((name) => name.startsWith('dist') && name !== 'dist');
 console.log(JSON.stringify({ hookFile: files.includes('test-hooks.mjs'), withMarker, extraDirs }));
 `;

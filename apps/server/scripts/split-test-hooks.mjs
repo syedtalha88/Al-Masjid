@@ -19,7 +19,10 @@ else if (!readFileSync(join(distTest, 'test-hooks.mjs'), 'utf8').includes(MARKER
   problems.push('dist-test/test-hooks.mjs does not contain the test-hook module');
 for (const file of readdirSync(dist).filter((name) => name.endsWith('.mjs'))) {
   const code = readFileSync(join(dist, file), 'utf8');
-  if (code.includes(MARKER) || code.includes("'/test/clock'")) problems.push(`dist/${file} contains test-hook code`);
+  // The marker, or any hook route path (security review L1) — a hook moved out of the module would still be found.
+  const hookPaths = ['/test/clock', '/test/super-admin-invite', '/test/rate-limits'].map((path) => `'${path}'`);
+  if (code.includes(MARKER) || hookPaths.some((path) => code.includes(path)))
+    problems.push(`dist/${file} contains test-hook code`);
 }
 if (problems.length > 0) {
   process.stderr.write(`split-test-hooks: FAILED\n  ${problems.join('\n  ')}\n`);

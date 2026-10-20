@@ -143,3 +143,22 @@ describe('authentication', () => {
     expect(result.ok).toBe(false);
   });
 });
+
+describe('transports (review L5)', () => {
+  it('unknown transport names are dropped, never stored', async () => {
+    const c = challenge();
+    const options = await registrationOptions(RP, {
+      challenge: c,
+      userHandle: new Uint8Array(32),
+      displayName: 'Test Admin',
+      exclude: [],
+    });
+    const { response } = authenticator.create(options);
+    const result = await verifyRegistration(
+      RP,
+      { ...response, response: { ...response.response, transports: ['internal', 'teleport-beam', 'usb'] } },
+      c,
+    );
+    expect(result.ok && result.value.transports).toEqual(['internal', 'usb']);
+  });
+});

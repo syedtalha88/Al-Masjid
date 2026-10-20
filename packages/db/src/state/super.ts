@@ -190,6 +190,27 @@ export async function readAdminPhone(
 }
 
 /**
+ * ★ Records an audit-log export (04 R4 "audit everything" — security review L9): which filters, how many rows.
+ *
+ * @param input.filters - the export's filters as short text (ids as text, dates ISO), never the rows themselves.
+ * @throws StateError FORBIDDEN, STEP_UP_REQUIRED.
+ */
+export async function recordAuditExport(
+  handle: DbHandle,
+  scope: Scope,
+  input: { filters: Readonly<Record<string, string>>; rows: number; requestId?: string; now?: Date },
+): Promise<void> {
+  requireSuper(scope, { stepUp: true, ...(input.now ? { now: input.now } : {}) });
+  await withTransaction(handle, scope, (ctx) =>
+    writeAudit(ctx, {
+      action: 'audit.export',
+      meta: { filters: { ...input.filters }, rows: input.rows },
+      ...(input.requestId ? { requestId: input.requestId } : {}),
+    }),
+  );
+}
+
+/**
  * Records the signed-in admin's acceptance of the CURRENT undertaking version (B2, T1.10). Accepting an older version
  * is refused, so a client that loaded the text before a new version was published must reload it.
  *
