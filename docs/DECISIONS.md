@@ -604,4 +604,8 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 
 ## OPEN
 
-_None — every decision is ACCEPTED (20 Oct 2026)._
+### #79 — Staging VPS → Atlas latency ≈ 9 ms vs. the ≤ 5 ms target (PHASE_00 T0.14 step 5, closure V-21) — OPEN (owner)
+**Measured (O9, 20 Oct 2026):** `curl` `time_connect` to each shard: ≈ 9 ms network round trip once DNS is cached (≈ 170–200 ms on the first, uncached lookup). PHASE_00 T0.14 targets ≤ 5 ms; DECISIONS #21 expected about 1–2 ms in the same region. The cause is that the Hostinger Mumbai VPS and AWS ap-south-1 (Atlas M0) are different data centres.
+**Impact:** the drivers keep pooled connections (01 §5.1), so the ~9 ms is paid per round trip, not per connection set-up. A typical API request makes 1–3 queries, so it adds roughly 10–30 ms. That fits the API latency budgets, but every extra sequential query costs 9 ms.
+**Options:** A (recommended) — accept ≈ 9 ms for staging and re-measure in Phase 9 against production (M10). If production is still above 5 ms, choose then between keeping it and moving the VPS. B — look for a VPS in the same AWS region now (paid, a move, out of scope for v1).
+**Needs:** the owner's answer (A or B).

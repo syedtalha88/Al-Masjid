@@ -29,6 +29,7 @@ pnpm install                 # installs git hooks (lefthook) too
 pnpm setup:local             # writes git-ignored .env.local* files with random local secrets
 pnpm db:start                # MongoDB (replica set + auth, host port 27018) + Redis (ACL users) in Docker
 pnpm --filter @mc/server verify:local   # 11 checks: auth required, ACL scopes, replica set
+pnpm db:reset                # the four DB users (02 §4.3), migrations, dev seed — /health needs them (PHASE_01 T1.6)
 pnpm dev                     # both PWAs + api-public + api-admin + worker (watch mode)
 ```
 
@@ -41,6 +42,9 @@ pnpm dev                     # both PWAs + api-public + api-admin + worker (watc
 `pnpm dev:app` / `pnpm dev:admin` start one side only.
 
 ### Production-like stack (Caddy, built images)
+
+Needs `pnpm db:start` and `pnpm db:reset` first (as in First run): the APIs only report healthy with their database
+users and the migrations in place.
 
 ```bash
 pnpm stack:up                # builds both PWAs + server/Caddy images, runs everything behind Caddy

@@ -18,7 +18,7 @@
     "bootstrap:super-admin": "node scripts/bootstrap-super-admin.ts",
     "db:test": "pnpm --filter @mc/db test:int",
     "db:schema:check": "node scripts/db-migrate.ts --check",
-    "db:verify-roles": "node scripts/not-yet.mjs db:verify-roles \"Phase 1\"",
+    "db:verify-roles": "node -e \"console.log('The read-only privilege check of a remote environment runs ON the VPS: sudo /usr/local/lib/masjid-connect/deploy.sh <staging|production> --verify-roles (docs/runbooks/DEPLOY.md). Locally, pnpm db:test covers the same checks.')\"",
     "test": "turbo run test",
     "test:int": "turbo run test:int",
     "test:coverage": "turbo run test:coverage",
