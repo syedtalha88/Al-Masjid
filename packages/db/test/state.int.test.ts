@@ -193,11 +193,11 @@ describe('follow codes (02 §3)', () => {
 });
 
 describe('masjids', () => {
-  it('createMasjid: pending masjid, stats document, audit — all or nothing', async () => {
+  it('createMasjid: pending masjid, audit — all or nothing; no stats document until the first follow', async () => {
     const { id, followCode } = await createMasjid(h(), superNow(), MASJID_INPUT);
     const masjid = await raw('masjids').findOne({ _id: id });
     expect(masjid).toMatchObject({ status: 'pending', follow_code: followCode, admin_count: 0, lat: 17.385 });
-    expect(await raw('masjid_stats').findOne({ _id: id })).toMatchObject({ followers: 0 });
+    expect(await raw('masjid_stats').findOne({ _id: id })).toBeNull(); // mc_admin may not insert it (02 §4.3)
     expect(
       await t().db.collection('audit_log').countDocuments({ action: 'masjid.create', target_id: id.toHexString() }),
     ).toBe(1);

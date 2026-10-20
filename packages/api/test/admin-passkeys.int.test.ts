@@ -5,12 +5,12 @@
 // cookie flags; CSRF on the new routes.
 import { randomBytes } from 'node:crypto';
 
-import { createDbHandle, type DbHandle, idText, isId, newId, superScope } from '@mc/db';
+import { type DbHandle, idText, isId, newId, superScope } from '@mc/db';
 import { runMigrations } from '@mc/db/migrate';
 import { MIGRATIONS } from '@mc/db/migrations';
 import { getDashboard } from '@mc/db/repos';
 import { addAdminToMasjid, createAdmin, createInvite, createMasjid } from '@mc/db/state';
-import { createTestDatabase, type TestDatabase, testMongoUri } from '@mc/db/testing';
+import { createTestDatabase, processUserHandle, type TestDatabase } from '@mc/db/testing';
 import { ManualClock, ShiftableClock } from '@mc/shared/clock';
 import { creationOptionsSchema, requestOptionsSchema } from '@mc/shared/contracts';
 import request from 'supertest';
@@ -39,6 +39,7 @@ const log = captureLogger();
 
 let test: TestDatabase | undefined;
 let handle: DbHandle | undefined;
+let asAdmin: Awaited<ReturnType<typeof processUserHandle>> | undefined;
 const h = () => {
   if (!handle) throw new Error('no handle');
   return handle;
@@ -183,11 +184,13 @@ const lastReason = (): string => {
 beforeAll(async () => {
   test = await createTestDatabase('admin_passkeys');
   await runMigrations(t().db, MIGRATIONS);
-  handle = createDbHandle({ uri: testMongoUri(), database: t().name, process: 'script', local: true });
+  // As api-admin's own database user (02 §4.3), like on the servers — a missing privilege fails here.
+  asAdmin = await processUserHandle(t(), 'mc_admin');
+  handle = asAdmin.handle;
 });
 
 afterAll(async () => {
-  await handle?.close();
+  await asAdmin?.dispose();
   await test?.dispose();
 });
 

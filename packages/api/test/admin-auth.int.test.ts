@@ -3,7 +3,7 @@
 // its next request, logout clears the cookie, Super Admin and step-up route guards.
 import { randomBytes } from 'node:crypto';
 
-import { createDbHandle, type DbHandle, newId, publicScope, superScope } from '@mc/db';
+import { type DbHandle, newId, publicScope, superScope } from '@mc/db';
 import { runMigrations } from '@mc/db/migrate';
 import { MIGRATIONS } from '@mc/db/migrations';
 import {
@@ -14,7 +14,7 @@ import {
   registerCredential,
   SESSION_LIFETIMES,
 } from '@mc/db/state';
-import { createTestDatabase, type TestDatabase, testMongoUri } from '@mc/db/testing';
+import { createTestDatabase, processUserHandle, type TestDatabase } from '@mc/db/testing';
 import { ManualClock } from '@mc/shared/clock';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -35,6 +35,7 @@ const clock = new ManualClock(new Date('2026-10-16T06:00:00Z'));
 
 let test: TestDatabase | undefined;
 let handle: DbHandle | undefined;
+let asAdmin: Awaited<ReturnType<typeof processUserHandle>> | undefined;
 const h = () => {
   if (!handle) throw new Error('no handle');
   return handle;
@@ -115,7 +116,9 @@ async function signedIn() {
 beforeAll(async () => {
   test = await createTestDatabase('admin_auth');
   await runMigrations(t().db, MIGRATIONS);
-  handle = createDbHandle({ uri: testMongoUri(), database: t().name, process: 'script', local: true });
+  // As api-admin's own database user (02 §4.3), like on the servers — a missing privilege fails here.
+  asAdmin = await processUserHandle(t(), 'mc_admin');
+  handle = asAdmin.handle;
   // The Super Admin (bootstrap is T1.9): created like any admin, then promoted.
   superId = await createAdmin(h(), superScope(newId(), clock.now()), { displayName: 'Test Super', uiLocale: 'en' });
   await t()
@@ -124,7 +127,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await handle?.close();
+  await asAdmin?.dispose();
   await test?.dispose();
 });
 

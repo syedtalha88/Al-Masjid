@@ -6,4 +6,5 @@ export {
   testDatabaseName,
   testMongoUri,
 } from './mongo.ts';
+export { processUserHandle } from './process-user.ts';
 export { useTestDatabase } from './vitest.ts';

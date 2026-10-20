@@ -95,9 +95,8 @@ export async function createMasjid(
           },
           { session: ctx.session },
         );
-        await ctx.db
-          .collection<IdDoc>('masjid_stats')
-          .insertOne({ _id: id, followers: 0, ameens_7d: 0, updated_at: now }, { session: ctx.session });
+        // No masjid_stats document here: mc_admin may only read it (02 §4.3). The first follow creates it (upsert by
+        // mc_public) and every reader treats a missing one as zero.
         await writeAudit(ctx, {
           action: 'masjid.create',
           masjidId: id,

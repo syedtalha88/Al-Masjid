@@ -3,11 +3,11 @@
 // numbers (clear and encrypted) and the cookie header.
 import { randomBytes } from 'node:crypto';
 
-import { createDbHandle, type DbHandle, publicScope } from '@mc/db';
+import { type DbHandle, publicScope } from '@mc/db';
 import { runMigrations } from '@mc/db/migrate';
 import { MIGRATIONS } from '@mc/db/migrations';
 import { registerCredential } from '@mc/db/state';
-import { createTestDatabase, type TestDatabase, testMongoUri } from '@mc/db/testing';
+import { createTestDatabase, processUserHandle, type TestDatabase } from '@mc/db/testing';
 import { ManualClock } from '@mc/shared/clock';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -29,6 +29,7 @@ const PHONE = '+919812345678';
 
 let test: TestDatabase | undefined;
 let handle: DbHandle | undefined;
+let asAdmin: Awaited<ReturnType<typeof processUserHandle>> | undefined;
 const h = () => {
   if (!handle) throw new Error('no handle');
   return handle;
@@ -37,11 +38,13 @@ const h = () => {
 beforeAll(async () => {
   test = await createTestDatabase('log_hygiene');
   await runMigrations(test.db, MIGRATIONS);
-  handle = createDbHandle({ uri: testMongoUri(), database: test.name, process: 'script', local: true });
+  // As api-admin's own database user (02 §4.3), like on the servers — a missing privilege fails here.
+  asAdmin = await processUserHandle(test, 'mc_admin');
+  handle = asAdmin.handle;
 });
 
 afterAll(async () => {
-  await handle?.close();
+  await asAdmin?.dispose();
   await test?.dispose();
 });
 
