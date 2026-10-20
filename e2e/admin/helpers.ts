@@ -43,7 +43,7 @@ export async function virtualAuthenticator(page: Page): Promise<{ cdp: CDPSessio
 }
 
 /**
- * The 03 §2 login limits (10 / 10 min / IP) count per IP, and every spec here comes from the same one: each starts
+ * The 03 §2 login limits (30 / 10 min / IP — DECISIONS #81) count per IP, and every spec here comes from the same one: each starts
  * from zero. Two of these specs running AT THE SAME TIME still share one budget — CI runs one worker; locally run
  * them with `--workers=1`.
  */

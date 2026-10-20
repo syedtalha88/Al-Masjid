@@ -46,7 +46,7 @@ describe('rate limits (03 §2)', () => {
       ameen: { points: 120, durationSec: 3600 },
       reports: { points: 10, durationSec: 86_400 },
       grievancesIp: { points: 5, durationSec: 86_400 },
-      adminLoginIp: { points: 10, durationSec: 600 },
+      adminLoginIp: { points: 30, durationSec: 600 },
       adminLoginCredential: { points: 20, durationSec: 3600 },
       adminWrites: { points: 120, durationSec: 3600 },
       adminUploads: { points: 30, durationSec: 3600 },

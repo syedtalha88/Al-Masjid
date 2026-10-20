@@ -25,7 +25,7 @@ Server timeouts: `requestTimeout` 15 s (uploads 120 s), `headersTimeout` 10 s, `
 | ameen | 120 / hour / device |
 | reports | 10 / day / device |
 | grievances | 5 / day / IP + Turnstile |
-| admin login options/verify | 10 / 10 min / IP, 20 / hour / credential |
+| admin login options/verify, invite read, registration | 30 / 10 min / IP (IPv6 by /64) — DECISIONS #81, #80; 20 / hour / credential counting **failed** assertions of a known credential only (#80 L3) |
 | admin writes | 120 / hour / session |
 | admin uploads / video links (image upload, video create) | 30 / hour / masjid |
 | super admin writes | 600 / hour / session |

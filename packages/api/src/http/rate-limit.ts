@@ -29,7 +29,7 @@ export const RATE_LIMITS = {
   ameen: { points: 120, durationSec: HOUR },
   reports: { points: 10, durationSec: DAY },
   grievancesIp: { points: 5, durationSec: DAY },
-  adminLoginIp: { points: 10, durationSec: 600 },
+  adminLoginIp: { points: 30, durationSec: 600 }, // DECISIONS #81 (owner: onboarding several admins on one Wi-Fi)
   adminLoginCredential: { points: 20, durationSec: HOUR },
   adminWrites: { points: 120, durationSec: HOUR }, // per session
   adminUploads: { points: 30, durationSec: HOUR }, // per masjid
