@@ -141,7 +141,10 @@ describe('GET /auth/invite/:token', () => {
     });
     expect((await request(app()).get(`/api/admin/auth/invite/${token}`)).status).toBe(200); // not consumed
     const bodies: string[] = [];
-    for (const bad of [newToken(), 'short', `${token.slice(0, -1)}A`]) {
+    // One character off — the first: all 6 of its bits count (the last one carries padding bits, and a fixed 'A' there
+    // equals the real token 1 time in 16 — a CI flake on 19 Oct 2026).
+    const oneOff = `${token.startsWith('A') ? 'B' : 'A'}${token.slice(1)}`;
+    for (const bad of [newToken(), 'short', oneOff]) {
       const response = await request(app()).get(`/api/admin/auth/invite/${bad}`);
       expect(response.status).toBe(404);
       const { requestId: _ignored, ...rest } = JSON.parse(response.text) as Record<string, unknown>;

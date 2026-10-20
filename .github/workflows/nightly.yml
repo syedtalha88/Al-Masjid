@@ -45,6 +45,11 @@ jobs:
       - run: pnpm setup:local
       - run: echo "127.0.0.1 app.localhost admin.localhost" | sudo tee -a /etc/hosts
       - run: pnpm --filter @mc/app --filter @mc/admin build
+      # The APIs' /health checks MongoDB (PHASE_01 T1.6): a fresh runner needs the DB users + migrations first.
+      - name: MongoDB users + migrations (db:reset)
+        run: |
+          pnpm db:start
+          pnpm db:reset
       - run: node scripts/compose.mjs stack up --build
       - name: Trivy (all fixable HIGH/CRITICAL)
         run: |
