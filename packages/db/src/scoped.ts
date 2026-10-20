@@ -70,6 +70,7 @@ const present = (cell: Cell, doc: Document): Document => (cell.redact ? cell.red
 
 function assertWritable(cell: Cell, namespace: string, scope: string, update: UpdateFilter<Document>) {
   const writable = new Set([...(cell.writable ?? []), 'updated_at']);
+  const values: Record<string, unknown> = {};
   for (const [operator, fields] of Object.entries(update)) {
     if (!ALLOWED_UPDATE_OPERATORS.has(operator) || !isPlain(fields)) {
       throw new PolicyDeniedError(namespace, 'update', scope, `operator ${operator} not allowed`);
@@ -80,8 +81,11 @@ function assertWritable(cell: Cell, namespace: string, scope: string, update: Up
         throw new PolicyDeniedError(namespace, 'update', scope, `field ${field} not writable`);
       }
       assertSafeKeys(value, namespace);
+      values[field] = operator === '$unset' ? undefined : value;
     }
   }
+  const refused = cell.check?.(values);
+  if (refused) throw new PolicyDeniedError(namespace, 'update', scope, refused);
 }
 
 /** A filter built by a repository from typed values (UUID ids included); the tenant filter is ANDed in. */
@@ -166,6 +170,8 @@ export function scoped(ctx: PolicyContext, namespace: Namespace): ScopedCollecti
       const tenant = await fence(c, 'insert');
       if (!matchesTenant(doc, tenant))
         throw new PolicyDeniedError(namespace, 'insert', ctx.scope.kind, 'outside tenant');
+      const refused = c.check?.(doc);
+      if (refused) throw new PolicyDeniedError(namespace, 'insert', ctx.scope.kind, refused);
       await collection.insertOne(doc, sessionOf(ctx));
     },
     async updateOne(filter, update, options = {}) {

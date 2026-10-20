@@ -288,6 +288,38 @@ describe('fields', () => {
     expect(removed).not.toHaveProperty('body');
     expect(removed).not.toHaveProperty('image_key');
   });
+
+  it('no generic write un-removes an item, removes one, or touches the purge marker (04 §5, review M2)', async () => {
+    const removedId = new UUID();
+    const liveId = new UUID();
+    await raw('items').insertMany([
+      { _id: removedId, masjid_id: masjidA, status: 'removed', purge_after: new Date('2027-04-01T00:00:00Z') },
+      { _id: liveId, masjid_id: masjidA, status: 'published', title: 'Test notice' },
+    ]);
+    const asAdmin = scoped({ scope: adminOfA, db: db(), contentMasjidId: masjidA }, 'items');
+    const asSuper = scoped({ scope: superScope(new UUID()), db: db(), contentMasjidId: masjidA }, 'items');
+    for (const items of [asAdmin, asSuper]) {
+      // A removed item is outside every generic update: un-removing matches nothing.
+      expect(await items.updateOne({ _id: removedId }, { $set: { status: 'published' } })).toBe(0);
+      for (const update of [
+        { $set: { status: 'removed' } },
+        { $set: { purge_after: new Date() } },
+        { $unset: { purge_after: '' } },
+        { $set: { removed_reason: 'x' } },
+      ]) {
+        await expect(items.updateOne({ _id: liveId }, update), JSON.stringify(update)).rejects.toBeInstanceOf(
+          PolicyDeniedError,
+        );
+      }
+      for (const extra of [{ status: 'removed' }, { status: 'draft', purge_after: new Date() }]) {
+        await expect(
+          items.insertOne({ _id: new UUID(), masjid_id: masjidA, title: 'Test', ...extra }),
+        ).rejects.toBeInstanceOf(PolicyDeniedError);
+      }
+    }
+    expect(await raw('items').findOne({ _id: removedId })).toMatchObject({ status: 'removed' });
+    expect(await asAdmin.updateOne({ _id: liveId }, { $set: { status: 'deleted', deleted_at: new Date() } })).toBe(1);
+  });
 });
 
 describe('guards', () => {

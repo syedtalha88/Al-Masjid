@@ -39,6 +39,11 @@ export interface Cell {
   readonly writable?: readonly string[];
   /** Post-read redaction (e.g. removed items show no content to admins). */
   readonly redact?: (doc: Document) => Document;
+  /**
+   * Value rule for insert/update: given the inserted document or the update's field → value pairs, returns why they
+   * are refused, or `undefined`. For what an allow-list of field names cannot say (e.g. items: never `removed`).
+   */
+  readonly check?: (fields: Readonly<Record<string, unknown>>) => string | undefined;
 }
 
 type Cells = Partial<Record<Kind, Partial<Record<Operation, Cell>>>>;
@@ -125,7 +130,6 @@ const ITEM_WRITABLE = [
   'published_version',
   'edited_at',
   'deleted_at',
-  'purge_after',
   'announcement',
   'daily',
   'dua',
@@ -133,6 +137,20 @@ const ITEM_WRITABLE = [
   'chanda',
   'video',
 ];
+/**
+ * 04 §5 "no generic update method exists for … item `removed` status" (security review M2): no generic write may set
+ * `status: removed`, the moderation fields, or the purge marker (its 180-day evidence clock, IT Rules 3(1)(g)) —
+ * takedown, restore and purge are state functions (Phase 8) and the retention job.
+ */
+const ITEM_MODERATION_FIELDS = ['purge_after', 'removed_at', 'removed_reason'];
+const itemCheck = (fields: Readonly<Record<string, unknown>>): string | undefined => {
+  if (fields['status'] === 'removed') return 'status removed is set by moderation only';
+  const guarded = ITEM_MODERATION_FIELDS.find((field) => field in fields);
+  return guarded ? `${guarded} is set by moderation / retention only` : undefined;
+};
+/** Generic item updates never touch a removed item (no un-removing). */
+const notRemoved = { status: { $ne: 'removed' } };
+
 const TIMING_WRITABLE = [
   'prayers',
   'jumuah',
@@ -206,10 +224,18 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
   items: {
     admin: {
       find: { filter: own('masjid_id'), redact: removedRedaction },
-      insert: { filter: own('masjid_id') },
-      update: { filter: own('masjid_id'), writable: ITEM_WRITABLE },
+      insert: { filter: own('masjid_id'), check: itemCheck },
+      update: {
+        filter: (ctx) => ({ ...own('masjid_id')(ctx), ...notRemoved }),
+        writable: ITEM_WRITABLE,
+        check: itemCheck,
+      },
     },
-    super: all(),
+    super: {
+      ...all(),
+      insert: { check: itemCheck },
+      update: { filter: () => notRemoved, writable: ['*'], check: itemCheck },
+    },
   },
   ameens: {
     device: { insert: { filter: selfDevice('device_id') }, delete: { filter: selfDevice('device_id') } },
