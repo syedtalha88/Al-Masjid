@@ -328,6 +328,7 @@ describe('masjid edits, settings, CSV export', () => {
     expect((await asSuper('get', '/settings')).body).toMatchObject({ defaultPushQuota: 7 });
     expect((await asSuper('get', '/dashboard')).body).toMatchObject({
       counts: { pending: expect.any(Number) as unknown },
+      passkeyAlerts: 0,
     });
   });
 

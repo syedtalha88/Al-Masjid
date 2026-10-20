@@ -242,17 +242,32 @@ export async function getSettings(handle: DbHandle, scope: Scope): Promise<Recor
   return settings;
 }
 
+/** How far back the dashboard looks for passkeys revoked as possible clones. */
+export const PASSKEY_ALERT_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
+
 /**
- * C1 dashboard (Phase 1 part): pending activations and counts per masjid status.
+ * C1 dashboard (Phase 1 part): pending activations, counts per masjid status, and how many passkeys were revoked in
+ * the last 30 days because their sign counter went backwards (possible clone, 04 §3 — the push alert is Phase 4).
  *
  * @throws StateError FORBIDDEN (not super).
  */
 export async function getDashboard(
   handle: DbHandle,
   scope: Scope,
-): Promise<{ pending: readonly MasjidRow[]; counts: Readonly<Record<MasjidRow['status'], number>> }> {
+  input: { now?: Date } = {},
+): Promise<{
+  pending: readonly MasjidRow[];
+  counts: Readonly<Record<MasjidRow['status'], number>>;
+  passkeyAlerts: number;
+}> {
   requireSuperScope(scope);
   const db = await handle.db();
+  const since = new Date((input.now ?? new Date()).getTime() - PASSKEY_ALERT_WINDOW_MS);
+  const passkeyAlerts = await scoped({ scope, db }, 'audit_log').count({
+    action: 'credential.revoke',
+    'meta.reason': 'counter_regression',
+    at: { $gte: since },
+  });
   const masjids = scoped({ scope, db }, 'masjids');
   const [pending, active, suspended, deleted] = await Promise.all(
     (['pending', 'active', 'suspended', 'deleted'] as const).map((status) => masjids.count({ status })),
@@ -261,5 +276,6 @@ export async function getDashboard(
   return {
     pending: rows,
     counts: { pending: pending ?? 0, active: active ?? 0, suspended: suspended ?? 0, deleted: deleted ?? 0 },
+    passkeyAlerts,
   };
 }

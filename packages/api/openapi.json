@@ -485,11 +485,16 @@
               "suspended",
               "deleted"
             ]
+          },
+          "passkeyAlerts": {
+            "type": "integer",
+            "minimum": 0
           }
         },
         "required": [
           "pending",
-          "counts"
+          "counts",
+          "passkeyAlerts"
         ]
       },
       "SuperMasjidRow": {
@@ -1639,7 +1644,7 @@
     },
     "/api/super/dashboard": {
       "get": {
-        "summary": "Pending activations and masjid counts (C1)",
+        "summary": "Pending activations, masjid counts and passkey clone alerts (C1)",
         "tags": [
           "super"
         ],

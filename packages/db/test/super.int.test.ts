@@ -3,7 +3,7 @@
 // repositories (search, cursors, hidden fields, dashboard).
 import { randomBytes } from 'node:crypto';
 
-import { Binary, Long, type UUID } from 'mongodb';
+import { Binary, Long, ObjectId, type UUID } from 'mongodb';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { MIGRATIONS } from '../migrations/index.ts';
@@ -349,5 +349,30 @@ describe('read repositories', () => {
     const dashboard = await getDashboard(h(), fresh());
     expect(dashboard.counts.pending).toBeGreaterThanOrEqual(1);
     expect(dashboard.pending.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('dashboard: passkeys revoked as possible clones in the last 30 days (04 §3), nothing else counted', async () => {
+    const now = new Date('2026-10-20T12:00:00Z');
+    const day = 24 * 60 * 60 * 1000;
+    const before = (await getDashboard(h(), fresh(), { now })).passkeyAlerts;
+    const entry = (at: Date, reason: string, action = 'credential.revoke') => ({
+      _id: new ObjectId(),
+      at,
+      actor_type: 'system',
+      action,
+      target_type: 'admin',
+      target_id: 'x',
+      meta: { reason, credential: 'abcdefghijklmnop' },
+    });
+    await t()
+      .db.collection('audit_log')
+      .insertMany([
+        entry(new Date(now.getTime() - day), 'counter_regression'),
+        entry(new Date(now.getTime() - 29 * day), 'counter_regression'),
+        entry(new Date(now.getTime() - 31 * day), 'counter_regression'), // too old
+        entry(new Date(now.getTime() - day), 'revoked_by_super'), // a deliberate revocation, not an alert
+        entry(new Date(now.getTime() - day), 'counter_regression', 'session.revoke'),
+      ]);
+    expect((await getDashboard(h(), fresh(), { now })).passkeyAlerts).toBe(before + 2);
   });
 });

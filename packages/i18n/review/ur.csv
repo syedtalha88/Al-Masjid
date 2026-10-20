@@ -162,6 +162,7 @@ super,status.deleted,Deleted,حذف شدہ,no
 super,dashboard.pending,Waiting for activation,فعال ہونے کی منتظر,no
 super,dashboard.noPending,No masjids are waiting for activation.,کوئی مسجد فعال ہونے کی منتظر نہیں ہے۔,no
 super,dashboard.counts,Masjids,مساجد,no
+super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","پچھلے 30 دنوں میں {count, plural, one {# لاگ اِن} other {# لاگ اِن}} روکا گیا، کیونکہ کسی فون کی نقل ہو سکتی ہے۔ ہر متاثرہ ایڈمن کو نیا لاگ اِن لنک دیں۔",no
 super,masjids.search,"Search by name, city or code",نام، شہر یا کوڈ سے تلاش کریں,no
 super,masjids.all,All,سب,no
 super,masjids.new,New masjid,نئی مسجد,no

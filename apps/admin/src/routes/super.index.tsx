@@ -1,6 +1,6 @@
 import { useLocale, useTranslation } from '@mc/i18n/react';
 import { Card, InfoNote, ListRow, SectionHeader, SkeletonText } from '@mc/ui/components';
-import { MasjidTile } from '@mc/ui/icons';
+import { MasjidTile, WarningIcon } from '@mc/ui/icons';
 import { useNavigator } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
@@ -38,6 +38,14 @@ function Dashboard() {
           </li>
         ))}
       </ul>
+
+      {dashboard.data && dashboard.data.passkeyAlerts > 0 ? (
+        // 04 §3: a passkey whose sign counter went backwards was revoked (possible clone) — the push alert is Phase 4.
+        <div role="status" className="mb-6 flex items-start gap-3 rounded-md bg-danger-bg p-4 type-callout text-danger">
+          <WarningIcon size={20} className="mt-px shrink-0" />
+          <p className="min-w-0">{t('dashboard.passkeyAlert', { count: dashboard.data.passkeyAlerts })}</p>
+        </div>
+      ) : null}
 
       <section className="flex flex-col gap-3">
         <SectionHeader title={t('dashboard.counts')} />

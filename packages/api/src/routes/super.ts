@@ -143,15 +143,19 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
     defineRoute({
       method: 'get',
       path: '/dashboard',
-      summary: 'Pending activations and masjid counts (C1)',
+      summary: 'Pending activations, masjid counts and passkey clone alerts (C1)',
       tags: ['super'],
       auth: 'super',
       responses: {
         200: superDashboardSchema,
       },
-      handler: async ({ auth, reply }) => {
-        const dashboard = await getDashboard(db, auth.scope);
-        return reply(200, { pending: dashboard.pending.map(rowOut), counts: { ...dashboard.counts } });
+      handler: async ({ auth, clock, reply }) => {
+        const dashboard = await getDashboard(db, auth.scope, { now: clock.now() });
+        return reply(200, {
+          pending: dashboard.pending.map(rowOut),
+          counts: { ...dashboard.counts },
+          passkeyAlerts: dashboard.passkeyAlerts,
+        });
       },
     }),
     defineRoute({

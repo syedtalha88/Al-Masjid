@@ -162,6 +162,7 @@ super,status.deleted,Deleted,తొలగించబడింది,no
 super,dashboard.pending,Waiting for activation,యాక్టివేషన్ కోసం ఎదురుచూస్తున్నవి,no
 super,dashboard.noPending,No masjids are waiting for activation.,యాక్టివేషన్ కోసం ఏ మస్జిద్ ఎదురుచూడటం లేదు.,no
 super,dashboard.counts,Masjids,మస్జిద్‌లు,no
+super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","గత 30 రోజుల్లో {count, plural, one {# లాగిన్} other {# లాగిన్‌లు}} నిలిపివేయబడింది, ఎందుకంటే ఒక ఫోన్ కాపీ చేయబడి ఉండవచ్చు. ప్రభావితమైన ప్రతి అడ్మిన్‌కు కొత్త లాగిన్ లింక్ ఇవ్వండి.",no
 super,masjids.search,"Search by name, city or code","పేరు, నగరం లేదా కోడ్‌తో వెతకండి",no
 super,masjids.all,All,అన్నీ,no
 super,masjids.new,New masjid,కొత్త మస్జిద్,no

@@ -16,7 +16,8 @@
   "dashboard": {
     "pending": "Waiting for activation",
     "noPending": "No masjids are waiting for activation.",
-    "counts": "Masjids"
+    "counts": "Masjids",
+    "passkeyAlert": "{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link."
   },
   "masjids": {
     "search": "Search by name, city or code",

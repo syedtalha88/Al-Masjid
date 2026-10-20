@@ -208,6 +208,8 @@ export const superDashboardSchema = z
   .object({
     pending: z.array(superMasjidRowSchema),
     counts: z.object({ pending: z.number(), active: z.number(), suspended: z.number(), deleted: z.number() }),
+    /** Passkeys revoked in the last 30 days because their sign counter went backwards (possible clone, 04 §3). */
+    passkeyAlerts: z.number().int().min(0),
   })
   .meta({ id: 'SuperDashboard' });
 export type SuperDashboard = z.infer<typeof superDashboardSchema>;
