@@ -2,7 +2,7 @@
 
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
-> Last updated: 16 Oct 2026.
+> Last updated: 20 Oct 2026.
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
 > Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.
@@ -23,6 +23,9 @@
 - [x] **Server scripts** updated to `a33610e` (16 Oct 2026)
 - [x] **O7 (most of it)** — phone checks passed on iPhone + Poco F7, incl. the update prompt (0.12) and rollback (0.14) (16 Oct 2026)
 - [x] **O3** — Log-archive key: created on my PC (`Documents\masjid-logs.key`, backed up), public key on the server; hourly archive runs (16 Oct 2026)
+- [x] **A7 — Push**: standing permission to commit + push given to Claude Code (19 Oct 2026); 38 commits pushed to `main`
+- [x] **O14 — DECISIONS #70**: "do the best one" → option A (Super Admin created by a one-off api-admin container) (19 Oct 2026)
+- [x] **O13 — permission** for the passkey library given (19 Oct 2026) — the install itself is item 1 below
 
 ---
 
@@ -30,23 +33,21 @@
 
 | # | What | Time | Notes |
 |---|---|---|---|
-| 1 | **GitHub → Settings → Environments → production** → untick **"Allow administrators to bypass configured protection rules"** → Save | 1 min | security review L8 |
-| 2 | **Latency test** on the server (O9) — the command is in `docs/PROGRESS.md` → O9; paste the 9 lines to Claude Code | 1 min | |
-| 3 | **Cloudflare → Caching → Configuration → Browser Cache TTL → "Respect Existing Headers"** (O10) | 1 min | |
-| 4 | **GitHub → Settings → Secrets and variables → Actions → Variables**: `STAGING_APP_URL` = `https://app-staging.almasjids.com`, `STAGING_ADMIN_URL` = `https://admin-staging.almasjids.com` (O11) | 2 min | turns on the nightly staging scan |
-| 5 | **Design notes** from the phone checks → send to Claude Code (list or screenshots); is the thin black strip at the top gone now? | — | |
-| 6 | **iPhone swipe-back (F17)**: in Safari *and* the installed app, does swiping back from the left edge slide back once, smoothly? yes/no | 2 min | |
-| 7 | **Turnstile widget** (Cloudflare → Turnstile → Add widget, hostname `app-staging.almasjids.com`, Managed) — send the **site key** only, keep the secret | 3 min | needed from Phase 2 |
-| 8 | **Super Admin passkey** on staging with my phone — when Claude Code says login is ready: on the server `sudo /usr/local/lib/masjid-connect/deploy.sh staging --bootstrap-super-admin --name "<my name>"`, open the printed link on my phone (keep it private; steps in `docs/runbooks/DEPLOY.md` §7) | 5 min | Phase 01 T1.9 (O12) |
-| 9 | **O6 last:** GitHub branch ruleset (0.15) + the failing-PR test (0.16) — after this, `main` changes only through pull requests | 15 min | at the very end of Phase 01 work |
-| ~~10~~ | ~~Push~~ — **done 19 Oct 2026**: standing permission to commit + push | – | |
-| 11 | **Install the passkey library** — you allowed it, but Claude Code's permission check blocked the command. In the repo folder run `pnpm --filter @mc/api add --save-exact @simplewebauthn/server@14.0.3` (or approve the prompt next time) and tell Claude Code (O13) | 1 min | Phase 01 T1.8 |
-| ~~12~~ | ~~Answer DECISIONS #70~~ — **done 19 Oct 2026** (option A) | – | |
-| 13 | **Cloudflare "Network Error Logging" switch** — turn off if it exists (O15) | 2 min | |
-| 14 | **Host-layer reinstall** (O17) — wait until Claude Code says CI on `main` is green (the 19 Oct pushes failed in CI; fix pushed 20 Oct), then it gives the sha + checksum; afterwards the one-time network step (DEPLOY.md §8) and send the `check.sh` output | 5 min | next session |
-| 15 | **VPS backups** — check / enable the provider's backup feature; ask first if it costs money (O18) | 5 min | |
-| 16 | **Screen-reader check** (O19): TalkBack on the Poco F7, VoiceOver on the iPhone — steps in `docs/PROGRESS.md` → O19 | 5 min | |
-| — | **Low-end Android phone** (≈ ₹8,000) for the performance check (O16) | when available | Phase 2 |
+| 1 | **Install the passkey library** — I allowed it, but Claude Code's permission check blocked the command. In the repo folder run `pnpm --filter @mc/api add --save-exact @simplewebauthn/server@14.0.3` (or approve the prompt next time) and tell Claude Code (O13) | 1 min | **blocks passkey login (Phase 01 T1.8)** |
+| 2 | **Host-layer reinstall** (O17) — wait until Claude Code says CI on `main` is green (the 19 Oct pushes failed in CI; fix pushed 20 Oct), then it gives the sha + checksum; afterwards the one-time network step (DEPLOY.md §8) and send the `check.sh` output | 5 min | next session |
+| 3 | **Super Admin passkey** on staging with my phone — when Claude Code says login is ready: on the server `sudo /usr/local/lib/masjid-connect/deploy.sh staging --bootstrap-super-admin --name "<my name>"`, open the printed link on my phone (keep it private; steps in `docs/runbooks/DEPLOY.md` §7) (O12) | 5 min | after 1 + 2 |
+| 4 | **GitHub → Settings → Environments → production** → untick **"Allow administrators to bypass configured protection rules"** → Save (O6, part 1) | 1 min | security review L8 |
+| 5 | **Latency test** on the server (O9) — the command is in `docs/PROGRESS.md` → O9; paste the 9 lines to Claude Code | 1 min | |
+| 6 | **Cloudflare → Caching → Configuration → Browser Cache TTL → "Respect Existing Headers"** (O10) | 1 min | |
+| 7 | **GitHub → Settings → Secrets and variables → Actions → Variables**: `STAGING_APP_URL` = `https://app-staging.almasjids.com`, `STAGING_ADMIN_URL` = `https://admin-staging.almasjids.com` (O11) | 2 min | turns on the nightly staging scan |
+| 8 | **Cloudflare "Network Error Logging" switch** — turn off if it exists (O15) | 2 min | |
+| 9 | **VPS backups** — check / enable the provider's backup feature; ask first if it costs money (O18) | 5 min | |
+| 10 | **Screen-reader check** (O19): TalkBack on the Poco F7, VoiceOver on the iPhone — steps in `docs/PROGRESS.md` → O19 | 5 min | |
+| 11 | **Design notes** from the phone checks → send to Claude Code (list or screenshots); is the thin black strip at the top gone now? Is the white ring around the Scan button OK (PHASE_00_REPORT §4.1)? (O7) | — | |
+| 12 | **iPhone swipe-back (F17)**: in Safari *and* the installed app, does swiping back from the left edge slide back once, smoothly? yes/no | 2 min | |
+| 13 | **Turnstile widget** (Cloudflare → Turnstile → Add widget, hostname `app-staging.almasjids.com`, Managed) — send the **site key** only, keep the secret (O8) | 3 min | needed from Phase 2 |
+| 14 | **Low-end Android phone** (≈ ₹8,000) for the performance check (O16) | when available | Phase 2 |
+| 15 | **O6 last:** GitHub branch ruleset (0.15) + the failing-PR test (0.16) — after this, `main` changes only through pull requests | 15 min | at the very end of Phase 01 work |
 
 ---
 
