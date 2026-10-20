@@ -28,6 +28,8 @@ export interface TestHookContext {
   readonly clock: AdjustableClock;
   /** api-admin only. */
   readonly admin?: AdminHookContext;
+  /** Clears this process's rate-limit counters (several auth e2e specs share one client IP). */
+  readonly resetRateLimits?: () => Promise<number>;
 }
 
 const InviteRequest = z.strictObject({ displayName: z.string().trim().min(1).max(60) });
@@ -51,7 +53,7 @@ const ClockChange = z.union([
  *
  * @returns route definitions for `AppDependencies.testRoutes`.
  */
-export function testHookRoutes({ service, clock, admin }: TestHookContext): RouteDefinition[] {
+export function testHookRoutes({ service, clock, admin, resetRateLimits }: TestHookContext): RouteDefinition[] {
   const state = () => ({ now: clock.now().toISOString(), marker: TEST_HOOKS_MARKER });
   const adminHooks = admin
     ? [
@@ -76,8 +78,21 @@ export function testHookRoutes({ service, clock, admin }: TestHookContext): Rout
         }),
       ]
     : [];
+  const rateLimitHooks = resetRateLimits
+    ? [
+        defineRoute({
+          method: 'delete',
+          path: '/test/rate-limits',
+          summary: `Test hook (${service}): clear the rate-limit counters`,
+          auth: 'none',
+          responses: { 200: z.object({ deleted: z.int().min(0) }) },
+          handler: async ({ reply }) => reply(200, { deleted: await resetRateLimits() }),
+        }),
+      ]
+    : [];
   return [
     ...adminHooks,
+    ...rateLimitHooks,
     defineRoute({
       method: 'get',
       path: '/test/clock',

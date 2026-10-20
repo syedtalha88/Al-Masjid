@@ -115,6 +115,23 @@ export function redisRateLimiter(
   });
 }
 
+/**
+ * Deletes every rate-limit counter under `prefix` — for the e2e test hooks only (several auth specs share one client
+ * IP within a 10-minute window). Never wired outside test-hook mode.
+ *
+ * @returns how many counters were deleted.
+ */
+export async function clearRedisRateLimits(redis: Redis, prefix: RateLimitPrefix): Promise<number> {
+  let deleted = 0;
+  let cursor = '0';
+  do {
+    const [next, keys] = await redis.scan(cursor, 'MATCH', `${prefix}*`, 'COUNT', 200);
+    cursor = next;
+    if (keys.length > 0) deleted += await redis.del(...keys);
+  } while (cursor !== '0');
+  return deleted;
+}
+
 const pointsOf = (bucket: RateLimitBucket) => ({ points: bucket.points, duration: bucket.durationSec });
 
 /** How a route names the client a bucket counts. */

@@ -31,7 +31,14 @@ interface TestHookModule {
     service: 'api-public' | 'api-admin';
     clock: ShiftableClock;
     admin?: AdminHookContext;
+    resetRateLimits?: () => Promise<number>;
   }) => unknown;
+}
+
+/** What an entrypoint can hand its hooks besides the clock. */
+export interface TestHookExtras {
+  readonly admin?: AdminHookContext;
+  readonly resetRateLimits?: () => Promise<number>;
 }
 
 /** api-admin's seed hooks get its own DB handle and pepper (same shape as @mc/api's AdminHookContext). */
@@ -52,7 +59,7 @@ const isTestHookModule = (value: unknown): value is TestHookModule =>
  * expose hooks there; it only logs a warning.
  *
  * @param moduleUrl - location of the built module (default: next to the running entrypoint).
- * @param admin - api-admin only: what its seed hooks need.
+ * @param extras - api-admin's seed-hook context; the process's rate-limit reset.
  * @returns the hook routes and the adjustable clock to give the app, or undefined (no hooks).
  * @throws Error when the module exists but does not have the expected shape (a broken build).
  */
@@ -61,7 +68,7 @@ export async function loadTestHooks(
   service: 'api-public' | 'api-admin',
   logger: WarnLogger,
   moduleUrl: URL = new URL('./test-hooks.mjs', import.meta.url),
-  admin?: AdminHookContext,
+  extras: TestHookExtras = {},
 ): Promise<TestHooks | undefined> {
   if (!testHooksRequested(env)) return undefined;
   if (!existsSync(fileURLToPath(moduleUrl))) {
@@ -75,7 +82,7 @@ export async function loadTestHooks(
   const loaded: unknown = await import(moduleUrl.href);
   if (!isTestHookModule(loaded)) throw new Error('test hooks: module has no testHookRoutes()');
   const clock = new ShiftableClock();
-  const routes = loaded.testHookRoutes({ service, clock, ...(admin ? { admin } : {}) });
+  const routes = loaded.testHookRoutes({ service, clock, ...extras });
   if (!Array.isArray(routes)) throw new Error('test hooks: testHookRoutes() did not return a list');
   return { clock, routes: routes as RouteDefinition[] }; // built from @mc/api's defineRoute (same chunk)
 }

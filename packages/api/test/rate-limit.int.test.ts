@@ -4,7 +4,7 @@ import { Redis } from 'ioredis';
 import { afterAll, describe, expect, it } from 'vitest';
 
 import { redisChallengeStore } from '../src/auth/challenges.ts';
-import { redisRateLimiter } from '../src/http/rate-limit.ts';
+import { clearRedisRateLimits, redisRateLimiter } from '../src/http/rate-limit.ts';
 import { useTestRedis } from '../src/testing/vitest.ts';
 
 // PHASE_01 T1.6 against the Docker Redis: the Redis limiter (atomic Lua under the ACL users' rights), its in-memory
@@ -132,5 +132,21 @@ describe('Redis challenge store (04 §3)', () => {
     expect(await adminStore.take('step_up', `session-${suffixOf()}`)).toBe(issued);
     const publicUser = await connect(urlOf('REDIS_URL_TEST_RL_PUBLIC'));
     await expect(redisChallengeStore(publicUser).issue('login', 'z')).rejects.toThrow(/NOPERM/);
+  });
+});
+
+describe('clearing counters (e2e test hooks only)', () => {
+  it('deletes the process’s rate-limit counters and nothing else under its ACL', async () => {
+    const admin = await connect(urlOf('REDIS_URL_TEST_ADMIN'));
+    const limiter = redisRateLimiter(admin, 'rl:adm:', { adminLoginIp: { points: 1, durationSec: 600 } });
+    const key = `ip-${suffixOf()}`;
+    expect(await limiter.consume('adminLoginIp', key)).toEqual({ allowed: true });
+    expect((await limiter.consume('adminLoginIp', key)).allowed).toBe(false);
+    const challenges = redisChallengeStore(admin);
+    const challenge = await challenges.issue('login', `keep-${suffixOf()}`);
+
+    expect(await clearRedisRateLimits(admin, 'rl:adm:')).toBeGreaterThanOrEqual(1);
+    expect(await limiter.consume('adminLoginIp', key)).toEqual({ allowed: true });
+    expect(await challenges.take('login', `keep-${suffixOf()}`)).toBe(challenge); // chal:* untouched
   });
 });

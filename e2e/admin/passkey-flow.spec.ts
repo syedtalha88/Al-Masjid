@@ -1,40 +1,26 @@
 import { expect, test } from '@mc/config/playwright';
-import type { CDPSession, Page } from '@playwright/test';
 
 import { ADMIN_URL } from '../../playwright.config.ts';
+import {
+  HOOKS,
+  me,
+  registerWithInvite,
+  resetRateLimits,
+  seedSuperAdminInvite,
+  virtualAuthenticator,
+} from './helpers.ts';
 
 // PHASE_01 T1.8 acceptance, in the real admin app through Caddy: invite → register → logout → login → step-up →
 // logout, with Chromium's virtual authenticator (CTAP2, internal, resident keys, user verification true). Needs the
-// runtime-test stack (`pnpm stack:up:test`, E2E_TEST_HOOKS=1) for the Super Admin invite seed hook. The API-level
-// failure cases (replay, wrong origin / RP ID, uv=false, counter regression, …) are in packages/api tests.
-
-const HOOKS = process.env['E2E_TEST_HOOKS'] === '1';
-const CSRF = { Origin: new URL(ADMIN_URL).origin, 'X-MC-CSRF': '1' };
-
-/** A platform passkey on this page's browser: discoverable, user-verifying, approves every prompt. */
-async function virtualAuthenticator(page: Page): Promise<{ cdp: CDPSession; authenticatorId: string }> {
-  const cdp = await page.context().newCDPSession(page);
-  await cdp.send('WebAuthn.enable');
-  const { authenticatorId } = await cdp.send('WebAuthn.addVirtualAuthenticator', {
-    options: {
-      protocol: 'ctap2',
-      transport: 'internal',
-      hasResidentKey: true,
-      hasUserVerification: true,
-      isUserVerified: true,
-      automaticPresenceSimulation: true,
-    },
-  });
-  return { cdp, authenticatorId };
-}
-
-const me = (page: Page) => page.request.get(`${ADMIN_URL}/api/admin/auth/me`);
+// runtime-test stack (`pnpm stack:up:test`, E2E_TEST_HOOKS=1) for the seed hooks. The API-level failure cases
+// (replay, wrong origin / RP ID, uv=false, counter regression, …) are in packages/api tests.
 
 test.describe('admin passkeys (T1.8)', () => {
   test.skip(!HOOKS, 'needs the runtime-test stack: E2E_TEST_HOOKS=1 and `pnpm stack:up:test`');
 
   test('invite → register → logout → login → step-up → logout', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'the virtual authenticator is a Chromium DevTools feature');
+    await resetRateLimits(page.request);
     const { cdp, authenticatorId } = await virtualAuthenticator(page);
     const credentials = async () =>
       (await cdp.send('WebAuthn.getCredentials', { authenticatorId })).credentials.map((c) => ({
@@ -43,19 +29,9 @@ test.describe('admin passkeys (T1.8)', () => {
         signCount: c.signCount,
       }));
 
-    // An invite, as the bootstrap command would print it.
-    const seeded = await page.request.post(`${ADMIN_URL}/api/admin/test/super-admin-invite`, {
-      data: { displayName: 'E2E Owner' },
-      headers: CSRF,
-    });
-    expect(seeded.status()).toBe(201);
-    const token = new URL(((await seeded.json()) as { inviteUrl: string }).inviteUrl).hash.slice(1);
-
-    // Register.
-    await page.goto(`${ADMIN_URL}/invite#${token}`);
-    await expect(page.getByRole('heading', { name: /E2E Owner/ })).toBeVisible();
-    await page.getByRole('button', { name: 'Create my login' }).click();
-    await expect(page.getByText('Your login is ready').first()).toBeVisible();
+    // Register with an invite, as the bootstrap command would print it.
+    const token = await seedSuperAdminInvite(page.request, 'E2E Owner');
+    await registerWithInvite(page, `${ADMIN_URL}/invite#${token}`, 'E2E Owner');
     const [created] = await credentials();
     expect(created).toMatchObject({ resident: true, rpId: new URL(ADMIN_URL).hostname });
 

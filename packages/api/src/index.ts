@@ -26,6 +26,7 @@ export type { ErrorReporter } from './http/errors.ts';
 export { ApiProblem, type ProblemBody, type ProblemCode } from './http/problem.ts';
 export {
   type BucketName,
+  clearRedisRateLimits,
   memoryRateLimiter,
   RATE_LIMITS,
   type RateLimitBucket,

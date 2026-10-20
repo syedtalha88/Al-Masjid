@@ -69,6 +69,33 @@ describe('test hooks mounted (test-hook mode)', () => {
     expect(lines().some((line) => line['msg'] === 'TEST HOOKS ENABLED (APP_ENV=local, NODE_ENV=test)')).toBe(true);
   });
 
+  it('DELETE /test/rate-limits clears the counters (only when the entrypoint provides a reset)', async () => {
+    const clock = new ShiftableClock();
+    let resets = 0;
+    const resetRateLimits = () => {
+      resets += 1;
+      return Promise.resolve(4);
+    };
+    const { app } = createAdminApp({
+      ...base,
+      logger: silentLogger(),
+      adminOrigin: 'https://admin.test',
+      testRoutes: testHookRoutes({ service: 'api-admin', clock, resetRateLimits }),
+    });
+    expect((await request(app).delete('/api/admin/test/rate-limits')).status).toBe(403); // CSRF guard first
+    const cleared = await request(app)
+      .delete('/api/admin/test/rate-limits')
+      .set({ Origin: 'https://admin.test', 'X-MC-CSRF': '1' });
+    expect(cleared.body).toEqual({ deleted: 4 });
+    expect(resets).toBe(1);
+    const without = createAdminApp({
+      ...base,
+      logger: silentLogger(),
+      testRoutes: testHookRoutes({ service: 'api-admin', clock }),
+    });
+    expect((await request(without.app).get('/api/admin/test/rate-limits')).status).toBe(404);
+  });
+
   it('are never registered in the OpenAPI registry', () => {
     const { registry } = withHooks();
     const paths = registry.definitions.flatMap((definition) =>

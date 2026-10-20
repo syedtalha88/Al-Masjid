@@ -54,11 +54,17 @@ describe('loadTestHooks', () => {
     expect(log.warn).toHaveBeenCalledOnce();
   });
 
-  it('api-admin with its admin context also gets the seed hooks; without it only the clock', async () => {
+  it('api-admin with its extras also gets the seed and rate-limit hooks; without them only the clock', async () => {
     const db = createDbHandle({ uri: 'mongodb://hooks.invalid', database: 'x', process: 'script', local: true });
     const admin = { db, pepper: Buffer.alloc(32), adminOrigin: 'https://admin.test' };
-    const withAdmin = await loadTestHooks(TEST, 'api-admin', logger(), SOURCE_MODULE, admin);
-    expect(withAdmin?.routes.map((r) => r.path)).toEqual(['/test/super-admin-invite', '/test/clock', '/test/clock']);
+    const resetRateLimits = () => Promise.resolve(3);
+    const withAdmin = await loadTestHooks(TEST, 'api-admin', logger(), SOURCE_MODULE, { admin, resetRateLimits });
+    expect(withAdmin?.routes.map((r) => r.path)).toEqual([
+      '/test/super-admin-invite',
+      '/test/rate-limits',
+      '/test/clock',
+      '/test/clock',
+    ]);
     const without = await loadTestHooks(TEST, 'api-admin', logger(), SOURCE_MODULE);
     expect(without?.routes.map((r) => r.path)).toEqual(['/test/clock', '/test/clock']);
     await db.close();
