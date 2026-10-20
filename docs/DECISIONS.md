@@ -570,8 +570,6 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 **Context:** DECISIONS #44 assumed that iOS gives no native back swipe in the installed app (so our own edge swipe runs) and that in Safari a `popstate` we did not cause is applied without our animation (Safari already animated its own swipe). F17 asked the owner to confirm on a real iPhone.
 **Result and decision:** owner, 20 Oct 2026, after the step-by-step phone checks (swipe-back in Safari and the installed app, screen readers): "mobile testing is working fine". The #44 platform rule stays as built; T0.15 is complete.
 
-## OPEN
-
 ### #70 — Where the server-side Super Admin bootstrap runs (PHASE_01 T1.9) — ACCEPTED: option A (owner, 19 Oct 2026: "do the best one")
 **Conflict:** 04 §3 / the phase file run the bootstrap in the **worker** container (system DB user). The script must store the invite as `SHA-256(token ‖ SESSION_PEPPER)` (02 §2, 04 §4) so that api-admin recognises the link — but 01 §7 and `packages/shared/src/env.ts` forbid `SESSION_PEPPER` in the worker. Both cannot hold.
 **Options:**
@@ -581,3 +579,6 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 **Built meanwhile (works with every option):** `bootstrapSuperAdmin` (system scope only; refuses while a non-disabled Super Admin exists unless `--force-additional`), `bootstrapSuperAdminInvite` (`packages/api/src/jobs/`, link `ADMIN_ORIGIN/invite#<token>` — fragment, so the token never reaches a server log or Referer), local CLI `pnpm bootstrap:super-admin` (tested against the local database: created once, refused the second time). Only the server entry waits for this answer.
 **Decision (19 Oct 2026):** option A. `apps/server/src/bootstrap-super-admin.ts` → `dist/bootstrap-super-admin.mjs` in the server image; `deploy.sh <env> --bootstrap-super-admin --name "…" [--locale …] [--force-additional]` runs it with `compose run --rm --no-deps -T api-admin` against the current verified release (arguments passed verbatim, other modes refuse extra arguments — 3 new cases in `deploy-verify.test.sh`). Verified locally as `mc_admin`: refused while a Super Admin exists, created with `--force-additional`, bad arguments exit 2. 04 §3, PHASE_01 T1.9 and DEPLOY.md §7 updated. The owner runs it on the server (the link appears only in their SSH session).
 
+## OPEN
+
+_None — every decision is ACCEPTED (20 Oct 2026)._
