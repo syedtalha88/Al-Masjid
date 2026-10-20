@@ -42,6 +42,20 @@ export function parseId(text: string): UUID | undefined {
   return UUID_TEXT.test(text) ? new UUID(text.toLowerCase()) : undefined;
 }
 
+const ANY_UUID_TEXT = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Parses an authenticator's AAGUID (any UUID version; authenticator models are not v4) for
+ * `webauthn_credentials.aaguid`.
+ *
+ * @returns the UUID, or `undefined` for malformed text and for the all-zero AAGUID (`attestation: 'none'`), which
+ *   identifies nothing and is not stored.
+ */
+export function parseAaguid(text: string): UUID | undefined {
+  if (!ANY_UUID_TEXT.test(text) || /^[0-]+$/.test(text)) return undefined;
+  return new UUID(text.toLowerCase());
+}
+
 /** Canonical lower-case text form for API responses. */
 export const idText = (id: UUID): string => id.toHexString(true);
 

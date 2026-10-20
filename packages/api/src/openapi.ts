@@ -1,8 +1,10 @@
 import { OpenApiGeneratorV31 } from '@asteasolutions/zod-to-openapi';
 import { createDbHandle } from '@mc/db';
+import { systemClock } from '@mc/shared/clock';
 import { pino } from 'pino';
 
 import { createAdminApp, createPublicApp } from './app.ts';
+import { memoryChallengeStore } from './auth/challenges.ts';
 import { adminRoutes } from './routes/index.ts';
 
 /**
@@ -20,6 +22,9 @@ export function buildOpenApiDocument(): ReturnType<OpenApiGeneratorV31['generate
       pepper: Buffer.alloc(32),
       adminOrigin: 'https://admin.example',
       keyRing: { currentId: 'openapi', keys: new Map([['openapi', Buffer.alloc(32)]]) },
+      rp: { id: 'admin.example', name: 'openapi', origin: 'https://admin.example' },
+      challenges: memoryChallengeStore(systemClock),
+      logger: deps.logger,
     }),
   });
   const definitions = [createPublicApp(deps).registry, admin.registry].flatMap((registry) => registry.definitions);

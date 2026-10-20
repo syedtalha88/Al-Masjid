@@ -47,9 +47,48 @@ describe('admin auth contracts (03 §4)', () => {
     ).toBe(false);
   });
 
-  it('credential responses must be JSON objects; the server verifies their content', () => {
-    expect(assertionVerifyRequestSchema.safeParse({ response: { id: 'abc', type: 'public-key' } }).success).toBe(true);
+  it('credential responses: the fields the server verifies, base64url and bounded; everything else dropped', () => {
+    const assertion = {
+      id: 'Y3JlZA',
+      rawId: 'Y3JlZA',
+      type: 'public-key',
+      response: { clientDataJSON: 'e30', authenticatorData: 'AAAA', signature: 'c2ln', userHandle: 'dXNlcg' },
+    };
+    const parsed = assertionVerifyRequestSchema.parse({
+      response: { ...assertion, clientExtensionResults: { appid: true }, authenticatorAttachment: 'platform' },
+    });
+    expect(parsed.response).toEqual(assertion);
+    const bad = (patch: Record<string, unknown>, inner: Record<string, unknown> = {}) =>
+      assertionVerifyRequestSchema.safeParse({
+        response: { ...assertion, ...patch, response: { ...assertion.response, ...inner } },
+      }).success;
+    expect(bad({ type: 'password' })).toBe(false);
+    expect(bad({ id: 'a+b/' })).toBe(false); // standard base64, not base64url
+    expect(bad({ id: 'A'.repeat(1365) })).toBe(false); // > 1023-byte credential id
+    expect(bad({}, { signature: '' })).toBe(false);
+    expect(bad({}, { signature: 'A'.repeat(1025) })).toBe(false);
+    expect(bad({}, { userHandle: 'A'.repeat(89) })).toBe(false);
     expect(assertionVerifyRequestSchema.safeParse({ response: 'abc' }).success).toBe(false);
+
+    const registration = {
+      id: 'Y3JlZA',
+      rawId: 'Y3JlZA',
+      type: 'public-key',
+      response: { clientDataJSON: 'e30', attestationObject: 'o2Nm', transports: ['internal', 'hybrid'] },
+    };
+    expect(registerVerifyRequestSchema.parse({ inviteToken: TOKEN, response: registration, label: 'Phone' })).toEqual({
+      inviteToken: TOKEN,
+      response: registration,
+      label: 'Phone',
+    });
+    const regBad = (inner: Record<string, unknown>) =>
+      registerVerifyRequestSchema.safeParse({
+        inviteToken: TOKEN,
+        label: 'Phone',
+        response: { ...registration, response: { ...registration.response, ...inner } },
+      }).success;
+    expect(regBad({ attestationObject: undefined })).toBe(false);
+    expect(regBad({ transports: Array.from({ length: 11 }, () => 'usb') })).toBe(false);
   });
 
   it('undertaking versions are 1–20 characters', () => {

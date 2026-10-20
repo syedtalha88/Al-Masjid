@@ -12,7 +12,7 @@ import {
   superScope,
   systemScope,
 } from '../src/scope.ts';
-import { fromInt64, idText, newId, parseId, toInt64, ValueError } from '../src/values.ts';
+import { fromInt64, idText, newId, parseAaguid, parseId, toInt64, ValueError } from '../src/values.ts';
 
 describe('scopes (01 §5.1)', () => {
   it('constructors make frozen, branded scopes; look-alike objects are not scopes', () => {
@@ -96,5 +96,14 @@ describe('values (02 §0)', () => {
     expect(parseId('not-a-uuid')).toBeUndefined();
     expect(parseId('00000000-0000-1000-8000-000000000000')).toBeUndefined(); // v1, not v4
     expect(parseId('{"$ne":null}')).toBeUndefined();
+  });
+
+  it('AAGUIDs: any UUID version; the all-zero AAGUID of attestation "none" is not stored', () => {
+    expect(parseAaguid('EA9B8D66-4D01-1D21-3CE4-B6B48CB575D4')?.toHexString(true)).toBe(
+      'ea9b8d66-4d01-1d21-3ce4-b6b48cb575d4',
+    );
+    expect(parseAaguid('00000000-0000-0000-0000-000000000000')).toBeUndefined();
+    expect(parseAaguid('not-a-uuid')).toBeUndefined();
+    expect(parseAaguid('ea9b8d664d011d213ce4b6b48cb575d4')).toBeUndefined(); // no dashes
   });
 });

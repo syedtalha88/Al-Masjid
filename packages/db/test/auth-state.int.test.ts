@@ -288,8 +288,14 @@ describe('login and the sign counter (04 §3)', () => {
       newCounter: 7,
       sessionTokenHash: randomBytes(32),
     });
-    expect((await findLoginCredential(h(), publicScope(), r.cred.id))?.counter).toBe(7);
+    const found = await findLoginCredential(h(), publicScope(), r.cred.id);
+    expect(found?.counter).toBe(7);
     expect(await raw('audit_log').countDocuments({ action: 'auth.login', actor_id: r.adminId })).toBe(3);
+    // The owner's user handle, for the discoverable-login userHandle check (WebAuthn §7.2 step 6).
+    const owner = await raw('admin_users').findOne({ _id: r.adminId });
+    const handleBytes: unknown = owner?.['user_handle'];
+    expect(handleBytes).toBeInstanceOf(Binary);
+    expect(Buffer.from(found?.userHandle ?? []).equals(Buffer.from((handleBytes as Binary).buffer))).toBe(true); // checked above
   });
 
   it('a counter going backwards revokes the credential and all sessions, audits, and refuses', async () => {

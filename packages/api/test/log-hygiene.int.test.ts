@@ -18,7 +18,7 @@ import { type FieldKeyRing, hashToken, newToken } from '../src/crypto/field.ts';
 import { memoryRateLimiter } from '../src/http/rate-limit.ts';
 import { bootstrapSuperAdminInvite } from '../src/jobs/bootstrap-super-admin.ts';
 import { adminRoutes } from '../src/routes/index.ts';
-import { captureLogger } from './helpers.ts';
+import { captureLogger, passkeyDeps } from './helpers.ts';
 
 const ORIGIN = 'https://admin.test';
 const CSRF = { Origin: ORIGIN, 'X-MC-CSRF': '1' };
@@ -56,7 +56,7 @@ describe('log hygiene (T1.12)', () => {
       clock,
       rateLimiter: memoryRateLimiter(),
       authenticate: sessionAuthenticator({ db: h(), pepper, clock }),
-      ...adminRoutes({ db: h(), pepper, adminOrigin: ORIGIN, keyRing }),
+      ...adminRoutes({ db: h(), pepper, adminOrigin: ORIGIN, keyRing, ...passkeyDeps(ORIGIN, clock, logger) }),
     }).app;
     const secrets: string[] = [pepper.toString('base64'), pepper.toString('hex'), PHONE, PHONE.slice(3)];
 

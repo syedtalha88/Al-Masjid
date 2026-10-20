@@ -259,6 +259,201 @@
           "expiresAt"
         ]
       },
+      "PasskeyCreationOptions": {
+        "type": "object",
+        "properties": {
+          "rp": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]*$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "displayName"
+            ]
+          },
+          "challenge": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]*$"
+          },
+          "pubKeyCredParams": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "public-key"
+                  ]
+                },
+                "alg": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "type",
+                "alg"
+              ]
+            }
+          },
+          "timeout": {
+            "type": "number"
+          },
+          "excludeCredentials": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]*$"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "public-key"
+                  ]
+                },
+                "transports": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "type"
+              ]
+            }
+          },
+          "authenticatorSelection": {
+            "type": "object",
+            "properties": {
+              "residentKey": {
+                "type": "string",
+                "enum": [
+                  "discouraged",
+                  "preferred",
+                  "required"
+                ]
+              },
+              "userVerification": {
+                "type": "string",
+                "enum": [
+                  "discouraged",
+                  "preferred",
+                  "required"
+                ]
+              },
+              "authenticatorAttachment": {
+                "type": "string",
+                "enum": [
+                  "platform",
+                  "cross-platform"
+                ]
+              },
+              "requireResidentKey": {
+                "type": "boolean"
+              }
+            }
+          },
+          "attestation": {
+            "type": "string",
+            "enum": [
+              "none",
+              "indirect",
+              "direct",
+              "enterprise"
+            ]
+          }
+        },
+        "required": [
+          "rp",
+          "user",
+          "challenge",
+          "pubKeyCredParams"
+        ]
+      },
+      "PasskeyRequestOptions": {
+        "type": "object",
+        "properties": {
+          "challenge": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]*$"
+          },
+          "timeout": {
+            "type": "number"
+          },
+          "rpId": {
+            "type": "string"
+          },
+          "allowCredentials": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]*$"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "public-key"
+                  ]
+                },
+                "transports": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "type"
+              ]
+            }
+          },
+          "userVerification": {
+            "type": "string",
+            "enum": [
+              "discouraged",
+              "preferred",
+              "required"
+            ]
+          }
+        },
+        "required": [
+          "challenge"
+        ]
+      },
       "SuperDashboard": {
         "type": "object",
         "properties": {
@@ -1077,6 +1272,364 @@
         "tags": [
           "auth"
         ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/auth/register/options": {
+      "post": {
+        "summary": "Passkey creation options for an invite (uniform 404 when the invite is invalid)",
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inviteToken": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$"
+                  }
+                },
+                "required": [
+                  "inviteToken"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyCreationOptions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/register/verify": {
+      "post": {
+        "summary": "Store the new passkey, use the invite and sign in (one transaction)",
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inviteToken": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$"
+                  },
+                  "response": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1364,
+                        "pattern": "^[A-Za-z0-9_-]+$"
+                      },
+                      "rawId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1364,
+                        "pattern": "^[A-Za-z0-9_-]+$"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "public-key"
+                        ]
+                      },
+                      "response": {
+                        "type": "object",
+                        "properties": {
+                          "clientDataJSON": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4096,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          },
+                          "attestationObject": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 32768,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          },
+                          "transports": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 32
+                            },
+                            "maxItems": 10
+                          }
+                        },
+                        "required": [
+                          "clientDataJSON",
+                          "attestationObject"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "rawId",
+                      "type",
+                      "response"
+                    ]
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
+                  }
+                },
+                "required": [
+                  "inviteToken",
+                  "response",
+                  "label"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/auth/login/options": {
+      "post": {
+        "summary": "Passkey request options for a discoverable login (challenge bound to a 5-minute cookie)",
+        "tags": [
+          "auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyRequestOptions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/login/verify": {
+      "post": {
+        "summary": "Verify a passkey assertion and sign in (new session)",
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "response": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1364,
+                        "pattern": "^[A-Za-z0-9_-]+$"
+                      },
+                      "rawId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1364,
+                        "pattern": "^[A-Za-z0-9_-]+$"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "public-key"
+                        ]
+                      },
+                      "response": {
+                        "type": "object",
+                        "properties": {
+                          "clientDataJSON": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4096,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          },
+                          "authenticatorData": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4096,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          },
+                          "signature": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 1024,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          },
+                          "userHandle": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 88,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          }
+                        },
+                        "required": [
+                          "clientDataJSON",
+                          "authenticatorData",
+                          "signature"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "rawId",
+                      "type",
+                      "response"
+                    ]
+                  }
+                },
+                "required": [
+                  "response"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/auth/step-up/options": {
+      "post": {
+        "summary": "Passkey request options to confirm a sensitive action (bound to this session)",
+        "tags": [
+          "auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyRequestOptions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/step-up/verify": {
+      "post": {
+        "summary": "Verify a passkey assertion of the signed-in admin: rotates the session and opens the 5-minute window",
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "response": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1364,
+                        "pattern": "^[A-Za-z0-9_-]+$"
+                      },
+                      "rawId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1364,
+                        "pattern": "^[A-Za-z0-9_-]+$"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "public-key"
+                        ]
+                      },
+                      "response": {
+                        "type": "object",
+                        "properties": {
+                          "clientDataJSON": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4096,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          },
+                          "authenticatorData": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4096,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          },
+                          "signature": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 1024,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          },
+                          "userHandle": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 88,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          }
+                        },
+                        "required": [
+                          "clientDataJSON",
+                          "authenticatorData",
+                          "signature"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "rawId",
+                      "type",
+                      "response"
+                    ]
+                  }
+                },
+                "required": [
+                  "response"
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": "HTTP 204"

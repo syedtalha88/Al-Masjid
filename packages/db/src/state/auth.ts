@@ -296,6 +296,8 @@ export interface LoginCredential {
   readonly publicKey: Uint8Array;
   readonly counter: number;
   readonly transports: readonly string[];
+  /** The owner's WebAuthn user handle: a discoverable assertion's `userHandle` must equal it (WebAuthn §7.2 step 6). */
+  readonly userHandle: Uint8Array;
 }
 
 /**
@@ -315,10 +317,10 @@ export async function findLoginCredential(
       .collection<CredentialDoc>('webauthn_credentials')
       .findOne({ credential_id: binary(credentialId), revoked_at: { $exists: false } }, session);
     if (!credential) return null;
-    const active = await ctx.db
+    const admin = await ctx.db
       .collection<AdminDoc>('admin_users')
-      .countDocuments({ _id: credential.admin_id, status: 'active' }, session);
-    if (active === 0) return null;
+      .findOne({ _id: credential.admin_id, status: 'active' }, { ...session, projection: { user_handle: 1 } });
+    if (!admin) return null;
     return {
       credentialDocId: credential._id,
       adminId: credential.admin_id,
@@ -326,6 +328,7 @@ export async function findLoginCredential(
       publicKey: bytesOf(credential.public_key),
       counter: Long.fromValue(credential.sign_count).toNumber(),
       transports: credential.transports,
+      userHandle: bytesOf(admin.user_handle),
     };
   });
 }

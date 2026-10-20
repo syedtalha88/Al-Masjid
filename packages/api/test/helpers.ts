@@ -1,6 +1,10 @@
 import { Writable } from 'node:stream';
 
+import type { Clock } from '@mc/shared/clock';
 import { type Logger, pino } from 'pino';
+
+import { memoryChallengeStore } from '../src/auth/challenges.ts';
+import type { AdminPasskeyDeps } from '../src/routes/admin-passkeys.ts';
 
 /** A logger that captures JSON lines in memory for assertions. */
 export function captureLogger(): { logger: Logger; lines: () => Record<string, unknown>[] } {
@@ -24,3 +28,13 @@ export function captureLogger(): { logger: Logger; lines: () => Record<string, u
 }
 
 export const silentLogger = (): Logger => pino({ level: 'silent' });
+
+/** The passkey routes' dependencies for tests: RP = the test admin origin, in-memory challenges on the test clock. */
+export function passkeyDeps(origin: string, clock: Clock, logger: Logger = silentLogger()): AdminPasskeyTestDeps {
+  return {
+    rp: { id: new URL(origin).hostname, name: 'Test Admin App', origin },
+    challenges: memoryChallengeStore(clock),
+    logger,
+  };
+}
+export type AdminPasskeyTestDeps = Pick<AdminPasskeyDeps, 'rp' | 'challenges' | 'logger'>;

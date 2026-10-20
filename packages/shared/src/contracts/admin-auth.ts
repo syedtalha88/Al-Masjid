@@ -123,14 +123,47 @@ export const requestOptionsSchema = z
   })
   .meta({ id: 'PasskeyRequestOptions' });
 
-/** A credential as JSON (`RegistrationResponseJSON` / `AuthenticationResponseJSON`) — verified by the server. */
-const credentialJsonSchema = z.record(z.string(), z.unknown());
+// Credentials as JSON (WebAuthn L3 `RegistrationResponseJSON` / `AuthenticationResponseJSON`). Only what the server
+// verifies is kept (the verifiers read id, rawId, type and response); other members, e.g. clientExtensionResults,
+// are dropped. Bounds: credential ids ≤ 1023 bytes (WebAuthn §5.1), generous limits for the rest.
+const b64 = (maxChars: number) =>
+  z
+    .string()
+    .min(1)
+    .max(maxChars)
+    .regex(/^[A-Za-z0-9_-]+$/);
+const credentialId = b64(1364);
+
+export const registrationResponseSchema = z.object({
+  id: credentialId,
+  rawId: credentialId,
+  type: z.literal('public-key'),
+  response: z.object({
+    clientDataJSON: b64(4096),
+    attestationObject: b64(32_768),
+    transports: z.array(z.string().max(32)).max(10).optional(),
+  }),
+});
+export type RegistrationResponse = z.infer<typeof registrationResponseSchema>;
+
+export const authenticationResponseSchema = z.object({
+  id: credentialId,
+  rawId: credentialId,
+  type: z.literal('public-key'),
+  response: z.object({
+    clientDataJSON: b64(4096),
+    authenticatorData: b64(4096),
+    signature: b64(1024),
+    userHandle: b64(88).optional(),
+  }),
+});
+export type AuthenticationResponse = z.infer<typeof authenticationResponseSchema>;
 
 export const registerOptionsRequestSchema = z.object({ inviteToken: z.string().regex(/^[A-Za-z0-9_-]{43}$/) });
 export const registerVerifyRequestSchema = registerOptionsRequestSchema.extend({
-  response: credentialJsonSchema,
+  response: registrationResponseSchema,
   label: z.string().trim().min(1).max(60),
 });
-export const assertionVerifyRequestSchema = z.object({ response: credentialJsonSchema });
+export const assertionVerifyRequestSchema = z.object({ response: authenticationResponseSchema });
 export type CreationOptionsJSON = z.infer<typeof creationOptionsSchema>;
 export type RequestOptionsJSON = z.infer<typeof requestOptionsSchema>;

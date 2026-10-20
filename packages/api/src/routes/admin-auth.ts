@@ -1,5 +1,5 @@
 // api-admin auth endpoints that need no WebAuthn verification (03 §4, PHASE_01 T1.8): invite read, current admin,
-// own sessions, logout. Registration, login and step-up (SimpleWebAuthn) are added next to these.
+// own sessions, logout. Registration, login and step-up (SimpleWebAuthn) are in `admin-passkeys.ts`.
 import { type DbHandle, idText, isId, parseId, publicScope, scoped } from '@mc/db';
 import {
   acceptUndertaking,

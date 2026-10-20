@@ -37,5 +37,6 @@ export { DRAIN_TIMEOUT_MS, type RunningServer, SERVER_TIMEOUTS, startHttpServer 
 export { createLogger } from './logger.ts';
 export { buildOpenApiDocument } from './openapi.ts';
 export { adminSessionRoutes } from './routes/admin-auth.ts';
+export { type AdminPasskeyDeps, adminPasskeyRoutes } from './routes/admin-passkeys.ts';
 export { type HealthProbes, PROBE_TIMEOUT_MS } from './routes/health.ts';
 export { type AdminRouteDeps, adminRoutes } from './routes/index.ts';

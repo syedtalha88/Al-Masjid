@@ -21,7 +21,7 @@ import { defineRoute } from '../src/http/define-route.ts';
 import { memoryRateLimiter } from '../src/http/rate-limit.ts';
 import { bootstrapSuperAdminInvite } from '../src/jobs/bootstrap-super-admin.ts';
 import { adminRoutes } from '../src/routes/index.ts';
-import { silentLogger } from './helpers.ts';
+import { passkeyDeps, silentLogger } from './helpers.ts';
 
 const ORIGIN = 'https://admin.test';
 const CSRF = { Origin: ORIGIN, 'X-MC-CSRF': '1' };
@@ -59,7 +59,7 @@ const app = () =>
     rateLimiter: memoryRateLimiter(),
     authenticate: sessionAuthenticator({ db: h(), pepper, clock }),
     ...(() => {
-      const built = adminRoutes({ db: h(), pepper, adminOrigin: ORIGIN, keyRing });
+      const built = adminRoutes({ db: h(), pepper, adminOrigin: ORIGIN, keyRing, ...passkeyDeps(ORIGIN, clock) });
       return { routes: [...built.routes, writeProbe], superRoutes: built.superRoutes };
     })(),
   }).app;
