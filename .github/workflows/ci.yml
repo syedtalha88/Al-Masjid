@@ -166,6 +166,9 @@ jobs:
         run: |
           node scripts/ci-annotate.mjs 'dev services' node scripts/compose.mjs dev ps -a
           node scripts/ci-annotate.mjs 'dev service logs' node scripts/compose.mjs dev logs
+          # Per service: Redis's startup banner alone fills the shared annotation's tail.
+          node scripts/ci-annotate.mjs 'mongo logs' node scripts/compose.mjs dev logs mongo
+          node scripts/ci-annotate.mjs 'runner' bash -c 'uname -r; docker version --format "docker {{.Server.Version}}"; echo "image ${ImageVersion:-?}"'
 
   # ------------------------------------------------------------------------------------------------
   build-e2e:
@@ -254,6 +257,8 @@ jobs:
         run: |
           node scripts/ci-annotate.mjs 'stack services' node scripts/compose.mjs stack-test ps -a
           node scripts/ci-annotate.mjs 'stack logs' node scripts/compose.mjs stack-test logs
+          node scripts/ci-annotate.mjs 'mongo logs' node scripts/compose.mjs dev logs mongo
+          node scripts/ci-annotate.mjs 'runner' bash -c 'uname -r; docker version --format "docker {{.Server.Version}}"; echo "image ${ImageVersion:-?}"'
       - name: Reports (Playwright, screenshots, Lighthouse)
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
