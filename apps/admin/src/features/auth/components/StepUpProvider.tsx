@@ -3,8 +3,8 @@ import { ProblemError } from '@mc/shared/http';
 import { Dialog } from '@mc/ui/components';
 import { createContext, type ReactNode, use, useCallback, useMemo, useRef, useState } from 'react';
 
-import { stepUp } from '../../auth/lib/flows.ts';
-import { PasskeyError } from '../../auth/lib/passkey.ts';
+import { stepUp } from '../lib/flows.ts';
+import { PasskeyError } from '../lib/passkey.ts';
 
 /** Runs a ★ action; when the server asks for a step-up, confirms with the screen lock and retries once. */
 export type RunWithStepUp = <T>(action: () => Promise<T>) => Promise<T>;
@@ -19,7 +19,7 @@ export class StepUpCancelled extends Error {
 const isStepUpRequired = (error: unknown) => error instanceof ProblemError && error.problem.code === 'STEP_UP_REQUIRED';
 
 /**
- * ★ actions (04 §3, 03 §1): the server answers `STEP_UP_REQUIRED` when the last passkey confirmation is older than
+ * ★ actions and adding a passkey (04 §3, 03 §1): the server answers `STEP_UP_REQUIRED` when the last passkey confirmation is older than
  * 5 minutes. Browsers (Safari) only allow the passkey prompt right after a tap, and the tap that started the action
  * was used up by the request — so a small dialog asks for one more tap, which runs the step-up and then the action
  * again.
@@ -92,7 +92,7 @@ export function StepUpProvider({ children }: { readonly children: ReactNode }) {
   );
 }
 
-/** The ★ action runner (only inside the Super Admin screens). */
+/** The step-up action runner (inside a <StepUpProvider>: the Super Admin screens, the account screen). */
 export function useStepUp(): RunWithStepUp {
   const run = use(StepUpContext);
   if (!run) throw new Error('useStepUp() must be used inside <StepUpProvider>');

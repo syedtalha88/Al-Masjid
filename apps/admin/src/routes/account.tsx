@@ -19,6 +19,7 @@ import { useState } from 'react';
 
 import { authApi } from '../features/auth/api/auth-api.ts';
 import { LanguagePicker } from '../features/auth/components/LanguagePicker.tsx';
+import { StepUpCancelled, StepUpProvider, useStepUp } from '../features/auth/components/StepUpProvider.tsx';
 import { ME_KEY, useErrorText, useSignedInAdmin } from '../features/auth/hooks/use-session.ts';
 
 export const Route = createFileRoute('/account')({
@@ -32,8 +33,18 @@ const PASSKEYS_KEY = ['auth', 'passkeys'] as const;
  * B13 "My account": language, logins (passkeys: rename, add another phone), logged-in devices (log out one), log out,
  * log out everywhere, and the accepted undertaking version.
  */
+/** Adding a passkey needs the screen lock again (security review H1), so the screen has the step-up dialog. */
 function Account() {
+  return (
+    <StepUpProvider>
+      <AccountContent />
+    </StepUpProvider>
+  );
+}
+
+function AccountContent() {
   const { t } = useTranslation('admin');
+  const runWithStepUp = useStepUp();
   const { format } = useLocale();
   const errorText = useErrorText();
   const toast = useToast();
@@ -63,7 +74,13 @@ function Account() {
     },
     onError,
   });
-  const addDevice = useMutation({ mutationFn: authApi.addDeviceLink, onSuccess: setLink, onError });
+  const addDevice = useMutation({
+    mutationFn: () => runWithStepUp(authApi.addDeviceLink),
+    onSuccess: setLink,
+    onError: (error) => {
+      if (!(error instanceof StepUpCancelled)) onError(error);
+    },
+  });
   const logout = useMutation({ mutationFn: authApi.logout, onSuccess: signedOut, onError });
   const logoutAll = useMutation({ mutationFn: authApi.logoutAll, onSuccess: signedOut, onError });
 

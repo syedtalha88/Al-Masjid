@@ -258,7 +258,12 @@ describe('session cookie authentication', () => {
       .set('Cookie', s.cookie)
       .send({ label: 'x' });
     expect(cross.status).toBe(404);
-    const link = await request(app()).post('/api/admin/auth/passkeys/invite').set(CSRF).set('Cookie', s.cookie);
+    const addDevice = () => request(app()).post('/api/admin/auth/passkeys/invite').set(CSRF).set('Cookie', s.cookie);
+    expect((await addDevice()).body).toMatchObject({ code: 'STEP_UP_REQUIRED' }); // H1: a new passkey needs a step-up
+    await t()
+      .db.collection<{ _id: typeof s.sessionId; step_up_at: Date }>('admin_sessions')
+      .updateOne({ _id: s.sessionId }, { $set: { step_up_at: clock.now() } });
+    const link = await addDevice();
     expect(link.status).toBe(201);
     const token = new URL((link.body as { inviteUrl: string }).inviteUrl).hash.slice(1);
     expect((await request(app()).get(`/api/admin/auth/invite/${token}`)).body).toMatchObject({ purpose: 'add_device' });

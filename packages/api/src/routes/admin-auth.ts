@@ -227,9 +227,10 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
     defineRoute({
       method: 'post',
       path: '/auth/passkeys/invite',
-      summary: 'Link to add a passkey on another device (72 h, one use)',
+      summary: 'Link to add a passkey on another device (72 h, one use; needs a step-up in the last 5 minutes)',
       tags: ['auth'],
-      auth: 'session',
+      // A new passkey survives every session revocation: confirm with the screen lock first (security review H1).
+      auth: 'session_step_up',
       undertaking: 'exempt',
       rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
       responses: {
@@ -239,6 +240,7 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
         const token = newToken();
         const expiresAt = await createAddDeviceInvite(deps.db, auth.scope, {
           tokenHash: hashToken(token, deps.pepper),
+          sessionId: auth.session.sessionId,
           now: clock.now(),
           requestId,
         });

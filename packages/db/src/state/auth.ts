@@ -11,6 +11,7 @@ import { StateError, writeAudit } from '../effects.ts';
 import type { Scope } from '../scope.ts';
 import { newId } from '../values.ts';
 import { INVITE_TTL_MS, type InvitePurpose } from './admins.ts';
+import { STEP_UP_WINDOW_MS } from './guards.ts';
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -695,20 +696,34 @@ export async function renamePasskey(
 /**
  * "Add another device" (B13, T1.9): the signed-in admin opens an `add_device` invite for themselves — the link is
  * opened on the new device, which registers a second passkey. Closes their previous open `add_device` invite.
+ * A new passkey outlives every session revocation, so it needs a fresh step-up on the calling session (security
+ * review H1, 20 Oct 2026) — checked here against the session document, not taken from the caller.
  *
  * @returns when the invite expires.
- * @throws StateError FORBIDDEN (not an admin/super scope), INVALID_TOKEN_HASH.
+ * @throws StateError FORBIDDEN (not an admin/super scope), INVALID_TOKEN_HASH, STEP_UP_REQUIRED (no step-up on
+ *   `sessionId` in the last 5 minutes, or not the scope admin's live session).
  */
 export async function createAddDeviceInvite(
   handle: DbHandle,
   scope: Scope,
-  input: { tokenHash: Buffer; requestId?: string; now?: Date },
+  input: { tokenHash: Buffer; sessionId: UUID; requestId?: string; now?: Date },
 ): Promise<Date> {
   const adminId = requireSignedIn(scope);
   if (input.tokenHash.length !== 32) throw new StateError('INVALID_TOKEN_HASH');
   return withTransaction(handle, scope, async (ctx) => {
     const session = { session: ctx.session };
     const now = input.now ?? new Date();
+    const steppedUp = await ctx.db.collection<SessionDoc>('admin_sessions').countDocuments(
+      {
+        _id: input.sessionId,
+        admin_id: adminId,
+        revoked_at: { $exists: false },
+        absolute_expires_at: { $gt: now },
+        step_up_at: { $gte: new Date(now.getTime() - STEP_UP_WINDOW_MS), $lte: now },
+      },
+      session,
+    );
+    if (steppedUp === 0) throw new StateError('STEP_UP_REQUIRED');
     const invites = ctx.db.collection<IdDoc>('admin_invites');
     await invites.updateMany(
       { admin_id: adminId, purpose: 'add_device', open: true },

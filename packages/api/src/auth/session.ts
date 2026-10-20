@@ -10,10 +10,11 @@ import { ApiProblem } from '../http/problem.ts';
 import { readCookie, SESSION_COOKIE } from './cookies.ts';
 
 /**
- * How a route authenticates (03 §1): `none`; `session` (any active admin); `super` (Super Admin); `super_step_up`
- * (Super Admin with a passkey assertion in the last 5 minutes — ★ actions).
+ * How a route authenticates (03 §1): `none`; `session` (any active admin); `session_step_up` (any active admin with a
+ * passkey assertion in the last 5 minutes — e.g. adding a passkey, security review H1); `super` (Super Admin);
+ * `super_step_up` (Super Admin with a recent assertion — ★ actions).
  */
-export type RouteAuth = 'none' | 'session' | 'super' | 'super_step_up';
+export type RouteAuth = 'none' | 'session' | 'session_step_up' | 'super' | 'super_step_up';
 
 export interface AuthedSession {
   readonly session: ResolvedSession;
@@ -65,8 +66,9 @@ export async function authenticateRequest(
   if (typeof authenticate !== 'function') throw new Error('route requires a session but the app has no authenticator');
   const authed = await (authenticate as Authenticate)(req); // installed by installAuthenticator
   if (!authed) throw new ApiProblem(401, 'SESSION_REQUIRED');
-  if (auth !== 'session' && authed.session.role !== 'super_admin') throw new ApiProblem(403, 'FORBIDDEN');
-  if (auth === 'super_step_up') {
+  const anyRole = auth === 'session' || auth === 'session_step_up';
+  if (!anyRole && authed.session.role !== 'super_admin') throw new ApiProblem(403, 'FORBIDDEN');
+  if (auth === 'super_step_up' || auth === 'session_step_up') {
     const at = authed.session.stepUpAt;
     if (!at || now.getTime() - at.getTime() > STEP_UP_WINDOW_MS) throw new ApiProblem(403, 'STEP_UP_REQUIRED');
   }

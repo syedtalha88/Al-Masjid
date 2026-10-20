@@ -5,9 +5,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 
+import { StepUpCancelled, useStepUp } from '../features/auth/components/StepUpProvider.tsx';
 import { useErrorText } from '../features/auth/hooks/use-session.ts';
 import { superApi } from '../features/super/api/super-api.ts';
-import { StepUpCancelled, useStepUp } from '../features/super/components/StepUpProvider.tsx';
 import { SuperFrame } from '../features/super/components/SuperFrame.tsx';
 
 export const Route = createFileRoute('/super/settings')({

@@ -91,7 +91,7 @@ async function invitedAdmin(purpose: InvitePurpose = 'register', now = new Date(
   });
   await addAdminToMasjid(h(), superNow(superId), { masjidId, adminId, role: 'owner' });
   const inviteHash = randomBytes(32);
-  await createInvite(h(), superNow(superId), { adminId, purpose, tokenHash: inviteHash, now });
+  await createInvite(h(), superScope(superId, now), { adminId, purpose, tokenHash: inviteHash, now });
   return { adminId, masjidId, inviteHash };
 }
 
@@ -471,13 +471,29 @@ describe('own passkeys and "Add another device" (B13)', () => {
 
     const first = randomBytes(32);
     const second = randomBytes(32);
-    await createAddDeviceInvite(h(), me, { tokenHash: first });
-    await createAddDeviceInvite(h(), me, { tokenHash: second });
+    // A new passkey outlives session revocation: only right after a step-up on the caller's own session (H1).
+    const stepUpAt = (at: Date) => raw('admin_sessions').updateOne({ _id: r.sessionId }, { $set: { step_up_at: at } });
+    expect(await code(createAddDeviceInvite(h(), me, { tokenHash: first, sessionId: r.sessionId }))).toBe(
+      'STEP_UP_REQUIRED',
+    );
+    await stepUpAt(new Date(Date.now() - 6 * 60 * 1000)); // stale
+    expect(await code(createAddDeviceInvite(h(), me, { tokenHash: first, sessionId: r.sessionId }))).toBe(
+      'STEP_UP_REQUIRED',
+    );
+    await raw('admin_sessions').updateOne({ _id: other.sessionId }, { $set: { step_up_at: new Date() } });
+    expect(await code(createAddDeviceInvite(h(), me, { tokenHash: first, sessionId: other.sessionId }))).toBe(
+      'STEP_UP_REQUIRED',
+    ); // someone else's stepped-up session does not count
+    await stepUpAt(new Date());
+    await createAddDeviceInvite(h(), me, { tokenHash: first, sessionId: r.sessionId });
+    await createAddDeviceInvite(h(), me, { tokenHash: second, sessionId: r.sessionId });
     expect(await readInvite(h(), publicScope(), { tokenHash: first })).toBeNull(); // superseded
     const view = await readInvite(h(), publicScope(), { tokenHash: second });
     expect(view).toMatchObject({ adminId: r.adminId, purpose: 'add_device' });
     expect(view?.existingCredentials).toHaveLength(1);
-    expect(await code(createAddDeviceInvite(h(), publicScope(), { tokenHash: randomBytes(32) }))).toBe('FORBIDDEN');
+    expect(
+      await code(createAddDeviceInvite(h(), publicScope(), { tokenHash: randomBytes(32), sessionId: r.sessionId })),
+    ).toBe('FORBIDDEN');
     expect(await code(listPasskeys(h(), publicScope()))).toBe('FORBIDDEN');
   });
 });

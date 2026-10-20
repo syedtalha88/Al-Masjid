@@ -4,7 +4,7 @@ import { Pressable } from '@mc/ui/motion';
 import { Screen, useNavigator } from '@mc/ui/navigation';
 import type { ReactNode } from 'react';
 
-import { StepUpProvider } from './StepUpProvider.tsx';
+import { StepUpProvider } from '../../auth/components/StepUpProvider.tsx';
 
 export type SuperSection = 'dashboard' | 'masjids' | 'settings' | 'audit';
 
