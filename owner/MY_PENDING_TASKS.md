@@ -45,6 +45,7 @@
 |---|---|---|---|
 | 2 | **Super Admin passkey** on staging with my phone — when Claude Code says login is ready: on the server `sudo /usr/local/lib/masjid-connect/deploy.sh staging --bootstrap-super-admin --name "<my name>"`, open the printed link on my phone (keep it private; steps in `docs/runbooks/DEPLOY.md` §7) (O12) | 5 min | after passkey login is ready |
 | 2b | **Answer DECISIONS #79** — staging server → database delay is about 9 ms (target 5 ms). **A** (recommended): accept for staging, re-measure for production in Phase 9. **B**: look for a server in the same AWS region now (paid). Reply "#79 A" or "#79 B" | 1 answer | now |
+| 2c | **Answer DECISIONS #81** — the admin login limit is 10 tries per 10 minutes per internet connection, enough for about 3 new admins in a row on one Wi-Fi. **A** (recommended): raise it to 30. **B**: keep 10. **C**: keep 10 but don't count opening the invite link. Reply "#81 A/B/C" | 1 answer | now |
 | 3 | **Design notes** — the minor improvements I noticed (list or screenshots) (O7) | — | when ready |
 | 4 | **Turnstile switch-over** (Phase 2, when Claude Code asks): GitHub `staging` environment variable `VITE_PUBLIC_TURNSTILE_SITE_KEY` = my site key, and the secret into the server env files — both together | 5 min | Phase 2 |
 | 5 | **Low-end Android phone** (≈ ₹8,000) for the performance check (O16) | when available | Phase 2 |
