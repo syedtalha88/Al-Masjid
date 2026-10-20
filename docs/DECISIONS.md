@@ -566,6 +566,10 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **Edge networks (S-L9):** the router keeps a separate `ingress` network for the published port; the edge networks to the environments' `web` containers are `internal`, so Caddy has no route to the internet (verified locally: published port works, router → web works, web → internet blocked). The router's healthcheck now also requires the frontend to be listening. Existing networks must be recreated once on the server (DEPLOY.md §8).
 - **Cloudflare NEL / Report-To (L4):** Cloudflare adds Network Error Logging headers, so browsers may send connection-error reports (URL, client IP as seen by Cloudflare) to Cloudflare. No content or identifiers of ours are included, and Cloudflare already processes every request as our CDN (05 data processors). Owner checks whether the zone lets it be switched off; otherwise the privacy notice (Phase 9 legal texts) names it under Cloudflare. The nightly spec now fails on any script not served from our own origin (Cloudflare's injected beacon was found re-enabled once).
 
+### #75 — iOS swipe-back confirmed on the owner's phones (F17, closes T0.15) — ACCEPTED (owner, 20 Oct 2026)
+**Context:** DECISIONS #44 assumed that iOS gives no native back swipe in the installed app (so our own edge swipe runs) and that in Safari a `popstate` we did not cause is applied without our animation (Safari already animated its own swipe). F17 asked the owner to confirm on a real iPhone.
+**Result and decision:** owner, 20 Oct 2026, after the step-by-step phone checks (swipe-back in Safari and the installed app, screen readers): "mobile testing is working fine". The #44 platform rule stays as built; T0.15 is complete.
+
 ## OPEN
 
 ### #70 — Where the server-side Super Admin bootstrap runs (PHASE_01 T1.9) — ACCEPTED: option A (owner, 19 Oct 2026: "do the best one")

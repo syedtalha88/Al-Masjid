@@ -40,7 +40,7 @@ HIGH/MEDIUM is fixed; LOW findings are fixed or justified in `PHASE_00_REPORT.md
 | V-4 | No post-deploy header check; ZAP can never fail (= S-L13) | fixed (nightly staging header check + ZAP medium+ gate) |
 | V-5 | Turbo `test` cache not invalidated by dependency changes (false green locally) | fixed (turbo test dependsOn ^typecheck) |
 | V-6 | T0.10 visual comparison with the reference images not documented | fixed (PHASE_00_REPORT §4.1 table, 11 components vs R1–R3; captures in `docs/reports/evidence/PHASE_00_T0.10_visual/`) |
-| V-7 | T0.9 screen-reader manual note missing | owner (O19 — TalkBack + VoiceOver pass on the two phones; focus order itself is asserted in `e2e/navigation/navigation.spec.ts`) |
+| V-7 | T0.9 screen-reader manual note missing | fixed (owner O19, 20 Oct 2026: TalkBack + VoiceOver checks fine; focus order also asserted in `e2e/navigation/navigation.spec.ts`) |
 | V-8 | 01 §9 font budgets not enforced | fixed (fonts.spec.ts sums woff2 bytes per locale: first load en/ur ≤ 120 KB, hi/te ≤ 180 KB, Nastaliq ≤ 350 KB — staging: 48 / 169 / 172 KB + Nastaliq 239 KB) |
 | V-9 | DEPLOY.md: secret-change procedure, `--recreate`, AOP renewal, production signing key missing | fixed (DEPLOY.md §4–5, deploy.sh --restart) |
 | V-10 | `pnpm infra:check` is a stub | fixed |
@@ -73,7 +73,7 @@ Security: the HIGH (H1) was fixed by DECISIONS #61; M1 is the owner's environmen
 | V-8 | LOW-MED | 01 §9 font budgets not enforced | fixed (e2e font byte budgets per locale) |
 | V-19 | MED | Offline banner black strip while online | fixed (owner check pending, O7) |
 | V-20 | MED | Nightly staging job never runs (variables) and would fail on `Server: cloudflare` | fixed in the spec (only `Server: cloudflare` accepted behind Cloudflare — verified read-only against staging); owner sets the variables (O11) |
-| V-21 | MED | VPS → ap-south-1 latency not measured | owner (O9) |
+| V-21 | MED | VPS → ap-south-1 latency not measured | measured 20 Oct 2026 (O9): network round trip ≈ 9 ms (two DNS-cached runs); first connects ≈ 170–200 ms incl. DNS. Target ≤ 5 ms not met — a known limitation for the report (Atlas M0 shared tier; pooled driver connections pay DNS once); re-measure on the production tier in Phase 9 |
 | V-22 | MED | Final `PHASE_00_REPORT.md` | open (last) |
 | V-23 | MED | Host layer + `check.sh` output for the report | fixed (owner ran it 16 Oct, 100 PASS) |
 | V-24 | LOW | Docker userns-remap WARN has no DECISIONS entry | justified (DECISIONS #74 — revisit Phase 9) |
