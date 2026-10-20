@@ -142,7 +142,12 @@ one phone never locks you out (04 §3).
 
 The edge networks between the router and each environment's `web` container became `internal` (no internet route
 for `web`). Docker cannot change that on an existing network, so after `provision.sh host <sha>` run once, as root
-(staging is offline for about a minute):
+(staging is offline for a few minutes).
+
+**Before you start:** the newest release must already be deployed (`curl -s https://app-staging.almasjids.com/api/v1/health`
+shows its version and `"db":"ok"`). The last command recreates `web` and needs a working deploy, including migrations.
+Run every line, including the last two. If you stop after `network rm`, the site stays down (Cloudflare 525) until
+they run.
 
 ```bash
 cd /usr/local/lib/masjid-connect
@@ -150,6 +155,11 @@ docker compose -p mc-edge -f edge/docker-compose.edge.yml down          # router
 docker ps -q --filter network=mc-edge-staging | xargs -r docker stop     # web containers off the old network
 docker network rm mc-edge-staging mc-edge-production
 docker compose -p mc-edge -f edge/docker-compose.edge.yml up -d --wait   # router + new internal networks
-./deploy.sh staging --restart                                            # web rejoins; site back
+docker ps -aq --filter label=com.docker.compose.project=mc-staging --filter label=com.docker.compose.service=web | xargs -r docker rm
+                                                                         # the stopped web container: its old network is gone, it can never start again
+./deploy.sh staging --restart                                            # a new web container on the new network; site back
 ./check.sh                                                               # then send Claude Code the output
 ```
+
+(20 Oct 2026: without the `docker rm` line, `--restart` tries to start the old container again. Its network was
+removed, so it exits with code 128 and the site stays at 525.)
