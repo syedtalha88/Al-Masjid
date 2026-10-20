@@ -635,15 +635,17 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
   Until then: step-up is required, and the Super Admin can revoke all passkeys of an admin.
 - **L2** — Decided by the owner (#81).
 
-## OPEN
-
-### #81 — Admin login IP limit: 10 per 10 min may block a Super Admin onboarding several imams on one Wi-Fi (review L2) — OPEN (owner)
+### #81 — Admin login IP limit: 10 per 10 min may block a Super Admin onboarding several imams on one Wi-Fi (review L2) — ACCEPTED: option A (owner, 20 Oct 2026)
 **Now:** 03 §2 "admin login options/verify 10 / 10 min / IP". Opening an invite, registration options and registration verify all count, so one connection allows about **3 new admins (or 5 logins) per 10 minutes**. Indian mobile IPv4 (Jio/Airtel CGNAT) shares one address between many people. IPv6 now counts by /64 (#80).
 **Options:** **A (recommended)** — raise the IP bucket to **30 / 10 min**. The real protection is elsewhere: invite tokens are 256-bit, signatures can't be guessed, the per-credential failure cap applies, and failures by unknown ids write nothing. **B** — keep 10 / 10 min, and the Super Admin onboards in batches. **C** — exempt `GET /auth/invite/:token` from the bucket (it changes nothing) and keep 10.
-**Needs:** the owner's answer.
+**Decision (owner, 20 Oct 2026 — "I accept all, do which is best"):** option A. `adminLoginIp` = 30 / 10 min (`packages/api/src/http/rate-limit.ts`, the bucket-table test, 03 §2 updated).
 
-### #79 — Staging VPS → Atlas latency ≈ 9 ms vs. the ≤ 5 ms target (PHASE_00 T0.14 step 5, closure V-21) — OPEN (owner)
+### #79 — Staging VPS → Atlas latency ≈ 9 ms vs. the ≤ 5 ms target (PHASE_00 T0.14 step 5, closure V-21) — ACCEPTED: option A (owner, 20 Oct 2026)
 **Measured (O9, 20 Oct 2026):** `curl` `time_connect` to each shard: ≈ 9 ms network round trip once DNS is cached (≈ 170–200 ms on the first, uncached lookup). PHASE_00 T0.14 targets ≤ 5 ms; DECISIONS #21 expected about 1–2 ms in the same region. The cause is that the Hostinger Mumbai VPS and AWS ap-south-1 (Atlas M0) are different data centres.
 **Impact:** the drivers keep pooled connections (01 §5.1), so the ~9 ms is paid per round trip, not per connection set-up. A typical API request makes 1–3 queries, so it adds roughly 10–30 ms. That fits the API latency budgets, but every extra sequential query costs 9 ms.
 **Options:** A (recommended) — accept ≈ 9 ms for staging and re-measure in Phase 9 against production (M10). If production is still above 5 ms, choose then between keeping it and moving the VPS. B — look for a VPS in the same AWS region now (paid, a move, out of scope for v1).
-**Needs:** the owner's answer (A or B).
+**Decision (owner, 20 Oct 2026 — "I accept all, do which is best"):** option A. ≈ 9 ms accepted for staging; Phase 9 re-measures production (M10) and decides then.
+
+## OPEN
+
+_None — every decision is ACCEPTED (20 Oct 2026)._

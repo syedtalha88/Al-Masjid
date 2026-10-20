@@ -2,7 +2,7 @@
 
 > Phase 00 was accepted by the owner on 16 Oct 2026 with closure items carried alongside Phase 01 (DECISIONS #62).
 > This is the closure report (V-22). **Still open for DONE:** owner checks 0.15 / 0.16 (branch ruleset + failing-PR
-> proof — the owner does them last, see §7), and the owner's answer to DECISIONS #79 (latency).
+> proof — the owner does them last, see §7). DECISIONS #79 (latency) was accepted by the owner on 20 Oct 2026.
 
 **Date:** 20 Oct 2026 · **Commit range:** `ca5784d..261f4c9` on `main` (Phase 00 + Phase 01 so far share `main`) ·
 **Staging URLs:** app https://app-staging.almasjids.com · admin https://admin-staging.almasjids.com ·
@@ -63,8 +63,8 @@ Poco F7 (checks 0.1–0.14).
 | Lighthouse (mobile, local 20 Oct, median of 3) | ✅ | app cold 99 / 100 / 100, warm 100 / 100 / 100. admin cold 97 / 100 / 96, warm 100 / 100 / 96. Admin best-practices 96 = the browser logging the expected `401` from `/auth/me` before sign-in (the login gate), not an error |
 | Motion perf traces | ✅ | `pnpm test:perf` 2/2: no long task > 50 ms at 4× CPU |
 | Security headers | ✅ | Mozilla Observatory A+ 135, 12/12 on both hosts (20 Oct); securityheaders.com A+ (owner, 16 Oct) |
-| phase-verifier (V-31) | ✅ with open items | 20 Oct 2026: every criterion PASS except T0.3 PR-block (owner 0.16, §7), T0.15 README (fixed the same day) and the latency target (#79). Housekeeping done: F25 closed, `db:verify-roles` stub replaced, evidence files added |
-| security-reviewer (V-31) | 0 HIGH / 0 MEDIUM open | 20 Oct 2026, scope `69ca205..b9eb751`: 1 HIGH + 3 MED found and fixed with tests (add-passkey step-up, IPv6 /64 limits, item policy value checks, `safeText`). 10 LOW fixed or justified — DECISIONS #80; L2 → owner #81 |
+| phase-verifier (V-31) | ✅ with open items | 20 Oct 2026: every criterion PASS except T0.3 PR-block (owner 0.16, §7), T0.15 README (fixed the same day) and the latency target (#79 — accepted by the owner, option A). Housekeeping done: F25 closed, `db:verify-roles` stub replaced, evidence files added |
+| security-reviewer (V-31) | 0 HIGH / 0 MEDIUM open | 20 Oct 2026, scope `69ca205..b9eb751`: 1 HIGH + 3 MED found and fixed with tests (add-passkey step-up, IPv6 /64 limits, item policy value checks, `safeText`). 10 LOW fixed or justified — DECISIONS #80; L2 → #81 (owner: limit raised to 30 / 10 min) |
 
 ## 4. Screenshots
 
@@ -110,8 +110,8 @@ are composites built in their own phases against the same refs.
   - Method: `curl` `time_connect`, 3 runs per shard.
   - Raw values: 0.200 / 0.170 / 0.179 · 0.009 / 0.181 / 0.174 · 0.182 / 0.009 / 0.171 s.
   - The 9 ms runs had DNS cached, so ≈ 9 ms is the network round trip; the ~170 ms runs include the DNS lookup.
-  - Target ≤ 5 ms is not met. DECISIONS #79 is OPEN for the owner (recommended: accept for staging, re-measure in
-    Phase 9).
+  - Target ≤ 5 ms is not met. The owner accepted ≈ 9 ms for staging (DECISIONS #79, option A); Phase 9
+    re-measures production.
 
 ## 5. Deviations from spec
 
@@ -130,7 +130,7 @@ are composites built in their own phases against the same refs.
 | No Docker userns remapping in v1; no Caddy access log | #74 |
 | Admin client uses the platform WebAuthn API, no `@simplewebauthn/browser` (affects 01 §4's library list) | #72 |
 | CI jobs that start MongoDB run on `ubuntu-22.04` while the 24.04 runner kernel (7.0.0) blocks MongoDB 8 | #76 (F35) |
-| Staging VPS → Atlas latency ≈ 9 ms vs. ≤ 5 ms target | #79 (OPEN — owner) |
+| Staging VPS → Atlas latency ≈ 9 ms vs. ≤ 5 ms target (accepted for staging, re-measured in Phase 9) | #79 |
 | Sentry v11 with `dataCollection` all off + own scrubber | #52 |
 
 ## 6. Known limitations / follow-ups
@@ -175,6 +175,6 @@ Known limitations:
   - **0.16** a deliberately failing PR is blocked. Ask Claude Code for the throw-away branch.
   - After this, `main` changes only through pull requests.
 - **Optional:** 0.18 Sentry.
-- **Answers needed:** DECISIONS **#79** (latency) and **#81** (admin login IP limit, Phase 01).
+- **Answered 20 Oct 2026:** DECISIONS #79 (A) and #81 (A).
 - **Design notes:** the owner's notes from O7 (incl. whether the black top strip — V-19, fixed 16 Oct — is still
   visible, and the Scan-button ring from §4.1) go to the phase they belong to.
