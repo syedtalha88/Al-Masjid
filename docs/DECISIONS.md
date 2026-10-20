@@ -596,6 +596,12 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **AAGUID** is stored only when it is not all zeros (`parseAaguid`: any UUID version, since authenticator models are not v4).
 - **e2e.** A software authenticator for API tests (`packages/api/test/soft-authenticator.ts`) produces real P-256 attestations and assertions, with switches for each failure. The browser spec (`e2e/admin/passkey-flow.spec.ts`) uses Chromium's virtual authenticator against the runtime-test stack. A new seed hook, `POST /api/admin/test/super-admin-invite`, gets api-admin's own DB handle and pepper. It is mounted only in test-hook mode, i.e. the runtime-test image with `APP_ENV=local` + `NODE_ENV=test` (DECISIONS #31). For that, the entrypoint now opens its connections before loading the hooks.
 
+### #78 — API route tests run as the process's own database user; no eager `masjid_stats` (PHASE_01 T1.11) — ACCEPTED (Claude Code, 20 Oct 2026)
+**Found by the onboarding e2e (20 Oct 2026):** creating a masjid in the real admin app gave a 500. `createMasjid` inserted a `masjid_stats` document, but 02 §4.3 lets `mc_admin` only *read* `masjid_stats` (inserts belong to `mc_public` / `mc_system`). The data-layer and API integration tests had connected with the test root user, so no test hit the privilege. The same 500 would have happened on staging at the first masjid.
+**Decision:**
+- **Fix in the code, not the roles:** `createMasjid` no longer creates `masjid_stats`. The first follow creates it (the existing `mc_public` upsert), and every reader already treats a missing document as zero. This keeps 02 §4.3 least-privilege as written.
+- **Tests run with production privileges:** `@mc/db/testing` gains `processUserHandle(test, user)`, a temporary login with exactly that 02 §4.3 role. The api-admin route suites (`super-routes`, `admin-passkeys`, `admin-auth`, `log-hygiene`) now run their routes through `mc_admin`. Raw test setup and assertions still use the root connection. Run as `mc_admin`, `super-routes` failed exactly like the app did (500 on create, 5/5 red); after the fix it passes. New api-public route suites (Phase 2) use `mc_public` the same way.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (20 Oct 2026)._
