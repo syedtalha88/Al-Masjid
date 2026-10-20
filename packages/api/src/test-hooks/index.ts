@@ -33,7 +33,10 @@ export interface TestHookContext {
   readonly resetRateLimits?: () => Promise<number>;
 }
 
-const InviteRequest = z.strictObject({ displayName: safeText(60, { min: 1 }) });
+const InviteRequest = z.strictObject({
+  displayName: safeText(60, { min: 1 }),
+  uiLocale: z.enum(['en', 'hi', 'ur', 'te']).default('en'),
+});
 const InviteCreated = z.object({ inviteUrl: z.url() });
 
 const ClockState = z.object({ now: z.iso.datetime(), marker: z.literal(TEST_HOOKS_MARKER) });
@@ -68,7 +71,7 @@ export function testHookRoutes({ service, clock, admin, resetRateLimits }: TestH
           handler: async ({ body, reply }) => {
             const { inviteUrl } = await bootstrapSuperAdminInvite(admin.db, {
               displayName: body.displayName,
-              uiLocale: 'en',
+              uiLocale: body.uiLocale,
               force: true, // every e2e run adds its own Super Admin
               adminOrigin: admin.adminOrigin,
               pepper: admin.pepper,

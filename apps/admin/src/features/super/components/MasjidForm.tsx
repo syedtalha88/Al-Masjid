@@ -181,7 +181,7 @@ export function MasjidForm({ initial, submitLabel, busy, error, onSubmit }: Masj
         }}
       />
 
-      <SectionHeader title={t('form.calcMethod')} level={3} className="mt-2" />
+      <SectionHeader title={t('form.calcMethod')} level={2} className="mt-2" />
       <Select<CalcMethod>
         label={t('form.calcMethod')}
         value={calcMethod}

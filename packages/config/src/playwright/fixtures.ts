@@ -77,6 +77,27 @@ export async function settle(page: Page): Promise<void> {
   await page.waitForFunction(() => document.querySelector('[data-animating]') === null);
 }
 
+/**
+ * axe (WCAG 2.1 AA) on any page — e.g. a second browser context in a test — after motion has settled.
+ *
+ * @returns one readable line per violation (empty = clean).
+ */
+export async function axeViolations(page: Page, { include, exclude = [], disableRules = [] }: AxeOptions = {}) {
+  await settle(page); // a mid-fade frame is not the real contrast
+  let builder = new AxeBuilder({ page }).withTags(WCAG_TAGS);
+  if (include !== undefined) builder = builder.include(include);
+  for (const selector of exclude) builder = builder.exclude(selector);
+  if (disableRules.length > 0) builder = builder.disableRules([...disableRules]);
+  const { violations } = await builder.analyze();
+  return violations.map(
+    (violation) =>
+      `${violation.impact ?? '?'}: ${violation.id} — ${violation.help} (${violation.nodes
+        .slice(0, 3)
+        .map((node) => node.target.join(' '))
+        .join(' | ')})`,
+  );
+}
+
 export const test = base.extend<McFixtures>({
   appLocale: [undefined, { option: true }],
 
@@ -123,23 +144,8 @@ export const test = base.extend<McFixtures>({
   ],
 
   expectAxeClean: async ({ page }, use) => {
-    await use(async ({ include, exclude = [], disableRules = [] } = {}) => {
-      await settle(page); // a mid-fade frame is not the real contrast
-      let builder = new AxeBuilder({ page }).withTags(WCAG_TAGS);
-      if (include !== undefined) builder = builder.include(include);
-      for (const selector of exclude) builder = builder.exclude(selector);
-      if (disableRules.length > 0) builder = builder.disableRules([...disableRules]);
-      const { violations } = await builder.analyze();
-      expect(
-        violations.map(
-          (violation) =>
-            `${violation.impact ?? '?'}: ${violation.id} — ${violation.help} (${violation.nodes
-              .slice(0, 3)
-              .map((node) => node.target.join(' '))
-              .join(' | ')})`,
-        ),
-        'axe violations (WCAG 2.1 AA)',
-      ).toEqual([]);
+    await use(async (options = {}) => {
+      expect(await axeViolations(page, options), 'axe violations (WCAG 2.1 AA)').toEqual([]);
     });
   },
 
