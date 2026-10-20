@@ -35,7 +35,9 @@ jobs:
 
   images-perf:
     name: Images (Trivy, fresh DB) · motion perf ×3
-    runs-on: ubuntu-24.04
+    # ubuntu-22.04 while GitHub's ubuntu-24.04 image runs kernel 7.0.0: MongoDB 8.x refuses to start on 6.19–7.0.13
+    # (TCMalloc rseq crash, SERVER-121912; fixed kernel ≥ 7.0.14). Back to 24.04 then — DECISIONS #76, PROGRESS F35.
+    runs-on: ubuntu-22.04
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
