@@ -68,6 +68,25 @@ describe('rate limits (03 §2)', () => {
     expect((await send(app, 'device-b')).status).toBe(200);
   });
 
+  it('behind Cloudflare, rotating IPv6 addresses inside one /64 does not get around the IP limit (review M1)', async () => {
+    const app = createPublicApp({
+      logger: silentLogger(),
+      release: 't',
+      trustedProxyMode: 'cloudflare',
+      routes: [ping],
+      rateLimiter: memoryRateLimiter({ codeResolve: { points: 3, durationSec: 60 } }),
+    }).app;
+    const from = (ip: string) =>
+      request(app)
+        .post('/api/v1/ping')
+        .set('Content-Type', 'application/json')
+        .set('CF-Connecting-IP', ip)
+        .send(JSON.stringify({ name: 'a' }));
+    for (const suffix of ['1', '2', 'abcd:1']) expect((await from(`2001:db8:5:6::${suffix}`)).status).toBe(200);
+    expect((await from('2001:db8:5:6:ffff::9')).status).toBe(429);
+    expect((await from('2001:db8:5:7::1')).status).toBe(200); // another /64
+  });
+
   it('the IP rule still counts requests that carry no device id', async () => {
     const app = appWith(memoryRateLimiter({ codeResolve: { points: 1, durationSec: 60 } }));
     expect((await send(app)).status).toBe(200);

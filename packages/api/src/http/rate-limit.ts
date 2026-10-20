@@ -8,7 +8,7 @@ import type { Request } from 'express';
 import type { Redis } from 'ioredis';
 import { RateLimiterMemory, RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
 
-import { clientIp, type TrustedProxyMode } from './client-ip.ts';
+import { clientIp, rateLimitIpKey, type TrustedProxyMode } from './client-ip.ts';
 import { ApiProblem } from './problem.ts';
 
 /** One bucket: `points` requests per `durationSec` seconds. */
@@ -176,7 +176,8 @@ export async function enforceRateLimits(
   if (!isLimiter(limiter)) throw new Error('route declares rate limits but the app has no rate limiter');
   const mode = req.app.locals[PROXY_MODE] === 'cloudflare' ? 'cloudflare' : 'none';
   for (const rule of rules) {
-    const key = rule.key === 'ip' ? clientIp(req, mode) : rule.key === 'session' ? sessionKey : rule.key(req);
+    const ip = rule.key === 'ip' ? clientIp(req, mode) : null;
+    const key = rule.key === 'ip' ? ip && rateLimitIpKey(ip) : rule.key === 'session' ? sessionKey : rule.key(req);
     if (key === undefined || key === null) continue;
     const decision = await limiter.consume(rule.bucket, key);
     if (!decision.allowed) {
@@ -185,4 +186,16 @@ export async function enforceRateLimits(
       });
     }
   }
+}
+
+/**
+ * Counts one event against `bucket` from inside a handler — for limits that may only count some outcomes (e.g.
+ * failed passkey assertions per credential, security review L3). Apps without a limiter (unit tests) allow everything.
+ *
+ * @returns whether the event was within the limit.
+ */
+export async function consumeInHandler(req: Request, bucket: BucketName, key: string): Promise<boolean> {
+  const limiter: unknown = req.app.locals[LIMITER];
+  if (!isLimiter(limiter)) return true;
+  return (await limiter.consume(bucket, key)).allowed;
 }

@@ -36,7 +36,7 @@ import {
 import { hashToken, newToken } from '../crypto/field.ts';
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
 import { ApiProblem } from '../http/problem.ts';
-import type { RateLimitRule } from '../http/rate-limit.ts';
+import { consumeInHandler, type RateLimitRule } from '../http/rate-limit.ts';
 
 export interface AdminPasskeyDeps {
   readonly db: DbHandle;
@@ -51,16 +51,10 @@ export interface AdminPasskeyDeps {
 const Empty = z.object({}).meta({ id: 'Empty' });
 const failed = () => new ApiProblem(401, 'PASSKEY_FAILED');
 
-/** 03 §2 "20 / hour / credential": the credential id the assertion claims (unverified, only a counting key). */
-const claimedCredential = (req: Request): string | undefined => {
-  const body: unknown = req.body;
-  if (typeof body !== 'object' || body === null || !('response' in body)) return undefined;
-  const response: unknown = body.response;
-  if (typeof response !== 'object' || response === null || !('id' in response)) return undefined;
-  return typeof response.id === 'string' && response.id.length <= 1364 ? response.id : undefined;
-};
-const PER_CREDENTIAL: RateLimitRule = { bucket: 'adminLoginCredential', key: claimedCredential };
-const LOGIN_LIMITS: readonly RateLimitRule[] = [{ bucket: 'adminLoginIp', key: 'ip' }, PER_CREDENTIAL];
+// 03 §2 "10 / 10 min / IP" (IPv6 by /64 — review M1). The "20 / hour / credential" limit counts FAILED assertions of a
+// known credential only (in the handler): counting every claim would let anyone who knows a credential id lock its
+// owner out (review L3), and a valid signature cannot be guessed anyway. It also caps the failure audit entries.
+const LOGIN_LIMITS: readonly RateLimitRule[] = [{ bucket: 'adminLoginIp', key: 'ip' }];
 
 const credentialBytes = (id: string) => new Uint8Array(Buffer.from(id, 'base64url'));
 
@@ -74,28 +68,31 @@ export function adminPasskeyRoutes(deps: AdminPasskeyDeps): RouteDefinition[] {
   const inviteBinding = (inviteToken: string) => hashToken(inviteToken, pepper).toString('base64url');
 
   /**
-   * Shared by login and step-up: the claimed credential, the assertion verification, and the failure audit.
+   * Shared by login and step-up: the claimed credential, the assertion verification, and the failure accounting.
+   * Failures of a KNOWN credential are audited (`auth.login_failed`, credential hash only) up to the 20/h credential
+   * limit; unknown credential ids are only logged — an audit entry per anonymous request would let a flood fill the
+   * database (review M1).
    *
    * @returns the stored credential and the authenticator's new counter.
-   * @throws ApiProblem 401 PASSKEY_FAILED (audited as `auth.login_failed` by credential hash only).
+   * @throws ApiProblem 401 PASSKEY_FAILED.
    */
   async function verifiedAssertion(
+    req: Request,
     response: z.infer<typeof assertionVerifyRequestSchema>['response'],
     challenge: string | undefined,
     requestId: string,
     ownerId?: { equals(other: unknown): boolean },
   ) {
     const claimedId = credentialBytes(response.id);
+    const label = credentialLabel(claimedId);
+    const credential = await findLoginCredential(db, publicScope(), claimedId);
     const fail = async (reason: string) => {
-      logger.info(
-        { event: 'passkey.assertion_failed', reason, credential: credentialLabel(claimedId) },
-        'passkey failed',
-      );
-      await recordLoginFailure(db, publicScope(), { credentialId: claimedId, requestId });
+      const audited = credential !== null && (await consumeInHandler(req, 'adminLoginCredential', label));
+      logger.info({ event: 'passkey.assertion_failed', reason, credential: label, audited }, 'passkey failed');
+      if (audited) await recordLoginFailure(db, publicScope(), { credentialId: claimedId, requestId });
       return failed();
     };
     if (!challenge) throw await fail('no live challenge (expired, used or never issued)');
-    const credential = await findLoginCredential(db, publicScope(), claimedId);
     if (!credential) throw await fail('unknown or revoked credential');
     if (ownerId && !ownerId.equals(credential.adminId)) throw await fail('credential of another admin');
     const verified = await verifyAssertion(rp, response, challenge, credential);
@@ -221,7 +218,7 @@ export function adminPasskeyRoutes(deps: AdminPasskeyDeps): RouteDefinition[] {
         const challengeId = readCookie(req, CHALLENGE_COOKIE);
         clearCookie(res, CHALLENGE_COOKIE);
         const challenge = challengeId ? await challenges.take('login', challengeId) : undefined;
-        const { credential, newCounter } = await verifiedAssertion(body.response, challenge, requestId);
+        const { credential, newCounter } = await verifiedAssertion(req, body.response, challenge, requestId);
         const sessionToken = newToken();
         try {
           const session = await completeAssertion(db, publicScope(), {
@@ -262,12 +259,13 @@ export function adminPasskeyRoutes(deps: AdminPasskeyDeps): RouteDefinition[] {
       auth: 'session',
       // Confirms who is there and writes no content — like logout, allowed before the undertaking (T1.10).
       undertaking: 'exempt',
-      rateLimit: [{ bucket: 'adminWrites', key: 'session' }, PER_CREDENTIAL],
+      rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
       request: { body: assertionVerifyRequestSchema },
       responses: { 204: Empty },
-      handler: async ({ auth, body, clock, requestId, res, reply }) => {
+      handler: async ({ auth, body, clock, requestId, req, res, reply }) => {
         const challenge = await challenges.take('step_up', auth.session.sessionId.toHexString());
         const { credential, newCounter } = await verifiedAssertion(
+          req,
           body.response,
           challenge,
           requestId,

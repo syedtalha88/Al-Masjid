@@ -443,14 +443,18 @@ describe('login verification (04 §3)', () => {
     expect((await login(credential)).res.status).toBe(204); // the credential still works
   });
 
-  it('unknown credential and foreign / missing user handle: the same 401; failures audited by hash only', async () => {
+  it('unknown credential and foreign / missing user handle: the same 401; only known credentials are audited', async () => {
     const { token } = await invitedAdmin();
     const { credential } = await register(token);
     const stranger = authenticator.create(
       creationOptionsSchema.parse((await registerOptions((await invitedAdmin()).token)).res.body),
     ).credential; // never registered
+    const before = await failedLogins();
+    const unknown = await login(stranger);
+    expect(unknown.res.status).toBe(401);
+    expect(lastReason()).toMatch(/unknown or revoked credential/);
+    expect(await failedLogins()).toBe(before); // anonymous floods write no audit entries (review M1)
     const attempts = [
-      [() => login(stranger), /unknown or revoked credential/],
       [() => login(credential, { userHandle: randomBytes(32) }), /user handle/],
       [() => login(credential, { userHandle: null }), /user handle/],
     ] as const;
@@ -460,10 +464,41 @@ describe('login verification (04 §3)', () => {
       expect(res.body).toMatchObject({ code: 'PASSKEY_FAILED' });
       expect(lastReason()).toMatch(reason);
     }
+    expect(await failedLogins()).toBe(before + 2);
     const audit = await raw('audit_log').find({ action: 'auth.login_failed' }).sort({ _id: -1 }).limit(1).next();
     expect(audit?.['actor_type']).toBe('system');
     expect(Object.keys((audit?.['meta'] as Record<string, unknown> | undefined) ?? {})).toEqual(['credential_hash']);
     expect(audit).not.toHaveProperty('target_id');
+  });
+
+  it('failed assertions of a credential: audited up to the 20/h cap, never blocking its owner’s valid login (L3)', async () => {
+    const capped = createAdminApp({
+      logger: log.logger,
+      release: 't',
+      trustedProxyMode: 'none',
+      adminOrigin: ORIGIN,
+      clock,
+      rateLimiter: memoryRateLimiter({
+        adminLoginIp: { points: 10_000, durationSec: 600 },
+        adminLoginCredential: { points: 2, durationSec: 3600 },
+      }),
+      authenticate: sessionAuthenticator({ db: h(), pepper, clock }),
+      routes: [...adminPasskeyRoutes({ db: h(), pepper, ...passkeyDeps(ORIGIN, clock, log.logger) })],
+    }).app;
+    const { credential } = await register((await invitedAdmin()).token);
+    const attempt = async (o: Parameters<SoftAuthenticator['get']>[2] = {}) => {
+      const opts = await request(capped).post('/api/admin/auth/login/options').set(CSRF);
+      const chal = `__Host-mc_chal=${cookieValue(opts, '__Host-mc_chal') ?? ''}`;
+      return request(capped)
+        .post('/api/admin/auth/login/verify')
+        .set(CSRF)
+        .set('Cookie', chal)
+        .send({ response: authenticator.get(requestOptionsSchema.parse(opts.body), credential, o) });
+    };
+    const before = await failedLogins();
+    for (let i = 0; i < 5; i += 1) expect((await attempt({ badSignature: true })).status).toBe(401); // a forger
+    expect(await failedLogins()).toBe(before + 2); // audited up to the cap, then only logged
+    expect((await attempt()).status).toBe(204); // the owner still logs in
   });
 
   it('a sign counter going backwards revokes the credential and all sessions of the admin (possible clone)', async () => {

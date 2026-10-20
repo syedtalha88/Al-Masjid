@@ -1,7 +1,7 @@
 import type { Request } from 'express';
 import { describe, expect, it } from 'vitest';
 
-import { clientIp } from '../src/http/client-ip.ts';
+import { clientIp, rateLimitIpKey } from '../src/http/client-ip.ts';
 import { toOpenApiPath } from '../src/http/define-route.ts';
 import { ApiProblem, problemBody } from '../src/http/problem.ts';
 import { findUnsafeKey } from '../src/http/unsafe-keys.ts';
@@ -13,6 +13,28 @@ const fakeRequest = (headers: Record<string, string>, remoteAddress?: string) =>
     get: (name: string) => headers[name.toLowerCase()],
     socket: { remoteAddress },
   }) as unknown as Request; // minimal shape used by clientIp
+
+describe('rateLimitIpKey (review M1: IPv6 counts by /64)', () => {
+  it('IPv4 as is; every address of one IPv6 /64 is one key; different /64s differ', () => {
+    expect(rateLimitIpKey('203.0.113.7')).toBe('203.0.113.7');
+    const key = rateLimitIpKey('2001:db8:1:2::1');
+    expect(key).toBe('2001:db8:1:2::/64');
+    for (const ip of [
+      '2001:db8:1:2:ffff:ffff:ffff:ffff',
+      '2001:0DB8:0001:0002:0000:0000:0000:0042',
+      '2001:db8:1:2:a::b',
+    ]) {
+      expect(rateLimitIpKey(ip), ip).toBe(key);
+    }
+    expect(rateLimitIpKey('2001:db8:1:3::1')).not.toBe(key);
+    expect(rateLimitIpKey('::1')).toBe('0:0:0:0::/64');
+  });
+
+  it('IPv4-mapped IPv6 counts as the IPv4 address; embedded IPv4 in other prefixes stays IPv6', () => {
+    expect(rateLimitIpKey('::ffff:203.0.113.7')).toBe('203.0.113.7');
+    expect(rateLimitIpKey('64:ff9b::203.0.113.7')).toBe('64:ff9b:0:0::/64');
+  });
+});
 
 describe('clientIp (rate limits only, never stored)', () => {
   it('uses CF-Connecting-IP behind Cloudflare', () => {
