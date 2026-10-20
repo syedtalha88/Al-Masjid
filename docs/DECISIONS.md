@@ -602,7 +602,45 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 - **Fix in the code, not the roles:** `createMasjid` no longer creates `masjid_stats`. The first follow creates it (the existing `mc_public` upsert), and every reader already treats a missing document as zero. This keeps 02 §4.3 least-privilege as written.
 - **Tests run with production privileges:** `@mc/db/testing` gains `processUserHandle(test, user)`, a temporary login with exactly that 02 §4.3 role. The api-admin route suites (`super-routes`, `admin-passkeys`, `admin-auth`, `log-hygiene`) now run their routes through `mc_admin`. Raw test setup and assertions still use the root connection. Run as `mc_admin`, `super-routes` failed exactly like the app did (500 on create, 5/5 red); after the fix it passes. New api-public route suites (Phase 2) use `mc_public` the same way.
 
+### #80 — Security review V-31 (Phase 00 closure + Phase 01 so far): fixes and LOW justifications — ACCEPTED (Claude Code, 20 Oct 2026)
+**Review:** `security-reviewer`, scope `69ca205..b9eb751`, 20 Oct 2026: 1 HIGH, 3 MEDIUM, 10 LOW. It confirmed #77 (the counter rule runs after the signature; no path revokes on an unverified assertion), the challenge binding, uniform failures, cookies, the CSRF guard, the test-hook gating (#31) and the earlier fixes (S-H2, S-L5/L8/L11, S-M1, L5/L9, #61).
+**Fixed:**
+- **H1** — "Add another device" now needs a fresh step-up. A passkey survives every session revocation, so an unlocked phone or XSS could otherwise plant a permanent login. New route auth `session_step_up` (any role, step-up in the last 5 min). `createAddDeviceInvite` re-checks `step_up_at` on the caller's own session document. The account screen runs it through the "Confirm it's you" dialog (`StepUpProvider` moved to `features/auth`). Tests: none / stale / someone else's session → STEP_UP_REQUIRED; API 403 without a step-up.
+- **M1** — Two parts:
+  - IP rate-limit buckets count IPv6 by **/64** (`rateLimitIpKey`; IPv4-mapped addresses count as IPv4). Rotating addresses inside one /64 hits the limit (test).
+  - Failed assertions are audited only for **known** credentials, capped by the 20/h credential bucket. Unknown ids are only logged, so an anonymous flood writes no audit documents (the Atlas M0 storage risk).
+- **M2** — The policy layer gains value checks (`Cell.check`, on insert and update). Generic item writes (admin and Super) can never:
+  - set `status: removed`;
+  - touch `purge_after` / `removed_at` / `removed_reason` (the IT Rules 3(1)(g) evidence clock);
+  - update a removed item (no un-removing).
+
+  Takedown, restore and purge stay state functions (Phase 8) and the retention job. Tested with crafted payloads.
+- **M3** — `safeText` (@mc/shared) for every free-text contract field. It applies NFC and trim, and refuses control characters, bidi embedding / override / isolate characters, ZWSP and an inner BOM. ZWJ / ZWNJ (Indic scripts) and LRM / RLM (Urdu) stay allowed. Tested with fast-check.
+- **L1** — The split, image and shipped-image checks look for every hook route path, not only `/test/clock`.
+- **L3** — The per-credential limit counts failures only, so it never blocks a valid assertion. Anyone who knows a credential id from `excludeCredentials` could otherwise lock its owner out.
+- **L4** — `createInvite` (★) re-checks the step-up and that the admin exists.
+- **L5** — Transport names are limited to 20 characters and filtered to the WebAuthn list (no 500).
+- **L6** — No `SCAN` for the API Redis users (`rl_public` everywhere, `admin` on the VPS). Locally `admin` keeps it for the e2e reset hook; the worker keeps it for BullMQ. The VPS picks this up at its next `make-env.sh` run (PROGRESS F37).
+- **L9** — The ★ audit CSV export writes `audit.export` (filters, row count).
+- **L10** — Nested Super Admin request objects are strict.
+
+**Justified, not changed:**
+- **L7** — `repos/super.ts` reads phone *presence* with the raw collection. It projects only `_id` over ids already scoped to the masjid and never returns the field. It becomes a named policy exception when Phase 8 reworks admin reads.
+- **L8** — Two simultaneous assertions from a counter-based security key can revoke it, because of the regression rule. Synced phone passkeys report 0 and never trigger it. Recovery is a new login link (DEPLOY.md §6 row).
+- **L10 (credential JSON)** — Stays non-strict on purpose: browsers add members, and only the verified fields are kept.
+- **H1 follow-ups (F38)** — Two parts follow later:
+  - a push alert to the Super Admin when a passkey is added to a Super Admin account (04 R4), with Phase 4 push;
+  - self-service "remove this passkey" (step-up, never the last one), with B13 in Phase 3.
+
+  Until then: step-up is required, and the Super Admin can revoke all passkeys of an admin.
+- **L2** — Decided by the owner (#81).
+
 ## OPEN
+
+### #81 — Admin login IP limit: 10 per 10 min may block a Super Admin onboarding several imams on one Wi-Fi (review L2) — OPEN (owner)
+**Now:** 03 §2 "admin login options/verify 10 / 10 min / IP". Opening an invite, registration options and registration verify all count, so one connection allows about **3 new admins (or 5 logins) per 10 minutes**. Indian mobile IPv4 (Jio/Airtel CGNAT) shares one address between many people. IPv6 now counts by /64 (#80).
+**Options:** **A (recommended)** — raise the IP bucket to **30 / 10 min**. The real protection is elsewhere: invite tokens are 256-bit, signatures can't be guessed, the per-credential failure cap applies, and failures by unknown ids write nothing. **B** — keep 10 / 10 min, and the Super Admin onboards in batches. **C** — exempt `GET /auth/invite/:token` from the bucket (it changes nothing) and keep 10.
+**Needs:** the owner's answer.
 
 ### #79 — Staging VPS → Atlas latency ≈ 9 ms vs. the ≤ 5 ms target (PHASE_00 T0.14 step 5, closure V-21) — OPEN (owner)
 **Measured (O9, 20 Oct 2026):** `curl` `time_connect` to each shard: ≈ 9 ms network round trip once DNS is cached (≈ 170–200 ms on the first, uncached lookup). PHASE_00 T0.14 targets ≤ 5 ms; DECISIONS #21 expected about 1–2 ms in the same region. The cause is that the Hostinger Mumbai VPS and AWS ap-south-1 (Atlas M0) are different data centres.

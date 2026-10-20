@@ -118,6 +118,7 @@ commit — a staging release always follows a green CI run on `main`).
 | Attack / traffic spike | Cloudflare → *Under Attack* mode (04 §13) |
 | Suspected leaked secret | Rotate it at the source (Atlas user, Redis ACL, Cloudinary key, …), update the env file, restart — then tell Claude Code to review logs |
 | Notifications must stop now | Stop the `worker` container (Phase 4 adds the "pause all push" switch) |
+| An admin suddenly cannot log in and the dashboard shows a blocked login ("a phone may have been copied") | Usually a real clone warning: send them a **Lost phone: new login** link (C2 → admin). Rare harmless cause (security review L8): two logins at the same moment with a security key that counts its uses (double tap, two tabs) can look like a counter going backwards. Phone passkeys (synced) never trigger it. The fix is the same new login link |
 
 ## 7. First Super Admin (once per environment)
 

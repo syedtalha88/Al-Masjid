@@ -1,0 +1,13 @@
+# Security-header grades of the staging origins (PHASE_00 T0.5 / T0.14), re-taken 20 Oct 2026 after the Via/robots
+# changes (re-review), through Cloudflare, release edcf71a on staging.
+#
+# Mozilla HTTP Observatory (API v2, POST https://observatory-api.mdn.mozilla.net/api/v2/scan?host=<host>):
+app-staging.almasjids.com     grade A+  score 135  tests 12/12  scanned 2026-10-20T10:26:40Z
+  https://developer.mozilla.org/en-US/observatory/analyze?host=app-staging.almasjids.com
+admin-staging.almasjids.com   grade A+  score 135  tests 12/12  scanned 2026-10-20T10:26:44Z
+  https://developer.mozilla.org/en-US/observatory/analyze?host=admin-staging.almasjids.com
+#
+# securityheaders.com: A+ on both hosts, checked by the owner in the browser on 16 Oct 2026 (owner check 0.2).
+# Its site refuses scripted requests (HTTP 403), so it is not re-taken here; the Observatory scan covers the same
+# headers (CSP, HSTS, X-Frame-Options/frame-ancestors, X-Content-Type-Options, Referrer-Policy, …).
+# The header set itself is asserted on every CI run by e2e/smoke/security-headers.spec.ts and nightly against staging.

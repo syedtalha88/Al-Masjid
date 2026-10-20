@@ -1,0 +1,112 @@
+# check.sh on the staging VPS, run by the owner on 20 Oct 2026 after the host-layer update to 2719f013a9c3
+# (O17) and the one-time edge-network step (DEPLOY.md §8). Pasted from the owner's SSH session; no secrets in it.
+== Masjid Connect VPS hardening check — srv2019780 — 2026-10-20T07:04Z
+PASS  OS is Ubuntu 24.04 LTS
+PASS  unattended-upgrades enabled
+PASS  clock synchronised by NTP (CERT-In)
+PASS  SSH: root login disabled
+PASS  SSH: password login disabled
+PASS  SSH: keyboard-interactive disabled
+PASS  SSH: X11 forwarding off
+PASS  SSH: AllowUsers set
+PASS  SSH: MaxAuthTries <= 3
+PASS  firewall: ufw active
+PASS  firewall: default deny incoming
+PASS  firewall: SSH not open to Anywhere
+PASS  firewall: WireGuard 51820/udp allowed
+PASS  Cloudflare IP list present (22 ranges)
+PASS  Cloudflare IP list refreshed within 8 days
+PASS  firewall: DOCKER-USER drops non-Cloudflare IPv4 to 443
+PASS  firewall: DOCKER-USER drops non-Cloudflare IPv6 to 443
+PASS  only 443/80 (TCP) and WireGuard (UDP) listen publicly
+PASS  fail2ban running
+PASS  fail2ban sshd jail enabled
+PASS  WireGuard interface up (wg0)
+PASS  Docker: live-restore
+PASS  Docker: no-new-privileges by default
+PASS  Docker: default log driver 'local' (rotated)
+WARN  Docker: no user-namespace remapping (04 §12.2: 'where compatible')
+PASS  mc-staging-api-admin-34: non-root user (65532:65532)
+PASS  mc-staging-api-admin-34: read-only root filesystem
+PASS  mc-staging-api-admin-34: not privileged
+PASS  mc-staging-api-admin-34: cap_drop ALL
+PASS  mc-staging-api-admin-34: no-new-privileges
+PASS  mc-staging-api-admin-34: memory limit
+PASS  mc-staging-api-admin-34: healthcheck
+PASS  mc-staging-api-admin-34: no docker.sock mount
+PASS  mc-staging-api-admin-33: non-root user (65532:65532)
+PASS  mc-staging-api-admin-33: read-only root filesystem
+PASS  mc-staging-api-admin-33: not privileged
+PASS  mc-staging-api-admin-33: cap_drop ALL
+PASS  mc-staging-api-admin-33: no-new-privileges
+PASS  mc-staging-api-admin-33: memory limit
+PASS  mc-staging-api-admin-33: healthcheck
+PASS  mc-staging-api-admin-33: no docker.sock mount
+PASS  mc-staging-api-public-33: non-root user (65532:65532)
+PASS  mc-staging-api-public-33: read-only root filesystem
+PASS  mc-staging-api-public-33: not privileged
+PASS  mc-staging-api-public-33: cap_drop ALL
+PASS  mc-staging-api-public-33: no-new-privileges
+PASS  mc-staging-api-public-33: memory limit
+PASS  mc-staging-api-public-33: healthcheck
+PASS  mc-staging-api-public-33: no docker.sock mount
+PASS  mc-staging-api-public-34: non-root user (65532:65532)
+PASS  mc-staging-api-public-34: read-only root filesystem
+PASS  mc-staging-api-public-34: not privileged
+PASS  mc-staging-api-public-34: cap_drop ALL
+PASS  mc-staging-api-public-34: no-new-privileges
+PASS  mc-staging-api-public-34: memory limit
+PASS  mc-staging-api-public-34: healthcheck
+PASS  mc-staging-api-public-34: no docker.sock mount
+PASS  mc-edge-router-1: non-root user (99:99)
+PASS  mc-edge-router-1: read-only root filesystem
+PASS  mc-edge-router-1: not privileged
+PASS  mc-edge-router-1: cap_drop ALL
+PASS  mc-edge-router-1: no-new-privileges
+PASS  mc-edge-router-1: memory limit
+PASS  mc-edge-router-1: healthcheck
+PASS  mc-edge-router-1: no docker.sock mount
+PASS  mc-staging-worker-1: non-root user (65532:65532)
+PASS  mc-staging-worker-1: read-only root filesystem
+PASS  mc-staging-worker-1: not privileged
+PASS  mc-staging-worker-1: cap_drop ALL
+PASS  mc-staging-worker-1: no-new-privileges
+PASS  mc-staging-worker-1: memory limit
+PASS  mc-staging-worker-1: healthcheck
+PASS  mc-staging-worker-1: no docker.sock mount
+PASS  mc-staging-redis-1: non-root user (999:1000)
+PASS  mc-staging-redis-1: read-only root filesystem
+PASS  mc-staging-redis-1: not privileged
+PASS  mc-staging-redis-1: cap_drop ALL
+PASS  mc-staging-redis-1: no-new-privileges
+PASS  mc-staging-redis-1: memory limit
+PASS  mc-staging-redis-1: healthcheck
+PASS  mc-staging-redis-1: no docker.sock mount
+PASS  staging: containers reach the internet over HTTPS (egress not blocked)
+PASS  env file /etc/masjid-connect/staging/api-admin.env is 600 root
+PASS  env file /etc/masjid-connect/staging/api-public.env is 600 root
+PASS  env file /etc/masjid-connect/staging/migrate.env is 600 root
+PASS  env file /etc/masjid-connect/staging/redis.env is 600 root
+PASS  env file /etc/masjid-connect/staging/web.env is 600 root
+PASS  env file /etc/masjid-connect/staging/worker.env is 600 root
+PASS  env file /etc/masjid-connect/production/api-admin.env is 600 root
+PASS  env file /etc/masjid-connect/production/api-public.env is 600 root
+PASS  env file /etc/masjid-connect/production/redis.env is 600 root
+PASS  env file /etc/masjid-connect/production/web.env is 600 root
+PASS  env file /etc/masjid-connect/production/worker.env is 600 root
+PASS  staging: origin certificate parses (PEM)
+PASS  staging: origin key parses (PEM)
+PASS  staging: origin key matches the certificate
+PASS  staging: origin certificate valid for 30+ days
+PASS  staging: Cloudflare origin-pull CA parses (PEM)
+PASS  /etc/masjid-connect/staging/certs/origin.pem is 640 root:1000
+PASS  /etc/masjid-connect/staging/certs/origin-key.pem is 640 root:1000
+PASS  /etc/masjid-connect/staging/certs/cloudflare-origin-pull-ca.pem is 640 root:1000
+WARN  production: not deployed yet — origin certificate files not checked
+PASS  log archive directory is 700
+PASS  log archive is fresh (an archive from the last 2 hours)
+PASS  no recorded deploy / log-archive failures
+PASS  host layer is root-owned and not group/world-writable
+PASS  host layer VERSION 2719f013a9c3
+PASS  staging: origin refuses TLS without the Cloudflare client certificate
+== 106 PASS · 0 FAIL · 2 WARN
