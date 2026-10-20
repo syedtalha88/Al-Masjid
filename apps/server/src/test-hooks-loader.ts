@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 import type { RouteDefinition } from '@mc/api';
+import type { DbHandle } from '@mc/db';
 import { ShiftableClock } from '@mc/shared/clock';
 
 /** The one logger method the loader needs (pino-compatible). */
@@ -26,7 +27,18 @@ export const testHooksRequested = (env: TestHookEnv): boolean => env.APP_ENV ===
 
 /** Shape of the separately built module (dist-test/test-hooks.mjs → runtime-test image only). */
 interface TestHookModule {
-  readonly testHookRoutes: (context: { service: 'api-public' | 'api-admin'; clock: ShiftableClock }) => unknown;
+  readonly testHookRoutes: (context: {
+    service: 'api-public' | 'api-admin';
+    clock: ShiftableClock;
+    admin?: AdminHookContext;
+  }) => unknown;
+}
+
+/** api-admin's seed hooks get its own DB handle and pepper (same shape as @mc/api's AdminHookContext). */
+export interface AdminHookContext {
+  readonly db: DbHandle;
+  readonly pepper: Buffer;
+  readonly adminOrigin: string;
 }
 
 const isTestHookModule = (value: unknown): value is TestHookModule =>
@@ -40,6 +52,7 @@ const isTestHookModule = (value: unknown): value is TestHookModule =>
  * expose hooks there; it only logs a warning.
  *
  * @param moduleUrl - location of the built module (default: next to the running entrypoint).
+ * @param admin - api-admin only: what its seed hooks need.
  * @returns the hook routes and the adjustable clock to give the app, or undefined (no hooks).
  * @throws Error when the module exists but does not have the expected shape (a broken build).
  */
@@ -48,6 +61,7 @@ export async function loadTestHooks(
   service: 'api-public' | 'api-admin',
   logger: WarnLogger,
   moduleUrl: URL = new URL('./test-hooks.mjs', import.meta.url),
+  admin?: AdminHookContext,
 ): Promise<TestHooks | undefined> {
   if (!testHooksRequested(env)) return undefined;
   if (!existsSync(fileURLToPath(moduleUrl))) {
@@ -61,7 +75,7 @@ export async function loadTestHooks(
   const loaded: unknown = await import(moduleUrl.href);
   if (!isTestHookModule(loaded)) throw new Error('test hooks: module has no testHookRoutes()');
   const clock = new ShiftableClock();
-  const routes = loaded.testHookRoutes({ service, clock });
+  const routes = loaded.testHookRoutes({ service, clock, ...(admin ? { admin } : {}) });
   if (!Array.isArray(routes)) throw new Error('test hooks: testHookRoutes() did not return a list');
   return { clock, routes: routes as RouteDefinition[] }; // built from @mc/api's defineRoute (same chunk)
 }

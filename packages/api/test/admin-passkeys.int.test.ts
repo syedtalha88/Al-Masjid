@@ -8,9 +8,10 @@ import { randomBytes } from 'node:crypto';
 import { createDbHandle, type DbHandle, idText, isId, newId, superScope } from '@mc/db';
 import { runMigrations } from '@mc/db/migrate';
 import { MIGRATIONS } from '@mc/db/migrations';
+import { getDashboard } from '@mc/db/repos';
 import { addAdminToMasjid, createAdmin, createInvite, createMasjid } from '@mc/db/state';
 import { createTestDatabase, type TestDatabase, testMongoUri } from '@mc/db/testing';
-import { ManualClock } from '@mc/shared/clock';
+import { ManualClock, ShiftableClock } from '@mc/shared/clock';
 import { creationOptionsSchema, requestOptionsSchema } from '@mc/shared/contracts';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -25,6 +26,7 @@ import { memoryRateLimiter } from '../src/http/rate-limit.ts';
 import { bootstrapSuperAdminInvite } from '../src/jobs/bootstrap-super-admin.ts';
 import { adminSessionRoutes } from '../src/routes/admin-auth.ts';
 import { adminPasskeyRoutes } from '../src/routes/admin-passkeys.ts';
+import { testHookRoutes } from '../src/test-hooks/index.ts';
 import { captureLogger, passkeyDeps } from './helpers.ts';
 import { SoftAuthenticator, type SoftCredential } from './soft-authenticator.ts';
 
@@ -463,6 +465,9 @@ describe('login verification (04 §3)', () => {
 
   it('a sign counter going backwards revokes the credential and all sessions of the admin (possible clone)', async () => {
     const { token, adminId } = await invitedAdmin();
+    const alerts = async () =>
+      (await getDashboard(h(), superScope(newId(), clock.now()), { now: clock.now() })).passkeyAlerts;
+    const alertsBefore = await alerts();
     const { credential, cookie } = await register(token);
     credential.counter = 5;
     expect((await login(credential)).res.status).toBe(204);
@@ -475,6 +480,7 @@ describe('login verification (04 §3)', () => {
     expect((await me(cookie)).status).toBe(401); // the registration session is revoked too
     credential.counter = 9;
     expect((await login(credential)).res.status).toBe(401); // revoked for good
+    expect(await alerts()).toBe(alertsBefore + 1); // C1 dashboard flag (the push alert is Phase 4)
     expect(
       log.lines().some((l) => l['event'] === 'passkey.counter_regression' && typeof l['credential'] === 'string'),
     ).toBe(true);
@@ -558,5 +564,36 @@ describe('logs', () => {
     ]) {
       expect(text).not.toContain(secret);
     }
+  });
+});
+
+describe('e2e seed hook (test-hook mode only, 10 §3)', () => {
+  it('POST /test/super-admin-invite makes a Super Admin invite that registers through the real routes', async () => {
+    const hookApp = createAdminApp({
+      logger: log.logger,
+      release: 't',
+      trustedProxyMode: 'none',
+      adminOrigin: ORIGIN,
+      clock,
+      rateLimiter: memoryRateLimiter(),
+      authenticate: sessionAuthenticator({ db: h(), pepper, clock }),
+      routes: [...adminSessionRoutes({ db: h(), pepper, adminOrigin: ORIGIN })],
+      testRoutes: testHookRoutes({
+        service: 'api-admin',
+        clock: new ShiftableClock(() => clock.now().getTime()),
+        admin: { db: h(), pepper, adminOrigin: ORIGIN },
+      }),
+    }).app;
+    const path = '/api/admin/test/super-admin-invite';
+    expect((await request(hookApp).post(path).send({ displayName: 'E2E Owner' })).status).toBe(403); // CSRF guard
+    const created = await request(hookApp).post(path).set(CSRF).send({ displayName: 'E2E Owner' });
+    expect(created.status).toBe(201);
+    const url = new URL(z.object({ inviteUrl: z.url() }).parse(created.body).inviteUrl);
+    expect(`${url.origin}${url.pathname}`).toBe(`${ORIGIN}/invite`);
+    const token = url.hash.slice(1);
+    const invite = await request(hookApp).get(`/api/admin/auth/invite/${token}`);
+    expect(invite.body).toMatchObject({ adminDisplayName: 'E2E Owner', purpose: 'register' });
+    const { cookie } = await register(token);
+    expect((await me(cookie)).body).toMatchObject({ admin: { displayName: 'E2E Owner', role: 'super_admin' } });
   });
 });

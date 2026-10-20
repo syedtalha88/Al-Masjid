@@ -251,10 +251,10 @@ jobs:
         run: node scripts/compose.mjs stack-test up --build
       - name: runtime-test image has the hooks (only in test-hooks.mjs)
         run: pnpm check:image mc-server:test --expect-hooks
-      - name: Test hooks through Caddy
+      - name: Test hooks through Caddy + passkey flows with a virtual authenticator (PHASE_01 T1.8)
         env:
           E2E_TEST_HOOKS: '1'
-        run: pnpm exec playwright test e2e/smoke/test-hooks.spec.ts --project=pixel-7
+        run: pnpm exec playwright test e2e/smoke/test-hooks.spec.ts e2e/admin/passkey-flow.spec.ts --project=pixel-7
 
       - name: Stack diagnostics (annotations)
         if: failure()

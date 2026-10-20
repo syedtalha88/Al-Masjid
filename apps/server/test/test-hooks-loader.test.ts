@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { createLogger, createPublicApp, startHttpServer } from '@mc/api';
+import { createDbHandle } from '@mc/db';
 import { ShiftableClock } from '@mc/shared/clock';
 import { afterAll, describe, expect, it, vi } from 'vitest';
 
@@ -51,6 +52,16 @@ describe('loadTestHooks', () => {
     const missing = pathToFileURL(join(scratch, 'test-hooks.mjs'));
     await expect(loadTestHooks(TEST, 'api-public', log, missing)).resolves.toBeUndefined();
     expect(log.warn).toHaveBeenCalledOnce();
+  });
+
+  it('api-admin with its admin context also gets the seed hooks; without it only the clock', async () => {
+    const db = createDbHandle({ uri: 'mongodb://hooks.invalid', database: 'x', process: 'script', local: true });
+    const admin = { db, pepper: Buffer.alloc(32), adminOrigin: 'https://admin.test' };
+    const withAdmin = await loadTestHooks(TEST, 'api-admin', logger(), SOURCE_MODULE, admin);
+    expect(withAdmin?.routes.map((r) => r.path)).toEqual(['/test/super-admin-invite', '/test/clock', '/test/clock']);
+    const without = await loadTestHooks(TEST, 'api-admin', logger(), SOURCE_MODULE);
+    expect(without?.routes.map((r) => r.path)).toEqual(['/test/clock', '/test/clock']);
+    await db.close();
   });
 
   it('requested and present → routes + a shiftable clock that the app serves', async () => {

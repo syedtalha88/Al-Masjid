@@ -24,8 +24,6 @@ const sentry = startServerSentry({
   environment: env.APP_ENV,
   process: 'api-admin',
 });
-// e2e hooks only for APP_ENV=local + NODE_ENV=test AND a runtime-test build (10 §3, DECISIONS #31).
-const hooks = await loadTestHooks(env, 'api-admin', logger);
 const connections = openApiConnections(
   {
     process: 'api-admin',
@@ -36,8 +34,14 @@ const connections = openApiConnections(
   },
   logger,
 );
-const clock = hooks?.clock ?? systemClock;
 const pepper = Buffer.from(env.SESSION_PEPPER, 'base64'); // validated: ≥ 32 bytes (env.ts)
+// e2e hooks only for APP_ENV=local + NODE_ENV=test AND a runtime-test build (10 §3, DECISIONS #31).
+const hooks = await loadTestHooks(env, 'api-admin', logger, undefined, {
+  db: connections.db,
+  pepper,
+  adminOrigin: env.ADMIN_ORIGIN,
+});
+const clock = hooks?.clock ?? systemClock;
 const { app } = createAdminApp({
   adminOrigin: env.ADMIN_ORIGIN,
   authenticate: sessionAuthenticator({ db: connections.db, pepper, clock }),
