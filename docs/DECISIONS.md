@@ -702,6 +702,21 @@ Semgrep matches member access through them (rule fixtures); `log-archive.sh` ski
 hourly run can never archive the one-time Super Admin invite link printed by `--bootstrap-super-admin` (host layer —
 ships with F36/F37); explain / IXSCAN tests are Phase 2 (first read-heavy public routes) — stated in the report.
 
+### #84 — Open follow-ups at the Phase 01 close: each closed or deferred with a trigger — ACCEPTED (Claude Code, 22 Oct 2026)
+The phase-verifier (22 Oct) listed follow-ups without a recorded deferral. Each now has one (PROGRESS keeps the rows):
+**F1** Node 26 — trigger date 28 Oct 2026 (Active LTS); first task of the first session after it (Phase 02).
+**F14** ICU precompile — only if `pnpm size` nears the 170 kB budget (165.4 kB today). **F16** haptics setting and
+**F21** back closes sheets — Phase 02, with the first Settings screen / the first screens that open sheets.
+**F24** Caddy from source — until an official Caddy release has the fixes (Trivy tells); the builder is re-pinned
+whenever Trivy flags its Go (done 22 Oct 2026: Go 1.27.3, CVE-2026-111943). **F27 closed**: the owner chose `swap`
+(15 Oct); 01 §9 gates warm loads by LCP only, warm TBT stays measured and printed (staging 20 Oct: app warm TBT
+146 ms); the real-device smoothness check is F20 (owner O16, Phase 02). **F28** Sentry — when the owner creates the
+projects (optional guide item 0.18). **F35** runner image — trigger: a 24.04 image with kernel ≥ 7.0.14, at the latest
+before `ubuntu-22.04` is retired. **F36 / F37 / F40** — host-layer changes; they need one `provision.sh host <sha>` +
+`make-env.sh staging --force` by the owner (PROGRESS O22, together with the L-5 RANDOMKEY ACL line). Until then the
+staging API Redis users can still run SCAN / RANDOMKEY: Redis is reachable only on the internal Docker network, the
+users are the APIs' own, and rate-limit keys are hashed, so key names reveal no client. **F39** — Phase 03.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (20 Oct 2026)._
