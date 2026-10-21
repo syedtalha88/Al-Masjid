@@ -30,6 +30,32 @@ describe('safeText (04 §6)', () => {
     }
   });
 
+  it('refuses every other invisible character by category: separators, word joiner, tags, private use, surrogates (review L-3)', () => {
+    for (const bad of [
+      'Test\u2028Name',
+      'Test\u2029Name',
+      'Test\u2060Name',
+      'Test\u00ADName',
+      'Test\u{E0001}\u{E0041}Name',
+      'Test\uE000Name',
+      'Test\uD800Name',
+      'Test\u{F0000}Name',
+    ]) {
+      expect(name.safeParse(bad).success, JSON.stringify(bad)).toBe(false);
+      expect(hasUnsafeCharacters(bad, true), JSON.stringify(bad)).toBe(true);
+    }
+  });
+
+  it('keeps the Arabic letter mark ALM (U+061C) for Urdu (review L-3)', () => {
+    expect(name.parse('ٹیسٹ\u061Cنام')).toBe('ٹیسٹ\u061Cنام');
+  });
+
+  it('refuses raw input over 4 × max before normalizing it; OpenAPI shows the real limits (review L-4)', () => {
+    expect(name.safeParse(`${' '.repeat(240)}x`).success).toBe(false);
+    expect(name.parse(`${' '.repeat(200)}x`)).toBe('x');
+    expect(name.meta()).toMatchObject({ minLength: 1, maxLength: 60 });
+  });
+
   it('keeps what Indian scripts need: ZWJ / ZWNJ and the LRM / RLM marks', () => {
     for (const ok of [
       'ट\u0947स\u094Dट\u200Dनाम',

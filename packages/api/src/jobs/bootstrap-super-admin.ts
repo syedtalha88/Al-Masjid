@@ -3,8 +3,11 @@
 // peppered hash) and sits in the URL fragment, so it never reaches a server log or a Referer header.
 import { type DbHandle, systemScope } from '@mc/db';
 import { bootstrapSuperAdmin } from '@mc/db/state';
+import { safeText } from '@mc/shared/contracts';
 
 import { hashToken, newToken } from '../crypto/field.ts';
+
+const SUPER_ADMIN_NAME = safeText(80, { min: 1 });
 
 export interface BootstrapOptions {
   readonly displayName: string;
@@ -20,7 +23,7 @@ export const BOOTSTRAP_USAGE =
 /**
  * Parses the CLI arguments.
  *
- * @returns the options, or an error message (unknown flag, missing or too long name, bad locale).
+ * @returns the options, or an error message (unknown flag, missing name, name `safeText` refuses, bad locale).
  */
 export function parseBootstrapArgs(argv: readonly string[]): BootstrapOptions | { error: string } {
   let displayName: string | undefined;
@@ -37,8 +40,9 @@ export function parseBootstrapArgs(argv: readonly string[]): BootstrapOptions | 
     } else return { error: `unknown argument ${String(arg)}` };
   }
   if (!displayName) return { error: '--name is required' };
-  if (displayName.length > 80) return { error: '--name is longer than 80 characters' };
-  return { displayName, uiLocale, force };
+  const name = SUPER_ADMIN_NAME.safeParse(displayName); // the same rule as a name typed in the app (review L-3)
+  if (!name.success) return { error: '--name must be 1–80 characters without control or invisible characters' };
+  return { displayName: name.data, uiLocale, force };
 }
 
 /**

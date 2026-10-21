@@ -594,13 +594,19 @@
                 "type": "object",
                 "properties": {
                   "hi": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 120
                   },
                   "ur": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 120
                   },
                   "te": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 120
                   }
                 },
                 "additionalProperties": false
@@ -1227,7 +1233,9 @@
                 "type": "object",
                 "properties": {
                   "label": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
                   }
                 },
                 "required": [
@@ -1392,7 +1400,9 @@
                     ]
                   },
                   "label": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
                   }
                 },
                 "required": [
@@ -1719,34 +1729,50 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
                   },
                   "nameI18n": {
                     "type": "object",
                     "properties": {
                       "hi": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 120
                       },
                       "ur": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 120
                       },
                       "te": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 120
                       }
                     },
                     "additionalProperties": false
                   },
                   "area": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 80
                   },
                   "city": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
                   },
                   "state": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
                   },
                   "address": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 300
                   },
                   "lat": {
                     "type": "number",
@@ -1892,34 +1918,50 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
                   },
                   "nameI18n": {
                     "type": "object",
                     "properties": {
                       "hi": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 120
                       },
                       "ur": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 120
                       },
                       "te": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 120
                       }
                     },
                     "additionalProperties": false
                   },
                   "area": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 80
                   },
                   "city": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
                   },
                   "state": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
                   },
                   "address": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 300
                   },
                   "lat": {
                     "type": "number",
@@ -2028,7 +2070,9 @@
                 "type": "object",
                 "properties": {
                   "reason": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 300
                   }
                 }
               }
@@ -2142,7 +2186,9 @@
                 "type": "object",
                 "properties": {
                   "reason": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 300
                   }
                 },
                 "required": [
@@ -2184,7 +2230,9 @@
                 "type": "object",
                 "properties": {
                   "reason": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 300
                   }
                 },
                 "required": [
@@ -2215,7 +2263,9 @@
                 "type": "object",
                 "properties": {
                   "displayName": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
                   },
                   "phone": {
                     "type": "string",
@@ -2556,7 +2606,9 @@
                     "type": "object",
                     "properties": {
                       "name": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
                       },
                       "email": {
                         "type": "string",
@@ -2564,10 +2616,14 @@
                         "format": "email"
                       },
                       "address": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
                       },
                       "city": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
                       }
                     },
                     "required": [
@@ -2579,13 +2635,19 @@
                     "additionalProperties": false
                   },
                   "undertakingVersion": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
                   },
                   "privacyVersion": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
                   },
                   "termsVersion": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
                   }
                 }
               }

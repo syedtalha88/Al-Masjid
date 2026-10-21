@@ -40,7 +40,10 @@ describe('parseBootstrapArgs', () => {
     });
     expect(parseBootstrapArgs([])).toEqual({ error: '--name is required' });
     expect(parseBootstrapArgs(['--name'])).toEqual({ error: '--name is required' });
-    expect(parseBootstrapArgs(['--name', 'x'.repeat(81)])).toEqual({ error: '--name is longer than 80 characters' });
+    const badName = { error: '--name must be 1–80 characters without control or invisible characters' };
+    expect(parseBootstrapArgs(['--name', 'x'.repeat(81)])).toEqual(badName);
+    expect(parseBootstrapArgs(['--name', 'Test \u202EOwner'])).toEqual(badName); // review L-3
+    expect(parseBootstrapArgs(['--name', 'Cafe\u0301 Owner'])).toMatchObject({ displayName: 'Café Owner' });
     expect(parseBootstrapArgs(['--name', 'A', '--locale', 'fr'])).toEqual({ error: 'bad --locale' });
     expect(parseBootstrapArgs(['--name', 'A', '--yes'])).toEqual({ error: 'unknown argument --yes' });
   });
