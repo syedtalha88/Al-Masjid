@@ -5,9 +5,9 @@
 //   pnpm check:image mc-server:test --expect-hooks   (e2e image → hooks present)
 import { spawnSync } from 'node:child_process';
 
-const MARKER = 'mc-test-hooks-module';
-/** Every hook route path (security review L1): a hook moved out of the marker module would still be found. */
-const HOOK_PATHS = ['/test/clock', '/test/super-admin-invite', '/test/rate-limits'];
+// The marker or any quoted hook route path, in any quote style (security review L1 / M-A) — one source of truth.
+import { HOOK_CODE_SOURCE } from '../apps/server/scripts/hook-code.mjs';
+
 const args = process.argv.slice(2);
 const expectHooks = args.includes('--expect-hooks');
 const image = args.find((arg) => !arg.startsWith('--'));
@@ -20,8 +20,8 @@ if (!image) {
 const probe = `
 const fs = require('node:fs');
 const files = fs.readdirSync('/app/dist');
-const needles = [${JSON.stringify(MARKER)}, ...${JSON.stringify(HOOK_PATHS)}.map((path) => "'" + path + "'")];
-const withMarker = files.filter((file) => file.endsWith('.mjs') && needles.some((needle) => fs.readFileSync('/app/dist/' + file, 'utf8').includes(needle)));
+const hookCode = new RegExp(${JSON.stringify(HOOK_CODE_SOURCE)});
+const withMarker = files.filter((file) => file.endsWith('.mjs') && hookCode.test(fs.readFileSync('/app/dist/' + file, 'utf8')));
 const extraDirs = fs.readdirSync('/app').filter((name) => name.startsWith('dist') && name !== 'dist');
 console.log(JSON.stringify({ hookFile: files.includes('test-hooks.mjs'), withMarker, extraDirs }));
 `;
