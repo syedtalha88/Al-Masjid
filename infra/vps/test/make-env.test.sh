@@ -26,6 +26,7 @@ check "staging: marked placeholders + Turnstile test secret" \
   'val "$root/staging/api-public.env" MONGODB_URI_PUBLIC | grep -q NOT-SET && [ "$(val "$root/staging/api-public.env" TURNSTILE_SECRET)" = 1x0000000000000000000000000000000AA ]'
 check "staging: Redis ACL passwords match the URLs" \
   'grep -q ">$(val "$root/staging/worker.env" REDIS_URL_WORKER | sed -E "s#redis://worker:([^@]+)@.*#\1#") " "$root/staging/redis-users.acl"'
+check "staging: API Redis users have neither SCAN nor RANDOMKEY (review L6, L-5)"   '[ "$(grep -cE "^user (rl_public|admin) .* -scan -randomkey$" "$root/staging/redis-users.acl")" -eq 2 ]'
 check "staging: no secret printed (only the public VAPID key and origins)" \
   '! grep -qF "$(val "$root/staging/worker.env" VAPID_PRIVATE_KEY)" "$root/out" && ! grep -qF "$(val "$root/staging/api-admin.env" SESSION_PEPPER)" "$root/out"'
 

@@ -154,13 +154,13 @@ write web.env "web / Caddy ($ENVIRONMENT)" "$web"
 write redis.env "redis healthcheck ($ENVIRONMENT)" "REDIS_HEALTH_PASSWORD=$redis_health"
 
 # Same ACL as local development (scripts/setup-local.mjs) without the test user: default user off, one user per
-# process, dangerous/admin commands off (INFO re-allowed for ioredis/BullMQ), `health` may only PING. SCAN is off for
-# the APIs (ACL key patterns do not filter SCAN results — security review L6); the worker keeps it for BullMQ.
+# process, dangerous/admin commands off (INFO re-allowed for ioredis/BullMQ), `health` may only PING. SCAN and RANDOMKEY
+# are off for the APIs (ACL key patterns filter neither — security review L6, L-5); the worker keeps SCAN for BullMQ.
 safe='+@all -@dangerous -@admin +info'
 cat >"$DIR/redis-users.acl.new" <<EOF
 user default off
-user rl_public on >$redis_public resetchannels ~rl:pub:* $safe -scan
-user admin on >$redis_admin resetchannels ~rl:adm:* ~chal:* ~bull:* &bull:* $safe -scan
+user rl_public on >$redis_public resetchannels ~rl:pub:* $safe -scan -randomkey
+user admin on >$redis_admin resetchannels ~rl:adm:* ~chal:* ~bull:* &bull:* $safe -scan -randomkey
 user worker on >$redis_worker resetchannels ~bull:* ~push:* ~alert:* &bull:* $safe
 user health on >$redis_health resetkeys resetchannels -@all +ping
 EOF

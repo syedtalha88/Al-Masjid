@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { createPublicApp } from '../src/app.ts';
 import { defineRoute } from '../src/http/define-route.ts';
-import { memoryRateLimiter, RATE_LIMITS, type RateLimiter } from '../src/http/rate-limit.ts';
+import { memoryRateLimiter, RATE_LIMITS, type RateLimiter, WIDE_BUCKET_FACTOR } from '../src/http/rate-limit.ts';
 import { silentLogger } from './helpers.ts';
 
 // PHASE_01 T1.6: 03 §2 buckets, 429 + Retry-After, keys per client, fail-closed wiring, validation without echo.
@@ -85,6 +85,49 @@ describe('rate limits (03 §2)', () => {
     for (const suffix of ['1', '2', 'abcd:1']) expect((await from(`2001:db8:5:6::${suffix}`)).status).toBe(200);
     expect((await from('2001:db8:5:6:ffff::9')).status).toBe(429);
     expect((await from('2001:db8:5:7::1')).status).toBe(200); // another /64
+  });
+
+  const behindCloudflare = (limiter: RateLimiter) => {
+    const app = createPublicApp({
+      logger: silentLogger(),
+      release: 't',
+      trustedProxyMode: 'cloudflare',
+      routes: [ping],
+      rateLimiter: limiter,
+    }).app;
+    return (ip?: string) => {
+      const call = request(app).post('/api/v1/ping').set('Content-Type', 'application/json');
+      return (ip === undefined ? call : call.set('CF-Connecting-IP', ip)).send(JSON.stringify({ name: 'a' }));
+    };
+  };
+
+  it(`rotating /64s inside one /48 hits the wide bucket at ${String(WIDE_BUCKET_FACTOR)}× the limit (review L-2)`, async () => {
+    const from = behindCloudflare(memoryRateLimiter({ codeResolve: { points: 2, durationSec: 60 } }));
+    const wide = 2 * WIDE_BUCKET_FACTOR;
+    for (let i = 0; i < wide; i += 1) expect((await from(`2001:db8:9:${i.toString(16)}::1`)).status).toBe(200);
+    expect((await from('2001:db8:9:ff::1')).status).toBe(429);
+    expect((await from('2001:db8:a:0::1')).status).toBe(200); // another /48
+    expect((await from('203.0.113.9')).status).toBe(200); // IPv4 has no wide key
+  });
+
+  it('a request without a usable client IP still counts — under one shared key (review L-1)', async () => {
+    const from = behindCloudflare(memoryRateLimiter({ codeResolve: { points: 2, durationSec: 60 } }));
+    expect((await from()).status).toBe(200);
+    expect((await from('not-an-ip')).status).toBe(200);
+    expect((await from()).status).toBe(429);
+  });
+
+  it('marks only the first refusal of a window (review L-7: one capped audit entry)', async () => {
+    const limiter = memoryRateLimiter({ adminLoginCredential: { points: 2, durationSec: 3600 } });
+    const decisions = [];
+    for (let i = 0; i < 5; i += 1) decisions.push(await limiter.consume('adminLoginCredential', 'cred-1'));
+    expect(decisions.map((d) => (d.allowed ? 'ok' : d.firstRefusal ? 'first' : 'later'))).toEqual([
+      'ok',
+      'ok',
+      'first',
+      'later',
+      'later',
+    ]);
   });
 
   it('the IP rule still counts requests that carry no device id', async () => {

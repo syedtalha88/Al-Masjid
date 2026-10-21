@@ -94,6 +94,9 @@ describe('Redis ACL users (04 §12.2): each process only reaches its own key pre
       await expect(client.call('FLUSHALL')).rejects.toThrow(/NOPERM/);
       await expect(client.call('CONFIG', 'GET', 'requirepass')).rejects.toThrow(/NOPERM/);
       await expect(client.call('KEYS', '*')).rejects.toThrow(/NOPERM/);
+      if (user.env !== 'REDIS_URL_TEST_WORKER') {
+        await expect(client.call('RANDOMKEY')).rejects.toThrow(/NOPERM/); // review L-5
+      }
     });
   }
 

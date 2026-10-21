@@ -1,7 +1,7 @@
 import type { Request } from 'express';
 import { describe, expect, it } from 'vitest';
 
-import { clientIp, rateLimitIpKey } from '../src/http/client-ip.ts';
+import { clientIp, rateLimitIpKey, rateLimitWideIpKey, UNPARSABLE_IP_KEY } from '../src/http/client-ip.ts';
 import { toOpenApiPath } from '../src/http/define-route.ts';
 import { ApiProblem, problemBody } from '../src/http/problem.ts';
 import { findUnsafeKey } from '../src/http/unsafe-keys.ts';
@@ -33,6 +33,28 @@ describe('rateLimitIpKey (review M1: IPv6 counts by /64)', () => {
   it('IPv4-mapped IPv6 counts as the IPv4 address; embedded IPv4 in other prefixes stays IPv6', () => {
     expect(rateLimitIpKey('::ffff:203.0.113.7')).toBe('203.0.113.7');
     expect(rateLimitIpKey('64:ff9b::203.0.113.7')).toBe('64:ff9b:0:0::/64');
+  });
+
+  it('drops IPv6 zone ids; reads an embedded IPv4 only after a colon (review L-1)', () => {
+    expect(rateLimitIpKey('fe80::1%eth0')).toBe('fe80:0:0:0::/64');
+    expect(rateLimitIpKey('fe80::1%25')).toBe(rateLimitIpKey('fe80::2'));
+    expect(rateLimitIpKey('1:2:3:4:5:6:1.2.3.4')).toBe('1:2:3:4::/64');
+    expect(rateLimitIpKey('::1.2.3.4')).toBe('0:0:0:0::/64');
+  });
+
+  it('an IPv6 text we cannot read counts under one shared key, never per address (review L-1)', () => {
+    for (const ip of ['1::2::3', 'gggg::1', '1:2:3:4:5:6:7:8:9', '12345::1']) {
+      expect(rateLimitIpKey(ip), ip).toBe(UNPARSABLE_IP_KEY);
+    }
+    expect(rateLimitIpKey('203.0.113.7')).toBe('203.0.113.7');
+  });
+
+  it('IPv6 clients also count by their /48; IPv4 and mapped IPv4 have no wide key (review L-2)', () => {
+    expect(rateLimitWideIpKey('2001:db8:1:2::1')).toBe('2001:db8:1::/48');
+    expect(rateLimitWideIpKey('2001:db8:1:ffff::1')).toBe('2001:db8:1::/48');
+    expect(rateLimitWideIpKey('2001:db8:2::1')).toBe('2001:db8:2::/48');
+    expect(rateLimitWideIpKey('203.0.113.7')).toBeNull();
+    expect(rateLimitWideIpKey('::ffff:203.0.113.7')).toBeNull();
   });
 });
 

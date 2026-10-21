@@ -17,41 +17,69 @@ export function clientIp(req: Request, mode: TrustedProxyMode): string | null {
   return candidate !== undefined && isIP(candidate) !== 0 ? candidate : null;
 }
 
-/** Expands an IPv6 address into its eight 16-bit groups (embedded IPv4 allowed), or `null`. */
+/**
+ * Expands an IPv6 address into its eight 16-bit groups, or `null`. A zone id (`%eth0`) is dropped; an embedded IPv4
+ * tail is only read after a `:` (review L-1).
+ */
 function ipv6Groups(ip: string): number[] | null {
-  let text = ip.toLowerCase();
-  const v4 = /(\d+)\.(\d+)\.(\d+)\.(\d+)$/.exec(text);
+  let text = (ip.split('%')[0] ?? '').toLowerCase();
+  const v4 = /:(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(text);
   if (v4) {
     const [a, b, c, d] = v4.slice(1).map(Number) as [number, number, number, number];
-    text = `${text.slice(0, v4.index)}${((a << 8) | b).toString(16)}:${((c << 8) | d).toString(16)}`;
+    if ([a, b, c, d].some((octet) => octet > 255)) return null;
+    text = `${text.slice(0, v4.index + 1)}${((a << 8) | b).toString(16)}:${((c << 8) | d).toString(16)}`;
   }
   const halves = text.split('::');
   if (halves.length > 2) return null;
-  const part = (s: string | undefined) => (s ? s.split(':').map((g) => Number.parseInt(g, 16)) : []);
+  const part = (s: string | undefined) =>
+    s ? s.split(':').map((g) => (/^[0-9a-f]{1,4}$/.test(g) ? Number.parseInt(g, 16) : Number.NaN)) : [];
   const head = part(halves[0]);
   const tail = part(halves[1]);
   const fill = halves.length === 2 ? 8 - head.length - tail.length : 0;
+  if (fill < 0) return null;
   const groups = [...head, ...Array.from({ length: fill }, () => 0), ...tail];
   return groups.length === 8 && groups.every((g) => Number.isInteger(g) && g >= 0 && g <= 0xffff) ? groups : null;
 }
 
+/** The one key every address we cannot read counts under — never a per-address key (review L-1). */
+export const UNPARSABLE_IP_KEY = 'ipv6:unparsable';
+
+const isMappedV4 = (groups: readonly number[]) => groups.slice(0, 5).every((g) => g === 0) && groups[5] === 0xffff;
+
+const prefixKey = (groups: readonly number[], bits: 48 | 64) =>
+  `${groups
+    .slice(0, bits / 16)
+    .map((g) => g.toString(16))
+    .join(':')}::/${String(bits)}`;
+
 /**
  * The key an IP counts under in the `ip` rate-limit buckets (security review M1, 20 Oct 2026): IPv4 as is; IPv6 by its
  * /64 — one connection (home, phone, VPS) usually holds a whole /64, so per-address keys could be rotated around
- * the limit at will. IPv4-mapped IPv6 (`::ffff:a.b.c.d`) counts as the IPv4 address.
+ * the limit at will. IPv4-mapped IPv6 (`::ffff:a.b.c.d`) counts as the IPv4 address; anything we cannot read counts
+ * under {@link UNPARSABLE_IP_KEY}.
  *
  * @param ip - a valid IP (from {@link clientIp}).
  */
 export function rateLimitIpKey(ip: string): string {
-  if (isIP(ip) !== 6) return ip;
-  const groups = ipv6Groups(ip);
-  if (!groups) return ip;
-  if (groups.slice(0, 5).every((g) => g === 0) && groups[5] === 0xffff) {
+  const version = isIP(ip);
+  if (version === 4) return ip;
+  const groups = version === 6 ? ipv6Groups(ip) : null;
+  if (!groups) return UNPARSABLE_IP_KEY;
+  if (isMappedV4(groups)) {
     const [hi = 0, lo = 0] = groups.slice(6);
     return [hi >> 8, hi & 0xff, lo >> 8, lo & 0xff].join('.');
   }
-  return `${groups
-    .slice(0, 4)
-    .map((g) => g.toString(16))
-    .join(':')}::/64`;
+  return prefixKey(groups, 64);
+}
+
+/**
+ * The wider key an IPv6 client also counts under (review L-2): its /48, a typical site allocation that holds 65 536
+ * /64s. `null` for IPv4, IPv4-mapped and unreadable addresses (those already count under one narrow key).
+ *
+ * @param ip - a valid IP (from {@link clientIp}).
+ */
+export function rateLimitWideIpKey(ip: string): string | null {
+  if (isIP(ip) !== 6) return null;
+  const groups = ipv6Groups(ip);
+  return groups && !isMappedV4(groups) ? prefixKey(groups, 48) : null;
 }
