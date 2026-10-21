@@ -6,13 +6,13 @@
 
 ARG CADDY_IMAGE=caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f
 ARG NODE_IMAGE=node:24.21.0-trixie-slim@sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66
-ARG CADDY_BUILDER_IMAGE=caddy:2.11.7-builder-alpine@sha256:d6161a2c82fd58b3205048958fb6246d0c5d892beee8a47e90944610c4efd100
+ARG CADDY_BUILDER_IMAGE=caddy:2.11.7-builder-alpine@sha256:d718a1d1431403c4a46698f33ad1c0f9dd5dd7fe2bae654d1027d275b6fb5fd7
 
 # ---------------------------------------------------------------------------------------------------
 # Caddy 2.11.7 compiled from source (DECISIONS #49): the official 2.11.7 binary is built with Go 1.26.8 and
 # golang.org/x/net 0.59.0, which carry HIGH HTTP/2 + Range-header DoS CVEs (Trivy, 14 Oct 2026). The builder
-# image ships Go 1.27.2; x/net is raised to the fixed 0.60.0. Back to the official binary once a Caddy release
-# includes the fixes (PROGRESS F24).
+# image ships Go 1.27.3 (re-pinned 22 Oct 2026: Go 1.27.2 has CVE-2026-111943, crypto/x509); x/net is raised to the
+# fixed 0.60.0. Back to the official binary once a Caddy release includes the fixes (PROGRESS F24).
 FROM ${CADDY_BUILDER_IMAGE} AS caddy-build
 RUN xcaddy build v2.11.7 \
       --output /usr/bin/caddy \
