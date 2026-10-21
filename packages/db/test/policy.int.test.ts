@@ -88,6 +88,7 @@ function docFor(namespace: Namespace, scope: Scope, contentId: UUID): Record<str
     masjid_id: masjid,
     device_id: scope.kind === 'device' ? scope.deviceId : new UUID(),
     admin_id: scope.kind === 'admin' || scope.kind === 'super' ? scope.adminId : new UUID(),
+    actor_id: scope.kind === 'admin' || scope.kind === 'super' ? scope.adminId : new UUID(),
     status: 'verified',
     system: false,
   };
@@ -127,12 +128,12 @@ afterAll(async () => {
 
 describe('policy matrix (02 §4.1): every cell, allowed and denied', () => {
   let tested = 0;
+  let skipped = 0;
   for (const { name, scope, column } of SCOPES) {
     it(`${name}: every namespace × operation`, async () => {
       const wrong: string[] = [];
       for (const namespace of NAMESPACES) {
         for (const operation of OPERATIONS) {
-          tested += 1;
           const isView = namespace.startsWith('v_');
           const expected =
             scope.kind === 'system'
@@ -141,8 +142,10 @@ describe('policy matrix (02 §4.1): every cell, allowed and denied', () => {
           if (scope.kind === 'system' && (namespace === '_migrations' || (isView && operation !== 'find'))) {
             // The system scope has every policy cell; MongoDB itself refuses view writes and mc_system has no
             // _migrations privileges (02 §4.3) — skip what the database layer, not the policy, decides.
+            skipped += 1;
             continue;
           }
+          tested += 1;
           const got = await attempt(namespace, scope, operation);
           if ((got === 'allowed') !== expected) wrong.push(`${namespace}.${operation}: ${got}`);
         }
@@ -150,9 +153,11 @@ describe('policy matrix (02 §4.1): every cell, allowed and denied', () => {
       expect(wrong).toEqual([]);
     });
   }
-  it('the generated checklist covered 41 namespaces × 6 scopes × 4 operations', () => {
+  it('the generated checklist covered 41 namespaces × 6 scopes × 4 operations (minus what MongoDB decides)', () => {
     expect(NAMESPACES).toHaveLength(41);
-    expect(tested).toBe(41 * 6 * 4);
+    // System scope: _migrations × 4 and 11 views × 3 write operations are left to MongoDB / the DB users.
+    expect(skipped).toBe(4 + 11 * 3);
+    expect(tested).toBe(41 * 6 * 4 - skipped); // only cells really attempted are counted (phase-verifier nit)
   });
 });
 
@@ -207,6 +212,66 @@ describe('tenant isolation', () => {
     const timings = scoped({ scope: adminOfD, db: db(), contentMasjidId: masjidC }, 'masjid_timings');
     expect(await timings.deleteOne({ _id: masjidC })).toBe(0);
     expect(await db().collection('items').countDocuments({ title: 'pwned' })).toBe(0);
+  });
+
+  it('an admin of another masjid reads none of C’s admins, stats, ameen counters, follow audience or push subscriptions', async () => {
+    const duaOfC = new UUID();
+    await raw('admin_users').insertOne({ _id: ownerOfC.adminId, display_name: 'Test Owner C' });
+    await raw('masjid_admins').insertOne({ _id: new UUID(), masjid_id: masjidC, admin_id: ownerOfC.adminId });
+    await raw('masjid_stats').insertOne({ _id: masjidC, followers: 3 });
+    await raw('items').insertOne({ _id: duaOfC, masjid_id: masjidC, type: 'dua_request', title: 'Test dua' });
+    await raw('ameen_counters').insertOne({ _id: duaOfC, count: 2 });
+    await raw('device_follows').insertOne({ _id: new UUID(), device_id: new UUID(), masjid_id: masjidC, muted: false });
+    await raw('admin_push_subscriptions').insertOne({ _id: new UUID(), admin_id: ownerOfC.adminId });
+    const asD = (namespace: Namespace) => scoped({ scope: adminOfD, db: db() }, namespace);
+    const asC = (namespace: Namespace) => scoped({ scope: ownerOfC, db: db() }, namespace);
+    const probes: [Namespace, Record<string, unknown>][] = [
+      ['admin_users', { _id: ownerOfC.adminId }],
+      ['masjid_stats', { _id: masjidC }],
+      ['ameen_counters', { _id: duaOfC }],
+      ['v_admin_follow_audience', { masjid_id: masjidC }],
+      ['admin_push_subscriptions', { admin_id: ownerOfC.adminId }],
+    ];
+    for (const [namespace, filter] of probes) {
+      expect(await asD(namespace).count(filter), `${namespace} leaks to admin of D`).toBe(0);
+      expect(await asD(namespace).count({}), `${namespace} leaks to admin of D (no filter)`).toBe(0);
+      expect(await asC(namespace).count(filter), `${namespace} visible to its owner`).toBe(1);
+    }
+    expect(await asD('admin_push_subscriptions').deleteOne({ admin_id: ownerOfC.adminId })).toBe(0);
+  });
+
+  it('an admin of another masjid writes nothing of C: timings, chanda, campaign history, audit entries, masjid', async () => {
+    const asD = (namespace: Namespace) => scoped({ scope: adminOfD, db: db(), contentMasjidId: masjidC }, namespace);
+    for (const namespace of ['special_timings', 'chanda_weeks', 'campaign_amount_history'] as const) {
+      await expect(
+        asD(namespace).insertOne({ _id: new UUID(), masjid_id: masjidC, type: 'x' }),
+        namespace,
+      ).rejects.toBeInstanceOf(PolicyDeniedError);
+    }
+    for (const namespace of ['special_timings', 'chanda_weeks'] as const) {
+      expect(await asD(namespace).updateMany({}, { $set: { note: 'pwned' } }), namespace).toBe(0);
+    }
+    expect(await asD('special_timings').deleteOne({ masjid_id: masjidC })).toBe(0);
+    expect(await asD('masjids').updateOne({ _id: masjidC }, { $set: { show_chanda: true } })).toBe(0);
+    // Audit entries: the admin as actor and one of their masjids or none — never planted in C's audit view.
+    const audit = scoped({ scope: adminOfD, db: db() }, 'audit_log');
+    const entry = (extra: Record<string, unknown>) => ({
+      _id: new UUID(),
+      at: new Date(),
+      action: 'auth.logout',
+      ...extra,
+    });
+    await expect(audit.insertOne(entry({ actor_id: adminOfD.adminId, masjid_id: masjidC }))).rejects.toBeInstanceOf(
+      PolicyDeniedError,
+    );
+    await expect(audit.insertOne(entry({ actor_id: ownerOfC.adminId }))).rejects.toBeInstanceOf(PolicyDeniedError);
+    await audit.insertOne(entry({ actor_id: adminOfD.adminId }));
+    await audit.insertOne(entry({ actor_id: adminOfD.adminId, masjid_id: adminOfD.masjids[0]?.id }));
+    for (const namespace of ['special_timings', 'chanda_weeks', 'masjids'] as const) {
+      expect(await raw(namespace).countDocuments({ $or: [{ note: 'pwned' }, { show_chanda: true }] }), namespace).toBe(
+        0,
+      );
+    }
   });
 
   it('an admin without memberships (e.g. all removed) sees no masjid data', async () => {

@@ -45,7 +45,10 @@ const same = (a: unknown, b: unknown): boolean => {
   return a === b;
 };
 
-/** Whether a document satisfies a tenant filter (top-level equality and `$in` — the only shapes cells produce). */
+/**
+ * Whether a document satisfies a tenant filter (top-level equality and `$in` — the only shapes cells produce). As in
+ * MongoDB, `null` inside `$in` also matches a missing field.
+ */
 export function matchesTenant(doc: Document, filter: Filter<Document>): boolean {
   return Object.entries(filter).every(([field, condition]) => {
     if (field === '$and' && Array.isArray(condition)) {
@@ -53,7 +56,9 @@ export function matchesTenant(doc: Document, filter: Filter<Document>): boolean 
     }
     const value: unknown = doc[field];
     if (isPlain(condition) && '$in' in condition && Array.isArray(condition['$in'])) {
-      return (condition['$in'] as unknown[]).some((candidate) => same(value, candidate));
+      return (condition['$in'] as unknown[]).some((candidate) =>
+        candidate === null ? value === undefined || value === null : same(value, candidate),
+      );
     }
     return same(value, condition);
   });

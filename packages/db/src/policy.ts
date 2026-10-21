@@ -77,6 +77,11 @@ const ownItemCounters = async (ctx: PolicyContext) => {
   return { _id: { $in: items.map((item) => item._id) } };
 };
 const sessionOf = (ctx: PolicyContext) => (ctx.session ? { session: ctx.session } : {});
+/** Admin audit entries: actor = the admin, masjid = one of theirs or none (`null` in `$in` matches a missing field). */
+const ownAuditEntry = (ctx: PolicyContext) => ({
+  ...selfAdmin('actor_id')(ctx),
+  masjid_id: { $in: [...adminMasjids(ctx), null] },
+});
 
 const S: Cell = {};
 const all = (writable?: readonly string[]): Partial<Record<Operation, Cell>> => ({
@@ -338,7 +343,9 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
   },
   audit_log: {
     device: { insert: S },
-    admin: { find: { filter: own('masjid_id') }, insert: S },
+    // An admin's entry names the admin as actor and one of their masjids or none (phase-verifier 22 Oct 2026): no
+    // entries planted in another masjid's audit view.
+    admin: { find: { filter: own('masjid_id') }, insert: { filter: ownAuditEntry } },
     super: { find: S, insert: S },
   },
   app_settings: {
