@@ -318,6 +318,30 @@ describe('fields', () => {
       }
     }
     expect(await raw('items').findOne({ _id: removedId })).toMatchObject({ status: 'removed' });
+    // An upsert may insert: equality fields of its filter seed the new document, so it must pass the insert rules
+    // (review M-B) — no removed / purge-marked item, nothing outside the tenant.
+    for (const filter of [
+      { _id: new UUID(), masjid_id: masjidA, status: 'removed' },
+      { _id: new UUID(), masjid_id: masjidA, purge_after: new Date() },
+      { _id: new UUID(), masjid_id: masjidA, $and: [{ status: { $eq: 'removed' } }] },
+      { _id: new UUID(), masjid_id: new UUID() }, // another masjid
+    ]) {
+      await expect(
+        asAdmin.updateOne(filter, { $set: { title: 'Test' } }, { upsert: true }),
+        JSON.stringify(Object.keys(filter)),
+      ).rejects.toBeInstanceOf(PolicyDeniedError);
+    }
+    // A legitimate upsert (Super scope; an admin's own-masjid fence + contentWrite() masjid seed masjid_id twice, which
+    // MongoDB itself refuses — admin repositories insert instead).
+    const upserted = new UUID();
+    expect(
+      await asSuper.updateOne(
+        { _id: upserted }, // masjid_id comes from the contentWrite() fence
+        { $set: { title: 'Test upsert', status: 'draft' } },
+        { upsert: true },
+      ),
+    ).toBe(1);
+    expect(await raw('items').findOne({ _id: upserted })).toMatchObject({ status: 'draft', masjid_id: masjidA });
     expect(await asAdmin.updateOne({ _id: liveId }, { $set: { status: 'deleted', deleted_at: new Date() } })).toBe(1);
   });
 });

@@ -88,6 +88,42 @@ function assertWritable(cell: Cell, namespace: string, scope: string, update: Up
   if (refused) throw new PolicyDeniedError(namespace, 'update', scope, refused);
 }
 
+/**
+ * The document an upsert would insert: MongoDB seeds it from the equality conditions of the FULL query — the caller's
+ * filter and the tenant fence, also inside `$and` — plus `$setOnInsert` / `$set` (security review M-B). Operator
+ * conditions (`$ne`, …) seed nothing; `$eq` and a one-value `$in` do (as in MongoDB — so an admin's own-masjid fence
+ * plus the contentWrite() masjid already seed `masjid_id` twice, and MongoDB refuses such upserts itself).
+ *
+ * @returns the seed, or `null` when a field is seeded twice (MongoDB refuses that upsert; the caller must not repeat a
+ *   fenced field such as `masjid_id`).
+ */
+function upsertSeed(query: QueryFilter, update: UpdateFilter<Document>): Document | null {
+  const seed: Document = {};
+  const state = { conflict: false };
+  const put = (field: string, value: unknown) => {
+    if (field in seed) state.conflict = true;
+    seed[field] = value;
+  };
+  const take = (part: Readonly<Record<string, unknown>>) => {
+    for (const [field, condition] of Object.entries(part)) {
+      if (field === '$and' && Array.isArray(condition)) {
+        for (const inner of condition) if (isPlain(inner)) take(inner);
+      } else if (!field.startsWith('$')) {
+        if (!isPlain(condition)) put(field, condition);
+        else if ('$eq' in condition) put(field, condition['$eq']);
+        else if (Array.isArray(condition['$in']) && condition['$in'].length === 1) put(field, condition['$in'][0]);
+        else if (!Object.keys(condition).some((key) => key.startsWith('$'))) put(field, condition);
+      }
+    }
+  };
+  take(query);
+  for (const operator of ['$setOnInsert', '$set'] as const) {
+    const fields: unknown = update[operator];
+    if (isPlain(fields)) for (const [field, value] of Object.entries(fields)) put(field, value);
+  }
+  return state.conflict ? null : seed;
+}
+
 /** A filter built by a repository from typed values (UUID ids included); the tenant filter is ANDed in. */
 export type QueryFilter = Readonly<Record<string, unknown>>;
 
@@ -177,6 +213,16 @@ export function scoped(ctx: PolicyContext, namespace: Namespace): ScopedCollecti
     async updateOne(filter, update, options = {}) {
       const c = cell('update');
       assertWritable(c, namespace, ctx.scope.kind, update);
+      if (options.upsert) {
+        // An upsert may INSERT: the new document must pass the insert cell too — tenant and value rules (review M-B).
+        const insertCell = cell('insert');
+        const seed = upsertSeed(withTenant(filter, await fence(c, 'update')), update);
+        if (!seed) throw new PolicyDeniedError(namespace, 'insert', ctx.scope.kind, 'upsert seeds a field twice');
+        if (!matchesTenant(seed, await fence(insertCell, 'insert')))
+          throw new PolicyDeniedError(namespace, 'insert', ctx.scope.kind, 'upsert outside tenant');
+        const refused = insertCell.check?.(seed);
+        if (refused) throw new PolicyDeniedError(namespace, 'insert', ctx.scope.kind, refused);
+      }
       const result = await collection.updateOne(withTenant(filter, await fence(c, 'update')), update, {
         ...sessionOf(ctx),
         ...(options.upsert ? { upsert: true } : {}),
