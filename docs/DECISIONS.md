@@ -659,7 +659,48 @@ derive the seeded document (full query incl. the fence; `$eq` and one-value `$in
 `$setOnInsert`) and must pass the insert cell's tenant and value checks; a field seeded twice is refused. (An admin's
 own-masjid fence + contentWrite() masjid seed `masjid_id` twice — MongoDB refuses such upserts itself, so admin
 repositories insert.)
-**LOW (L-1 … L-12):** listed with fixes in PROGRESS "Next session"; each is fixed or justified there before Phase 01 closes.
+**LOW (L-1 … L-12), done 22 Oct 2026:** **Fixed** — L-1 (`rateLimitIpKey`: zone ids stripped, embedded IPv4 only after
+`:`, anything unreadable and a request without a client IP count under one shared key — never per address, never
+skipped); L-2 (every `ip` rule also counts an IPv6 client's /48 in a 10× wide sibling of the bucket); L-3 (`safeText`
+refuses by category: Cc, Cf, Cs, Co, Zl, Zp except ZWNJ / ZWJ / LRM / RLM / ALM; tests for U+2028/2029/2060/00AD, tags,
+private use, lone surrogates; the bootstrap CLI `--name` uses the same rule); L-4 (raw input over 4 × max refused before
+NFC; OpenAPI shows the real min/maxLength); L-5 (`-randomkey` for `rl_public` / `admin` in both ACL generators, tested);
+L-7 (the first failure over a credential's hourly cap writes one audit entry with `meta.capped` + a `passkey.failure_cap`
+warning, later ones only the info log); L-10 (`assertWritable` checks every operator / path / value on its own); L-11
+(comment fixed; a future `stepUpAt` is refused, as `requireSuper` already did); L-12 (CSV export at most exactly 10 000
+rows, tested). **Justified** — **L-6** (the login path of a known credential takes longer than that of an unknown one —
+a Redis count and an audit write — so timing tells whether a credential id exists): credential ids are ≥ 16 random
+bytes chosen by the authenticator, never shown in the UI, and only reach a client through its own passkey ceremony;
+knowing that one exists gives nothing without the private key, and every attempt is still bounded by the IP (/64 and
+/48) and per-credential limits. Padding every path to the slowest would only add latency. **L-8** (the Super Admin cell
+on `items` is "all" in policy): that is 02 §4.1 by design (Super Admin = platform operator), the value checks (#80 M2)
+still apply, and `mc_admin` has no `remove` privilege on `items` (02 §4.3, privilege tests), so no API path can
+hard-delete an item. **L-9** → PROGRESS F39 (item delete / undelete as a state function that sets / clears
+`purge_after`, Phase 3, where items are first written).
+
+### #83 — Phase-verifier gaps of 22 Oct 2026 (Phase 01 close) — ACCEPTED (Claude Code, 22 Oct 2026)
+**(a) Isolation tests added** (`policy.int.test.ts`): an admin of another masjid reads none of masjid C's admin users,
+`masjid_stats`, `ameen_counters`, `v_admin_follow_audience` or `admin_push_subscriptions` (and deletes none), and writes
+nothing of C in `special_timings`, `chanda_weeks`, `campaign_amount_history`, `masjids`. **Found a real gap:** the admin
+`insert` cell of `audit_log` had no tenant rule, so an admin scope could write an entry stamped with another masjid's id
+(it would show in that masjid's audit view). The cell now requires actor = the admin and `masjid_id` ∈ the admin's
+masjids or absent (`matchesTenant` treats `null` in `$in` as "missing", as MongoDB does). **(b)** A disabled admin's
+live session: `resolveSession` → null, `/auth/me` and a write → 401 (data layer + API). **(c)** The tautological
+`client.int.test.ts` case is now 50 interleaved transactions of admins of 5 masjids reading through the gateway (each
+sees only its own masjid); plus an API test with 24 interleaved api-admin requests from admins of two masjids, as
+`mc_admin`. **(d)** One API test runs every T1.11 Super Admin action with its own request id and checks the stored entry:
+actor type + id, target, masjid. `settings.update` now carries a target (`settings` / `global`); `audit.export` has none
+by design (it reads, it changes no record); the db `updateSettings` test now asserts its entries. **(e)** Log capture of
+a successful login + step-up through the routes: the four requests are logged, and no challenge, challenge cookie,
+credential id, assertion part or (rotated) session token appears. **(f) Admin anonymization deferred to Phase 08 T8.7**:
+02 §6 makes it a retention action ("removed admin users, 1 year after removal → anonymize"), and the retention job is
+T8.7; Phase 01 has no route that removes an admin from the platform (only from a masjid, which T1.11 tests). The
+PROGRESS T1.3 note that T1.11 has it was wrong and is corrected. **(g)** The matrix test counts only cells it really
+attempts (947 = 984 − 37 left to MongoDB / the DB users for the system scope). **(h)** Namespace, dynamic, `require` and
+`export *` imports of `@mc/db` are refused wherever a scope is restricted (ESLint `no-restricted-syntax`, tested) and
+Semgrep matches member access through them (rule fixtures); `log-archive.sh` skips Compose one-off containers, so an
+hourly run can never archive the one-time Super Admin invite link printed by `--bootstrap-super-admin` (host layer —
+ships with F36/F37); explain / IXSCAN tests are Phase 2 (first read-heavy public routes) — stated in the report.
 
 ## OPEN
 
