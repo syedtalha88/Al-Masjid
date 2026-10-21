@@ -217,6 +217,23 @@ describe('session cookie authentication', () => {
     expect((await request(app()).get('/api/admin/auth/me').set('Cookie', s.cookie)).status).toBe(401);
   });
 
+  it('a disabled admin’s live session is dead on its next request: /auth/me and writes answer 401', async () => {
+    const s = await signedIn();
+    const passkeys = await request(app()).get('/api/admin/auth/passkeys').set('Cookie', s.cookie);
+    const id = (passkeys.body as { passkeys: { id: string }[] }).passkeys[0]?.id;
+    await t()
+      .db.collection<{ _id: typeof s.adminId; status: string }>('admin_users')
+      .updateOne({ _id: s.adminId }, { $set: { status: 'disabled' } });
+    expect((await request(app()).get('/api/admin/auth/me').set('Cookie', s.cookie)).status).toBe(401);
+    const write = await request(app())
+      .patch(`/api/admin/auth/passkeys/${String(id)}`)
+      .set(CSRF)
+      .set('Cookie', s.cookie)
+      .send({ label: 'Test rename' });
+    expect(write.status).toBe(401);
+    expect(write.body).toMatchObject({ code: 'SESSION_REQUIRED' });
+  });
+
   it('logout needs the CSRF header + Origin, revokes the session and clears the cookie with all flags', async () => {
     const s = await signedIn();
     expect((await request(app()).post('/api/admin/auth/logout').set('Cookie', s.cookie)).status).toBe(403);

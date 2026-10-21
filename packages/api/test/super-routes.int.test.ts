@@ -4,7 +4,7 @@
 // UNDERTAKING_REQUIRED for masjid-admin writes.
 import { randomBytes } from 'node:crypto';
 
-import { type DbHandle, publicScope } from '@mc/db';
+import { type DbHandle, idText, isId, publicScope } from '@mc/db';
 import { runMigrations } from '@mc/db/migrate';
 import { MIGRATIONS } from '@mc/db/migrations';
 import { registerCredential } from '@mc/db/state';
@@ -131,6 +131,45 @@ const MASJID = {
   lat: 17.385,
   lng: 78.4867,
 };
+
+describe('concurrent api-admin requests (02 §4: scopes per request, never shared)', () => {
+  it('24 interleaved requests from admins of two masjids: each sees only its own admin, masjid, sessions and passkeys', async () => {
+    const adminOf = async (name: string) => {
+      const masjid = await asSuper('post', '/masjids').send({ ...MASJID, name });
+      const masjidId = (masjid.body as { id: string }).id;
+      const admin = await asSuper('post', '/admins').send({
+        displayName: `Admin of ${name}`,
+        uiLocale: 'en',
+        masjidId,
+        role: 'owner',
+      });
+      const { cookie, sessionId } = await register((admin.body as { inviteUrl: string }).inviteUrl);
+      const me = await request(app()).get('/api/admin/auth/me').set('Cookie', cookie);
+      const adminId = (me.body as { admin: { id: string } }).admin.id;
+      return { masjidId, adminId, cookie, sessionId };
+    };
+    const a = await adminOf('Test Masjid Concurrent A');
+    const b = await adminOf('Test Masjid Concurrent B');
+    const calls = Array.from({ length: 24 }, (_, i) => {
+      const who = i % 2 === 0 ? a : b;
+      const path = ['/auth/me', '/auth/sessions', '/auth/passkeys'][i % 3] ?? '/auth/me';
+      return { who, path, response: request(app()).get(`/api/admin${path}`).set('Cookie', who.cookie) };
+    });
+    const responses = await Promise.all(calls.map(async (call) => ({ ...call, response: await call.response })));
+    for (const { who, path, response } of responses) {
+      const other = who === a ? b : a;
+      expect(response.status, path).toBe(200);
+      const text = JSON.stringify(response.body);
+      for (const foreign of [other.adminId, other.masjidId, other.sessionId]) expect(text, path).not.toContain(foreign);
+      if (path === '/auth/me') {
+        expect(response.body).toMatchObject({ admin: { id: who.adminId }, masjids: [{ id: who.masjidId }] });
+      }
+      if (path === '/auth/sessions') {
+        expect(response.body).toMatchObject({ sessions: [{ id: who.sessionId, current: true }] });
+      }
+    }
+  });
+});
 
 describe('/api/super role guard (04 §5)', () => {
   it('no session → 401 on every super route; a masjid admin → 403 on every route and unknown paths', async () => {
@@ -372,5 +411,96 @@ describe('masjid edits, settings, CSV export', () => {
     const csv = await asSuper('get', '/audit/export.csv?action=auth.logout');
     expect(csv.status).toBe(200);
     expect(csv.text.trim().split('\r\n')).toHaveLength(AUDIT_EXPORT_MAX_ROWS + 1); // + the header line
+  });
+});
+
+describe('audit trail of every T1.11 action (phase-verifier 22 Oct 2026)', () => {
+  it('each Super Admin action writes its entry with the Super Admin as actor and the right target', async () => {
+    const superId = (
+      (await request(app()).get('/api/admin/auth/me').set('Cookie', superCookie)).body as {
+        admin: { id: string };
+      }
+    ).admin.id;
+    let n = 0;
+    const tagged = (method: 'get' | 'post' | 'patch' | 'delete', path: string) => {
+      n += 1;
+      const requestId = `t111-audit-${String(n).padStart(4, '0')}`;
+      return { requestId, call: asSuper(method, path).set('X-Request-Id', requestId) };
+    };
+    const expected: { requestId: string; action: string; target?: string; masjid?: string }[] = [];
+    const run = async (
+      method: 'get' | 'post' | 'patch' | 'delete',
+      path: string,
+      body: object | undefined,
+      entries: { action: string; target?: string; masjid?: string }[],
+    ) => {
+      const { requestId, call } = tagged(method, path);
+      const response = await (body === undefined ? call : call.send(body));
+      expect(response.status, `${method} ${path}`).toBeLessThan(300);
+      for (const entry of entries) expected.push({ requestId, ...entry });
+      return response;
+    };
+
+    const created = await run('post', '/masjids', MASJID, [{ action: 'masjid.create' }]);
+    const masjidId = (created.body as { id: string }).id;
+    expected.forEach((e) => Object.assign(e, { target: masjidId, masjid: masjidId }));
+    await run('patch', `/masjids/${masjidId}`, { area: 'Audit Area' }, [
+      { action: 'masjid.update', target: masjidId, masjid: masjidId },
+    ]);
+    await run('patch', `/masjids/${masjidId}/quotas`, { pushDailyQuota: 4 }, [
+      { action: 'masjid.update', target: masjidId, masjid: masjidId },
+    ]);
+    const admin = await asSuper('post', '/admins')
+      .set('X-Request-Id', 't111-audit-admin')
+      .send({ displayName: 'Test Audit Admin', phone: '+919000000002', uiLocale: 'en', masjidId, role: 'owner' });
+    const { adminId, inviteUrl } = admin.body as { adminId: string; inviteUrl: string };
+    for (const action of ['admin.create', 'admin.add_to_masjid', 'admin.invite']) {
+      expected.push({ requestId: 't111-audit-admin', action, target: adminId });
+    }
+    const { cookie } = await register(inviteUrl);
+    const version = ((await asSuper('get', '/settings')).body as { undertakingVersion: string }).undertakingVersion;
+    await request(app()).post('/api/admin/auth/undertaking').set(CSRF).set('Cookie', cookie).send({ version });
+    await run('post', `/masjids/${masjidId}/activate`, undefined, [
+      { action: 'masjid.activate', target: masjidId, masjid: masjidId },
+    ]);
+    await stepUp();
+    await run('post', `/admins/${adminId}/invites`, { purpose: 'recovery' }, [
+      { action: 'admin.invite', target: adminId },
+    ]);
+    await run('get', `/admins/${adminId}/phone`, undefined, [{ action: 'admin.phone_view', target: adminId }]);
+    await run('post', `/admins/${adminId}/revoke-sessions`, undefined, [{ action: 'session.revoke', target: adminId }]);
+    await run('post', `/admins/${adminId}/revoke-passkeys`, undefined, [
+      { action: 'credential.revoke', target: adminId },
+    ]);
+    await run('post', `/masjids/${masjidId}/suspend`, { reason: 'Test suspension reason' }, [
+      { action: 'masjid.suspend', target: masjidId, masjid: masjidId },
+    ]);
+    await run('post', `/masjids/${masjidId}/unsuspend`, { reason: 'Test unsuspension reason' }, [
+      { action: 'masjid.unsuspend', target: masjidId, masjid: masjidId },
+    ]);
+    await run('delete', `/admins/${adminId}/masjids/${masjidId}`, undefined, [
+      { action: 'admin.remove_from_masjid', target: adminId, masjid: masjidId },
+    ]);
+    await run('delete', `/masjids/${masjidId}`, { reason: 'Test deletion reason' }, [
+      { action: 'masjid.delete', target: masjidId, masjid: masjidId },
+    ]);
+    await run('patch', '/settings', { defaultPushQuota: 5 }, [{ action: 'settings.update', target: 'global' }]);
+    await run('get', '/audit/export.csv?action=settings.update', undefined, [{ action: 'audit.export' }]);
+
+    const plain = (id: string | undefined) => id?.replaceAll('-', '').toLowerCase();
+    const rows = await t()
+      .db.collection<{ request_id?: string } & Record<string, unknown>>('audit_log')
+      .find({ request_id: { $in: [...new Set(expected.map((e) => e.requestId))] } })
+      .toArray();
+    const text = (value: unknown) => plain(isId(value) ? idText(value) : typeof value === 'string' ? value : undefined);
+    for (const e of expected) {
+      const row = rows.find((r) => r.request_id === e.requestId && r['action'] === e.action);
+      expect(row, `${e.action} (${e.requestId}) audited`).toBeDefined();
+      expect(row?.['actor_type'], e.action).toBe('super_admin');
+      expect(text(row?.['actor_id']), `${e.action} actor`).toBe(plain(superId));
+      if (e.target) expect(text(row?.['target_id']), `${e.action} target`).toBe(plain(e.target));
+      else expect(row?.['target_id'], `${e.action} has no target`).toBeUndefined();
+      if (e.masjid) expect(text(row?.['masjid_id']), `${e.action} masjid`).toBe(plain(e.masjid));
+    }
   });
 });

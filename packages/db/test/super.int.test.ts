@@ -280,6 +280,15 @@ describe('undertaking and settings', () => {
       ),
     ).toBe('FORBIDDEN');
     expect(await code(updateSettings(h(), fresh(), { patch: {} }))).toBe('NOTHING_TO_UPDATE');
+    const audited = await raw('audit_log')
+      .find({ action: 'settings.update', actor_id: SUPER_ID })
+      .sort({ _id: 1 })
+      .toArray();
+    expect(audited.map((a) => a['meta'])).toEqual([
+      { fields: ['global_hijri_offset', 'default_push_quota', 'support_whatsapp'] },
+      { fields: ['support_whatsapp'] },
+    ]);
+    for (const entry of audited) expect(entry).toMatchObject({ target_type: 'settings', target_id: 'global' });
   });
 });
 

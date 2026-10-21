@@ -610,6 +610,51 @@ describe('logs', () => {
   });
 });
 
+describe('logs of a successful login + step-up (phase-verifier 22 Oct 2026)', () => {
+  it('log both ceremonies without challenges, assertion parts, credential ids or session tokens', async () => {
+    const { credential } = await register((await invitedAdmin()).token);
+    const before = log.lines().length;
+    const signedIn = await login(credential);
+    expect(signedIn.res.status).toBe(204);
+    const stepOptions = await request(app())
+      .post('/api/admin/auth/step-up/options')
+      .set(CSRF)
+      .set('Cookie', signedIn.cookie);
+    const stepOptionsBody = requestOptionsSchema.parse(stepOptions.body);
+    const stepResponse = authenticator.get(stepOptionsBody, credential);
+    const stepped = await request(app())
+      .post('/api/admin/auth/step-up/verify')
+      .set(CSRF)
+      .set('Cookie', signedIn.cookie)
+      .send({ response: stepResponse });
+    expect(stepped.status).toBe(204);
+    const rotated = cookieValue(stepped, '__Host-mc_sess');
+    const lines = log.lines().slice(before);
+    // The requests were logged (so the capture is not vacuous) …
+    const paths = JSON.stringify(lines);
+    for (const path of ['/auth/login/options', '/auth/login/verify', '/auth/step-up/options', '/auth/step-up/verify']) {
+      expect(paths).toContain(path);
+    }
+    // … and nothing a replay or a session hijack could use is in them.
+    const text = JSON.stringify(lines);
+    for (const secret of [
+      signedIn.challengeCookie.split('=')[1],
+      signedIn.response.id,
+      signedIn.response.response.signature,
+      signedIn.response.response.authenticatorData,
+      signedIn.response.response.clientDataJSON,
+      signedIn.cookie.split('=')[1],
+      stepOptionsBody.challenge,
+      stepResponse.response.signature,
+      stepResponse.response.clientDataJSON,
+      rotated,
+    ]) {
+      expect(secret).toBeTruthy();
+      expect(text).not.toContain(secret);
+    }
+  });
+});
+
 describe('e2e seed hook (test-hook mode only, 10 §3)', () => {
   it('POST /test/super-admin-invite makes a Super Admin invite that registers through the real routes', async () => {
     const hookApp = createAdminApp({

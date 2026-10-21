@@ -327,7 +327,10 @@ describe('login and the sign counter (04 §3)', () => {
 
   it('disabled admins cannot log in; failures are audited by credential hash only', async () => {
     const r = await registeredAdmin();
+    expect(await resolveSession(h(), publicScope(), { tokenHash: r.sessionHash })).not.toBeNull();
     await raw('admin_users').updateOne({ _id: r.adminId }, { $set: { status: 'disabled' } });
+    // A session opened before the admin was disabled resolves to nothing from the next request on (phase-verifier).
+    expect(await resolveSession(h(), publicScope(), { tokenHash: r.sessionHash })).toBeNull();
     expect(await findLoginCredential(h(), publicScope(), r.cred.id)).toBeNull();
     expect(
       await code(

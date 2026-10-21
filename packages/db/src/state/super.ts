@@ -298,6 +298,8 @@ export async function updateSettings(
     );
     await writeAudit(ctx, {
       action: 'settings.update',
+      targetType: 'settings',
+      targetId: 'global',
       meta: { fields },
       ...(input.requestId ? { requestId: input.requestId } : {}),
     });

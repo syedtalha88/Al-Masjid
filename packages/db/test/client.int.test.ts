@@ -4,7 +4,8 @@ import { MongoServerError, UUID } from 'mongodb';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { createDbHandle, type DbHandle, withTransaction } from '../src/client.ts';
-import { adminScope, deviceScope, isScope, type Scope } from '../src/scope.ts';
+import { adminScope, deviceScope } from '../src/scope.ts';
+import { scoped } from '../src/scoped.ts';
 import { createTestDatabase, type TestDatabase, testMongoUri } from '../src/testing/index.ts';
 
 let test: TestDatabase | undefined;
@@ -95,24 +96,31 @@ describe('withTransaction', () => {
     expect((await notes().findOne({ _id: 'counter' }))?.n).toBe(1);
   });
 
-  it('scopes never leak between concurrent operations', async () => {
-    const scopes: Scope[] = Array.from({ length: 50 }, (_, i) =>
-      i % 2 === 0 ? deviceScope(new UUID()) : adminScope({ adminId: new UUID(), masjids: [] }),
-    );
+  it('scopes never leak between concurrent operations: 50 interleaved admins each read only their own masjid', async () => {
+    if (!test) throw new Error('no test database');
+    await test.db.createCollection('items');
+    const masjids = Array.from({ length: 5 }, () => new UUID());
+    await test.db
+      .collection<{ _id: UUID; masjid_id: UUID }>('items')
+      .insertMany(masjids.flatMap((masjid_id) => [0, 1].map(() => ({ _id: new UUID(), masjid_id }))));
+    const runs = Array.from({ length: 50 }, (_, i) => {
+      const masjid = masjids[i % masjids.length] ?? masjids[0];
+      if (!masjid) throw new Error('no masjid');
+      return { masjid, scope: adminScope({ adminId: new UUID(), masjids: [{ id: masjid, role: 'owner' }] }) };
+    });
     const seen = await Promise.all(
-      scopes.map((own, i) =>
-        withTransaction(h(), own, async (ctx) => {
-          await ctx.db
-            .collection<{ _id: string }>('notes')
-            .insertOne({ _id: `c-${String(i)}` }, { session: ctx.session });
+      runs.map(({ scope }) =>
+        withTransaction(h(), scope, async (ctx) => {
+          // Interleave: half the reads wait so other transactions run in between.
           await new Promise((resolve) => setTimeout(resolve, Math.random() * 20));
-          return ctx.scope;
+          const items = scoped({ scope: ctx.scope, db: ctx.db, session: ctx.session }, 'items');
+          return (await items.find({})).map((row) => (row['masjid_id'] as UUID).toHexString());
         }),
       ),
     );
-    seen.forEach((scope, i) => {
-      expect(scope).toBe(scopes[i]);
-      expect(isScope(scope)).toBe(true);
+    seen.forEach((owners, i) => {
+      expect(owners).toHaveLength(2);
+      expect(new Set(owners)).toEqual(new Set([runs[i]?.masjid.toHexString()]));
     });
   });
 });
