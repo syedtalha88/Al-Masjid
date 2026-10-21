@@ -719,4 +719,25 @@ users are the APIs' own, and rate-limit keys are hashed, so key names reveal no 
 
 ## OPEN
 
-_None — every decision is ACCEPTED (20 Oct 2026)._
+### #85 — Staging Lighthouse misses the 01 §9 LCP budgets while the local gate passes (PROGRESS handoff item 4) — OPEN (Claude Code, 22 Oct 2026)
+**Measured (22 Oct 2026, `pnpm lhci`, same tool and settings as CI):** from the dev PC in India against staging — app
+cold LCP **3.08 s**, admin cold **2.58 s**, admin warm **1.22 s** (app warm 94 ms); against the local stack on the same
+PC a minute later — app cold **1.97 s**, admin cold **2.27 s**, admin warm **0.80 s**. The US Nightly runner (20 Oct)
+saw 2.95 / 3.37 / 1.23 s, so the gap is **not** geography. Real (observed, unthrottled) app LCP on staging: **0.89 s**.
+**Why:** Lighthouse simulates Slow 4G (Lantern): every request in the critical chain costs ≈ 150 ms RTT + 560 ms
+request latency + the origin's *observed* server time (Cloudflare edge ≈ 110 ms, local Caddy ≈ 1 ms). The musalli start
+is 4 levels deep — `index.js` → i18n namespace chunks (I18nProvider suspends) → route chunks (the router mounts only
+then) → tab-root chunks — so each level costs staging far more than localhost. Admin warm: the first admin screen waits
+for `/auth/me`, which the service worker must never cache (04), and one simulated API round trip is ≈ 0.7 s; a warm
+LCP ≤ 1.0 s is out of reach while the shell waits for the live session check.
+**Options:**
+- **A (recommended):** the local production-like stack stays the hard 01 §9 gate (CI + `pnpm verify`, green today);
+  the Nightly staging Lighthouse becomes **report-only** (numbers printed, no red) until Phase 02 T2.x, where the start
+  chain is flattened anyway with the real home screen: start i18n + the first route in parallel from `main.tsx`,
+  `modulepreload` the active locale's chunks from `/boot.js`, and the admin shell paints the last-known screen from the
+  device while `/auth/me` revalidates. Then staging is gated again with the same budgets.
+- **B:** keep the staging gate red and flatten the chain now in Phase 01 (≈ half a day on placeholder screens that
+  Phase 02 replaces); admin warm still needs A's shell change.
+- **C:** separate, looser staging budgets (e.g. cold 3.0 s, warm 1.5 s) permanently.
+**Recommendation: A** — the budget is enforced where it measures our code, the real fix lands with the real screens,
+and staging gets the same budgets back in Phase 02.

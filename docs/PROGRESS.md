@@ -18,51 +18,28 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (handoff written 22 Oct 2026)
+## ▶ Next session — start here (handoff updated 22 Oct 2026, 2nd session)
 
-**State:** branch `ci/t0.14-staging` = `main`, everything pushed, tree clean. CI green up to `9fe1f18`; the last two
-commits (`8ce13fe` M-A, `eec3d07` M-B) plus this docs commit were pushed at handoff — **check their CI first**.
-Staging serves the newest green release (db ok, redis ok). **Owner did O12 on 22 Oct 2026** (Super Admin passkey on
-staging) → T1.9 done. Phase 00: report final; waits only for owner 0.15/0.16 (do last). Phase 01: 11/12 ticked;
-**T1.12 (phase close) is in progress** — not closable yet, see the list below. No OPEN decisions.
+**State:** branch `ci/t0.14-staging` = `main`, everything pushed. CI: `c9ff3d9` green (it fixed the red `70f7583`:
+Trivy found CVE-2026-111943 in the Go 1.27.2 Caddy build → builder re-pinned to Go 1.27.3); **check CI of the later
+commits first**. Phase 01: 11/12 ticked, **T1.12 in progress**. OPEN: **DECISIONS #85** (owner).
 
-**Do in this order (T1.12):**
+**Done this session (T1.12 list):** ② all 12 delta-review LOWs fixed or justified (DECISIONS #82); ③ every
+phase-verifier gap (a)–(h) closed (DECISIONS #83) — the isolation tests found a real gap (admin `audit_log` inserts had
+no tenant rule) and fixed it; ⑤ boot test timeout 60 s; the Windows native worker crash is unexplained → F41; ⑥ every
+open follow-up closed or deferred (DECISIONS #84; F27 closed); ④ staging Lighthouse analysed → **DECISIONS #85 OPEN**.
+
+**Do in this order (rest of T1.12):**
 1. **CI** on the pushed head; fix if red.
-2. **Delta security review (DECISIONS #82) — LOWs still to fix or justify** (M-A, M-B are fixed):
-   L-1 `rateLimitIpKey`: strip IPv6 zone ids, anchor the embedded-IPv4 regex after `:`, unparsable → constant key ·
-   L-2 add a /48 bucket (≈10× /64) on `auth: 'none'` routes or justify ·
-   L-3 `safeText` UNSAFE → category rule `[\p{Cc}\p{Cs}\p{Co}\p{Zl}\p{Zp}]` + `\p{Cf}` except ZWNJ/ZWJ/LRM/RLM/ALM (write it
-   with a script — the file tool decodes `\uXXXX`; see 20 Oct log), tests for U+2028/2060/E0000…; bootstrap CLI `--name`
-   through `safeText` · L-4 `safeText` cap `z.string().max(max*4)` before NFC + min/maxLength in OpenAPI ·
-   L-5 `-randomkey` for rl_public/admin (both ACL generators) · L-6/L-7 timing + capped-audit: one `capped` audit entry
-   + `logger.warn` when the credential cap is first exceeded · L-8 justify (02 §4.1 super = all; mc_admin has no items
-   remove) · L-9 PROGRESS item: item delete/undelete as a state function setting/clearing `purge_after` (Phase 3) ·
-   L-10 `assertWritable`: pass every (operator, path, value) to `check` · L-11 stale "10 / 10 min" comment in
-   admin-passkeys.ts + `session.ts` refuse a future `stepUpAt` · L-12 audit CSV ≤ 10 000 rows exactly.
-3. **Phase-verifier gaps (22 Oct run):** (a) cross-masjid read denial for admin_users (non-co-admin), masjid_stats,
-   ameen_counters, v_admin_follow_audience, admin_push_subscriptions + write denial for special_timings, chanda_weeks,
-   campaign_amount_history, audit_log (foreign masjid_id), masjids (update) — in `packages/db/test/policy.int.test.ts`;
-   (b) disabled admin with a live session → `resolveSession` null, `/auth/me` and a write 401; (c) a real concurrent test
-   (≥ 20 interleaved api-admin requests from admins of A and B) replacing the tautological `client.int.test.ts` case;
-   (d) audit assertions (actor_id + target_id) for every T1.11 action incl. remove_from_masjid, settings.update,
-   audit.export — fix `super.int.test.ts:264` ("audited" without asserting); (e) log capture of a successful
-   login + step-up through the routes; (f) admin anonymization (02 §5): implement + test, or DECISIONS deferral (PROGRESS
-   T1.3 wrongly says T1.11 has it); (g) policy-matrix nit: count only really-tested cells; (h) LOWs: namespace-import
-   bypass of the systemScope/hookScope bans (ESLint + Semgrep), bootstrap invite URL vs `log-archive.sh` timing (confirm
-   or document), say in the report that explain/IXSCAN tests are Phase 2.
-4. **Staging Lighthouse (Nightly 20 Oct, first staging run):** app cold LCP 2.95 s, admin cold 3.37 s (perf 87), admin warm
-   1.23 s vs 01 §9 (≤ 2.5 s / ≤ 1.0 s / ≥ 90); local was in budget. Triage: Cloudflare cache status of /assets (cf-cache-status),
-   br, LCP element, runner (US) → Mumbai origin. Fix, or DECISIONS entry for the owner.
-5. **Local flakes (repeated):** `apps/server/test/boot.test.ts` 30 s timeout under the 32-task turbo run; Vitest native
-   worker crash 0xC0000409 (db `client.int.test.ts`, api earlier). Mitigate (timeouts / pool / maxWorkers) so local
-   `pnpm verify` is reliable, or a follow-up with a mitigation.
-6. **Follow-ups without a deferral:** F1 (Node 26 — trigger 28 Oct 2026), F16, F21, F27, F28, F36, F37 → close or defer in
-   DECISIONS.
-7. **Evidence:** save the staging `--verify-roles` 17/17 output (DECISIONS #63) and the owner's dated Atlas IP-list
-   confirmation (O21) under `docs/reports/evidence/`.
-8. Then **/finish-phase 01**: full `pnpm verify`, phase-verifier + security-reviewer re-run (scope `b9eb751..HEAD`), write
-   `docs/reports/PHASE_01_REPORT.md` (the verifier's 22 Oct content list: header, §1–§7, 15 screens × 4 locales, deviations
-   #60 #63 #67 #70 #71 #72 #76 #77 #78 #79 #81, follow-ups), staging, status AWAITING OWNER VERIFICATION.
+2. **Owner answers / actions:** DECISIONS #85 (A recommended) · O21 (Atlas IP list, dated) · O22 (host-layer update:
+   F36/F37/F40 + L-5 ACL) · the staging `--verify-roles` 17/17 output for the evidence folder (re-run
+   `deploy.sh staging --verify-roles` and paste, or the saved text from 20 Oct). Implement #85 as answered.
+3. **Evidence:** save the verify-roles output (DECISIONS #63) and the O21 confirmation under `docs/reports/evidence/`.
+4. **/finish-phase 01**: full `pnpm verify` (recipe below; if an api/db `test:int` dies with "Worker exited unexpectedly
+   … 3221226505", re-run that package — F41), phase-verifier + security-reviewer re-run (scope `b9eb751..HEAD`), write
+   `docs/reports/PHASE_01_REPORT.md` (header, §1–§7, 15 screens × 4 locales, deviations #60 #63 #67 #70 #71 #72 #76 #77
+   #78 #79 #81 #82 #83 #84 #85, follow-ups; say explain/IXSCAN tests are Phase 2 — #83 h), staging, status AWAITING
+   OWNER VERIFICATION. Then O6 0.15/0.16 last.
 
 **Local quirk (this PC):** Node cannot resolve `*.localhost` (browsers can). For e2e, preload a shim via
 `NODE_OPTIONS=--require <shim>` that patches `dns.lookup`, `dns.promises.lookup` AND `net/tls.connect` (pass a `lookup`
@@ -175,12 +152,14 @@ Verify recipe and other quirks as before (below).
 | F37 | Review L6 (20 Oct 2026) | The VPS Redis ACL drops SCAN for the API users only when `make-env.sh` regenerates `redis-users.acl` (host-layer change + `make-env.sh staging --force`, keeps the passwords) — with the next host-layer update (with F36) | Next host-layer update |
 | F38 | Review H1 (20 Oct 2026, DECISIONS #80) | (a) Push alert to the Super Admin when a passkey is added to a Super Admin account (04 R4); (b) self-service "remove this passkey" on B13 (step-up, never the last one) | (a) Phase 4 push; (b) Phase 3 (B13) |
 | F39 | Review L-9 (22 Oct 2026, DECISIONS #82) | Item delete / undelete must go through a state function that sets / clears `purge_after` together with `status` / `deleted_at` (today the generic gateway update can set `deleted_at` but never touches the purge marker) | Phase 3 (first item writes) |
+| F41 | Local verify (22 Oct 2026) | Windows dev PC only: ≈ 1 in 5 local `test:int` runs of api (once db) loses a forked Vitest worker to a native abort (exit 0xC0000409 = 3221226505) — different files, no stderr, no Node diagnostic report (`--report-on-fatalerror`), no Windows Error Reporting event; `--pool=threads` kills the whole run instead; 4 workers still crashed (1/8). Linux CI never. Workaround: re-run the package | Re-check after the Node 26 move (F1); if it persists, a minimal repro for Node/libuv |
 | F20 | F19 | Perf spec (4× CPU throttle): 1 of 23 runs had long tasks of 189 + 110 ms right after a rebuild. T0.12: the perf spec now traces with attribution (input / chunk evaluation / animation frame / style-layout), dropped frames and forced layouts — 16/16 clean over 8 repeats. Remaining: the same transitions on a real low-end Android (owner guide) | Phase 2, on a real low-end Android (deferred — DECISIONS #74; owner O16) |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-22 | 01 / T1.12 | CI red on `70f7583` (Trivy: CVE-2026-111943 in Caddy's Go 1.27.2) → builder re-pinned to Go 1.27.3, green. Delta-review LOWs L-1…L-12 fixed/justified (#82: IPv6 /48 buckets, fail-closed IP keys, `safeText` by Unicode category, raw-length cap, no RANDOMKEY, capped audit entry, per-entry policy checks, strict step-up time, exact CSV cap). Phase-verifier gaps (#83): isolation tests found admin `audit_log` inserts without a tenant rule (fixed); concurrency, disabled-session, T1.11 audit-trail and login-log tests; `@mc/db` named imports only; one-off containers out of the log archive. Follow-ups deferred with triggers (#84; F27 closed; F39–F41 new; owner O22). Staging Lighthouse analysed: not geography — Lantern chain depth × CDN server time; admin warm ≤ 1 s impossible while waiting for `/auth/me` → #85 OPEN. |
 | 2026-10-22 | 01 / T1.9, T1.12 | Owner did O12 → T1.9 done; owner accepted #79 A and #81 A (login IP limit 30 / 10 min, done 20 Oct). Delta security review (`b9eb751..9fe1f18`): 0 HIGH, 2 MED fixed (M-A hook checks matched no quote style the bundler writes; M-B gateway upserts skipped the insert rules), 12 LOW listed in the handoff (DECISIONS #82). Phase-verifier for Phase 01: not closable yet — test gaps, staging Lighthouse, flakes, deferrals, evidence (handoff list). Owner opened a new session for the rest. |
 | 2026-10-20 | 01 / T1.10 | 4-locale screens spec + signed-in Lighthouse a11y (100 on all 9 screens) done; T1.2, T1.4, T1.10 ticked. Phase 01 open: T1.9 (owner O12) and T1.12 (finish-phase). Local quirk again: Node on this PC cannot resolve `*.localhost` (browsers can) — e2e ran with a scratch preload shim (patches `net/tls.connect` lookups); CI on Linux unaffected. |
 | 2026-10-20 | 00 closure / V-31 | Phase-verifier: Phase 00 closable after owner 0.15/0.16, the report (V-22), #79 and housekeeping; README db:reset + verify-roles stub fixed. Security-reviewer (resumed after the usage limit): H1 + M1–M3 fixed, LOWs fixed/justified (DECISIONS #80); #81 OPEN for the owner. Header grades re-taken (Observatory A+ 135 on both hosts) and check.sh output saved as evidence. |
