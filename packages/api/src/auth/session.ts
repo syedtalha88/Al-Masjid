@@ -69,8 +69,10 @@ export async function authenticateRequest(
   const anyRole = auth === 'session' || auth === 'session_step_up';
   if (!anyRole && authed.session.role !== 'super_admin') throw new ApiProblem(403, 'FORBIDDEN');
   if (auth === 'super_step_up' || auth === 'session_step_up') {
-    const at = authed.session.stepUpAt;
-    if (!at || now.getTime() - at.getTime() > STEP_UP_WINDOW_MS) throw new ApiProblem(403, 'STEP_UP_REQUIRED');
+    // A step-up from the future is not fresh but wrong data — refused, as in the data layer's requireSuper (review
+    // L-11; both api-admin replicas run on one host clock).
+    const age = authed.session.stepUpAt ? now.getTime() - authed.session.stepUpAt.getTime() : Number.NaN;
+    if (!(age >= 0 && age <= STEP_UP_WINDOW_MS)) throw new ApiProblem(403, 'STEP_UP_REQUIRED');
   }
   return authed;
 }

@@ -306,6 +306,7 @@ describe('fields', () => {
         { $set: { purge_after: new Date() } },
         { $unset: { purge_after: '' } },
         { $set: { removed_reason: 'x' } },
+        { $set: { status: 'removed' }, $setOnInsert: { status: 'draft' } }, // a later entry hides nothing (L-10)
       ]) {
         await expect(items.updateOne({ _id: liveId }, update), JSON.stringify(update)).rejects.toBeInstanceOf(
           PolicyDeniedError,

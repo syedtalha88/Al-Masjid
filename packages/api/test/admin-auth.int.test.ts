@@ -297,5 +297,15 @@ describe('session cookie authentication', () => {
     expect((await request(app()).get('/api/admin/probe/super_step_up').set('Cookie', s.cookie)).body).toMatchObject({
       code: 'STEP_UP_REQUIRED',
     });
+    // A step-up time in the future is refused, as in the data layer (review L-11).
+    const stepUpAt = async (offsetMs: number) => {
+      await t()
+        .db.collection<{ _id: typeof s.sessionId; step_up_at: Date }>('admin_sessions')
+        .updateOne({ _id: s.sessionId }, { $set: { step_up_at: new Date(clock.now().getTime() + offsetMs) } });
+      return request(app()).get('/api/admin/probe/super_step_up').set('Cookie', s.cookie);
+    };
+    expect((await stepUpAt(0)).status).toBe(200);
+    expect((await stepUpAt(1000)).body).toMatchObject({ code: 'STEP_UP_REQUIRED' });
+    expect((await stepUpAt(60 * 60_000)).body).toMatchObject({ code: 'STEP_UP_REQUIRED' });
   });
 });

@@ -40,8 +40,9 @@ export interface Cell {
   /** Post-read redaction (e.g. removed items show no content to admins). */
   readonly redact?: (doc: Document) => Document;
   /**
-   * Value rule for insert/update: given the inserted document or the update's field → value pairs, returns why they
-   * are refused, or `undefined`. For what an allow-list of field names cannot say (e.g. items: never `removed`).
+   * Value rule for insert/update: given the inserted document, or ONE entry of an update at a time (`{ field: value }`
+   * per operator and path; `$unset` → `undefined`), returns why it is refused, or `undefined`. For what an allow-list
+   * of field names cannot say (e.g. items: never `removed`).
    */
   readonly check?: (fields: Readonly<Record<string, unknown>>) => string | undefined;
 }

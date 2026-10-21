@@ -21,6 +21,7 @@ import { defineRoute } from '../src/http/define-route.ts';
 import { memoryRateLimiter } from '../src/http/rate-limit.ts';
 import { bootstrapSuperAdminInvite } from '../src/jobs/bootstrap-super-admin.ts';
 import { adminRoutes } from '../src/routes/index.ts';
+import { AUDIT_EXPORT_MAX_ROWS } from '../src/routes/super.ts';
 import { passkeyDeps, silentLogger } from './helpers.ts';
 
 const ORIGIN = 'https://admin.test';
@@ -354,5 +355,22 @@ describe('masjid edits, settings, CSV export', () => {
       .limit(1)
       .next();
     expect(exported?.['meta']).toEqual({ filters: { action: 'masjid.create' }, rows: lines.length - 1 });
+  });
+
+  it('CSV export stops at exactly 10 000 rows (review L-12)', async () => {
+    const at = clock.now();
+    await t()
+      .db.collection('audit_log')
+      .insertMany(
+        Array.from({ length: AUDIT_EXPORT_MAX_ROWS + 150 }, () => ({
+          at,
+          actor_type: 'system',
+          action: 'auth.logout',
+        })),
+      );
+    await stepUp();
+    const csv = await asSuper('get', '/audit/export.csv?action=auth.logout');
+    expect(csv.status).toBe(200);
+    expect(csv.text.trim().split('\r\n')).toHaveLength(AUDIT_EXPORT_MAX_ROWS + 1); // + the header line
   });
 });

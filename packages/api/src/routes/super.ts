@@ -74,6 +74,8 @@ const Empty = z.object({});
 const NameI18n = nameI18nSchema;
 const Reason = reasonSchema;
 const AuditQuery = auditQuerySchema;
+/** Rows in one audit CSV export (the header line not counted). */
+export const AUDIT_EXPORT_MAX_ROWS = 10_000;
 const SettingsOut = superSettingsSchema;
 
 const rowOut = (row: MasjidRow) => ({
@@ -565,7 +567,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
         let cursor: string | undefined;
         do {
           const page = await listAudit(db, auth.scope, { ...filters, limit: 100, ...(cursor ? { cursor } : {}) });
-          for (const r of page.rows) {
+          for (const r of page.rows.slice(0, AUDIT_EXPORT_MAX_ROWS + 1 - lines.length)) {
             lines.push(
               [
                 r.at.toISOString(),
@@ -583,7 +585,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
             );
           }
           cursor = page.next;
-        } while (cursor && lines.length <= 10_000);
+        } while (cursor && lines.length - 1 < AUDIT_EXPORT_MAX_ROWS); // never more than 10 000 rows (review L-12)
         // The export itself is audited (04 R4, review L9): which filters, how many rows — never the rows.
         await recordAuditExport(db, auth.scope, {
           filters: Object.fromEntries(Object.entries(query).map(([key, value]) => [key, String(value)])),

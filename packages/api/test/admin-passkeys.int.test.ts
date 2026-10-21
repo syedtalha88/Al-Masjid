@@ -471,7 +471,7 @@ describe('login verification (04 §3)', () => {
     expect(audit).not.toHaveProperty('target_id');
   });
 
-  it('failed assertions of a credential: audited up to the 20/h cap, never blocking its owner’s valid login (L3)', async () => {
+  it('failed assertions of a credential: audited up to the 20/h cap (+ one capped entry), never blocking its owner’s valid login (L3, L-7)', async () => {
     const capped = createAdminApp({
       logger: log.logger,
       release: 't',
@@ -497,7 +497,12 @@ describe('login verification (04 §3)', () => {
     };
     const before = await failedLogins();
     for (let i = 0; i < 5; i += 1) expect((await attempt({ badSignature: true })).status).toBe(401); // a forger
-    expect(await failedLogins()).toBe(before + 2); // audited up to the cap, then only logged
+    // Audited up to the cap, then one entry marked `capped` + a warning, then only logged (review L-7).
+    expect(await failedLogins()).toBe(before + 3);
+    const cappedEntries = await raw('audit_log').find({ action: 'auth.login_failed', 'meta.capped': true }).toArray();
+    expect(cappedEntries).toHaveLength(1);
+    expect(cappedEntries[0]?.['meta']).toMatchObject({ credential_hash: expect.any(String) as unknown, capped: true });
+    expect(log.lines().filter((l) => l['event'] === 'passkey.failure_cap')).toHaveLength(1);
     expect((await attempt()).status).toBe(204); // the owner still logs in
   });
 

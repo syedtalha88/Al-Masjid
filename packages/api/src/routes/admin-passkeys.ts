@@ -51,7 +51,7 @@ export interface AdminPasskeyDeps {
 const Empty = z.object({}).meta({ id: 'Empty' });
 const failed = () => new ApiProblem(401, 'PASSKEY_FAILED');
 
-// 03 §2 "10 / 10 min / IP" (IPv6 by /64 — review M1). The "20 / hour / credential" limit counts FAILED assertions of a
+// 03 §2 "30 / 10 min / IP" (DECISIONS #81; IPv6 by /64 and /48 — reviews M1, L-2). The "20 / hour / credential" limit counts FAILED assertions of a
 // known credential only (in the handler): counting every claim would let anyone who knows a credential id lock its
 // owner out (review L3), and a valid signature cannot be guessed anyway. It also caps the failure audit entries.
 const LOGIN_LIMITS: readonly RateLimitRule[] = [{ bucket: 'adminLoginIp', key: 'ip' }];
@@ -70,8 +70,9 @@ export function adminPasskeyRoutes(deps: AdminPasskeyDeps): RouteDefinition[] {
   /**
    * Shared by login and step-up: the claimed credential, the assertion verification, and the failure accounting.
    * Failures of a KNOWN credential are audited (`auth.login_failed`, credential hash only) up to the 20/h credential
-   * limit; unknown credential ids are only logged — an audit entry per anonymous request would let a flood fill the
-   * database (review M1).
+   * limit; the first failure over it writes one more entry marked `capped` plus a warning, so a burst on one
+   * credential stays visible without filling the audit log (review L-7). Unknown credential ids are only logged — an
+   * audit entry per anonymous request would let a flood fill the database (review M1).
    *
    * @returns the stored credential and the authenticator's new counter.
    * @throws ApiProblem 401 PASSKEY_FAILED.
@@ -87,9 +88,17 @@ export function adminPasskeyRoutes(deps: AdminPasskeyDeps): RouteDefinition[] {
     const label = credentialLabel(claimedId);
     const credential = await findLoginCredential(db, publicScope(), claimedId);
     const fail = async (reason: string) => {
-      const audited = credential !== null && (await consumeInHandler(req, 'adminLoginCredential', label));
+      const decision = credential === null ? null : await consumeInHandler(req, 'adminLoginCredential', label);
+      const capped = decision !== null && !decision.allowed && decision.firstRefusal;
+      const audited = decision !== null && (decision.allowed || capped);
       logger.info({ event: 'passkey.assertion_failed', reason, credential: label, audited }, 'passkey failed');
-      if (audited) await recordLoginFailure(db, publicScope(), { credentialId: claimedId, requestId });
+      if (capped) {
+        logger.warn(
+          { event: 'passkey.failure_cap', credential: label },
+          'failed passkey attempts on one credential reached the hourly cap: further failures are not audited',
+        );
+      }
+      if (audited) await recordLoginFailure(db, publicScope(), { credentialId: claimedId, requestId, capped });
       return failed();
     };
     if (!challenge) throw await fail('no live challenge (expired, used or never issued)');

@@ -85,7 +85,7 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'device.unfollow': [],
   'auth.register': ['credential'],
   'auth.login': ['credential'],
-  'auth.login_failed': ['credential_hash'],
+  'auth.login_failed': ['credential_hash', 'capped'],
   'auth.step_up': [],
   'auth.logout': [],
   'credential.revoke': ['reason', 'credential'],

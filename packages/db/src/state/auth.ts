@@ -468,20 +468,25 @@ export async function completeAssertion(
 
 /**
  * Audits a failed login/step-up attempt (`auth.login_failed`), identified only by a hash of the credential id it
- * claimed — never an admin id, IP or user agent (PHASE_01 T1.8).
+ * claimed — never an admin id, IP or user agent (PHASE_01 T1.8). `capped` marks the entry written when the
+ * credential's failure cap is first exceeded (later failures in that window are not audited — review L-7).
  */
 export async function recordLoginFailure(
   handle: DbHandle,
   scope: Scope,
-  input: { credentialId?: Uint8Array; requestId?: string },
+  input: { credentialId?: Uint8Array; requestId?: string; capped?: boolean },
 ): Promise<void> {
   requirePublicOrSystem(scope);
+  const meta = {
+    ...(input.credentialId ? { credential_hash: credentialLabel(input.credentialId) } : {}),
+    ...(input.capped ? { capped: true } : {}),
+  };
   await withTransaction(handle, scope, (ctx) =>
     writeAudit(
       ctx,
       {
         action: 'auth.login_failed',
-        ...(input.credentialId ? { meta: { credential_hash: credentialLabel(input.credentialId) } } : {}),
+        ...(Object.keys(meta).length > 0 ? { meta } : {}),
         ...(input.requestId ? { requestId: input.requestId } : {}),
       },
       { type: 'system' },
