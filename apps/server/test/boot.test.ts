@@ -96,6 +96,12 @@ const cases: [string, Record<string, string>, string][] = [
   ],
 ];
 
+/**
+ * Each case starts the entrypoint cold through tsx. Alone that takes a few seconds; inside the full local verify (32
+ * turbo tasks on one PC) it took over 30 s now and then (PROGRESS handoff item 5, 22 Oct 2026).
+ */
+const BOOT_TIMEOUT_MS = 60_000;
+
 describe('entrypoints refuse to boot with a forbidden variable', () => {
   it.each(cases)(
     '%s with %s → exit 1, name printed, value never printed',
@@ -106,21 +112,25 @@ describe('entrypoints refuse to boot with a forbidden variable', () => {
       expect(result.stderr).toContain(`${forbidden}: forbidden in`);
       expect(result.stderr + result.stdout).not.toContain(SECRET);
     },
-    30_000,
+    BOOT_TIMEOUT_MS,
   );
 });
 
 describe('migrate entrypoint', () => {
-  it('unreachable database: exit 1, error logged, connection string never printed (T1.2)', async () => {
-    const result = await runEntrypoint('src/migrate.ts', {
-      NODE_ENV: 'development',
-      APP_ENV: 'local',
-      MONGODB_DB_NAME: 'dev',
-      // Port 1 refuses connections at once; the password must not appear in any output.
-      MONGODB_URI_MIGRATOR: `mongodb://mc_migrator:${SECRET}@127.0.0.1:1/?serverSelectionTimeoutMS=1500`,
-    });
-    expect(result.code).toBe(1);
-    expect(result.stdout + result.stderr).toContain('migrations failed');
-    expect(result.stdout + result.stderr).not.toContain(SECRET);
-  }, 30_000);
+  it(
+    'unreachable database: exit 1, error logged, connection string never printed (T1.2)',
+    async () => {
+      const result = await runEntrypoint('src/migrate.ts', {
+        NODE_ENV: 'development',
+        APP_ENV: 'local',
+        MONGODB_DB_NAME: 'dev',
+        // Port 1 refuses connections at once; the password must not appear in any output.
+        MONGODB_URI_MIGRATOR: `mongodb://mc_migrator:${SECRET}@127.0.0.1:1/?serverSelectionTimeoutMS=1500`,
+      });
+      expect(result.code).toBe(1);
+      expect(result.stdout + result.stderr).toContain('migrations failed');
+      expect(result.stdout + result.stderr).not.toContain(SECRET);
+    },
+    BOOT_TIMEOUT_MS,
+  );
 });
