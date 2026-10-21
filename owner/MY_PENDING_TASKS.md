@@ -34,6 +34,7 @@
 - [x] **O9** — latency test sent (20 Oct 2026)
 - [x] **O18** — Hostinger automatic backups: weekly, on (20 Oct 2026)
 - [x] **O19 + F17** — screen readers and iPhone swipe-back checked: working fine (20 Oct 2026)
+- [x] **O12** — Super Admin passkey on staging created with my phone (22 Oct 2026)
 - [x] **O20** — database privilege check on staging: 17/17 PASS (20 Oct 2026)
 - [x] **O17** — server scripts updated to `2719f01`, edge networks recreated, `check.sh` 106 PASS · 0 FAIL; staging back with the database connected (20 Oct 2026)
 
@@ -43,7 +44,7 @@
 
 | # | What | Time | Notes |
 |---|---|---|---|
-| 2 | **Super Admin passkey** on staging with my phone — when Claude Code says login is ready: on the server `sudo /usr/local/lib/masjid-connect/deploy.sh staging --bootstrap-super-admin --name "<my name>"`, open the printed link on my phone (keep it private; steps in `docs/runbooks/DEPLOY.md` §7) (O12) | 5 min | after passkey login is ready |
+| 2 | **Atlas IP list confirmation** (O21) — Atlas → mc-staging → Security → Network Access: tell Claude Code the date and that only the server's /32 is listed (or a screenshot with the IP blurred) | 1 min | next |
 | ~~2b~~ | ~~**Answer DECISIONS #79**~~ — **done 20 Oct 2026: A** |
 | ~~2c~~ | ~~**Answer DECISIONS #81**~~ — **done 20 Oct 2026: A** (limit now 30) |
 | 3 | **Design notes** — the minor improvements I noticed (list or screenshots) (O7) | — | when ready |

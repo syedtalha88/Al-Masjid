@@ -646,6 +646,21 @@ Unchanged: Turnstile, Sentry, web-push/VAPID, SimpleWebAuthn, all product rules.
 **Options:** A (recommended) — accept ≈ 9 ms for staging and re-measure in Phase 9 against production (M10). If production is still above 5 ms, choose then between keeping it and moving the VPS. B — look for a VPS in the same AWS region now (paid, a move, out of scope for v1).
 **Decision (owner, 20 Oct 2026 — "I accept all, do which is best"):** option A. ≈ 9 ms accepted for staging; Phase 9 re-measures production (M10) and decides then.
 
+### #82 — Delta security review of the #80 fixes (`b9eb751..9fe1f18`) — ACCEPTED (Claude Code, 22 Oct 2026; LOWs in progress)
+**Review:** security-reviewer, 22 Oct 2026: 0 HIGH, 2 MEDIUM, 12 LOW. It verified as correct: H1 (session_step_up + the
+DB re-check), M1/L3 (/64 keying incl. mapped IPv4, failure-only credential counting), M2 for $set / $setOnInsert / $unset /
+dotted paths / updateMany / insert / pipeline updates, M3 order of normalization, L4, L5, L6 (-scan), L9, L10, #81, and the
+test-hook gating.
+**Fixed:** **M-A** — the build / image hook checks searched single-quoted paths, but the bundler writes `"…"`, so they never
+matched (also the older `/test/clock` check). Now one shared matcher for any quote style
+(`apps/server/scripts/hook-code.mjs`), with tests against the real build. **M-B** — an upsert through the gateway only checked
+the update cell, so a crafted filter could insert a removed / purge-marked item or a document outside the tenant. Upserts now
+derive the seeded document (full query incl. the fence; `$eq` and one-value `$in` seed, as in MongoDB; `$set` /
+`$setOnInsert`) and must pass the insert cell's tenant and value checks; a field seeded twice is refused. (An admin's
+own-masjid fence + contentWrite() masjid seed `masjid_id` twice — MongoDB refuses such upserts itself, so admin
+repositories insert.)
+**LOW (L-1 … L-12):** listed with fixes in PROGRESS "Next session"; each is fixed or justified there before Phase 01 closes.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (20 Oct 2026)._
