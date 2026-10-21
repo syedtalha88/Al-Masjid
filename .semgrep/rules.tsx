@@ -23,6 +23,18 @@ systemScope();
 // ruleid: mc-hook-scope-only-in-hooks
 hookScope('x');
 
+import * as dbModule from '@mc/db';
+// ruleid: mc-system-scope-only-in-jobs
+const viaNamespace = dbModule.systemScope;
+// ruleid: mc-hook-scope-only-in-hooks
+const viaDynamic = (await import('@mc/db')).hookScope;
+// ruleid: mc-system-scope-only-in-jobs
+const { systemScope: renamed } = await import('@mc/db');
+// ruleid: mc-hook-scope-only-in-hooks
+const viaRequire = require('@mc/db').hookScope;
+// ok: mc-system-scope-only-in-jobs
+const options = { systemScope: true };
+
 // ruleid: mc-routes-only-via-define-route
 router.get('/masjids', handler);
 // ok: mc-routes-only-via-define-route

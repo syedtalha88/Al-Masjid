@@ -41,6 +41,26 @@ const dynamicMongodbSyntax = [
 ];
 
 /**
+ * Namespace, dynamic and `require` imports of `@mc/db` would reach `systemScope` / `hookScope` as members, which
+ * no-restricted-imports does not see (phase-verifier 22 Oct 2026). Nothing needs them: named imports only.
+ */
+const DB_MODULE = '/^@mc\\u002Fdb(\\u002F.*)?$/';
+const DB_NAMED_ONLY_MESSAGE =
+  'Import from @mc/db by name only (no namespace, dynamic or require imports) — they would bypass the systemScope / hookScope bans.';
+const namedDbImportsSyntax = [
+  {
+    selector: `ImportDeclaration[source.value=${DB_MODULE}] > ImportNamespaceSpecifier`,
+    message: DB_NAMED_ONLY_MESSAGE,
+  },
+  { selector: `ExportAllDeclaration[source.value=${DB_MODULE}]`, message: DB_NAMED_ONLY_MESSAGE },
+  { selector: `ImportExpression[source.value=${DB_MODULE}]`, message: DB_NAMED_ONLY_MESSAGE },
+  {
+    selector: `CallExpression[callee.name='require'][arguments.0.value=${DB_MODULE}]`,
+    message: DB_NAMED_ONLY_MESSAGE,
+  },
+];
+
+/**
  * Playwright's `waitForFunction` does not await a Promise: an async predicate is truthy at once and the wait
  * is a no-op (found in T0.12 — it made the PWA offline spec flaky). Poll async checks with `expect.poll`.
  */
@@ -65,7 +85,12 @@ function importRestrictions(allowed) {
   ];
   return {
     'no-restricted-imports': ['error', { paths: allowed.mongodb ? [] : restrictMongodb.paths, patterns }],
-    'no-restricted-syntax': ['error', ...(allowed.mongodb ? [] : dynamicMongodbSyntax), ...asyncWaitForFunctionSyntax],
+    'no-restricted-syntax': [
+      'error',
+      ...(allowed.mongodb ? [] : dynamicMongodbSyntax),
+      ...(allowed.systemScope && allowed.hookScope ? [] : namedDbImportsSyntax),
+      ...asyncWaitForFunctionSyntax,
+    ],
   };
 }
 

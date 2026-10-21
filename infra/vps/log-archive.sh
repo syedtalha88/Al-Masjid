@@ -22,10 +22,14 @@ if [ "${1:-}" = --container ]; then
   containers=("$@")
 else
   containers=()
+  # Service containers only: a one-off (`compose run --rm`: --bootstrap-super-admin, --verify-roles, migrate) prints to
+  # the terminal / the deploy journal and is gone seconds later; an hourly run that caught one mid-flight would archive
+  # its output, e.g. the one-time Super Admin invite link (phase-verifier 22 Oct 2026).
   for project in mc-edge mc-staging mc-production; do
     while read -r container; do
       [ -n "$container" ] && containers+=("$container")
-    done < <(docker ps -a --filter "label=com.docker.compose.project=$project" --format '{{.Names}}')
+    done < <(docker ps -a --filter "label=com.docker.compose.project=$project" \
+      --filter "label=com.docker.compose.oneoff=False" --format '{{.Names}}')
   done
 fi
 

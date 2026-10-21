@@ -74,6 +74,23 @@ describe('import bans: allowed areas', () => {
     expect(await ruleIds('packages/api/src/hooks/example.ts', hookScopeImport)).not.toContain('no-restricted-imports');
   });
 
+  it('rejects namespace, dynamic, require and export-all imports of @mc/db outside the db package', async () => {
+    for (const code of [
+      "import * as db from '@mc/db';\nexport const scope = db.systemScope;\n",
+      "export * from '@mc/db/state';\n",
+      "export const load = async () => (await import('@mc/db')).hookScope;\n",
+      "export const db = require('@mc/db');\n",
+    ]) {
+      expect(await ruleIds('packages/api/src/routes/masjids.ts', code), code).toContain('no-restricted-syntax');
+      expect(await ruleIds('packages/api/src/jobs/retention.ts', code), code).toContain('no-restricted-syntax');
+    }
+    const named = "import { publicScope } from '@mc/db';\nexport const scope = publicScope;\n";
+    expect(await ruleIds('packages/api/src/routes/masjids.ts', named)).not.toContain('no-restricted-syntax');
+    expect(await ruleIds('packages/db/src/index.ts', "export * from './scope.ts';\n")).not.toContain(
+      'no-restricted-syntax',
+    );
+  });
+
   it('rejects systemScope in webhooks', async () => {
     expect(await ruleIds('packages/api/src/hooks/example.ts', systemScopeImport)).toContain('no-restricted-imports');
   });

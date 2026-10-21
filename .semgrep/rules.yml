@@ -37,6 +37,18 @@ rules:
     pattern-either:
       - pattern: import { ..., systemScope, ... } from '$MOD'
       - pattern: systemScope(...)
+      # Member access through a namespace, dynamic or require import (phase-verifier 22 Oct 2026).
+      - patterns:
+          - pattern-inside: |
+              import * as $NS from '$MOD'
+              ...
+          - pattern: $NS.systemScope
+      - pattern: (await import('$MOD')).systemScope
+      - pattern: require('$MOD').systemScope
+      - pattern: const { ..., systemScope, ... } = await import('$MOD')
+      - pattern: const { ..., systemScope, ... } = require('$MOD')
+      - pattern: "const { ..., systemScope: $ALIAS, ... } = await import('$MOD')"
+      - pattern: "const { ..., systemScope: $ALIAS, ... } = require('$MOD')"
     paths:
       exclude: ['packages/api/src/jobs/**', 'scripts/**', 'packages/db/**']
 
@@ -47,6 +59,18 @@ rules:
     pattern-either:
       - pattern: import { ..., hookScope, ... } from '$MOD'
       - pattern: hookScope(...)
+      # Member access through a namespace, dynamic or require import (phase-verifier 22 Oct 2026).
+      - patterns:
+          - pattern-inside: |
+              import * as $NS from '$MOD'
+              ...
+          - pattern: $NS.hookScope
+      - pattern: (await import('$MOD')).hookScope
+      - pattern: require('$MOD').hookScope
+      - pattern: const { ..., hookScope, ... } = await import('$MOD')
+      - pattern: const { ..., hookScope, ... } = require('$MOD')
+      - pattern: "const { ..., hookScope: $ALIAS, ... } = await import('$MOD')"
+      - pattern: "const { ..., hookScope: $ALIAS, ... } = require('$MOD')"
     paths:
       exclude: ['packages/api/src/hooks/**', 'packages/db/**']
 
