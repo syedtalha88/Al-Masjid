@@ -1,9 +1,7 @@
 # PHASE 01 REPORT — Database, security core, passkey auth, Super Admin — **DRAFT (22 Oct 2026)**
 
-> **Waiting for, before AWAITING OWNER VERIFICATION:** (1) owner O22 — host-layer update on the VPS (the newer
-> `deploy.sh` / `log-archive.sh`; releases deploy without it); (2) the staging `--verify-roles`
-> output saved as evidence (O22 re-runs it); (3) the security-review re-run of the last fixes (§3). Placeholders are
-> marked ⏳.
+> **Waiting for, before AWAITING OWNER VERIFICATION:** the final release on staging (its image digests go in the
+> header) and the final phase-verifier / security-reviewer pass (§3). O22 and the staging evidence are done (22 Oct).
 
 **Date:** 22 Oct 2026 · **Commit range:** `9f9fec4..1c9f92d` on `main` (Phase 01 started 16 Oct 2026, DECISIONS #62;
 Phase 00 closure items share the range) · **Staging URLs:** app https://app-staging.almasjids.com · admin
@@ -29,7 +27,7 @@ The owner created the real Super Admin passkey on staging on 22 Oct 2026.
 
 | Task | Status | Key files | Tests / evidence |
 |---|---|---|---|
-| T1.1 Atlas, DB users/roles, capability verification | ✅ | `packages/db/src/roles.ts`, `infra/vps/atlas-users.sh`, `deploy.sh --verify-roles` | `privileges.int.test.ts` (≈ 500 checks as each user), `roles-local`, `verify-roles` tests; staging 17/17 on 20 Oct (O20) — evidence ⏳ |
+| T1.1 Atlas, DB users/roles, capability verification | ✅ | `packages/db/src/roles.ts`, `infra/vps/atlas-users.sh`, `deploy.sh --verify-roles` | `privileges.int.test.ts` (≈ 500 checks as each user), `roles-local`, `verify-roles` tests; staging 17/17 on 20 and 22 Oct (`evidence/PHASE_01_T1.1_verify-roles_2026-10-22.txt`) |
 | T1.2 Schema, validators, migrations | ✅ | `packages/db/src/schema/**`, `packages/db/src/migrations/**` | `migrations.int.test.ts` (rejections, idempotency, lock, checksum, drift fixture); migrations 0001–0007 on staging Atlas |
 | T1.3 Data-layer operations & side effects | ✅ | `packages/db/src/effects.ts`, `state/**` | `state.int.test.ts` (limits under concurrency, invite single use, follow-code collisions, version bump) |
 | T1.4 Policy layer + full matrix | ✅ | `packages/db/src/policy.ts`, `scoped.ts` | `policy.int.test.ts`: 947 cells attempted + 37 left to MongoDB / DB users = 984; cross-masjid read **and** write denial for every collection; device-vs-device |
@@ -51,8 +49,8 @@ Local full verify on 22 Oct 2026 (Windows dev PC, recipe in PROGRESS) and CI on 
 | Typecheck / lint / format | ✅ | 32/32 turbo tasks, 0 warnings, Prettier clean, `i18n:check` passed |
 | Unit + component | ✅ | ui 204, shared 140, api 105, i18n 84, config 63 (42 lint-rule tests), db 30, server 27, domain 23, admin 21 — coverage gates met |
 | DB policy matrix | ✅ | `db:test` 150/150, 98.1 % lines; matrix 947 attempted + 37 DB-decided = 984 cells |
-| DB privileges | ✅ local · ✅ staging (20 Oct) | local ≈ 500 checks as each user; staging `--verify-roles` 17/17 (O20); evidence file ⏳ (O22) |
-| Infra | ✅ | Trivy 0 HIGH/CRITICAL with a fix (Caddy builder re-pinned to Go 1.27.3 on 22 Oct); `check.sh` 106 PASS · 0 FAIL · 2 WARN (20 Oct) — re-run after O22 ⏳; deploy tests 0 failures |
+| DB privileges | ✅ local · ✅ staging | local ≈ 500 checks as each user; staging `--verify-roles` 17/17 (20 Oct, again 22 Oct after O22 — evidence file); Atlas IP list = the VPS only (O21 evidence) |
+| Infra | ✅ | Trivy 0 HIGH/CRITICAL with a fix (Caddy builder re-pinned to Go 1.27.3 on 22 Oct); `check.sh` 114 PASS · 0 FAIL · 2 WARN after O22, host layer `aa2d1ac` (22 Oct, evidence file); deploy tests 0 failures |
 | API integration | ✅ | 156/156, 99.0 % lines (F41: a Windows-only worker crash needs a re-run now and then) |
 | E2E (Pixel 7 / iPhone 14) | ✅ | 142 passed / 26 skipped (Chromium-only features skipped on WebKit); admin auth specs on the test-hooks stack 7 passed (Chromium) / 7 skipped (WebKit has no virtual authenticator); flaky 0 |
 | Accessibility | ✅ | axe: 0 violations on every admin screen in 4 locales; Lighthouse a11y 100 on 9 signed-in screens |

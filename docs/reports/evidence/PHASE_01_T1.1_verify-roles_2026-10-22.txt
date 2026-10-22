@@ -1,0 +1,33 @@
+PHASE 01 — T1.1 / T1.12 evidence: database privileges on staging Atlas (DECISIONS #63)
+Run by the owner on the staging VPS, 22 Oct 2026 04:25 UTC, after O22 (host layer aa2d1ac), release 1c9f92d:
+  sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles
+Output (verbatim; contains no secrets):
+
+Container mc-staging-api-public-run-dc5b96180ac9 Creating
+Container mc-staging-api-public-run-dc5b96180ac9 Created
+PASS  mc_public: authenticated as mc_public — mc_public
+PASS  mc_public: privileges in masjid_connect match 02 §4.3 — 31 privileges
+PASS  mc_public: no privileges on any other database
+PASS  mc_public: reads a view without privileges on its source (T1.1 (2))
+PASS  mc_public: read-only transaction commits (T1.1 (3))
+Container mc-staging-api-admin-run-9da705842786 Creating
+Container mc-staging-api-admin-run-9da705842786 Created
+PASS  mc_admin: authenticated as mc_admin — mc_admin
+PASS  mc_admin: privileges in masjid_connect match 02 §4.3 — 78 privileges
+PASS  mc_admin: no privileges on any other database
+PASS  mc_admin: read-only transaction commits (T1.1 (3))
+Container mc-staging-worker-run-5586d3ff5041 Creating
+Container mc-staging-worker-run-5586d3ff5041 Created
+PASS  mc_system: authenticated as mc_system — mc_system
+PASS  mc_system: privileges in masjid_connect match 02 §4.3 — 125 privileges
+PASS  mc_system: no privileges on any other database
+PASS  mc_system: read-only transaction commits (T1.1 (3))
+Container mc-staging-migrate-run-27bf5e09548c Creating
+Container mc-staging-migrate-run-27bf5e09548c Created
+PASS  mc_migrator: authenticated as mc_migrator — mc_migrator
+PASS  mc_migrator: privileges in masjid_connect match 02 §4.3 — 254 privileges
+PASS  mc_migrator: no privileges on any other database
+PASS  mc_migrator: read-only transaction commits (T1.1 (3))
+2026-10-22T04:25:03Z deploy[staging] verify-roles: every process has exactly its 02 §4.3 privileges
+
+Result: 17/17 PASS (same as the first staging run, 20 Oct 2026 — O20). No "deploying" line in this mode (F36 fix live).

@@ -1,0 +1,20 @@
+PHASE 01 — T1.12 evidence: VPS hardening checklist after O22
+Run by the owner on the staging VPS, 22 Oct 2026 04:25 UTC: sudo /usr/local/lib/masjid-connect/check.sh
+provision.sh for host layer aa2d1ac13fd0a1ca78e965d3a773367cddc04fa8 downloaded from GitHub; the owner confirmed
+sha256 = 805c175c64055f69fc2c74b10b63619734a04068df7ac2ef3e035aa992a76b96 before running it.
+
+Summary: == 114 PASS · 0 FAIL · 2 WARN
+Host layer: PASS  host layer VERSION aa2d1ac13fd0
+WARN lines (both known and accepted):
+  WARN  Docker: no user-namespace remapping (04 §12.2: 'where compatible') — DECISIONS #74
+  WARN  production: not deployed yet — origin certificate files not checked
+Selected PASS lines:
+  PASS  firewall: SSH not open to Anywhere · PASS  WireGuard interface up (wg0)
+  PASS  firewall: DOCKER-USER drops non-Cloudflare IPv4 / IPv6 to 443
+  PASS  only 443/80 (TCP) and WireGuard (UDP) listen publicly
+  PASS  every container (web, worker, 2× api-admin, 2× api-public, edge router, redis): non-root, read-only root,
+        not privileged, cap_drop ALL, no-new-privileges, memory limit, healthcheck, no docker.sock
+  PASS  env files 600 root (staging + production) · origin certificate / key parse, match, valid 30+ days
+  PASS  log archive directory is 700 · log archive is fresh · no recorded deploy / log-archive failures
+  PASS  staging: origin refuses TLS without the Cloudflare client certificate
+(Earlier runs: 100 PASS 16 Oct, 106 PASS 20 Oct — the count grew with new checks.)
