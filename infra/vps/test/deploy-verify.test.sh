@@ -259,7 +259,7 @@ rm -f "$root/config/migrate.env"
 
 # --verify-roles (PHASE_01 T1.1): read-only, runs the check in each process's container, never deploys or replaces.
 : >"$STUB_CALLS"; run rel-11 --verify-roles; got=$?
-check "--verify-roles runs the check in api-public, api-admin and worker (no migrate.env) and changes nothing"   '[ "$got" -eq 0 ] && [ "$(grep -c "dist/verify-roles.mjs" "$STUB_CALLS")" -eq 3 ] && ! grep -q -- "--scale" "$STUB_CALLS" && ! grep -q " pull " "$STUB_CALLS" && [ "$(running)" = "$(rel 11)" ]'
+check "--verify-roles runs the check in api-public, api-admin and worker (no migrate.env), changes nothing, logs no deploy (F36)"   '[ "$got" -eq 0 ] && ! grep -q "deploying" "$root/out" && [ "$(grep -c "dist/verify-roles.mjs" "$STUB_CALLS")" -eq 3 ] && ! grep -q -- "--scale" "$STUB_CALLS" && ! grep -q " pull " "$STUB_CALLS" && [ "$(running)" = "$(rel 11)" ]'
 touch "$root/config/migrate.env"
 : >"$STUB_CALLS"; STUB_FAIL_VERIFY=api-admin run rel-11 --verify-roles; got=$?
 check "--verify-roles: a failing process fails the run; migrate is checked when it has credentials"   '[ "$got" -eq 1 ] && [ "$(grep -c "dist/verify-roles.mjs" "$STUB_CALLS")" -eq 4 ] && grep -q "privileges differ" "$root/out"'
@@ -267,7 +267,7 @@ rm -f "$root/config/migrate.env"
 
 # --bootstrap-super-admin (PHASE_01 T1.9, DECISIONS #70 A): one-off api-admin container, arguments passed unchanged.
 : >"$STUB_CALLS"; run rel-11 --bootstrap-super-admin --name 'Test Owner; rm -rf /' --locale ur; got=$?
-check "--bootstrap-super-admin runs once in api-admin with the arguments verbatim and changes nothing"   '[ "$got" -eq 0 ] && [ "$(grep -c "dist/bootstrap-super-admin.mjs" "$STUB_CALLS")" -eq 1 ] && grep -q "run --rm --no-deps -T api-admin dist/bootstrap-super-admin.mjs" "$STUB_CALLS" && [ "$(tail -n 4 "$root/stub-state/bootstrap-args" | paste -sd "|")" = "--name|Test Owner; rm -rf /|--locale|ur" ] && ! grep -q -- "--scale" "$STUB_CALLS" && ! grep -q " pull " "$STUB_CALLS" && [ "$(running)" = "$(rel 11)" ]'
+check "--bootstrap-super-admin runs once in api-admin with the arguments verbatim, changes nothing, logs no deploy (F36)"   '[ "$got" -eq 0 ] && ! grep -q "deploying" "$root/out" && [ "$(grep -c "dist/bootstrap-super-admin.mjs" "$STUB_CALLS")" -eq 1 ] && grep -q "run --rm --no-deps -T api-admin dist/bootstrap-super-admin.mjs" "$STUB_CALLS" && [ "$(tail -n 4 "$root/stub-state/bootstrap-args" | paste -sd "|")" = "--name|Test Owner; rm -rf /|--locale|ur" ] && ! grep -q -- "--scale" "$STUB_CALLS" && ! grep -q " pull " "$STUB_CALLS" && [ "$(running)" = "$(rel 11)" ]'
 : >"$STUB_CALLS"; STUB_FAIL_BOOTSTRAP=1 run rel-11 --bootstrap-super-admin --name Test; got=$?
 check "--bootstrap-super-admin: a refusal (e.g. a Super Admin exists) fails the run"   '[ "$got" -eq 1 ] && grep -q "did not create a Super Admin" "$root/out"'
 run rel-11 --verify-roles --name Test; got=$?

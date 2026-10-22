@@ -118,7 +118,8 @@ main() {
 
   host_layer_matches "$work/manifest.json" ||
     die "release $release needs the host layer from its own commit — run: sudo bash provision.sh host $release"
-  log "deploying $release"
+  # The one-off modes deploy nothing; they log their own line below (F36).
+  case "$MODE" in --verify-roles | --bootstrap-super-admin) ;; *) log "deploying $release" ;; esac
   export MC_ENV=$ENVIRONMENT MC_CONFIG_DIR=$CONFIG_DIR MC_COMPOSE_DIR=$COMPOSE_DIR SERVER_IMAGE=$server_image WEB_IMAGE=$web_image
   compose_policy || die "the installed compose file breaks the hardening policy — refusing"
   if [ "$MODE" = --verify-roles ]; then
