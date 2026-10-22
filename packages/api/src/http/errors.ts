@@ -26,6 +26,9 @@ const STATE_CODES: Readonly<Record<string, ApiErrorCode>> = {
   NOTHING_TO_UPDATE: 'NOTHING_TO_UPDATE',
   INVALID_CURSOR: 'INVALID_CURSOR',
   UNDERTAKING_VERSION_MISMATCH: 'UNDERTAKING_VERSION_MISMATCH',
+  ITEM_NOT_FOUND: 'ITEM_NOT_FOUND',
+  // The authenticated device was deleted meanwhile (Clear all data on another tab): the app registers again.
+  DEVICE_NOT_FOUND: 'DEVICE_AUTH_REQUIRED',
 };
 
 /** The API problem for a client-facing state refusal, or `undefined` for internal ones. */

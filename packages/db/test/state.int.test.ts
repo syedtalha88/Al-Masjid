@@ -25,8 +25,8 @@ import {
   createMasjid,
   followMasjid,
   INVITE_TTL_MS,
-  recordAmeen,
   removeAdminFromMasjid,
+  removeItem,
   unfollowMasjid,
 } from '../src/state/index.ts';
 import { createTestDatabase, type TestDatabase, testMongoUri } from '../src/testing/index.ts';
@@ -430,6 +430,6 @@ describe('audit writes', () => {
 
 describe('later-phase state functions', () => {
   it('exist with their names and throw NotImplementedError until their phase', () => {
-    expect(() => recordAmeen(h(), deviceScope(new UUID()), new UUID())).toThrow(NotImplementedError);
+    expect(() => removeItem(h(), superScope(new UUID()), new UUID(), 'reason')).toThrow(NotImplementedError);
   });
 });

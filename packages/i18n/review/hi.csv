@@ -163,6 +163,8 @@ errors,ADMIN_NOT_FOUND,We couldn’t find this admin.,यह एडमिन न
 errors,NOTHING_TO_UPDATE,Nothing was changed.,कुछ भी नहीं बदला गया।,no
 errors,INVALID_CURSOR,This list changed. Please reload it.,यह सूची बदल गई है। कृपया इसे फिर से लोड करें।,no
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,लगता है आप ऑफ़लाइन हैं। कृपया कनेक्शन जाँचकर फिर कोशिश करें।,no
+errors,ITEM_NOT_FOUND,This post is no longer available.,यह पोस्ट अब उपलब्ध नहीं है।,no
+errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,हम जाँच नहीं सके कि यह असली फ़ोन है। कृपया फिर से कोशिश करें।,no
 super,title,Super Admin,सुपर एडमिन,no
 super,nav.label,Super Admin sections,सुपर एडमिन के हिस्से,no
 super,nav.dashboard,Dashboard,डैशबोर्ड,no

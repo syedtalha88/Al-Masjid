@@ -163,6 +163,8 @@ errors,ADMIN_NOT_FOUND,We couldn’t find this admin.,ఈ అడ్మిన్ 
 errors,NOTHING_TO_UPDATE,Nothing was changed.,ఏదీ మార్చలేదు.,no
 errors,INVALID_CURSOR,This list changed. Please reload it.,ఈ జాబితా మారింది. దయచేసి మళ్లీ లోడ్ చేయండి.,no
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,మీరు ఆఫ్‌లైన్‌లో ఉన్నట్లున్నారు. దయచేసి కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి.,no
+errors,ITEM_NOT_FOUND,This post is no longer available.,ఈ పోస్ట్ ఇప్పుడు అందుబాటులో లేదు.,no
+errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,ఇది నిజమైన ఫోన్ అని మేము నిర్ధారించలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
 super,title,Super Admin,సూపర్ అడ్మిన్,no
 super,nav.label,Super Admin sections,సూపర్ అడ్మిన్ విభాగాలు,no
 super,nav.dashboard,Dashboard,డాష్‌బోర్డ్,no

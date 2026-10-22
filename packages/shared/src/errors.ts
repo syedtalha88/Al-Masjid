@@ -38,6 +38,9 @@ export const API_ERRORS = {
   ADMIN_NOT_FOUND: 404,
   NOTHING_TO_UPDATE: 400,
   INVALID_CURSOR: 400,
+  // Public API (03 §3, Phase 2)
+  ITEM_NOT_FOUND: 404,
+  TURNSTILE_FAILED: 403,
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

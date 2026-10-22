@@ -45,4 +45,6 @@ export const SCHEMA_AREAS: Readonly<
     ],
   },
   '0006_views': { collections: [], views: [...PUBLIC_VIEWS, ...ADMIN_VIEWS] },
+  // PHASE_02 T2.2: feed and special-date order inside the views (index-backed pages).
+  '0008_view_order': { collections: [], views: ['v_pub_items', 'v_pub_special_timings'] },
 };

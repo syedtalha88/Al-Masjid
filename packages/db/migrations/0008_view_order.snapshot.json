@@ -1,0 +1,102 @@
+{
+  "collections": [],
+  "views": [
+    {
+      "name": "v_pub_special_timings",
+      "viewOn": "special_timings",
+      "pipeline": [
+        {
+          "$match": {
+            "masjid_visible": true,
+            "deleted_at": {
+              "$exists": false
+            }
+          }
+        },
+        {
+          "$sort": {
+            "date": {
+              "$numberInt": "1"
+            },
+            "_id": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "$project": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "type": {
+              "$numberInt": "1"
+            },
+            "date": {
+              "$numberInt": "1"
+            },
+            "label": {
+              "$numberInt": "1"
+            },
+            "times": {
+              "$numberInt": "1"
+            },
+            "note": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "v_pub_items",
+      "viewOn": "items",
+      "pipeline": [
+        {
+          "$match": {
+            "status": "published",
+            "masjid_visible": true
+          }
+        },
+        {
+          "$sort": {
+            "published_at": {
+              "$numberInt": "-1"
+            },
+            "_id": {
+              "$numberInt": "-1"
+            }
+          }
+        },
+        {
+          "$unset": [
+            "created_by",
+            "notify",
+            "rights_confirmed",
+            "deleted_at",
+            "removed_at",
+            "removed_reason",
+            "purge_after"
+          ]
+        },
+        {
+          "$set": {
+            "dua": {
+              "$cond": {
+                "if": {
+                  "$eq": ["$dua.name_private", true]
+                },
+                "then": {
+                  "$unsetField": {
+                    "field": "person_name",
+                    "input": "$dua"
+                  }
+                },
+                "else": "$dua"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

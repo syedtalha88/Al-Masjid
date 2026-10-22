@@ -34,6 +34,24 @@ export {
   SESSION_LIFETIMES,
 } from './auth.ts';
 export { bootstrapSuperAdmin } from './bootstrap.ts';
+export {
+  type AudiencePref,
+  deleteDevice,
+  DEVICE_SEEN_THROTTLE_MS,
+  type DeviceCredential,
+  type DeviceLocale,
+  type DevicePlatform,
+  type DeviceRecordView,
+  findDeviceCredential,
+  type FollowView,
+  getDeviceRecord,
+  listFollows,
+  recordAmeen,
+  registerDevice,
+  setDevicePrefs,
+  setFollowMuted,
+  touchDevice,
+} from './devices.ts';
 export { followMasjid, MAX_FOLLOWS_PER_DEVICE, unfollowMasjid } from './follows.ts';
 export { requireSuper, STEP_UP_WINDOW_MS } from './guards.ts';
 export * from './later.ts';

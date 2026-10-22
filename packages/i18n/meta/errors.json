@@ -7,5 +7,11 @@
   },
   "NETWORK": {
     "context": "Client could not reach the server (offline / patchy network)"
+  },
+  "ITEM_NOT_FOUND": {
+    "context": "A shared or notified post was deleted, removed or is not for this audience; calm wording"
+  },
+  "TURNSTILE_FAILED": {
+    "context": "Bot check during first-run registration failed; ask to try again"
   }
 }

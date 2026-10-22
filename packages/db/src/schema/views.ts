@@ -47,12 +47,18 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
     { $project: keep('status', 'content_version') },
   ],
   v_pub_timings: [{ $match: { masjid_visible: true } }, { $project: keep('prayers', 'jumuah') }],
+  // The order lives IN the view (migration 0008): a caller's sort would run after the projection and could not use the
+  // index (every matching document examined), while a view `$sort` before it takes the caller's `$match` and `$limit`
+  // with it into the index scan (PHASE_02 T2.2 explain tests: 31 examined for a 31-item page of 100k).
   v_pub_special_timings: [
     { $match: { masjid_visible: true, ...notDeleted } },
+    { $sort: { date: 1, _id: 1 } },
     { $project: keep('masjid_id', 'type', 'date', 'label', 'times', 'note') },
   ],
   v_pub_items: [
     { $match: { status: 'published', masjid_visible: true } },
+    // Newest first = the feed indexes' order (see v_pub_special_timings).
+    { $sort: { published_at: -1, _id: -1 } },
     {
       $unset: ['created_by', 'notify', 'rights_confirmed', 'deleted_at', 'removed_at', 'removed_reason', 'purge_after'],
     },

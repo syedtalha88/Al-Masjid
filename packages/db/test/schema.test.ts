@@ -43,9 +43,21 @@ describe('schema completeness', () => {
     for (const view of VIEWS) expect(Object.keys(view.pipeline[0] ?? {})[0]).toMatch(/^\$(match|project)$/);
   });
 
-  it('every collection and view belongs to exactly one schema migration area', () => {
-    const covered = Object.values(SCHEMA_AREAS).flatMap((area) => [...area.collections, ...(area.views ?? [])]);
-    expect([...covered].sort()).toEqual([...COLLECTIONS, ...VIEWS.map((view) => view.name)].sort());
+  it('every collection and view is created by exactly one schema migration area; later areas only redefine', () => {
+    const areas = Object.entries(SCHEMA_AREAS);
+    const firstSeen = new Map<string, string>();
+    for (const [id, area] of areas) {
+      for (const name of [...area.collections, ...(area.views ?? [])])
+        if (!firstSeen.has(name)) firstSeen.set(name, id);
+    }
+    expect([...firstSeen.keys()].sort()).toEqual([...COLLECTIONS, ...VIEWS.map((view) => view.name)].sort());
+    // A redefinition comes from a newer migration than the one that created the namespace (0008: view order).
+    for (const [id, area] of areas) {
+      for (const name of [...area.collections, ...(area.views ?? [])]) {
+        expect((firstSeen.get(name) ?? '') <= id, `${name} in ${id}`).toBe(true);
+      }
+    }
+    expect(SCHEMA_AREAS['0008_view_order']?.views).toEqual(['v_pub_items', 'v_pub_special_timings']);
   });
 });
 

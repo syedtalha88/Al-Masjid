@@ -13,6 +13,7 @@ import s0003 from './0003_library_payments.snapshot.json' with { type: 'json' };
 import s0004 from './0004_devices_push.snapshot.json' with { type: 'json' };
 import s0005 from './0005_moderation_audit.snapshot.json' with { type: 'json' };
 import s0006 from './0006_views.snapshot.json' with { type: 'json' };
+import s0008 from './0008_view_order.snapshot.json' with { type: 'json' };
 
 /** A schema migration from its snapshot file (canonical EJSON → exact BSON types). */
 function schema(id: string, file: unknown): Migration {
@@ -61,4 +62,5 @@ export const MIGRATIONS: readonly Migration[] = [
   schema('0005_moderation_audit', s0005),
   schema('0006_views', s0006),
   seedAppSettings,
+  schema('0008_view_order', s0008),
 ];

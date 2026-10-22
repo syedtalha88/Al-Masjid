@@ -29,5 +29,7 @@
   "ADMIN_NOT_FOUND": "We couldn’t find this admin.",
   "NOTHING_TO_UPDATE": "Nothing was changed.",
   "INVALID_CURSOR": "This list changed. Please reload it.",
-  "NETWORK": "You seem to be offline. Please check your connection and try again."
+  "NETWORK": "You seem to be offline. Please check your connection and try again.",
+  "ITEM_NOT_FOUND": "This post is no longer available.",
+  "TURNSTILE_FAILED": "We could not check that this is a real phone. Please try again."
 }

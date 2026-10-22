@@ -12,7 +12,8 @@
     "./migrations": "./migrations/index.ts",
     "./migrations/areas": "./migrations/areas.ts",
     "./state": "./src/state/index.ts",
-    "./repos": "./src/repos/index.ts"
+    "./repos": "./src/repos/index.ts",
+    "./seed": "./src/seed/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

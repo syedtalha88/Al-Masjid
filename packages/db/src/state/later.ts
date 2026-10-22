@@ -33,11 +33,6 @@ export const restoreItem: (handle: DbHandle, scope: Scope, itemId: UUID) => Prom
   'restoreItem',
   'Phase 8',
 );
-export const recordAmeen: (handle: DbHandle, scope: Scope, duaItemId: UUID) => Promise<number> = later(
-  'recordAmeen',
-  'Phase 2',
-);
-export const deleteDevice: (handle: DbHandle, scope: Scope) => Promise<void> = later('deleteDevice', 'Phase 2');
 export const setShowChanda: (handle: DbHandle, scope: Scope, masjidId: UUID, show: boolean) => Promise<void> = later(
   'setShowChanda',
   'Phase 5',
@@ -45,8 +40,4 @@ export const setShowChanda: (handle: DbHandle, scope: Scope, masjidId: UUID, sho
 export const setDevicePush: (handle: DbHandle, scope: Scope, input: Record<string, unknown>) => Promise<void> = later(
   'setDevicePush',
   'Phase 4',
-);
-export const setDevicePrefs: (handle: DbHandle, scope: Scope, input: Record<string, unknown>) => Promise<void> = later(
-  'setDevicePrefs',
-  'Phase 2',
 );
