@@ -71,6 +71,7 @@ Verify recipe and other quirks as before (below).
 | O19 | ~~Screen-reader check (TalkBack + VoiceOver)~~ | Re-review V-7 | – | **done 20 Oct 2026** — owner: "mobile testing is working fine" |
 | O21 | ~~Dated confirmation of the Atlas IP access list~~ | T1.12 evidence | – | **done 22 Oct 2026** — owner: "I confirm" (`docs/reports/evidence/PHASE_01_T1.12_atlas-ip-list_2026-10-22.txt`) |
 | O12 | ~~Super Admin passkey on staging~~ — **done 22 Oct 2026** | Phase 01 T1.9 | – | done |
+| O23 | **Cloudflare Cache Rule "App API (origin)"** (infra/cloudflare/README.md §4 rule 1) — check it exists and is enabled | T2.2 acceptance: staging versioned bundle/feed answer `cf-cache-status: DYNAMIC` (23 Oct 2026, origin sends `public, max-age=31536000, immutable`) — Cloudflare is not caching `/api/v1/*`; until fixed, every read reaches the VPS | 5 min | **pending** — then Claude Code re-runs `scripts/check-cdn-cache.mjs` |
 | O22 | ~~Host-layer update on the VPS~~ | F36, F37, F40, L-5, #86 L5 | – | **done 22 Oct 2026** — `provision.sh host aa2d1ac` (checksum confirmed), `make-env.sh staging --force`, Redis restarted; `--verify-roles` 17/17, `check.sh` 114 PASS · 0 FAIL · 2 WARN (evidence `docs/reports/evidence/PHASE_01_T1.1_verify-roles_2026-10-22.txt`, `PHASE_01_T1.12_check-sh_2026-10-22.txt`) |
 
 ## Current phase task checklist
