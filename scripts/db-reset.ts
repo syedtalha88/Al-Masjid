@@ -1,6 +1,6 @@
 // `pnpm db:reset` — local Docker MongoDB only (CLAUDE.md §7): drop the dev database, re-create the four application
 // users with the passwords from `.env.local.compose` (02 §4.3, T1.1), then run every migration as mc_migrator (T1.2).
-// The dev seed (fake masjids per 10 §5) joins with the features that need it. Never prints a password.
+// `pnpm db:reset` then runs the dev seed (scripts/seed-dev.ts — fake masjids per 10 §5). Never prints a password.
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';

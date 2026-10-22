@@ -8,7 +8,15 @@ export {
   PUBLIC_API_PREFIX,
 } from './app.ts';
 export { type ChallengeStore, memoryChallengeStore, redisChallengeStore } from './auth/challenges.ts';
+export {
+  type AuthedDevice,
+  type AuthenticateDevice,
+  deviceAuthenticator,
+  deviceSecretHash,
+  newDeviceSecret,
+} from './auth/device.ts';
 export { type AuthedSession, type Authenticate, type RouteAuth, sessionAuthenticator } from './auth/session.ts';
+export { SITEVERIFY_URL, type TurnstileVerifier, turnstileVerifier } from './auth/turnstile.ts';
 export {
   decryptField,
   encryptField,
@@ -40,4 +48,5 @@ export { buildOpenApiDocument } from './openapi.ts';
 export { adminSessionRoutes } from './routes/admin-auth.ts';
 export { type AdminPasskeyDeps, adminPasskeyRoutes } from './routes/admin-passkeys.ts';
 export { type HealthProbes, PROBE_TIMEOUT_MS } from './routes/health.ts';
-export { type AdminRouteDeps, adminRoutes } from './routes/index.ts';
+export { type AdminRouteDeps, adminRoutes, apiPublicRoutes, type PublicRouteDeps } from './routes/index.ts';
+export { CACHE as PUBLIC_CACHE } from './routes/public.ts';

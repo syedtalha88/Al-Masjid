@@ -178,6 +178,9 @@ importers:
       '@mc/db':
         specifier: workspace:*
         version: link:packages/db
+      '@mc/domain':
+        specifier: workspace:*
+        version: link:packages/domain
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
@@ -433,6 +436,9 @@ importers:
       '@mc/db':
         specifier: workspace:*
         version: link:../db
+      '@mc/domain':
+        specifier: workspace:*
+        version: link:../domain
       '@mc/shared':
         specifier: workspace:*
         version: link:../shared

@@ -3,6 +3,7 @@ import { type Clock, systemClock } from '@mc/shared/clock';
 import type { Request, RequestHandler, Response, Router } from 'express';
 import { z } from 'zod';
 
+import { type AuthedDevice, authenticateDevice, type DeviceRouteAuth } from '../auth/device.ts';
 import { type AuthedSession, authenticateRequest, type RouteAuth } from '../auth/session.ts';
 import { ApiProblem } from './problem.ts';
 import { enforceRateLimits, type RateLimitRule } from './rate-limit.ts';
@@ -23,8 +24,20 @@ export type RouteResult<R extends Responses> = {
   [S in keyof R & number]: { readonly status: S; readonly body: z.input<R[S]> };
 }[keyof R & number];
 
-/** What a handler receives as `auth`: nothing on public routes, the session (and its DB scope) otherwise. */
-export type AuthFor<A extends RouteAuth> = A extends 'none' ? undefined : AuthedSession;
+/** What a handler receives as `auth`: nothing on public routes, the device or the session (with its DB scope). */
+export type AuthFor<A extends RouteAuth> = A extends 'none'
+  ? undefined
+  : A extends 'device'
+    ? AuthedDevice
+    : A extends 'device_optional'
+      ? AuthedDevice | undefined
+      : AuthedSession;
+
+const isDeviceAuth = (auth: RouteAuth): auth is DeviceRouteAuth => auth === 'device' || auth === 'device_optional';
+
+/** Redirects (stale content version → current version, 01 §5.2): the body carries the target. */
+export const redirectSchema = z.object({ location: z.string() });
+const isRedirect = (status: number) => status === 301 || status === 302 || status === 307 || status === 308;
 
 export interface RouteContext<P, Q, B, R extends Responses, A extends RouteAuth = 'none'> {
   readonly auth: AuthFor<A>;
@@ -61,13 +74,15 @@ export interface RouteSpec<
   readonly undertaking?: 'exempt';
   /** Rate-limit rules (03 §2), applied in order after auth and before validation. */
   readonly rateLimit?: readonly RateLimitRule[];
-  /** `Cache-Control` for successful responses (01 §5.2). Default `no-store`. */
-  readonly cacheControl?: string;
+  /** `Cache-Control` for successful responses (01 §5.2), per status when it differs (a redirect vs the 200). Default `no-store`. */
+  readonly cacheControl?: string | ((status: number) => string);
   /**
    * Success bodies are JSON unless this says otherwise: `text/csv` sends the (string) body as an attachment with this
    * file name — exports only.
    */
   readonly csvAttachment?: string;
+  /** Success bodies are an HTML fragment (string) instead of JSON — the link-preview tags only (03 §3). */
+  readonly htmlFragment?: true;
   readonly request?: { readonly params?: P; readonly query?: Q; readonly body?: B };
   readonly responses: R;
   readonly handler: (
@@ -148,13 +163,15 @@ export function defineRoute<
   const paramsSchema = strict(spec.request?.params ?? EMPTY);
   const querySchema = strict(spec.request?.query ?? EMPTY);
   const bodySchema = spec.request?.body ? strict(spec.request.body) : z.undefined();
-  const cacheControl = spec.cacheControl ?? 'no-store';
+  const cacheControlOf = (status: number) =>
+    typeof spec.cacheControl === 'function' ? spec.cacheControl(status) : (spec.cacheControl ?? 'no-store');
 
   const rateLimit = spec.rateLimit ?? [];
 
   const handle: RequestHandler = async (req, res) => {
     const clock = clockOf(req);
-    const authed = await authenticateRequest(req, spec.auth, clock.now());
+    const device = isDeviceAuth(spec.auth) ? await authenticateDevice(req, spec.auth) : undefined;
+    const authed = isDeviceAuth(spec.auth) ? undefined : await authenticateRequest(req, spec.auth, clock.now());
     if (
       authed?.session.role === 'masjid_admin' &&
       !authed.session.undertakingCurrent &&
@@ -163,12 +180,16 @@ export function defineRoute<
     ) {
       throw new ApiProblem(403, 'UNDERTAKING_REQUIRED');
     }
-    await enforceRateLimits(req, rateLimit, authed?.session.sessionId.toHexString());
+    await enforceRateLimits(req, rateLimit, {
+      session: authed?.session.sessionId.toHexString(),
+      device: device?.deviceId,
+    });
     const params = parsePart('params', paramsSchema, req.params) as z.output<P>; // parsed by P's schema
     const query = parsePart('query', querySchema, req.query) as z.output<Q>; // parsed by Q's schema
     const body = parsePart('body', bodySchema, req.body) as z.output<B>; // parsed by B's schema
 
-    const auth = authed as AuthFor<A>; // authenticateRequest returns a session exactly when spec.auth !== 'none'
+    // authenticateRequest returns a session exactly for the session modes, authenticateDevice a device for 'device'.
+    const auth = (device ?? authed) as AuthFor<A>;
     const result = await spec.handler({
       auth,
       clock,
@@ -196,13 +217,18 @@ export function defineRoute<
     }
     const output: unknown = parsed.data;
 
-    res.status(result.status).set('Cache-Control', cacheControl);
+    res.status(result.status).set('Cache-Control', cacheControlOf(result.status));
     if (result.status === 204) res.end();
-    else if (spec.csvAttachment !== undefined && typeof output === 'string') {
+    else if (isRedirect(result.status)) {
+      const target = redirectSchema.parse(output);
+      res.location(target.location).end();
+    } else if (spec.csvAttachment !== undefined && typeof output === 'string') {
       res
         .type('text/csv; charset=utf-8')
         .set('Content-Disposition', `attachment; filename="${spec.csvAttachment}"`)
         .send(output);
+    } else if (spec.htmlFragment && typeof output === 'string') {
+      res.type('text/html; charset=utf-8').send(output);
     } else res.json(output);
   };
 
@@ -222,9 +248,17 @@ export function defineRoute<
         status,
         {
           description: `HTTP ${status}`,
-          ...(status === '204'
+          ...(status === '204' || isRedirect(Number(status))
             ? {}
-            : { content: { [spec.csvAttachment === undefined ? 'application/json' : 'text/csv']: { schema } } }),
+            : {
+                content: {
+                  [spec.csvAttachment !== undefined
+                    ? 'text/csv'
+                    : spec.htmlFragment
+                      ? 'text/html'
+                      : 'application/json']: { schema },
+                },
+              }),
         },
       ]),
     ),

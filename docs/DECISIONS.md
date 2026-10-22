@@ -835,6 +835,43 @@ Report corrections R1–R9 applied.
 - **Money:** pure Indian grouping/formatting (identical to Intl `en-IN`, property-tested) so count-up frames need no
   Intl; `parseRupees` accepts only unambiguous input (Indian or ungrouped digits, ≤ 2 decimals, Latin digits).
 
+### #91 — Public API details (PHASE_02 T2.2) — ACCEPTED (Claude Code, 22 Oct 2026)
+**Decision:**
+- **Views carry the order (migration 0008):** a caller's sort runs after a view's projection stages and cannot use the
+  index (explain on 100k items: 26,000 documents examined for a 31-item feed page). `v_pub_items` now sorts newest first
+  and `v_pub_special_timings` by date *inside* the view, before the projection, so the caller's `$match` and `$limit`
+  move into the index scan (31 examined for 31 returned). Callers never pass a sort on these views. Keyset pages use
+  `published_at ≤ cursor` (index bound) plus the `_id` tie-break as a filter. View names and privileges are unchanged
+  (no Atlas role change); `pnpm db:test` explain tests cover feed (plain / by type / next page), item, versions,
+  resolve and every bundle query.
+- **Ameen counts are live, not versioned:** they change without a content-version bump, so they are kept out of the
+  immutable item/feed responses. New endpoint **`GET /ameens?items=<publicId,…>`** (≤ 30, `s-maxage=30,
+  stale-while-revalidate=60`). `recordAmeen` relies on the unique index (mc_public may insert but never read `ameens` —
+  found by running the tests as the real user): a duplicate rolls the transaction back and returns the current count.
+- **New endpoint `GET /devices/me`** — exactly the stored device fields (05 §4 "what we store", A15 My data).
+- **Bundle special dates** run from today − 7 days (DateStepper range) with no upper cap (max 100): the bundle is cached
+  forever per version, so a 60-day window computed at the first request would hide later dates; the app applies the
+  window. A missing `v` redirects like a stale one (302, `s-maxage=15`); a suspended masjid's feed is empty.
+- **Rate limits:** registration = Turnstile + 300/h per IP; the "5/h per Turnstile-verified client" bucket has no key —
+  nothing identifies a client before it registers (Turnstile tokens are single-use). Resolve counts per device, or per
+  IP without one (`device_or_ip`). Turnstile: secret + token only (never `remoteip`), 5 s, no redirects, fail closed;
+  the answer's `hostname` must be the app host — skipped for Cloudflare's test secrets (local, and staging until O8),
+  which production refuses at boot (#59).
+- **Link previews (`/m/:code`, `/p/:publicId`) via Caddy templates:** the app build emits `og.html` (the shell + one
+  `httpInclude` action reading only the two regexp captures of a strict `^/(m|p)/[A-Za-z0-9_-]{1,32}/?$` match);
+  api-public serves the HTML-escaped tags at `GET /api/v1/og/{m|p}/:id` (`s-maxage=300`). So api-public never needs
+  the built `index.html` (03 §3 had it inject the tags itself). Tags: masjid name/area/city, or a neutral title per
+  item type — never message text, names (dua) or religious content; sisters-only and unknown → generic. `og.html` is
+  not precached and not served directly (404).
+- **Seed:** `@mc/db/seed` (10 §5 placeholders verbatim, fake names, fixed ids and follow codes TESTA001/TESTB002/
+  TESTC003). Locally `pnpm db:reset` runs it (`pnpm db:seed` alone). **Staging: the worker writes it at boot and every
+  6 h when missing or older than a day** (relative Ramadan/Eid/recent dates stay current) — no deploy-script change,
+  no owner action; refuses production in code. Seed "photos" are two-colour gradients that exist only as their
+  ThumbHash: the app paints the placeholder for `seed/` keys and requests nothing (no media host before Phase 3).
+- **Deferred:** `PUT/DELETE /devices/me/push` (Phase 4), reports/grievances/legal (Phase 8).
+- **CDN check:** `scripts/check-cdn-cache.mjs` (Nightly staging job): versioned bundle and feed URLs answer
+  `cf-cache-status: HIT` on repeat, an unversioned bundle redirects.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (22 Oct 2026)._

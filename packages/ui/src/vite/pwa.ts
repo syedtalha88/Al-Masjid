@@ -19,6 +19,7 @@ export const PRECACHE = {
   globPatterns: ['**/*.{js,css,html,woff2,png,svg,webmanifest}'],
   globIgnores: [
     '**/*.map',
+    'og.html', // link-preview template shell — served by Caddy for /m/* and /p/* only (DECISIONS #91)
     'assets/common-*.js',
     'assets/errors-*.js',
     'assets/Showcase-*.js', // staging-only showcase chunk (DECISIONS #58) — never downloaded by a normal visit

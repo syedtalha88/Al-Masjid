@@ -5,7 +5,7 @@ import { pino } from 'pino';
 
 import { createAdminApp, createPublicApp } from './app.ts';
 import { memoryChallengeStore } from './auth/challenges.ts';
-import { adminRoutes } from './routes/index.ts';
+import { adminRoutes, apiPublicRoutes } from './routes/index.ts';
 
 /**
  * Builds the committed OpenAPI document (03 header) from every route registered by both apps.
@@ -27,7 +27,11 @@ export function buildOpenApiDocument(): ReturnType<OpenApiGeneratorV31['generate
       logger: deps.logger,
     }),
   });
-  const definitions = [createPublicApp(deps).registry, admin.registry].flatMap((registry) => registry.definitions);
+  const publicApp = createPublicApp({
+    ...deps,
+    routes: apiPublicRoutes({ db, turnstile: () => Promise.resolve(false) }),
+  });
+  const definitions = [publicApp.registry, admin.registry].flatMap((registry) => registry.definitions);
   return new OpenApiGeneratorV31(definitions).generateDocument({
     openapi: '3.1.0',
     info: {

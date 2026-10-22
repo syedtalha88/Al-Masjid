@@ -66,8 +66,9 @@ interface SeedMasjid {
 }
 
 /**
- * Seed "photos" are generated sky gradients (top colour → bottom colour, RGB) — never real masjid photos (T2.2). The
- * local media route serves them from infra/media-seed (`pnpm media:seed` paints them from these same colours).
+ * Seed "photos" are generated sky gradients (top colour → bottom colour, RGB) — never real masjid photos (T2.2). No
+ * file exists: a two-colour gradient is reproduced almost exactly by its ThumbHash, so the app paints the placeholder
+ * for `seed/` keys and requests nothing (DECISIONS #91). Real keys load from the media origin (Phase 3).
  */
 export const SEED_PHOTO_GRADIENTS: Readonly<Record<SeedMasjidKey, readonly [readonly number[], readonly number[]]>> = {
   alpha: [

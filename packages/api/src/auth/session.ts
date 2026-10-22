@@ -8,13 +8,17 @@ import type { Request } from 'express';
 import { hashToken } from '../crypto/field.ts';
 import { ApiProblem } from '../http/problem.ts';
 import { readCookie, SESSION_COOKIE } from './cookies.ts';
+import type { DeviceRouteAuth } from './device.ts';
 
 /**
  * How a route authenticates (03 §1): `none`; `session` (any active admin); `session_step_up` (any active admin with a
  * passkey assertion in the last 5 minutes — e.g. adding a passkey, security review H1); `super` (Super Admin);
  * `super_step_up` (Super Admin with a recent assertion — ★ actions).
  */
-export type RouteAuth = 'none' | 'session' | 'session_step_up' | 'super' | 'super_step_up';
+export type SessionRouteAuth = 'none' | 'session' | 'session_step_up' | 'super' | 'super_step_up';
+
+/** Every route auth mode: the admin session modes above plus the musalli device modes (api-public, PHASE_02 T2.2). */
+export type RouteAuth = SessionRouteAuth | DeviceRouteAuth;
 
 export interface AuthedSession {
   readonly session: ResolvedSession;
@@ -58,7 +62,7 @@ export function installAuthenticator(locals: Record<string, unknown>, authentica
  */
 export async function authenticateRequest(
   req: Request,
-  auth: RouteAuth,
+  auth: SessionRouteAuth,
   now: Date,
 ): Promise<AuthedSession | undefined> {
   if (auth === 'none') return undefined;

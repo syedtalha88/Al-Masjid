@@ -161,7 +161,13 @@ const pointsOf = (bucket: RateLimitBucket) => ({ points: bucket.points, duration
 const hasWide = (bucket: BucketName): boolean => 'wide' in RATE_LIMITS[bucket];
 
 /** How a route names the client a bucket counts. */
-export type RateLimitKey = 'ip' | 'session' | ((req: Request) => string | undefined);
+export type RateLimitKey = 'ip' | 'session' | 'device' | 'device_or_ip' | ((req: Request) => string | undefined);
+
+/** The authenticated principal's keys for `session` / `device` rules (absent → the rule is skipped). */
+export interface PrincipalKeys {
+  readonly session?: string | undefined;
+  readonly device?: string | undefined;
+}
 
 /** One rate-limit rule of a route (`defineRoute({ rateLimit: [...] })`). */
 export interface RateLimitRule {
@@ -203,7 +209,7 @@ const isLimiter = (value: unknown): value is RateLimiter =>
 export async function enforceRateLimits(
   req: Request,
   rules: readonly RateLimitRule[],
-  sessionKey?: string,
+  principal: PrincipalKeys = {},
 ): Promise<void> {
   if (rules.length === 0) return;
   const limiter: unknown = req.app.locals[LIMITER];
@@ -211,13 +217,18 @@ export async function enforceRateLimits(
   const mode = req.app.locals[PROXY_MODE] === 'cloudflare' ? 'cloudflare' : 'none';
   for (const rule of rules) {
     const counts: [string, 'narrow' | 'wide'][] = [];
-    if (rule.key === 'ip') {
+    if (rule.key === 'ip' || (rule.key === 'device_or_ip' && principal.device === undefined)) {
       const ip = clientIp(req, mode);
       const wide = ip && hasWide(rule.bucket) ? rateLimitWideIpKey(ip) : null;
       counts.push([ip ? rateLimitIpKey(ip) : UNKNOWN_IP_KEY, 'narrow']);
       if (wide) counts.push([wide, 'wide']);
     } else {
-      const key = rule.key === 'session' ? sessionKey : rule.key(req);
+      const key =
+        rule.key === 'session'
+          ? principal.session
+          : rule.key === 'device' || rule.key === 'device_or_ip'
+            ? principal.device
+            : rule.key(req);
       if (key !== undefined) counts.push([key, 'narrow']);
     }
     for (const [key, width] of counts) {

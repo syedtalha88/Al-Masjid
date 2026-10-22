@@ -156,6 +156,23 @@ https://{$APP_HOST} {
 	handle @maps {
 		respond 404
 	}
+	# Link previews (03 §3, DECISIONS #91): the shell with OpenGraph tags from api-public for /m/<code> and
+	# /p/<publicId>. Strict match — the template reads only these two captures. Crawlers get it cached 5 minutes.
+	# The template file itself is never served directly.
+	@ogFile path /og.html /og.html.br /og.html.gz
+	handle @ogFile {
+		respond 404
+	}
+	@og path_regexp og ^/(m|p)/([A-Za-z0-9_-]{1,32})/?$
+	handle @og {
+		import security-headers
+		import csp-app
+		header Cache-Control "public, max-age=0, s-maxage=300"
+		root * /srv/app
+		rewrite * /og.html
+		templates
+		file_server
+	}
 	handle {
 		import security-headers
 		import csp-app

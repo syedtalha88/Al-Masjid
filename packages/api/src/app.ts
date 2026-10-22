@@ -4,6 +4,7 @@ import express, { type Express, type Router } from 'express';
 import type { Logger } from 'pino';
 
 import { requireAdminOrigin } from './auth/csrf.ts';
+import { type AuthenticateDevice, installDeviceAuthenticator } from './auth/device.ts';
 import { type Authenticate, authenticateRequest, installAuthenticator } from './auth/session.ts';
 import { jsonBody } from './http/body.ts';
 import type { TrustedProxyMode } from './http/client-ip.ts';
@@ -40,6 +41,8 @@ export interface AppDependencies {
   readonly health?: Partial<HealthProbes>;
   /** Session authentication (api-admin); routes with `auth` other than `none` need it (T1.8). */
   readonly authenticate?: Authenticate;
+  /** Device authentication (api-public); routes with `device` / `device_optional` need it (PHASE_02 T2.2). */
+  readonly authenticateDevice?: AuthenticateDevice;
   /** api-admin: `ADMIN_ORIGIN` for the Origin/CSRF guard — without it every unsafe request is refused. */
   readonly adminOrigin?: string;
 }
@@ -84,6 +87,7 @@ function assemble(
     rateLimiter,
     health,
     authenticate,
+    authenticateDevice,
     adminOrigin,
     superRoutes = [],
   }: AppDependencies,
@@ -93,6 +97,7 @@ function assemble(
   app.locals['clock'] = clock; // services read it from Phase 1 on
   installRateLimiter(app.locals, rateLimiter, trustedProxyMode);
   installAuthenticator(app.locals, authenticate);
+  installDeviceAuthenticator(app.locals, authenticateDevice);
   const registry = new OpenAPIRegistry();
   const router = newRouter();
   mountRoutes(router, prefix, [healthRoute(service, release, health), ...routes], registry);

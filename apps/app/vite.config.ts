@@ -1,3 +1,6 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { mcLocaleBoot } from '@mc/i18n/vite';
 import { BRAND } from '@mc/shared/brand';
 import { configureZodForCsp } from '@mc/shared/browser';
@@ -21,6 +24,27 @@ const brandHtml = (): Plugin => ({
     html.replaceAll('%MC_APP_NAME%', BRAND.name).replaceAll('%MC_THEME_COLOR%', BRAND.colors.theme),
 });
 
+/**
+ * Link previews (03 §3, DECISIONS #91): `og.html` = the built shell + one Caddy template action that pulls the
+ * HTML-escaped OpenGraph tags for `/m/:code` and `/p/:publicId` from api-public. Caddy runs it as a template for those
+ * two (strictly matched) paths only; the action reads only the regexp captures of that match.
+ */
+export const OG_TEMPLATE_ACTION =
+  '{{httpInclude (printf "/api/v1/og/%s/%s" (placeholder "http.regexp.og.1") (placeholder "http.regexp.og.2"))}}';
+const ogShell = (): Plugin => ({
+  name: 'mc-og-shell',
+  apply: 'build',
+  enforce: 'post',
+  writeBundle(options) {
+    const dir = options.dir ?? 'dist';
+    const html = readFileSync(join(dir, 'index.html'), 'utf8');
+    // Caddy would treat any "{{" in the shell as template syntax.
+    if (html.includes('{{')) throw new Error('mc-og-shell: index.html must not contain "{{"');
+    if (!html.includes('</head>')) throw new Error('mc-og-shell: index.html has no </head>');
+    writeFileSync(join(dir, 'og.html'), html.replace('</head>', `${OG_TEMPLATE_ACTION}\n</head>`));
+  },
+});
+
 /** Musalli PWA (apps/app). Dev: http://localhost:5173, `/api` proxied to api-public (01 §6). */
 export default defineConfig(({ mode }) => {
   // Validate every VITE_* variable at build/dev start: only VITE_PUBLIC_* may exist (04 §11, CLAUDE.md §8).
@@ -33,6 +57,7 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
       brandHtml(),
+      ogShell(),
       // Zod must be jitless before any schema is built, or its eval probe trips Trusted Types (04 §7).
       mcLocaleBoot({ preloadFonts, before: [configureZodForCsp] }),
       ...mcPwa({ app: 'app' }),

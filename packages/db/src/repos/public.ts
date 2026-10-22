@@ -6,6 +6,20 @@ import { type Document, Long, UUID } from 'mongodb';
 
 import type { DbHandle } from '../client.ts';
 import { StateError } from '../effects.ts';
+import {
+  ANNOUNCEMENT_CATEGORY,
+  ASR_MADHAB,
+  AUDIENCE,
+  CALC_METHOD,
+  CAMPAIGN_PURPOSE,
+  CAMPAIGN_STATUS,
+  DUA_CATEGORY,
+  ITEM_TYPE,
+  LIBRARY_KIND,
+  LOCALE,
+  SPECIAL_TYPE,
+  TEMPLATE_PARAM_TYPE,
+} from '../schema/enums.ts';
 import { publicScope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { fromInt64, idText } from '../values.ts';
@@ -21,6 +35,15 @@ const need = (doc: Document, key: string): string => {
   if (value === undefined) throw new Error(`public view document without ${key}`);
   return value;
 };
+/** An enum field (validators guarantee the value; drift fails loudly instead of leaking an unknown value). */
+const oneOf = <T extends string>(doc: Document, key: string, values: readonly T[]): T => {
+  const value = need(doc, key);
+  const found = values.find((candidate) => candidate === value);
+  if (found === undefined) throw new Error(`public view document with unexpected ${key}`);
+  return found;
+};
+const maybeOneOf = <T extends string>(doc: Document, key: string, values: readonly T[]): T | undefined =>
+  text(doc, key) === undefined ? undefined : oneOf(doc, key, values);
 const numberOf = (doc: Document, key: string): number | undefined => {
   const value: unknown = doc[key];
   if (typeof value === 'number') return value;
@@ -167,7 +190,7 @@ const prayerOf = (doc: Document | undefined) => {
     adhanMode: text(value, 'adhan_mode') === 'manual' ? ('manual' as const) : ('auto' as const),
     adhanTime: text(value, 'adhan_time'),
     adhanAdjustMin: numberOf(value, 'adhan_adjust_min') ?? 0,
-    jamaatMode: ((mode) => (mode === 'fixed' || mode === 'offset' ? mode : 'none'))(text(value, 'jamaat_mode')),
+    jamaatMode: maybeOneOf(value, 'jamaat_mode', ['fixed', 'offset', 'none'] as const) ?? 'none',
     jamaatTime: text(value, 'jamaat_time'),
     jamaatOffsetMin: numberOf(value, 'jamaat_offset_min'),
   });
@@ -203,8 +226,8 @@ export async function getMasjidBundle(handle: DbHandle, id: UUID, fromDate: stri
       address: need(masjid, 'address'),
       lat: numberOf(masjid, 'lat') ?? 0,
       lng: numberOf(masjid, 'lng') ?? 0,
-      calcMethod: need(masjid, 'calc_method'),
-      asrMadhab: need(masjid, 'asr_madhab'),
+      calcMethod: oneOf(masjid, 'calc_method', CALC_METHOD),
+      asrMadhab: oneOf(masjid, 'asr_madhab', ASR_MADHAB),
       hijriOffset: numberOf(masjid, 'hijri_offset'),
       showChanda: masjid['show_chanda'] === true,
       chandaWeekStart: numberOf(masjid, 'chanda_week_start') ?? 5,
@@ -230,7 +253,7 @@ export async function getMasjidBundle(handle: DbHandle, id: UUID, fromDate: stri
     specialDates: specials.map((doc) =>
       compact({
         id: idOf(doc),
-        type: need(doc, 'type'),
+        type: oneOf(doc, 'type', SPECIAL_TYPE),
         date: need(doc, 'date'),
         label: text(doc, 'label'),
         times: arrayOf(doc, 'times').map((slot) => compact({ time: need(slot, 'time'), label: text(slot, 'label') })),
@@ -258,7 +281,7 @@ const LOCALES = ['en', 'hi', 'ur', 'te'] as const;
 
 const libraryOf = (doc: Document) => ({
   id: idOf(doc),
-  kind: need(doc, 'kind'),
+  kind: oneOf(doc, 'kind', LIBRARY_KIND),
   arabic: need(doc, 'arabic'),
   transliteration: i18n(objectOf(doc, 'transliteration'), LOCALES) ?? {},
   translation: { en: '', ...i18n(objectOf(doc, 'translation'), LOCALES) },
@@ -295,14 +318,14 @@ export async function listTemplates(handle: DbHandle) {
   });
   return docs.map((doc) => ({
     key: need(doc, '_id'),
-    category: need(doc, 'category'),
+    category: oneOf(doc, 'category', ANNOUNCEMENT_CATEGORY),
     icon: need(doc, 'icon'),
     isImportantDefault: doc['is_important_default'] === true,
     title: all4(objectOf(doc, 'title')),
     body: all4(objectOf(doc, 'body')),
     params: arrayOf(doc, 'params').map((param) => ({
       name: need(param, 'name'),
-      type: need(param, 'type'),
+      type: oneOf(param, 'type', TEMPLATE_PARAM_TYPE),
       required: param['required'] === true,
     })),
     system: doc['system'] === true,
@@ -332,11 +355,11 @@ const itemOf = (doc: Document, library: ReadonlyMap<string, PublicLibraryEntry>)
   return compact({
     publicId: need(doc, 'public_id'),
     masjidId: idOf(doc, 'masjid_id'),
-    type: need(doc, 'type'),
-    audience: need(doc, 'audience'),
+    type: oneOf(doc, 'type', ITEM_TYPE),
+    audience: oneOf(doc, 'audience', AUDIENCE),
     title: text(doc, 'title'),
     body: text(doc, 'body'),
-    contentLocale: text(doc, 'content_locale'),
+    contentLocale: maybeOneOf(doc, 'content_locale', LOCALE),
     templateKey: text(doc, 'template_key'),
     templateParams: objectOf(doc, 'template_params'),
     isImportant: doc['is_important'] === true,
@@ -344,12 +367,17 @@ const itemOf = (doc: Document, library: ReadonlyMap<string, PublicLibraryEntry>)
     publishedAt: iso(doc, 'published_at') ?? iso(doc, 'created_at') ?? '',
     editedAt: iso(doc, 'edited_at'),
     announcement: announcement
-      ? compact({ category: need(announcement, 'category'), eventAt: iso(announcement, 'event_at') })
+      ? compact({
+          category: oneOf(announcement, 'category', ANNOUNCEMENT_CATEGORY),
+          eventAt: iso(announcement, 'event_at'),
+        })
       : undefined,
-    daily: daily ? compact({ kind: need(daily, 'kind'), note: text(daily, 'note'), library: entry }) : undefined,
+    daily: daily
+      ? compact({ kind: oneOf(daily, 'kind', ['hadith', 'ayah'] as const), note: text(daily, 'note'), library: entry })
+      : undefined,
     dua: dua
       ? compact({
-          category: need(dua, 'category'),
+          category: oneOf(dua, 'category', DUA_CATEGORY),
           personName: dua['name_private'] === true ? undefined : text(dua, 'person_name'),
           namePrivate: dua['name_private'] !== false,
           janazaAt: iso(dua, 'janaza_at'),
@@ -360,13 +388,13 @@ const itemOf = (doc: Document, library: ReadonlyMap<string, PublicLibraryEntry>)
       : undefined,
     campaign: campaign
       ? compact({
-          purpose: need(campaign, 'purpose'),
+          purpose: oneOf(campaign, 'purpose', CAMPAIGN_PURPOSE),
           targetPaise: numberOf(campaign, 'target_paise') ?? 0,
           receivedPaise: numberOf(campaign, 'received_paise') ?? 0,
           receivedUpdatedAt: iso(campaign, 'received_updated_at'),
           startsOn: need(campaign, 'starts_on'),
           endsOn: text(campaign, 'ends_on'),
-          status: need(campaign, 'status'),
+          status: oneOf(campaign, 'status', CAMPAIGN_STATUS),
           cover: image(campaign, 'cover_key', 'cover_thumbhash'),
         })
       : undefined,
