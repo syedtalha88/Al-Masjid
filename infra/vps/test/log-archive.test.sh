@@ -3,6 +3,7 @@
 # ubuntu:24.04 container (CI):
 #   docker run --rm -v "$PWD/infra/vps:/vps:ro" ubuntu:24.04 bash /vps/test/log-archive.test.sh
 # docker, journalctl and age are stubs: "age" copies its input, so the archives can be read back as plain text.
+# shellcheck disable=SC2016,SC2034 # check() conditions are single-quoted and eval'd after each run (they read got, first_state)
 set -uo pipefail
 
 root=$(mktemp -d)

@@ -48,6 +48,11 @@ now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 target="$ARCHIVE/$(date -u +%Y-%m-%d)"
 install -d -m 700 "$target"
 
+# Retention first: delete whole day folders past 200 days (≥ 180 required), so no later failure can skip it
+# (security review, 22 Oct 2026 — storage limitation).
+find "$ARCHIVE" -mindepth 1 -maxdepth 1 -type d -name '20*' -mtime +"$KEEP_DAYS" -print -exec rm -rf {} +
+
+rc=0
 count=0
 for ref in "${containers[@]}"; do
   name=$(docker inspect -f '{{.Name}}' "$ref" 2>/dev/null | sed 's|^/||') || true
@@ -70,16 +75,27 @@ echo "log-archive: $count container log(s) archived to $target"
 
 # The host journal (security review L5, 05 §5 "auth events"): deploy output (migrate, --verify-roles) now lives only
 # there, and SSH / sudo logins are auth events of the server itself. Same encryption, its own "since" state.
-if [ "$host_journal" -eq 1 ] && command -v journalctl >/dev/null; then
-  state="$ARCHIVE/.state/_host-journal"
-  until_j=$(date -u -d "$now" '+%Y-%m-%d %H:%M:%S UTC')
-  since=()
-  if [ -s "$state" ]; then since=(--since "$(cat "$state")"); fi
-  out="$target/_host-journal-$(date -u +%H%M%S).log.gz.age"
-  journalctl --no-pager --utc -o short-iso-precise "${since[@]}" --until "$until_j" | gzip -9 | age -r "$recipient" -o "$out"
-  printf '%s\n' "$until_j" >"$state"
-  echo "log-archive: host journal archived to $out"
+# A failure here keeps the state (the next run retries the same window), removes the partial file and fails the run
+# (mc-failure marker → check.sh) — the container archive above is already complete.
+if [ "$host_journal" -eq 1 ]; then
+  if ! command -v journalctl >/dev/null; then
+    echo "log-archive: journalctl not found — host journal NOT archived" >&2
+    rc=1
+  else
+    state="$ARCHIVE/.state/_host-journal"
+    until_j=$(date -u -d "$now" '+%Y-%m-%d %H:%M:%S UTC')
+    since=()
+    if [ -s "$state" ]; then since=(--since "$(cat "$state")"); fi
+    out="$target/_host-journal-$(date -u +%H%M%S).log.gz.age"
+    if journalctl --no-pager --utc -o short-iso-precise "${since[@]}" --until "$until_j" | gzip -9 |
+      age -r "$recipient" -o "$out"; then
+      printf '%s\n' "$until_j" >"$state"
+      echo "log-archive: host journal archived to $out"
+    else
+      rm -f "$out"
+      echo "log-archive: host journal archive failed (state kept, retried next run)" >&2
+      rc=1
+    fi
+  fi
 fi
-
-# Retention: delete whole day folders past 200 days (≥ 180 required).
-find "$ARCHIVE" -mindepth 1 -maxdepth 1 -type d -name '20*' -mtime +"$KEEP_DAYS" -print -exec rm -rf {} +
+exit "$rc"

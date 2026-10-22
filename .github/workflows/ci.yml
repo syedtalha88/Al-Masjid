@@ -121,6 +121,8 @@ jobs:
         run: docker run --rm -v "$PWD/infra/vps:/vps:ro" "$UBUNTU_IMAGE" bash /vps/test/deploy-verify.test.sh
       - name: VPS check.sh — origin certificate files parse, match, not expiring, 640 root:1000 (PROGRESS F34)
         run: docker run --rm -v "$PWD/infra/vps:/vps:ro" "$UBUNTU_IMAGE" bash /vps/test/check-certs.test.sh
+      - name: log-archive.sh — one-offs skipped, host journal archived, retention always runs (security review 22 Oct)
+        run: docker run --rm -v "$PWD/infra/vps:/vps:ro" "$UBUNTU_IMAGE" bash /vps/test/log-archive.test.sh
       - name: cloudflare-ips.sh list validation (re-review L9)
         run: docker run --rm -v "$PWD/infra/vps:/vps:ro" "$UBUNTU_IMAGE" bash /vps/test/cloudflare-ips.test.sh
       - name: VPS check.sh — failures, log-archive freshness, host layer, live origin lock (re-review L6)
