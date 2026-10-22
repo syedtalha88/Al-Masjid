@@ -151,6 +151,12 @@
     "loadMore": "మరిన్ని చూపించు",
     "by": "{actor} ద్వారా",
     "details": "వివరాలు",
-    "request": "అభ్యర్థన {id}"
+    "request": "అభ్యర్థన {id}",
+    "actorType": {
+      "admin": "అడ్మిన్",
+      "super_admin": "సూపర్ అడ్మిన్",
+      "system": "సిస్టమ్",
+      "device": "డివైస్"
+    }
   }
 }

@@ -178,7 +178,7 @@ export const auditRowSchema = z
   .object({
     id: z.string(),
     at: z.iso.datetime(),
-    actorType: z.string(),
+    actorType: z.enum(['admin', 'super_admin', 'system', 'device']),
     actorId: z.string().optional(),
     action: z.string(),
     masjidId: z.string().optional(),

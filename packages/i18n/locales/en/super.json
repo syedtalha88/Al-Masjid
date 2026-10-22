@@ -151,6 +151,12 @@
     "loadMore": "Show more",
     "by": "By {actor}",
     "details": "Details",
-    "request": "Request {id}"
+    "request": "Request {id}",
+    "actorType": {
+      "admin": "Admin",
+      "super_admin": "Super Admin",
+      "system": "System",
+      "device": "Device"
+    }
   }
 }

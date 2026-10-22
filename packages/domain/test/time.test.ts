@@ -15,6 +15,7 @@ import {
   to12Hour,
   toCalendarDate,
   toWallClock,
+  wallClockInZone,
   weekdayOf,
 } from '../src/time.ts';
 
@@ -83,6 +84,8 @@ describe('calendar dates', () => {
     // 20:00 UTC on 25 Sep = 01:30 IST on 26 Sep.
     expect(calendarDateInZone(new Date(Date.UTC(2026, 8, 25, 20, 0)))).toBe('2026-09-26');
     expect(calendarDateInZone(new Date(Date.UTC(2026, 8, 25, 18, 0)))).toBe('2026-09-25');
+    expect(wallClockInZone(new Date(Date.UTC(2026, 9, 22, 1, 33)))).toBe('07:03');
+    expect(wallClockInZone(new Date(Date.UTC(2026, 9, 21, 18, 30)))).toBe('00:00'); // midnight is 00, not 24
   });
 });
 

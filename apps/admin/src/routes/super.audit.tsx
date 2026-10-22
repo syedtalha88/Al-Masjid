@@ -1,4 +1,5 @@
-import { useLocale, useTranslation } from '@mc/i18n/react';
+import { wallClockInZone } from '@mc/domain/time';
+import { Bdi, Time, useLocale, useTranslation } from '@mc/i18n/react';
 import type { AuditRow } from '@mc/shared/contracts';
 import { Button, EmptyState, Select, SkeletonText, useToast } from '@mc/ui/components';
 import { CaretDownIcon, DownloadIcon } from '@mc/ui/icons';
@@ -144,7 +145,6 @@ function AuditEntry({ row }: { readonly row: AuditRow }) {
   const { t } = useTranslation('super');
   const { format } = useLocale();
   const [open, setOpen] = useState(false);
-  const actor = row.actorId ? `${row.actorType} ${row.actorId.slice(0, 8)}` : row.actorType;
   return (
     <li>
       <Pressable
@@ -159,11 +159,17 @@ function AuditEntry({ row }: { readonly row: AuditRow }) {
           <span dir="ltr" className="type-subhead-strong text-text text-start">
             {row.action}
           </span>
+          {/* Latin runs (id, time) are isolated so they never reorder inside Urdu text (09 §5). */}
           <span className="type-footnote text-text-secondary">
-            {t('audit.by', { actor })} · {format.date(new Date(row.at), 'medium')}{' '}
-            {new Intl.DateTimeFormat('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }).format(
-              new Date(row.at),
-            )}
+            {t('audit.by', { actor: t(`audit.actorType.${row.actorType}`) })}
+            {row.actorId ? (
+              <>
+                {' · '}
+                <Bdi>{row.actorId.slice(0, 8)}</Bdi>
+              </>
+            ) : null}
+            {' · '}
+            {format.date(new Date(row.at), 'medium')} <Time value={wallClockInZone(new Date(row.at))} />
           </span>
         </span>
         <CaretDownIcon size={18} className={open ? 'rotate-180' : ''} />

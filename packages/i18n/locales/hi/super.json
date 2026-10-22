@@ -151,6 +151,12 @@
     "loadMore": "और दिखाएँ",
     "by": "{actor} द्वारा",
     "details": "विवरण",
-    "request": "अनुरोध {id}"
+    "request": "अनुरोध {id}",
+    "actorType": {
+      "admin": "एडमिन",
+      "super_admin": "सुपर एडमिन",
+      "system": "सिस्टम",
+      "device": "डिवाइस"
+    }
   }
 }

@@ -275,3 +275,7 @@ super,audit.loadMore,Show more,మరిన్ని చూపించు,no
 super,audit.by,By {actor},{actor} ద్వారా,no
 super,audit.details,Details,వివరాలు,no
 super,audit.request,Request {id},అభ్యర్థన {id},no
+super,audit.actorType.admin,Admin,అడ్మిన్,no
+super,audit.actorType.super_admin,Super Admin,సూపర్ అడ్మిన్,no
+super,audit.actorType.system,System,సిస్టమ్,no
+super,audit.actorType.device,Device,డివైస్,no

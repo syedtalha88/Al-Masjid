@@ -5,6 +5,7 @@ import { ObjectId, type UUID } from 'mongodb';
 
 import type { DbHandle } from '../client.ts';
 import { StateError } from '../effects.ts';
+import { ACTOR_TYPE } from '../schema/enums.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { isId } from '../values.ts';
@@ -172,7 +173,7 @@ export async function getMasjidDetail(
 export interface AuditRow {
   readonly id: string;
   readonly at: Date;
-  readonly actorType: string;
+  readonly actorType: (typeof ACTOR_TYPE)[number];
   readonly actorId: UUID | undefined;
   readonly action: string;
   readonly masjidId: UUID | undefined;
@@ -215,7 +216,7 @@ export async function listAudit(
   const rows = docs.slice(0, limit).map((doc): AuditRow => ({
     id: String(doc['_id']),
     at: doc['at'] as Date, // validator-enforced date
-    actorType: String(doc['actor_type']),
+    actorType: ACTOR_TYPE.find((type) => type === doc['actor_type']) ?? 'system', // validator-enforced enum
     actorId: isId(doc['actor_id']) ? doc['actor_id'] : undefined,
     action: String(doc['action']),
     masjidId: isId(doc['masjid_id']) ? doc['masjid_id'] : undefined,

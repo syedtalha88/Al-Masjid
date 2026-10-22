@@ -151,6 +151,12 @@
     "loadMore": "مزید دکھائیں",
     "by": "از {actor}",
     "details": "تفصیل",
-    "request": "درخواست {id}"
+    "request": "درخواست {id}",
+    "actorType": {
+      "admin": "ایڈمن",
+      "super_admin": "سپر ایڈمن",
+      "system": "سسٹم",
+      "device": "ڈیوائس"
+    }
   }
 }

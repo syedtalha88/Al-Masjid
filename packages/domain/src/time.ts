@@ -136,6 +136,23 @@ export function calendarDateInZone(instant: Date, timeZone: string = DISPLAY_TIM
   return toCalendarDate(Number(value['year']), Number(value['month']), Number(value['day']));
 }
 
+/**
+ * The wall-clock time "HH:mm" (24 h) of an instant in a time zone (default IST) — feed it to the locale's time
+ * formatter (`<Time>`) instead of formatting instants with a fixed locale.
+ *
+ * @param instant - the moment.
+ */
+export function wallClockInZone(instant: Date, timeZone: string = DISPLAY_TIME_ZONE): string {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(instant);
+  const value = Object.fromEntries(parts.map((item) => [item.type, item.value]));
+  return toWallClock(Number(value['hour']), Number(value['minute']));
+}
+
 export interface WallClock {
   /** 0–23. */
   readonly hour: number;

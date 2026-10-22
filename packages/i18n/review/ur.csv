@@ -275,3 +275,7 @@ super,audit.loadMore,Show more,مزید دکھائیں,no
 super,audit.by,By {actor},از {actor},no
 super,audit.details,Details,تفصیل,no
 super,audit.request,Request {id},درخواست {id},no
+super,audit.actorType.admin,Admin,ایڈمن,no
+super,audit.actorType.super_admin,Super Admin,سپر ایڈمن,no
+super,audit.actorType.system,System,سسٹم,no
+super,audit.actorType.device,Device,ڈیوائس,no
