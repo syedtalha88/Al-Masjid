@@ -1,5 +1,5 @@
 import fc from 'fast-check';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { superAdminCreateSchema } from './super.ts';
 import { hasUnsafeCharacters, safeText } from './text.ts';
@@ -46,12 +46,37 @@ describe('safeText (04 §6)', () => {
     }
   });
 
+  it('refuses blank-looking letters, variation selectors and unassigned code points; needs a letter or digit (review L2)', () => {
+    for (const bad of [
+      '\u3164',
+      'Test\u115FName',
+      'Test\uFFA0Name',
+      'Test\u034FName',
+      'Test\u2800Name',
+      'Test\uFE00Name',
+      'Test\u{E0100}Name',
+      'Test\uFFFEName',
+      'Test\u{50000}Name',
+      '...',
+      '- -',
+    ]) {
+      expect(name.safeParse(bad).success, JSON.stringify(bad)).toBe(false);
+    }
+    expect(name.parse('Phone 2 \u2764\uFE0F')).toBe('Phone 2 \u2764\uFE0F'); // emoji presentation stays allowed
+    expect(safeText(20).parse('...')).toBe('...'); // optional fields may be punctuation
+  });
+
   it('keeps the Arabic letter mark ALM (U+061C) for Urdu (review L-3)', () => {
     expect(name.parse('ٹیسٹ\u061Cنام')).toBe('ٹیسٹ\u061Cنام');
   });
 
   it('refuses raw input over 4 × max before normalizing it; OpenAPI shows the real limits (review L-4)', () => {
-    expect(name.safeParse(`${' '.repeat(240)}x`).success).toBe(false);
+    const normalize = vi.spyOn(String.prototype, 'normalize');
+    const tooLong = name.safeParse(`${' '.repeat(240)}x`);
+    expect(tooLong.success).toBe(false);
+    expect(normalize).not.toHaveBeenCalled(); // refused before NFC ever runs
+    expect(tooLong.error?.issues.map((issue) => issue.code)).toEqual(['too_big']);
+    normalize.mockRestore();
     expect(name.parse(`${' '.repeat(200)}x`)).toBe('x');
     expect(name.meta()).toMatchObject({ minLength: 1, maxLength: 60 });
   });
