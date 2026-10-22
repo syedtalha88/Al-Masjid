@@ -24,12 +24,11 @@
 `e11e7b1` (release published 04:46 UTC). Later commits (N1 audit cells, jobs-import lint, B1/B2 Lighthouse, report)
 are pushed — **check their CI first.**
 
-**Do first:**
-1. Confirm staging serves the newest release — at close it still reported `1c9f92d` although `e11e7b1` was published
-   (timer runs every minute): ask the owner for `sudo journalctl -u mc-deploy@staging -n 40 --no-pager` if it is stuck.
-2. Confirm the manually triggered Nightly (22 Oct ~04:50 UTC) is green with staging Lighthouse report-only.
-3. Then **/start-phase 02**. Owner still open: O6 0.15/0.16 (last), O7 design notes, O8 Turnstile switch-over (Phase 2),
-   O16 low-end phone.
+**Verified at close (22 Oct 2026):** staging serves `e11e7b1` (db ok, redis ok); the Nightly on `e11e7b1` is green
+(staging Lighthouse report-only). CI of `f3f7108` was still running at handoff — check it first.
+
+**Next:** `/start-phase 02`. Owner still open: O6 0.15/0.16 (last), O7 design notes, O8 Turnstile switch-over
+(Phase 2), O16 low-end phone.
 
 **Local quirk (this PC):** Node cannot resolve `*.localhost` (browsers can). For e2e, preload a shim via
 `NODE_OPTIONS=--require <shim>` that patches `dns.lookup`, `dns.promises.lookup` AND `net/tls.connect` (pass a `lookup`

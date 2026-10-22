@@ -5,8 +5,7 @@
 
 **Date:** 22 Oct 2026 · **Commit range:** `9f9fec4..e11e7b1` on `main` (Phase 01 started 16 Oct 2026, DECISIONS #62;
 Phase 00 closure items share the range) · **Staging URLs:** app https://app-staging.almasjids.com · admin
-https://admin-staging.almasjids.com · **Published release** (signed staging manifest, 22 Oct 2026 04:46 UTC; at close
-staging still served `1c9f92d` — the next session confirms the timer picked it up):
+https://admin-staging.almasjids.com · **Deployed release** (signed staging manifest, 22 Oct 2026 04:46 UTC; serving on staging, Nightly green):
 `e11e7b1` — server `ghcr.io/syedtalha88/al-masjid-server@sha256:cdad6a38c52667b84004156d7496078cd61bf658b5b9e4d5e2143b8113272e73` · web `ghcr.io/syedtalha88/al-masjid-web@sha256:da240c73c7ae05fdf3b2ecfa2c94adf87246c40e6d91527617c7e66a63827b30`
 
 ## 1. Summary
