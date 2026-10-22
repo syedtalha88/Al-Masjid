@@ -18,28 +18,27 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (handoff updated 22 Oct 2026, 2nd session)
+## ▶ Next session — start here (handoff updated 22 Oct 2026, end of the 2nd session)
 
-**State:** branch `ci/t0.14-staging` = `main`, everything pushed. CI: `c9ff3d9` green (it fixed the red `70f7583`:
-Trivy found CVE-2026-111943 in the Go 1.27.2 Caddy build → builder re-pinned to Go 1.27.3); **check CI of the later
-commits first**. Phase 01: 11/12 ticked, **T1.12 in progress**. OPEN: **DECISIONS #85** (owner).
+**State:** branch `ci/t0.14-staging` = `main`, everything pushed. Phase 01: 11/12 ticked, **T1.12 nearly closed** —
+only owner items remain. No OPEN decisions (#85 → A by the owner). Staging runs `5f03c08`: it refuses the newer releases
+until the owner's host-layer update (O22), because `deploy.sh` / `log-archive.sh` changed.
 
-**Done this session (T1.12 list):** ② all 12 delta-review LOWs fixed or justified (DECISIONS #82); ③ every
-phase-verifier gap (a)–(h) closed (DECISIONS #83) — the isolation tests found a real gap (admin `audit_log` inserts had
-no tenant rule) and fixed it; ⑤ boot test timeout 60 s; the Windows native worker crash is unexplained → F41; ⑥ every
-open follow-up closed or deferred (DECISIONS #84; F27 closed); ④ staging Lighthouse analysed → **DECISIONS #85 OPEN**.
+**Done (22 Oct):** delta-review LOWs (#82), phase-verifier gaps (#83, #87 — incl. a real tenant gap in admin
+`audit_log` inserts and the Urdu C11 row), follow-up deferrals (#84), staging Lighthouse report-only (#85 A, F42),
+three security reviews of the close work (#86, #88: 0 HIGH / 0 MEDIUM, all LOWs fixed), O21 evidence, 4-locale
+screenshots saved, **full local verify green** (static 32/32, db 150, api int 156, e2e 142 + admin hook specs 7, perf,
+Lighthouse local PASS), report drafted (`docs/reports/PHASE_01_REPORT.md`).
 
-**Do in this order (rest of T1.12):**
-1. **CI** on the pushed head; fix if red.
-2. **Owner answers / actions:** DECISIONS #85 (A recommended) · O21 (Atlas IP list, dated) · O22 (host-layer update:
-   F36/F37/F40 + L-5 ACL) · the staging `--verify-roles` 17/17 output for the evidence folder (re-run
-   `deploy.sh staging --verify-roles` and paste, or the saved text from 20 Oct). Implement #85 as answered.
-3. **Evidence:** save the verify-roles output (DECISIONS #63) and the O21 confirmation under `docs/reports/evidence/`.
-4. **/finish-phase 01**: full `pnpm verify` (recipe below; if an api/db `test:int` dies with "Worker exited unexpectedly
-   … 3221226505", re-run that package — F41), phase-verifier + security-reviewer re-run (scope `b9eb751..HEAD`), write
-   `docs/reports/PHASE_01_REPORT.md` (header, §1–§7, 15 screens × 4 locales, deviations #60 #63 #67 #70 #71 #72 #76 #77
-   #78 #79 #81 #82 #83 #84 #85, follow-ups; say explain/IXSCAN tests are Phase 2 — #83 h), staging, status AWAITING
-   OWNER VERIFICATION. Then O6 0.15/0.16 last.
+**Do in this order:**
+1. **CI** on the pushed head.
+2. **Owner O22** (steps + sha + checksum in `owner/MY_PENDING_TASKS.md` § O22). Afterwards: both health endpoints show
+   the new release, `check.sh` output and the `--verify-roles` output → save as
+   `docs/reports/evidence/PHASE_01_T1.1_verify-roles_<date>.txt` and `PHASE_01_T1.12_check-sh_<date>.txt`.
+3. Confirm the next **Nightly** is green (staging Lighthouse now report-only).
+4. Finish the report (header: final release + image digests from the signed manifest; §3 ⏳ rows), final
+   phase-verifier + security-reviewer pass on the final head, set Phase 01 to **AWAITING OWNER VERIFICATION**, tell
+   the owner to run `owner/PHASE_TESTING_GUIDE.md` → Phase 01 (1.2–1.12). Then O6 0.15/0.16 last.
 
 **Local quirk (this PC):** Node cannot resolve `*.localhost` (browsers can). For e2e, preload a shim via
 `NODE_OPTIONS=--require <shim>` that patches `dns.lookup`, `dns.promises.lookup` AND `net/tls.connect` (pass a `lookup`
