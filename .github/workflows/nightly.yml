@@ -136,10 +136,13 @@ jobs:
           E2E_APP_URL: ${{ vars.STAGING_APP_URL }}
           E2E_ADMIN_URL: ${{ vars.STAGING_ADMIN_URL }}
         run: pnpm exec playwright test e2e/smoke/security-headers.spec.ts --project=pixel-7
-      - name: Lighthouse budgets against staging
+      # Report-only until Phase 02 flattens the start chain (DECISIONS #85, owner 22 Oct 2026): misses become warnings.
+      # The hard 01 §9 gate is the production-like local stack in CI (ci.yml) and `pnpm verify`.
+      - name: Lighthouse budgets against staging (report only)
         env:
           E2E_APP_URL: ${{ vars.STAGING_APP_URL }}
           E2E_ADMIN_URL: ${{ vars.STAGING_ADMIN_URL }}
+          LHCI_REPORT_ONLY: '1'
         run: pnpm lhci
       - name: Reports
         if: always()

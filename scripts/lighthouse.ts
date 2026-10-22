@@ -3,7 +3,7 @@
 //   cold: RUNS fresh-storage runs per page (median), LCP ≤ 2.5 s
 //   warm: the same page again without clearing storage, served by the service worker, LCP ≤ 1.0 s
 // Reports (HTML + JSON) go to .lighthouseci/. Uses Playwright's Chromium, so no separate Chrome install.
-// Env: E2E_APP_URL / E2E_ADMIN_URL (default the local stack), LHCI_RUNS (default 3).
+// Env: E2E_APP_URL / E2E_ADMIN_URL (default the local stack), LHCI_RUNS (default 3), LHCI_REPORT_ONLY=1 (staging, #85).
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -31,6 +31,11 @@ const PAGES = [
 ];
 const RUNS = Number(process.env['LHCI_RUNS'] ?? '3');
 if (!Number.isInteger(RUNS) || RUNS < 1) throw new Error('LHCI_RUNS must be a positive integer');
+/**
+ * Staging only, until Phase 02 flattens the start chain (DECISIONS #85): Lighthouse's simulated Slow 4G charges the CDN's
+ * observed server time to every level of the chain, so staging misses budgets the local stack (the hard gate) meets.
+ */
+const REPORT_ONLY = process.env['LHCI_REPORT_ONLY'] === '1';
 
 mkdirSync(OUT, { recursive: true });
 // The local stack uses Caddy's internal CA; staging/CI targets have real certificates.
@@ -86,7 +91,10 @@ const print = (title: string, results: readonly PageResult[]) => {
     // In GitHub Actions, failures also become annotations (readable without signing in — DECISIONS #49).
     if (process.env['GITHUB_ACTIONS'] === 'true' && page.failures.length > 0) {
       const property = `Lighthouse ${title} ${page.url}`.replace(/:/g, '%3A').replace(/,/g, '%2C');
-      out(`::error title=${property}::${[...page.failures, scores, metrics, `benchmarkIndex ${machine}`].join('%0A')}`);
+      const level = REPORT_ONLY ? 'warning' : 'error';
+      out(
+        `::${level} title=${property}::${[...page.failures, scores, metrics, `benchmarkIndex ${machine}`].join('%0A')}`,
+      );
     }
   }
 };
@@ -131,7 +139,9 @@ try {
       `  ${url}: TBT ${String(Math.round(worst?.metrics['total-blocking-time'] ?? 0))} ms — ${tasks || 'no long tasks'}`,
     );
   }
-  process.exitCode = passed ? 0 : 1;
+  if (REPORT_ONLY && !passed)
+    out('\nReport only (LHCI_REPORT_ONLY=1, DECISIONS #85): budget misses are printed, not enforced.');
+  process.exitCode = passed || REPORT_ONLY ? 0 : 1;
   out(`\nReports: ${OUT}`);
 } finally {
   chrome.kill();
