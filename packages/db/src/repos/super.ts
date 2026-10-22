@@ -8,6 +8,16 @@ import { StateError } from '../effects.ts';
 import { ACTOR_TYPE } from '../schema/enums.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
+
+/**
+ * The validator admits only ACTOR_TYPE. A stored value outside it (an enum changed without migrating old rows) is drift:
+ * refused loudly rather than relabelled — audit rows are legal evidence (security review, 22 Oct 2026).
+ */
+function actorTypeOf(value: unknown): (typeof ACTOR_TYPE)[number] {
+  const known = ACTOR_TYPE.find((type) => type === value);
+  if (!known) throw new Error('audit_log.actor_type outside ACTOR_TYPE (schema drift)');
+  return known;
+}
 import { isId } from '../values.ts';
 
 const MAX_PAGE = 100;
@@ -216,7 +226,7 @@ export async function listAudit(
   const rows = docs.slice(0, limit).map((doc): AuditRow => ({
     id: String(doc['_id']),
     at: doc['at'] as Date, // validator-enforced date
-    actorType: ACTOR_TYPE.find((type) => type === doc['actor_type']) ?? 'system', // validator-enforced enum
+    actorType: actorTypeOf(doc['actor_type']),
     actorId: isId(doc['actor_id']) ? doc['actor_id'] : undefined,
     action: String(doc['action']),
     masjidId: isId(doc['masjid_id']) ? doc['masjid_id'] : undefined,

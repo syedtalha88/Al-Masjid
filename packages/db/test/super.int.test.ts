@@ -341,6 +341,17 @@ describe('read repositories', () => {
     expect(await getMasjidDetail(h(), fresh(), newId())).toBeNull();
   });
 
+  it('listAudit refuses an actor_type outside the enum instead of relabelling it (drift is loud)', async () => {
+    const id = (await masjid('Test Masjid Drift', 'Nizamabad')).id;
+    await t()
+      .db.collection('audit_log')
+      .insertOne(
+        { _id: new ObjectId(), at: new Date(), actor_type: 'robot', action: 'masjid.update', masjid_id: id },
+        { bypassDocumentValidation: true },
+      );
+    await expect(listAudit(h(), fresh(), { masjidId: id, limit: 5 })).rejects.toThrow(/schema drift/);
+  });
+
   it('listAudit: filters and cursor pages; dashboard counts pending masjids', async () => {
     const { id } = await masjid('Audit Masjid');
     await updateMasjid(h(), fresh(), { masjidId: id, patch: { area: 'A1' } });
