@@ -4,6 +4,8 @@ import type { RequestHandler } from 'express';
 import type { Logger } from 'pino';
 import { pinoHttp } from 'pino-http';
 
+import { RATE_LIMIT_REFUSAL } from './rate-limit.ts';
+
 const UUID_SEGMENT = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
@@ -39,6 +41,13 @@ export function requestLogger(logger: Logger): RequestHandler {
       if (error !== undefined || res.statusCode >= 500) return 'error';
       if (res.statusCode >= 400) return 'warn';
       return 'info';
+    },
+    // A refused request says which rate-limit bucket refused it (never the key or IP — rate-limit.ts).
+    customProps: (_req, res) => {
+      const locals: unknown = 'locals' in res ? (res as { locals: unknown }).locals : undefined; // Express response
+      const refusal: unknown =
+        typeof locals === 'object' && locals !== null ? Reflect.get(locals, RATE_LIMIT_REFUSAL) : undefined;
+      return refusal === undefined ? {} : { rateLimit: refusal };
     },
     customSuccessMessage: () => 'request completed',
     customErrorMessage: () => 'request failed',

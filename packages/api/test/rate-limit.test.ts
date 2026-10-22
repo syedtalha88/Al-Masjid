@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { createPublicApp } from '../src/app.ts';
 import { defineRoute } from '../src/http/define-route.ts';
 import { memoryRateLimiter, RATE_LIMITS, type RateLimiter, WIDE_BUCKET_FACTOR } from '../src/http/rate-limit.ts';
-import { silentLogger } from './helpers.ts';
+import { captureLogger, silentLogger } from './helpers.ts';
 
 // PHASE_01 T1.6: 03 §2 buckets, 429 + Retry-After, keys per client, fail-closed wiring, validation without echo.
 const ping = defineRoute({
@@ -131,6 +131,31 @@ describe('rate limits (03 §2)', () => {
         .filter(([, bucket]) => 'wide' in bucket)
         .map(([name]) => name),
     ).toEqual(['adminLoginIp']);
+  });
+
+  it('a refusal is on the request’s own access-log line: bucket and width, never the IP (review L3/L5)', async () => {
+    const log = captureLogger();
+    const app = createPublicApp({
+      logger: log.logger,
+      release: 't',
+      trustedProxyMode: 'cloudflare',
+      routes: [ping],
+      rateLimiter: memoryRateLimiter({ codeResolve: { points: 1, durationSec: 60 } }),
+    }).app;
+    const from = () =>
+      request(app)
+        .post('/api/v1/ping')
+        .set('Content-Type', 'application/json')
+        .set('CF-Connecting-IP', '2001:db8:77::9')
+        .send(JSON.stringify({ name: 'a' }));
+    expect((await from()).status).toBe(200);
+    expect((await from()).status).toBe(429);
+    const lines = log.lines();
+    const refused = lines.filter((l) => l['rateLimit'] !== undefined);
+    expect(refused).toHaveLength(1);
+    expect(refused[0]?.['rateLimit']).toEqual({ bucket: 'codeResolve', width: 'narrow' });
+    expect(lines.filter((l) => l['event'] === 'rate_limit.refused')).toHaveLength(0); // no second line per refusal
+    expect(JSON.stringify(lines)).not.toContain('2001:db8:77');
   });
 
   it('a request without a usable client IP still counts — under one shared key (review L-1)', async () => {

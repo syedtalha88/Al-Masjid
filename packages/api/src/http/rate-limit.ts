@@ -172,6 +172,9 @@ export interface RateLimitRule {
 const LIMITER = 'rateLimiter';
 const PROXY_MODE = 'trustedProxyMode';
 
+/** `res.locals` key the access log reads (request-logger.ts). */
+export const RATE_LIMIT_REFUSAL = 'rateLimitRefusal';
+
 /** The one key requests without a usable client IP share in `ip` buckets (review L-1: fail closed, never unlimited). */
 const UNKNOWN_IP_KEY = 'ip:unknown';
 
@@ -220,8 +223,9 @@ export async function enforceRateLimits(
     for (const [key, width] of counts) {
       const decision = await limiter.consume(rule.bucket, key, width);
       if (!decision.allowed) {
-        // Which bucket and width refused — never the key or IP (03 §0); makes a /48 lockout visible (review L3).
-        req.log.warn({ event: 'rate_limit.refused', bucket: rule.bucket, width }, 'rate limit refused a request');
+        // Which bucket and width refused — never the key or IP (03 §0); makes a /48 lockout visible (review L3). It rides
+        // on the request's own access-log line (requestLogger), so a flood does not double the log volume.
+        if (req.res) req.res.locals[RATE_LIMIT_REFUSAL] = { bucket: rule.bucket, width };
         throw new ApiProblem(429, 'RATE_LIMITED', undefined, undefined, {
           'Retry-After': String(decision.retryAfterSec),
         });
