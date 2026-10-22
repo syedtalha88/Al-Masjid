@@ -11,10 +11,15 @@ import { RateLimiterMemory, RateLimiterRedis, RateLimiterRes } from 'rate-limite
 import { clientIp, rateLimitIpKey, rateLimitWideIpKey, type TrustedProxyMode } from './client-ip.ts';
 import { ApiProblem } from './problem.ts';
 
-/** One bucket: `points` requests per `durationSec` seconds. */
+/**
+ * One bucket: `points` requests per `durationSec` seconds. `wide` (IP buckets only, opt-in): an IPv6 client also counts
+ * its /48 in a sibling bucket {@link WIDE_BUCKET_FACTOR}× the size (review L-2). Opt-in because a carrier /48 holds many
+ * subscribers: on a public bucket (QR scans after Jumu'ah) one /48 could lock out first-time musallis (review L3).
+ */
 export interface RateLimitBucket {
   readonly points: number;
   readonly durationSec: number;
+  readonly wide?: true;
 }
 
 const HOUR = 3600;
@@ -29,7 +34,7 @@ export const RATE_LIMITS = {
   ameen: { points: 120, durationSec: HOUR },
   reports: { points: 10, durationSec: DAY },
   grievancesIp: { points: 5, durationSec: DAY },
-  adminLoginIp: { points: 30, durationSec: 600 }, // DECISIONS #81 (owner: onboarding several admins on one Wi-Fi)
+  adminLoginIp: { points: 30, durationSec: 600, wide: true }, // DECISIONS #81 (several admins on one Wi-Fi)
   adminLoginCredential: { points: 20, durationSec: HOUR },
   adminWrites: { points: 120, durationSec: HOUR }, // per session
   adminUploads: { points: 30, durationSec: HOUR }, // per masjid
@@ -45,7 +50,8 @@ export type RateLimitDecision =
 
 /**
  * How much larger a bucket's wide sibling is (review L-2): an IPv6 client counts under its /64 in the bucket and under
- * its /48 in the wide sibling, so one site cannot multiply the limit by rotating through its 65 536 /64s.
+ * its /48 in the wide sibling, so one site cannot multiply the limit by rotating through its 65 536 /64s. Only buckets
+ * marked `wide` have a sibling.
  */
 export const WIDE_BUCKET_FACTOR = 10;
 
@@ -89,12 +95,14 @@ function build(buckets: Partial<Record<BucketName, RateLimitBucket>>, make: Make
   for (const [name, defaults] of Object.entries(RATE_LIMITS) as [BucketName, RateLimitBucket][]) {
     const size = pointsOf(buckets[name] ?? defaults); // entries of the literal above
     limiters.set(name, make(name, size));
-    limiters.set(`wide:${name}`, make(`wide:${name}`, { ...size, points: size.points * WIDE_BUCKET_FACTOR }));
+    if (hasWide(name)) {
+      limiters.set(`wide:${name}`, make(`wide:${name}`, { ...size, points: size.points * WIDE_BUCKET_FACTOR }));
+    }
   }
   return {
     consume(bucket, key, width = 'narrow') {
       const limiter = limiters.get(width === 'wide' ? `wide:${bucket}` : bucket);
-      if (!limiter) throw new Error(`unknown rate-limit bucket ${bucket}`);
+      if (!limiter) throw new Error(`unknown rate-limit bucket ${bucket} (${width})`);
       return decide(limiter, key);
     },
   };
@@ -150,6 +158,7 @@ export async function clearRedisRateLimits(redis: Redis, prefix: RateLimitPrefix
 }
 
 const pointsOf = (bucket: RateLimitBucket) => ({ points: bucket.points, duration: bucket.durationSec });
+const hasWide = (bucket: BucketName): boolean => 'wide' in RATE_LIMITS[bucket];
 
 /** How a route names the client a bucket counts. */
 export type RateLimitKey = 'ip' | 'session' | ((req: Request) => string | undefined);
@@ -201,7 +210,7 @@ export async function enforceRateLimits(
     const counts: [string, 'narrow' | 'wide'][] = [];
     if (rule.key === 'ip') {
       const ip = clientIp(req, mode);
-      const wide = ip && rateLimitWideIpKey(ip);
+      const wide = ip && hasWide(rule.bucket) ? rateLimitWideIpKey(ip) : null;
       counts.push([ip ? rateLimitIpKey(ip) : UNKNOWN_IP_KEY, 'narrow']);
       if (wide) counts.push([wide, 'wide']);
     } else {
@@ -211,6 +220,8 @@ export async function enforceRateLimits(
     for (const [key, width] of counts) {
       const decision = await limiter.consume(rule.bucket, key, width);
       if (!decision.allowed) {
+        // Which bucket and width refused — never the key or IP (03 §0); makes a /48 lockout visible (review L3).
+        req.log.warn({ event: 'rate_limit.refused', bucket: rule.bucket, width }, 'rate limit refused a request');
         throw new ApiProblem(429, 'RATE_LIMITED', undefined, undefined, {
           'Retry-After': String(decision.retryAfterSec),
         });

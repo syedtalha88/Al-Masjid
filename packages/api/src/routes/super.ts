@@ -590,6 +590,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
         await recordAuditExport(db, auth.scope, {
           filters: Object.fromEntries(Object.entries(query).map(([key, value]) => [key, String(value)])),
           rows: lines.length - 1,
+          ...(cursor ? { truncated: true } : {}),
           requestId,
           now: clock.now(),
         });

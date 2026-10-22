@@ -87,12 +87,23 @@ describe('rate limits (03 §2)', () => {
     expect((await from('2001:db8:5:7::1')).status).toBe(200); // another /64
   });
 
-  const behindCloudflare = (limiter: RateLimiter) => {
+  const behindCloudflare = (limiter: RateLimiter, bucket: 'codeResolve' | 'adminLoginIp' = 'codeResolve') => {
     const app = createPublicApp({
       logger: silentLogger(),
       release: 't',
       trustedProxyMode: 'cloudflare',
-      routes: [ping],
+      routes: [
+        defineRoute({
+          method: 'post',
+          path: '/ping',
+          summary: 'test route',
+          auth: 'none',
+          rateLimit: [{ bucket, key: 'ip' }],
+          request: { body: z.object({ name: z.string().max(5) }) },
+          responses: { 200: z.object({ ok: z.literal(true) }) },
+          handler: ({ reply }) => reply(200, { ok: true }),
+        }),
+      ],
       rateLimiter: limiter,
     }).app;
     return (ip?: string) => {
@@ -102,12 +113,24 @@ describe('rate limits (03 §2)', () => {
   };
 
   it(`rotating /64s inside one /48 hits the wide bucket at ${String(WIDE_BUCKET_FACTOR)}× the limit (review L-2)`, async () => {
-    const from = behindCloudflare(memoryRateLimiter({ codeResolve: { points: 2, durationSec: 60 } }));
+    const from = behindCloudflare(memoryRateLimiter({ adminLoginIp: { points: 2, durationSec: 60 } }), 'adminLoginIp');
     const wide = 2 * WIDE_BUCKET_FACTOR;
     for (let i = 0; i < wide; i += 1) expect((await from(`2001:db8:9:${i.toString(16)}::1`)).status).toBe(200);
     expect((await from('2001:db8:9:ff::1')).status).toBe(429);
     expect((await from('2001:db8:a:0::1')).status).toBe(200); // another /48
     expect((await from('203.0.113.9')).status).toBe(200); // IPv4 has no wide key
+  });
+
+  it('only buckets marked `wide` have a /48 sibling: public buckets count each /64 alone (review L3)', async () => {
+    const from = behindCloudflare(memoryRateLimiter({ codeResolve: { points: 1, durationSec: 60 } }));
+    for (let i = 0; i < 3 * WIDE_BUCKET_FACTOR; i += 1) {
+      expect((await from(`2001:db8:b:${i.toString(16)}::1`)).status).toBe(200);
+    }
+    expect(
+      Object.entries(RATE_LIMITS)
+        .filter(([, bucket]) => 'wide' in bucket)
+        .map(([name]) => name),
+    ).toEqual(['adminLoginIp']);
   });
 
   it('a request without a usable client IP still counts — under one shared key (review L-1)', async () => {

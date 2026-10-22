@@ -78,7 +78,7 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'admin.remove_from_masjid': [],
   'admin.invite': ['purpose'],
   'admin.phone_view': [],
-  'audit.export': ['filters', 'rows'],
+  'audit.export': ['filters', 'rows', 'truncated'],
   'admin.undertaking_accept': ['version'],
   'invite.consume': ['purpose'],
   'device.follow': [],

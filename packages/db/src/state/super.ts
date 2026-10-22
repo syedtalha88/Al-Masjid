@@ -198,13 +198,20 @@ export async function readAdminPhone(
 export async function recordAuditExport(
   handle: DbHandle,
   scope: Scope,
-  input: { filters: Readonly<Record<string, string>>; rows: number; requestId?: string; now?: Date },
+  input: {
+    filters: Readonly<Record<string, string>>;
+    rows: number;
+    /** More rows matched than the export holds (10 000). */
+    truncated?: boolean;
+    requestId?: string;
+    now?: Date;
+  },
 ): Promise<void> {
   requireSuper(scope, { stepUp: true, ...(input.now ? { now: input.now } : {}) });
   await withTransaction(handle, scope, (ctx) =>
     writeAudit(ctx, {
       action: 'audit.export',
-      meta: { filters: { ...input.filters }, rows: input.rows },
+      meta: { filters: { ...input.filters }, rows: input.rows, ...(input.truncated ? { truncated: true } : {}) },
       ...(input.requestId ? { requestId: input.requestId } : {}),
     }),
   );

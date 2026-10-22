@@ -411,6 +411,13 @@ describe('masjid edits, settings, CSV export', () => {
     const csv = await asSuper('get', '/audit/export.csv?action=auth.logout');
     expect(csv.status).toBe(200);
     expect(csv.text.trim().split('\r\n')).toHaveLength(AUDIT_EXPORT_MAX_ROWS + 1); // + the header line
+    const exported = await t()
+      .db.collection('audit_log')
+      .find({ action: 'audit.export' })
+      .sort({ _id: -1 })
+      .limit(1)
+      .next();
+    expect(exported?.['meta']).toMatchObject({ rows: AUDIT_EXPORT_MAX_ROWS, truncated: true }); // review informational
   });
 });
 
