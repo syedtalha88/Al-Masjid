@@ -45,7 +45,7 @@
 | # | What | Time | Notes |
 |---|---|---|---|
 | ~~2~~ | ~~**Atlas IP list confirmation** (O21)~~ — **done 22 Oct 2026** | | |
-| 2a | **Server scripts update** (O22) — like O17: `provision.sh host <sha>` (Claude Code gives the sha + checksum), then `make-env.sh staging --force` (keeps every password and key, rewrites the Redis access list) and restart Redis + the APIs. Closes three small server fixes (F36, F37, F40) and one security tidy-up (L-5). **Staging cannot take new releases until this is done.** Exact steps: section "O22 — server scripts update" below | 15 min | **next** |
+| 2a | **Server scripts update** (O22) — like O17: `provision.sh host <sha>` (Claude Code gives the sha + checksum), then `make-env.sh staging --force` (keeps every password and key, rewrites the Redis access list) and restart Redis + the APIs. Closes three small server fixes (F36, F37, F40) and one security tidy-up (L-5). Exact steps: section "O22 — server scripts update" below | 15 min | **next** |
 | ~~2b~~ | ~~**Answer DECISIONS #79**~~ — **done 20 Oct 2026: A** |
 | ~~2c~~ | ~~**Answer DECISIONS #81**~~ — **done 20 Oct 2026: A** (limit now 30) |
 | 3 | **Design notes** — the minor improvements I noticed (list or screenshots) (O7) | — | when ready |
@@ -230,9 +230,8 @@ Tell Claude Code "**O7 done**", with the ❌ list if there is one.
 
 ## O22 — server scripts update (22 Oct 2026)
 
-Through the WireGuard tunnel, as `talha` on the server. Host layer `aa2d1ac` (22 Oct 2026). **Wait until Claude Code
-says the `aa2d1ac` release is published** — on 22 Oct an npm outage blocked the image build; the server only deploys a
-release whose host layer matches the scripts you install.
+Through the WireGuard tunnel, as `talha` on the server. Server scripts version `aa2d1ac` (22 Oct 2026). Any time —
+staging keeps working before and after.
 
 ```bash
 cd /tmp

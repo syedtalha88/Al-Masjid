@@ -21,8 +21,9 @@
 ## ▶ Next session — start here (handoff updated 22 Oct 2026, end of the 2nd session)
 
 **State:** branch `ci/t0.14-staging` = `main`, everything pushed. Phase 01: 11/12 ticked, **T1.12 nearly closed** —
-only owner items remain. No OPEN decisions (#85 → A by the owner). Staging runs `5f03c08`: it refuses the newer releases
-until the owner's host-layer update (O22), because `deploy.sh` / `log-archive.sh` changed.
+only owner items remain. No OPEN decisions (#85 → A by the owner). Staging keeps deploying new releases by itself (it ran `1c9f92d` at handoff): the
+release check compares only the compose file and `redis.conf`, so the changed `deploy.sh` / `log-archive.sh` reach the
+server only with O22.
 
 **Done (22 Oct):** delta-review LOWs (#82), phase-verifier gaps (#83, #87 — incl. a real tenant gap in admin
 `audit_log` inserts and the Urdu C11 row), follow-up deferrals (#84), staging Lighthouse report-only (#85 A, F42),
@@ -78,7 +79,7 @@ Verify recipe and other quirks as before (below).
 | O19 | ~~Screen-reader check (TalkBack + VoiceOver)~~ | Re-review V-7 | – | **done 20 Oct 2026** — owner: "mobile testing is working fine" |
 | O21 | ~~Dated confirmation of the Atlas IP access list~~ | T1.12 evidence | – | **done 22 Oct 2026** — owner: "I confirm" (`docs/reports/evidence/PHASE_01_T1.12_atlas-ip-list_2026-10-22.txt`) |
 | O12 | ~~Super Admin passkey on staging~~ — **done 22 Oct 2026** | Phase 01 T1.9 | – | done |
-| O22 | **Host-layer update on the VPS**: `provision.sh host <sha>` (sha from Claude Code, checksum checked as in O17), then `make-env.sh staging --force` (keeps every password/key; rewrites the Redis ACL) and restart Redis + the APIs (DEPLOY.md §8) | F36, F37, F40, review L-5 and #86 L5 (host journal archived) — DECISIONS #84. **Staging refuses releases after `5f03c08` until this runs** (host-layer files changed). Steps with sha `aa2d1ac` (host layer of `1daede0`; wait until its release is published — npm outage 22 Oct) + checksum: `owner/MY_PENDING_TASKS.md` § O22; it also re-runs `--verify-roles` for the T1.12 evidence | 15 min | **next** |
+| O22 | **Host-layer update on the VPS**: `provision.sh host <sha>` (sha from Claude Code, checksum checked as in O17), then `make-env.sh staging --force` (keeps every password/key; rewrites the Redis ACL) and restart Redis + the APIs (DEPLOY.md §8) | F36, F37, F40, review L-5 and #86 L5 (host journal archived) — DECISIONS #84. Until this runs the server keeps the older `deploy.sh` / `log-archive.sh` (releases still deploy). Steps with sha `aa2d1ac` + checksum: `owner/MY_PENDING_TASKS.md` § O22; it also re-runs `--verify-roles` for the T1.12 evidence | 15 min | **next** |
 
 ## Current phase task checklist
 

@@ -1,14 +1,14 @@
 # PHASE 01 REPORT — Database, security core, passkey auth, Super Admin — **DRAFT (22 Oct 2026)**
 
-> **Waiting for, before AWAITING OWNER VERIFICATION:** (1) owner O22 — host-layer update on the VPS, then staging
-> deploys the final release (staging refuses releases after `5f03c08` until then); (2) the staging `--verify-roles`
+> **Waiting for, before AWAITING OWNER VERIFICATION:** (1) owner O22 — host-layer update on the VPS (the newer
+> `deploy.sh` / `log-archive.sh`; releases deploy without it); (2) the staging `--verify-roles`
 > output saved as evidence (O22 re-runs it); (3) the security-review re-run of the last fixes (§3). Placeholders are
 > marked ⏳.
 
 **Date:** 22 Oct 2026 · **Commit range:** `9f9fec4..1c9f92d` on `main` (Phase 01 started 16 Oct 2026, DECISIONS #62;
 Phase 00 closure items share the range) · **Staging URLs:** app https://app-staging.almasjids.com · admin
-https://admin-staging.almasjids.com · **Deployed release:** ⏳ (staging runs `5f03c08` until O22; the final release
-and its image digests from the signed manifest go here).
+https://admin-staging.almasjids.com · **Deployed release:** ⏳ (the final release and its image digests from the
+signed manifest go here).
 
 ## 1. Summary
 
