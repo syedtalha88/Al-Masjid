@@ -18,17 +18,20 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (handoff 22 Oct 2026 — Phase 01 DONE)
+## ▶ Next session — start here (handoff 22 Oct 2026, 23:40 — Phase 02 IN PROGRESS)
 
-**State:** Phase 01 **DONE** (owner tested 1.1–1.12 on staging, 22 Oct 2026). Everything pushed; CI green on
-`e11e7b1` (release published 04:46 UTC). Later commits (N1 audit cells, jobs-import lint, B1/B2 Lighthouse, report)
-are pushed — **check their CI first.**
-
-**Verified at close (22 Oct 2026):** staging serves `e11e7b1` (db ok, redis ok); the Nightly on `e11e7b1` is green
-(staging Lighthouse report-only). CI of `f3f7108` was still running at handoff — check it first.
-
-**Next:** `/start-phase 02`. Owner still open: O6 0.15/0.16 (last), O7 design notes, O8 Turnstile switch-over
-(Phase 2), O16 low-end phone.
+**State:** Phase 02 started 22 Oct 2026 on branch `feat/phase-02` (fast-forwarded to `main`). **T2.1 and T2.2 done**
+(DECISIONS #90, #91). Last commit `aab0849` (shared contract tests — fixes the red unit-coverage job of `364f803`).
+**First: check CI of `7b53cb2` / `aab0849`** (curl `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=main`
+— `gh` is not installed on this PC) and that staging deployed (migration 0008 runs; the staging worker writes the seed
+TESTA001/TESTB002/TESTC003 at boot).
+**Then:** run `node scripts/check-cdn-cache.mjs https://app-staging.almasjids.com` once by hand (T2.2 acceptance: versioned
+bundle/feed answer `cf-cache-status: HIT` — if not, the Cloudflare cache rule for `/api/v1/*` needs checking with the
+owner) → continue with **T2.3 Client data layer**.
+**Before every push:** `turbo run test:coverage` too (`verify:quick` does not apply the coverage gates — that let a
+red CI through once). Flake seen once: `@mc/i18n` tests failed under full parallel load, passed alone (watch).
+**Owner, now relevant:** O8 Turnstile switch-over (registration is live on staging with the test secret until then);
+O7 design notes before T2.6 (Home); O16 low-end phone.
 
 **Local quirk (this PC):** Node cannot resolve `*.localhost` (browsers can). For e2e, preload a shim via
 `NODE_OPTIONS=--require <shim>` that patches `dns.lookup`, `dns.promises.lookup` AND `net/tls.connect` (pass a `lookup`
@@ -166,6 +169,7 @@ Verify recipe and other quirks as before (below).
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-22 | 02 / T2.1–T2.2 | Phase 02 started. T2.1 domain (adhan 4.4.6, golden files 7 cities × 6 dates from Aladhan, Hijri UQ, follow codes, IST/drift, money, countdown — 100 % coverage; F13 closed). T2.2 public API + device auth + Turnstile + link previews (Caddy templates) + seed (local `db:seed`, staging worker) + Nightly CDN check. Found: views with projections cannot use the index for a caller's sort (26k docs examined) → migration 0008 sorts inside the views (31/31); mc_public cannot read `ameens` → Ameen via unique index. CI red once on shared coverage (fixed `aab0849`). |
 | 2026-10-22 | 01 / close | O22 done by the owner (17/17 privileges, check.sh 114 PASS · 0 FAIL); final reviews: security 0 HIGH/MED (#88, #89), verifier gaps fixed (#87, #89 — device/admin audit cells, Urdu C11, B1/B2 Lighthouse 100); report final; owner confirmed checks 1.2–1.12 passed → **Phase 01 DONE**. |
 | 2026-10-22 | 01 / T1.12 | CI red on `70f7583` (Trivy: CVE-2026-111943 in Caddy's Go 1.27.2) → builder re-pinned to Go 1.27.3, green. Delta-review LOWs L-1…L-12 fixed/justified (#82: IPv6 /48 buckets, fail-closed IP keys, `safeText` by Unicode category, raw-length cap, no RANDOMKEY, capped audit entry, per-entry policy checks, strict step-up time, exact CSV cap). Phase-verifier gaps (#83): isolation tests found admin `audit_log` inserts without a tenant rule (fixed); concurrency, disabled-session, T1.11 audit-trail and login-log tests; `@mc/db` named imports only; one-off containers out of the log archive. Follow-ups deferred with triggers (#84; F27 closed; F39–F41 new; owner O22). Staging Lighthouse analysed: not geography — Lantern chain depth × CDN server time; admin warm ≤ 1 s impossible while waiting for `/auth/me` → #85 OPEN. |
 | 2026-10-22 | 01 / T1.9, T1.12 | Owner did O12 → T1.9 done; owner accepted #79 A and #81 A (login IP limit 30 / 10 min, done 20 Oct). Delta security review (`b9eb751..9fe1f18`): 0 HIGH, 2 MED fixed (M-A hook checks matched no quote style the bundler writes; M-B gateway upserts skipped the insert rules), 12 LOW listed in the handoff (DECISIONS #82). Phase-verifier for Phase 01: not closable yet — test gaps, staging Lighthouse, flakes, deferrals, evidence (handoff list). Owner opened a new session for the rest. |
