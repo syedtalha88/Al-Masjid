@@ -53,6 +53,7 @@ describe('safeText (04 §6)', () => {
       'Test\uFFA0Name',
       'Test\u034FName',
       'Test\u2800Name',
+      'Test\u180BName',
       'Test\uFE00Name',
       'Test\u{E0100}Name',
       'Test\uFFFEName',

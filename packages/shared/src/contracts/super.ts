@@ -24,6 +24,12 @@ export const nameI18nSchema = z.strictObject({
   ur: text(120).optional(),
   te: text(120).optional(),
 });
+/**
+ * Names in other scripts as RESPONSES carry them: plain strings. Request rules (`safeText`) are never applied to
+ * output — a name stored under older rules, or a character an older Unicode table in the browser does not know, must
+ * not make the detail screen fail (security review, 22 Oct 2026).
+ */
+const nameI18nOutSchema = z.object({ hi: z.string().optional(), ur: z.string().optional(), te: z.string().optional() });
 export const reasonSchema = z.object({ reason: text(300, 3) });
 
 export const superMasjidRowSchema = z
@@ -101,7 +107,7 @@ export const superMasjidDetailSchema = z
       id: z.string(),
       followCode: z.string(),
       name: z.string(),
-      nameI18n: nameI18nSchema,
+      nameI18n: nameI18nOutSchema,
       area: z.string(),
       city: z.string(),
       state: z.string(),

@@ -14,12 +14,12 @@ import { z } from 'zod';
  * private use (Co) and the line / paragraph separators (Zl, Zp). The Cf characters real text needs stay allowed:
  * ZWNJ / ZWJ (U+200C / U+200D), LRM / RLM (U+200E / U+200F) and the Arabic letter mark ALM (U+061C). Also refused
  * (review L2): unassigned code points (Cn) and characters that render blank although they are letters or marks —
- * Hangul fillers, the combining grapheme joiner, Khmer inherent vowels, the braille blank and variation selectors
- * (except FE0E / FE0F, which pick text or emoji presentation). Not for content bodies: Cf also covers Arabic number
+ * Hangul fillers, the combining grapheme joiner, Khmer inherent vowels, the braille blank, Mongolian free variation
+ * selectors and variation selectors (except FE0E / FE0F, which pick text or emoji presentation). Not for content bodies: Cf also covers Arabic number
  * signs (U+0600–0605, U+06DD), which Phase 3 texts may need.
  */
 const UNSAFE =
-  /(?![\n\u200C-\u200F\u061C])[\p{Cc}\p{Cf}\p{Cs}\p{Co}\p{Cn}\p{Zl}\p{Zp}\u115F\u1160\u2800\u3164\uFFA0]|[\u034F\u17B4\u17B5\uFE00-\uFE0D\u{E0100}-\u{E01EF}]/u;
+  /(?![\n\u200C-\u200F\u061C])[\p{Cc}\p{Cf}\p{Cs}\p{Co}\p{Cn}\p{Zl}\p{Zp}\u115F\u1160\u2800\u3164\uFFA0]|[\u034F\u17B4\u17B5\u180B-\u180D\u180F\uFE00-\uFE0D\u{E0100}-\u{E01EF}]/u;
 
 const HAS_LETTER_OR_DIGIT = /[\p{L}\p{N}]/u;
 

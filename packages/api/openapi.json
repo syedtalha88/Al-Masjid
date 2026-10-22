@@ -594,22 +594,15 @@
                 "type": "object",
                 "properties": {
                   "hi": {
-                    "type": "string",
-                    "minLength": 0,
-                    "maxLength": 120
+                    "type": "string"
                   },
                   "ur": {
-                    "type": "string",
-                    "minLength": 0,
-                    "maxLength": 120
+                    "type": "string"
                   },
                   "te": {
-                    "type": "string",
-                    "minLength": 0,
-                    "maxLength": 120
+                    "type": "string"
                   }
-                },
-                "additionalProperties": false
+                }
               },
               "area": {
                 "type": "string"
