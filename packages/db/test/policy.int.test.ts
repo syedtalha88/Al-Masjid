@@ -274,6 +274,48 @@ describe('tenant isolation', () => {
     }
   });
 
+  it('an admin of another masjid writes none of C’s timings, other admins’ records or push subscriptions', async () => {
+    const timings = scoped({ scope: adminOfD, db: db(), contentMasjidId: masjidC }, 'masjid_timings');
+    await expect(timings.insertOne({ _id: masjidC, rev: 2 })).rejects.toBeInstanceOf(PolicyDeniedError);
+    expect(await timings.updateOne({ _id: masjidC }, { $set: { rev: 99 } })).toBe(0);
+    expect(await timings.updateMany({}, { $set: { rev: 99 } })).toBe(0);
+    expect(await raw('masjid_timings').findOne({ _id: masjidC })).toMatchObject({ rev: 1 });
+    const otherAdmin = new UUID();
+    await raw('admin_users').insertOne({ _id: otherAdmin, display_name: 'Test Other Admin' });
+    const admins = scoped({ scope: adminOfD, db: db() }, 'admin_users');
+    expect(await admins.updateOne({ _id: otherAdmin }, { $set: { display_name: 'pwned' } })).toBe(0);
+    expect(await raw('admin_users').findOne({ _id: otherAdmin })).toMatchObject({ display_name: 'Test Other Admin' });
+    const subscriptions = scoped({ scope: adminOfD, db: db() }, 'admin_push_subscriptions');
+    await expect(subscriptions.insertOne({ _id: new UUID(), admin_id: otherAdmin })).rejects.toBeInstanceOf(
+      PolicyDeniedError,
+    );
+  });
+
+  it('a device changes nothing of another device: its record, follows or ameens', async () => {
+    const mine = deviceScope(new UUID());
+    const theirs = deviceScope(new UUID());
+    const theirFollow = new UUID();
+    const theirAmeen = new UUID();
+    await raw('devices').insertOne({ _id: theirs.deviceId, locale: 'en' });
+    await raw('device_follows').insertOne({ _id: theirFollow, device_id: theirs.deviceId, masjid_id: masjidC });
+    await raw('ameens').insertOne({ _id: theirAmeen, device_id: theirs.deviceId, item_id: new UUID() });
+    const as = (namespace: Namespace) => scoped({ scope: mine, db: db() }, namespace);
+    expect(await as('devices').updateOne({ _id: theirs.deviceId }, { $set: { locale: 'ur' } })).toBe(0);
+    expect(await as('devices').deleteOne({ _id: theirs.deviceId })).toBe(0);
+    expect(await as('device_follows').updateOne({ _id: theirFollow }, { $set: { muted: true } })).toBe(0);
+    expect(await as('device_follows').deleteOne({ _id: theirFollow })).toBe(0);
+    await expect(
+      as('device_follows').insertOne({ _id: new UUID(), device_id: theirs.deviceId, masjid_id: masjidC }),
+    ).rejects.toBeInstanceOf(PolicyDeniedError);
+    expect(await as('ameens').deleteOne({ _id: theirAmeen })).toBe(0);
+    await expect(
+      as('ameens').insertOne({ _id: new UUID(), device_id: theirs.deviceId, item_id: new UUID() }),
+    ).rejects.toBeInstanceOf(PolicyDeniedError);
+    expect(await raw('devices').findOne({ _id: theirs.deviceId })).toMatchObject({ locale: 'en' });
+    expect(await raw('device_follows').countDocuments({ _id: theirFollow, muted: { $exists: false } })).toBe(1);
+    expect(await raw('ameens').countDocuments({ _id: theirAmeen })).toBe(1);
+  });
+
   it('an admin without memberships (e.g. all removed) sees no masjid data', async () => {
     const nobody = adminScope({ adminId: new UUID(), masjids: [] });
     expect(await scoped({ scope: nobody, db: db() }, 'items').count({})).toBe(0);

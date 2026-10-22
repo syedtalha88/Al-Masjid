@@ -229,7 +229,7 @@ describe('onboarding (T1.11 acceptance, API level)', () => {
 
     const admin = await asSuper('post', '/admins').send({
       displayName: 'Test Imam',
-      phone: '+919848022338',
+      phone: '+919000000003',
       uiLocale: 'ur',
       masjidId,
       role: 'owner',
@@ -277,7 +277,7 @@ describe('onboarding (T1.11 acceptance, API level)', () => {
         { id: adminId, displayName: 'Test Imam', status: 'active', hasPhone: true, undertakingVersion: version },
       ],
     });
-    expect(JSON.stringify(detail.body)).not.toContain('9848022338');
+    expect(JSON.stringify(detail.body)).not.toContain('9000000003');
     const visible = await t().db.collection('v_pub_masjids').countDocuments({ follow_code: followCode });
     expect(visible).toBe(1);
 

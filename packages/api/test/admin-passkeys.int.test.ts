@@ -302,6 +302,25 @@ describe('invites: reuse, expiry, unknown — all the same failure', () => {
     expect(withoutId(expired.res.body)).toEqual(withoutId(unknown.res.body));
   });
 
+  it('a token of another purpose (session, login challenge) presented as an invite: the same 404 (T1.8 wrong purpose)', async () => {
+    const { token } = await invitedAdmin();
+    const { cookie } = await register(token);
+    const login = await loginOptions();
+    const sessionToken = cookie.split('=')[1] ?? '';
+    const challengeToken = login.challengeCookie.split('=')[1] ?? '';
+    expect(sessionToken).not.toBe('');
+    const unknown = await registerOptions(newToken());
+    for (const wrong of [sessionToken, challengeToken, login.options.challenge]) {
+      const r = await registerOptions(wrong);
+      expect(r.res.status).toBe(404);
+      expect(r.res.body).toMatchObject({ code: 'INVITE_INVALID' });
+      const withoutId = (body: unknown) => ({ ...z.object({}).loose().parse(body), requestId: undefined });
+      expect(withoutId(r.res.body)).toEqual(withoutId(unknown.res.body));
+    }
+    // The consumed register invite cannot be used again for another purpose either (e.g. as a second device).
+    expect((await registerOptions(token)).res.status).toBe(404);
+  });
+
   it('the invite is checked again inside the registration transaction (expired between options and verify)', async () => {
     const { token } = await invitedAdmin();
     clock.advance(72 * 60 * 60 * 1000 - 60_000); // one minute before the invite expires
