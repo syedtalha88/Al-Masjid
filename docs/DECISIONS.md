@@ -702,7 +702,7 @@ Semgrep matches member access through them (rule fixtures); `log-archive.sh` ski
 hourly run can never archive the one-time Super Admin invite link printed by `--bootstrap-super-admin` (host layer —
 ships with F36/F37); explain / IXSCAN tests are Phase 2 (first read-heavy public routes) — stated in the report.
 
-### #84 — Open follow-ups at the Phase 01 close: each closed or deferred with a trigger — ACCEPTED (Claude Code, 22 Oct 2026)
+### #84 — Open follow-ups at the Phase 01 close: each closed or deferred with a trigger — ACCEPTED (Claude Code; owner accepted 22 Oct 2026)
 The phase-verifier (22 Oct) listed follow-ups without a recorded deferral. Each now has one (PROGRESS keeps the rows):
 **F1** Node 26 — trigger date 28 Oct 2026 (Active LTS); first task of the first session after it (Phase 02).
 **F14** ICU precompile — only if `pnpm size` nears the 170 kB budget (165.4 kB today). **F16** haptics setting and
@@ -717,9 +717,7 @@ before `ubuntu-22.04` is retired. **F36 / F37 / F40** — host-layer changes; th
 staging API Redis users can still run SCAN / RANDOMKEY: Redis is reachable only on the internal Docker network, the
 users are the APIs' own, and rate-limit keys are hashed, so key names reveal no client. **F39** — Phase 03.
 
-## OPEN
-
-### #85 — Staging Lighthouse misses the 01 §9 LCP budgets while the local gate passes (PROGRESS handoff item 4) — OPEN (Claude Code, 22 Oct 2026)
+### #85 — Staging Lighthouse misses the 01 §9 LCP budgets while the local gate passes (PROGRESS handoff item 4) — ACCEPTED: option A (owner, 22 Oct 2026: "do whichever is best"; Claude Code recommended A)
 **Measured (22 Oct 2026, `pnpm lhci`, same tool and settings as CI):** from the dev PC in India against staging — app
 cold LCP **3.08 s**, admin cold **2.58 s**, admin warm **1.22 s** (app warm 94 ms); against the local stack on the same
 PC a minute later — app cold **1.97 s**, admin cold **2.27 s**, admin warm **0.80 s**. The US Nightly runner (20 Oct)
@@ -741,3 +739,23 @@ LCP ≤ 1.0 s is out of reach while the shell waits for the live session check.
 - **C:** separate, looser staging budgets (e.g. cold 3.0 s, warm 1.5 s) permanently.
 **Recommendation: A** — the budget is enforced where it measures our code, the real fix lands with the real screens,
 and staging gets the same budgets back in Phase 02.
+**Implemented (22 Oct 2026):** `LHCI_REPORT_ONLY=1` in the Nightly staging step (misses → warnings, exit 0); CI and
+`pnpm verify` keep the hard gate on the local stack. Phase 02 work + re-gating staging: PROGRESS F42.
+
+### #86 — Security review of the Phase 01 close fixes (`70f7583..4c5d5ec`) — ACCEPTED (Claude Code, 22 Oct 2026)
+**Review:** security-reviewer, 22 Oct 2026: 0 HIGH, 0 MEDIUM, 5 LOW, all fixed. **L1** the raw-length cap did not stop
+`normalize()` (Zod 4 checks continue by default) → `abort: true`, test spies `String.prototype.normalize`. **L2** blank-
+looking letters passed `safeText` (U+3164 as a whole name) → Cn, Hangul fillers, U+034F, U+17B4/5, U+2800, variation
+selectors except FE0E/FE0F refused; a required field needs a letter or digit (`safeText` is for names and labels, not
+Phase 3 content bodies — Cf includes Arabic number signs). **L3** the /48 sibling applied to every IP bucket → opt-in
+(`wide: true`, only `adminLoginIp`); every refusal logs `rate_limit.refused { bucket, width }` without key or IP. **L4**
+remaining ways around the scope bans → ESLint refuses re-exporting `systemScope` / `hookScope` and computed `import()`
+/ `require` in server code; Semgrep matches re-exports by regex (its `export … from` patterns match every statement in
+1.180). **L5** the one-off filter relied on `oneoff=False` → only an explicit `True` is skipped; the hourly run now also
+archives the host journal (SSH / sudo auth events, deploy runs with migrations — 05 §5), encrypted like the rest.
+**Informational:** a CSV export cut at 10 000 rows records `truncated: true` in its audit entry; staging's Redis ACL
+waits for O22; "Pseudo IPv4: Off" belongs in the Cloudflare checklist (it is off — default — and keeps IPv6 /64 keys).
+
+## OPEN
+
+_None — every decision is ACCEPTED (22 Oct 2026)._

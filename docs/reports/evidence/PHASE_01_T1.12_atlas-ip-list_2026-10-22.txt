@@ -1,0 +1,11 @@
+PHASE 01 — T1.12 evidence: MongoDB Atlas IP access list (mc-staging)
+Requirement: PHASE_01 T1.12 — "Atlas IP access list contains only the staging VPS IP".
+
+Asked (PROGRESS O21): Atlas -> mc-staging -> Security -> Network Access shows only the staging server's /32, no
+other entry (no 0.0.0.0/0, no developer IPs).
+
+Owner's confirmation, 22 Oct 2026 (in the Claude Code session): "o21 : i confirm"
+
+Why an owner confirmation and not a script: Atlas answers clients from non-allowed IPs with a generic "bad auth",
+so the access list cannot be proven from the server side alone (PROGRESS T1.1; DECISIONS #63). The server's own
+access is proven by the staging --verify-roles run (17/17 PASS, 20 Oct 2026).
