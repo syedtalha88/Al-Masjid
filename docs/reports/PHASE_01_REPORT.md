@@ -50,10 +50,10 @@ Local full verify on 22 Oct 2026 (Windows dev PC, recipe in PROGRESS) and CI on 
 |---|---|---|
 | Typecheck / lint / format | ✅ | 32/32 turbo tasks, 0 warnings, Prettier clean, `i18n:check` passed |
 | Unit + component | ✅ | ui 204, shared 140, api 105, i18n 84, config 63 (42 lint-rule tests), db 30, server 27, domain 23, admin 21 — coverage gates met |
-| DB policy matrix | ✅ | `db:test` 149/149, 98.1 % lines; matrix 947 attempted + 37 DB-decided = 984 cells |
+| DB policy matrix | ✅ | `db:test` 150/150, 98.1 % lines; matrix 947 attempted + 37 DB-decided = 984 cells |
 | DB privileges | ✅ local · ✅ staging (20 Oct) | local ≈ 500 checks as each user; staging `--verify-roles` 17/17 (O20); evidence file ⏳ (O22) |
 | Infra | ✅ | Trivy 0 HIGH/CRITICAL with a fix (Caddy builder re-pinned to Go 1.27.3 on 22 Oct); `check.sh` 106 PASS · 0 FAIL · 2 WARN (20 Oct) — re-run after O22 ⏳; deploy tests 0 failures |
-| API integration | ✅ | 155/155, 99.0 % lines (F41: a Windows-only worker crash needs a re-run now and then) |
+| API integration | ✅ | 156/156, 99.0 % lines (F41: a Windows-only worker crash needs a re-run now and then) |
 | E2E (Pixel 7 / iPhone 14) | ✅ | 142 passed / 26 skipped (Chromium-only features skipped on WebKit); admin auth specs on the test-hooks stack 7 passed (Chromium) / 7 skipped (WebKit has no virtual authenticator); flaky 0 |
 | Accessibility | ✅ | axe: 0 violations on every admin screen in 4 locales; Lighthouse a11y 100 on 9 signed-in screens |
 | Visual | ✅ | 15 screens × 4 locales (§4) |
@@ -63,7 +63,7 @@ Local full verify on 22 Oct 2026 (Windows dev PC, recipe in PROGRESS) and CI on 
 | Motion perf traces | ✅ | 2/2, no long task > 50 ms in transitions |
 | Semgrep / CodeQL | ✅ | project rules 9/9 rule tests, repo scan 0 findings; CodeQL green |
 | phase-verifier | ⏳ | 22 Oct runs: gaps found and fixed (DECISIONS #83, #87); final re-run ⏳ |
-| security-reviewer | ⏳ | V-31 (#80), delta (#82), close (#86): 0 HIGH / 0 MEDIUM open — every MEDIUM and LOW fixed or justified there; re-run of the last fixes ⏳ |
+| security-reviewer | ✅ so far | V-31 (#80), delta (#82), close (#86), close fixes (#88): 0 HIGH / 0 MEDIUM open — every MEDIUM and LOW fixed or justified there; final pass with the report ⏳ |
 
 Explain / IXSCAN tests for query plans start in Phase 02, with the first read-heavy public routes (#83 h).
 
@@ -92,7 +92,7 @@ Notes:
 | #78 | API route tests run as the process's own DB user; no eager `masjid_stats` |
 | #79 | VPS → Atlas ≈ 9 ms RTT vs the ≤ 5 ms target (owner accepted) |
 | #81 | Admin login IP limit 30 per 10 min (owner) |
-| #82 #86 | Review fixes: IPv6 /64 + opt-in /48 keying, `safeText` by Unicode category, capped audit, host journal archived |
+| #82 #86 #88 | Review fixes: IPv6 /64 + opt-in /48 keying, `safeText` by Unicode category, capped audit, host journal archived |
 | #83 #87 | Phase-verifier gaps; **admin anonymization → Phase 08 T8.7** (retention job, 02 §6) |
 | #84 | Follow-ups closed or deferred with triggers |
 | #85 | Staging Lighthouse report-only until F42 (Phase 02); the local stack is the hard gate |

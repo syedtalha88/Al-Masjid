@@ -87,6 +87,9 @@ sudo nano /etc/masjid-connect/staging/api-admin.env     # one file per process; 
 sudo /usr/local/lib/masjid-connect/deploy.sh staging --restart
 ```
 
+Never put a secret on a `sudo` command line: the host journal (with sudo's command lines) is archived for 200 days
+(DECISIONS #88). Edit env files with an editor, as above.
+
 Containers read their env file only when they are created, so `--restart` re-deploys the current release with a
 rolling replacement (no downtime). The same applies after replacing a certificate in `certs/`. Never regenerate
 existing keys with `make-env.sh` — `--force` keeps every value; rotating a key is a deliberate step (Claude Code

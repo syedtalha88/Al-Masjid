@@ -773,6 +773,23 @@ a widely known real phone number → `+919000000003`. **Deferred: F41** (the Win
 it persists, a minimal repro for Node / libuv. Workaround in the verify recipe: re-run the package. It hides no test
 result: a crashed file reports as failed, never as passed.
 
+### #88 — Security review of the close fixes (`4c5d5ec..1c9f92d`) — ACCEPTED (Claude Code, 22 Oct 2026)
+**Review:** security-reviewer, 22 Oct 2026: 0 HIGH, 0 MEDIUM, 5 LOW — all fixed. **L1** remaining ways around the scope
+bans → ESLint also refuses aliased `systemScope` / `hookScope` imports, default exports of them, `createRequire`
+(import or member) and `getBuiltinModule` in server code, and — the realistic risk — any import from `jobs/` in API
+code outside `jobs/` (a job helper may run as systemScope inside); only `apps/server` entrypoints and the test hooks may
+import job code (lint-rule tests for each case). Semgrep keeps its re-export rule; ESLint is the gate for the rest (CI +
+pre-commit). Copying a scope into an object or a second variable is still possible on purpose — the per-process
+database user remains the boundary, and code review the backstop. **L2** `log-archive.sh`: retention runs first; a failed
+journal step removes its partial file, keeps its state and fails the run (`check.sh` marker); missing `journalctl` fails
+loudly; new `infra/vps/test/log-archive.test.sh` (9 cases, in CI). **L3** an `actor_type` outside the enum is refused
+loudly by `listAudit` (drift) instead of being relabelled `system` — audit rows are evidence; any future enum change
+needs a migration of the old rows. **L4** the masjid detail RESPONSE no longer uses the request rules (`safeText`) for
+`nameI18n` — plain strings out, rules only in; Mongolian free variation selectors (U+180B–180D, U+180F) refused.
+**L5** a rate-limit refusal rides on the request's own access-log line (`rateLimit: { bucket, width }`), no second line
+per refusal (tested, no IP in the logs). Noted: sudo command lines reach the archived journal for 200 days — never put
+a secret on a sudo command line (DEPLOY.md).
+
 ## OPEN
 
 _None — every decision is ACCEPTED (22 Oct 2026)._
