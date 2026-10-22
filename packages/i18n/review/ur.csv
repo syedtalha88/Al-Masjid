@@ -118,6 +118,20 @@ common,ui.iosInstall.title,Add {app} to your Home Screen,{app} کو ہوم اس�
 common,ui.iosInstall.share,Tap the Share button in Safari,Safari میں شیئر بٹن دبائیں,no
 common,ui.iosInstall.add,Choose “Add to Home Screen”,“ہوم اسکرین میں شامل کریں” منتخب کریں,no
 common,ui.iosInstall.open,Open {app} from your Home Screen,ہوم اسکرین سے {app} کھولیں,no
+common,hijri.date,{day} {month} {year},{day} {month} {year},no
+common,hijri.afterMaghrib,after Maghrib,مغرب کے بعد,no
+common,hijri.months.m1,Muharram,محرم,no
+common,hijri.months.m2,Safar,صفر,no
+common,hijri.months.m3,Rabi’ al-Awwal,ربیع الاول,no
+common,hijri.months.m4,Rabi’ al-Akhir,ربیع الثانی,no
+common,hijri.months.m5,Jumada al-Ula,جمادی الاول,no
+common,hijri.months.m6,Jumada al-Akhirah,جمادی الثانی,no
+common,hijri.months.m7,Rajab,رجب,no
+common,hijri.months.m8,Sha’ban,شعبان,no
+common,hijri.months.m9,Ramadan,رمضان,no
+common,hijri.months.m10,Shawwal,شوال,no
+common,hijri.months.m11,Dhu al-Qa’dah,ذوالقعدہ,no
+common,hijri.months.m12,Dhu al-Hijjah,ذوالحجہ,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,یہ نہیں ملا۔ ہو سکتا ہے اسے ہٹا دیا گیا ہو۔,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,یہ کام یہاں دستیاب نہیں ہے۔,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,کچھ معلومات غلط لگ رہی ہیں۔ براہِ کرم جانچ کر دوبارہ کوشش کریں۔,no

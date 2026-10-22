@@ -98,6 +98,49 @@ export function Money({ paise }: { readonly paise: number }) {
   return <Bdi>{useLocale().format.money(paise)}</Bdi>;
 }
 
+/** A Hijri date as numbers (`@mc/domain/hijri` computes it: Umm al-Qura + offset + after-Maghrib rollover). */
+export interface HijriParts {
+  readonly year: number;
+  /** 1 = Muharram … 12 = Dhu al-Hijjah. */
+  readonly month: number;
+  readonly day: number;
+}
+
+const HIJRI_MONTHS = [
+  'hijri.months.m1',
+  'hijri.months.m2',
+  'hijri.months.m3',
+  'hijri.months.m4',
+  'hijri.months.m5',
+  'hijri.months.m6',
+  'hijri.months.m7',
+  'hijri.months.m8',
+  'hijri.months.m9',
+  'hijri.months.m10',
+  'hijri.months.m11',
+  'hijri.months.m12',
+] as const;
+
+/**
+ * Formats Hijri dates with our own month names per locale (PROGRESS F13: Intl's are English in `te` and oddly ordered
+ * in `hi`); the pattern `hijri.date` lets each language order day, month and year. Digits stay Latin (09 §4).
+ *
+ * @returns `(date) => "16 Rabi’ al-Akhir 1448"`; throws RangeError for a month outside 1–12.
+ */
+export function useHijriLabel(): (date: HijriParts) => string {
+  const { t } = useTranslation();
+  return (date) => {
+    const month = HIJRI_MONTHS[date.month - 1];
+    if (!month) throw new RangeError('useHijriLabel(): month must be 1–12');
+    return t('hijri.date', { day: String(date.day), month: t(month), year: String(date.year) });
+  };
+}
+
+/** "16 Rabi’ al-Akhir 1448". */
+export function HijriDate({ value }: { readonly value: HijriParts }) {
+  return <>{useHijriLabel()(value)}</>;
+}
+
 /** "5:15 AM" in `<bdi>` from a wall-clock "HH:mm". */
 export function Time({ value }: { readonly value: string }) {
   return <Bdi>{useLocale().format.time(value).text}</Bdi>;

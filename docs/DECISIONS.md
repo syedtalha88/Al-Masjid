@@ -804,6 +804,37 @@ N2 — `writeAudit` (whose explicit-actor form skips the gateway) is no longer e
 accessibility now also audits B1 invite and B2 undertaking (11 admin screens, all 100); invite tokens are never printed.
 Report corrections R1–R9 applied.
 
+### #90 — Domain logic for Phase 02: prayer, Hijri, follow codes, time, money, countdown (PHASE_02 T2.1) — ACCEPTED (Claude Code, 22 Oct 2026)
+**Decision:**
+- **`adhan` 4.4.6** (MIT, released 31 Aug 2026 — maintained again after 4.4.3 in 2022) is a runtime dependency of
+  `@mc/domain`, so it ships in the musalli app: ≈ 15 KB minified / **≈ 5 KB gzip** (measured on the package's own
+  minified ESM bundle). Named in 01 §4; no other new dependency.
+- **Methods:** `karachi`→Karachi (adhan adds a 1-minute Dhuhr safety margin), `mwl`, `isna`→NorthAmerica, `egypt`,
+  `umm_al_qura` (Isha = Maghrib + 90 min). **`other_custom` calculates like Karachi:** 02 §2 stores no custom angles;
+  the admin customises per prayer (± minutes on a calculated adhan, or manual times). Adding stored angles later would
+  need a schema migration and a DECISIONS entry.
+- **Golden oracle (10 §4):** the Aladhan prayer-times API (its own PrayTimes-derived implementation, not adhan-js),
+  7 cities × 6 dates (both Ramadans, both equinoxes, both solstices), Karachi + Hanafi, each request URL recorded in
+  `packages/domain/test/fixtures/prayer-golden.json` (queried 22 Oct 2026). All 252 times within ±1 min (Dhuhr +1 =
+  adhan's Karachi margin; the rest is second rounding). Hijri oracle: Aladhan `gToH?calendarMethod=UAQ`, 6 dates.
+- **Resolution rules:** an offset jamaat never passes 23:59 (00 §4.2, Isha); incomplete stored settings resolve to the
+  calculated adhan / no jamaat instead of throwing (the validators already prevent them). **Fridays:** the strip's
+  Dhuhr cell shows the first Jumu'ah jamaat (DECISIONS #15) and the countdown runs to each Jumu'ah jamaat in turn.
+  "Jamaat now" lasts 10 minutes, then the next jamaat (after Isha: tomorrow's Fajr). Sehri = *calculated* Fajr −
+  precaution, Iftar = *calculated sunset* + precaution — the admin's adhan adjustments do not move them.
+- **Countdown:** minutes are rounded **up** ("at most N minutes to go"); "Starts in N min" when fewer than 10 are left.
+- **Hijri:** numbers from Intl Umm al-Qura (`null` — line hidden — when the engine lacks the calendar instead of a
+  silent Gregorian fallback); offset −2…+2 in days; the day advances at Maghrib in IST. **F13:** month names and the
+  day/month/year order come from our locale files (`common:hijri.*`, drafts in the review CSVs) — Intl's are English
+  in Telugu and oddly ordered in Hindi. The i18n `format.hijri()` Intl stub is removed (no caller).
+- **Clock drift (00 §7):** offset = server `Date` (+0.5 s for second truncation) − midpoint of the request; ignored for
+  a malformed header, a round trip > 30 s or one that went backwards; applied only above 2 minutes.
+- **Follow codes:** one encoder (`followCodeFromBytes`) shared by the client and `@mc/db`'s generator; input
+  normalisation also strips Unicode dashes/spaces (codes pasted from chats). Scanned QR: exact app origin, `https:`,
+  no credentials, path `/m/<code>` (query/fragment ignored) or a bare 8-character code.
+- **Money:** pure Indian grouping/formatting (identical to Intl `en-IN`, property-tested) so count-up frames need no
+  Intl; `parseRupees` accepts only unambiguous input (Indian or ungrouped digits, ≤ 2 decimals, Latin digits).
+
 ## OPEN
 
 _None — every decision is ACCEPTED (22 Oct 2026)._

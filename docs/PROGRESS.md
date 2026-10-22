@@ -9,7 +9,7 @@
 |---|---|---|---|---|
 | 00 | Foundation, tooling & design system | **Accepted by the owner** — closure: report final, V-31 done; waiting for owner 0.15/0.16 + #79 (DECISIONS #62) | [final](reports/PHASE_00_REPORT.md) | 16 Oct 2026 |
 | 01 | Database, security core, passkey auth, Super Admin | **DONE** (owner tested 1.1–1.12 on staging, 22 Oct 2026) | [final](reports/PHASE_01_REPORT.md) | 22 Oct 2026 |
-| 02 | Musalli app core (follow, timings, feed, offline, install) | NOT STARTED | – | – |
+| 02 | Musalli app core (follow, timings, feed, offline, install) | **IN PROGRESS** (started 22 Oct 2026) | – | – |
 | 03 | Masjid Admin content tools | NOT STARTED | – | – |
 | 04 | Push notifications | NOT STARTED | – | – |
 | 05 | Donations, chanda & UPI change-lock | NOT STARTED | – | – |
@@ -105,6 +105,23 @@ Verify recipe and other quirks as before (below).
 - [x] T1.11 — Super Admin: masjids, admins, settings, audit — **DONE 20 Oct 2026:** browser e2e of the whole onboarding green (`e2e/admin/onboarding.spec.ts`: Super Admin creates masjid + admin → the admin registers on their own phone, accepts the undertaking, sees the masjid on home → Super Admin activates it). It found a real bug: masjid creation was a 500 as `mc_admin` (eager `masjid_stats` insert the role may not do) — fixed, and the api-admin route suites now run as `mc_admin` (DECISIONS #78). Earlier — **API + screens done (16 Oct 2026, autopilot, DECISIONS #71/#73):** `/api/super` with role guard; C1 dashboard, C2 masjids (search, create/edit with Google-Maps-link coordinates checked inside India, status actions ★, quota, admins with ★ actions and copy/WhatsApp invite links), C10 settings, C11 audit (filters, details, ★ CSV); ★ step-up dialog; sidebar ≥ 1024px; screenshots desktop + phone + Urdu. 
 - [x] T1.12 — Security review & phase close — **DONE 22 Oct 2026** (reviews #80 #82 #86 #88 #89, 0 HIGH / 0 MEDIUM open; verifier gaps closed #83 #87 #89; O21/O22 evidence; report final; owner checks passed)
 
+### Phase 02 — started 22 Oct 2026 (Phase 01 DONE 22 Oct 2026; no OPEN decisions)
+
+- [x] T2.1 — Domain logic (`packages/domain`) — test-first — **done 22 Oct 2026 (DECISIONS #90):** `prayer` (adhan 4.4.6 ≈ 5 KB gz; all 6 methods, madhab, ± minutes, auto/manual adhan, fixed/offset/none jamaat, Friday Jumu'ah, `nextJamaat` incl. "Jamaat now" and after-Isha → tomorrow's Fajr, Ramadan Sehri/Iftar + next event), `hijri` (Umm al-Qura + offset + Maghrib rollover in IST), `follow-code` (generate/normalize/format/scan payload), `time` (IST instants, minute/midnight timers, `Date`-header drift), `money`, `countdown`. Golden files 7 cities × 6 dates from Aladhan (URLs in the fixture), all ±1 min; properties: monotonic times anywhere in India, normalize ∘ generate = identity, money round trip, countdown bounds. 136 tests, **100 % lines and branches**. F13 closed: own Hijri month names + order per locale (`<HijriDate>`), drafts in review CSVs. `@mc/db` follow codes now use the same encoder (db int 151 green).
+- [ ] T2.2 — Public API (+ dev/staging seed)
+- [ ] T2.3 — Client data layer
+- [ ] T2.4 — Onboarding (A1)
+- [ ] T2.5 — Scan, enter code, follow, landing
+- [ ] T2.6 — Home (A2)
+- [ ] T2.7 — My Masjids (A3)
+- [ ] T2.8 — Masjid Detail (A5)
+- [ ] T2.9 — Prayer Timings (A6)
+- [ ] T2.10 — Updates (A13)
+- [ ] T2.11 — Announcements, Hadith & Quran, Dua Requests (read side)
+- [ ] T2.12 — Settings (A15) & item landing
+- [ ] T2.13 — PWA/offline completion
+- [ ] T2.14 — Quality gates
+
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
 | # | Found in | Description | Planned fix (phase/task) |
@@ -115,7 +132,7 @@ Verify recipe and other quirks as before (below).
 | F10 | Audit 9 Oct | ~~Atlas tier for staging~~ — **closed 16 Oct 2026: DECISIONS #60** (staging on Atlas M0 Free — it supports custom roles via Atlas, views, validators, transactions; production M10 + backup confirmed in Phase 9). Original: Owner wants no paid services. Phase 1 needs an Atlas staging tier with custom roles + views + transactions — likely not the free tier (verify). Decide before Phase 1: paid Atlas tier vs. self-hosted MongoDB for staging. Production Atlas M10 (~$60–80/mo) is in the plan. | Before Phase 1 (owner) |
 | F11 | Audit 9 Oct | ~~MIT notice for vendored `.claude/skills`~~ — **closed 14 Oct 2026**: upstream MIT `LICENSE` (© 2024 Next Level Builder, fetched from the upstream repo) + `THIRD_PARTY_NOTICES.md` | – |
 | F12 | T0.4 | ~~`runtime-test` image target + check that `runtime` has no hooks~~ — **closed 13 Oct 2026** (T0.12, DECISIONS #48; CI runs the checks from T0.3) | – |
-| F13 | T0.7 | Hijri month names: Intl gives English names for `te` and odd ordering for `hi` — add per-locale month-name fallback table (09 §4) | Phase 2 T2.1 (deferred — DECISIONS #74) |
+| F13 | T0.7 | ~~Hijri month names: Intl gives English names for `te` and odd ordering for `hi`~~ — **closed 22 Oct 2026** (T2.1, DECISIONS #90): month names and order from our locale files | – |
 | F14 | T0.7 | i18n runtime is ≈29 KB gzip of the initial JS; if the 170 KB budget gets tight, precompile ICU messages to ASTs at build time and drop the parser (~8 KB gzip) (DECISIONS #38) | When `pnpm size` nears budget |
 | F15 | T0.7 | ~~Phase 00 exit budget 120 KB vs measured 163.2 KB~~ — **closed 13 Oct 2026:** owner raised the Phase 00 exit budget to 220 KB (DECISIONS #47). Return to ≤ 170 KB tracked as F23. | – |
 | F23 | DECISIONS #47 | From Phase 01 the musalli `/` initial JS budget is 170 KB again (01 §9). If Phase 00 ends above 170 KB (e.g. after Sentry in T0.13), bring it back under 170 (lazy-load Sentry, ICU precompile F14, defer non-shell code) and lower the `pnpm size` limit to 170 | **Done 16 Oct 2026** — `/` measured 165.4 kB gzip, `pnpm size` limit now 170 kB (4.6 kB headroom; admin 210.7 of 220 kB). Warm-TBT part stays with F27 |

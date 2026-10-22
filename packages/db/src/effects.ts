@@ -2,6 +2,7 @@
 // codes. They run inside the caller's transaction, so the effect and the write that causes it commit together.
 import { randomBytes } from 'node:crypto';
 
+import { FOLLOW_CODE_ALPHABET, FOLLOW_CODE_RANDOM_BYTES, followCodeFromBytes } from '@mc/domain/follow-code';
 import { Long, ObjectId, type UUID } from 'mongodb';
 
 import type { TxContext } from './client.ts';
@@ -159,24 +160,16 @@ export async function writeAudit(
 
 // --- follow codes (02 §3 genFollowCode) -----------------------------------------------------------------------------
 
-/** Crockford Base32 alphabet (no I, L, O, U). */
-export const CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+/** Crockford Base32 alphabet (no I, L, O, U) — one definition in `@mc/domain/follow-code`. */
+export const CROCKFORD = FOLLOW_CODE_ALPHABET;
 
 /**
- * A random 40-bit follow code, 8 Crockford characters.
+ * A random 40-bit follow code, 8 Crockford characters (encoding: `followCodeFromBytes` in `@mc/domain`).
  *
  * @param random - injectable source of 5 random bytes (tests force collisions).
  */
 export function genFollowCode(random: (bytes: number) => Buffer = randomBytes): string {
-  const bytes = random(5);
-  let value = 0n;
-  for (const byte of bytes) value = (value << 8n) | BigInt(byte);
-  let code = '';
-  for (let i = 0; i < 8; i += 1) {
-    code = (CROCKFORD[Number(value & 31n)] ?? '0') + code;
-    value >>= 5n;
-  }
-  return code;
+  return followCodeFromBytes(random(FOLLOW_CODE_RANDOM_BYTES));
 }
 
 const isDuplicateOn = (error: unknown, field: string) =>

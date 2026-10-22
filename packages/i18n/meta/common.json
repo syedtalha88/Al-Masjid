@@ -172,5 +172,60 @@
   },
   "ui.iosInstall.open": {
     "context": "Step 3 of the iPhone install guide ({app} = app name)"
+  },
+  "hijri.date": {
+    "context": "Hijri date line on Home and Prayer Timings, e.g. \"16 Rabi’ al-Akhir 1448\". {day} and {year} are Latin digits, {month} is one of hijri.months.*. Reorder freely for the language."
+  },
+  "hijri.afterMaghrib": {
+    "context": "Small note after the Hijri date in the evening: the Hijri day has already advanced at sunset",
+    "maxLength": 20
+  },
+  "hijri.months.m1": {
+    "context": "Name of Hijri (Islamic calendar) month 1 as commonly written in India",
+    "maxLength": 20
+  },
+  "hijri.months.m2": {
+    "context": "Name of Hijri (Islamic calendar) month 2 as commonly written in India",
+    "maxLength": 20
+  },
+  "hijri.months.m3": {
+    "context": "Name of Hijri (Islamic calendar) month 3 as commonly written in India",
+    "maxLength": 20
+  },
+  "hijri.months.m4": {
+    "context": "Name of Hijri (Islamic calendar) month 4 as commonly written in India",
+    "maxLength": 20
+  },
+  "hijri.months.m5": {
+    "context": "Name of Hijri (Islamic calendar) month 5 as commonly written in India",
+    "maxLength": 20
+  },
+  "hijri.months.m6": {
+    "context": "Name of Hijri (Islamic calendar) month 6 as commonly written in India",
+    "maxLength": 20
+  },
+  "hijri.months.m7": {
+    "context": "Name of Hijri (Islamic calendar) month 7 as commonly written in India",
+    "maxLength": 20
+  },
+  "hijri.months.m8": {
+    "context": "Name of Hijri (Islamic calendar) month 8 as commonly written in India",
+    "maxLength": 20
+  },
+  "hijri.months.m9": {
+    "context": "Name of Hijri (Islamic calendar) month 9 as commonly written in India",
+    "maxLength": 20
+  },
+  "hijri.months.m10": {
+    "context": "Name of Hijri (Islamic calendar) month 10 as commonly written in India",
+    "maxLength": 20
+  },
+  "hijri.months.m11": {
+    "context": "Name of Hijri (Islamic calendar) month 11 as commonly written in India",
+    "maxLength": 20
+  },
+  "hijri.months.m12": {
+    "context": "Name of Hijri (Islamic calendar) month 12 as commonly written in India",
+    "maxLength": 20
   }
 }

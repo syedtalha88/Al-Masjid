@@ -3,7 +3,16 @@ import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { LOCALE_STORAGE_KEY } from '../src/locales.ts';
-import { I18nProvider, initialDocumentLocale, Money, Time, useLocale, useTranslation } from '../src/react.tsx';
+import {
+  HijriDate,
+  I18nProvider,
+  initialDocumentLocale,
+  Money,
+  Time,
+  useHijriLabel,
+  useLocale,
+  useTranslation,
+} from '../src/react.tsx';
 
 function Probe() {
   const { t } = useTranslation();
@@ -78,6 +87,51 @@ describe('I18nProvider', () => {
     expect(money?.textContent).toBe('₹1,00,000');
     expect(time?.getAttribute('dir')).toBe('ltr');
     expect(time?.textContent).toBe('6:40 PM');
+  });
+});
+
+describe('HijriDate (PROGRESS F13: our own month names, Latin digits)', () => {
+  const RABI_AKHIR = { year: 1448, month: 4, day: 16 };
+
+  it.each([
+    ['en', '16 Rabi’ al-Akhir 1448'],
+    ['hi', '16 रबी उस-सानी 1448'],
+    ['ur', '16 ربیع الثانی 1448'],
+    ['te', '16 రబీ ఉస్ సానీ 1448'],
+  ] as const)('%s', async (locale, expected) => {
+    render(
+      <I18nProvider initialLocale={locale}>
+        <p data-testid="hijri">
+          <HijriDate value={RABI_AKHIR} />
+        </p>
+      </I18nProvider>,
+    );
+    expect((await screen.findByTestId('hijri')).textContent).toBe(expected);
+  });
+
+  it('names all twelve months and refuses a thirteenth', async () => {
+    const names: string[] = [];
+    let error: unknown;
+    function Months() {
+      const label = useHijriLabel();
+      for (let month = 1; month <= 12; month += 1) names.push(label({ year: 1448, month, day: 1 }));
+      try {
+        label({ year: 1448, month: 13, day: 1 });
+      } catch (caught) {
+        error = caught;
+      }
+      return <p>months</p>;
+    }
+    render(
+      <I18nProvider initialLocale="en">
+        <Months />
+      </I18nProvider>,
+    );
+    await screen.findByText('months');
+    expect(new Set(names.slice(-12)).size).toBe(12);
+    expect(names.at(-12)).toBe('1 Muharram 1448');
+    expect(names.at(-4)).toBe('1 Ramadan 1448');
+    expect(error).toBeInstanceOf(RangeError);
   });
 });
 

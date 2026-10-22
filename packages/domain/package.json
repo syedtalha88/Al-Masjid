@@ -6,7 +6,12 @@
   "description": "Pure domain logic (prayer, hijri, qibla, upi, money, follow codes, time). No I/O, no React.",
   "exports": {
     ".": "./src/index.ts",
+    "./countdown": "./src/countdown.ts",
+    "./follow-code": "./src/follow-code.ts",
     "./geo": "./src/geo.ts",
+    "./hijri": "./src/hijri.ts",
+    "./money": "./src/money.ts",
+    "./prayer": "./src/prayer.ts",
     "./thumbhash": "./src/thumbhash.ts",
     "./time": "./src/time.ts"
   },
@@ -23,5 +28,8 @@
     "fast-check": "4.10.2",
     "typescript": "6.0.3",
     "vitest": "5.0.3"
+  },
+  "dependencies": {
+    "adhan": "4.4.6"
   }
 }

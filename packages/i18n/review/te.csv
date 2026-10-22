@@ -118,6 +118,20 @@ common,ui.iosInstall.title,Add {app} to your Home Screen,{app}ను హోమ�
 common,ui.iosInstall.share,Tap the Share button in Safari,Safariలో షేర్ బటన్ నొక్కండి,no
 common,ui.iosInstall.add,Choose “Add to Home Screen”,“హోమ్ స్క్రీన్‌కు జోడించు” ఎంచుకోండి,no
 common,ui.iosInstall.open,Open {app} from your Home Screen,హోమ్ స్క్రీన్ నుండి {app} తెరవండి,no
+common,hijri.date,{day} {month} {year},{day} {month} {year},no
+common,hijri.afterMaghrib,after Maghrib,మగ్రిబ్ తర్వాత,no
+common,hijri.months.m1,Muharram,ముహర్రం,no
+common,hijri.months.m2,Safar,సఫర్,no
+common,hijri.months.m3,Rabi’ al-Awwal,రబీ ఉల్ అవ్వల్,no
+common,hijri.months.m4,Rabi’ al-Akhir,రబీ ఉస్ సానీ,no
+common,hijri.months.m5,Jumada al-Ula,జమాదిల్ అవ్వల్,no
+common,hijri.months.m6,Jumada al-Akhirah,జమాదిల్ ఆఖిర్,no
+common,hijri.months.m7,Rajab,రజబ్,no
+common,hijri.months.m8,Sha’ban,షాబాన్,no
+common,hijri.months.m9,Ramadan,రమజాన్,no
+common,hijri.months.m10,Shawwal,షవ్వాల్,no
+common,hijri.months.m11,Dhu al-Qa’dah,జుల్ ఖాదా,no
+common,hijri.months.m12,Dhu al-Hijjah,జుల్ హిజ్జా,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,ఇది కనిపించలేదు. ఇది తొలగించబడి ఉండవచ్చు.,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,కొన్ని వివరాలు సరిగా లేవు. దయచేసి చూసి మళ్లీ ప్రయత్నించండి.,no

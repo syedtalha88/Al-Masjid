@@ -67,12 +67,6 @@ describe.each(LOCALES)('formatters(%s)', (locale) => {
     expect(f.relative(ago(2 * 3600), now)).not.toMatch(NON_LATIN_DIGITS);
   });
 
-  it('formats Hijri dates with Latin digits (Intl stub until packages/domain/hijri)', () => {
-    const hijri = f.hijri(SEP_26_0900_IST);
-    expect(hijri).toMatch(/1448/u);
-    expect(hijri).not.toMatch(NON_LATIN_DIGITS);
-  });
-
   it('formats lists and memoizes per locale', () => {
     expect(f.list(['A', 'B', 'C'])).toMatch(/^A.*B.*C$/u);
     expect(formatters(locale)).toBe(f);

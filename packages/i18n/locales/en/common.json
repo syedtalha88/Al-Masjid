@@ -66,5 +66,23 @@
       "add": "Choose “Add to Home Screen”",
       "open": "Open {app} from your Home Screen"
     }
+  },
+  "hijri": {
+    "date": "{day} {month} {year}",
+    "afterMaghrib": "after Maghrib",
+    "months": {
+      "m1": "Muharram",
+      "m2": "Safar",
+      "m3": "Rabi’ al-Awwal",
+      "m4": "Rabi’ al-Akhir",
+      "m5": "Jumada al-Ula",
+      "m6": "Jumada al-Akhirah",
+      "m7": "Rajab",
+      "m8": "Sha’ban",
+      "m9": "Ramadan",
+      "m10": "Shawwal",
+      "m11": "Dhu al-Qa’dah",
+      "m12": "Dhu al-Hijjah"
+    }
   }
 }

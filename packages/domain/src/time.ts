@@ -203,3 +203,102 @@ export function from12Hour(hour12: number, pm: boolean): number {
   if (!Number.isInteger(hour12) || hour12 < 1 || hour12 > 12) throw new RangeError('from12Hour(): hour must be 1–12');
   return (hour12 % 12) + (pm ? 12 : 0);
 }
+
+// --- IST wall clock, rollover timers and server clock drift (T2.1) ------------------------------------------------
+
+/** India Standard Time is UTC+05:30 all year (no daylight saving), so wall clock ↔ instant is a fixed shift. */
+const IST_OFFSET_MS = 330 * 60_000;
+const MINUTES_PER_DAY = 1440;
+
+/**
+ * Minutes since midnight of "HH:mm".
+ *
+ * @throws RangeError for anything but "HH:mm".
+ */
+export function minutesOfDay(hhmm: string): number {
+  const { hour, minute } = parseWallClock(hhmm);
+  return hour * 60 + minute;
+}
+
+/**
+ * "HH:mm" for minutes since midnight.
+ *
+ * @throws RangeError unless `minutes` is an integer 0–1439.
+ */
+export function fromMinutesOfDay(minutes: number): string {
+  if (!Number.isInteger(minutes) || minutes < 0 || minutes >= MINUTES_PER_DAY) {
+    throw new RangeError('fromMinutesOfDay(): expected an integer 0–1439');
+  }
+  return toWallClock(Math.floor(minutes / 60), minutes % 60);
+}
+
+/**
+ * "HH:mm" moved by `minutes`, kept inside the same day (23:59 at most, 00:00 at least) — e.g. a jamaat "N minutes
+ * after adhan" never spills past midnight (00 §4.2).
+ *
+ * @throws RangeError for a malformed time.
+ */
+export function addMinutesClamped(hhmm: string, minutes: number): string {
+  return fromMinutesOfDay(Math.min(MINUTES_PER_DAY - 1, Math.max(0, minutesOfDay(hhmm) + Math.trunc(minutes))));
+}
+
+/**
+ * The instant at which an IST calendar date shows a wall-clock time.
+ *
+ * @throws RangeError for a malformed date or time.
+ */
+export function istInstant(date: string, hhmm: string): Date {
+  const { year, month, day } = parseCalendarDate(date);
+  const { hour, minute } = parseWallClock(hhmm);
+  return new Date(Date.UTC(year, month - 1, day, hour, minute) - IST_OFFSET_MS);
+}
+
+/** Milliseconds until the next whole minute (1–60 000) — schedule minute-aligned re-renders with it. */
+export function msUntilNextMinute(now: Date): number {
+  return 60_000 - (((now.getTime() % 60_000) + 60_000) % 60_000);
+}
+
+/** Milliseconds until the next midnight in India (1 … 86 400 000), whatever the device's own time zone. */
+export function msUntilNextIstMidnight(now: Date): number {
+  const tomorrow = addDays(calendarDateInZone(now), 1);
+  return istInstant(tomorrow, '00:00').getTime() - now.getTime();
+}
+
+/** Device clocks closer than this to the server are left alone (00 §7: "when drift > 2 min"). */
+export const CLOCK_DRIFT_THRESHOLD_MS = 120_000;
+/** A response slower than this says too little about when the server wrote its `Date` header. */
+const MAX_ROUND_TRIP_MS = 30_000;
+
+/**
+ * Server clock minus device clock, from an HTTP `Date` header (RFC 9110 IMF-fixdate, 1 s resolution).
+ *
+ * @param dateHeader - the response's `Date` header.
+ * @param sentAt - device time (ms) when the request was sent.
+ * @param receivedAt - device time (ms) when the response arrived.
+ * @returns the offset in ms (positive = the device is behind), or `null` when the header is missing/malformed or the
+ *   round trip was too slow or went backwards.
+ */
+export function serverClockOffset(
+  dateHeader: string | null | undefined,
+  sentAt: number,
+  receivedAt: number,
+): number | null {
+  if (!dateHeader || receivedAt < sentAt || receivedAt - sentAt > MAX_ROUND_TRIP_MS) return null;
+  const server = Date.parse(dateHeader);
+  // Only the canonical form round-trips exactly (rejects other zones, impossible days and wrong weekdays).
+  if (Number.isNaN(server) || new Date(server).toUTCString() !== dateHeader) return null;
+  // The header truncates to the second: the server wrote it on average half a second later.
+  return server + 500 - (sentAt + receivedAt) / 2;
+}
+
+/**
+ * The offset to apply: the measured one only when the drift exceeds {@link CLOCK_DRIFT_THRESHOLD_MS}, else 0.
+ */
+export function effectiveClockOffset(offset: number | null): number {
+  return offset !== null && Math.abs(offset) > CLOCK_DRIFT_THRESHOLD_MS ? offset : 0;
+}
+
+/** "Now" for countdowns: the device time corrected by a drift above the threshold. */
+export function correctedNow(deviceNow: number, offset: number | null): Date {
+  return new Date(deviceNow + effectiveClockOffset(offset));
+}

@@ -38,8 +38,6 @@ export interface Formatters {
   date(value: Date, style?: DateStyle): string;
   /** "2 hours ago", "yesterday" up to 6 days; older → short date (medium if another year). */
   relative(value: Date, now: Date): string;
-  /** Hijri date via Intl Umm al-Qura (stub; offset and after-Maghrib rollover come from packages/domain/hijri). */
-  hijri(value: Date): string;
   /** "A, B and C". */
   list(items: readonly string[]): string;
   /** Calendar month title: (2026, 9) → "September 2026". */
@@ -115,12 +113,6 @@ export function formatters(locale: Locale): Formatters {
   };
   const year = new Intl.DateTimeFormat('en-IN', { year: 'numeric', timeZone: DISPLAY_TIME_ZONE });
   const relative = new Intl.RelativeTimeFormat(`${intlLocale}-u-nu-latn`, { numeric: 'auto' });
-  const hijri = new Intl.DateTimeFormat(`${intlLocale}-u-ca-islamic-umalqura-nu-latn`, {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: DISPLAY_TIME_ZONE,
-  });
   const list = new Intl.ListFormat(intlLocale, { style: 'long', type: 'conjunction' });
   // Calendar dates are plain days: formatted at UTC midnight so no zone can shift them.
   const calendarMonth = new Intl.DateTimeFormat(intlLocale, {
@@ -181,7 +173,6 @@ export function formatters(locale: Locale): Formatters {
       if (Math.abs(days) <= RELATIVE_MAX_DAYS) return relative.format(days, 'day');
       return year.format(value) === year.format(now) ? dates.short.format(value) : dates.medium.format(value);
     },
-    hijri: (value) => hijri.format(value),
     list: (items) => list.format(items),
     calendarMonth: (y, m) => calendarMonth.format(new Date(Date.UTC(y, m - 1, 1))),
     // 4 Jan 1970 was a Sunday.

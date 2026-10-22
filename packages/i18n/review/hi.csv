@@ -118,6 +118,20 @@ common,ui.iosInstall.title,Add {app} to your Home Screen,{app} को होम 
 common,ui.iosInstall.share,Tap the Share button in Safari,Safari में शेयर बटन दबाएँ,no
 common,ui.iosInstall.add,Choose “Add to Home Screen”,“होम स्क्रीन में जोड़ें” चुनें,no
 common,ui.iosInstall.open,Open {app} from your Home Screen,होम स्क्रीन से {app} खोलें,no
+common,hijri.date,{day} {month} {year},{day} {month} {year},no
+common,hijri.afterMaghrib,after Maghrib,मग़रिब के बाद,no
+common,hijri.months.m1,Muharram,मुहर्रम,no
+common,hijri.months.m2,Safar,सफ़र,no
+common,hijri.months.m3,Rabi’ al-Awwal,रबी उल-अव्वल,no
+common,hijri.months.m4,Rabi’ al-Akhir,रबी उस-सानी,no
+common,hijri.months.m5,Jumada al-Ula,जमादी उल-अव्वल,no
+common,hijri.months.m6,Jumada al-Akhirah,जमादी उस-सानी,no
+common,hijri.months.m7,Rajab,रजब,no
+common,hijri.months.m8,Sha’ban,शाबान,no
+common,hijri.months.m9,Ramadan,रमज़ान,no
+common,hijri.months.m10,Shawwal,शव्वाल,no
+common,hijri.months.m11,Dhu al-Qa’dah,ज़ुल-क़ादा,no
+common,hijri.months.m12,Dhu al-Hijjah,ज़ुल-हिज्जा,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,यह नहीं मिला। हो सकता है इसे हटा दिया गया हो।,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,यह काम यहाँ उपलब्ध नहीं है।,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,कुछ जानकारी गलत लग रही है। कृपया जाँचकर फिर कोशिश करें।,no
