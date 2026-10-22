@@ -67,6 +67,19 @@ const namedDbImportsSyntax = [
     selector: 'ExportNamedDeclaration VariableDeclarator[init.name=/^(systemScope|hookScope)$/]',
     message: 'systemScope / hookScope are never re-exported — import them from @mc/db where they are allowed.',
   },
+  {
+    selector: 'ExportDefaultDeclaration > Identifier[name=/^(systemScope|hookScope)$/]',
+    message: 'systemScope / hookScope are never re-exported; import them from @mc/db where they are allowed.',
+  },
+  // Under their own name only, so the checks above see every use (security review 22 Oct 2026, L1).
+  {
+    selector: "ImportSpecifier[imported.name='systemScope'][local.name!='systemScope']",
+    message: 'Import systemScope under its own name (no alias).',
+  },
+  {
+    selector: "ImportSpecifier[imported.name='hookScope'][local.name!='hookScope']",
+    message: 'Import hookScope under its own name (no alias).',
+  },
 ];
 
 /**
@@ -79,7 +92,25 @@ const serverLiteralImportsSyntax = [
   { selector: "ImportExpression:not([source.type='Literal'])", message: SERVER_LITERAL_IMPORTS_MESSAGE },
   { selector: "CallExpression[callee.name='require']", message: SERVER_LITERAL_IMPORTS_MESSAGE },
   { selector: "CallExpression[callee.name='createRequire']", message: SERVER_LITERAL_IMPORTS_MESSAGE },
+  {
+    selector: 'MemberExpression[property.name=/^(createRequire|getBuiltinModule)$/]',
+    message: SERVER_LITERAL_IMPORTS_MESSAGE,
+  },
 ];
+const restrictCreateRequire = {
+  regex: '^(node:)?module$',
+  importNames: ['createRequire'],
+  message: SERVER_LITERAL_IMPORTS_MESSAGE,
+};
+
+/**
+ * API code outside jobs/ never imports from jobs/: a job helper may call systemScope() inside, which no import ban on
+ * @mc/db can see (security review 22 Oct 2026, L1). The worker / CLI entrypoints in apps/server and the test hooks may.
+ */
+const restrictJobsImports = {
+  group: ['**/jobs/**', '**/jobs/*', '@mc/api/jobs/*'],
+  message: 'Only jobs/, the server entrypoints and the test hooks import from jobs/ (job code may run as systemScope).',
+};
 
 /**
  * Playwright's `waitForFunction` does not await a Promise: an async predicate is truthy at once and the wait
@@ -95,8 +126,8 @@ const asyncWaitForFunctionSyntax = [
 ];
 
 /**
- * @param {{ systemScope: boolean, hookScope: boolean, mongodb: boolean, server?: boolean }} allowed
- *   `server`: the file is server code (literal imports only).
+ * @param {{ systemScope: boolean, hookScope: boolean, mongodb: boolean, server?: boolean, noJobs?: boolean }} allowed
+ *   `server`: server code (literal imports only); `noJobs`: API code that may not import from jobs/.
  * @returns {import('eslint').Linter.RulesRecord}
  */
 function importRestrictions(allowed) {
@@ -104,6 +135,8 @@ function importRestrictions(allowed) {
     ...(allowed.mongodb ? [] : restrictMongodb.patterns),
     ...(allowed.systemScope ? [] : [restrictSystemScope]),
     ...(allowed.hookScope ? [] : [restrictHookScope]),
+    ...(allowed.server ? [restrictCreateRequire] : []),
+    ...(allowed.noJobs ? [restrictJobsImports] : []),
   ];
   return {
     'no-restricted-imports': ['error', { paths: allowed.mongodb ? [] : restrictMongodb.paths, patterns }],
@@ -251,8 +284,14 @@ export function createConfig({ tsconfigRootDir, typeAware = true }) {
     // Import bans (CLAUDE.md §6 Structure). Later entries override earlier ones for their files.
     { name: 'mc/imports-default', rules: importRestrictions({ mongodb: false, systemScope: false, hookScope: false }) },
     {
-      name: 'mc/imports-server',
-      files: ['packages/api/src/**', 'apps/server/src/**'],
+      name: 'mc/imports-api',
+      files: ['packages/api/src/**'],
+      rules: importRestrictions({ mongodb: false, systemScope: false, hookScope: false, server: true, noJobs: true }),
+    },
+    {
+      // Entrypoints (worker, bootstrap CLI) and the test hooks call job code.
+      name: 'mc/imports-server-entrypoints',
+      files: ['apps/server/src/**', 'packages/api/src/test-hooks/**'],
       rules: importRestrictions({ mongodb: false, systemScope: false, hookScope: false, server: true }),
     },
     {
@@ -268,7 +307,7 @@ export function createConfig({ tsconfigRootDir, typeAware = true }) {
     {
       name: 'mc/imports-hooks',
       files: ['packages/api/src/hooks/**'],
-      rules: importRestrictions({ mongodb: false, systemScope: false, hookScope: true, server: true }),
+      rules: importRestrictions({ mongodb: false, systemScope: false, hookScope: true, server: true, noJobs: true }),
     },
     {
       name: 'mc/imports-db',

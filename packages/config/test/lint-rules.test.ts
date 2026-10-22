@@ -112,6 +112,33 @@ describe('import bans: allowed areas', () => {
     );
   });
 
+  it('closes the remaining scope bypasses: alias, default export, createRequire, job helpers in routes (review L1)', async () => {
+    const id = (code: string, file = 'packages/api/src/routes/masjids.ts') => ruleIds(file, code);
+    expect(
+      await id("import { systemScope as s } from '@mc/db';\nexport const relay = s;\n", 'packages/api/src/jobs/x.ts'),
+    ).toContain('no-restricted-syntax');
+    expect(
+      await id("import { systemScope } from '@mc/db';\nexport default systemScope;\n", 'packages/api/src/jobs/x.ts'),
+    ).toContain('no-restricted-syntax');
+    expect(await id("import { createRequire as cr } from 'node:module';\nexport const r = cr;\n")).toContain(
+      'no-restricted-imports',
+    );
+    expect(await id('export const r = (m: { createRequire: unknown }) => m.createRequire;\n')).toContain(
+      'no-restricted-syntax',
+    );
+    expect(await id('export const g = process.getBuiltinModule;\n')).toContain('no-restricted-syntax');
+    for (const spec of ['../jobs/retention.ts', '@mc/api/jobs/bootstrap-super-admin']) {
+      const code = `import { run } from '${spec}';\nexport const r = run;\n`;
+      expect(await id(code), spec).toContain('no-restricted-imports');
+      expect(await id(code, 'packages/api/src/hooks/x.ts'), spec).toContain('no-restricted-imports');
+      expect(await id(code, 'apps/server/src/worker.ts'), spec).not.toContain('no-restricted-imports');
+      expect(await id(code, 'packages/api/src/test-hooks/index.ts'), spec).not.toContain('no-restricted-imports');
+    }
+    expect(
+      await id("import { run } from './other.ts';\nexport const r = run;\n", 'packages/api/src/jobs/x.ts'),
+    ).not.toContain('no-restricted-imports');
+  });
+
   it('rejects systemScope in webhooks', async () => {
     expect(await ruleIds('packages/api/src/hooks/example.ts', systemScopeImport)).toContain('no-restricted-imports');
   });
