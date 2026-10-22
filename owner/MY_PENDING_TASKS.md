@@ -45,7 +45,7 @@
 | # | What | Time | Notes |
 |---|---|---|---|
 | ~~2~~ | ~~**Atlas IP list confirmation** (O21)~~ — **done 22 Oct 2026** | | |
-| 2a | **Server scripts update** (O22) — like O17: `provision.sh host <sha>` (Claude Code gives the sha + checksum), then `make-env.sh staging --force` (keeps every password and key, rewrites the Redis access list) and restart Redis + the APIs. Closes three small server fixes (F36, F37, F40) and one security tidy-up (L-5) | 15 min | Phase 01 close |
+| 2a | **Server scripts update** (O22) — like O17: `provision.sh host <sha>` (Claude Code gives the sha + checksum), then `make-env.sh staging --force` (keeps every password and key, rewrites the Redis access list) and restart Redis + the APIs. Closes three small server fixes (F36, F37, F40) and one security tidy-up (L-5). **Staging cannot take new releases until this is done.** Exact steps: section "O22 — server scripts update" below | 15 min | **next** |
 | ~~2b~~ | ~~**Answer DECISIONS #79**~~ — **done 20 Oct 2026: A** |
 | ~~2c~~ | ~~**Answer DECISIONS #81**~~ — **done 20 Oct 2026: A** (limit now 30) |
 | 3 | **Design notes** — the minor improvements I noticed (list or screenshots) (O7) | — | when ready |
@@ -225,6 +225,28 @@ Tell Claude Code "**O6 done**" (and whether I did 0.18).
 flickers as it opens, tell Claude Code.
 
 Tell Claude Code "**O7 done**", with the ❌ list if there is one.
+
+---
+
+## O22 — server scripts update (22 Oct 2026)
+
+Through the WireGuard tunnel, as `talha` on the server. Release `20d45ea` (CI green on 22 Oct 2026).
+
+```bash
+cd /tmp
+curl -fsSLO https://raw.githubusercontent.com/syedtalha88/Al-Masjid/20d45ea314646a9b3054cd5b8efdcd1153890116/infra/vps/provision.sh
+sha256sum provision.sh
+#   must print: 805c175c64055f69fc2c74b10b63619734a04068df7ac2ef3e035aa992a76b96  provision.sh
+#   if it prints anything else: stop and tell Claude Code
+sudo bash provision.sh host 20d45ea314646a9b3054cd5b8efdcd1153890116
+sudo /usr/local/lib/masjid-connect/make-env.sh staging --force        # keeps every password and key; rewrites the Redis access list
+sudo docker restart $(sudo docker ps -q --filter label=com.docker.compose.project=mc-staging --filter label=com.docker.compose.service=redis)
+sudo systemctl start mc-deploy@staging.service                         # deploys 20d45ea now instead of waiting for the timer
+sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles   # send Claude Code the whole output (no secrets in it)
+sudo /usr/local/lib/masjid-connect/check.sh                           # send Claude Code the summary line + any FAIL/WARN lines
+```
+
+Then check from your PC: <https://app-staging.almasjids.com/api/v1/health> shows `"version":"20d45ea…"`, `"db":"ok"`, `"redis":"ok"`.
 
 ---
 

@@ -79,7 +79,7 @@ Verify recipe and other quirks as before (below).
 | O19 | ~~Screen-reader check (TalkBack + VoiceOver)~~ | Re-review V-7 | – | **done 20 Oct 2026** — owner: "mobile testing is working fine" |
 | O21 | ~~Dated confirmation of the Atlas IP access list~~ | T1.12 evidence | – | **done 22 Oct 2026** — owner: "I confirm" (`docs/reports/evidence/PHASE_01_T1.12_atlas-ip-list_2026-10-22.txt`) |
 | O12 | ~~Super Admin passkey on staging~~ — **done 22 Oct 2026** | Phase 01 T1.9 | – | done |
-| O22 | **Host-layer update on the VPS**: `provision.sh host <sha>` (sha from Claude Code, checksum checked as in O17), then `make-env.sh staging --force` (keeps every password/key; rewrites the Redis ACL) and restart Redis + the APIs (DEPLOY.md §8) | F36, F37, F40 and review L-5 (API Redis users lose SCAN/RANDOMKEY on the server) — DECISIONS #84 | 15 min | next (Phase 01 close) |
+| O22 | **Host-layer update on the VPS**: `provision.sh host <sha>` (sha from Claude Code, checksum checked as in O17), then `make-env.sh staging --force` (keeps every password/key; rewrites the Redis ACL) and restart Redis + the APIs (DEPLOY.md §8) | F36, F37, F40, review L-5 and #86 L5 (host journal archived) — DECISIONS #84. **Staging refuses releases after `5f03c08` until this runs** (host-layer files changed). Steps with sha `20d45ea` + checksum: `owner/MY_PENDING_TASKS.md` § O22; it also re-runs `--verify-roles` for the T1.12 evidence | 15 min | **next** |
 
 ## Current phase task checklist
 
