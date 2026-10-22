@@ -8,7 +8,7 @@
 | Phase | Title | Status | Report | Owner verified on |
 |---|---|---|---|---|
 | 00 | Foundation, tooling & design system | **Accepted by the owner** — closure: report final, V-31 done; waiting for owner 0.15/0.16 + #79 (DECISIONS #62) | [final](reports/PHASE_00_REPORT.md) | 16 Oct 2026 |
-| 01 | Database, security core, passkey auth, Super Admin | IN PROGRESS (from 16 Oct 2026, DECISIONS #62) | – | – |
+| 01 | Database, security core, passkey auth, Super Admin | **DONE** (owner tested 1.1–1.12 on staging, 22 Oct 2026) | [final](reports/PHASE_01_REPORT.md) | 22 Oct 2026 |
 | 02 | Musalli app core (follow, timings, feed, offline, install) | NOT STARTED | – | – |
 | 03 | Masjid Admin content tools | NOT STARTED | – | – |
 | 04 | Push notifications | NOT STARTED | – | – |
@@ -18,28 +18,18 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (handoff updated 22 Oct 2026, end of the 2nd session)
+## ▶ Next session — start here (handoff 22 Oct 2026 — Phase 01 DONE)
 
-**State:** branch `ci/t0.14-staging` = `main`, everything pushed. Phase 01: 11/12 ticked, **T1.12 nearly closed** —
-only owner items remain. No OPEN decisions (#85 → A by the owner). Staging keeps deploying new releases by itself (it ran `1c9f92d` at handoff): the
-release check compares only the compose file and `redis.conf`, so the changed `deploy.sh` / `log-archive.sh` reach the
-server only with O22.
+**State:** Phase 01 **DONE** (owner tested 1.1–1.12 on staging, 22 Oct 2026). Everything pushed; CI green on
+`e11e7b1` (release published 04:46 UTC). Later commits (N1 audit cells, jobs-import lint, B1/B2 Lighthouse, report)
+are pushed — **check their CI first.**
 
-**Done (22 Oct):** delta-review LOWs (#82), phase-verifier gaps (#83, #87 — incl. a real tenant gap in admin
-`audit_log` inserts and the Urdu C11 row), follow-up deferrals (#84), staging Lighthouse report-only (#85 A, F42),
-three security reviews of the close work (#86, #88: 0 HIGH / 0 MEDIUM, all LOWs fixed), O21 evidence, 4-locale
-screenshots saved, **full local verify green** (static 32/32, db 150, api int 156, e2e 142 + admin hook specs 7, perf,
-Lighthouse local PASS), report drafted (`docs/reports/PHASE_01_REPORT.md`).
-
-**Do in this order:**
-1. **CI** on the pushed head.
-2. **Owner O22** (steps + sha + checksum in `owner/MY_PENDING_TASKS.md` § O22). Afterwards: both health endpoints show
-   the new release, `check.sh` output and the `--verify-roles` output → save as
-   `docs/reports/evidence/PHASE_01_T1.1_verify-roles_<date>.txt` and `PHASE_01_T1.12_check-sh_<date>.txt`.
-3. Confirm the next **Nightly** is green (staging Lighthouse now report-only).
-4. Finish the report (header: final release + image digests from the signed manifest; §3 ⏳ rows), final
-   phase-verifier + security-reviewer pass on the final head, set Phase 01 to **AWAITING OWNER VERIFICATION**, tell
-   the owner to run `owner/PHASE_TESTING_GUIDE.md` → Phase 01 (1.2–1.12). Then O6 0.15/0.16 last.
+**Do first:**
+1. Confirm staging serves the newest release — at close it still reported `1c9f92d` although `e11e7b1` was published
+   (timer runs every minute): ask the owner for `sudo journalctl -u mc-deploy@staging -n 40 --no-pager` if it is stuck.
+2. Confirm the manually triggered Nightly (22 Oct ~04:50 UTC) is green with staging Lighthouse report-only.
+3. Then **/start-phase 02**. Owner still open: O6 0.15/0.16 (last), O7 design notes, O8 Turnstile switch-over (Phase 2),
+   O16 low-end phone.
 
 **Local quirk (this PC):** Node cannot resolve `*.localhost` (browsers can). For e2e, preload a shim via
 `NODE_OPTIONS=--require <shim>` that patches `dns.lookup`, `dns.promises.lookup` AND `net/tls.connect` (pass a `lookup`
@@ -114,7 +104,7 @@ Verify recipe and other quirks as before (below).
 - [x] T1.9 — Bootstrap Super Admin — **DONE 22 Oct 2026:** the owner created the Super Admin passkey on staging (O12, `deploy.sh staging --bootstrap-super-admin`, link opened on the phone). Earlier — **local part done (16 Oct 2026, autopilot):** `bootstrapSuperAdmin` (system scope; refuses while a Super Admin exists unless `--force-additional`), link `ADMIN_ORIGIN/invite#<token>`, `pnpm bootstrap:super-admin` tested against the local DB (created, then refused); README + DEPLOY.md §7. **Server part done (19 Oct 2026, DECISIONS #70 option A):** `dist/bootstrap-super-admin.mjs` + `deploy.sh <env> --bootstrap-super-admin` (one-off api-admin container; 3 deploy-test cases; verified locally as `mc_admin`). **Remaining:** the owner runs it on staging once the passkey routes are live (O12 — needs push + O17).
 - [x] T1.10 — Admin app shell & screens — **DONE 20 Oct 2026:** `e2e/admin/screens.spec.ts` — every Phase 01 admin screen (B1 invite + login, B2, B3 masjid admin + Super Admin, B13 ×2, C1, C2 list/new/detail/edit, C10, C11) in en/hi/ur/te: screenshot + axe clean + `dir` (Urdu RTL checked visually); `e2e/admin/lighthouse-a11y.spec.ts` — Lighthouse accessibility on every signed-in screen: all 100 (fixed one heading-order on the masjid form). Both in CI (runtime-test stack). Earlier — **mostly done (16 Oct 2026, autopilot, DECISIONS #71/#72):** API gate (`UNDERTAKING_REQUIRED`), session gate, B1 invite + login (platform WebAuthn client), B2 undertaking (DRAFT text, 4 locales), B3 home (final tiles → Coming soon, masjid switcher, Super Admin entry), B13 account (language, logins rename + add phone, devices, log out / everywhere); session-expired → Login with a note; screenshots en + ur. Also fixed the navigator's `use()` error on pushed screens (both PWAs). Login/registration/step-up now work end to end (T1.8, browser e2e green 20 Oct 2026). **Remaining:** 4-locale screenshot set + Lighthouse a11y run in the phase close.
 - [x] T1.11 — Super Admin: masjids, admins, settings, audit — **DONE 20 Oct 2026:** browser e2e of the whole onboarding green (`e2e/admin/onboarding.spec.ts`: Super Admin creates masjid + admin → the admin registers on their own phone, accepts the undertaking, sees the masjid on home → Super Admin activates it). It found a real bug: masjid creation was a 500 as `mc_admin` (eager `masjid_stats` insert the role may not do) — fixed, and the api-admin route suites now run as `mc_admin` (DECISIONS #78). Earlier — **API + screens done (16 Oct 2026, autopilot, DECISIONS #71/#73):** `/api/super` with role guard; C1 dashboard, C2 masjids (search, create/edit with Google-Maps-link coordinates checked inside India, status actions ★, quota, admins with ★ actions and copy/WhatsApp invite links), C10 settings, C11 audit (filters, details, ★ CSV); ★ step-up dialog; sidebar ≥ 1024px; screenshots desktop + phone + Urdu. 
-- [ ] T1.12 — Security review & phase close
+- [x] T1.12 — Security review & phase close — **DONE 22 Oct 2026** (reviews #80 #82 #86 #88 #89, 0 HIGH / 0 MEDIUM open; verifier gaps closed #83 #87 #89; O21/O22 evidence; report final; owner checks passed)
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
@@ -160,6 +150,7 @@ Verify recipe and other quirks as before (below).
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-22 | 01 / close | O22 done by the owner (17/17 privileges, check.sh 114 PASS · 0 FAIL); final reviews: security 0 HIGH/MED (#88, #89), verifier gaps fixed (#87, #89 — device/admin audit cells, Urdu C11, B1/B2 Lighthouse 100); report final; owner confirmed checks 1.2–1.12 passed → **Phase 01 DONE**. |
 | 2026-10-22 | 01 / T1.12 | CI red on `70f7583` (Trivy: CVE-2026-111943 in Caddy's Go 1.27.2) → builder re-pinned to Go 1.27.3, green. Delta-review LOWs L-1…L-12 fixed/justified (#82: IPv6 /48 buckets, fail-closed IP keys, `safeText` by Unicode category, raw-length cap, no RANDOMKEY, capped audit entry, per-entry policy checks, strict step-up time, exact CSV cap). Phase-verifier gaps (#83): isolation tests found admin `audit_log` inserts without a tenant rule (fixed); concurrency, disabled-session, T1.11 audit-trail and login-log tests; `@mc/db` named imports only; one-off containers out of the log archive. Follow-ups deferred with triggers (#84; F27 closed; F39–F41 new; owner O22). Staging Lighthouse analysed: not geography — Lantern chain depth × CDN server time; admin warm ≤ 1 s impossible while waiting for `/auth/me` → #85 OPEN. |
 | 2026-10-22 | 01 / T1.9, T1.12 | Owner did O12 → T1.9 done; owner accepted #79 A and #81 A (login IP limit 30 / 10 min, done 20 Oct). Delta security review (`b9eb751..9fe1f18`): 0 HIGH, 2 MED fixed (M-A hook checks matched no quote style the bundler writes; M-B gateway upserts skipped the insert rules), 12 LOW listed in the handoff (DECISIONS #82). Phase-verifier for Phase 01: not closable yet — test gaps, staging Lighthouse, flakes, deferrals, evidence (handoff list). Owner opened a new session for the rest. |
 | 2026-10-20 | 01 / T1.10 | 4-locale screens spec + signed-in Lighthouse a11y (100 on all 9 screens) done; T1.2, T1.4, T1.10 ticked. Phase 01 open: T1.9 (owner O12) and T1.12 (finish-phase). Local quirk again: Node on this PC cannot resolve `*.localhost` (browsers can) — e2e ran with a scratch preload shim (patches `net/tls.connect` lookups); CI on Linux unaffected. |

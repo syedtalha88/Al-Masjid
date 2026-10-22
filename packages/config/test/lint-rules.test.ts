@@ -132,6 +132,9 @@ describe('import bans: allowed areas', () => {
       expect(await id(code), spec).toContain('no-restricted-imports');
       expect(await id(code, 'packages/api/src/hooks/x.ts'), spec).toContain('no-restricted-imports');
       expect(await id(code, 'apps/server/src/worker.ts'), spec).not.toContain('no-restricted-imports');
+      expect(await id(code, 'apps/server/src/admin.ts'), spec).toContain('no-restricted-imports');
+      const lazy = `export const load = async () => (await import('${spec}')).run;\n`;
+      expect(await id(lazy), spec).toContain('no-restricted-syntax');
       expect(await id(code, 'packages/api/src/test-hooks/index.ts'), spec).not.toContain('no-restricted-imports');
     }
     expect(

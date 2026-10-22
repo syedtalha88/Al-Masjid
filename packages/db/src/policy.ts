@@ -77,11 +77,14 @@ const ownItemCounters = async (ctx: PolicyContext) => {
   return { _id: { $in: items.map((item) => item._id) } };
 };
 const sessionOf = (ctx: PolicyContext) => (ctx.session ? { session: ctx.session } : {});
-/** Admin audit entries: actor = the admin, masjid = one of theirs or none (`null` in `$in` matches a missing field). */
+/** Admin audit entries: actor = this admin as `admin`, masjid = one of theirs or none (`null` in `$in` = missing field). */
 const ownAuditEntry = (ctx: PolicyContext) => ({
+  actor_type: 'admin',
   ...selfAdmin('actor_id')(ctx),
   masjid_id: { $in: [...adminMasjids(ctx), null] },
 });
+/** Device audit entries (follow / unfollow): actor = this device as `device` — never an admin, super admin or system. */
+const ownDeviceAuditEntry = (ctx: PolicyContext) => ({ actor_type: 'device', ...selfDevice('actor_id')(ctx) });
 
 const S: Cell = {};
 const all = (writable?: readonly string[]): Partial<Record<Operation, Cell>> => ({
@@ -342,7 +345,7 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
     },
   },
   audit_log: {
-    device: { insert: S },
+    device: { insert: { filter: ownDeviceAuditEntry } }, // phase-verifier N1 (22 Oct 2026)
     // An admin's entry names the admin as actor and one of their masjids or none (phase-verifier 22 Oct 2026): no
     // entries planted in another masjid's audit view.
     admin: { find: { filter: own('masjid_id') }, insert: { filter: ownAuditEntry } },

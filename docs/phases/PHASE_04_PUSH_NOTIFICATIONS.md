@@ -18,7 +18,7 @@ Notification categories/preferences (rejected — DECISIONS #16). Scheduled post
 ## Tasks
 
 ### T4.1 — Push infrastructure
-**Do:** `packages/api/src/push/` adapter over `web-push` (VAPID from env; TTL/urgency/topic headers; response classification), endpoint host allow-list validation (04 §6), `packages/api/src/jobs/queue.ts` (BullMQ queue definitions, typed job payloads validated with Zod on both enqueue and process, default attempts/backoff/timeouts, removal policies), enqueue-after-commit helper for the outbox, idempotency helper (Redis keys), worker bootstrap registering processors + job schedulers (Asia/Kolkata), mock push service for tests (records requests, can return 201/404/410/429/500).
+**Do:** `packages/api/src/push/` adapter over `web-push` (VAPID from env; TTL/urgency/topic headers; response classification), endpoint host allow-list validation (04 §6), `packages/api/src/queue/**` (BullMQ queue definitions, typed job payloads validated with Zod on both enqueue and process, default attempts/backoff/timeouts, removal policies) and the enqueue-after-commit helper for the outbox — **outside `jobs/`** and never importing `systemScope`, because API code may not import from `jobs/` (DECISIONS #88/#89); only processors and schedulers live in `packages/api/src/jobs/**`, idempotency helper (Redis keys), worker bootstrap registering processors + job schedulers (Asia/Kolkata), mock push service for tests (records requests, can return 201/404/410/429/500).
 **Acceptance:** [ ] Unit tests for response classification and header building. [ ] Subscription with non-allow-listed host rejected. [ ] An invalid job payload is rejected at enqueue and at process time.
 
 ### T4.2 — Musalli subscription UX

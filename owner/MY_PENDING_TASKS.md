@@ -242,7 +242,7 @@ sha256sum provision.sh
 sudo bash provision.sh host aa2d1ac13fd0a1ca78e965d3a773367cddc04fa8
 sudo /usr/local/lib/masjid-connect/make-env.sh staging --force        # keeps every password and key; rewrites the Redis access list
 sudo docker restart $(sudo docker ps -q --filter label=com.docker.compose.project=mc-staging --filter label=com.docker.compose.service=redis)
-sudo systemctl start mc-deploy@staging.service                         # deploys 20d45ea now instead of waiting for the timer
+sudo systemctl start mc-deploy@staging.service                         # deploys the newest release now instead of waiting for the timer
 sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles   # send Claude Code the whole output (no secrets in it)
 sudo /usr/local/lib/masjid-connect/check.sh                           # send Claude Code the summary line + any FAIL/WARN lines
 ```

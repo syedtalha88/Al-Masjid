@@ -14,11 +14,13 @@ import {
   virtualAuthenticator,
 } from './helpers.ts';
 
-// PHASE_01 T1.10 acceptance "Lighthouse a11y ≥ 95 on admin screens": the signed-in screens, which `pnpm lhci` cannot
+// PHASE_01 T1.10 acceptance "Lighthouse a11y ≥ 95 on admin screens": the signed-in screens plus B1 / B2, which `pnpm lhci` cannot
 // reach (it audits the signed-out login only). Sessions come from real passkey registrations (virtual authenticator);
 // Lighthouse gets the session cookie as a request header. Needs the runtime-test stack (E2E_TEST_HOOKS=1).
 
 const MIN_SCORE = 0.95;
+/** Logs are public in CI: never print an invite token (the part after `#`). */
+const shown = (path: string) => path.replace(/#.*/, '#…');
 
 const sessionCookie = async (page: Page) => {
   const cookie = (await page.context().cookies(ADMIN_URL)).find((c) => c.name === '__Host-mc_sess');
@@ -68,6 +70,24 @@ test.describe('admin screens: Lighthouse accessibility (T1.10)', () => {
     const superCookie = await sessionCookie(page);
     await phone.close();
 
+    // B2: an admin who registered but has not accepted the undertaking yet; B1: an invite nobody has opened (the page
+    // only reads it — it is used up by registration, not by viewing). Phase-verifier N3, 22 Oct 2026.
+    const newAdmin = async (displayName: string) => {
+      const response = await page.request.post(`${ADMIN_URL}/api/super/admins`, {
+        headers: CSRF,
+        data: { displayName, uiLocale: 'en', masjidId, role: 'editor' },
+      });
+      return ((await response.json()) as { inviteUrl: string }).inviteUrl;
+    };
+    const pendingContext = await browser.newContext({ ...devices['Pixel 7'], ignoreHTTPSErrors: true });
+    const pendingPage = await pendingContext.newPage();
+    await virtualAuthenticator(pendingPage);
+    await registerWithInvite(pendingPage, await newAdmin('Test Editor'), 'Test Editor');
+    await expect(pendingPage.getByRole('checkbox', { name: label('en', 'admin', 'undertaking.agree') })).toBeVisible();
+    const pendingCookie = await sessionCookie(pendingPage);
+    await pendingContext.close();
+    const openInvite = new URL(await newAdmin('Test Helper'));
+
     const pages: readonly (readonly [string, string])[] = [
       ['/', adminCookie],
       ['/account', adminCookie],
@@ -78,6 +98,8 @@ test.describe('admin screens: Lighthouse accessibility (T1.10)', () => {
       [`/super/masjids/${masjidId}/edit`, superCookie],
       ['/super/settings', superCookie],
       ['/super/audit', superCookie],
+      ['/', pendingCookie], // B2 undertaking
+      [`${openInvite.pathname}${openInvite.hash}`, ''], // B1 invite, signed out
     ];
     const chrome = await chromeLauncher.launch({
       chromePath: chromium.executablePath(),
@@ -94,16 +116,16 @@ test.describe('admin screens: Lighthouse accessibility (T1.10)', () => {
           port: chrome.port,
           logLevel: 'error',
           onlyCategories: ['accessibility'],
-          extraHeaders: { Cookie: cookie },
+          ...(cookie ? { extraHeaders: { Cookie: cookie } } : {}),
         });
         const score = result?.lhr.categories['accessibility']?.score ?? 0;
         const failing = Object.values(result?.lhr.audits ?? {})
           .filter((a) => a.score !== null && a.score < 1 && a.scoreDisplayMode === 'binary')
           .map((a) => a.id);
         results.push(
-          `${path}: ${String(Math.round(score * 100))}${failing.length > 0 ? ` (${failing.join(', ')})` : ''}`,
+          `${shown(path)}: ${String(Math.round(score * 100))}${failing.length > 0 ? ` (${failing.join(', ')})` : ''}`,
         );
-        expect(score, `${path} accessibility`).toBeGreaterThanOrEqual(MIN_SCORE);
+        expect(score, `${shown(path)} accessibility`).toBeGreaterThanOrEqual(MIN_SCORE);
       }
     } finally {
       await test.info().attach('lighthouse-a11y.txt', { body: results.join('\n'), contentType: 'text/plain' });

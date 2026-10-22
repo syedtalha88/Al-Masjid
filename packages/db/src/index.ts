@@ -20,7 +20,6 @@ export {
   NotImplementedError,
   StateError,
   withFollowCode,
-  writeAudit,
 } from './effects.ts';
 export { cellFor, type Operation, POLICY, type PolicyContext, PolicyDeniedError } from './policy.ts';
 export * from './roles.ts';

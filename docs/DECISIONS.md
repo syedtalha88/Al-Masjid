@@ -748,7 +748,8 @@ and staging gets the same budgets back in Phase 02.
 looking letters passed `safeText` (U+3164 as a whole name) → Cn, Hangul fillers, U+034F, U+17B4/5, U+2800, variation
 selectors except FE0E/FE0F refused; a required field needs a letter or digit (`safeText` is for names and labels, not
 Phase 3 content bodies — Cf includes Arabic number signs). **L3** the /48 sibling applied to every IP bucket → opt-in
-(`wide: true`, only `adminLoginIp`); every refusal logs `rate_limit.refused { bucket, width }` without key or IP. **L4**
+(`wide: true`, only `adminLoginIp`); every refusal logs `{ bucket, width }` without key or IP (since #88 L5: on the
+request's own access-log line, not a separate `rate_limit.refused` line). **L4**
 remaining ways around the scope bans → ESLint refuses re-exporting `systemScope` / `hookScope` and computed `import()`
 / `require` in server code; Semgrep matches re-exports by regex (its `export … from` patterns match every statement in
 1.180). **L5** the one-off filter relied on `oneoff=False` → only an explicit `True` is skipped; the hourly run now also
@@ -789,6 +790,19 @@ needs a migration of the old rows. **L4** the masjid detail RESPONSE no longer u
 **L5** a rate-limit refusal rides on the request's own access-log line (`rateLimit: { bucket, width }`), no second line
 per refusal (tested, no IP in the logs). Noted: sudo command lines reach the archived journal for 200 days — never put
 a secret on a sudo command line (DEPLOY.md).
+
+### #89 — Final phase-verifier and security review of Phase 01 — ACCEPTED (Claude Code, 22 Oct 2026)
+**Security review (`1c9f92d..e11e7b1`):** 0 HIGH, 0 MEDIUM, 3 LOW — fixed: a lazy `import()` of a `jobs/` path is refused
+(no-restricted-imports never sees `import()`); only the worker, bootstrap CLI and test-hook files may import job code
+(not `admin.ts` / `public.ts`, the internet-facing processes); PHASE_04 T4.1 now puts the queue definitions and the
+enqueue helper in `packages/api/src/queue/**`, outside `jobs/`. Justified: the host-journal archive file has no
+same-second name guard — two runs within one second cannot happen while the lock serialises them; not worth another
+host-layer update. No secret, token, invite link or phone number in any evidence file. **Phase-verifier:** N1 — the
+device `audit_log` insert cell was unrestricted (same class as #83 a): a device now writes entries only as itself
+(`actor_type: 'device'`, its own id), and an admin only as `admin` (no `super_admin` / `system` stamp) — tested.
+N2 — `writeAudit` (whose explicit-actor form skips the gateway) is no longer exported from `@mc/db`. N3 — Lighthouse
+accessibility now also audits B1 invite and B2 undertaking (11 admin screens, all 100); invite tokens are never printed.
+Report corrections R1–R9 applied.
 
 ## OPEN
 

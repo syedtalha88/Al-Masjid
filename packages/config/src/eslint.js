@@ -107,10 +107,13 @@ const restrictCreateRequire = {
  * API code outside jobs/ never imports from jobs/: a job helper may call systemScope() inside, which no import ban on
  * @mc/db can see (security review 22 Oct 2026, L1). The worker / CLI entrypoints in apps/server and the test hooks may.
  */
-const restrictJobsImports = {
-  group: ['**/jobs/**', '**/jobs/*', '@mc/api/jobs/*'],
-  message: 'Only jobs/, the server entrypoints and the test hooks import from jobs/ (job code may run as systemScope).',
-};
+const JOBS_MESSAGE =
+  'Only jobs/, the worker / CLI entrypoints and the test hooks import from jobs/ (job code may run as systemScope).';
+const restrictJobsImports = { group: ['**/jobs/**', '**/jobs/*', '@mc/api/jobs/*'], message: JOBS_MESSAGE };
+/** no-restricted-imports never sees `import()`: a lazy-loaded job helper is refused here (security review, final). */
+const jobsDynamicImportSyntax = [
+  { selector: `ImportExpression[source.value=/(^|\\u002F)jobs\\u002F/]`, message: JOBS_MESSAGE },
+];
 
 /**
  * Playwright's `waitForFunction` does not await a Promise: an async predicate is truthy at once and the wait
@@ -145,6 +148,7 @@ function importRestrictions(allowed) {
       ...(allowed.mongodb ? [] : dynamicMongodbSyntax),
       ...(allowed.systemScope && allowed.hookScope ? [] : namedDbImportsSyntax),
       ...(allowed.server ? serverLiteralImportsSyntax : []),
+      ...(allowed.noJobs ? jobsDynamicImportSyntax : []),
       ...asyncWaitForFunctionSyntax,
     ],
   };
@@ -285,13 +289,20 @@ export function createConfig({ tsconfigRootDir, typeAware = true }) {
     { name: 'mc/imports-default', rules: importRestrictions({ mongodb: false, systemScope: false, hookScope: false }) },
     {
       name: 'mc/imports-api',
-      files: ['packages/api/src/**'],
+      files: ['packages/api/src/**', 'apps/server/src/**'],
       rules: importRestrictions({ mongodb: false, systemScope: false, hookScope: false, server: true, noJobs: true }),
     },
     {
       // Entrypoints (worker, bootstrap CLI) and the test hooks call job code.
       name: 'mc/imports-server-entrypoints',
-      files: ['apps/server/src/**', 'packages/api/src/test-hooks/**'],
+      // Not admin.ts / public.ts: the internet-facing processes never run job code (security review, final).
+      files: [
+        'apps/server/src/worker.ts',
+        'apps/server/src/bootstrap-super-admin.ts',
+        'apps/server/src/test-hooks.ts',
+        'apps/server/src/test-hooks-loader.ts',
+        'packages/api/src/test-hooks/**',
+      ],
       rules: importRestrictions({ mongodb: false, systemScope: false, hookScope: false, server: true }),
     },
     {

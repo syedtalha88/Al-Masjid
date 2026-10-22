@@ -88,7 +88,13 @@ function docFor(namespace: Namespace, scope: Scope, contentId: UUID): Record<str
     masjid_id: masjid,
     device_id: scope.kind === 'device' ? scope.deviceId : new UUID(),
     admin_id: scope.kind === 'admin' || scope.kind === 'super' ? scope.adminId : new UUID(),
-    actor_id: scope.kind === 'admin' || scope.kind === 'super' ? scope.adminId : new UUID(),
+    actor_id:
+      scope.kind === 'admin' || scope.kind === 'super'
+        ? scope.adminId
+        : scope.kind === 'device'
+          ? scope.deviceId
+          : new UUID(),
+    actor_type: scope.kind === 'super' ? 'super_admin' : scope.kind,
     status: 'verified',
     system: false,
   };
@@ -259,12 +265,19 @@ describe('tenant isolation', () => {
       _id: new UUID(),
       at: new Date(),
       action: 'auth.logout',
+      actor_type: 'admin',
       ...extra,
     });
     await expect(audit.insertOne(entry({ actor_id: adminOfD.adminId, masjid_id: masjidC }))).rejects.toBeInstanceOf(
       PolicyDeniedError,
     );
     await expect(audit.insertOne(entry({ actor_id: ownerOfC.adminId }))).rejects.toBeInstanceOf(PolicyDeniedError);
+    // … nor stamped as someone more privileged (phase-verifier N1).
+    for (const actor_type of ['super_admin', 'system', 'device']) {
+      await expect(audit.insertOne(entry({ actor_id: adminOfD.adminId, actor_type }))).rejects.toBeInstanceOf(
+        PolicyDeniedError,
+      );
+    }
     await audit.insertOne(entry({ actor_id: adminOfD.adminId }));
     await audit.insertOne(entry({ actor_id: adminOfD.adminId, masjid_id: adminOfD.masjids[0]?.id }));
     for (const namespace of ['special_timings', 'chanda_weeks', 'masjids'] as const) {
@@ -289,6 +302,29 @@ describe('tenant isolation', () => {
     await expect(subscriptions.insertOne({ _id: new UUID(), admin_id: otherAdmin })).rejects.toBeInstanceOf(
       PolicyDeniedError,
     );
+  });
+
+  it('a device writes audit entries only as itself (phase-verifier N1)', async () => {
+    const mine = deviceScope(new UUID());
+    const audit = scoped({ scope: mine, db: db() }, 'audit_log');
+    const entry = (extra: Record<string, unknown>) => ({
+      _id: new UUID(),
+      at: new Date(),
+      action: 'device.follow',
+      masjid_id: masjidC,
+      ...extra,
+    });
+    for (const forged of [
+      { actor_type: 'admin', actor_id: ownerOfC.adminId },
+      { actor_type: 'super_admin', actor_id: new UUID() },
+      { actor_type: 'system' },
+      { actor_type: 'device', actor_id: new UUID() }, // another device
+    ]) {
+      await expect(audit.insertOne(entry(forged)), JSON.stringify(forged.actor_type)).rejects.toBeInstanceOf(
+        PolicyDeniedError,
+      );
+    }
+    await audit.insertOne(entry({ actor_type: 'device', actor_id: mine.deviceId }));
   });
 
   it('a device changes nothing of another device: its record, follows or ameens', async () => {
