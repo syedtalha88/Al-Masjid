@@ -91,6 +91,27 @@ describe('import bans: allowed areas', () => {
     );
   });
 
+  it('rejects re-exporting a scope from jobs or hooks, and computed imports / require in server code (review L4)', async () => {
+    const reexport = "export { systemScope as makeScope } from '@mc/db';\n";
+    const relay = "import { systemScope } from '@mc/db';\nexport const relay = systemScope;\n";
+    for (const code of [reexport, relay]) {
+      expect(await ruleIds('packages/api/src/jobs/retention.ts', code), code).toContain('no-restricted-syntax');
+    }
+    for (const code of [
+      'export const load = (name: string) => import(name);\n',
+      'export const load = () => import(`@mc/db`);\n',
+      "export const db = require('./db.ts');\n",
+    ]) {
+      expect(await ruleIds('packages/api/src/routes/masjids.ts', code), code).toContain('no-restricted-syntax');
+      expect(await ruleIds('apps/server/src/main.ts', code), code).toContain('no-restricted-syntax');
+    }
+    const literal = "export const load = () => import('./other.ts');\n";
+    expect(await ruleIds('packages/api/src/routes/masjids.ts', literal)).not.toContain('no-restricted-syntax');
+    expect(await ruleIds('scripts/build.ts', "export const r = require('node:fs');\n")).not.toContain(
+      'no-restricted-syntax',
+    );
+  });
+
   it('rejects systemScope in webhooks', async () => {
     expect(await ruleIds('packages/api/src/hooks/example.ts', systemScopeImport)).toContain('no-restricted-imports');
   });

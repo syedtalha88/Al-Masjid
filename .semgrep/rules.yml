@@ -74,6 +74,20 @@ rules:
     paths:
       exclude: ['packages/api/src/hooks/**', 'packages/db/**']
 
+  - id: mc-scopes-never-reexported
+    message: >-
+      systemScope / hookScope are never re-exported — an allowed area (jobs, hooks) would launder them to any importer
+      (security review L4, DECISIONS #20).
+    severity: ERROR
+    languages: [typescript]
+    pattern-either:
+      # Semgrep's TypeScript patterns for `export { … } from` match every statement (1.180), hence a regex.
+      - pattern-regex: 'export\s*(type\s+)?\{[^}]*\b(systemScope|hookScope)\b[^}]*\}'
+      - pattern: export const $X = systemScope;
+      - pattern: export const $X = hookScope;
+    paths:
+      exclude: ['packages/db/**']
+
   - id: mc-routes-only-via-define-route
     message: HTTP routes are declared only through defineRoute() (CLAUDE.md §6) — no raw router/app verbs.
     severity: ERROR

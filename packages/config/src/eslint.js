@@ -58,6 +58,27 @@ const namedDbImportsSyntax = [
     selector: `CallExpression[callee.name='require'][arguments.0.value=${DB_MODULE}]`,
     message: DB_NAMED_ONLY_MESSAGE,
   },
+  // Re-exporting a scope from an allowed area (jobs, hooks) would launder it to any importer (security review L4).
+  {
+    selector: 'ExportSpecifier[local.name=/^(systemScope|hookScope)$/]',
+    message: 'systemScope / hookScope are never re-exported — import them from @mc/db where they are allowed.',
+  },
+  {
+    selector: 'ExportNamedDeclaration VariableDeclarator[init.name=/^(systemScope|hookScope)$/]',
+    message: 'systemScope / hookScope are never re-exported — import them from @mc/db where they are allowed.',
+  },
+];
+
+/**
+ * Server code (api package, server app) is ESM with literal imports only: a computed `import()` source or `require`
+ * would load `@mc/db` past every check above (security review L4).
+ */
+const SERVER_LITERAL_IMPORTS_MESSAGE =
+  'Server code imports by literal module name only (no computed import() source, no require / createRequire).';
+const serverLiteralImportsSyntax = [
+  { selector: "ImportExpression:not([source.type='Literal'])", message: SERVER_LITERAL_IMPORTS_MESSAGE },
+  { selector: "CallExpression[callee.name='require']", message: SERVER_LITERAL_IMPORTS_MESSAGE },
+  { selector: "CallExpression[callee.name='createRequire']", message: SERVER_LITERAL_IMPORTS_MESSAGE },
 ];
 
 /**
@@ -74,7 +95,8 @@ const asyncWaitForFunctionSyntax = [
 ];
 
 /**
- * @param {{ systemScope: boolean, hookScope: boolean, mongodb: boolean }} allowed
+ * @param {{ systemScope: boolean, hookScope: boolean, mongodb: boolean, server?: boolean }} allowed
+ *   `server`: the file is server code (literal imports only).
  * @returns {import('eslint').Linter.RulesRecord}
  */
 function importRestrictions(allowed) {
@@ -89,6 +111,7 @@ function importRestrictions(allowed) {
       'error',
       ...(allowed.mongodb ? [] : dynamicMongodbSyntax),
       ...(allowed.systemScope && allowed.hookScope ? [] : namedDbImportsSyntax),
+      ...(allowed.server ? serverLiteralImportsSyntax : []),
       ...asyncWaitForFunctionSyntax,
     ],
   };
@@ -228,14 +251,24 @@ export function createConfig({ tsconfigRootDir, typeAware = true }) {
     // Import bans (CLAUDE.md §6 Structure). Later entries override earlier ones for their files.
     { name: 'mc/imports-default', rules: importRestrictions({ mongodb: false, systemScope: false, hookScope: false }) },
     {
-      name: 'mc/imports-jobs-and-scripts',
-      files: ['packages/api/src/jobs/**', 'scripts/**'],
+      name: 'mc/imports-server',
+      files: ['packages/api/src/**', 'apps/server/src/**'],
+      rules: importRestrictions({ mongodb: false, systemScope: false, hookScope: false, server: true }),
+    },
+    {
+      name: 'mc/imports-jobs',
+      files: ['packages/api/src/jobs/**'],
+      rules: importRestrictions({ mongodb: false, systemScope: true, hookScope: false, server: true }),
+    },
+    {
+      name: 'mc/imports-scripts',
+      files: ['scripts/**'],
       rules: importRestrictions({ mongodb: false, systemScope: true, hookScope: false }),
     },
     {
       name: 'mc/imports-hooks',
       files: ['packages/api/src/hooks/**'],
-      rules: importRestrictions({ mongodb: false, systemScope: false, hookScope: true }),
+      rules: importRestrictions({ mongodb: false, systemScope: false, hookScope: true, server: true }),
     },
     {
       name: 'mc/imports-db',

@@ -79,6 +79,7 @@ export async function loadTestHooks(
     return undefined;
   }
   // Computed specifier: the bundler must not follow it (the module is never part of the shipped bundle).
+  // eslint-disable-next-line no-restricted-syntax -- a fixed file URL next to this bundle, not a module name (review L4)
   const loaded: unknown = await import(moduleUrl.href);
   if (!isTestHookModule(loaded)) throw new Error('test hooks: module has no testHookRoutes()');
   const clock = new ShiftableClock();

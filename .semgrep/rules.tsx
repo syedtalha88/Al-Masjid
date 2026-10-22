@@ -35,6 +35,15 @@ const viaRequire = require('@mc/db').hookScope;
 // ok: mc-system-scope-only-in-jobs
 const options = { systemScope: true };
 
+// ruleid: mc-scopes-never-reexported, mc-system-scope-only-in-jobs
+export { systemScope as makeScope } from '@mc/db';
+// ruleid: mc-scopes-never-reexported, mc-hook-scope-only-in-hooks
+export { hookScope } from '@mc/db';
+// ruleid: mc-scopes-never-reexported
+export const relay = systemScope;
+// ok: mc-scopes-never-reexported
+export { publicScope } from '@mc/db';
+
 // ruleid: mc-routes-only-via-define-route
 router.get('/masjids', handler);
 // ok: mc-routes-only-via-define-route
