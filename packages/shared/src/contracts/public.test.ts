@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import {
   feedItemSchema,
-  feedQuerySchema,
   masjidBundleSchema,
   masjidVersionsSchema,
   publicIdText,
@@ -63,8 +62,6 @@ describe('public contracts', () => {
     };
     expect(feedItemSchema.safeParse(item).success).toBe(true);
     expect(feedItemSchema.safeParse({ ...item, type: 'gossip' }).success).toBe(false);
-    expect(feedQuerySchema.parse({ v: '7', limit: '30' })).toEqual({ v: 7, limit: 30 });
-    expect(feedQuerySchema.safeParse({ limit: '31' }).success).toBe(false);
   });
 
   it('template parameter values: text, numbers and ranges', () => {

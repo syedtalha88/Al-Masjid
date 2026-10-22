@@ -872,6 +872,30 @@ Report corrections R1–R9 applied.
 - **CDN check:** `scripts/check-cdn-cache.mjs` (Nightly staging job): versioned bundle and feed URLs answer
   `cf-cache-status: HIT` on repeat, an unversioned bundle redirects.
 
+### #92 — Client data layer and its bundle cost (PHASE_02 T2.3) — ACCEPTED (Claude Code, 23 Oct 2026; budget raise to be confirmed by the owner)
+**Decision:**
+- **Data layer** (`apps/app/src/lib`): one schema-versioned device document in IndexedDB (`idb-keyval` 6.3.0, own database
+  `mc-device`; memory fallback in private mode) validated on every read — corrupt/unknown data resets to a fresh state
+  keeping only the locale (04 §11); typed API client over the shared contracts (10 s timeout, GET retried twice with
+  jitter, never 4xx/non-GET, device header, server-clock offset from `Date`); query keys with the content version in
+  them; TanStack Query persisted to IndexedDB (`@tanstack/react-query-persist-client` 5.104.1 — matches react-query;
+  30-day max age, buster = release, only content roots); versions poller (focus + 60 s while visible) that prunes older
+  versions; registration retry queue (offline/Turnstile/busy → deferred, retried on `online` and next start) and follow
+  reconciliation (local intention wins; server extras adopted; a forgotten device re-registers and re-sends).
+  `gcTime` is infinite (TanStack's "≥ maxAge" rule; 30 days overflows a timer); old versions are pruned explicitly.
+- **Bundle:** the first build of this layer put the musalli initial JS at **200.2 kB** (classic Zod ≈ 25–30 kB via the
+  contracts). Measures: (1) the public contracts and the problem schema are written with **`zod/mini`** (≈ 7 kB core;
+  `defineRoute` accepts any Zod schema — validation via Zod's core functions, a Mini request object must be
+  `strictObject` (refused at definition otherwise), OpenAPI gets Mini schemas as Zod's own JSON Schema; the client
+  imports `@mc/shared/contracts/public` directly so no classic schema ships); (2) **PROGRESS F14 done**: catalogues are
+  precompiled to ICU ASTs at build (`mcIcuPrecompile`) and the FormatJS parser is aliased to its `no-parser` stub;
+  `i18next-icu` is replaced by our 50-line `createIcuFormat` (dev/tests still parse strings); (3) the sync code loads
+  just after start. Result: **171.2 kB** (admin 211.3 → 202.9 kB). The remaining +5.8 kB over 165.4 is the price of
+  validating every response and stored value (contracts + Zod Mini + store ≈ 11.8 kB). **`pnpm size` limit for the
+  musalli `/` is set to 175 kB** under the owner rule "quality over bundle size" (10–20 kB acceptable, record and tell
+  the owner) — the owner may ask for the 170 kB to be restored (next lever: split the contracts so late endpoints'
+  schemas load with their screens).
+
 ## OPEN
 
 _None — every decision is ACCEPTED (22 Oct 2026)._

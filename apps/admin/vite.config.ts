@@ -1,4 +1,4 @@
-import { mcLocaleBoot } from '@mc/i18n/vite';
+import { mcIcuPrecompile, mcLocaleBoot } from '@mc/i18n/vite';
 import { BRAND } from '@mc/shared/brand';
 import { configureZodForCsp } from '@mc/shared/browser';
 import { CLIENT_ENV_PREFIX, parseClientEnv } from '@mc/shared/env';
@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       brandHtml(),
       // Zod must be jitless before any schema is built, or its eval probe trips Trusted Types (04 §7).
+      mcIcuPrecompile(),
       mcLocaleBoot({ preloadFonts, before: [configureZodForCsp] }),
       ...mcPwa({ app: 'admin' }),
     ],

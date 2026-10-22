@@ -1,4 +1,4 @@
-import type { OpenAPIRegistry, RouteConfig } from '@asteasolutions/zod-to-openapi';
+import type { OpenAPIRegistry, RouteConfig, ZodMediaTypeObject } from '@asteasolutions/zod-to-openapi';
 import { type Clock, systemClock } from '@mc/shared/clock';
 import type { Request, RequestHandler, Response, Router } from 'express';
 import { z } from 'zod';
@@ -17,11 +17,13 @@ export type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
 
 export type { RouteAuth };
 
-type Responses = Readonly<Record<number, z.ZodType>>;
+/** Any Zod schema — classic (admin contracts) or Zod Mini (public contracts, DECISIONS #92). */
+type AnySchema = z.core.$ZodType;
+type Responses = Readonly<Record<number, AnySchema>>;
 
 /** A handler result: one of the declared statuses with a body matching that status's schema. */
 export type RouteResult<R extends Responses> = {
-  [S in keyof R & number]: { readonly status: S; readonly body: z.input<R[S]> };
+  [S in keyof R & number]: { readonly status: S; readonly body: z.core.input<R[S]> };
 }[keyof R & number];
 
 /** What a handler receives as `auth`: nothing on public routes, the device or the session (with its DB scope). */
@@ -51,13 +53,13 @@ export interface RouteContext<P, Q, B, R extends Responses, A extends RouteAuth 
   readonly req: Request;
   readonly res: Response;
   /** Builds the handler result; only declared statuses, with a body matching that status's schema. */
-  readonly reply: <S extends keyof R & number>(status: S, body: z.input<R[S]>) => RouteResult<R>;
+  readonly reply: <S extends keyof R & number>(status: S, body: z.core.input<R[S]>) => RouteResult<R>;
 }
 
 export interface RouteSpec<
   P extends z.ZodObject,
   Q extends z.ZodObject,
-  B extends z.ZodType,
+  B extends AnySchema,
   R extends Responses,
   A extends RouteAuth = 'none',
 > {
@@ -86,7 +88,7 @@ export interface RouteSpec<
   readonly request?: { readonly params?: P; readonly query?: Q; readonly body?: B };
   readonly responses: R;
   readonly handler: (
-    context: RouteContext<z.output<P>, z.output<Q>, z.output<B>, R, A>,
+    context: RouteContext<z.output<P>, z.output<Q>, z.core.output<B>, R, A>,
   ) => RouteResult<R> | Promise<RouteResult<R>>;
 }
 
@@ -105,7 +107,28 @@ export interface RouteDefinition {
 }
 
 /** `.strict()` for objects (unknown keys rejected — R11); other schemas unchanged. */
-const strict = (schema: z.ZodType): z.ZodType => (schema instanceof z.ZodObject ? schema.strict() : schema);
+/**
+ * Objects refuse unknown keys (R11): classic objects are made strict here; a Zod Mini object cannot be, so it must be
+ * declared with `strictObject` — anything else is a wiring bug, refused when the route is defined.
+ */
+function strict(schema: AnySchema): AnySchema {
+  if (schema instanceof z.ZodObject) return schema.strict();
+  const def = schema._zod.def;
+  const catchall = 'catchall' in def ? (def.catchall as AnySchema | undefined) : undefined; // object defs carry it
+  if (def.type === 'object' && catchall?._zod.def.type !== 'never') {
+    throw new Error('defineRoute: Zod Mini request objects must be z.strictObject(...)');
+  }
+  return schema;
+}
+
+/** OpenAPI: classic schemas as they are; Zod Mini schemas as JSON Schema (zod-to-openapi reads classic only). */
+const forOpenApi = (schema: AnySchema, io: 'input' | 'output'): NonNullable<ZodMediaTypeObject['schema']> =>
+  schema instanceof z.ZodType
+    ? schema
+    : // Zod's own OpenAPI 3.0 JSON Schema output — the generator embeds it as a plain schema object.
+      (z.toJSONSchema(schema, { target: 'openapi-3.0', io, unrepresentable: 'any' }) as NonNullable<
+        ZodMediaTypeObject['schema']
+      >);
 
 function assertSafe(part: string, value: unknown): void {
   const unsafe = findUnsafeKey(value);
@@ -115,9 +138,9 @@ function assertSafe(part: string, value: unknown): void {
 }
 
 /** Parses one request part; Zod issues are re-rooted at `part` (`body.locale`, `query.cursor`…). */
-function parsePart(part: 'params' | 'query' | 'body', schema: z.ZodType, value: unknown): unknown {
+function parsePart(part: 'params' | 'query' | 'body', schema: AnySchema, value: unknown): unknown {
   assertSafe(part, value);
-  const result = schema.safeParse(value);
+  const result = z.core.safeParse(schema, value);
   if (result.success) return result.data;
   throw new ApiProblem(
     400,
@@ -156,7 +179,7 @@ export const toOpenApiPath = (path: string): string => path.replace(/:([A-Za-z0-
 export function defineRoute<
   P extends z.ZodObject = EmptyObject,
   Q extends z.ZodObject = EmptyObject,
-  B extends z.ZodType = z.ZodUndefined,
+  B extends AnySchema = z.ZodUndefined,
   R extends Responses = Responses,
   A extends RouteAuth = 'none',
 >(spec: RouteSpec<P, Q, B, R, A>): RouteDefinition {
@@ -186,7 +209,7 @@ export function defineRoute<
     });
     const params = parsePart('params', paramsSchema, req.params) as z.output<P>; // parsed by P's schema
     const query = parsePart('query', querySchema, req.query) as z.output<Q>; // parsed by Q's schema
-    const body = parsePart('body', bodySchema, req.body) as z.output<B>; // parsed by B's schema
+    const body = parsePart('body', bodySchema, req.body) as z.core.output<B>; // parsed by B's schema
 
     // authenticateRequest returns a session exactly for the session modes, authenticateDevice a device for 'device'.
     const auth = (device ?? authed) as AuthFor<A>;
@@ -208,7 +231,7 @@ export function defineRoute<
       );
     // A contract violation is a server bug → plain Error (500), never a ZodError (which maps to a 400
     // that would blame the client and expose field paths).
-    const parsed = schema.safeParse(result.body);
+    const parsed = z.core.safeParse(schema, result.body);
     if (!parsed.success) {
       const fields = parsed.error.issues.map((issue) => issue.path.join('.') || '(root)').join(', ');
       throw new Error(
@@ -240,7 +263,12 @@ export function defineRoute<
       ...(spec.request?.params ? { params: spec.request.params } : {}),
       ...(spec.request?.query ? { query: spec.request.query } : {}),
       ...(spec.request?.body
-        ? { body: { required: true, content: { 'application/json': { schema: spec.request.body } } } }
+        ? {
+            body: {
+              required: true,
+              content: { 'application/json': { schema: forOpenApi(spec.request.body, 'input') } },
+            },
+          }
         : {}),
     },
     responses: Object.fromEntries(
@@ -256,7 +284,7 @@ export function defineRoute<
                     ? 'text/csv'
                     : spec.htmlFragment
                       ? 'text/html'
-                      : 'application/json']: { schema },
+                      : 'application/json']: { schema: forOpenApi(schema, 'output') },
                 },
               }),
         },

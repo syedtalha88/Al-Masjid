@@ -1,6 +1,6 @@
 import i18next, { type BackendModule, type i18n as I18n } from 'i18next';
-import ICU from 'i18next-icu';
 
+import { createIcuFormat } from './icu-format.ts';
 import { DEFAULT_LOCALE, type Locale, LOCALES } from './locales.ts';
 
 /** Namespaces (09 §2). Feature namespaces are added with their features and loaded per route. */
@@ -46,7 +46,7 @@ const lazyJsonBackend: BackendModule = {
  */
 export async function createI18n(locale: Locale, namespaces: readonly Namespace[] = BASE_NAMESPACES): Promise<I18n> {
   const instance = i18next.createInstance();
-  instance.use(ICU).use(lazyJsonBackend);
+  instance.use(createIcuFormat()).use(lazyJsonBackend);
   await instance.init({
     lng: locale,
     fallbackLng: DEFAULT_LOCALE,

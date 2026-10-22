@@ -7,8 +7,12 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-/** Musalli `/`: 170 kB (01 §9; Phase 00 ran at 220 kB — DECISIONS #47, back to 170 kB with F23). */
-const APP_INITIAL_JS = '170 kB';
+/**
+ * Musalli `/`: 175 kB — 01 §9 says 170 kB; the offline data layer (validated contracts, device store, persisted cache,
+ * T2.3) needs +5.8 kB even after dropping the ICU parser and moving to Zod Mini (DECISIONS #92, owner rule "quality
+ * over bundle size"). Earlier: Phase 00 220 kB (#47), back to 170 kB with F23.
+ */
+const APP_INITIAL_JS = '175 kB';
 const ADMIN_INITIAL_JS = '220 kB';
 const INITIAL_CSS = '25 kB';
 const LAZY_CHUNK = '60 kB';

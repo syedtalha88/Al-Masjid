@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { mcLocaleBoot } from '@mc/i18n/vite';
+import { mcIcuPrecompile, mcLocaleBoot } from '@mc/i18n/vite';
 import { BRAND } from '@mc/shared/brand';
 import { configureZodForCsp } from '@mc/shared/browser';
 import { CLIENT_ENV_PREFIX, parseClientEnv } from '@mc/shared/env';
@@ -58,6 +58,8 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       brandHtml(),
       ogShell(),
+      // Catalogue strings → ICU ASTs, parser left out of the bundle (F14, DECISIONS #92).
+      mcIcuPrecompile(),
       // Zod must be jitless before any schema is built, or its eval probe trips Trusted Types (04 §7).
       mcLocaleBoot({ preloadFonts, before: [configureZodForCsp] }),
       ...mcPwa({ app: 'app' }),

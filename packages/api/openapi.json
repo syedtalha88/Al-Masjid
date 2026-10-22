@@ -48,1566 +48,6 @@
           "redis"
         ]
       },
-      "PublicConfig": {
-        "type": "object",
-        "properties": {
-          "globalHijriOffset": {
-            "type": "integer",
-            "minimum": -2,
-            "maximum": 2
-          },
-          "maintenanceBanner": {
-            "type": "object",
-            "properties": {
-              "en": {
-                "type": "string"
-              },
-              "hi": {
-                "type": "string"
-              },
-              "ur": {
-                "type": "string"
-              },
-              "te": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "en",
-              "hi",
-              "ur",
-              "te"
-            ]
-          },
-          "incidentBanner": {
-            "type": "object",
-            "properties": {
-              "en": {
-                "type": "string"
-              },
-              "hi": {
-                "type": "string"
-              },
-              "ur": {
-                "type": "string"
-              },
-              "te": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "en",
-              "hi",
-              "ur",
-              "te"
-            ]
-          },
-          "legalVersions": {
-            "type": "object",
-            "properties": {
-              "privacy": {
-                "type": "string"
-              },
-              "terms": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "privacy",
-              "terms"
-            ]
-          },
-          "minClientVersion": {
-            "type": "string"
-          },
-          "grievanceOfficer": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "email": {
-                "type": "string"
-              },
-              "address": {
-                "type": "string"
-              },
-              "city": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "name",
-              "email",
-              "address",
-              "city"
-            ]
-          }
-        },
-        "required": [
-          "globalHijriOffset",
-          "legalVersions",
-          "minClientVersion",
-          "grievanceOfficer"
-        ]
-      },
-      "RegisterDeviceResponse": {
-        "type": "object",
-        "properties": {
-          "deviceId": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-          },
-          "secret": {
-            "type": "string",
-            "pattern": "^[A-Za-z0-9_-]{43}$"
-          }
-        },
-        "required": [
-          "deviceId",
-          "secret"
-        ]
-      },
-      "RegisterDeviceRequest": {
-        "type": "object",
-        "properties": {
-          "locale": {
-            "type": "string",
-            "enum": [
-              "en",
-              "hi",
-              "ur",
-              "te"
-            ]
-          },
-          "audiencePref": {
-            "type": "string",
-            "enum": [
-              "brothers",
-              "sisters"
-            ]
-          },
-          "platform": {
-            "type": "string",
-            "enum": [
-              "android",
-              "ios",
-              "desktop",
-              "other"
-            ]
-          },
-          "privacyVersion": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 20,
-            "pattern": "^[A-Za-z0-9._-]+$"
-          },
-          "turnstileToken": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 2048
-          }
-        },
-        "required": [
-          "locale",
-          "audiencePref",
-          "platform",
-          "privacyVersion",
-          "turnstileToken"
-        ]
-      },
-      "DeviceRecord": {
-        "type": "object",
-        "properties": {
-          "deviceId": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-          },
-          "locale": {
-            "type": "string",
-            "enum": [
-              "en",
-              "hi",
-              "ur",
-              "te"
-            ]
-          },
-          "audiencePref": {
-            "type": "string",
-            "enum": [
-              "brothers",
-              "sisters"
-            ]
-          },
-          "platform": {
-            "type": "string",
-            "enum": [
-              "android",
-              "ios",
-              "desktop",
-              "other"
-            ]
-          },
-          "privacyVersion": {
-            "type": "string"
-          },
-          "pushEnabled": {
-            "type": "boolean"
-          },
-          "followCount": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 20
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "lastSeenAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "deviceId",
-          "locale",
-          "audiencePref",
-          "platform",
-          "privacyVersion",
-          "pushEnabled",
-          "followCount",
-          "createdAt",
-          "lastSeenAt"
-        ]
-      },
-      "UpdateDeviceRequest": {
-        "type": "object",
-        "properties": {
-          "locale": {
-            "type": "string",
-            "enum": [
-              "en",
-              "hi",
-              "ur",
-              "te"
-            ]
-          },
-          "audiencePref": {
-            "type": "string",
-            "enum": [
-              "brothers",
-              "sisters"
-            ]
-          },
-          "privacyVersion": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 20,
-            "pattern": "^[A-Za-z0-9._-]+$"
-          }
-        }
-      },
-      "ResolveMasjid": {
-        "type": "object",
-        "properties": {
-          "masjid": {
-            "$ref": "#/components/schemas/MasjidSummary"
-          }
-        },
-        "required": [
-          "masjid"
-        ]
-      },
-      "MasjidSummary": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-          },
-          "followCode": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "nameI18n": {
-            "type": "object",
-            "properties": {
-              "hi": {
-                "type": "string"
-              },
-              "ur": {
-                "type": "string"
-              },
-              "te": {
-                "type": "string"
-              }
-            }
-          },
-          "area": {
-            "type": "string"
-          },
-          "city": {
-            "type": "string"
-          },
-          "state": {
-            "type": "string"
-          },
-          "photo": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "string"
-              },
-              "thumbhash": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "key"
-            ]
-          },
-          "verified": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "id",
-          "followCode",
-          "name",
-          "nameI18n",
-          "area",
-          "city",
-          "state",
-          "verified"
-        ]
-      },
-      "FollowList": {
-        "type": "object",
-        "properties": {
-          "follows": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "masjidId": {
-                  "type": "string",
-                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-                },
-                "muted": {
-                  "type": "boolean"
-                },
-                "followedAt": {
-                  "type": "string",
-                  "format": "date-time"
-                }
-              },
-              "required": [
-                "masjidId",
-                "muted",
-                "followedAt"
-              ]
-            }
-          }
-        },
-        "required": [
-          "follows"
-        ]
-      },
-      "FollowResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "followed",
-              "already"
-            ]
-          }
-        },
-        "required": [
-          "status"
-        ]
-      },
-      "FollowPatchRequest": {
-        "type": "object",
-        "properties": {
-          "muted": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "muted"
-        ]
-      },
-      "MasjidVersions": {
-        "type": "object",
-        "additionalProperties": {
-          "type": "object",
-          "properties": {
-            "v": {
-              "type": "integer",
-              "minimum": 1
-            },
-            "status": {
-              "type": "string",
-              "enum": [
-                "active",
-                "suspended"
-              ]
-            }
-          },
-          "required": [
-            "v",
-            "status"
-          ]
-        }
-      },
-      "MasjidBundle": {
-        "oneOf": [
-          {
-            "type": "object",
-            "properties": {
-              "status": {
-                "type": "string",
-                "enum": [
-                  "active"
-                ]
-              },
-              "v": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "masjid": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-                  },
-                  "followCode": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "nameI18n": {
-                    "type": "object",
-                    "properties": {
-                      "hi": {
-                        "type": "string"
-                      },
-                      "ur": {
-                        "type": "string"
-                      },
-                      "te": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "area": {
-                    "type": "string"
-                  },
-                  "city": {
-                    "type": "string"
-                  },
-                  "state": {
-                    "type": "string"
-                  },
-                  "photo": {
-                    "type": "object",
-                    "properties": {
-                      "key": {
-                        "type": "string"
-                      },
-                      "thumbhash": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "key"
-                    ]
-                  },
-                  "verified": {
-                    "type": "boolean"
-                  },
-                  "address": {
-                    "type": "string"
-                  },
-                  "lat": {
-                    "type": "number"
-                  },
-                  "lng": {
-                    "type": "number"
-                  },
-                  "calcMethod": {
-                    "type": "string",
-                    "enum": [
-                      "karachi",
-                      "mwl",
-                      "isna",
-                      "egypt",
-                      "umm_al_qura",
-                      "other_custom"
-                    ]
-                  },
-                  "asrMadhab": {
-                    "type": "string",
-                    "enum": [
-                      "hanafi",
-                      "shafi"
-                    ]
-                  },
-                  "hijriOffset": {
-                    "type": "integer",
-                    "minimum": -2,
-                    "maximum": 2
-                  },
-                  "showChanda": {
-                    "type": "boolean"
-                  },
-                  "chandaWeekStart": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 7
-                  }
-                },
-                "required": [
-                  "id",
-                  "followCode",
-                  "name",
-                  "nameI18n",
-                  "area",
-                  "city",
-                  "state",
-                  "verified",
-                  "address",
-                  "lat",
-                  "lng",
-                  "calcMethod",
-                  "asrMadhab",
-                  "showChanda",
-                  "chandaWeekStart"
-                ]
-              },
-              "timings": {
-                "type": [
-                  "object",
-                  "null"
-                ],
-                "properties": {
-                  "prayers": {
-                    "type": "object",
-                    "properties": {
-                      "fajr": {
-                        "type": "object",
-                        "properties": {
-                          "adhanMode": {
-                            "type": "string",
-                            "enum": [
-                              "auto",
-                              "manual"
-                            ]
-                          },
-                          "adhanTime": {
-                            "type": "string",
-                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                          },
-                          "adhanAdjustMin": {
-                            "type": "integer",
-                            "minimum": -15,
-                            "maximum": 15
-                          },
-                          "jamaatMode": {
-                            "type": "string",
-                            "enum": [
-                              "fixed",
-                              "offset",
-                              "none"
-                            ]
-                          },
-                          "jamaatTime": {
-                            "type": "string",
-                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                          },
-                          "jamaatOffsetMin": {
-                            "type": "integer",
-                            "minimum": 0,
-                            "maximum": 60
-                          }
-                        },
-                        "required": [
-                          "adhanMode",
-                          "adhanAdjustMin",
-                          "jamaatMode"
-                        ]
-                      },
-                      "dhuhr": {
-                        "type": "object",
-                        "properties": {
-                          "adhanMode": {
-                            "type": "string",
-                            "enum": [
-                              "auto",
-                              "manual"
-                            ]
-                          },
-                          "adhanTime": {
-                            "type": "string",
-                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                          },
-                          "adhanAdjustMin": {
-                            "type": "integer",
-                            "minimum": -15,
-                            "maximum": 15
-                          },
-                          "jamaatMode": {
-                            "type": "string",
-                            "enum": [
-                              "fixed",
-                              "offset",
-                              "none"
-                            ]
-                          },
-                          "jamaatTime": {
-                            "type": "string",
-                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                          },
-                          "jamaatOffsetMin": {
-                            "type": "integer",
-                            "minimum": 0,
-                            "maximum": 60
-                          }
-                        },
-                        "required": [
-                          "adhanMode",
-                          "adhanAdjustMin",
-                          "jamaatMode"
-                        ]
-                      },
-                      "asr": {
-                        "type": "object",
-                        "properties": {
-                          "adhanMode": {
-                            "type": "string",
-                            "enum": [
-                              "auto",
-                              "manual"
-                            ]
-                          },
-                          "adhanTime": {
-                            "type": "string",
-                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                          },
-                          "adhanAdjustMin": {
-                            "type": "integer",
-                            "minimum": -15,
-                            "maximum": 15
-                          },
-                          "jamaatMode": {
-                            "type": "string",
-                            "enum": [
-                              "fixed",
-                              "offset",
-                              "none"
-                            ]
-                          },
-                          "jamaatTime": {
-                            "type": "string",
-                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                          },
-                          "jamaatOffsetMin": {
-                            "type": "integer",
-                            "minimum": 0,
-                            "maximum": 60
-                          }
-                        },
-                        "required": [
-                          "adhanMode",
-                          "adhanAdjustMin",
-                          "jamaatMode"
-                        ]
-                      },
-                      "maghrib": {
-                        "type": "object",
-                        "properties": {
-                          "adhanMode": {
-                            "type": "string",
-                            "enum": [
-                              "auto",
-                              "manual"
-                            ]
-                          },
-                          "adhanTime": {
-                            "type": "string",
-                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                          },
-                          "adhanAdjustMin": {
-                            "type": "integer",
-                            "minimum": -15,
-                            "maximum": 15
-                          },
-                          "jamaatMode": {
-                            "type": "string",
-                            "enum": [
-                              "fixed",
-                              "offset",
-                              "none"
-                            ]
-                          },
-                          "jamaatTime": {
-                            "type": "string",
-                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                          },
-                          "jamaatOffsetMin": {
-                            "type": "integer",
-                            "minimum": 0,
-                            "maximum": 60
-                          }
-                        },
-                        "required": [
-                          "adhanMode",
-                          "adhanAdjustMin",
-                          "jamaatMode"
-                        ]
-                      },
-                      "isha": {
-                        "type": "object",
-                        "properties": {
-                          "adhanMode": {
-                            "type": "string",
-                            "enum": [
-                              "auto",
-                              "manual"
-                            ]
-                          },
-                          "adhanTime": {
-                            "type": "string",
-                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                          },
-                          "adhanAdjustMin": {
-                            "type": "integer",
-                            "minimum": -15,
-                            "maximum": 15
-                          },
-                          "jamaatMode": {
-                            "type": "string",
-                            "enum": [
-                              "fixed",
-                              "offset",
-                              "none"
-                            ]
-                          },
-                          "jamaatTime": {
-                            "type": "string",
-                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                          },
-                          "jamaatOffsetMin": {
-                            "type": "integer",
-                            "minimum": 0,
-                            "maximum": 60
-                          }
-                        },
-                        "required": [
-                          "adhanMode",
-                          "adhanAdjustMin",
-                          "jamaatMode"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "fajr",
-                      "dhuhr",
-                      "asr",
-                      "maghrib",
-                      "isha"
-                    ]
-                  },
-                  "jumuah": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "seq": {
-                          "type": "integer",
-                          "minimum": 1,
-                          "maximum": 3
-                        },
-                        "khutbahTime": {
-                          "type": "string",
-                          "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                        },
-                        "jamaatTime": {
-                          "type": "string",
-                          "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                        }
-                      },
-                      "required": [
-                        "seq",
-                        "jamaatTime"
-                      ]
-                    }
-                  }
-                },
-                "required": [
-                  "prayers",
-                  "jumuah"
-                ]
-              },
-              "specialDates": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-                    },
-                    "type": {
-                      "type": "string",
-                      "enum": [
-                        "eid_ul_fitr",
-                        "eid_ul_adha",
-                        "taraweeh",
-                        "shab_e_barat",
-                        "shab_e_qadr",
-                        "other"
-                      ]
-                    },
-                    "date": {
-                      "type": "string",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-                    },
-                    "label": {
-                      "type": "string"
-                    },
-                    "times": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "time": {
-                            "type": "string",
-                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                          },
-                          "label": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "time"
-                        ]
-                      }
-                    },
-                    "note": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "type",
-                    "date",
-                    "times"
-                  ]
-                }
-              },
-              "ramadan": {
-                "type": [
-                  "object",
-                  "null"
-                ],
-                "properties": {
-                  "start": {
-                    "type": "string",
-                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-                  },
-                  "end": {
-                    "type": "string",
-                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-                  },
-                  "sehriPrecautionMin": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 15
-                  },
-                  "iftarPrecautionMin": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 10
-                  }
-                },
-                "required": [
-                  "start",
-                  "end",
-                  "sehriPrecautionMin",
-                  "iftarPrecautionMin"
-                ]
-              },
-              "payment": {
-                "type": [
-                  "object",
-                  "null"
-                ],
-                "properties": {
-                  "vpa": {
-                    "type": "string"
-                  },
-                  "payeeName": {
-                    "type": "string"
-                  },
-                  "effectiveAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  }
-                },
-                "required": [
-                  "vpa",
-                  "payeeName",
-                  "effectiveAt"
-                ]
-              },
-              "campaigns": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "publicId": {
-                      "type": "string",
-                      "pattern": "^[A-Za-z0-9_-]{12}$"
-                    }
-                  },
-                  "required": [
-                    "publicId"
-                  ]
-                }
-              },
-              "chanda": {
-                "type": [
-                  "object",
-                  "null"
-                ],
-                "properties": {
-                  "weeks": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "weekStart": {
-                          "type": "string",
-                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-                        },
-                        "amountPaise": {
-                          "type": "integer"
-                        }
-                      },
-                      "required": [
-                        "weekStart",
-                        "amountPaise"
-                      ]
-                    }
-                  }
-                },
-                "required": [
-                  "weeks"
-                ]
-              }
-            },
-            "required": [
-              "status",
-              "v",
-              "masjid",
-              "timings",
-              "specialDates",
-              "ramadan",
-              "payment",
-              "campaigns",
-              "chanda"
-            ]
-          },
-          {
-            "type": "object",
-            "properties": {
-              "status": {
-                "type": "string",
-                "enum": [
-                  "suspended"
-                ]
-              },
-              "v": {
-                "type": "integer",
-                "minimum": 1
-              }
-            },
-            "required": [
-              "status",
-              "v"
-            ]
-          }
-        ]
-      },
-      "FeedPage": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/FeedItem"
-            }
-          },
-          "next": {
-            "type": [
-              "string",
-              "null"
-            ]
-          }
-        },
-        "required": [
-          "items",
-          "next"
-        ]
-      },
-      "FeedItem": {
-        "type": "object",
-        "properties": {
-          "publicId": {
-            "type": "string",
-            "pattern": "^[A-Za-z0-9_-]{12}$"
-          },
-          "masjidId": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "announcement",
-              "daily_content",
-              "dua_request",
-              "campaign",
-              "chanda_update",
-              "video",
-              "timing_update"
-            ]
-          },
-          "audience": {
-            "type": "string",
-            "enum": [
-              "everyone",
-              "brothers",
-              "sisters"
-            ]
-          },
-          "title": {
-            "type": "string"
-          },
-          "body": {
-            "type": "string"
-          },
-          "contentLocale": {
-            "type": "string",
-            "enum": [
-              "en",
-              "hi",
-              "ur",
-              "te"
-            ]
-          },
-          "templateKey": {
-            "type": "string"
-          },
-          "templateParams": {
-            "type": "object",
-            "additionalProperties": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "maxLength": 120
-                },
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "start": {
-                      "type": "string",
-                      "maxLength": 10
-                    },
-                    "end": {
-                      "type": "string",
-                      "maxLength": 10
-                    }
-                  },
-                  "required": [
-                    "start",
-                    "end"
-                  ]
-                }
-              ]
-            }
-          },
-          "isImportant": {
-            "type": "boolean"
-          },
-          "image": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "string"
-              },
-              "thumbhash": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "key"
-            ]
-          },
-          "publishedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "editedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "announcement": {
-            "type": "object",
-            "properties": {
-              "category": {
-                "type": "string",
-                "enum": [
-                  "general",
-                  "event",
-                  "facilities",
-                  "timing"
-                ]
-              },
-              "eventAt": {
-                "type": "string",
-                "format": "date-time"
-              }
-            },
-            "required": [
-              "category"
-            ]
-          },
-          "daily": {
-            "type": "object",
-            "properties": {
-              "kind": {
-                "type": "string",
-                "enum": [
-                  "hadith",
-                  "ayah"
-                ]
-              },
-              "note": {
-                "type": "string"
-              },
-              "library": {
-                "$ref": "#/components/schemas/LibraryEntry"
-              }
-            },
-            "required": [
-              "kind"
-            ]
-          },
-          "dua": {
-            "type": "object",
-            "properties": {
-              "category": {
-                "type": "string",
-                "enum": [
-                  "illness",
-                  "inteqal",
-                  "other"
-                ]
-              },
-              "personName": {
-                "type": "string"
-              },
-              "namePrivate": {
-                "type": "boolean"
-              },
-              "janazaAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "janazaPlace": {
-                "type": "string"
-              },
-              "archivedAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "library": {
-                "$ref": "#/components/schemas/LibraryEntry"
-              }
-            },
-            "required": [
-              "category",
-              "namePrivate"
-            ]
-          },
-          "campaign": {
-            "type": "object",
-            "properties": {
-              "purpose": {
-                "type": "string",
-                "enum": [
-                  "renovation",
-                  "repair",
-                  "utilities",
-                  "welfare",
-                  "other"
-                ]
-              },
-              "targetPaise": {
-                "type": "integer"
-              },
-              "receivedPaise": {
-                "type": "integer"
-              },
-              "receivedUpdatedAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "startsOn": {
-                "type": "string",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-              },
-              "endsOn": {
-                "type": "string",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-              },
-              "status": {
-                "type": "string",
-                "enum": [
-                  "active",
-                  "completed",
-                  "closed"
-                ]
-              },
-              "cover": {
-                "type": "object",
-                "properties": {
-                  "key": {
-                    "type": "string"
-                  },
-                  "thumbhash": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "key"
-                ]
-              }
-            },
-            "required": [
-              "purpose",
-              "targetPaise",
-              "receivedPaise",
-              "startsOn",
-              "status"
-            ]
-          },
-          "video": {
-            "type": "object",
-            "properties": {
-              "youtubeId": {
-                "type": "string"
-              },
-              "startS": {
-                "type": "integer"
-              },
-              "speaker": {
-                "type": "string"
-              },
-              "thumb": {
-                "type": "object",
-                "properties": {
-                  "key": {
-                    "type": "string"
-                  },
-                  "thumbhash": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "key"
-                ]
-              }
-            },
-            "required": [
-              "youtubeId",
-              "thumb"
-            ]
-          }
-        },
-        "required": [
-          "publicId",
-          "masjidId",
-          "type",
-          "audience",
-          "isImportant",
-          "publishedAt"
-        ]
-      },
-      "LibraryEntry": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-          },
-          "kind": {
-            "type": "string",
-            "enum": [
-              "hadith",
-              "ayah",
-              "dua"
-            ]
-          },
-          "arabic": {
-            "type": "string"
-          },
-          "transliteration": {
-            "type": "object",
-            "properties": {
-              "en": {
-                "type": "string"
-              },
-              "hi": {
-                "type": "string"
-              },
-              "ur": {
-                "type": "string"
-              },
-              "te": {
-                "type": "string"
-              }
-            }
-          },
-          "translation": {
-            "type": "object",
-            "properties": {
-              "en": {
-                "type": "string"
-              },
-              "hi": {
-                "type": "string"
-              },
-              "ur": {
-                "type": "string"
-              },
-              "te": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "en"
-            ]
-          },
-          "reference": {
-            "type": "string"
-          },
-          "sourceName": {
-            "type": "string"
-          },
-          "sourceLicense": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "kind",
-          "arabic",
-          "transliteration",
-          "translation",
-          "reference",
-          "sourceName",
-          "sourceLicense"
-        ]
-      },
-      "ItemDetail": {
-        "type": "object",
-        "properties": {
-          "item": {
-            "$ref": "#/components/schemas/FeedItem"
-          },
-          "masjid": {
-            "$ref": "#/components/schemas/MasjidSummary"
-          }
-        },
-        "required": [
-          "item",
-          "masjid"
-        ]
-      },
-      "AmeenResponse": {
-        "type": "object",
-        "properties": {
-          "count": {
-            "type": "integer",
-            "minimum": 0
-          }
-        },
-        "required": [
-          "count"
-        ]
-      },
-      "AmeenCounts": {
-        "type": "object",
-        "properties": {
-          "counts": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "integer",
-              "minimum": 0
-            }
-          }
-        },
-        "required": [
-          "counts"
-        ]
-      },
-      "LibraryEntryResponse": {
-        "type": "object",
-        "properties": {
-          "entry": {
-            "$ref": "#/components/schemas/LibraryEntry"
-          }
-        },
-        "required": [
-          "entry"
-        ]
-      },
-      "TemplateList": {
-        "type": "object",
-        "properties": {
-          "templates": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "key": {
-                  "type": "string"
-                },
-                "category": {
-                  "type": "string",
-                  "enum": [
-                    "general",
-                    "event",
-                    "facilities",
-                    "timing"
-                  ]
-                },
-                "icon": {
-                  "type": "string"
-                },
-                "isImportantDefault": {
-                  "type": "boolean"
-                },
-                "title": {
-                  "type": "object",
-                  "properties": {
-                    "en": {
-                      "type": "string"
-                    },
-                    "hi": {
-                      "type": "string"
-                    },
-                    "ur": {
-                      "type": "string"
-                    },
-                    "te": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "en",
-                    "hi",
-                    "ur",
-                    "te"
-                  ]
-                },
-                "body": {
-                  "type": "object",
-                  "properties": {
-                    "en": {
-                      "type": "string"
-                    },
-                    "hi": {
-                      "type": "string"
-                    },
-                    "ur": {
-                      "type": "string"
-                    },
-                    "te": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "en",
-                    "hi",
-                    "ur",
-                    "te"
-                  ]
-                },
-                "params": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
-                      },
-                      "type": {
-                        "type": "string",
-                        "enum": [
-                          "time",
-                          "date",
-                          "date_range",
-                          "time_range",
-                          "prayer",
-                          "number",
-                          "short_text"
-                        ]
-                      },
-                      "required": {
-                        "type": "boolean"
-                      }
-                    },
-                    "required": [
-                      "name",
-                      "type",
-                      "required"
-                    ]
-                  }
-                },
-                "system": {
-                  "type": "boolean"
-                }
-              },
-              "required": [
-                "key",
-                "category",
-                "icon",
-                "isImportantDefault",
-                "title",
-                "body",
-                "params",
-                "system"
-              ]
-            }
-          }
-        },
-        "required": [
-          "templates"
-        ]
-      },
       "InviteInfo": {
         "type": "object",
         "properties": {
@@ -2591,7 +1031,112 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PublicConfig"
+                  "type": "object",
+                  "properties": {
+                    "globalHijriOffset": {
+                      "type": "integer",
+                      "minimum": -2,
+                      "maximum": 2
+                    },
+                    "maintenanceBanner": {
+                      "type": "object",
+                      "properties": {
+                        "en": {
+                          "type": "string"
+                        },
+                        "hi": {
+                          "type": "string"
+                        },
+                        "ur": {
+                          "type": "string"
+                        },
+                        "te": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "en",
+                        "hi",
+                        "ur",
+                        "te"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "incidentBanner": {
+                      "type": "object",
+                      "properties": {
+                        "en": {
+                          "type": "string"
+                        },
+                        "hi": {
+                          "type": "string"
+                        },
+                        "ur": {
+                          "type": "string"
+                        },
+                        "te": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "en",
+                        "hi",
+                        "ur",
+                        "te"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "legalVersions": {
+                      "type": "object",
+                      "properties": {
+                        "privacy": {
+                          "type": "string"
+                        },
+                        "terms": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "privacy",
+                        "terms"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minClientVersion": {
+                      "type": "string"
+                    },
+                    "grievanceOfficer": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "address": {
+                          "type": "string"
+                        },
+                        "city": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "email",
+                        "address",
+                        "city"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "globalHijriOffset",
+                    "legalVersions",
+                    "minClientVersion",
+                    "grievanceOfficer"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -2610,7 +1155,53 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterDeviceRequest"
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ]
+                  },
+                  "audiencePref": {
+                    "type": "string",
+                    "enum": [
+                      "brothers",
+                      "sisters"
+                    ]
+                  },
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "android",
+                      "ios",
+                      "desktop",
+                      "other"
+                    ]
+                  },
+                  "privacyVersion": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20,
+                    "pattern": "^[A-Za-z0-9._-]+$"
+                  },
+                  "turnstileToken": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2048
+                  }
+                },
+                "required": [
+                  "locale",
+                  "audiencePref",
+                  "platform",
+                  "privacyVersion",
+                  "turnstileToken"
+                ],
+                "additionalProperties": false
               }
             }
           }
@@ -2621,7 +1212,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegisterDeviceResponse"
+                  "type": "object",
+                  "properties": {
+                    "deviceId": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                    },
+                    "secret": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{43}$"
+                    }
+                  },
+                  "required": [
+                    "deviceId",
+                    "secret"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -2641,7 +1247,71 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DeviceRecord"
+                  "type": "object",
+                  "properties": {
+                    "deviceId": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                    },
+                    "locale": {
+                      "type": "string",
+                      "enum": [
+                        "en",
+                        "hi",
+                        "ur",
+                        "te"
+                      ]
+                    },
+                    "audiencePref": {
+                      "type": "string",
+                      "enum": [
+                        "brothers",
+                        "sisters"
+                      ]
+                    },
+                    "platform": {
+                      "type": "string",
+                      "enum": [
+                        "android",
+                        "ios",
+                        "desktop",
+                        "other"
+                      ]
+                    },
+                    "privacyVersion": {
+                      "type": "string"
+                    },
+                    "pushEnabled": {
+                      "type": "boolean"
+                    },
+                    "followCount": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 20
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "lastSeenAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    }
+                  },
+                  "required": [
+                    "deviceId",
+                    "locale",
+                    "audiencePref",
+                    "platform",
+                    "privacyVersion",
+                    "pushEnabled",
+                    "followCount",
+                    "createdAt",
+                    "lastSeenAt"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -2658,7 +1328,32 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateDeviceRequest"
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ]
+                  },
+                  "audiencePref": {
+                    "type": "string",
+                    "enum": [
+                      "brothers",
+                      "sisters"
+                    ]
+                  },
+                  "privacyVersion": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20,
+                    "pattern": "^[A-Za-z0-9._-]+$"
+                  }
+                },
+                "additionalProperties": false
               }
             }
           }
@@ -2704,7 +1399,81 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResolveMasjid"
+                  "type": "object",
+                  "properties": {
+                    "masjid": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                        },
+                        "followCode": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "nameI18n": {
+                          "type": "object",
+                          "properties": {
+                            "hi": {
+                              "type": "string"
+                            },
+                            "ur": {
+                              "type": "string"
+                            },
+                            "te": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "area": {
+                          "type": "string"
+                        },
+                        "city": {
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "photo": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "thumbhash": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "key"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "verified": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "followCode",
+                        "name",
+                        "nameI18n",
+                        "area",
+                        "city",
+                        "state",
+                        "verified"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "masjid"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -2724,7 +1493,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FollowList"
+                  "type": "object",
+                  "properties": {
+                    "follows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "masjidId": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                          },
+                          "muted": {
+                            "type": "boolean"
+                          },
+                          "followedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          }
+                        },
+                        "required": [
+                          "masjidId",
+                          "muted",
+                          "followedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "follows"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -2755,7 +1556,20 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FollowResponse"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "followed",
+                        "already"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -2783,7 +1597,16 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/FollowPatchRequest"
+                "type": "object",
+                "properties": {
+                  "muted": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "muted"
+                ],
+                "additionalProperties": false
               }
             }
           }
@@ -2840,7 +1663,29 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MasjidVersions"
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "v": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 9007199254740991
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "active",
+                          "suspended"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "v",
+                      "status"
+                    ],
+                    "additionalProperties": false
+                  }
                 }
               }
             }
@@ -2880,7 +1725,603 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MasjidBundle"
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "active"
+                          ]
+                        },
+                        "v": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 9007199254740991
+                        },
+                        "masjid": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                            },
+                            "followCode": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "nameI18n": {
+                              "type": "object",
+                              "properties": {
+                                "hi": {
+                                  "type": "string"
+                                },
+                                "ur": {
+                                  "type": "string"
+                                },
+                                "te": {
+                                  "type": "string"
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "area": {
+                              "type": "string"
+                            },
+                            "city": {
+                              "type": "string"
+                            },
+                            "state": {
+                              "type": "string"
+                            },
+                            "photo": {
+                              "type": "object",
+                              "properties": {
+                                "key": {
+                                  "type": "string"
+                                },
+                                "thumbhash": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "key"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "verified": {
+                              "type": "boolean"
+                            },
+                            "address": {
+                              "type": "string"
+                            },
+                            "lat": {
+                              "type": "number"
+                            },
+                            "lng": {
+                              "type": "number"
+                            },
+                            "calcMethod": {
+                              "type": "string",
+                              "enum": [
+                                "karachi",
+                                "mwl",
+                                "isna",
+                                "egypt",
+                                "umm_al_qura",
+                                "other_custom"
+                              ]
+                            },
+                            "asrMadhab": {
+                              "type": "string",
+                              "enum": [
+                                "hanafi",
+                                "shafi"
+                              ]
+                            },
+                            "hijriOffset": {
+                              "type": "integer",
+                              "minimum": -2,
+                              "maximum": 2
+                            },
+                            "showChanda": {
+                              "type": "boolean"
+                            },
+                            "chandaWeekStart": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 7
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "followCode",
+                            "name",
+                            "nameI18n",
+                            "area",
+                            "city",
+                            "state",
+                            "verified",
+                            "address",
+                            "lat",
+                            "lng",
+                            "calcMethod",
+                            "asrMadhab",
+                            "showChanda",
+                            "chandaWeekStart"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "timings": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "prayers": {
+                              "type": "object",
+                              "properties": {
+                                "fajr": {
+                                  "type": "object",
+                                  "properties": {
+                                    "adhanMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "auto",
+                                        "manual"
+                                      ]
+                                    },
+                                    "adhanTime": {
+                                      "type": "string",
+                                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                    },
+                                    "adhanAdjustMin": {
+                                      "type": "integer",
+                                      "minimum": -15,
+                                      "maximum": 15
+                                    },
+                                    "jamaatMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "fixed",
+                                        "offset",
+                                        "none"
+                                      ]
+                                    },
+                                    "jamaatTime": {
+                                      "type": "string",
+                                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                    },
+                                    "jamaatOffsetMin": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 60
+                                    }
+                                  },
+                                  "required": [
+                                    "adhanMode",
+                                    "adhanAdjustMin",
+                                    "jamaatMode"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "dhuhr": {
+                                  "type": "object",
+                                  "properties": {
+                                    "adhanMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "auto",
+                                        "manual"
+                                      ]
+                                    },
+                                    "adhanTime": {
+                                      "type": "string",
+                                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                    },
+                                    "adhanAdjustMin": {
+                                      "type": "integer",
+                                      "minimum": -15,
+                                      "maximum": 15
+                                    },
+                                    "jamaatMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "fixed",
+                                        "offset",
+                                        "none"
+                                      ]
+                                    },
+                                    "jamaatTime": {
+                                      "type": "string",
+                                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                    },
+                                    "jamaatOffsetMin": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 60
+                                    }
+                                  },
+                                  "required": [
+                                    "adhanMode",
+                                    "adhanAdjustMin",
+                                    "jamaatMode"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "asr": {
+                                  "type": "object",
+                                  "properties": {
+                                    "adhanMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "auto",
+                                        "manual"
+                                      ]
+                                    },
+                                    "adhanTime": {
+                                      "type": "string",
+                                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                    },
+                                    "adhanAdjustMin": {
+                                      "type": "integer",
+                                      "minimum": -15,
+                                      "maximum": 15
+                                    },
+                                    "jamaatMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "fixed",
+                                        "offset",
+                                        "none"
+                                      ]
+                                    },
+                                    "jamaatTime": {
+                                      "type": "string",
+                                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                    },
+                                    "jamaatOffsetMin": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 60
+                                    }
+                                  },
+                                  "required": [
+                                    "adhanMode",
+                                    "adhanAdjustMin",
+                                    "jamaatMode"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "maghrib": {
+                                  "type": "object",
+                                  "properties": {
+                                    "adhanMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "auto",
+                                        "manual"
+                                      ]
+                                    },
+                                    "adhanTime": {
+                                      "type": "string",
+                                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                    },
+                                    "adhanAdjustMin": {
+                                      "type": "integer",
+                                      "minimum": -15,
+                                      "maximum": 15
+                                    },
+                                    "jamaatMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "fixed",
+                                        "offset",
+                                        "none"
+                                      ]
+                                    },
+                                    "jamaatTime": {
+                                      "type": "string",
+                                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                    },
+                                    "jamaatOffsetMin": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 60
+                                    }
+                                  },
+                                  "required": [
+                                    "adhanMode",
+                                    "adhanAdjustMin",
+                                    "jamaatMode"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "isha": {
+                                  "type": "object",
+                                  "properties": {
+                                    "adhanMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "auto",
+                                        "manual"
+                                      ]
+                                    },
+                                    "adhanTime": {
+                                      "type": "string",
+                                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                    },
+                                    "adhanAdjustMin": {
+                                      "type": "integer",
+                                      "minimum": -15,
+                                      "maximum": 15
+                                    },
+                                    "jamaatMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "fixed",
+                                        "offset",
+                                        "none"
+                                      ]
+                                    },
+                                    "jamaatTime": {
+                                      "type": "string",
+                                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                    },
+                                    "jamaatOffsetMin": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 60
+                                    }
+                                  },
+                                  "required": [
+                                    "adhanMode",
+                                    "adhanAdjustMin",
+                                    "jamaatMode"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "required": [
+                                "fajr",
+                                "dhuhr",
+                                "asr",
+                                "maghrib",
+                                "isha"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "jumuah": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "seq": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 3
+                                  },
+                                  "khutbahTime": {
+                                    "type": "string",
+                                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                  },
+                                  "jamaatTime": {
+                                    "type": "string",
+                                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                  }
+                                },
+                                "required": [
+                                  "seq",
+                                  "jamaatTime"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "prayers",
+                            "jumuah"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "specialDates": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "eid_ul_fitr",
+                                  "eid_ul_adha",
+                                  "taraweeh",
+                                  "shab_e_barat",
+                                  "shab_e_qadr",
+                                  "other"
+                                ]
+                              },
+                              "date": {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "times": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "time": {
+                                      "type": "string",
+                                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                    },
+                                    "label": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "time"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "note": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "type",
+                              "date",
+                              "times"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "ramadan": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "start": {
+                              "type": "string",
+                              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                            },
+                            "end": {
+                              "type": "string",
+                              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                            },
+                            "sehriPrecautionMin": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 15
+                            },
+                            "iftarPrecautionMin": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 10
+                            }
+                          },
+                          "required": [
+                            "start",
+                            "end",
+                            "sehriPrecautionMin",
+                            "iftarPrecautionMin"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "payment": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "vpa": {
+                              "type": "string"
+                            },
+                            "payeeName": {
+                              "type": "string"
+                            },
+                            "effectiveAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                            }
+                          },
+                          "required": [
+                            "vpa",
+                            "payeeName",
+                            "effectiveAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "campaigns": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "publicId": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9_-]{12}$"
+                              }
+                            },
+                            "required": [
+                              "publicId"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "chanda": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "weeks": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "weekStart": {
+                                    "type": "string",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                  },
+                                  "amountPaise": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "weekStart",
+                                  "amountPaise"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "weeks"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "v",
+                        "masjid",
+                        "timings",
+                        "specialDates",
+                        "ramadan",
+                        "payment",
+                        "campaigns",
+                        "chanda"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "suspended"
+                          ]
+                        },
+                        "v": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "v"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
                 }
               }
             }
@@ -2970,7 +2411,483 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FeedPage"
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "publicId": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_-]{12}$"
+                          },
+                          "masjidId": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "announcement",
+                              "daily_content",
+                              "dua_request",
+                              "campaign",
+                              "chanda_update",
+                              "video",
+                              "timing_update"
+                            ]
+                          },
+                          "audience": {
+                            "type": "string",
+                            "enum": [
+                              "everyone",
+                              "brothers",
+                              "sisters"
+                            ]
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "body": {
+                            "type": "string"
+                          },
+                          "contentLocale": {
+                            "type": "string",
+                            "enum": [
+                              "en",
+                              "hi",
+                              "ur",
+                              "te"
+                            ]
+                          },
+                          "templateKey": {
+                            "type": "string"
+                          },
+                          "templateParams": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "maxLength": 120
+                                },
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "start": {
+                                      "type": "string",
+                                      "maxLength": 10
+                                    },
+                                    "end": {
+                                      "type": "string",
+                                      "maxLength": 10
+                                    }
+                                  },
+                                  "required": [
+                                    "start",
+                                    "end"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "isImportant": {
+                            "type": "boolean"
+                          },
+                          "image": {
+                            "type": "object",
+                            "properties": {
+                              "key": {
+                                "type": "string"
+                              },
+                              "thumbhash": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "key"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "publishedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          },
+                          "editedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          },
+                          "announcement": {
+                            "type": "object",
+                            "properties": {
+                              "category": {
+                                "type": "string",
+                                "enum": [
+                                  "general",
+                                  "event",
+                                  "facilities",
+                                  "timing"
+                                ]
+                              },
+                              "eventAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                              }
+                            },
+                            "required": [
+                              "category"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "daily": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "hadith",
+                                  "ayah"
+                                ]
+                              },
+                              "note": {
+                                "type": "string"
+                              },
+                              "library": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                                  },
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "hadith",
+                                      "ayah",
+                                      "dua"
+                                    ]
+                                  },
+                                  "arabic": {
+                                    "type": "string"
+                                  },
+                                  "transliteration": {
+                                    "type": "object",
+                                    "properties": {
+                                      "en": {
+                                        "type": "string"
+                                      },
+                                      "hi": {
+                                        "type": "string"
+                                      },
+                                      "ur": {
+                                        "type": "string"
+                                      },
+                                      "te": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  },
+                                  "translation": {
+                                    "type": "object",
+                                    "properties": {
+                                      "en": {
+                                        "type": "string"
+                                      },
+                                      "hi": {
+                                        "type": "string"
+                                      },
+                                      "ur": {
+                                        "type": "string"
+                                      },
+                                      "te": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "en"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "reference": {
+                                    "type": "string"
+                                  },
+                                  "sourceName": {
+                                    "type": "string"
+                                  },
+                                  "sourceLicense": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "kind",
+                                  "arabic",
+                                  "transliteration",
+                                  "translation",
+                                  "reference",
+                                  "sourceName",
+                                  "sourceLicense"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "kind"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "dua": {
+                            "type": "object",
+                            "properties": {
+                              "category": {
+                                "type": "string",
+                                "enum": [
+                                  "illness",
+                                  "inteqal",
+                                  "other"
+                                ]
+                              },
+                              "personName": {
+                                "type": "string"
+                              },
+                              "namePrivate": {
+                                "type": "boolean"
+                              },
+                              "janazaAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                              },
+                              "janazaPlace": {
+                                "type": "string"
+                              },
+                              "archivedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                              },
+                              "library": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                                  },
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "hadith",
+                                      "ayah",
+                                      "dua"
+                                    ]
+                                  },
+                                  "arabic": {
+                                    "type": "string"
+                                  },
+                                  "transliteration": {
+                                    "type": "object",
+                                    "properties": {
+                                      "en": {
+                                        "type": "string"
+                                      },
+                                      "hi": {
+                                        "type": "string"
+                                      },
+                                      "ur": {
+                                        "type": "string"
+                                      },
+                                      "te": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  },
+                                  "translation": {
+                                    "type": "object",
+                                    "properties": {
+                                      "en": {
+                                        "type": "string"
+                                      },
+                                      "hi": {
+                                        "type": "string"
+                                      },
+                                      "ur": {
+                                        "type": "string"
+                                      },
+                                      "te": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "en"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "reference": {
+                                    "type": "string"
+                                  },
+                                  "sourceName": {
+                                    "type": "string"
+                                  },
+                                  "sourceLicense": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "kind",
+                                  "arabic",
+                                  "transliteration",
+                                  "translation",
+                                  "reference",
+                                  "sourceName",
+                                  "sourceLicense"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "category",
+                              "namePrivate"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "campaign": {
+                            "type": "object",
+                            "properties": {
+                              "purpose": {
+                                "type": "string",
+                                "enum": [
+                                  "renovation",
+                                  "repair",
+                                  "utilities",
+                                  "welfare",
+                                  "other"
+                                ]
+                              },
+                              "targetPaise": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "receivedPaise": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "receivedUpdatedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                              },
+                              "startsOn": {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                              },
+                              "endsOn": {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "active",
+                                  "completed",
+                                  "closed"
+                                ]
+                              },
+                              "cover": {
+                                "type": "object",
+                                "properties": {
+                                  "key": {
+                                    "type": "string"
+                                  },
+                                  "thumbhash": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "key"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "purpose",
+                              "targetPaise",
+                              "receivedPaise",
+                              "startsOn",
+                              "status"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "video": {
+                            "type": "object",
+                            "properties": {
+                              "youtubeId": {
+                                "type": "string"
+                              },
+                              "startS": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "speaker": {
+                                "type": "string"
+                              },
+                              "thumb": {
+                                "type": "object",
+                                "properties": {
+                                  "key": {
+                                    "type": "string"
+                                  },
+                                  "thumbhash": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "key"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "youtubeId",
+                              "thumb"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "publicId",
+                          "masjidId",
+                          "type",
+                          "audience",
+                          "isImportant",
+                          "publishedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "next": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "next"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -3025,7 +2942,544 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ItemDetail"
+                  "type": "object",
+                  "properties": {
+                    "item": {
+                      "type": "object",
+                      "properties": {
+                        "publicId": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z0-9_-]{12}$"
+                        },
+                        "masjidId": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "announcement",
+                            "daily_content",
+                            "dua_request",
+                            "campaign",
+                            "chanda_update",
+                            "video",
+                            "timing_update"
+                          ]
+                        },
+                        "audience": {
+                          "type": "string",
+                          "enum": [
+                            "everyone",
+                            "brothers",
+                            "sisters"
+                          ]
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "body": {
+                          "type": "string"
+                        },
+                        "contentLocale": {
+                          "type": "string",
+                          "enum": [
+                            "en",
+                            "hi",
+                            "ur",
+                            "te"
+                          ]
+                        },
+                        "templateKey": {
+                          "type": "string"
+                        },
+                        "templateParams": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "maxLength": 120
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "start": {
+                                    "type": "string",
+                                    "maxLength": 10
+                                  },
+                                  "end": {
+                                    "type": "string",
+                                    "maxLength": 10
+                                  }
+                                },
+                                "required": [
+                                  "start",
+                                  "end"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
+                          }
+                        },
+                        "isImportant": {
+                          "type": "boolean"
+                        },
+                        "image": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "thumbhash": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "key"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "publishedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "editedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "announcement": {
+                          "type": "object",
+                          "properties": {
+                            "category": {
+                              "type": "string",
+                              "enum": [
+                                "general",
+                                "event",
+                                "facilities",
+                                "timing"
+                              ]
+                            },
+                            "eventAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                            }
+                          },
+                          "required": [
+                            "category"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "daily": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "hadith",
+                                "ayah"
+                              ]
+                            },
+                            "note": {
+                              "type": "string"
+                            },
+                            "library": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "hadith",
+                                    "ayah",
+                                    "dua"
+                                  ]
+                                },
+                                "arabic": {
+                                  "type": "string"
+                                },
+                                "transliteration": {
+                                  "type": "object",
+                                  "properties": {
+                                    "en": {
+                                      "type": "string"
+                                    },
+                                    "hi": {
+                                      "type": "string"
+                                    },
+                                    "ur": {
+                                      "type": "string"
+                                    },
+                                    "te": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                "translation": {
+                                  "type": "object",
+                                  "properties": {
+                                    "en": {
+                                      "type": "string"
+                                    },
+                                    "hi": {
+                                      "type": "string"
+                                    },
+                                    "ur": {
+                                      "type": "string"
+                                    },
+                                    "te": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "en"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "reference": {
+                                  "type": "string"
+                                },
+                                "sourceName": {
+                                  "type": "string"
+                                },
+                                "sourceLicense": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "kind",
+                                "arabic",
+                                "transliteration",
+                                "translation",
+                                "reference",
+                                "sourceName",
+                                "sourceLicense"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "kind"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "dua": {
+                          "type": "object",
+                          "properties": {
+                            "category": {
+                              "type": "string",
+                              "enum": [
+                                "illness",
+                                "inteqal",
+                                "other"
+                              ]
+                            },
+                            "personName": {
+                              "type": "string"
+                            },
+                            "namePrivate": {
+                              "type": "boolean"
+                            },
+                            "janazaAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                            },
+                            "janazaPlace": {
+                              "type": "string"
+                            },
+                            "archivedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                            },
+                            "library": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "hadith",
+                                    "ayah",
+                                    "dua"
+                                  ]
+                                },
+                                "arabic": {
+                                  "type": "string"
+                                },
+                                "transliteration": {
+                                  "type": "object",
+                                  "properties": {
+                                    "en": {
+                                      "type": "string"
+                                    },
+                                    "hi": {
+                                      "type": "string"
+                                    },
+                                    "ur": {
+                                      "type": "string"
+                                    },
+                                    "te": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                "translation": {
+                                  "type": "object",
+                                  "properties": {
+                                    "en": {
+                                      "type": "string"
+                                    },
+                                    "hi": {
+                                      "type": "string"
+                                    },
+                                    "ur": {
+                                      "type": "string"
+                                    },
+                                    "te": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "en"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "reference": {
+                                  "type": "string"
+                                },
+                                "sourceName": {
+                                  "type": "string"
+                                },
+                                "sourceLicense": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "kind",
+                                "arabic",
+                                "transliteration",
+                                "translation",
+                                "reference",
+                                "sourceName",
+                                "sourceLicense"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "category",
+                            "namePrivate"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "campaign": {
+                          "type": "object",
+                          "properties": {
+                            "purpose": {
+                              "type": "string",
+                              "enum": [
+                                "renovation",
+                                "repair",
+                                "utilities",
+                                "welfare",
+                                "other"
+                              ]
+                            },
+                            "targetPaise": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "receivedPaise": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "receivedUpdatedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                            },
+                            "startsOn": {
+                              "type": "string",
+                              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                            },
+                            "endsOn": {
+                              "type": "string",
+                              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "active",
+                                "completed",
+                                "closed"
+                              ]
+                            },
+                            "cover": {
+                              "type": "object",
+                              "properties": {
+                                "key": {
+                                  "type": "string"
+                                },
+                                "thumbhash": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "key"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "purpose",
+                            "targetPaise",
+                            "receivedPaise",
+                            "startsOn",
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "video": {
+                          "type": "object",
+                          "properties": {
+                            "youtubeId": {
+                              "type": "string"
+                            },
+                            "startS": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "speaker": {
+                              "type": "string"
+                            },
+                            "thumb": {
+                              "type": "object",
+                              "properties": {
+                                "key": {
+                                  "type": "string"
+                                },
+                                "thumbhash": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "key"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "youtubeId",
+                            "thumb"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "publicId",
+                        "masjidId",
+                        "type",
+                        "audience",
+                        "isImportant",
+                        "publishedAt"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "masjid": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                        },
+                        "followCode": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "nameI18n": {
+                          "type": "object",
+                          "properties": {
+                            "hi": {
+                              "type": "string"
+                            },
+                            "ur": {
+                              "type": "string"
+                            },
+                            "te": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "area": {
+                          "type": "string"
+                        },
+                        "city": {
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "photo": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "thumbhash": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "key"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "verified": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "followCode",
+                        "name",
+                        "nameI18n",
+                        "area",
+                        "city",
+                        "state",
+                        "verified"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "item",
+                    "masjid"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -3059,7 +3513,18 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AmeenResponse"
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "count"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -3090,7 +3555,21 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AmeenCounts"
+                  "type": "object",
+                  "properties": {
+                    "counts": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    }
+                  },
+                  "required": [
+                    "counts"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -3121,7 +3600,92 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LibraryEntryResponse"
+                  "type": "object",
+                  "properties": {
+                    "entry": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "hadith",
+                            "ayah",
+                            "dua"
+                          ]
+                        },
+                        "arabic": {
+                          "type": "string"
+                        },
+                        "transliteration": {
+                          "type": "object",
+                          "properties": {
+                            "en": {
+                              "type": "string"
+                            },
+                            "hi": {
+                              "type": "string"
+                            },
+                            "ur": {
+                              "type": "string"
+                            },
+                            "te": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "translation": {
+                          "type": "object",
+                          "properties": {
+                            "en": {
+                              "type": "string"
+                            },
+                            "hi": {
+                              "type": "string"
+                            },
+                            "ur": {
+                              "type": "string"
+                            },
+                            "te": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "en"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "reference": {
+                          "type": "string"
+                        },
+                        "sourceName": {
+                          "type": "string"
+                        },
+                        "sourceLicense": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "kind",
+                        "arabic",
+                        "transliteration",
+                        "translation",
+                        "reference",
+                        "sourceName",
+                        "sourceLicense"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "entry"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -3141,7 +3705,133 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TemplateList"
+                  "type": "object",
+                  "properties": {
+                    "templates": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "category": {
+                            "type": "string",
+                            "enum": [
+                              "general",
+                              "event",
+                              "facilities",
+                              "timing"
+                            ]
+                          },
+                          "icon": {
+                            "type": "string"
+                          },
+                          "isImportantDefault": {
+                            "type": "boolean"
+                          },
+                          "title": {
+                            "type": "object",
+                            "properties": {
+                              "en": {
+                                "type": "string"
+                              },
+                              "hi": {
+                                "type": "string"
+                              },
+                              "ur": {
+                                "type": "string"
+                              },
+                              "te": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "en",
+                              "hi",
+                              "ur",
+                              "te"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "body": {
+                            "type": "object",
+                            "properties": {
+                              "en": {
+                                "type": "string"
+                              },
+                              "hi": {
+                                "type": "string"
+                              },
+                              "ur": {
+                                "type": "string"
+                              },
+                              "te": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "en",
+                              "hi",
+                              "ur",
+                              "te"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "params": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "time",
+                                    "date",
+                                    "date_range",
+                                    "time_range",
+                                    "prayer",
+                                    "number",
+                                    "short_text"
+                                  ]
+                                },
+                                "required": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "type",
+                                "required"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "system": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "category",
+                          "icon",
+                          "isImportantDefault",
+                          "title",
+                          "body",
+                          "params",
+                          "system"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "templates"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }

@@ -1,6 +1,7 @@
 import type { Plugin } from 'vite';
 
 import { bootScript } from './boot.ts';
+import { PRECOMPILED_MARK } from './icu-format.ts';
 
 const BOOT_PATH = '/boot.js';
 
@@ -60,5 +61,51 @@ export function mcLocaleBoot(options: LocaleBootOptions = {}): Plugin {
       this.emitFile({ type: 'asset', fileName: 'boot.js', source: bootScript(preloads, options.before) });
     },
     transformIndexHtml: () => [{ tag: 'script', attrs: { src: BOOT_PATH }, injectTo: 'head-prepend' }],
+  };
+}
+
+/** Locale catalogue files (`packages/i18n/locales/<lng>/<ns>.json`). */
+const CATALOGUE = /[\\/]packages[\\/]i18n[\\/]locales[\\/][a-z]{2}[\\/][\w.-]+\.json$/;
+
+/** Replaces every string leaf of a catalogue with the result of `convert`. */
+export function mapCatalogueStrings(value: unknown, convert: (message: string) => string): unknown {
+  if (typeof value === 'string') return convert(value);
+  if (Array.isArray(value)) return value.map((item) => mapCatalogueStrings(item, convert));
+  if (typeof value === 'object' && value !== null) {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, mapCatalogueStrings(item, convert)]));
+  }
+  return value;
+}
+
+/**
+ * Production builds only (PROGRESS F14, DECISIONS #92): every catalogue string becomes its ICU AST (marked with
+ * `PRECOMPILED_MARK`), and the FormatJS message parser is replaced by its `no-parser` stub — the parser (≈ 10 kB gzip)
+ * never ships. `icu-format.ts` formats the ASTs. Dev keeps plain strings and the parser.
+ */
+export function mcIcuPrecompile(): Plugin {
+  return {
+    name: 'mc-icu-precompile',
+    apply: 'build',
+    enforce: 'pre',
+    config: () => ({
+      resolve: {
+        alias: [
+          {
+            find: /^@formatjs\/icu-messageformat-parser$/,
+            replacement: '@formatjs/icu-messageformat-parser/no-parser.js',
+          },
+        ],
+      },
+    }),
+    async transform(code, id) {
+      if (!CATALOGUE.test(id.split('?')[0] ?? '')) return null;
+      const { parse } = await import('@formatjs/icu-messageformat-parser');
+      const catalogue: unknown = JSON.parse(code);
+      const compiled = mapCatalogueStrings(
+        catalogue,
+        (message) => PRECOMPILED_MARK + JSON.stringify(parse(message, { ignoreTag: true, shouldParseSkeletons: true })),
+      );
+      return { code: JSON.stringify(compiled), map: null };
+    },
   };
 }

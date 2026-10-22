@@ -1,4 +1,5 @@
-import { z } from 'zod';
+// zod/mini: this schema ships in both PWAs (every API error is parsed with it) — DECISIONS #92.
+import * as z from 'zod/mini';
 
 import { API_ERROR_CODES, type ApiErrorCode } from '../errors.ts';
 
@@ -23,11 +24,11 @@ export type ProblemFieldError = z.infer<typeof problemFieldErrorSchema>;
 export const problemSchema = z.object({
   type: z.string(),
   title: z.string(),
-  status: z.int().min(400).max(599),
-  code: z.string().regex(/^[A-Z][A-Z0-9_]*$/),
-  detail: z.string().optional(),
-  errors: z.array(problemFieldErrorSchema).optional(),
-  requestId: z.string().optional(),
+  status: z.int().check(z.minimum(400), z.maximum(599)),
+  code: z.string().check(z.regex(/^[A-Z][A-Z0-9_]*$/)),
+  detail: z.optional(z.string()),
+  errors: z.optional(z.array(problemFieldErrorSchema)),
+  requestId: z.optional(z.string()),
 });
 
 export type Problem = z.infer<typeof problemSchema>;

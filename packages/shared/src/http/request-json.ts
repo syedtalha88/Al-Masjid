@@ -1,4 +1,5 @@
-import type { z } from 'zod';
+// Core types and parse functions: work with classic Zod (admin) and Zod Mini (musalli app) schemas alike (DECISIONS #92).
+import { type $ZodType, safeParse } from 'zod/v4/core';
 
 import { type Problem, problemSchema } from '../contracts/problem.ts';
 
@@ -10,7 +11,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 export interface RequestJsonOptions<T> {
   /** Schema for a 2xx body; for 204 it receives `undefined` (use `z.undefined()`). */
-  readonly schema: z.ZodType<T>;
+  readonly schema: $ZodType<T>;
   readonly method?: HttpMethod;
   /** Serialized as JSON with `Content-Type: application/json`. */
   readonly body?: unknown;
@@ -148,13 +149,13 @@ export async function requestJson<T>(url: string | URL, options: RequestJsonOpti
   }
 }
 
-async function readBody<T>(response: Response, schema: z.ZodType<T>, signal: AbortSignal): Promise<T> {
+async function readBody<T>(response: Response, schema: $ZodType<T>, signal: AbortSignal): Promise<T> {
   const requestId = response.headers.get('x-request-id') ?? undefined;
   const contentType = response.headers.get('content-type');
 
   if (!response.ok) {
     if (isJson(contentType, 'problem+json')) {
-      const parsed = problemSchema.safeParse(await parseJson(response, requestId, signal));
+      const parsed = safeParse(problemSchema, await parseJson(response, requestId, signal));
       if (parsed.success) throw new ProblemError(parsed.data, requestId);
     }
     throw new ResponseError(response.status, 'unexpected-status', requestId);
@@ -190,8 +191,8 @@ function untilAborted<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
   });
 }
 
-function validate<T>(schema: z.ZodType<T>, value: unknown, status: number, requestId: string | undefined): T {
-  const parsed = schema.safeParse(value);
+function validate<T>(schema: $ZodType<T>, value: unknown, status: number, requestId: string | undefined): T {
+  const parsed = safeParse(schema, value);
   if (parsed.success) return parsed.data;
   const issues = parsed.error.issues.map((issue) =>
     issue.path.length > 0 ? issue.path.map(String).join('.') : '(root)',
