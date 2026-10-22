@@ -756,6 +756,23 @@ archives the host journal (SSH / sudo auth events, deploy runs with migrations �
 **Informational:** a CSV export cut at 10 000 rows records `truncated: true` in its audit entry; staging's Redis ACL
 waits for O22; "Pseudo IPv4: Off" belongs in the Cloudflare checklist (it is off — default — and keeps IPv6 /64 keys).
 
+### #87 — Phase-verifier re-run of 22 Oct 2026: fixes and one deferral — ACCEPTED (Claude Code, 22 Oct 2026)
+**Fixed:** (1) **C11 audit row in Urdu** was bidi-scrambled ("از 22 · super_admin a9853910 ،اکتوبر … am 07:03") and
+formatted the time with a fixed `en-IN`: the actor type is now translated (`audit.actorType.*`, 4 locales — drafts in
+the review CSVs), the id is isolated in `<Bdi>`, and the time goes through the locale's `<Time>` from the new
+`wallClockInZone()` (`@mc/domain/time`, tested). The contract types `actorType` as the 02 enum. Action codes stay
+as written: they are log identifiers (as in the filter list). (2) Cross-tenant writes now tested for `masjid_timings`
+(insert / update into C), another admin's `admin_users` row, another admin's `admin_push_subscriptions`, and
+device-vs-device updates / deletes / inserts on `devices`, `device_follows`, `ameens`. (3) **T1.8 "wrong purpose"**:
+every invite purpose (register / add_device / recovery) goes through the one registration ceremony and the purpose is
+server-stored, never chosen by the client — so a wrong purpose means a token or challenge used in the wrong ceremony.
+Challenge binding was tested; now also a session token, a challenge cookie and a login challenge presented as an
+invite get the same uniform 404 as an unknown invite, and a consumed invite cannot be reused. (4) A test fixture used
+a widely known real phone number → `+919000000003`. **Deferred: F41** (the Windows-only native worker abort in local
+`test:int`, ≈ 1 in 5 runs, no message, report or WER event; Linux CI never) — re-check after the Node 26 move (F1); if
+it persists, a minimal repro for Node / libuv. Workaround in the verify recipe: re-run the package. It hides no test
+result: a crashed file reports as failed, never as passed.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (22 Oct 2026)._
