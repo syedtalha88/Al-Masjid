@@ -954,7 +954,13 @@
             "format": "date-time"
           },
           "actorType": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "admin",
+              "super_admin",
+              "system",
+              "device"
+            ]
           },
           "actorId": {
             "type": "string"
