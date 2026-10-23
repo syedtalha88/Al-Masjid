@@ -39,12 +39,14 @@ export function AppGate({ children, preload }: AppGateProps) {
   const { t } = useTranslation('onboarding');
   const { locale } = useLocale();
   const [code, setCode] = useState(() => arrivalCode());
+  // Developer tools (`/_dev/showcase`, dev/staging builds only — DECISIONS #58) are not part of the product flow.
+  const [devTool] = useState(() => window.location.pathname.startsWith('/_dev/'));
   const [arrived, setArrived] = useState(false);
   useEffect(() => {
     if (!onboardedAt) preload?.();
   }, [onboardedAt, preload]);
 
-  if (onboardedAt) return <>{children}</>;
+  if (onboardedAt || devTool) return <>{children}</>;
 
   const onFinished = (next: OnboardingNext) => {
     // The router mounts after this render and reads the replaced URL.
