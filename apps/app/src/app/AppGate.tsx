@@ -7,7 +7,7 @@ import { useToast } from '@mc/ui/components';
 import { lazy, type ReactNode, Suspense, useEffect, useState } from 'react';
 
 import type { OnboardingNext } from '../features/onboarding/Onboarding.tsx';
-import { useAppData, useDeviceState } from '../lib/data.tsx';
+import { useAppData, useDeviceSelector } from '../lib/data.tsx';
 import { masjidName } from '../lib/masjid.ts';
 import { isStandalone, platformKind } from '../lib/platform.ts';
 import { RoutePending } from './RoutePending.tsx';
@@ -33,7 +33,7 @@ export interface AppGateProps {
 }
 
 export function AppGate({ children, preload }: AppGateProps) {
-  const { onboardedAt } = useDeviceState();
+  const onboardedAt = useDeviceSelector((state) => state.onboardedAt);
   const data = useAppData();
   const toast = useToast();
   const { t } = useTranslation('onboarding');

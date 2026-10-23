@@ -121,18 +121,34 @@ export function monthGrid(year: number, month: number, weekStart = 0): (string |
 }
 
 /**
+ * India Standard Time is UTC+05:30 all year (no daylight saving since 1945): wall clock ↔ instant is a fixed shift, done
+ * by arithmetic rather than Intl.
+ */
+const IST_OFFSET_MS = 330 * 60_000;
+
+/** Formatters per zone — building an `Intl.DateTimeFormat` is expensive; these run per prayer and per feed item. */
+const dateFormats = new Map<string, Intl.DateTimeFormat>();
+const timeFormats = new Map<string, Intl.DateTimeFormat>();
+
+const partsOf = (format: Intl.DateTimeFormat, instant: Date) =>
+  Object.fromEntries(format.formatToParts(instant).map((item) => [item.type, item.value]));
+
+/**
  * The calendar date of an instant in a time zone (default IST) — e.g. "today" for the user in India.
  *
  * @param instant - the moment (pass the injected clock's `now()`).
  */
 export function calendarDateInZone(instant: Date, timeZone: string = DISPLAY_TIME_ZONE): string {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(instant);
-  const value = Object.fromEntries(parts.map((item) => [item.type, item.value]));
+  if (timeZone === DISPLAY_TIME_ZONE) {
+    const shifted = new Date(instant.getTime() + IST_OFFSET_MS);
+    return toCalendarDate(shifted.getUTCFullYear(), shifted.getUTCMonth() + 1, shifted.getUTCDate());
+  }
+  let format = dateFormats.get(timeZone);
+  if (!format) {
+    format = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' });
+    dateFormats.set(timeZone, format);
+  }
+  const value = partsOf(format, instant);
   return toCalendarDate(Number(value['year']), Number(value['month']), Number(value['day']));
 }
 
@@ -143,13 +159,16 @@ export function calendarDateInZone(instant: Date, timeZone: string = DISPLAY_TIM
  * @param instant - the moment.
  */
 export function wallClockInZone(instant: Date, timeZone: string = DISPLAY_TIME_ZONE): string {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone,
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }).formatToParts(instant);
-  const value = Object.fromEntries(parts.map((item) => [item.type, item.value]));
+  if (timeZone === DISPLAY_TIME_ZONE) {
+    const shifted = new Date(instant.getTime() + IST_OFFSET_MS);
+    return toWallClock(shifted.getUTCHours(), shifted.getUTCMinutes());
+  }
+  let format = timeFormats.get(timeZone);
+  if (!format) {
+    format = new Intl.DateTimeFormat('en-CA', { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+    timeFormats.set(timeZone, format);
+  }
+  const value = partsOf(format, instant);
   return toWallClock(Number(value['hour']), Number(value['minute']));
 }
 
@@ -206,8 +225,6 @@ export function from12Hour(hour12: number, pm: boolean): number {
 
 // --- IST wall clock, rollover timers and server clock drift (T2.1) ------------------------------------------------
 
-/** India Standard Time is UTC+05:30 all year (no daylight saving), so wall clock ↔ instant is a fixed shift. */
-const IST_OFFSET_MS = 330 * 60_000;
 const MINUTES_PER_DAY = 1440;
 
 /**

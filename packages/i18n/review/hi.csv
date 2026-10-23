@@ -192,6 +192,18 @@ common,masjids.reorder,Reorder {name},{name} का क्रम बदलें
 common,masjids.moveUp,Move up,ऊपर ले जाएँ,no
 common,masjids.moveDown,Move down,नीचे ले जाएँ,no
 common,masjids.editHint,"Drag to change the order, or tap a masjid for more options.","क्रम बदलने के लिए खींचें, या ज़्यादा विकल्पों के लिए मस्जिद पर टैप करें।",no
+common,updates.all,All,सभी,no
+common,updates.announcements,Announcements,सूचनाएँ,no
+common,updates.duas,Dua,दुआ,no
+common,updates.donations,Donations,चंदा,no
+common,updates.hadith,Hadith & Quran,हदीस और क़ुरआन,no
+common,updates.bayans,Bayans,बयान,no
+common,updates.timings,Timings,समय,no
+common,updates.chanda,Chanda,हफ़्ते का चंदा,no
+common,updates.filters,Filter updates,अपडेट छाँटें,no
+common,updates.yesterday,Yesterday,कल,no
+common,updates.new,New,नया,no
+common,updates.loadingMore,Loading more…,और लोड हो रहा है…,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,यह नहीं मिला। हो सकता है इसे हटा दिया गया हो।,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,यह काम यहाँ उपलब्ध नहीं है।,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,कुछ जानकारी गलत लग रही है। कृपया जाँचकर फिर कोशिश करें।,no

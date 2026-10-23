@@ -1,7 +1,7 @@
 // IndexedDB backends (idb-keyval 6.3) for the device store and the persisted query cache. Two databases so clearing
 // the device (Clear all data) and dropping the cache are independent. When IndexedDB is unavailable (some private
 // modes) the store falls back to memory (00 §7).
-import { createStore, del, get, set, type UseStore } from 'idb-keyval';
+import { createStore, del, delMany, entries, get, set, setMany, type UseStore } from 'idb-keyval';
 
 import { type KeyValueBackend, memoryBackend } from './store.ts';
 
@@ -17,6 +17,17 @@ export function idbBackend(database: string): KeyValueBackend {
     get: (key) => get<unknown>(key, storeOf()),
     set: (key, value) => set(key, value, storeOf()),
     del: (key) => del(key, storeOf()),
+    // Only string keys are ever written.
+    entries: async () =>
+      (await entries<IDBValidKey, unknown>(storeOf())).flatMap(([key, value]) =>
+        typeof key === 'string' ? [[key, value] as const] : [],
+      ),
+    setMany: (values) =>
+      setMany(
+        values.map(([key, value]) => [key, value]),
+        storeOf(),
+      ),
+    delMany: (keys) => delMany([...keys], storeOf()),
   };
 }
 

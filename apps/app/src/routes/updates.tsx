@@ -1,14 +1,8 @@
-import { useTranslation } from '@mc/i18n/react';
 import { createFileRoute } from '@tanstack/react-router';
 
-import { PlaceholderScreen } from '../app/PlaceholderScreen.tsx';
+import { UpdatesScreen } from '../features/updates/UpdatesScreen.tsx';
 
+/** A13 Updates — tab root. */
 export const Route = createFileRoute('/updates')({
-  component: UpdatesTab,
+  component: UpdatesScreen,
 });
-
-/** Updates tab root (Phase 0 placeholder). */
-function UpdatesTab() {
-  const { t } = useTranslation();
-  return <PlaceholderScreen title={t('tabs.updates')} />;
-}

@@ -13,7 +13,7 @@ import {
   SkeletonText,
 } from '@mc/ui/components';
 import { useNavigator } from '@mc/ui/navigation';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 
 import { masjidName, masjidPlace } from '../../../lib/masjid.ts';
 import { mediaUrl } from '../../../lib/media.ts';
@@ -26,23 +26,33 @@ export interface HomeMasjidCardProps {
   readonly onRetry: () => Promise<void>;
 }
 
-export function HomeMasjidCard({ masjid, now, onRetry }: HomeMasjidCardProps) {
-  const { t } = useTranslation();
-  if (masjid.state === 'loading') return <CardSkeleton />;
-  if (masjid.state === 'active') return <ActiveCard bundle={masjid.bundle} now={now} />;
-  return (
-    <Card className="flex min-h-56 flex-col items-start justify-center gap-3">
-      <p className="type-body text-text-secondary">
-        {masjid.state === 'suspended' ? t('home.suspended') : t('home.loadFailed')}
-      </p>
-      {masjid.state === 'failed' ? (
-        <Button variant="outline" onPress={() => void onRetry()}>
-          {t('appError.retry')}
-        </Button>
-      ) : null}
-    </Card>
-  );
-}
+/** Memoised: a device-state change elsewhere (Updates marking items seen) must not re-render every card. */
+export const HomeMasjidCard = memo(
+  function HomeMasjidCard({ masjid, now, onRetry }: HomeMasjidCardProps) {
+    const { t } = useTranslation();
+    if (masjid.state === 'loading') return <CardSkeleton />;
+    if (masjid.state === 'active') return <ActiveCard bundle={masjid.bundle} now={now} />;
+    return (
+      <Card className="flex min-h-56 flex-col items-start justify-center gap-3">
+        <p className="type-body text-text-secondary">
+          {masjid.state === 'suspended' ? t('home.suspended') : t('home.loadFailed')}
+        </p>
+        {masjid.state === 'failed' ? (
+          <Button variant="outline" onPress={() => void onRetry()}>
+            {t('appError.retry')}
+          </Button>
+        ) : null}
+      </Card>
+    );
+  },
+  // Same masjid data (bundles are immutable per version) and the same minute; `onRetry` only matters on a failed card.
+  (previous, next) =>
+    previous.now === next.now &&
+    previous.masjid.state === next.masjid.state &&
+    previous.masjid.id === next.masjid.id &&
+    (previous.masjid.state !== 'active' ||
+      (next.masjid.state === 'active' && previous.masjid.bundle === next.masjid.bundle)),
+);
 
 function ActiveCard({ bundle, now }: { readonly bundle: ActiveMasjidBundle; readonly now: Date }) {
   const { t } = useTranslation();

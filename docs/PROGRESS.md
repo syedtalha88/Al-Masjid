@@ -18,29 +18,41 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (handoff 22 Oct 2026, 23:40 — Phase 02 IN PROGRESS)
+## ▶ Next session — start here (handoff 24 Oct 2026 — Phase 02 IN PROGRESS, 10 of 14 tasks done)
 
-**State:** Phase 02 started 22 Oct 2026 on branch `feat/phase-02` (fast-forwarded to `main`). **T2.1 and T2.2 done**
-(DECISIONS #90, #91). Last commit `aab0849` (shared contract tests — fixes the red unit-coverage job of `364f803`).
-**First: check CI of `7b53cb2` / `aab0849`** (curl `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=main`
-— `gh` is not installed on this PC) and that staging deployed (migration 0008 runs; the staging worker writes the seed
-TESTA001/TESTB002/TESTC003 at boot).
-**Then:** run `node scripts/check-cdn-cache.mjs https://app-staging.almasjids.com` once by hand (T2.2 acceptance: versioned
-bundle/feed answer `cf-cache-status: HIT` — if not, the Cloudflare cache rule for `/api/v1/*` needs checking with the
-owner) → continue with **T2.3 Client data layer**.
-**Before every push:** `turbo run test:coverage` too (`verify:quick` does not apply the coverage gates — that let a
-red CI through once). Flake seen once: `@mc/i18n` tests failed under full parallel load, passed alone (watch).
-**Owner, now relevant:** O8 Turnstile switch-over (registration is live on staging with the test secret until then);
-O7 design notes before T2.6 (Home); O16 low-end phone.
+**State:** branch `feat/phase-02`, fast-forwarded to `main` after every task. **T2.1–T2.10 done** (DECISIONS #90–#99).
+Last commit = the T2.10 commit (Updates + performance fixes). CI was green on `adc58db`; later pushes cancel each
+other's runs (only the newest counts) — **first: check CI of the newest `main` commit** (curl
+`api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=main&per_page=5`; `gh` is not installed).
+**Then: re-run the full local e2e** (`--project=pixel-7 --project=iphone-14 --project=scan --workers=1`) — the run
+after the T2.10 persistence/store/time changes was still going at handoff (targeted specs and all unit/coverage gates
+were green). Also `pnpm test:perf` (navigation + `updates.perf`).
+**Next task: T2.11** (Announcements, Hadith & Quran, Dua Requests — read side): replaces the placeholders
+`/masjid/:id/:section` (`routes/masjid_.$masjidId.$section.tsx`) and `/items/:publicId` (`routes/items.$publicId.tsx`).
+Template notices need body rendering with params (time/date/prayer formatting) — titles already come from
+`features/content/lib/item-view.ts`. Then T2.12 Settings (F16 vibration), T2.13 PWA offline, T2.14 quality gates.
+Open follow-ups: **F43** (rest: split `@mc/domain/time` helpers out of the entry), **F44** (shared-element morph
+card → Masjid Detail hero, deferred), Lighthouse LCP on staging for T2.6 (after deploy).
 
-**Local quirk (this PC):** Node cannot resolve `*.localhost` (browsers can). For e2e, preload a shim via
-`NODE_OPTIONS=--require <shim>` that patches `dns.lookup`, `dns.promises.lookup` AND `net/tls.connect` (pass a `lookup`
-mapping `*.localhost` → 127.0.0.1) — patching `dns` alone is not enough. A permanent fix is a hosts-file line
-(`127.0.0.1 app.localhost admin.localhost media.localhost`) — owner's choice. Auth e2e specs: run with `--workers=1`.
-Verify recipe and other quirks as before (below).
+**Patterns established in Phase 02 (reuse them):** lazy namespaces (`follow`, `masjid`) are gated on `ready` (never raw
+keys) and preloaded at idle in `AppNavigator`; screens subscribe with `useDeviceSelector`, never the whole document;
+long lists are memoised with `lib/same.ts` comparators; IST conversions go through `@mc/domain/time` (arithmetic fast
+path); the query cache persists per query (`lib/query/persist.ts`); size limit `.size-limit.js` (musalli 181 kB —
+owner O24: a few kB more is fine, record each raise).
 
-**Local verify recipe (Windows dev PC):** `turbo run typecheck typecheck:root lint lint:root test:coverage` → `prettier --check .` → `pnpm i18n:check` → `pnpm db:test` → `pnpm test:int` → `pnpm check:dev-proxy` (ports 5173/5174/8787/8788 must be free) → build both PWAs → `check:dist` → `scan:bundles` → `size` → `node scripts/compose.mjs stack up --build` → Vite dev on 5173 (`pnpm --filter @mc/app dev --port 5173 --strictPort`, for the showcase spec) → `pnpm test:e2e` → stop Vite → `pnpm test:perf` → `pnpm lhci`. Quirks: Docker from Git Bash needs `MSYS_NO_PATHCONV=1`; Python heredocs mangle `
-`/backslashes — use the Edit tool; the commit hook rejects long subjects; the local dev DB holds test Super Admins ("Local Test Owner", "Local-Test-2") and "(Test)" masjids — `pnpm db:reset` clears them.
+**Local quirks (this PC):** Node cannot resolve `*.localhost` — run Playwright with
+`NODE_OPTIONS=--require <scratchpad>/localhost-shim.cjs` (patches dns + net/tls connect; a hosts-file line would fix it
+for good — owner's choice). The local stack serves `apps/*/dist` from disk: **rebuild the app before e2e**; restart the
+Caddy container after Caddyfile changes (`docker restart mc-dev-caddy-1`, admin API is off). Playwright WebKit on
+Windows fetches resources one at a time (~200 ms each) — the iPhone project has a 15 s expect timeout for that. The
+`scan` project needs `e2e/.cache/scan-feed.y4m` (written by global setup). Showcase specs need Vite dev on 5173.
+Parallel turbo/e2e flakes here: `turbo --concurrency=4`, e2e `--workers=1`. Docker from Git Bash: `MSYS_NO_PATHCONV=1`.
+Heredocs with quotes/escapes break in Git Bash — write scripts to the scratchpad and run them, or use Edit.
+
+**Local verify recipe (Windows dev PC):** `turbo run typecheck lint test:coverage --concurrency=4` (verify:quick skips
+the coverage gates) → `prettier --check .` → `pnpm i18n:check` (run `pnpm --filter @mc/i18n i18n:review` after string
+changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size` → e2e (above) → `pnpm test:perf` →
+`pnpm --filter @mc/ui generate` after `motion/css.ts` changes (a test checks `motion.css` is current).
 
 ## Waiting for the owner (ask after every task — owner's instruction, 14 Oct 2026)
 
@@ -72,7 +84,7 @@ Verify recipe and other quirks as before (below).
 | O21 | ~~Dated confirmation of the Atlas IP access list~~ | T1.12 evidence | – | **done 22 Oct 2026** — owner: "I confirm" (`docs/reports/evidence/PHASE_01_T1.12_atlas-ip-list_2026-10-22.txt`) |
 | O12 | ~~Super Admin passkey on staging~~ — **done 22 Oct 2026** | Phase 01 T1.9 | – | done |
 | O23 | **Cloudflare Cache Rule "App API (origin)"** (infra/cloudflare/README.md §4 rule 1) — check it exists and is enabled | T2.2 acceptance: staging versioned bundle/feed answer `cf-cache-status: DYNAMIC` (23 Oct 2026, origin sends `public, max-age=31536000, immutable`) — Cloudflare is not caching `/api/v1/*`; until fixed, every read reaches the VPS | 5 min | **pending** — then Claude Code re-runs `scripts/check-cdn-cache.mjs` |
-| O24 | **Confirm the bundle-size raises** — musalli initial JS limit 170 → 175 (T2.3) → 176 (T2.4) → 180 (T2.5) → 184 (T2.6) → 182 (T2.7) → **181 kB** (T2.9, after F43 parts 1–2) under the owner rule "quality over bundle size" | DECISIONS #92–#94; the alternative is deeper chunk tuning (Motion split) | 1 answer | **pending** |
+| O24 | **Confirm the bundle-size raises** — musalli initial JS limit 170 → 175 (T2.3) → 176 (T2.4) → 180 (T2.5) → 184 (T2.6) → 182 (T2.7) → **181 kB** (T2.9, after F43 parts 1–2) under the owner rule "quality over bundle size" | DECISIONS #92–#94; the alternative is deeper chunk tuning (Motion split) | 1 answer | **answered 24 Oct 2026:** "I can manage a few kB if it's increasing" — raises of a few kB are fine; keep recording each in DECISIONS / `.size-limit.js` |
 | O22 | ~~Host-layer update on the VPS~~ | F36, F37, F40, L-5, #86 L5 | – | **done 22 Oct 2026** — `provision.sh host aa2d1ac` (checksum confirmed), `make-env.sh staging --force`, Redis restarted; `--verify-roles` 17/17, `check.sh` 114 PASS · 0 FAIL · 2 WARN (evidence `docs/reports/evidence/PHASE_01_T1.1_verify-roles_2026-10-22.txt`, `PHASE_01_T1.12_check-sh_2026-10-22.txt`) |
 
 ## Current phase task checklist
@@ -121,7 +133,7 @@ Verify recipe and other quirks as before (below).
 - [x] T2.7 — My Masjids (A3) — **done 23 Oct 2026 (DECISIONS #96):** list of `MasjidListItem` (3:4 thumb, next jamaat + countdown, "N new updates" since the later of the last Updates visit and the follow; the soonest jamaat tinted mint), "+ Add Masjid" pill → sheet (Scan / Enter code), "+ Add Another Masjid", limit note at 20; Edit or long-press → reorder mode (`ReorderList`: drag handle, arrow keys, row menu Move up / Move down / Unfollow as the single-tap alternative); order kept on the device; unfollow with confirm + Undo toast (restores in place; server follow removed / restored). Tests: view 3, sync +2, components 4; e2e `my-masjids.spec.ts` (list, keyboard + menu reorder persists across reload, drag on Chromium, unfollow → DELETE 204 → Undo → PUT 200).
 - [x] T2.8 — Masjid Detail (A5) — **done 23 Oct 2026 (DECISIONS #97):** hero (ThumbHash → photo, scrim, parallax 0.4×, overscroll scale ≤ 1.15, solid bar with the name once ~80% gone), overlapping sheet (radius 28), name + Verified, location, Notifications (per-masjid mute → `PATCH /devices/me/follows/:id`, rollback + message on failure; queued follows carry it), Share (Web Share, else WhatsApp / Copy link sheet; follow link `/m/:code`), Directions (Google Maps, new tab); "…" menu (Share, Mute, Unfollow); tabs Overview / Prayer Timings (today's table until T2.9) / Announcements, swipeable; section rows only with content + unseen counts; suspended / gone / failed states. `masjid` namespace (lazy, gated, preloaded at idle). Tests: detail view 6, sync +2 (mute); e2e `masjid-detail.spec.ts` (both phones). **Shared-element morph deferred → F44.**
 - [x] T2.9 — Prayer Timings (A6) — **done 23 Oct 2026 (DECISIONS #98):** `/masjid/:id/timings` (from Home's next-prayer panel) and Masjid Detail's tab share `TimingsContent`: `DateStepper` (−7…+60 days, date sheet, Hijri under the pill, date text rolls), tabs Daily Timings / Jumu'ah / Special Dates (swipeable), `PrayerTable` (rows straight from `resolveSchedule`; muted Sunrise; Jumu'ah on Fridays; calculated dots with tooltip; next jamaat's row tinted when it is on the day shown), `JumuahCard` (khutbah times), special dates grouped by date with time chips, InfoNote; directional slide on day change (fade with reduced motion). Tests: view 5 (rows = domain output), e2e `timings.spec.ts`. F43 part 2 (one module per glyph): initial JS 179.8 kB, limit 181 kB.
-- [ ] T2.10 — Updates (A13)
+- [x] T2.10 — Updates (A13) — **done 24 Oct 2026 (DECISIONS #99):** merged timeline of followed masjids (per-masjid feed pages merged newest first by `mergeTimeline`, never showing an item an unloaded page could precede), chips for the types present so far, day headers (Today / Yesterday / date), `TimelineList` (connector line, unseen dot), infinite scroll (sentinel, pages only the masjids holding the merge back), rows with `content-visibility: auto`; seen after 1.5 s visible (written when idle), Updates tab badge (`lib/unseen.ts`) + Home bell. Perf work found by the fling trace: per-query cache persistence (no whole-cache rewrite), IST date/time by arithmetic (no `Intl` per call), `useDeviceSelector`, store keeps unchanged references, memoised lists. Tests: timeline 6, useTimeline 2, unseen/same 3, persistence rewritten; e2e journey 3 `updates.spec.ts` (order = API merge with forced 3-item pages, Dua chip, seen/badge), `updates.perf.spec.ts` fling passes 3/3.
 - [ ] T2.11 — Announcements, Hadith & Quran, Dua Requests (read side)
 - [ ] T2.12 — Settings (A15) & item landing
 - [ ] T2.13 — PWA/offline completion
@@ -176,6 +188,7 @@ Verify recipe and other quirks as before (below).
 | 2026-10-22 | 02 / T2.1–T2.2 | Phase 02 started. T2.1 domain (adhan 4.4.6, golden files 7 cities × 6 dates from Aladhan, Hijri UQ, follow codes, IST/drift, money, countdown — 100 % coverage; F13 closed). T2.2 public API + device auth + Turnstile + link previews (Caddy templates) + seed (local `db:seed`, staging worker) + Nightly CDN check. Found: views with projections cannot use the index for a caller's sort (26k docs examined) → migration 0008 sorts inside the views (31/31); mc_public cannot read `ameens` → Ameen via unique index. CI red once on shared coverage (fixed `aab0849`). |
 | 2026-10-22 | 01 / close | O22 done by the owner (17/17 privileges, check.sh 114 PASS · 0 FAIL); final reviews: security 0 HIGH/MED (#88, #89), verifier gaps fixed (#87, #89 — device/admin audit cells, Urdu C11, B1/B2 Lighthouse 100); report final; owner confirmed checks 1.2–1.12 passed → **Phase 01 DONE**. |
 | 2026-10-22 | 01 / T1.12 | CI red on `70f7583` (Trivy: CVE-2026-111943 in Caddy's Go 1.27.2) → builder re-pinned to Go 1.27.3, green. Delta-review LOWs L-1…L-12 fixed/justified (#82: IPv6 /48 buckets, fail-closed IP keys, `safeText` by Unicode category, raw-length cap, no RANDOMKEY, capped audit entry, per-entry policy checks, strict step-up time, exact CSV cap). Phase-verifier gaps (#83): isolation tests found admin `audit_log` inserts without a tenant rule (fixed); concurrency, disabled-session, T1.11 audit-trail and login-log tests; `@mc/db` named imports only; one-off containers out of the log archive. Follow-ups deferred with triggers (#84; F27 closed; F39–F41 new; owner O22). Staging Lighthouse analysed: not geography — Lantern chain depth × CDN server time; admin warm ≤ 1 s impossible while waiting for `/auth/me` → #85 OPEN. |
+| 2026-10-24 | 02 / T2.4–T2.10 | Onboarding, scan + follow + `/m/:code` (QR fallback `barcode-detector`/`zxing-wasm`, owner chose option 1 of #94), Home, My Masjids, Masjid Detail, Prayer Timings, Updates — DECISIONS #93–#99. CI fixes on the way: dev showcase bypasses onboarding (CI warm-up). The Updates fling trace exposed real low-end costs, fixed in the shared layers (per-query cache persistence, IST arithmetic, device selectors, reference-keeping store, memoised lists). Owner answered O24 (a few kB more is fine). Full e2e after the last changes was still running at handoff — re-run first next session. |
 | 2026-10-22 | 01 / T1.9, T1.12 | Owner did O12 → T1.9 done; owner accepted #79 A and #81 A (login IP limit 30 / 10 min, done 20 Oct). Delta security review (`b9eb751..9fe1f18`): 0 HIGH, 2 MED fixed (M-A hook checks matched no quote style the bundler writes; M-B gateway upserts skipped the insert rules), 12 LOW listed in the handoff (DECISIONS #82). Phase-verifier for Phase 01: not closable yet — test gaps, staging Lighthouse, flakes, deferrals, evidence (handoff list). Owner opened a new session for the rest. |
 | 2026-10-20 | 01 / T1.10 | 4-locale screens spec + signed-in Lighthouse a11y (100 on all 9 screens) done; T1.2, T1.4, T1.10 ticked. Phase 01 open: T1.9 (owner O12) and T1.12 (finish-phase). Local quirk again: Node on this PC cannot resolve `*.localhost` (browsers can) — e2e ran with a scratch preload shim (patches `net/tls.connect` lookups); CI on Linux unaffected. |
 | 2026-10-20 | 00 closure / V-31 | Phase-verifier: Phase 00 closable after owner 0.15/0.16, the report (V-22), #79 and housekeeping; README db:reset + verify-roles stub fixed. Security-reviewer (resumed after the usage limit): H1 + M1–M3 fixed, LOWs fixed/justified (DECISIONS #80); #81 OPEN for the owner. Header grades re-taken (Observatory A+ 135 on both hosts) and check.sh output saved as evidence. |

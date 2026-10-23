@@ -192,6 +192,18 @@ common,masjids.reorder,Reorder {name},{name} క్రమాన్ని మా�
 common,masjids.moveUp,Move up,పైకి జరపండి,no
 common,masjids.moveDown,Move down,కిందికి జరపండి,no
 common,masjids.editHint,"Drag to change the order, or tap a masjid for more options.","క్రమం మార్చడానికి లాగండి, లేదా మరిన్ని ఎంపికల కోసం మసీదుపై నొక్కండి.",no
+common,updates.all,All,అన్నీ,no
+common,updates.announcements,Announcements,ప్రకటనలు,no
+common,updates.duas,Dua,దుఆ,no
+common,updates.donations,Donations,విరాళాలు,no
+common,updates.hadith,Hadith & Quran,హదీస్ & ఖుర్ఆన్,no
+common,updates.bayans,Bayans,బయాన్‌లు,no
+common,updates.timings,Timings,సమయాలు,no
+common,updates.chanda,Chanda,చందా,no
+common,updates.filters,Filter updates,అప్‌డేట్‌లను ఫిల్టర్ చేయండి,no
+common,updates.yesterday,Yesterday,నిన్న,no
+common,updates.new,New,కొత్తది,no
+common,updates.loadingMore,Loading more…,మరిన్ని లోడ్ అవుతున్నాయి…,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,ఇది కనిపించలేదు. ఇది తొలగించబడి ఉండవచ్చు.,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,కొన్ని వివరాలు సరిగా లేవు. దయచేసి చూసి మళ్లీ ప్రయత్నించండి.,no

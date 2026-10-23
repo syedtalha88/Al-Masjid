@@ -150,5 +150,19 @@
     "moveUp": "Move up",
     "moveDown": "Move down",
     "editHint": "Drag to change the order, or tap a masjid for more options."
+  },
+  "updates": {
+    "all": "All",
+    "announcements": "Announcements",
+    "duas": "Dua",
+    "donations": "Donations",
+    "hadith": "Hadith & Quran",
+    "bayans": "Bayans",
+    "timings": "Timings",
+    "chanda": "Chanda",
+    "filters": "Filter updates",
+    "yesterday": "Yesterday",
+    "new": "New",
+    "loadingMore": "Loading more…"
   }
 }

@@ -47,7 +47,7 @@ import { BackIcon, useNavigator, useScreen } from '@mc/ui/navigation';
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useNow } from '../../lib/clock.ts';
-import { useAppData, useDeviceState } from '../../lib/data.tsx';
+import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
 import { masjidName, masjidPlace } from '../../lib/masjid.ts';
 import { mediaUrl } from '../../lib/media.ts';
 import { ItemList } from '../content/ItemList.tsx';
@@ -91,7 +91,7 @@ function Detail({ masjidId }: { readonly masjidId: string }) {
   const now = useNow();
   const { reduced } = useMotionPrefs();
   const { store, sync } = useAppData();
-  const device = useDeviceState();
+  const updatesSeenAt = useDeviceSelector((state) => state.updatesSeenAt);
   const detail = useMasjidDetail(masjidId);
   const [tab, setTab] = useState<TabId>('overview');
   const [menu, setMenu] = useState(false);
@@ -272,7 +272,7 @@ function Detail({ masjidId }: { readonly masjidId: string }) {
                       bundle={bundle}
                       now={now}
                       detail={detail}
-                      seenAt={device.updatesSeenAt}
+                      seenAt={updatesSeenAt}
                       onTimings={() => {
                         setTab('timings');
                       }}

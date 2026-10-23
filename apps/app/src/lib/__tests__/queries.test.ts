@@ -6,7 +6,7 @@ import { createApiClient } from '../api/client.ts';
 import { PERSISTED_ROOTS, queryKeys } from '../api/keys.ts';
 import { bundleQuery, feedQuery, pruneStaleVersions, versionsQuery } from '../api/queries.ts';
 import { memoryBackend } from '../device/store.ts';
-import { createPersister, createQueryClient, shouldPersistQuery } from '../query/persist.ts';
+import { createQueryClient, createQueryPersistence, shouldPersistQuery } from '../query/persist.ts';
 
 // T2.3: versions poller → targeted invalidation (a new content version re-targets exactly the changed masjids; old
 // versions are pruned), and the persisted cache.
@@ -78,29 +78,69 @@ describe('persisted cache (01 §5.6)', () => {
     expect(PERSISTED_ROOTS.has('device')).toBe(false);
   });
 
-  it('writes throttled, restores only well-formed data, removes on demand', async () => {
+  it('writes each changed query on its own (batched), restores fresh entries of this release only', async () => {
     vi.useFakeTimers();
     try {
-      const backend = memoryBackend();
-      const persister = createPersister(backend, 1000);
-      const client = { timestamp: 1, buster: 'r1', clientState: { queries: [], mutations: [] } };
-      void persister.persistClient(client);
-      void persister.persistClient({ ...client, timestamp: 2 });
-      expect(await backend.get('queries')).toBeUndefined();
+      const backend = memoryBackend({ queries: { legacy: true } });
+      const persistence = createQueryPersistence(backend, { buster: 'r1', throttleMs: 1000, now: () => 1_000_000 });
+      const client = createQueryClient();
+      const stop = persistence.start(client);
+      client.setQueryData(queryKeys.bundle(A, 1), { status: 'suspended', v: 1 });
+      client.setQueryData(queryKeys.feed(A, 1, 'brothers'), { items: [], next: null });
+      client.setQueryData(['serverFollows'], { follows: [] }); // not a persisted root
+      expect(await backend.entries()).toHaveLength(1); // nothing written yet (throttled)
       await vi.advanceTimersByTimeAsync(1000);
-      expect(await backend.get('queries')).toMatchObject({ timestamp: 2 });
-      expect(await persister.restoreClient()).toMatchObject({ buster: 'r1' });
-      await backend.set('queries', { broken: true });
-      expect(await persister.restoreClient()).toBeUndefined();
-      await persister.removeClient();
+      const keys = (await backend.entries()).map(([key]) => key).filter((key) => key.startsWith('q:'));
+      expect(keys).toHaveLength(2);
+
+      // A second change writes only that query.
+      const written: string[] = [];
+      const spy = {
+        ...backend,
+        setMany: (entries: readonly (readonly [string, unknown])[]) => {
+          written.push(...entries.map(([key]) => key));
+          return backend.setMany(entries);
+        },
+      };
+      stop();
+      const again = createQueryPersistence(spy, { buster: 'r1', throttleMs: 1000, now: () => 1_000_000 });
+      const stopAgain = again.start(client);
+      client.setQueryData(queryKeys.bundle(A, 1), { status: 'suspended', v: 1 });
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(written).toEqual([keys.find((key) => key.includes('bundle'))]);
+      // Removing a query deletes its entry.
+      client.removeQueries({ queryKey: queryKeys.feed(A, 1, 'brothers') });
+      await vi.advanceTimersByTimeAsync(1000);
+      stopAgain();
+      expect((await backend.entries()).filter(([key]) => key.startsWith('q:'))).toHaveLength(1);
+
+      // Restore: this release, within 30 days → hydrated; the legacy whole-cache key is dropped.
+      const restored = createQueryClient();
+      await createQueryPersistence(backend, { buster: 'r1', now: () => 1_000_000 }).restore(restored);
+      expect(restored.getQueryData(queryKeys.bundle(A, 1))).toEqual({ status: 'suspended', v: 1 });
       expect(await backend.get('queries')).toBeUndefined();
-      const failing = createPersister({
-        get: () => Promise.reject(new Error('x')),
-        set: () => Promise.reject(new Error('x')),
-        del: () => Promise.reject(new Error('x')),
-      });
-      expect(await failing.restoreClient()).toBeUndefined();
-      await failing.removeClient();
+      // Another release, or too old → dropped.
+      const other = createQueryClient();
+      await createQueryPersistence(backend, { buster: 'r2' }).restore(other);
+      expect(other.getQueryData(queryKeys.bundle(A, 1))).toBeUndefined();
+      expect(await backend.entries()).toHaveLength(0);
+      // A broken store is just no cache.
+      const failing = createQueryPersistence(
+        {
+          get: () => Promise.reject(new Error('x')),
+          set: () => Promise.reject(new Error('x')),
+          del: () => Promise.reject(new Error('x')),
+          entries: () => Promise.reject(new Error('x')),
+          setMany: () => Promise.reject(new Error('x')),
+          delMany: () => Promise.reject(new Error('x')),
+        },
+        { buster: 'r1' },
+      );
+      await failing.restore(createQueryClient());
+      const stopFailing = failing.start(client);
+      client.setQueryData(queryKeys.bundle(A, 1), { status: 'suspended', v: 1 });
+      await vi.advanceTimersByTimeAsync(1000);
+      stopFailing();
     } finally {
       vi.useRealTimers();
     }

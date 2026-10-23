@@ -102,6 +102,9 @@ describe('createDeviceStore', () => {
       get: () => Promise.reject(new Error('blocked')),
       set: () => Promise.reject(new Error('quota')),
       del: () => Promise.reject(new Error('blocked')),
+      entries: () => Promise.reject(new Error('blocked')),
+      setMany: () => Promise.reject(new Error('quota')),
+      delMany: () => Promise.reject(new Error('blocked')),
     };
     const store = createDeviceStore(broken, 'hi');
     expect((await store.load()).state.locale).toBe('hi');

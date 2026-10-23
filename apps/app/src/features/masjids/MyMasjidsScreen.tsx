@@ -21,10 +21,10 @@ import {
 import { KeyboardIcon, MinusIcon, PlusIcon } from '@mc/ui/icons';
 import { haptic } from '@mc/ui/motion';
 import { Screen, useNavigator } from '@mc/ui/navigation';
-import { useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 
 import { useNow } from '../../lib/clock.ts';
-import { useAppData, useDeviceState } from '../../lib/data.tsx';
+import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
 import { MAX_FOLLOWS, visibleFollows } from '../../lib/device/store.ts';
 import { masjidName, masjidPlace } from '../../lib/masjid.ts';
 import { mediaUrl } from '../../lib/media.ts';
@@ -41,14 +41,19 @@ export function MyMasjidsScreen() {
   const toast = useToast();
   const now = useNow();
   const { store, sync } = useAppData();
-  const device = useDeviceState();
+  const deviceFollows = useDeviceSelector((state) => state.follows);
+  const updatesSeenAt = useDeviceSelector((state) => state.updatesSeenAt);
   const data = useHomeData();
   const [editing, setEditing] = useState(false);
   const [adding, setAdding] = useState(false);
   const [menuFor, setMenuFor] = useState<string | null>(null);
   const [confirmFor, setConfirmFor] = useState<string | null>(null);
+  const enterEditing = useCallback(() => {
+    haptic('impactLight');
+    setEditing(true);
+  }, []);
 
-  const follows = useMemo(() => visibleFollows(device.follows), [device.follows]);
+  const follows = useMemo(() => visibleFollows(deviceFollows), [deviceFollows]);
   const followedAt = useMemo(() => new Map(follows.map((follow) => [follow.masjidId, follow.followedAt])), [follows]);
   const views = useMemo(
     () => data.masjids.map((masjid) => (masjid.state === 'active' ? prayerView(masjid.bundle, now) : null)),
@@ -206,13 +211,10 @@ export function MyMasjidsScreen() {
                     highlighted={index === soonest}
                     unseen={unseenCount(
                       data.itemsByMasjid.get(masjid.id) ?? [],
-                      device.updatesSeenAt,
+                      updatesSeenAt,
                       followedAt.get(masjid.id) ?? '',
                     )}
-                    onLongPress={() => {
-                      haptic('impactLight');
-                      setEditing(true);
-                    }}
+                    onLongPress={enterEditing}
                   />
                 </li>
               ))}
@@ -309,7 +311,8 @@ export function MyMasjidsScreen() {
   );
 }
 
-function Row({
+/** Memoised list row (see HomeMasjidCard). */
+const Row = memo(function Row({
   masjid,
   view,
   highlighted,
@@ -360,4 +363,4 @@ function Row({
       onLongPress={onLongPress}
     />
   );
-}
+});

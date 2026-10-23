@@ -89,6 +89,10 @@ export interface KeyValueBackend {
   get(key: string): Promise<unknown>;
   set(key: string, value: unknown): Promise<void>;
   del(key: string): Promise<void>;
+  /** Every stored entry (the query cache restores from these). */
+  entries(): Promise<readonly (readonly [string, unknown])[]>;
+  setMany(entries: readonly (readonly [string, unknown])[]): Promise<void>;
+  delMany(keys: readonly string[]): Promise<void>;
 }
 
 /** An in-memory backend (tests; fallback when IndexedDB is unavailable — 00 §7 "app still works without persistence"). */
@@ -102,6 +106,15 @@ export function memoryBackend(initial: Readonly<Record<string, unknown>> = {}): 
     },
     del: (key) => {
       values.delete(key);
+      return Promise.resolve();
+    },
+    entries: () => Promise.resolve([...values].map(([key, value]) => [key, structuredClone(value)] as const)),
+    setMany: (entries) => {
+      for (const [key, value] of entries) values.set(key, structuredClone(value));
+      return Promise.resolve();
+    },
+    delMany: (keys) => {
+      for (const key of keys) values.delete(key);
       return Promise.resolve();
     },
   };
@@ -170,7 +183,10 @@ export function createDeviceStore(backend: KeyValueBackend, fallbackLocale: Loca
       }),
     update: (change) =>
       serial(async () => {
-        const next = stateSchema.parse(change(state));
+        const next = change(state);
+        // Validate, but keep the candidate: parsing returns a deep copy, and fresh references for unchanged parts
+        // (the follows) would re-render every screen subscribed to them (T2.10 fling trace).
+        stateSchema.parse(next);
         await save(next);
         publish(next);
         return next;

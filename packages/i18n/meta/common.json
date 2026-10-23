@@ -303,5 +303,17 @@
   },
   "masjids.reorder": {
     "context": "Screen-reader name of the drag handle; {name} is the masjid name"
+  },
+  "updates.hadith": {
+    "context": "Filter chip on the Updates screen",
+    "maxLength": 18
+  },
+  "updates.donations": {
+    "context": "Filter chip: donation campaigns",
+    "maxLength": 14
+  },
+  "updates.new": {
+    "context": "Screen-reader text for the dot on an unseen update",
+    "maxLength": 12
   }
 }

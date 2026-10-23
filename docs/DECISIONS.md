@@ -1040,6 +1040,31 @@ path, #14) and desktop browsers have no native QR detector; Android Chrome has. 
 - F43 part 2 done: `@mc/ui/icons/glyphs.tsx` is a barrel over one module per glyph, so icons used only by lazy screens
   stay out of the entry (−2.1 kB).
 
+### #99 — Updates, and what its fling trace changed underneath (PHASE_02 T2.10) — ACCEPTED (Claude Code, 24 Oct 2026)
+**Decision:**
+- **Merge:** each followed masjid's feed is paged on its own (first page shared with Home's cache, later pages by
+  cursor). `mergeTimeline` shows an item only when it is not older than any unfinished masjid's oldest loaded item, and
+  `loadMore` pages exactly those masjids — the list is always in true time order (e2e checks it against the API with
+  3-item pages).
+- **Chips** = All + the item types present in the followed masjids' first pages (new types appear by themselves).
+- **Long lists:** rows use `content-visibility: auto` (the browser skips off-screen rows) instead of JS windowing; the
+  fling trace passes with 30 rows at 4× CPU. Revisit with real-device data (O16) if lists grow into the hundreds.
+- **Seen:** dots compare with the last visit as it was when the screen opened; after 1.5 s on screen the device's
+  `updatesSeenAt` is set — written in `requestIdleCallback`, never mid-fling. Badge count lives in a tiny store in the
+  entry (`lib/unseen.ts`), computed by Home's bell.
+- **Performance fixes found by the trace** (each a real low-end-phone cost, not a test artifact):
+  1. **Query cache persistence is per query** (`q:<hash>` entries, `createQueryPersistence`): the previous whole-cache
+     persister re-serialised everything on every change (each versions poll), 120–490 ms at 4× CPU.
+     `@tanstack/react-query-persist-client` removed; the cache is restored together with the device document before the
+     first render; entries of another release or > 30 days are dropped.
+  2. **IST conversions by arithmetic** (`calendarDateInZone` / `wallClockInZone` — IST is UTC+05:30, no DST); other zones
+     use cached formatters. A new `Intl.DateTimeFormat` per call dominated prayer and timeline work.
+  3. **`useDeviceSelector`** — screens subscribe to the field they use; and the device store publishes the validated
+     candidate instead of Zod's deep copy, so unchanged parts (the follows) keep their identity.
+  4. Long lists are memoised with identity comparators (`lib/same.ts`); Home's bell is its own component.
+- **Perf project** runs without Playwright's trace (its DOM snapshots run inside the page and showed up as long tasks);
+  flings are synthesised natively (`Input.synthesizeScrollGesture`), not with `mouse.wheel` (which waits in the page).
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

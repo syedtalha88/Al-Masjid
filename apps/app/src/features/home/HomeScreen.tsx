@@ -4,16 +4,18 @@
 // once a minute (and at midnight), so prayer, Hijri date and cards roll over without a reload.
 import { effectiveHijriOffset, hijriForInstant } from '@mc/domain/hijri';
 import { useHijriLabel, useLocale, useTranslation } from '@mc/i18n/react';
+import type { FeedItem } from '@mc/shared/contracts/public';
 import { QrPosterIllustration } from '@mc/ui';
 import { Button, Card, Carousel, EmptyState, IconButton, PullToRefresh, SectionHeader } from '@mc/ui/components';
 import { BellIcon, CompassIcon, KeyboardIcon } from '@mc/ui/icons';
 import { Screen, useNavigator } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { configQuery } from '../../lib/api/queries.ts';
 import { useNow } from '../../lib/clock.ts';
-import { useAppData, useDeviceState } from '../../lib/data.tsx';
+import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
+import { setUnseenCount } from '../../lib/unseen.ts';
 import { ItemList } from '../content/ItemList.tsx';
 import { HomeMasjidCard } from './components/HomeMasjidCard.tsx';
 import { EidCard, RamadanCard } from './components/SeasonCards.tsx';
@@ -27,7 +29,6 @@ export function HomeScreen() {
   const navigator = useNavigator();
   const now = useNow();
   const { api } = useAppData();
-  const { updatesSeenAt } = useDeviceState();
   const config = useQuery(configQuery(api));
   const data = useHomeData();
 
@@ -41,14 +42,17 @@ export function HomeScreen() {
 
   // Date line: today in IST · the Hijri date of the first followed masjid (its offset, its Maghrib rollover).
   const first = active[0];
-  const hijri = hijriForInstant(
-    now,
-    first ? (prayerView(first, now)?.maghrib ?? null) : null,
-    effectiveHijriOffset(first?.masjid.hijriOffset, config.data?.globalHijriOffset ?? 0),
+  const globalOffset = config.data?.globalHijriOffset ?? 0;
+  const hijri = useMemo(
+    () =>
+      hijriForInstant(
+        now,
+        first ? (prayerView(first, now)?.maghrib ?? null) : null,
+        effectiveHijriOffset(first?.masjid.hijriOffset, globalOffset),
+      ),
+    [first, now, globalOffset],
   );
   const lead = [format.date(now, 'weekday'), hijri ? hijriLabel(hijri.hijri) : null].filter(Boolean).join(' · ');
-  const unseen = hasUnseen(data.recent, updatesSeenAt);
-
   return (
     <Screen
       variant="large"
@@ -66,23 +70,7 @@ export function HomeScreen() {
               navigator.presentModal('/qibla');
             }}
           />
-          <IconButton
-            label={unseen ? t('home.updatesNew') : t('home.updates')}
-            icon={
-              <span className="relative inline-flex">
-                <BellIcon />
-                {unseen ? (
-                  <span
-                    data-unseen-dot
-                    className="absolute -end-0.5 -top-0.5 size-2.5 rounded-full border-2 border-bg bg-danger"
-                  />
-                ) : null}
-              </span>
-            }
-            onPress={() => {
-              navigator.selectTab('updates');
-            }}
-          />
+          <HomeBell recent={data.recent} itemsByMasjid={data.itemsByMasjid} />
         </>
       }
     >
@@ -165,5 +153,52 @@ export function HomeScreen() {
         )}
       </PullToRefresh>
     </Screen>
+  );
+}
+
+/**
+ * The bell (unseen dot → Updates) and the Updates tab badge count. Its own component: marking items seen re-renders
+ * only this, not Home (08 §8 — the write happens while the person is on Updates).
+ */
+function HomeBell({
+  recent,
+  itemsByMasjid,
+}: {
+  readonly recent: readonly FeedItem[];
+  readonly itemsByMasjid: ReadonlyMap<string, readonly FeedItem[]>;
+}) {
+  const { t } = useTranslation();
+  const navigator = useNavigator();
+  const updatesSeenAt = useDeviceSelector((state) => state.updatesSeenAt);
+  const unseen = hasUnseen(recent, updatesSeenAt);
+  // The Updates tab badge: items of the followed masjids' first pages newer than the last Updates visit.
+  const unseenCount = useMemo(
+    () =>
+      [...itemsByMasjid.values()]
+        .flat()
+        .filter((item) => updatesSeenAt === undefined || item.publishedAt > updatesSeenAt).length,
+    [itemsByMasjid, updatesSeenAt],
+  );
+  useEffect(() => {
+    setUnseenCount(unseenCount);
+  }, [unseenCount]);
+  return (
+    <IconButton
+      label={unseen ? t('home.updatesNew') : t('home.updates')}
+      icon={
+        <span className="relative inline-flex">
+          <BellIcon />
+          {unseen ? (
+            <span
+              data-unseen-dot
+              className="absolute -end-0.5 -top-0.5 size-2.5 rounded-full border-2 border-bg bg-danger"
+            />
+          ) : null}
+        </span>
+      }
+      onPress={() => {
+        navigator.selectTab('updates');
+      }}
+    />
   );
 }

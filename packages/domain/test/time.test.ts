@@ -87,6 +87,20 @@ describe('calendar dates', () => {
     expect(wallClockInZone(new Date(Date.UTC(2026, 9, 22, 1, 33)))).toBe('07:03');
     expect(wallClockInZone(new Date(Date.UTC(2026, 9, 21, 18, 30)))).toBe('00:00'); // midnight is 00, not 24
   });
+
+  it('other zones go through (cached) Intl formatters and match the IST fast path where they agree', () => {
+    const instant = new Date(Date.UTC(2026, 8, 25, 20, 0));
+    for (let run = 0; run < 2; run += 1) {
+      // The second round reuses the cached formatters.
+      expect(calendarDateInZone(instant, 'UTC')).toBe('2026-09-25');
+      expect(wallClockInZone(instant, 'UTC')).toBe('20:00');
+      expect(calendarDateInZone(instant, 'America/New_York')).toBe('2026-09-25');
+      expect(wallClockInZone(instant, 'America/New_York')).toBe('16:00');
+    }
+    // Kolkata spelled out explicitly through Intl equals the arithmetic path.
+    expect(calendarDateInZone(instant, 'Asia/Calcutta')).toBe(calendarDateInZone(instant));
+    expect(wallClockInZone(instant, 'Asia/Calcutta')).toBe(wallClockInZone(instant));
+  });
 });
 
 describe('wall-clock times', () => {

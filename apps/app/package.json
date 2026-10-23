@@ -43,7 +43,6 @@
     "@mc/shared": "workspace:*",
     "@mc/ui": "workspace:*",
     "@tanstack/react-query": "5.104.1",
-    "@tanstack/react-query-persist-client": "5.104.1",
     "@tanstack/react-router": "1.170.41",
     "barcode-detector": "3.2.3",
     "idb-keyval": "6.3.0",

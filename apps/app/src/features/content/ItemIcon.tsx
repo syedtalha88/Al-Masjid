@@ -48,10 +48,10 @@ function iconOf(item: FeedItem): { readonly icon: ReactNode; readonly tone: Tone
   }
 }
 
-export function ItemIcon({ item }: { readonly item: FeedItem }) {
+export function ItemIcon({ item, size = 48 }: { readonly item: FeedItem; readonly size?: 44 | 48 }) {
   const { icon, tone } = iconOf(item);
   return (
-    <IconCircle tone={tone} size={48}>
+    <IconCircle tone={tone} size={size}>
       {icon}
     </IconCircle>
   );

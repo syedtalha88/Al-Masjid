@@ -14,6 +14,7 @@ import {
 import { useRouter } from '@tanstack/react-router';
 import { useEffect, useMemo } from 'react';
 
+import { useUnseenCount } from '../lib/unseen.ts';
 import { NotFoundScreen } from './NotFoundScreen.tsx';
 import { RouteError } from './RouteError.tsx';
 import { RoutePending } from './RoutePending.tsx';
@@ -65,6 +66,7 @@ export function AppNavigator() {
 /** Home · My Masjids · [Scan] · Updates · Settings (06 §6). */
 function MusalliTabBar({ api }: { readonly api: NavigatorApi }) {
   const { t } = useTranslation();
+  const unseen = useUnseenCount();
   return (
     <TabBar
       api={api}
@@ -74,7 +76,7 @@ function MusalliTabBar({ api }: { readonly api: NavigatorApi }) {
         { id: 'masjids', label: t('tabs.myMasjids'), Icon: MasjidsIcon },
       ]}
       end={[
-        { id: 'updates', label: t('tabs.updates'), Icon: UpdatesIcon },
+        { id: 'updates', label: t('tabs.updates'), Icon: UpdatesIcon, ...(unseen > 0 ? { badge: unseen } : {}) },
         { id: 'settings', label: t('tabs.settings'), Icon: SettingsIcon },
       ]}
       scan={{ label: t('tabs.scan'), href: '/scan' }}

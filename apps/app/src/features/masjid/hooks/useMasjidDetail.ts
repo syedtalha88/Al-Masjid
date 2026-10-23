@@ -5,7 +5,7 @@ import { useQueries, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { bundleQuery, feedQuery, versionsQuery } from '../../../lib/api/queries.ts';
-import { useAppData, useDeviceState } from '../../../lib/data.tsx';
+import { useAppData, useDeviceSelector } from '../../../lib/data.tsx';
 import type { LocalFollow } from '../../../lib/device/store.ts';
 import { useHomeData } from '../../home/hooks/useHomeData.ts';
 import { SECTION_TYPES } from '../lib/detail-view.ts';
@@ -25,10 +25,11 @@ export interface MasjidDetailData {
 
 export function useMasjidDetail(masjidId: string): MasjidDetailData {
   const { api } = useAppData();
-  const device = useDeviceState();
+  const follows = useDeviceSelector((state) => state.follows);
+  const audiencePref = useDeviceSelector((state) => state.audiencePref);
   const home = useHomeData();
   const followed = home.masjids.find((entry) => entry.id === masjidId);
-  const follow = device.follows.find((entry) => entry.masjidId === masjidId && entry.sync !== 'unfollow') ?? null;
+  const follow = follows.find((entry) => entry.masjidId === masjidId && entry.sync !== 'unfollow') ?? null;
 
   // Not followed (opened from a link): its own version + bundle.
   const versions = useQuery({ ...versionsQuery(api, [masjidId]), enabled: followed === undefined });
@@ -50,7 +51,7 @@ export function useMasjidDetail(masjidId: string): MasjidDetailData {
   })();
 
   const active = masjid.state === 'active' ? masjid.bundle : null;
-  const audience = device.audiencePref ?? 'brothers';
+  const audience = audiencePref ?? 'brothers';
   const feeds = useQueries({
     queries: SECTION_TYPES.map((type) => ({
       ...feedQuery(api, masjidId, active?.v ?? 0, audience, type),

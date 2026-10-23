@@ -6,7 +6,7 @@ import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
 import { bundleQuery, feedQuery, templatesQuery } from '../../../lib/api/queries.ts';
-import { useAppData, useDeviceState, useFollowedIds } from '../../../lib/data.tsx';
+import { useAppData, useDeviceSelector, useFollowedIds } from '../../../lib/data.tsx';
 import { useMasjidVersions } from '../../../lib/versions.ts';
 import { mergeRecent } from '../lib/home-view.ts';
 
@@ -37,7 +37,7 @@ export function useHomeData(): HomeData {
   const { api } = useAppData();
   const queryClient = useQueryClient();
   const ids = useFollowedIds();
-  const { audiencePref } = useDeviceState();
+  const audiencePref = useDeviceSelector((state) => state.audiencePref);
   const { versions, failed, refresh } = useMasjidVersions();
   const audience = audiencePref ?? 'brothers';
   useQuery(templatesQuery(api)); // template titles for notices (cached for an hour)

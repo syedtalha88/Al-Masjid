@@ -64,6 +64,7 @@ export { type Segment, SegmentedControl, type SegmentedControlProps } from './Se
 export { Sheet, type SheetProps, type SheetSnap } from './Sheet.tsx';
 export { Skeleton, SkeletonGroup, type SkeletonProps, SkeletonText } from './Skeleton.tsx';
 export { Spinner, type SpinnerProps } from './Spinner.tsx';
+export { TimelineList, type TimelineRow } from './TimelineList.tsx';
 export { TimeWheel, type TimeWheelProps } from './TimeWheel.tsx';
 export {
   DateStepper,

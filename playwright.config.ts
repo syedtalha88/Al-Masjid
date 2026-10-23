@@ -65,7 +65,9 @@ export default defineConfig({
     },
     // Performance traces (08 §8): Chromium with CPU throttling, run alone (`pnpm test:perf`, one worker) —
     // parallel workers compete for the CPU and make timings meaningless.
-    { name: 'perf', use: { ...devices['Pixel 7'] }, testMatch: /\.perf\.spec\.ts$/ },
+    // No Playwright trace here: its DOM snapshots run inside the page and would show up as long tasks in the
+    // measurement (the perf fixture records its own Chrome trace).
+    { name: 'perf', use: { ...devices['Pixel 7'], trace: 'off' }, testMatch: /\.perf\.spec\.ts$/ },
   ],
 });
 

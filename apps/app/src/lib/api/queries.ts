@@ -38,6 +38,21 @@ export const feedQuery = (api: ApiClient, masjidId: string, v: number, aud: 'bro
     staleTime: Number.POSITIVE_INFINITY,
   });
 
+/** A later feed page (Updates infinite scroll): the first page's key plus the cursor — pruned with its version. */
+export const feedPageQuery = (
+  api: ApiClient,
+  masjidId: string,
+  v: number,
+  aud: 'brothers' | 'sisters',
+  type: ItemType | undefined,
+  cursor: string,
+) =>
+  queryOptions({
+    queryKey: [...queryKeys.feed(masjidId, v, aud, type), cursor] as const,
+    queryFn: ({ signal }) => api.feed(masjidId, { v, aud, cursor, ...(type ? { type } : {}) }, signal),
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+
 export const configQuery = (api: ApiClient) =>
   queryOptions({ queryKey: queryKeys.config(), queryFn: ({ signal }) => api.config(signal), staleTime: 60_000 });
 

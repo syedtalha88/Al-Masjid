@@ -1,7 +1,6 @@
 // The app's data context (T2.3): device store (IndexedDB), API client, persisted TanStack Query cache, versions
 // poller, registration retry queue and follow reconciliation. Screens use the hooks; nothing here renders UI.
-import type { QueryClient } from '@tanstack/react-query';
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createContext, type ReactNode, use, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 
 import { type ApiClient, createApiClient } from './api/client.ts';
@@ -10,13 +9,7 @@ import { DEVICE_DB, idbBackend, QUERY_CACHE_DB } from './device/idb.ts';
 import { createDeviceStore, type DeviceState, type DeviceStore, visibleFollows } from './device/store.ts';
 import type { SyncDeps } from './device/sync.ts';
 import { platformKind } from './platform.ts';
-import {
-  appRelease,
-  CACHE_MAX_AGE_MS,
-  createPersister,
-  createQueryClient,
-  shouldPersistQuery,
-} from './query/persist.ts';
+import { appRelease, CACHE_MAX_AGE_MS, createQueryClient, createQueryPersistence } from './query/persist.ts';
 
 export interface AppData {
   readonly store: DeviceStore;
@@ -83,16 +76,21 @@ export function DataProvider({
   readonly fallback?: ReactNode;
 }) {
   const [loaded, setLoaded] = useState(false);
-  const persister = useMemo(() => createPersister(idbBackend(QUERY_CACHE_DB)), []);
+  const persistence = useMemo(
+    () => createQueryPersistence(idbBackend(QUERY_CACHE_DB), { buster: appRelease(), maxAgeMs: CACHE_MAX_AGE_MS }),
+    [],
+  );
+  // The device document and the cached queries load together before the first render (offline-first).
   useEffect(() => {
     let active = true;
-    void data.store.load().then(() => {
+    void Promise.all([data.store.load(), persistence.restore(data.queryClient)]).then(() => {
       if (active) setLoaded(true);
     });
     return () => {
       active = false;
     };
-  }, [data.store]);
+  }, [data.store, data.queryClient, persistence]);
+  useEffect(() => (loaded ? persistence.start(data.queryClient) : undefined), [loaded, persistence, data.queryClient]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -116,17 +114,7 @@ export function DataProvider({
   if (!loaded) return <>{fallback}</>;
   return (
     <DataContext value={data}>
-      <PersistQueryClientProvider
-        client={data.queryClient}
-        persistOptions={{
-          persister,
-          maxAge: CACHE_MAX_AGE_MS,
-          buster: appRelease(),
-          dehydrateOptions: { shouldDehydrateQuery: shouldPersistQuery },
-        }}
-      >
-        {children}
-      </PersistQueryClientProvider>
+      <QueryClientProvider client={data.queryClient}>{children}</QueryClientProvider>
     </DataContext>
   );
 }
@@ -139,6 +127,20 @@ export function useAppData(): AppData {
 }
 
 /** The device document, re-rendering on every change. */
+/**
+ * One slice of the device document; the component re-renders only when that slice changes (by identity). Select a
+ * field (primitives, or arrays the store keeps when untouched) — not a new object.
+ */
+export function useDeviceSelector<T>(select: (state: DeviceState) => T): T {
+  const { store } = useAppData();
+  return useSyncExternalStore(
+    store.subscribe,
+    () => select(store.current()),
+    () => select(store.current()),
+  );
+}
+
+/** The whole device document — re-renders on any change; prefer `useDeviceSelector` in screens. */
 export function useDeviceState(): DeviceState {
   const { store } = useAppData();
   return useSyncExternalStore(store.subscribe, store.current, store.current);
@@ -146,6 +148,6 @@ export function useDeviceState(): DeviceState {
 
 /** Followed masjid ids in the user's order (pending unfollows hidden). */
 export function useFollowedIds(): readonly string[] {
-  const { follows } = useDeviceState();
+  const follows = useDeviceSelector((state) => state.follows);
   return useMemo(() => visibleFollows(follows).map((follow) => follow.masjidId), [follows]);
 }
