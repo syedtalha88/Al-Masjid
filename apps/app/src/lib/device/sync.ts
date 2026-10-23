@@ -33,8 +33,15 @@ export async function ensureRegistered(deps: SyncDeps): Promise<RegistrationResu
   const state = deps.store.current();
   if (state.credentials) return 'already';
   if (!state.audiencePref || !state.privacyVersion) return 'not-ready';
+  let token: string;
   try {
-    const token = await deps.turnstileToken();
+    token = await deps.turnstileToken();
+  } catch {
+    // No token now (offline, Cloudflare unreachable, the check failed): try again later.
+    await deps.store.update((current) => ({ ...current, registrationPending: true }));
+    return 'deferred';
+  }
+  try {
     const { deviceId, secret } = await deps.api.register({
       locale: state.locale,
       audiencePref: state.audiencePref,

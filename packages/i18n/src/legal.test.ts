@@ -24,4 +24,11 @@ describe('legal documents (09 §9)', () => {
       expect(doc.points).toHaveLength(en?.points.length ?? -1);
     }
   });
+
+  it('the privacy notice is a draft whose version matches the server seed; other locales fall back to English', async () => {
+    const en = await loadLegalDoc('privacy', 'en');
+    expect(en).toMatchObject({ version: 'draft-1', status: 'draft' });
+    expect(en.points.length).toBeGreaterThan(5);
+    expect(await loadLegalDoc('privacy', 'te')).toEqual(en);
+  });
 });

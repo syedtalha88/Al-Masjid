@@ -63,6 +63,12 @@ export interface PerfTrace {
 export interface McFixtures {
   /** UI language for the test (`test.use({ appLocale: 'ur' })`); unset = the app's own detection. */
   appLocale: AppLocale | undefined;
+  /**
+   * The musalli app's device store before the page loads (T2.4): `onboarded` (default — specs of the app shell skip
+   * onboarding) or `fresh` (first launch: onboarding). The seeded device has accepted no privacy version, so it never
+   * registers (no API traffic).
+   */
+  appDevice: 'onboarded' | 'fresh';
   /** CSP violations seen so far; the test fails at teardown unless this is empty (T0.5, 04 §7). */
   cspViolations: string[];
   /** Fails with a readable list when axe (WCAG 2.1 AA) finds any violation. Waits for motion to settle first. */
@@ -100,8 +106,47 @@ export async function axeViolations(page: Page, { include, exclude = [], disable
 
 export const test = base.extend<McFixtures>({
   appLocale: [undefined, { option: true }],
+  appDevice: ['onboarded', { option: true }],
 
-  context: async ({ context, appLocale }, use) => {
+  context: async ({ context, appLocale, appDevice }, use) => {
+    if (appDevice === 'onboarded') {
+      // IndexedDB `mc-device` / `kv` / `device` (apps/app/src/lib/device). This transaction is created before the app's
+      // own read (its open request is first), so the app always sees the seeded document.
+      await context.addInitScript((locale: string) => {
+        try {
+          const open = indexedDB.open('mc-device');
+          open.onupgradeneeded = () => {
+            open.result.createObjectStore('kv');
+          };
+          open.onsuccess = () => {
+            const db = open.result;
+            if (!db.objectStoreNames.contains('kv')) return;
+            const store = db.transaction('kv', 'readwrite').objectStore('kv');
+            const existing = store.get('device');
+            existing.onsuccess = () => {
+              if (existing.result !== undefined) return;
+              store.put(
+                {
+                  version: 1,
+                  locale,
+                  audiencePref: 'brothers',
+                  onboardedAt: '2026-01-01T00:00:00.000Z',
+                  registrationPending: false,
+                  follows: [],
+                  saved: [],
+                  ameens: [],
+                  pendingAmeens: [],
+                  settings: { vibration: true, arabicScale: 1, transliteration: true },
+                },
+                'device',
+              );
+            };
+          };
+        } catch {
+          // Opaque origins (about:blank) have no IndexedDB.
+        }
+      }, appLocale ?? 'en');
+    }
     if (appLocale !== undefined) {
       // Only when nothing is stored yet, so a test that switches language keeps its choice across reloads.
       await context.addInitScript(

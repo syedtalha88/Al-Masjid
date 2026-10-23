@@ -8,6 +8,12 @@
 /** Same-origin script URLs that may be loaded as workers. */
 export const ALLOWED_SCRIPT_PATHS: readonly string[] = ['/sw.js'];
 
+/**
+ * The only third-party script (04 §11): Cloudflare Turnstile, exact URL, loaded by the musalli app only with a real
+ * site key (test keys never load it — DECISIONS #93). The CSP also allows only this host in `script-src`.
+ */
+export const TURNSTILE_SCRIPT_URL = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+
 /** The part of the Trusted Types API we use (typed locally: not every TS DOM lib ships it). */
 interface PolicyOptions {
   createHTML?: (input: string, ...args: unknown[]) => string | null | undefined;
@@ -58,6 +64,7 @@ export function installTrustedTypes({ dev, scope }: TrustedTypesOptions): boolea
       } catch {
         return reject('script URL', sink);
       }
+      if (url.href === TURNSTILE_SCRIPT_URL) return url.href;
       const base = new URL(target.location.href);
       const allowed = url.origin === base.origin && url.search === '' && ALLOWED_SCRIPT_PATHS.includes(url.pathname);
       return allowed ? url.pathname : reject('script URL', sink);

@@ -48,6 +48,8 @@ export const tween = {
   /** SuccessCheck: circle draw, then check draw (08 §5.8). */
   drawCircle: { duration: 0.35, ease: 'easeOut' },
   drawCheck: { duration: 0.25, ease: 'easeOut', delay: 0.35 },
+  /** Onboarding welcome illustration: line draw-in once (08 §5.11). */
+  drawIn: { duration: 1.2, ease: [0.32, 0.72, 0, 1] },
 } as const satisfies Record<string, Transition>;
 
 /** CSS-only transitions (banners, skeleton → content, image fade-in). */

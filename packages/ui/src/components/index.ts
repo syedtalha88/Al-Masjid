@@ -39,6 +39,7 @@ export {
 } from './Install.tsx';
 export { ListRow, type ListRowProps } from './ListRow.tsx';
 export { applyPadKey, MAX_PAISE, NumberPad, type NumberPadProps } from './NumberPad.tsx';
+export { Pager, type PagerProps } from './Pager.tsx';
 export { DatePickerSheet, type DatePickerSheetProps, Select, type SelectOption, type SelectProps } from './Pickers.tsx';
 export { ProgressBar, type ProgressBarProps } from './ProgressBar.tsx';
 export { RadioCardGroup, type RadioCardGroupProps, type RadioCardOption } from './RadioCard.tsx';

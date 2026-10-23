@@ -1,0 +1,98 @@
+{
+  "progress": {
+    "context": "Screen-reader text for the onboarding progress dots; {current}/{total} are numbers"
+  },
+  "next": {
+    "context": "Primary button that moves to the next onboarding page",
+    "maxLength": 24
+  },
+  "back": {
+    "context": "Back button on onboarding pages",
+    "maxLength": 16
+  },
+  "welcome.title": {
+    "context": "Greeting on the first onboarding page",
+    "maxLength": 30
+  },
+  "welcome.body": {
+    "context": "One line under the greeting"
+  },
+  "welcome.start": {
+    "context": "Button that starts onboarding",
+    "maxLength": 24
+  },
+  "language.hint": {
+    "context": "Small note under the four language cards"
+  },
+  "audience.title": {
+    "context": "Question above the Brother / Sister cards"
+  },
+  "audience.brother": {
+    "context": "Card: the user is a man",
+    "maxLength": 16
+  },
+  "audience.sister": {
+    "context": "Card: the user is a woman",
+    "maxLength": 16
+  },
+  "audience.help": {
+    "context": "Why the app asks (07 A1); reassuring, short"
+  },
+  "privacy.title": {
+    "context": "Privacy summary page title (05 §2)",
+    "maxLength": 32
+  },
+  "privacy.noAccount": {
+    "context": "Privacy row 1"
+  },
+  "privacy.location": {
+    "context": "Privacy row 2"
+  },
+  "privacy.stored": {
+    "context": "Privacy row 3 — exactly what the server stores (05 §2); keep every item"
+  },
+  "privacy.policy": {
+    "context": "Link to the full privacy policy",
+    "maxLength": 24
+  },
+  "privacy.grievance": {
+    "context": "Link to the grievance officer details",
+    "maxLength": 24
+  },
+  "privacy.draft": {
+    "context": "Badge on the draft privacy policy (05 §10)"
+  },
+  "privacy.offline": {
+    "context": "Shown when the app could not register yet (offline); not an error"
+  },
+  "masjid.title": {
+    "context": "Onboarding page 5 title"
+  },
+  "masjid.body": {
+    "context": "Explains the masjid poster QR and the code under it"
+  },
+  "masjid.scan": {
+    "context": "Primary button opening the camera scanner",
+    "maxLength": 24
+  },
+  "masjid.code": {
+    "context": "Button to type the follow code",
+    "maxLength": 24
+  },
+  "masjid.later": {
+    "context": "Skip adding a masjid now",
+    "maxLength": 16
+  },
+  "install.title": {
+    "context": "Install page title"
+  },
+  "install.body": {
+    "context": "Why to install"
+  },
+  "followed": {
+    "context": "Toast after following the masjid from the link that opened the app; {name} = masjid name"
+  },
+  "followFailed": {
+    "context": "Toast when the masjid from the link could not be added (offline / not found)"
+  }
+}

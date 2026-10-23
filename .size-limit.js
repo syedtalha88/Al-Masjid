@@ -10,9 +10,10 @@ import { join } from 'node:path';
 /**
  * Musalli `/`: 175 kB — 01 §9 says 170 kB; the offline data layer (validated contracts, device store, persisted cache,
  * T2.3) needs +5.8 kB even after dropping the ICU parser and moving to Zod Mini (DECISIONS #92, owner rule "quality
- * over bundle size"). Earlier: Phase 00 220 kB (#47), back to 170 kB with F23.
+ * over bundle size"); 176 kB since T2.4 (onboarding gate + shared-chunk split, +0.3 kB). Earlier: Phase 00 220 kB
+ * (#47), back to 170 kB with F23.
  */
-const APP_INITIAL_JS = '175 kB';
+const APP_INITIAL_JS = '176 kB';
 const ADMIN_INITIAL_JS = '220 kB';
 const INITIAL_CSS = '25 kB';
 const LAZY_CHUNK = '60 kB';

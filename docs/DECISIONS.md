@@ -896,6 +896,29 @@ Report corrections R1–R9 applied.
   the owner) — the owner may ask for the 170 kB to be restored (next lever: split the contracts so late endpoints'
   schemas load with their screens).
 
+### #93 — Onboarding flow, Turnstile on the client and the e2e device fixture (PHASE_02 T2.4) — ACCEPTED (Claude Code, 23 Oct 2026; size raise to be confirmed by the owner)
+**Decision:**
+- **Gate:** until `onboardedAt` is set the app shows A1 (lazy chunk) instead of the tabs (`AppGate`). Opened from
+  `/m/:code` the "add your first masjid" page is skipped; the code is only shape-checked on the client (the resolve
+  endpoint normalises/validates it) and that masjid is followed after onboarding with a toast. While A1 shows (online)
+  the tab screens, the privacy text, `sync.ts` and `turnstile.ts` are prefetched so finishing offline still works
+  (Playwright WebKit has no service worker to fall back on).
+- **Pager** (`@mc/ui/components`, 08 §5.11): full-width pages, horizontal swipe with axis lock, forward only when the
+  page allows it (a required choice), hidden pages `inert` + `aria-hidden`, slide → instant switch under reduced motion.
+  Motion helpers `crossfadeIn` / `drawStrokesIn` + token `tween.drawIn`.
+- **Turnstile:** loaded lazily at registration. Cloudflare's documented **test site keys never load any script** —
+  `1x`/`3x` resolve the documented dummy token, `2x` fails — so local/CI/staging (before O8) send no request to Cloudflare;
+  production refuses test secrets at boot (#59). A real key loads exactly `TURNSTILE_SCRIPT_URL` (allowed by the Trusted
+  Types policy and CSP) and runs an invisible `interaction-only` widget with a 30 s timeout. No token (offline,
+  unreachable, failed) → registration is **deferred** (`registrationPending`) and retried by the queue (#92); onboarding
+  never blocks on it.
+- **Privacy notice** (A1 page 4): `packages/i18n/legal/en/privacy.md` **draft-1** (English only, like the other legal
+  drafts — legal text is the owner's/lawyer's to finalise, 05); the accepted version is stored on the device.
+- **e2e fixture:** `appDevice` option — `'onboarded'` (default) seeds the IndexedDB device document before the app reads
+  it, so every other spec starts at Home; `'fresh'` gives a first launch.
+- **Bundle:** initial JS **175.3 kB** (the lazy-chunk split moved a shared chunk into the entry); `pnpm size` limit
+  176 kB under "quality over bundle size" — the owner may ask for 175/170 kB back.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (22 Oct 2026)._

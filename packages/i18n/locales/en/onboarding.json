@@ -1,0 +1,42 @@
+{
+  "progress": "Step {current} of {total}",
+  "next": "Continue",
+  "back": "Back",
+  "welcome": {
+    "title": "Assalamu Alaikum",
+    "body": "Stay connected with your masjids.",
+    "start": "Get started"
+  },
+  "language": {
+    "hint": "You can change it anytime in Settings."
+  },
+  "audience": {
+    "title": "Who is using this app?",
+    "brother": "Brother",
+    "sister": "Sister",
+    "help": "Used only to show bayans meant for you. Saved on this phone. You can change it anytime in Settings."
+  },
+  "privacy": {
+    "title": "Privacy at a glance",
+    "noAccount": "No account. No name or phone number.",
+    "location": "Your location never leaves your phone.",
+    "stored": "We store only: a random app ID, your language, brother/sister choice, the masjids you follow and a notification token.",
+    "policy": "Privacy Policy",
+    "grievance": "Grievance Officer",
+    "draft": "Draft — under legal review",
+    "offline": "You’re offline. The app will finish setting up when you’re back online."
+  },
+  "masjid": {
+    "title": "Add your first masjid",
+    "body": "Scan the QR code on the poster at your masjid, or type the code written under it.",
+    "scan": "Scan masjid QR",
+    "code": "Enter code",
+    "later": "Later"
+  },
+  "install": {
+    "title": "Keep the app on your phone",
+    "body": "Install it to open it from your home screen, even without internet."
+  },
+  "followed": "You now follow {name}.",
+  "followFailed": "We couldn’t add that masjid right now. Open the link again when you’re online."
+}

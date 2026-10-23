@@ -108,6 +108,9 @@ describe('ensureRegistered', () => {
     expect(await ensureRegistered(deps)).toBe('deferred');
     server.use(http.post(`${BASE}/devices`, () => problem(400, 'VALIDATION_FAILED')));
     await expect(ensureRegistered(deps)).rejects.toThrow();
+    // No Turnstile token (offline, widget failed): deferred, nothing sent.
+    const failing = { ...deps, turnstileToken: () => Promise.reject(new Error('no token')) };
+    expect(await ensureRegistered(failing)).toBe('deferred');
   });
 });
 

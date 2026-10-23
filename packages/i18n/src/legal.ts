@@ -2,7 +2,7 @@
 // admin undertaking (07 B2), a plain bullet list. Each file is its own lazy chunk; a device downloads its locale only.
 import { DEFAULT_LOCALE, type Locale } from './locales.ts';
 
-export type LegalDocName = 'undertaking';
+export type LegalDocName = 'undertaking' | 'privacy';
 
 export interface LegalDoc {
   /** Must equal the server's current version (`app_settings.undertaking_version`) to be accepted. */

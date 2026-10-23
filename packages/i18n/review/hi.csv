@@ -165,6 +165,34 @@ errors,INVALID_CURSOR,This list changed. Please reload it.,यह सूची �
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,लगता है आप ऑफ़लाइन हैं। कृपया कनेक्शन जाँचकर फिर कोशिश करें।,no
 errors,ITEM_NOT_FOUND,This post is no longer available.,यह पोस्ट अब उपलब्ध नहीं है।,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,हम जाँच नहीं सके कि यह असली फ़ोन है। कृपया फिर से कोशिश करें।,no
+onboarding,progress,Step {current} of {total},चरण {current} / {total},no
+onboarding,next,Continue,आगे बढ़ें,no
+onboarding,back,Back,पीछे,no
+onboarding,welcome.title,Assalamu Alaikum,अस्सलामु अलैकुम,no
+onboarding,welcome.body,Stay connected with your masjids.,अपनी मस्जिदों से जुड़े रहें।,no
+onboarding,welcome.start,Get started,शुरू करें,no
+onboarding,language.hint,You can change it anytime in Settings.,आप इसे कभी भी सेटिंग्स में बदल सकते हैं।,no
+onboarding,audience.title,Who is using this app?,यह ऐप कौन इस्तेमाल कर रहा है?,no
+onboarding,audience.brother,Brother,भाई,no
+onboarding,audience.sister,Sister,बहन,no
+onboarding,audience.help,Used only to show bayans meant for you. Saved on this phone. You can change it anytime in Settings.,सिर्फ़ आपके लिए बने बयान दिखाने के लिए। यह इसी फ़ोन में सेव रहता है। आप इसे कभी भी सेटिंग्स में बदल सकते हैं।,no
+onboarding,privacy.title,Privacy at a glance,निजता एक नज़र में,no
+onboarding,privacy.noAccount,No account. No name or phone number.,"कोई अकाउंट नहीं। न नाम, न फ़ोन नंबर।",no
+onboarding,privacy.location,Your location never leaves your phone.,आपकी लोकेशन आपके फ़ोन से बाहर नहीं जाती।,no
+onboarding,privacy.stored,"We store only: a random app ID, your language, brother/sister choice, the masjids you follow and a notification token.","हम सिर्फ़ ये रखते हैं: एक रैंडम ऐप आईडी, आपकी भाषा, भाई/बहन का चुनाव, आपकी फ़ॉलो की हुई मस्जिदें और एक नोटिफ़िकेशन टोकन।",no
+onboarding,privacy.policy,Privacy Policy,निजता नीति,no
+onboarding,privacy.grievance,Grievance Officer,शिकायत अधिकारी,no
+onboarding,privacy.draft,Draft — under legal review,मसौदा — कानूनी समीक्षा बाकी,no
+onboarding,privacy.offline,You’re offline. The app will finish setting up when you’re back online.,आप ऑफ़लाइन हैं। इंटरनेट आने पर ऐप सेटअप पूरा कर लेगा।,no
+onboarding,masjid.title,Add your first masjid,अपनी पहली मस्जिद जोड़ें,no
+onboarding,masjid.body,"Scan the QR code on the poster at your masjid, or type the code written under it.","अपनी मस्जिद के पोस्टर का QR कोड स्कैन करें, या उसके नीचे लिखा कोड डालें।",no
+onboarding,masjid.scan,Scan masjid QR,मस्जिद QR स्कैन करें,no
+onboarding,masjid.code,Enter code,कोड डालें,no
+onboarding,masjid.later,Later,बाद में,no
+onboarding,install.title,Keep the app on your phone,ऐप को अपने फ़ोन पर रखें,no
+onboarding,install.body,"Install it to open it from your home screen, even without internet.","इसे इंस्टॉल करें ताकि होम स्क्रीन से खोल सकें, इंटरनेट के बिना भी।",no
+onboarding,followed,You now follow {name}.,अब आप {name} को फ़ॉलो कर रहे हैं।,no
+onboarding,followFailed,We couldn’t add that masjid right now. Open the link again when you’re online.,अभी वह मस्जिद नहीं जुड़ सकी। ऑनलाइन होने पर लिंक फिर से खोलें।,no
 super,title,Super Admin,सुपर एडमिन,no
 super,nav.label,Super Admin sections,सुपर एडमिन के हिस्से,no
 super,nav.dashboard,Dashboard,डैशबोर्ड,no

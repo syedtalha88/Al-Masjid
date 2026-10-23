@@ -165,6 +165,34 @@ errors,INVALID_CURSOR,This list changed. Please reload it.,یہ فہرست بد�
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,لگتا ہے آپ آف لائن ہیں۔ براہِ کرم کنکشن چیک کر کے دوبارہ کوشش کریں۔,no
 errors,ITEM_NOT_FOUND,This post is no longer available.,یہ پوسٹ اب دستیاب نہیں ہے۔,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,ہم یہ جانچ نہیں سکے کہ یہ اصلی فون ہے۔ براہِ کرم دوبارہ کوشش کریں۔,no
+onboarding,progress,Step {current} of {total},مرحلہ {current} از {total},no
+onboarding,next,Continue,آگے بڑھیں,no
+onboarding,back,Back,پیچھے,no
+onboarding,welcome.title,Assalamu Alaikum,السلام علیکم,no
+onboarding,welcome.body,Stay connected with your masjids.,اپنی مساجد سے جڑے رہیں۔,no
+onboarding,welcome.start,Get started,شروع کریں,no
+onboarding,language.hint,You can change it anytime in Settings.,آپ اسے کبھی بھی سیٹنگز میں بدل سکتے ہیں۔,no
+onboarding,audience.title,Who is using this app?,یہ ایپ کون استعمال کر رہا ہے؟,no
+onboarding,audience.brother,Brother,بھائی,no
+onboarding,audience.sister,Sister,بہن,no
+onboarding,audience.help,Used only to show bayans meant for you. Saved on this phone. You can change it anytime in Settings.,صرف آپ کے لیے بنے بیانات دکھانے کے لیے۔ یہ اسی فون میں محفوظ رہتا ہے۔ آپ اسے کبھی بھی سیٹنگز میں بدل سکتے ہیں۔,no
+onboarding,privacy.title,Privacy at a glance,رازداری ایک نظر میں,no
+onboarding,privacy.noAccount,No account. No name or phone number.,کوئی اکاؤنٹ نہیں۔ نہ نام، نہ فون نمبر۔,no
+onboarding,privacy.location,Your location never leaves your phone.,آپ کا مقام آپ کے فون سے باہر نہیں جاتا۔,no
+onboarding,privacy.stored,"We store only: a random app ID, your language, brother/sister choice, the masjids you follow and a notification token.",ہم صرف یہ رکھتے ہیں: ایک بے ترتیب ایپ آئی ڈی، آپ کی زبان، بھائی/بہن کا انتخاب، آپ کی فالو کی ہوئی مساجد اور ایک نوٹیفکیشن ٹوکن۔,no
+onboarding,privacy.policy,Privacy Policy,رازداری کی پالیسی,no
+onboarding,privacy.grievance,Grievance Officer,شکایت افسر,no
+onboarding,privacy.draft,Draft — under legal review,مسودہ — قانونی جائزہ باقی,no
+onboarding,privacy.offline,You’re offline. The app will finish setting up when you’re back online.,آپ آف لائن ہیں۔ انٹرنیٹ آنے پر ایپ سیٹ اپ مکمل کر لے گی۔,no
+onboarding,masjid.title,Add your first masjid,اپنی پہلی مسجد شامل کریں,no
+onboarding,masjid.body,"Scan the QR code on the poster at your masjid, or type the code written under it.",اپنی مسجد کے پوسٹر کا QR کوڈ اسکین کریں، یا اس کے نیچے لکھا کوڈ درج کریں۔,no
+onboarding,masjid.scan,Scan masjid QR,مسجد کا QR اسکین کریں,no
+onboarding,masjid.code,Enter code,کوڈ درج کریں,no
+onboarding,masjid.later,Later,بعد میں,no
+onboarding,install.title,Keep the app on your phone,ایپ کو اپنے فون پر رکھیں,no
+onboarding,install.body,"Install it to open it from your home screen, even without internet.",اسے انسٹال کریں تاکہ ہوم اسکرین سے کھول سکیں، انٹرنیٹ کے بغیر بھی۔,no
+onboarding,followed,You now follow {name}.,اب آپ {name} کو فالو کر رہے ہیں۔,no
+onboarding,followFailed,We couldn’t add that masjid right now. Open the link again when you’re online.,ابھی وہ مسجد شامل نہیں ہو سکی۔ آن لائن ہونے پر لنک دوبارہ کھولیں۔,no
 super,title,Super Admin,سپر ایڈمن,no
 super,nav.label,Super Admin sections,سپر ایڈمن کے حصے,no
 super,nav.dashboard,Dashboard,ڈیش بورڈ,no

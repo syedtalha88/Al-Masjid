@@ -165,6 +165,34 @@ errors,INVALID_CURSOR,This list changed. Please reload it.,ఈ జాబిత�
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,మీరు ఆఫ్‌లైన్‌లో ఉన్నట్లున్నారు. దయచేసి కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి.,no
 errors,ITEM_NOT_FOUND,This post is no longer available.,ఈ పోస్ట్ ఇప్పుడు అందుబాటులో లేదు.,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,ఇది నిజమైన ఫోన్ అని మేము నిర్ధారించలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+onboarding,progress,Step {current} of {total},దశ {current} / {total},no
+onboarding,next,Continue,కొనసాగించండి,no
+onboarding,back,Back,వెనుకకు,no
+onboarding,welcome.title,Assalamu Alaikum,అస్సలాము అలైకుమ్,no
+onboarding,welcome.body,Stay connected with your masjids.,మీ మస్జిద్‌లతో అనుసంధానంగా ఉండండి.,no
+onboarding,welcome.start,Get started,ప్రారంభించండి,no
+onboarding,language.hint,You can change it anytime in Settings.,దీన్ని ఎప్పుడైనా సెట్టింగ్స్‌లో మార్చవచ్చు.,no
+onboarding,audience.title,Who is using this app?,ఈ యాప్‌ను ఎవరు ఉపయోగిస్తున్నారు?,no
+onboarding,audience.brother,Brother,సోదరుడు,no
+onboarding,audience.sister,Sister,సోదరి,no
+onboarding,audience.help,Used only to show bayans meant for you. Saved on this phone. You can change it anytime in Settings.,మీ కోసం ఉద్దేశించిన బయాన్‌లను చూపడానికి మాత్రమే. ఈ ఫోన్‌లోనే సేవ్ అవుతుంది. దీన్ని ఎప్పుడైనా సెట్టింగ్స్‌లో మార్చవచ్చు.,no
+onboarding,privacy.title,Privacy at a glance,గోప్యత ఒక్క చూపులో,no
+onboarding,privacy.noAccount,No account. No name or phone number.,ఖాతా లేదు. పేరు లేదా ఫోన్ నంబర్ లేదు.,no
+onboarding,privacy.location,Your location never leaves your phone.,మీ స్థానం మీ ఫోన్ దాటి వెళ్లదు.,no
+onboarding,privacy.stored,"We store only: a random app ID, your language, brother/sister choice, the masjids you follow and a notification token.","మేము ఉంచేది ఇవి మాత్రమే: ఒక యాదృచ్ఛిక యాప్ ID, మీ భాష, సోదరుడు/సోదరి ఎంపిక, మీరు ఫాలో అయ్యే మస్జిద్‌లు మరియు ఒక నోటిఫికేషన్ టోకెన్.",no
+onboarding,privacy.policy,Privacy Policy,గోప్యతా విధానం,no
+onboarding,privacy.grievance,Grievance Officer,ఫిర్యాదుల అధికారి,no
+onboarding,privacy.draft,Draft — under legal review,ముసాయిదా — న్యాయ సమీక్ష పెండింగ్,no
+onboarding,privacy.offline,You’re offline. The app will finish setting up when you’re back online.,మీరు ఆఫ్‌లైన్‌లో ఉన్నారు. ఇంటర్నెట్ వచ్చాక యాప్ సెటప్ పూర్తి చేస్తుంది.,no
+onboarding,masjid.title,Add your first masjid,మీ మొదటి మస్జిద్‌ను జోడించండి,no
+onboarding,masjid.body,"Scan the QR code on the poster at your masjid, or type the code written under it.","మీ మస్జిద్ పోస్టర్‌పై ఉన్న QR కోడ్‌ను స్కాన్ చేయండి, లేదా దాని కింద రాసిన కోడ్‌ను నమోదు చేయండి.",no
+onboarding,masjid.scan,Scan masjid QR,మస్జిద్ QR స్కాన్ చేయండి,no
+onboarding,masjid.code,Enter code,కోడ్ నమోదు చేయండి,no
+onboarding,masjid.later,Later,తర్వాత,no
+onboarding,install.title,Keep the app on your phone,యాప్‌ను మీ ఫోన్‌లో ఉంచుకోండి,no
+onboarding,install.body,"Install it to open it from your home screen, even without internet.","హోమ్ స్క్రీన్ నుండి, ఇంటర్నెట్ లేకపోయినా తెరవడానికి దీన్ని ఇన్‌స్టాల్ చేయండి.",no
+onboarding,followed,You now follow {name}.,ఇప్పుడు మీరు {name}ను ఫాలో అవుతున్నారు.,no
+onboarding,followFailed,We couldn’t add that masjid right now. Open the link again when you’re online.,ఇప్పుడు ఆ మస్జిద్‌ను జోడించలేకపోయాము. ఆన్‌లైన్‌లో ఉన్నప్పుడు లింక్‌ను మళ్లీ తెరవండి.,no
 super,title,Super Admin,సూపర్ అడ్మిన్,no
 super,nav.label,Super Admin sections,సూపర్ అడ్మిన్ విభాగాలు,no
 super,nav.dashboard,Dashboard,డాష్‌బోర్డ్,no
