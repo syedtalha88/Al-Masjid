@@ -165,6 +165,43 @@ errors,INVALID_CURSOR,This list changed. Please reload it.,यह सूची �
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,लगता है आप ऑफ़लाइन हैं। कृपया कनेक्शन जाँचकर फिर कोशिश करें।,no
 errors,ITEM_NOT_FOUND,This post is no longer available.,यह पोस्ट अब उपलब्ध नहीं है।,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,हम जाँच नहीं सके कि यह असली फ़ोन है। कृपया फिर से कोशिश करें।,no
+follow,scan.title,Scan masjid QR,मस्जिद का QR स्कैन करें,no
+follow,scan.hint,Point your camera at the QR code on the masjid poster.,अपना कैमरा मस्जिद के पोस्टर पर लगे QR कोड की ओर करें।,no
+follow,scan.torch,Flashlight,टॉर्च,no
+follow,scan.enterCode,Enter code instead,इसके बजाय कोड डालें,no
+follow,scan.invalid,This is not a {app} QR code,यह {app} का QR कोड नहीं है,no
+follow,scan.found,QR code found,QR कोड मिल गया,no
+follow,scan.starting,Starting the camera…,कैमरा शुरू हो रहा है…,no
+follow,scan.permission.title,Allow the camera,कैमरे की अनुमति दें,no
+follow,scan.permission.body,The camera is used only to read the masjid’s QR code. Nothing is recorded or sent.,कैमरे का उपयोग केवल मस्जिद का QR कोड पढ़ने के लिए होता है। कुछ भी रिकॉर्ड या भेजा नहीं जाता।,no
+follow,scan.permission.allow,Allow camera,कैमरे की अनुमति दें,no
+follow,scan.denied.title,The camera is blocked,कैमरा बंद है,no
+follow,scan.denied.body,"To scan, allow the camera for this app in your browser or phone settings. Or enter the code printed under the QR.",स्कैन करने के लिए अपने ब्राउज़र या फ़ोन की सेटिंग में इस ऐप को कैमरे की अनुमति दें। या QR के नीचे छपा कोड डालें।,no
+follow,scan.unavailable.title,Scanning isn’t available here,यहाँ स्कैन नहीं हो सकता,no
+follow,scan.unavailable.body,Enter the 8-character code printed under the QR on the masjid poster.,मस्जिद के पोस्टर पर QR के नीचे छपा 8 अक्षरों का कोड डालें।,no
+follow,scan.busy.title,The camera couldn’t start,कैमरा शुरू नहीं हो सका,no
+follow,scan.busy.body,Close other apps that use the camera and try again.,कैमरा इस्तेमाल करने वाले दूसरे ऐप बंद करें और फिर कोशिश करें।,no
+follow,code.title,Enter masjid code,मस्जिद कोड डालें,no
+follow,code.body,Type the 8-character code printed under the QR on the masjid poster.,मस्जिद के पोस्टर पर QR के नीचे छपा 8 अक्षरों का कोड लिखें।,no
+follow,code.label,Masjid code,मस्जिद कोड,no
+follow,code.submit,Find masjid,मस्जिद खोजें,no
+follow,code.invalid,This code isn’t valid. Check it and try again.,यह कोड सही नहीं है। जाँचें और फिर कोशिश करें।,no
+follow,preview.follow,Follow masjid,मस्जिद फ़ॉलो करें,no
+follow,preview.already,You already follow this masjid.,आप इस मस्जिद को पहले से फ़ॉलो करते हैं।,no
+follow,preview.open,Open,खोलें,no
+follow,preview.limit,"You follow {max} masjids, the most allowed. Unfollow one to add another.","आप {max} मस्जिदें फ़ॉलो करते हैं, जो अधिकतम सीमा है। नई जोड़ने के लिए किसी एक को अनफ़ॉलो करें।",no
+follow,preview.manage,Open My Masjids,मेरी मस्जिदें खोलें,no
+follow,preview.followed,You now follow {name},अब आप {name} को फ़ॉलो करते हैं,no
+follow,landing.title,Follow masjid,मस्जिद फ़ॉलो करें,no
+follow,landing.notFoundTitle,Masjid not found,मस्जिद नहीं मिली,no
+follow,landing.notFoundBody,"This link or code doesn’t match any masjid. It may be mistyped, or the masjid is no longer listed.","यह लिंक या कोड किसी मस्जिद से मेल नहीं खाता। हो सकता है यह गलत लिखा हो, या मस्जिद अब सूची में न हो।",no
+follow,landing.scanAgain,Scan again,फिर से स्कैन करें,no
+follow,landing.iosTitle,Follow it in the {app} app,{app} ऐप में फ़ॉलो करें,no
+follow,landing.iosBody,"Open {app} from your Home Screen, tap Scan, then choose “Enter code instead” and type:","अपनी होम स्क्रीन से {app} खोलें, स्कैन दबाएँ, फिर “इसके बजाय कोड डालें” चुनकर यह लिखें:",no
+follow,landing.iosNoApp,Don’t have the app yet? Add it to your Home Screen first.,ऐप अभी नहीं है? पहले इसे अपनी होम स्क्रीन पर जोड़ें।,no
+follow,landing.iosHere,Use it here in Safari instead,इसके बजाय यहीं Safari में इस्तेमाल करें,no
+follow,landing.codeLabel,Masjid code,मस्जिद कोड,no
+follow,landing.continue,Continue,जारी रखें,no
 onboarding,progress,Step {current} of {total},चरण {current} / {total},no
 onboarding,next,Continue,आगे बढ़ें,no
 onboarding,back,Back,पीछे,no

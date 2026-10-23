@@ -1,17 +1,8 @@
-import { useTranslation } from '@mc/i18n/react';
-import { Screen } from '@mc/ui/navigation';
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/scan')({
-  component: ScanModal,
-});
+import { ScanScreen } from '../features/follow/ScanScreen.tsx';
 
-/** Scan modal (Phase 0 placeholder; the QR scanner arrives in Phase 2). */
-function ScanModal() {
-  const { t } = useTranslation();
-  return (
-    <Screen title={t('placeholder.scanTitle')}>
-      <p className="pt-4 type-body text-text-secondary">{t('placeholder.comingSoon')}</p>
-    </Screen>
-  );
-}
+/** A4 Scan — full-screen modal (`?enter=code` opens the code sheet at once: onboarding "Enter code"). */
+export const Route = createFileRoute('/scan')({
+  component: ScanScreen,
+});

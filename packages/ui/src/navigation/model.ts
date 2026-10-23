@@ -207,13 +207,14 @@ export function reduceLocation(config: NavConfig, state: NavState, location: Nav
     };
   }
 
-  // 6. Replace the top entry (history.replace) without animation.
-  if (replaced && top) {
+  // 6. Replace the top entry (history.replace) without animation. A modal replaced by a screen (Scan → Masjid Detail)
+  //    is not this: the modal's own history entry was replaced, so the screen is pushed onto the tab under it.
+  if (replaced && top && !dismissed) {
     return {
       ...base,
       leaving,
       stacks: { ...base.stacks, [base.activeTab]: [...activeStack.slice(0, -1), entry] },
-      transition: dismissed ?? { type: 'replace', tab: base.activeTab, to: entry.key },
+      transition: { type: 'replace', tab: base.activeTab, to: entry.key },
     };
   }
 

@@ -1,0 +1,55 @@
+{
+  "scan": {
+    "title": "Scan masjid QR",
+    "hint": "Point your camera at the QR code on the masjid poster.",
+    "torch": "Flashlight",
+    "enterCode": "Enter code instead",
+    "invalid": "This is not a {app} QR code",
+    "found": "QR code found",
+    "starting": "Starting the camera…",
+    "permission": {
+      "title": "Allow the camera",
+      "body": "The camera is used only to read the masjid’s QR code. Nothing is recorded or sent.",
+      "allow": "Allow camera"
+    },
+    "denied": {
+      "title": "The camera is blocked",
+      "body": "To scan, allow the camera for this app in your browser or phone settings. Or enter the code printed under the QR."
+    },
+    "unavailable": {
+      "title": "Scanning isn’t available here",
+      "body": "Enter the 8-character code printed under the QR on the masjid poster."
+    },
+    "busy": {
+      "title": "The camera couldn’t start",
+      "body": "Close other apps that use the camera and try again."
+    }
+  },
+  "code": {
+    "title": "Enter masjid code",
+    "body": "Type the 8-character code printed under the QR on the masjid poster.",
+    "label": "Masjid code",
+    "submit": "Find masjid",
+    "invalid": "This code isn’t valid. Check it and try again."
+  },
+  "preview": {
+    "follow": "Follow masjid",
+    "already": "You already follow this masjid.",
+    "open": "Open",
+    "limit": "You follow {max} masjids, the most allowed. Unfollow one to add another.",
+    "manage": "Open My Masjids",
+    "followed": "You now follow {name}"
+  },
+  "landing": {
+    "title": "Follow masjid",
+    "notFoundTitle": "Masjid not found",
+    "notFoundBody": "This link or code doesn’t match any masjid. It may be mistyped, or the masjid is no longer listed.",
+    "scanAgain": "Scan again",
+    "iosTitle": "Follow it in the {app} app",
+    "iosBody": "Open {app} from your Home Screen, tap Scan, then choose “Enter code instead” and type:",
+    "iosNoApp": "Don’t have the app yet? Add it to your Home Screen first.",
+    "iosHere": "Use it here in Safari instead",
+    "codeLabel": "Masjid code",
+    "continue": "Continue"
+  }
+}

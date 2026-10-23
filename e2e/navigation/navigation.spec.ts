@@ -167,7 +167,7 @@ test('Scan modal: covers the app, app is inert, closing restores focus to the Sc
 }) => {
   await page.getByRole('button', { name: 'Scan QR code' }).click();
   const dialog = page.getByRole('dialog');
-  await expect(dialog.getByRole('heading', { level: 1 })).toHaveText('Scan');
+  await expect(dialog.getByRole('heading', { level: 1 })).toHaveText('Scan masjid QR');
   await expect(page.locator('[data-tab="home"]').locator('..')).toHaveAttribute('inert', '');
   await settle(page);
   await dialog.getByRole('button', { name: 'Close' }).click();

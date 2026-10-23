@@ -45,6 +45,16 @@ describe('initialState', () => {
     expect(state.modal?.pathname).toBe('/scan');
     expect(keys(state)).toEqual(['/']);
   });
+
+  it('closing a modal opened as the first page replaces it with the synthetic root (never leaves the app)', () => {
+    let state = initialState(CONFIG, at('/scan'));
+    const root = state.stacks['home']?.[0];
+    if (!root) throw new Error('missing root');
+    state = reduceLocation(CONFIG, state, { key: root.key, href: '/', pathname: '/' }, true);
+    expect(state.modal).toBeNull();
+    expect(keys(state)).toEqual(['/']);
+    expect(state.transition.type).toBe('modal-dismiss');
+  });
 });
 
 describe('reduceLocation', () => {
@@ -142,6 +152,17 @@ describe('reduceLocation', () => {
     expect(state.transition).toEqual({ type: 'modal-dismiss', key: scan.key });
     state = finishModalLeaving(state, scan.key);
     expect(state.leavingModal).toBeNull();
+  });
+
+  it('a modal replaced by a screen pushes that screen onto the tab under it', () => {
+    let state = initialState(CONFIG, at('/'));
+    const scan = at('/scan');
+    state = reduce(state, scan);
+    state = reduce(state, at('/masjid/1'), true);
+    expect(state.modal).toBeNull();
+    expect(state.leavingModal?.key).toBe(scan.key);
+    expect(keys(state)).toEqual(['/', '/masjid/1']);
+    expect(state.transition).toEqual({ type: 'modal-dismiss', key: scan.key });
   });
 
   it('history.replace swaps the top entry without a push', () => {

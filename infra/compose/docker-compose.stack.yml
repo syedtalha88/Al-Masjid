@@ -84,8 +84,9 @@ services:
       ADMIN_HOST: admin.localhost
       APP_ROBOTS: noindex, nofollow # like staging (T0.14)
       CADDY_TLS: local
-      # Image host for the CSP img-src (staging/production: https://media[-staging].<domain>).
-      MEDIA_ORIGIN: https://media.localhost:8443
+      # Image host(s) for the CSP img-src (staging/production: https://media[-staging].<domain>). Locally the apps are
+      # built with setup-local's VITE_PUBLIC_MEDIA_ORIGIN (http://localhost:8790), so the stack allows that one too.
+      MEDIA_ORIGIN: https://media.localhost:8443 http://localhost:8790
       API_PUBLIC_UPSTREAM: api-public:8787
       API_ADMIN_UPSTREAM: api-admin:8788
     # Non-root (04 §12.2). Locally the internal CA lives in tmpfs (regenerated on restart); on the VPS

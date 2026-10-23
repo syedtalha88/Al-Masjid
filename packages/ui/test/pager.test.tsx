@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { Pager } from '../src/components/Pager.tsx';
-import { crossfadeIn, drawStrokesIn } from '../src/motion/effects.ts';
+import { breathe, crossfadeIn, drawStrokesIn, shake, snapTo, sweep } from '../src/motion/effects.ts';
 import { renderUi } from './render.tsx';
 
 // T2.4 Pager (07 A1, 08 §5.11): swipe between full-width pages, forward only when allowed, inert hidden pages.
@@ -88,5 +88,15 @@ describe('motion effects', () => {
     });
     expect(element.style.opacity).toBe('1');
     drawStrokesIn([]).stop();
+  });
+
+  it('scanner effects (08 §5.8, §5.10) write transforms and clear them when stopped', async () => {
+    const element = document.createElement('div');
+    for (const effect of [shake(element), breathe(element), sweep(element, 200), snapTo(element, 0.9)]) {
+      await new Promise((resolve) => setTimeout(resolve, 40));
+      expect(element.style.transform).not.toBe('');
+      effect.stop();
+      expect(element.style.transform).toBe('');
+    }
   });
 });

@@ -71,6 +71,11 @@ export const loop = {
   spinnerMs: 800,
   /** One skeleton shimmer sweep, ms (static skeleton with reduced motion, 08 §6). */
   shimmerMs: 1400,
+  /** Scanner corner brackets breathe 1 ↔ `scanBreatheScale` (08 §5.8); off with reduced motion. */
+  scanBreatheMs: 1600,
+  scanBreatheScale: 1.03,
+  /** Scanner line: one sweep across the window, ms (then back); off with reduced motion. */
+  scanSweepMs: 1800,
 } as const;
 
 /** Form feedback (08 §5.10): an invalid field shakes x 0 → −6 → 6 → −3 → 0 px. */

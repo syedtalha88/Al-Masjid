@@ -30,6 +30,7 @@ const back = vi.fn();
 const navigator: NavigatorApi = {
   activeTab: 'home',
   push: vi.fn(),
+  replace: vi.fn(),
   back,
   selectTab: vi.fn(),
   presentModal: vi.fn(),

@@ -57,7 +57,7 @@ test.describe('static responses (Caddy)', () => {
       expect(response.headers()['x-robots-tag']).toBe('noindex, nofollow');
       const policy = csp(response);
       expect(policy.get('default-src')).toEqual(["'self'"]);
-      expect(policy.get('script-src')).toEqual(["'self'", 'https://challenges.cloudflare.com']);
+      expect(policy.get('script-src')).toEqual(["'self'", "'wasm-unsafe-eval'", 'https://challenges.cloudflare.com']);
       expect(policy.get('style-src')).toEqual(["'self'"]);
       expect(policy.get('frame-src')).toEqual([
         'https://challenges.cloudflare.com',

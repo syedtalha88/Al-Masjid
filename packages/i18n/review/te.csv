@@ -165,6 +165,43 @@ errors,INVALID_CURSOR,This list changed. Please reload it.,ఈ జాబిత�
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,మీరు ఆఫ్‌లైన్‌లో ఉన్నట్లున్నారు. దయచేసి కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి.,no
 errors,ITEM_NOT_FOUND,This post is no longer available.,ఈ పోస్ట్ ఇప్పుడు అందుబాటులో లేదు.,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,ఇది నిజమైన ఫోన్ అని మేము నిర్ధారించలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
+follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
+follow,scan.torch,Flashlight,టార్చ్,no
+follow,scan.enterCode,Enter code instead,బదులుగా కోడ్ నమోదు చేయండి,no
+follow,scan.invalid,This is not a {app} QR code,ఇది {app} QR కోడ్ కాదు,no
+follow,scan.found,QR code found,QR కోడ్ దొరికింది,no
+follow,scan.starting,Starting the camera…,కెమెరా ప్రారంభమవుతోంది…,no
+follow,scan.permission.title,Allow the camera,కెమెరాకు అనుమతి ఇవ్వండి,no
+follow,scan.permission.body,The camera is used only to read the masjid’s QR code. Nothing is recorded or sent.,"కెమెరాను మసీదు QR కోడ్ చదవడానికి మాత్రమే ఉపయోగిస్తాం. ఏదీ రికార్డ్ చేయబడదు, పంపబడదు.",no
+follow,scan.permission.allow,Allow camera,కెమెరాకు అనుమతి ఇవ్వండి,no
+follow,scan.denied.title,The camera is blocked,కెమెరా బ్లాక్ చేయబడింది,no
+follow,scan.denied.body,"To scan, allow the camera for this app in your browser or phone settings. Or enter the code printed under the QR.",స్కాన్ చేయడానికి మీ బ్రౌజర్ లేదా ఫోన్ సెట్టింగ్‌లలో ఈ యాప్‌కు కెమెరా అనుమతి ఇవ్వండి. లేదా QR కింద ముద్రించిన కోడ్‌ను నమోదు చేయండి.,no
+follow,scan.unavailable.title,Scanning isn’t available here,ఇక్కడ స్కాన్ చేయడం సాధ్యం కాదు,no
+follow,scan.unavailable.body,Enter the 8-character code printed under the QR on the masjid poster.,మసీదు పోస్టర్‌పై QR కింద ముద్రించిన 8 అక్షరాల కోడ్‌ను నమోదు చేయండి.,no
+follow,scan.busy.title,The camera couldn’t start,కెమెరా ప్రారంభం కాలేదు,no
+follow,scan.busy.body,Close other apps that use the camera and try again.,కెమెరాను ఉపయోగించే ఇతర యాప్‌లను మూసివేసి మళ్లీ ప్రయత్నించండి.,no
+follow,code.title,Enter masjid code,మసీదు కోడ్ నమోదు చేయండి,no
+follow,code.body,Type the 8-character code printed under the QR on the masjid poster.,మసీదు పోస్టర్‌పై QR కింద ముద్రించిన 8 అక్షరాల కోడ్‌ను టైప్ చేయండి.,no
+follow,code.label,Masjid code,మసీదు కోడ్,no
+follow,code.submit,Find masjid,మసీదును కనుగొనండి,no
+follow,code.invalid,This code isn’t valid. Check it and try again.,ఈ కోడ్ సరైనది కాదు. తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.,no
+follow,preview.follow,Follow masjid,మసీదును ఫాలో చేయండి,no
+follow,preview.already,You already follow this masjid.,మీరు ఇప్పటికే ఈ మసీదును ఫాలో చేస్తున్నారు.,no
+follow,preview.open,Open,తెరవండి,no
+follow,preview.limit,"You follow {max} masjids, the most allowed. Unfollow one to add another.","మీరు {max} మసీదులను ఫాలో చేస్తున్నారు, ఇదే గరిష్ఠ పరిమితి. కొత్తది జోడించడానికి ఒకదాన్ని అన్‌ఫాలో చేయండి.",no
+follow,preview.manage,Open My Masjids,నా మసీదులు తెరవండి,no
+follow,preview.followed,You now follow {name},మీరు ఇప్పుడు {name}ను ఫాలో చేస్తున్నారు,no
+follow,landing.title,Follow masjid,మసీదును ఫాలో చేయండి,no
+follow,landing.notFoundTitle,Masjid not found,మసీదు కనుగొనబడలేదు,no
+follow,landing.notFoundBody,"This link or code doesn’t match any masjid. It may be mistyped, or the masjid is no longer listed.","ఈ లింక్ లేదా కోడ్ ఏ మసీదుకూ సరిపోలడం లేదు. ఇది తప్పుగా టైప్ చేయబడి ఉండవచ్చు, లేదా మసీదు ఇప్పుడు జాబితాలో లేకపోవచ్చు.",no
+follow,landing.scanAgain,Scan again,మళ్లీ స్కాన్ చేయండి,no
+follow,landing.iosTitle,Follow it in the {app} app,{app} యాప్‌లో ఫాలో చేయండి,no
+follow,landing.iosBody,"Open {app} from your Home Screen, tap Scan, then choose “Enter code instead” and type:","మీ హోమ్ స్క్రీన్ నుండి {app}ను తెరిచి, స్కాన్ నొక్కి, “బదులుగా కోడ్ నమోదు చేయండి” ఎంచుకుని ఇది టైప్ చేయండి:",no
+follow,landing.iosNoApp,Don’t have the app yet? Add it to your Home Screen first.,యాప్ ఇంకా లేదా? ముందు దాన్ని మీ హోమ్ స్క్రీన్‌కు జోడించండి.,no
+follow,landing.iosHere,Use it here in Safari instead,బదులుగా ఇక్కడే Safariలో ఉపయోగించండి,no
+follow,landing.codeLabel,Masjid code,మసీదు కోడ్,no
+follow,landing.continue,Continue,కొనసాగించండి,no
 onboarding,progress,Step {current} of {total},దశ {current} / {total},no
 onboarding,next,Continue,కొనసాగించండి,no
 onboarding,back,Back,వెనుకకు,no

@@ -919,6 +919,50 @@ Report corrections R1–R9 applied.
 - **Bundle:** initial JS **175.3 kB** (the lazy-chunk split moved a shared chunk into the entry); `pnpm size` limit
   176 kB under "quality over bundle size" — the owner may ask for 175/170 kB back.
 
+### #94 — QR fallback reader and the follow flows (PHASE_02 T2.5) — ACCEPTED (owner, 23 Oct 2026: option 1; 180 kB budget to be confirmed)
+**Context:** 01 §4 named `qr-scanner` as the fallback when the browser has no QR `BarcodeDetector`, but its last release is
+1.4.2 (Nov 2022) — CLAUDE.md §6 forbids packages without a release in 18 months. iPhone Safari (our main "Scan in the app"
+path, #14) and desktop browsers have no native QR detector; Android Chrome has. Options put to the owner: (1)
+`barcode-detector` + `zxing-wasm` (maintained, needs CSP `'wasm-unsafe-eval'`), (2) `qr-scanner` as an exception,
+(3) no fallback ("Enter code" only).
+**Decision (option 1):**
+- **Reader:** native `BarcodeDetector` when it lists `qr_code`; otherwise a lazy chunk with **`barcode-detector` 3.2.3**
+  (MIT) over **`zxing-wasm` 3.1.6** (ZXing C++ → WebAssembly; pinned as a direct dependency so the reader file is ours).
+  `zxing_reader.wasm` (947 kB, 414 kB gz) is a hashed asset of our build — never the library's default jsDelivr URL —
+  served `application/wasm` + immutable, **not precached** (cached on first use by the `/assets` CacheFirst route) and
+  fetched only when someone scans on a browser without native QR support (download starts with the chunk, in parallel
+  with the camera prompt). The library has no `eval`/`Function`/workers/script injection (checked in its ES build).
+- **CSP:** the musalli app origin's `script-src` adds **`'wasm-unsafe-eval'`** (compiling WebAssembly only; JS `eval`
+  stays blocked; Trusted Types unchanged). Admin unchanged until it scans UPI QRs (Phase 5). Caddyfile, 04 §7 and the
+  security-headers e2e updated.
+- **Scan validation (04 §6):** only `https://<this origin>/m/<code>` or a bare 8-character code (`followCodeFromScan`);
+  anything else → shake + "This is not a Masjid Connect QR code", no navigation; the same wrong QR is reported again only
+  after 2.5 s. Frames are checked every 200 ms while visible and nothing is open over the scanner; nothing leaves the
+  device but the code lookup. The camera is asked for only after a tap unless already granted; denied / no camera /
+  busy each get their own card with "Enter code".
+- **Motion (08 §5.8):** brackets breathe, a line sweeps, on detect they snap inward (scale 0.9) and turn green — not to
+  the QR's exact bounds (mapping detector coordinates through `object-cover` is fragile on low-end phones; revisit with
+  O16 feedback). New presets in `@mc/ui/motion` (`shake`, `breathe`, `sweep`, `snapTo`, `loop.scan*`).
+- **Navigation:** `push` from a modal replaces the modal's history entry (Scan → follow → Masjid Detail; back → where
+  Scan was opened); new `NavigatorApi.replace`; closing a modal that was the first page (deep link, onboarding "Enter
+  code") replaces it with the tab root instead of leaving the app (bug found here). Masjid Detail lives at
+  `/masjid/:masjidId` (placeholder until T2.8).
+- **`/m/:code` (A16, #14):** in the app: preview + Follow → Masjid Detail in its place; unknown/malformed code → not
+  found + "Scan again". iPhone Safari (not installed): explainer "follow it in the app" with the code large
+  (`ABCD-EFGH`), the install guide, and "Use it here in Safari instead"; on a first visit this comes before onboarding
+  (which then follows at its end, as before).
+- **Tests:** unit (detector/camera/torch/code input/lookup/media/names, effects, navigator model); e2e
+  `follow.spec.ts` (both phones: code entry incl. invalid/unknown/paste/already-followed, landing incl. iPhone
+  explainer, not-found) and **journey 2** `scan.scan.spec.ts` in a new `scan` project: Chromium's fake camera plays a
+  Y4M generated at global setup by zxing-wasm's writer (foreign QR 3 s, then `/m/TESTA001`; `e2e/.cache/`, not
+  committed) — this runs the WebAssembly reader under the real CSP.
+- **Local stack:** its CSP `img-src` also allows setup-local's dev media origin (`http://localhost:8790`), which the
+  apps are built with (first screen that renders a masjid photo).
+- **Bundle:** musalli initial JS **179.25 kB** → `pnpm size` limit **180 kB**. New code at start is ≈ 1 kB (routes,
+  glyphs, name helper); the rest is rolldown splitting Motion into two extra preloaded shared chunks once a second lazy
+  chunk (the follow flow's success check) uses it (lost gzip context). A Motion chunk group made it worse (+7.9 kB) and
+  was reverted. Owner rule "quality over bundle size" — owner to confirm or ask for a deeper fix.
+
 ## OPEN
 
-_None — every decision is ACCEPTED (22 Oct 2026)._
+_None — every decision is ACCEPTED (23 Oct 2026)._

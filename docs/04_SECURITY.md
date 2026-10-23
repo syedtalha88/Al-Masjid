@@ -81,7 +81,7 @@ Threat actors: opportunistic bots/scrapers, fraudsters targeting donations, comm
 ```
 Content-Security-Policy:
   default-src 'self';
-  script-src 'self' https://challenges.cloudflare.com;
+  script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com;   # app origin; 'wasm-unsafe-eval' only for the self-hosted QR reader (DECISIONS #94) — admin: 'self' only
   style-src 'self';
   img-src 'self' data: blob: https://media.<domain>;
   media-src 'self' blob:;

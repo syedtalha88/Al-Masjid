@@ -2,6 +2,7 @@ import { expect, test } from '@mc/config/playwright';
 import type { Page } from '@playwright/test';
 
 import { APP_URL } from '../../playwright.config.ts';
+import { storedDevice } from '../support/device.ts';
 
 // PHASE_02 T2.4 — A1 onboarding (07 A1, 10 §6 journey 1 up to Home): welcome → language (live switch, Urdu RTL) →
 // brother/sister → privacy (registers the device with Turnstile — Cloudflare's test key locally) → first masjid →
@@ -16,22 +17,6 @@ const LOCALES = [
   { code: 'ur', native: 'اردو', dir: 'rtl', start: 'شروع کریں' },
   { code: 'te', native: 'తెలుగు', dir: 'ltr', start: 'ప్రారంభించండి' },
 ] as const;
-
-/** The device document the app keeps in IndexedDB. */
-async function storedDevice(page: Page): Promise<Record<string, unknown> | undefined> {
-  return page.evaluate(
-    () =>
-      new Promise<Record<string, unknown> | undefined>((resolve) => {
-        const open = indexedDB.open('mc-device');
-        open.onsuccess = () => {
-          const get = open.result.transaction('kv').objectStore('kv').get('device');
-          get.onsuccess = () => {
-            resolve(get.result as Record<string, unknown> | undefined);
-          };
-        };
-      }),
-  );
-}
 
 /** Taps the primary action at the bottom of the current page. */
 const next = (page: Page) => page.locator('[data-page][aria-hidden="false"] section').getByRole('button').last();
@@ -90,8 +75,14 @@ for (const locale of LOCALES) {
   });
 }
 
-test('arriving via /m/:code skips "add your first masjid" and follows that masjid', async ({ page }) => {
+test('arriving via /m/:code skips "add your first masjid" and follows that masjid', async ({ page, browserName }) => {
   await page.goto(`${APP_URL}/m/TESTA001`);
+  if (browserName === 'webkit') {
+    // iPhone Safari: the "follow it in the app" explainer comes first (DECISIONS #14); go on here instead.
+    await expect(page.getByText('TEST-A001')).toBeVisible();
+    await page.getByRole('button', { name: 'Use it here in Safari instead' }).click();
+    await page.getByRole('button', { name: 'Follow masjid' }).click();
+  }
   await throughPrivacy(page, LOCALES[0]);
   await next(page).click(); // privacy → Continue
   await expect(page.getByRole('heading', { name: 'Add your first masjid' })).toHaveCount(0);

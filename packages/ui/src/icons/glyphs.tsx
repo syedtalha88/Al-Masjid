@@ -380,3 +380,33 @@ export function UserCircleIcon(props: IconProps) {
     </IconFrame>
   );
 }
+
+/** Camera (scanner permission). */
+export function CameraIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <path d="M208 208H48a16 16 0 0 1-16-16V80a16 16 0 0 1 16-16h32l16-24h64l16 24h32a16 16 0 0 1 16 16v112a16 16 0 0 1-16 16Z" />
+      <circle cx="128" cy="132" r="36" />
+    </IconFrame>
+  );
+}
+
+/** Flashlight (scanner torch). */
+export function FlashlightIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <path d="M184 32H72a8 8 0 0 0-8 8v32l32 48v104a8 8 0 0 0 8 8h48a8 8 0 0 0 8-8V120l32-48V40a8 8 0 0 0-8-8Z" />
+      <path d="M64 72h128M128 136v32" />
+    </IconFrame>
+  );
+}
+
+/** Keyboard (enter a code instead). */
+export function KeyboardIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <rect x="24" y="56" width="208" height="144" rx="8" />
+      <path d="M64 96h16M104 96h16M144 96h16M184 96h8M64 128h8M96 128h16M136 128h16M176 128h16M80 160h96" />
+    </IconFrame>
+  );
+}

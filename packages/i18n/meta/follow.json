@@ -1,0 +1,84 @@
+{
+  "scan.title": {
+    "context": "Heading of the full-screen QR scanner (visible over the camera)",
+    "maxLength": 32
+  },
+  "scan.hint": {
+    "context": "Instruction under the scan window"
+  },
+  "scan.torch": {
+    "context": "Toggle button that switches the phone flashlight on/off while scanning",
+    "maxLength": 16
+  },
+  "scan.enterCode": {
+    "context": "Button at the bottom of the scanner that opens manual code entry",
+    "maxLength": 32
+  },
+  "scan.invalid": {
+    "context": "Shown when a scanned QR code is not one of our masjid posters; {app} is the app name",
+    "maxLength": 48
+  },
+  "scan.found": {
+    "context": "Screen-reader announcement when a masjid QR is detected"
+  },
+  "scan.permission.allow": {
+    "context": "Button that asks the browser for camera permission",
+    "maxLength": 28
+  },
+  "code.title": {
+    "context": "Title of the sheet where the 8-character masjid code is typed",
+    "maxLength": 32
+  },
+  "code.label": {
+    "context": "Accessible name of the code input",
+    "maxLength": 24
+  },
+  "code.submit": {
+    "context": "Button that looks up the typed code",
+    "maxLength": 24
+  },
+  "preview.follow": {
+    "context": "Primary button in the masjid preview: follow this masjid",
+    "maxLength": 24
+  },
+  "preview.open": {
+    "context": "Button that opens the masjid page (already followed)",
+    "maxLength": 16
+  },
+  "preview.limit": {
+    "context": "Shown when the device already follows the maximum number of masjids; {max} is that number (20)"
+  },
+  "preview.manage": {
+    "context": "Button that opens the My Masjids tab to unfollow one",
+    "maxLength": 28
+  },
+  "preview.followed": {
+    "context": "Toast after following; {name} is the masjid name"
+  },
+  "landing.title": {
+    "context": "Title of the page opened from a masjid follow link",
+    "maxLength": 32
+  },
+  "landing.scanAgain": {
+    "context": "Button on the masjid-not-found page that opens the scanner",
+    "maxLength": 24
+  },
+  "landing.iosTitle": {
+    "context": "iPhone Safari page opened from a masjid link: follow it inside the installed app; {app} is the app name"
+  },
+  "landing.iosBody": {
+    "context": "Followed by the masjid code shown large; quote the scanner button exactly as in scan.enterCode"
+  },
+  "landing.iosHere": {
+    "context": "Text button: keep using the app inside Safari instead of the installed app",
+    "maxLength": 48
+  },
+  "landing.codeLabel": {
+    "context": "Label for the large masjid code shown on the iPhone page",
+    "maxLength": 24
+  },
+  "landing.continue": {
+    "context": "Before first-time setup: go on to the app's setup screens from the masjid page",
+    "maxLength": 24
+  }
+}

@@ -1,15 +1,21 @@
 // First launch (07 A1): until onboarding is done the app shows it instead of the tabs. Opened from a follow link
 // (`/m/:code`, 03 §3) the "add your first masjid" page is skipped and that masjid is followed when onboarding ends
-// (07 A1 "auto-follows after onboarding"); the app then lands on Home.
-import { useTranslation } from '@mc/i18n/react';
+// (07 A1 "auto-follows after onboarding"); the app then lands on Home. In iPhone Safari (not the installed app) the
+// follow landing comes first (DECISIONS #14): following belongs in the Home Screen app, whose storage is separate.
+import { useLocale, useTranslation } from '@mc/i18n/react';
 import { useToast } from '@mc/ui/components';
 import { lazy, type ReactNode, Suspense, useEffect, useState } from 'react';
 
 import type { OnboardingNext } from '../features/onboarding/Onboarding.tsx';
 import { useAppData, useDeviceState } from '../lib/data.tsx';
+import { masjidName } from '../lib/masjid.ts';
+import { isStandalone, platformKind } from '../lib/platform.ts';
 import { RoutePending } from './RoutePending.tsx';
 
+const iosBrowser = () => platformKind() === 'ios' && !isStandalone();
+
 const Onboarding = lazy(() => import('../features/onboarding/Onboarding.tsx'));
+const IosArrival = lazy(() => import('../features/follow/IosArrival.tsx'));
 
 /**
  * The follow code of a `/m/:code` URL the app was opened with, if any — only its shape is checked here (letters,
@@ -31,7 +37,9 @@ export function AppGate({ children, preload }: AppGateProps) {
   const data = useAppData();
   const toast = useToast();
   const { t } = useTranslation('onboarding');
-  const [code] = useState(() => arrivalCode());
+  const { locale } = useLocale();
+  const [code, setCode] = useState(() => arrivalCode());
+  const [arrived, setArrived] = useState(false);
   useEffect(() => {
     if (!onboardedAt) preload?.();
   }, [onboardedAt, preload]);
@@ -45,9 +53,9 @@ export function AppGate({ children, preload }: AppGateProps) {
     void (async () => {
       try {
         const [masjid, sync] = await Promise.all([data.api.resolve(code), import('../lib/device/sync.ts')]);
-        await sync.followLocally(data.store, masjid.id, new Date());
+        if ((await sync.followLocally(data.store, masjid.id, new Date())) === 'limit') throw new Error('limit');
         await sync.syncFollows(data.sync);
-        toast.show({ message: t('followed', { name: masjid.name }), tone: 'success' });
+        toast.show({ message: t('followed', { name: masjidName(masjid, locale) }), tone: 'success' });
       } catch {
         toast.show({ message: t('followFailed') });
       }
@@ -56,7 +64,17 @@ export function AppGate({ children, preload }: AppGateProps) {
 
   return (
     <Suspense fallback={<RoutePending />}>
-      <Onboarding arrivedWithCode={code !== null} onFinished={onFinished} />
+      {code && !arrived && iosBrowser() ? (
+        <IosArrival
+          code={code}
+          onContinue={(valid) => {
+            if (!valid) setCode(null);
+            setArrived(true);
+          }}
+        />
+      ) : (
+        <Onboarding arrivedWithCode={code !== null} onFinished={onFinished} />
+      )}
     </Suspense>
   );
 }

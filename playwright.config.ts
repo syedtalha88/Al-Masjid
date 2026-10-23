@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+import { SCAN_FEED } from './e2e/support/scan-feed.ts';
+
 /**
  * E2E against the local compose stack (`pnpm stack:up`): Caddy at https://app.localhost:8443 and
  * https://admin.localhost:8443 (internal CA → HTTPS errors ignored locally only). Device profiles per
@@ -10,6 +12,7 @@ const ADMIN_URL = process.env['E2E_ADMIN_URL'] ?? 'https://admin.localhost:8443'
 
 export default defineConfig({
   testDir: 'e2e',
+  globalSetup: './e2e/global-setup.ts',
   outputDir: 'test-results',
   fullyParallel: true,
   forbidOnly: Boolean(process.env['CI']),
@@ -32,12 +35,30 @@ export default defineConfig({
       // Caddy's local CA is not trusted by the test browser; Chromium refuses service workers on certificate
       // errors even with ignoreHTTPSErrors, so the PWA specs need this flag (local/CI test browsers only).
       use: { ...devices['Pixel 7'], launchOptions: { args: ['--ignore-certificate-errors'] } },
-      testIgnore: /.perf.spec.ts$/,
+      testIgnore: /\.(perf|scan)\.spec\.ts$/,
     },
-    { name: 'iphone-14', use: { ...devices['iPhone 14'] }, testIgnore: /.perf.spec.ts$/ },
+    { name: 'iphone-14', use: { ...devices['iPhone 14'] }, testIgnore: /\.(perf|scan)\.spec\.ts$/ },
+    // Scan journey (10 §6 journey 2): Chromium's fake camera plays a generated QR video (e2e/support/scan-feed.ts).
+    // Desktop Chromium has no native BarcodeDetector, so this also runs the WebAssembly reader (DECISIONS #94).
+    {
+      name: 'scan',
+      use: {
+        ...devices['Pixel 7'],
+        permissions: ['camera'],
+        launchOptions: {
+          args: [
+            '--ignore-certificate-errors',
+            '--use-fake-ui-for-media-stream',
+            '--use-fake-device-for-media-stream',
+            `--use-file-for-fake-video-capture=${SCAN_FEED}`,
+          ],
+        },
+      },
+      testMatch: /\.scan\.spec\.ts$/,
+    },
     // Performance traces (08 §8): Chromium with CPU throttling, run alone (`pnpm test:perf`, one worker) —
     // parallel workers compete for the CPU and make timings meaningless.
-    { name: 'perf', use: { ...devices['Pixel 7'] }, testMatch: /.perf.spec.ts$/ },
+    { name: 'perf', use: { ...devices['Pixel 7'] }, testMatch: /\.perf\.spec\.ts$/ },
   ],
 });
 

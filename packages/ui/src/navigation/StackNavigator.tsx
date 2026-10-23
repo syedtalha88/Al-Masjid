@@ -139,13 +139,23 @@ export function StackNavigator({
         if (top && document.activeElement instanceof HTMLElement) {
           returnFocus.current.set(top.key, document.activeElement);
         }
-        adapter.push(href);
+        if (state.modal) adapter.replace(href);
+        else adapter.push(href);
+      },
+      replace: (href) => {
+        adapter.preload(pathOf(href));
+        adapter.replace(href);
       },
       back: () => {
         inAppBack.current = true;
         const below = activeStack.at(-2);
-        if (state.modal) adapter.back();
-        else if (below?.synthetic) adapter.replace(below.href, { mcKey: below.key });
+        const top = activeStack.at(-1);
+        // A modal opened as the first page (deep link, onboarding → Scan) has no history entry below it: closing must
+        // not leave the app, so it replaces itself with the tab root under it.
+        if (state.modal) {
+          if (top?.synthetic) adapter.replace(top.href, { mcKey: top.key });
+          else adapter.back();
+        } else if (below?.synthetic) adapter.replace(below.href, { mcKey: below.key });
         else if (below) adapter.back();
       },
       presentModal: (href) => {

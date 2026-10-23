@@ -17,8 +17,13 @@ export interface ScreenInfo {
 
 export interface NavigatorApi {
   readonly activeTab: string;
-  /** Pushes a screen onto the active tab. */
+  /**
+   * Pushes a screen onto the active tab. From the modal, the modal closes and the screen takes its history entry, so
+   * back returns to where the modal was opened (Scan → follow → Masjid Detail → back → Home).
+   */
   push(href: string): void;
+  /** Replaces the top screen of the active tab (no animation, no new history entry). */
+  replace(href: string): void;
   /** Pops the top screen (or closes the modal). Works for deep links (replaces onto the tab root). */
   back(): void;
   /** Tab bar tap: switches tab, or pops to root + scrolls to top when the tab is already active. */

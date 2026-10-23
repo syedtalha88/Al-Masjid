@@ -130,7 +130,7 @@ masjid-connect/
 | Images | `sharp` sanitize/re-encode → **Cloudinary** signed server-side upload (DECISIONS #40) | Named transformations 480/960/1440 × AVIF/WebP; strict transformations ON |
 | Multipart | `busboy` (streaming, hard limits) | Admin image uploads only |
 | QR generate | `qrcode` (SVG output) | Posters, UPI QR |
-| QR scan | `BarcodeDetector` where available, else `qr-scanner` (lazy) | |
+| QR scan | `BarcodeDetector` where available, else `barcode-detector` ponyfill over `zxing-wasm` (lazy chunk + self-hosted `.wasm`; CSP `'wasm-unsafe-eval'` on the app origin) | DECISIONS #94 (`qr-scanner` is unmaintained) |
 | Prayer times | `adhan` (adhan-js) | Wrapped in `packages/domain/prayer` |
 | Bot protection | Cloudflare Turnstile (invisible/managed) | Server verifies token |
 | Errors | Sentry (browser + node), PII scrubbing | `sendDefaultPii: false` |

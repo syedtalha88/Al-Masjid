@@ -59,11 +59,12 @@ http://:8081 {
 	}
 }
 
-# CSP for the musalli app: Turnstile (device registration, reports, grievances) and the YouTube embed after a
+# CSP for the musalli app: Turnstile (device registration, reports, grievances), the self-hosted QR reader's WebAssembly
+# ('wasm-unsafe-eval' — compiling only, no JS eval; DECISIONS #94) and the YouTube embed after a
 # tap (DECISIONS #39). Trusted Types: only the `default` policy (apps/*/src/trusted-types.ts). MEDIA_ORIGIN = the
 # image host; CSP_CONNECT_EXTRA = extra connect-src sources (the Sentry ingest host, T0.13), empty by default.
 (csp-app) {
-	header Content-Security-Policy "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self'; img-src 'self' data: blob: {$MEDIA_ORIGIN}; media-src 'self' blob:; font-src 'self'; connect-src 'self' https://challenges.cloudflare.com {$CSP_CONNECT_EXTRA:}; frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types default"
+	header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com; style-src 'self'; img-src 'self' data: blob: {$MEDIA_ORIGIN}; media-src 'self' blob:; font-src 'self'; connect-src 'self' https://challenges.cloudflare.com {$CSP_CONNECT_EXTRA:}; frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types default"
 }
 
 # CSP for the admin app: the same without Turnstile and YouTube (unused there — 04 §7 "minus … where unused").

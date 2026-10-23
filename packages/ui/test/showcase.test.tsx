@@ -16,6 +16,7 @@ afterEach(cleanup);
 const navigator: NavigatorApi = {
   activeTab: 'home',
   push: vi.fn(),
+  replace: vi.fn(),
   back: vi.fn(),
   selectTab: vi.fn(),
   presentModal: vi.fn(),
