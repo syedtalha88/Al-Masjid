@@ -963,6 +963,34 @@ path, #14) and desktop browsers have no native QR detector; Android Chrome has. 
   chunk (the follow flow's success check) uses it (lost gzip context). A Motion chunk group made it worse (+7.9 kB) and
   was reverted. Owner rule "quality over bundle size" — owner to confirm or ask for a deeper fix.
 
+### #95 — Home (PHASE_02 T2.6) — ACCEPTED (Claude Code, 23 Oct 2026; 184 kB budget to be confirmed by the owner)
+**Decision:**
+- **View model** (`features/home/lib/home-view.ts`, pure, tested): strip day = today, or tomorrow once today's last jamaat
+  is over (Fajr highlighted); highlighted cell = the next jamaat (`nextJamaat`, Jumu'ah on Fridays); countdown buckets from
+  `@mc/domain`. The clock re-renders once a minute and at midnight (`useNow`), so prayer, Hijri date, Ramadan/Eid cards
+  roll over without a reload. Date line Hijri = first followed masjid's offset (else the global one) with its Maghrib
+  rollover. Ramadan card = first followed masjid in Ramadan mode; Eid card = nearest Eid salah within today + 3 days.
+- **Data:** followed ids → versions → `bundle?v=` and the first feed page per masjid (persisted cache → works offline);
+  masjids the versions endpoint no longer lists are hidden; first open offline → error card with retry. Recent updates =
+  5 newest across the first pages; template notices use the template title in the app language. Bell dot = any of them
+  newer than `updatesSeenAt`.
+- **Components** (`@mc/ui`): `NextPrayerPanel`, `PrayerStrip` (one highlight element sliding by `--mc-index` with
+  `spring.gentle` as CSS — transform only, RTL-aware; 08 §5.5's `layoutId` would need Motion's layout features at start),
+  `CountdownText` (digit roll, pulse dot under 10 min), `MasjidCard`, `Carousel` (native scroll-snap, dots via scaleX),
+  `PullToRefresh` (touch, `distance^0.7`, 72px commit, holds at 56px until the data settles); new glyphs (compass,
+  wrench); tokens `loop.pulseMs`, `gesture.pull*`; utilities `transition-highlight`, `pulse-dot`, `mx-bleed`,
+  `scroll-px-screen`.
+- **Strings** for Home live in `common` (loaded at start) — a separate namespace would add a request before Home's first
+  paint.
+- **Placeholders** until their tasks: `/masjid/:id` (T2.8), `/items/:publicId` (T2.11), `/qibla` modal (Phase 7).
+- **Tests that used the Home placeholder** (navigation, perf, smoke) now use the `/demo/:n` placeholders opened over the
+  Home root; root scroll-to-top uses the Settings tab. The Home e2e pins the page clock and strips the API `Date` header
+  (the drift correction would undo the pin) with service workers blocked for that spec.
+- **Bundle:** initial JS **183.1 kB** → limit **184 kB**: the entry's shared modules now carry what Home uses (TanStack's
+  query observer via `useMasjidVersions`, the new glyphs, time helpers). Home loads them at start anyway; F43 splits those
+  modules so lazy-only code leaves the entry.
+- **Open:** LCP warm ≤ 1.0 s / cold ≤ 2.5 s is measured by Lighthouse on staging after the deploy (report).
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

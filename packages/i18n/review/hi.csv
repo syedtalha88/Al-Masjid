@@ -79,7 +79,31 @@ common,language.choose,Choose your language,अपनी भाषा चुन�
 common,newUpdates,"{count, plural, one {# new update} other {# new updates}}","{count, plural, one {# नया अपडेट} other {# नए अपडेट}}",no
 common,countdown.hoursMinutes,{hours}h {minutes}m left,{hours} घं {minutes} मि बाकी,no
 common,countdown.minutes,{minutes}m left,{minutes} मि बाकी,no
+common,countdown.soon,Starts in {minutes} min,{minutes} मि में शुरू,no
+common,countdown.now,Jamaat now,जमात अभी,no
 common,home.greeting,Assalamu Alaikum,अस्सलामु अलैकुम,no
+common,home.lead,Stay connected with your masjids.,अपनी मस्जिदों से जुड़े रहें।,no
+common,home.qibla,Qibla direction,क़िबला की दिशा,no
+common,home.updates,Updates,अपडेट,no
+common,home.updatesNew,"Updates, new items","अपडेट, नई सूचनाएँ",no
+common,home.recent,Recent Updates,हाल के अपडेट,no
+common,home.noUpdates,No updates yet. Notices from your masjids will appear here.,अभी कोई अपडेट नहीं। आपकी मस्जिदों की सूचनाएँ यहाँ दिखेंगी।,no
+common,home.noTimings,Prayer times will appear once the masjid sets them.,मस्जिद के समय तय करते ही नमाज़ के समय यहाँ दिखेंगे।,no
+common,home.noJamaat,No jamaat times set,जमात का कोई समय तय नहीं,no
+common,home.suspended,This masjid is temporarily unavailable.,यह मस्जिद अभी कुछ समय के लिए उपलब्ध नहीं है।,no
+common,home.loadFailed,Couldn’t load this masjid.,यह मस्जिद लोड नहीं हो सकी।,no
+common,home.strip,"Jamaat times, {date}","जमात के समय, {date}",no
+common,home.emptyTitle,Add your first masjid,अपनी पहली मस्जिद जोड़ें,no
+common,home.emptyBody,"Scan the QR code on your masjid’s poster to see prayer times, notices and dua requests.","नमाज़ के समय, सूचनाएँ और दुआ की गुज़ारिशें देखने के लिए अपनी मस्जिद के पोस्टर पर लगा QR कोड स्कैन करें।",no
+common,home.emptyScan,Scan masjid QR,मस्जिद का QR स्कैन करें,no
+common,home.emptyCode,Enter code,कोड डालें,no
+common,home.ramadan,Ramadan,रमज़ान,no
+common,home.sehri,Sehri ends,सहरी ख़त्म,no
+common,home.iftar,Iftar,इफ़्तार,no
+common,home.eidFitr,Eid ul-Fitr Salah,ईद-उल-फ़ित्र की नमाज़,no
+common,home.eidAdha,Eid ul-Adha Salah,ईद-उल-अज़हा की नमाज़,no
+common,home.today,Today,आज,no
+common,home.tomorrow,Tomorrow,कल,no
 common,nav.back,Back,वापस,no
 common,nav.close,Close,बंद करें,no
 common,tabs.label,Main,मुख्य,no
@@ -118,6 +142,8 @@ common,ui.iosInstall.title,Add {app} to your Home Screen,{app} को होम 
 common,ui.iosInstall.share,Tap the Share button in Safari,Safari में शेयर बटन दबाएँ,no
 common,ui.iosInstall.add,Choose “Add to Home Screen”,“होम स्क्रीन में जोड़ें” चुनें,no
 common,ui.iosInstall.open,Open {app} from your Home Screen,होम स्क्रीन से {app} खोलें,no
+common,ui.nextPrayer,Next Prayer,अगली नमाज़,no
+common,ui.refreshing,Refreshing…,रीफ़्रेश हो रहा है…,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,मग़रिब के बाद,no
 common,hijri.months.m1,Muharram,मुहर्रम,no
@@ -132,6 +158,22 @@ common,hijri.months.m9,Ramadan,रमज़ान,no
 common,hijri.months.m10,Shawwal,शव्वाल,no
 common,hijri.months.m11,Dhu al-Qa’dah,ज़ुल-क़ादा,no
 common,hijri.months.m12,Dhu al-Hijjah,ज़ुल-हिज्जा,no
+common,prayer.fajr,Fajr,फ़ज्र,no
+common,prayer.dhuhr,Dhuhr,ज़ुहर,no
+common,prayer.asr,Asr,अस्र,no
+common,prayer.maghrib,Maghrib,मग़रिब,no
+common,prayer.isha,Isha,इशा,no
+common,prayer.jumuah,Jumu’ah,जुमा,no
+common,item.announcement,Notice,सूचना,no
+common,item.event,Event,कार्यक्रम,no
+common,item.facilities,Facilities,सुविधाएँ,no
+common,item.timing,Timing update,समय में बदलाव,no
+common,item.hadith,Today’s Hadith,आज की हदीस,no
+common,item.ayah,Today’s Ayah,आज की आयत,no
+common,item.dua,Request for Dua,दुआ की गुज़ारिश,no
+common,item.campaign,Donation campaign,चंदा अभियान,no
+common,item.chanda,Weekly chanda,हफ़्ते का चंदा,no
+common,item.video,Bayan,बयान,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,यह नहीं मिला। हो सकता है इसे हटा दिया गया हो।,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,यह काम यहाँ उपलब्ध नहीं है।,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,कुछ जानकारी गलत लग रही है। कृपया जाँचकर फिर कोशिश करें।,no

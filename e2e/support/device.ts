@@ -24,3 +24,45 @@ export async function followedIds(page: Page): Promise<string[]> {
     .filter((follow: { sync?: string }) => follow.sync !== 'unfollow')
     .map((follow: { masjidId: string }) => follow.masjidId);
 }
+
+/**
+ * Follows seeded masjids on this device by follow code (resolved through the public API), then reloads — the app reads
+ * the device document on start. The follows stay queued (`sync: 'follow'`) when the device is not registered.
+ */
+export async function followByCode(page: Page, appUrl: string, codes: readonly string[]): Promise<string[]> {
+  const ids: string[] = [];
+  for (const code of codes) {
+    const response = await page.request.get(`${appUrl}/api/v1/masjids/resolve/${code}`);
+    const body = (await response.json()) as { masjid: { id: string } };
+    ids.push(body.masjid.id);
+  }
+  await page.evaluate(
+    (masjidIds) =>
+      new Promise<void>((resolve, reject) => {
+        const open = indexedDB.open('mc-device');
+        open.onsuccess = () => {
+          const store = open.result.transaction('kv', 'readwrite').objectStore('kv');
+          const get = store.get('device');
+          get.onsuccess = () => {
+            const device = get.result as { follows: unknown[] };
+            device.follows = masjidIds.map((masjidId, index) => ({
+              masjidId,
+              followedAt: new Date(Date.UTC(2026, 0, 1, 0, index)).toISOString(),
+              muted: false,
+              sync: 'follow',
+            }));
+            const put = store.put(device, 'device');
+            put.onsuccess = () => {
+              resolve();
+            };
+            put.onerror = () => {
+              reject(new Error('could not store follows'));
+            };
+          };
+        };
+      }),
+    ids,
+  );
+  await page.reload();
+  return ids;
+}

@@ -79,7 +79,31 @@ common,language.choose,Choose your language,మీ భాషను ఎంచు�
 common,newUpdates,"{count, plural, one {# new update} other {# new updates}}","{count, plural, one {# కొత్త అప్‌డేట్} other {# కొత్త అప్‌డేట్‌లు}}",no
 common,countdown.hoursMinutes,{hours}h {minutes}m left,{hours}గం {minutes}ని మిగిలింది,no
 common,countdown.minutes,{minutes}m left,{minutes}ని మిగిలింది,no
+common,countdown.soon,Starts in {minutes} min,{minutes}ని లో ప్రారంభం,no
+common,countdown.now,Jamaat now,జమాత్ ఇప్పుడు,no
 common,home.greeting,Assalamu Alaikum,అస్సలాము అలైకుమ్,no
+common,home.lead,Stay connected with your masjids.,మీ మసీదులతో అనుసంధానంగా ఉండండి.,no
+common,home.qibla,Qibla direction,ఖిబ్లా దిశ,no
+common,home.updates,Updates,అప్‌డేట్‌లు,no
+common,home.updatesNew,"Updates, new items","అప్‌డేట్‌లు, కొత్తవి ఉన్నాయి",no
+common,home.recent,Recent Updates,ఇటీవలి అప్‌డేట్‌లు,no
+common,home.noUpdates,No updates yet. Notices from your masjids will appear here.,ఇంకా అప్‌డేట్‌లు లేవు. మీ మసీదుల ప్రకటనలు ఇక్కడ కనిపిస్తాయి.,no
+common,home.noTimings,Prayer times will appear once the masjid sets them.,మసీదు సమయాలు నిర్ణయించిన వెంటనే నమాజ్ సమయాలు ఇక్కడ కనిపిస్తాయి.,no
+common,home.noJamaat,No jamaat times set,జమాత్ సమయాలు నిర్ణయించలేదు,no
+common,home.suspended,This masjid is temporarily unavailable.,ఈ మసీదు ప్రస్తుతం అందుబాటులో లేదు.,no
+common,home.loadFailed,Couldn’t load this masjid.,ఈ మసీదును లోడ్ చేయలేకపోయాం.,no
+common,home.strip,"Jamaat times, {date}","జమాత్ సమయాలు, {date}",no
+common,home.emptyTitle,Add your first masjid,మీ మొదటి మసీదును జోడించండి,no
+common,home.emptyBody,"Scan the QR code on your masjid’s poster to see prayer times, notices and dua requests.","నమాజ్ సమయాలు, ప్రకటనలు, దుఆ విన్నపాలు చూడటానికి మీ మసీదు పోస్టర్‌పై ఉన్న QR కోడ్‌ను స్కాన్ చేయండి.",no
+common,home.emptyScan,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
+common,home.emptyCode,Enter code,కోడ్ నమోదు చేయండి,no
+common,home.ramadan,Ramadan,రంజాన్,no
+common,home.sehri,Sehri ends,సహ్రీ ముగింపు,no
+common,home.iftar,Iftar,ఇఫ్తార్,no
+common,home.eidFitr,Eid ul-Fitr Salah,ఈదుల్ ఫిత్ర్ నమాజ్,no
+common,home.eidAdha,Eid ul-Adha Salah,ఈదుల్ అజ్‌హా నమాజ్,no
+common,home.today,Today,ఈరోజు,no
+common,home.tomorrow,Tomorrow,రేపు,no
 common,nav.back,Back,వెనుకకు,no
 common,nav.close,Close,మూసివేయి,no
 common,tabs.label,Main,ప్రధాన,no
@@ -118,6 +142,8 @@ common,ui.iosInstall.title,Add {app} to your Home Screen,{app}ను హోమ�
 common,ui.iosInstall.share,Tap the Share button in Safari,Safariలో షేర్ బటన్ నొక్కండి,no
 common,ui.iosInstall.add,Choose “Add to Home Screen”,“హోమ్ స్క్రీన్‌కు జోడించు” ఎంచుకోండి,no
 common,ui.iosInstall.open,Open {app} from your Home Screen,హోమ్ స్క్రీన్ నుండి {app} తెరవండి,no
+common,ui.nextPrayer,Next Prayer,తదుపరి నమాజ్,no
+common,ui.refreshing,Refreshing…,రిఫ్రెష్ అవుతోంది…,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,మగ్రిబ్ తర్వాత,no
 common,hijri.months.m1,Muharram,ముహర్రం,no
@@ -132,6 +158,22 @@ common,hijri.months.m9,Ramadan,రమజాన్,no
 common,hijri.months.m10,Shawwal,షవ్వాల్,no
 common,hijri.months.m11,Dhu al-Qa’dah,జుల్ ఖాదా,no
 common,hijri.months.m12,Dhu al-Hijjah,జుల్ హిజ్జా,no
+common,prayer.fajr,Fajr,ఫజ్ర్,no
+common,prayer.dhuhr,Dhuhr,జుహర్,no
+common,prayer.asr,Asr,అస్ర్,no
+common,prayer.maghrib,Maghrib,మగ్రిబ్,no
+common,prayer.isha,Isha,ఇషా,no
+common,prayer.jumuah,Jumu’ah,జుమా,no
+common,item.announcement,Notice,ప్రకటన,no
+common,item.event,Event,కార్యక్రమం,no
+common,item.facilities,Facilities,సౌకర్యాలు,no
+common,item.timing,Timing update,సమయ మార్పు,no
+common,item.hadith,Today’s Hadith,నేటి హదీస్,no
+common,item.ayah,Today’s Ayah,నేటి ఆయత్,no
+common,item.dua,Request for Dua,దుఆ విన్నపం,no
+common,item.campaign,Donation campaign,విరాళాల ప్రచారం,no
+common,item.chanda,Weekly chanda,వారపు చందా,no
+common,item.video,Bayan,బయాన్,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,ఇది కనిపించలేదు. ఇది తొలగించబడి ఉండవచ్చు.,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,కొన్ని వివరాలు సరిగా లేవు. దయచేసి చూసి మళ్లీ ప్రయత్నించండి.,no

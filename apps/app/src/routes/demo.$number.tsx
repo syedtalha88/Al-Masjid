@@ -13,5 +13,5 @@ function DemoScreen() {
   const { t } = useTranslation();
   const raw = Number(useScreen().params['number']);
   const number = Number.isInteger(raw) && raw > 0 && raw < 100 ? raw : 1;
-  return <PlaceholderScreen title={t('placeholder.screenTitle', { number })} />;
+  return <PlaceholderScreen title={t('placeholder.screenTitle', { number })} number={number} />;
 }

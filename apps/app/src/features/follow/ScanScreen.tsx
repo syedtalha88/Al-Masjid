@@ -28,6 +28,13 @@ const COOLDOWN_MS = 2500;
 const SNAP_SCALE = 0.9;
 
 export function ScanScreen() {
+  // The namespace loads with this chunk; never show raw keys.
+  const { ready } = useTranslation('follow');
+  if (!ready) return <div aria-busy className="h-dvh bg-primary-900" />;
+  return <Scanner />;
+}
+
+function Scanner() {
   const { t } = useTranslation('follow');
   const { t: tc } = useTranslation();
   const { t: te } = useTranslation('errors');

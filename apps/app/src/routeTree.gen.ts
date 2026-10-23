@@ -11,11 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MasjidsRouteImport } from './routes/masjids'
+import { Route as QiblaRouteImport } from './routes/qibla'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase'
 import { Route as DemoNumberRouteImport } from './routes/demo.$number'
+import { Route as ItemsPublicIdRouteImport } from './routes/items.$publicId'
 import { Route as MCodeRouteImport } from './routes/m.$code'
 import { Route as MasjidMasjidIdRouteImport } from './routes/masjid.$masjidId'
 
@@ -27,6 +29,11 @@ const IndexRoute = IndexRouteImport.update({
 const MasjidsRoute = MasjidsRouteImport.update({
   id: '/masjids',
   path: '/masjids',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QiblaRoute = QiblaRouteImport.update({
+  id: '/qibla',
+  path: '/qibla',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ScanRoute = ScanRouteImport.update({
@@ -54,6 +61,11 @@ const DemoNumberRoute = DemoNumberRouteImport.update({
   path: '/demo/$number',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ItemsPublicIdRoute = ItemsPublicIdRouteImport.update({
+  id: '/items/$publicId',
+  path: '/items/$publicId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MCodeRoute = MCodeRouteImport.update({
   id: '/m/$code',
   path: '/m/$code',
@@ -68,22 +80,26 @@ const MasjidMasjidIdRoute = MasjidMasjidIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/masjids': typeof MasjidsRoute
+  '/qibla': typeof QiblaRoute
   '/scan': typeof ScanRoute
   '/settings': typeof SettingsRoute
   '/updates': typeof UpdatesRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/demo/$number': typeof DemoNumberRoute
+  '/items/$publicId': typeof ItemsPublicIdRoute
   '/m/$code': typeof MCodeRoute
   '/masjid/$masjidId': typeof MasjidMasjidIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/masjids': typeof MasjidsRoute
+  '/qibla': typeof QiblaRoute
   '/scan': typeof ScanRoute
   '/settings': typeof SettingsRoute
   '/updates': typeof UpdatesRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/demo/$number': typeof DemoNumberRoute
+  '/items/$publicId': typeof ItemsPublicIdRoute
   '/m/$code': typeof MCodeRoute
   '/masjid/$masjidId': typeof MasjidMasjidIdRoute
 }
@@ -91,11 +107,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/masjids': typeof MasjidsRoute
+  '/qibla': typeof QiblaRoute
   '/scan': typeof ScanRoute
   '/settings': typeof SettingsRoute
   '/updates': typeof UpdatesRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/demo/$number': typeof DemoNumberRoute
+  '/items/$publicId': typeof ItemsPublicIdRoute
   '/m/$code': typeof MCodeRoute
   '/masjid/$masjidId': typeof MasjidMasjidIdRoute
 }
@@ -104,33 +122,39 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/masjids'
+    | '/qibla'
     | '/scan'
     | '/settings'
     | '/updates'
     | '/_dev/showcase'
     | '/demo/$number'
+    | '/items/$publicId'
     | '/m/$code'
     | '/masjid/$masjidId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/masjids'
+    | '/qibla'
     | '/scan'
     | '/settings'
     | '/updates'
     | '/_dev/showcase'
     | '/demo/$number'
+    | '/items/$publicId'
     | '/m/$code'
     | '/masjid/$masjidId'
   id:
     | '__root__'
     | '/'
     | '/masjids'
+    | '/qibla'
     | '/scan'
     | '/settings'
     | '/updates'
     | '/_dev/showcase'
     | '/demo/$number'
+    | '/items/$publicId'
     | '/m/$code'
     | '/masjid/$masjidId'
   fileRoutesById: FileRoutesById
@@ -138,11 +162,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MasjidsRoute: typeof MasjidsRoute
+  QiblaRoute: typeof QiblaRoute
   ScanRoute: typeof ScanRoute
   SettingsRoute: typeof SettingsRoute
   UpdatesRoute: typeof UpdatesRoute
   DevShowcaseRoute: typeof DevShowcaseRoute
   DemoNumberRoute: typeof DemoNumberRoute
+  ItemsPublicIdRoute: typeof ItemsPublicIdRoute
   MCodeRoute: typeof MCodeRoute
   MasjidMasjidIdRoute: typeof MasjidMasjidIdRoute
 }
@@ -161,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/masjids'
       fullPath: '/masjids'
       preLoaderRoute: typeof MasjidsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/qibla': {
+      id: '/qibla'
+      path: '/qibla'
+      fullPath: '/qibla'
+      preLoaderRoute: typeof QiblaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/scan': {
@@ -198,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoNumberRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/items/$publicId': {
+      id: '/items/$publicId'
+      path: '/items/$publicId'
+      fullPath: '/items/$publicId'
+      preLoaderRoute: typeof ItemsPublicIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/m/$code': {
       id: '/m/$code'
       path: '/m/$code'
@@ -218,11 +258,13 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MasjidsRoute: MasjidsRoute,
+  QiblaRoute: QiblaRoute,
   ScanRoute: ScanRoute,
   SettingsRoute: SettingsRoute,
   UpdatesRoute: UpdatesRoute,
   DevShowcaseRoute: DevShowcaseRoute,
   DemoNumberRoute: DemoNumberRoute,
+  ItemsPublicIdRoute: ItemsPublicIdRoute,
   MCodeRoute: MCodeRoute,
   MasjidMasjidIdRoute: MasjidMasjidIdRoute,
 }

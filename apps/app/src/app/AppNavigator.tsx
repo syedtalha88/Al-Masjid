@@ -17,7 +17,7 @@ import { NotFoundScreen } from './NotFoundScreen.tsx';
 import { RouteError } from './RouteError.tsx';
 import { RoutePending } from './RoutePending.tsx';
 
-/** Musalli app navigation (07 Navigation map): four tab roots + the Scan modal. */
+/** Musalli app navigation (07 Navigation map): four tab roots + the Scan and Qibla modals. */
 export const NAV_CONFIG: NavConfig = {
   tabs: [
     { id: 'home', path: '/' },
@@ -25,7 +25,7 @@ export const NAV_CONFIG: NavConfig = {
     { id: 'updates', path: '/updates' },
     { id: 'settings', path: '/settings' },
   ],
-  modalPaths: ['/scan'],
+  modalPaths: ['/scan', '/qibla'],
 };
 
 /** Root of the musalli app: the stack navigator renders every screen; the router owns URLs and history. */

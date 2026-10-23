@@ -7,11 +7,20 @@ import type { ReactNode } from 'react';
  * Phase 0 placeholder for screens built in later phases (PROGRESS F18). It can push another placeholder so
  * the navigation system can be exercised end to end.
  */
-export function PlaceholderScreen({ title, children }: { readonly title: string; readonly children?: ReactNode }) {
+export function PlaceholderScreen({
+  title,
+  number,
+  children,
+}: {
+  readonly title: string;
+  /** A demo screen's own number (its next is number + 1); other placeholders number by stack depth. */
+  readonly number?: number;
+  readonly children?: ReactNode;
+}) {
   const { t } = useTranslation();
   const navigator = useNavigator();
   const { depth } = useScreen();
-  const next = `/demo/${String(depth + 1)}`;
+  const next = `/demo/${String((number ?? depth) + 1)}`;
   return (
     <Screen title={title}>
       {children}

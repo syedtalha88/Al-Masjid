@@ -10,7 +10,7 @@ test.describe('musalli app (app origin)', () => {
     const response = await page.goto(APP_URL);
     expect(response?.status()).toBe(200);
     await expect(page).toHaveTitle('Masjid Connect');
-    await expect(page.getByRole('heading', { level: 1, name: 'Masjid Connect' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Assalamu Alaikum' })).toBeVisible();
   });
 
   test('unknown client route falls back to the SPA', async ({ page }) => {

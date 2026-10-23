@@ -71,6 +71,8 @@ export const loop = {
   spinnerMs: 800,
   /** One skeleton shimmer sweep, ms (static skeleton with reduced motion, 08 §6). */
   shimmerMs: 1400,
+  /** Countdown "soon" dot: one soft pulse, ms (08 §5.5); static with reduced motion. */
+  pulseMs: 1200,
   /** Scanner corner brackets breathe 1 ↔ `scanBreatheScale` (08 §5.8); off with reduced motion. */
   scanBreatheMs: 1600,
   scanBreatheScale: 1.03,
@@ -132,4 +134,9 @@ export const gesture = {
   pressCancelDistance: 8,
   /** Long-press delay, ms. */
   longPressMs: 500,
+  /** Pull-to-refresh (08 §4): content follows `distance ^ pullExponent`; past `pullRefreshPx` a release refreshes and the
+   *  content waits at `pullHoldPx` until the data settles. */
+  pullExponent: 0.7,
+  pullRefreshPx: 72,
+  pullHoldPx: 56,
 } as const;

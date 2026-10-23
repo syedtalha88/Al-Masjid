@@ -80,6 +80,18 @@
   padding-right: max(var(--mc-gutter), env(safe-area-inset-right));
 }
 
+/* Edge-to-edge inside a padded screen (carousels): cancels the screen gutter. */
+@utility mx-bleed {
+  margin-left: calc(-1 * max(var(--mc-gutter), env(safe-area-inset-left)));
+  margin-right: calc(-1 * max(var(--mc-gutter), env(safe-area-inset-right)));
+}
+
+/* Snap points that keep the gutter (a snapped card lines up with the content). */
+@utility scroll-px-screen {
+  scroll-padding-left: max(var(--mc-gutter), env(safe-area-inset-left));
+  scroll-padding-right: max(var(--mc-gutter), env(safe-area-inset-right));
+}
+
 /*
  * Control sizes (06 §4, §6): app hit targets ≥ 44px, admin ≥ 56px. Components size themselves with these, so
  * the admin app gets its bigger targets without a separate component set.

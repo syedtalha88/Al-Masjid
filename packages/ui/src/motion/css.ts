@@ -105,6 +105,14 @@ ${fallbacks.join('\n')}
   }
 }
 
+/* Prayer strip highlight sliding to the next prayer's cell (08 §5.5, spring.gentle). */
+@utility transition-highlight {
+  transition: transform var(--mc-spring-gentle);
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
 @utility transition-indicator {
   transition: transform var(--mc-spring-snappy);
   @media (prefers-reduced-motion: reduce) {
@@ -170,6 +178,21 @@ ${shakeFrames.join('\n')}
 
 @utility spin {
   animation: mc-spin ${String(loop.spinnerMs)}ms linear infinite;
+}
+
+/* Countdown under 10 minutes (08 §5.5): a soft pulsing dot (opacity + scale); static with reduced motion. */
+@keyframes mc-pulse {
+  50% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+}
+
+@utility pulse-dot {
+  animation: mc-pulse ${String(loop.pulseMs)}ms ease-in-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 /* Skeleton (08 §5.4, §6): a highlight sweeps across on the compositor; static with reduced motion. */

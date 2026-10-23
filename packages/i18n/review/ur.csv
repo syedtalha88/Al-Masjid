@@ -79,7 +79,31 @@ common,language.choose,Choose your language,اپنی زبان منتخب کری�
 common,newUpdates,"{count, plural, one {# new update} other {# new updates}}","{count, plural, one {# نئی اپڈیٹ} other {# نئی اپڈیٹس}}",no
 common,countdown.hoursMinutes,{hours}h {minutes}m left,{hours} گھنٹے {minutes} منٹ باقی,no
 common,countdown.minutes,{minutes}m left,{minutes} منٹ باقی,no
+common,countdown.soon,Starts in {minutes} min,{minutes} منٹ میں شروع,no
+common,countdown.now,Jamaat now,جماعت ابھی,no
 common,home.greeting,Assalamu Alaikum,السلام علیکم,no
+common,home.lead,Stay connected with your masjids.,اپنی مساجد سے جڑے رہیں۔,no
+common,home.qibla,Qibla direction,قبلہ کی سمت,no
+common,home.updates,Updates,اپڈیٹس,no
+common,home.updatesNew,"Updates, new items",اپڈیٹس، نئی اطلاعات,no
+common,home.recent,Recent Updates,حالیہ اپڈیٹس,no
+common,home.noUpdates,No updates yet. Notices from your masjids will appear here.,ابھی کوئی اپڈیٹ نہیں۔ آپ کی مساجد کی اطلاعات یہاں نظر آئیں گی۔,no
+common,home.noTimings,Prayer times will appear once the masjid sets them.,مسجد کے اوقات طے کرتے ہی نماز کے اوقات یہاں نظر آئیں گے۔,no
+common,home.noJamaat,No jamaat times set,جماعت کا کوئی وقت طے نہیں,no
+common,home.suspended,This masjid is temporarily unavailable.,یہ مسجد فی الحال دستیاب نہیں ہے۔,no
+common,home.loadFailed,Couldn’t load this masjid.,یہ مسجد لوڈ نہیں ہو سکی۔,no
+common,home.strip,"Jamaat times, {date}",جماعت کے اوقات، {date},no
+common,home.emptyTitle,Add your first masjid,اپنی پہلی مسجد شامل کریں,no
+common,home.emptyBody,"Scan the QR code on your masjid’s poster to see prayer times, notices and dua requests.",نماز کے اوقات، اطلاعات اور دعا کی درخواستیں دیکھنے کے لیے اپنی مسجد کے پوسٹر پر لگا QR کوڈ اسکین کریں۔,no
+common,home.emptyScan,Scan masjid QR,مسجد کا QR اسکین کریں,no
+common,home.emptyCode,Enter code,کوڈ درج کریں,no
+common,home.ramadan,Ramadan,رمضان,no
+common,home.sehri,Sehri ends,سحری ختم,no
+common,home.iftar,Iftar,افطار,no
+common,home.eidFitr,Eid ul-Fitr Salah,عید الفطر کی نماز,no
+common,home.eidAdha,Eid ul-Adha Salah,عید الاضحیٰ کی نماز,no
+common,home.today,Today,آج,no
+common,home.tomorrow,Tomorrow,کل,no
 common,nav.back,Back,واپس,no
 common,nav.close,Close,بند کریں,no
 common,tabs.label,Main,مرکزی,no
@@ -118,6 +142,8 @@ common,ui.iosInstall.title,Add {app} to your Home Screen,{app} کو ہوم اس�
 common,ui.iosInstall.share,Tap the Share button in Safari,Safari میں شیئر بٹن دبائیں,no
 common,ui.iosInstall.add,Choose “Add to Home Screen”,“ہوم اسکرین میں شامل کریں” منتخب کریں,no
 common,ui.iosInstall.open,Open {app} from your Home Screen,ہوم اسکرین سے {app} کھولیں,no
+common,ui.nextPrayer,Next Prayer,اگلی نماز,no
+common,ui.refreshing,Refreshing…,تازہ ہو رہا ہے…,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,مغرب کے بعد,no
 common,hijri.months.m1,Muharram,محرم,no
@@ -132,6 +158,22 @@ common,hijri.months.m9,Ramadan,رمضان,no
 common,hijri.months.m10,Shawwal,شوال,no
 common,hijri.months.m11,Dhu al-Qa’dah,ذوالقعدہ,no
 common,hijri.months.m12,Dhu al-Hijjah,ذوالحجہ,no
+common,prayer.fajr,Fajr,فجر,no
+common,prayer.dhuhr,Dhuhr,ظہر,no
+common,prayer.asr,Asr,عصر,no
+common,prayer.maghrib,Maghrib,مغرب,no
+common,prayer.isha,Isha,عشاء,no
+common,prayer.jumuah,Jumu’ah,جمعہ,no
+common,item.announcement,Notice,اطلاع,no
+common,item.event,Event,پروگرام,no
+common,item.facilities,Facilities,سہولیات,no
+common,item.timing,Timing update,اوقات میں تبدیلی,no
+common,item.hadith,Today’s Hadith,آج کی حدیث,no
+common,item.ayah,Today’s Ayah,آج کی آیت,no
+common,item.dua,Request for Dua,دعا کی درخواست,no
+common,item.campaign,Donation campaign,چندہ مہم,no
+common,item.chanda,Weekly chanda,ہفتہ وار چندہ,no
+common,item.video,Bayan,بیان,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,یہ نہیں ملا۔ ہو سکتا ہے اسے ہٹا دیا گیا ہو۔,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,یہ کام یہاں دستیاب نہیں ہے۔,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,کچھ معلومات غلط لگ رہی ہیں۔ براہِ کرم جانچ کر دوبارہ کوشش کریں۔,no

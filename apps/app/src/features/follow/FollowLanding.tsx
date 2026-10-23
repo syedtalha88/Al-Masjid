@@ -37,26 +37,45 @@ export interface FollowLandingProps {
   readonly onContinue?: (followable: boolean) => void;
 }
 
-export function FollowLanding({
-  code: raw,
-  iosBrowser = inIosBrowser(),
-  onOpen,
-  onManage,
-  onScan,
-  onContinue,
-}: FollowLandingProps) {
+/** The lookup of the landing's code (shared by the gate — so it starts while the strings load — and the content). */
+function useResolve(raw: string) {
+  const { api } = useAppData();
+  const code = normalizeFollowCode(raw);
+  return {
+    code,
+    masjid: useQuery({
+      queryKey: resolveKey(code ?? '-'),
+      queryFn: ({ signal }) => api.resolve(code ?? '', signal),
+      enabled: code !== null,
+      retry: false,
+      staleTime: 60_000,
+    }),
+  };
+}
+
+export function FollowLanding(props: FollowLandingProps) {
+  // The namespace loads with this chunk; never show raw keys. The lookup starts meanwhile.
+  const { ready } = useTranslation('follow');
+  useResolve(props.code);
+  if (!ready) return <LandingSkeleton />;
+  return <Landing {...props} />;
+}
+
+function LandingSkeleton() {
+  return (
+    <div aria-busy className="flex flex-col gap-4 pt-2">
+      <Skeleton className="aspect-[16/10] w-full rounded-lg" />
+      <Skeleton className="h-7 w-2/3 rounded-xs" />
+      <SkeletonText lines={1} />
+    </div>
+  );
+}
+
+function Landing({ code: raw, iosBrowser = inIosBrowser(), onOpen, onManage, onScan, onContinue }: FollowLandingProps) {
   const { t } = useTranslation('follow');
   const { t: tc } = useTranslation();
   const { t: te } = useTranslation('errors');
-  const { api } = useAppData();
-  const code = normalizeFollowCode(raw);
-  const masjid = useQuery({
-    queryKey: resolveKey(code ?? '-'),
-    queryFn: ({ signal }) => api.resolve(code ?? '', signal),
-    enabled: code !== null,
-    retry: false,
-    staleTime: 60_000,
-  });
+  const { code, masjid } = useResolve(raw);
   const flow = useFollowFlow(masjid.data?.id ?? null, onOpen);
   const [here, setHere] = useState(!iosBrowser);
   const [guide, setGuide] = useState(true);
@@ -97,15 +116,7 @@ export function FollowLanding({
       />
     );
   }
-  if (!masjid.data || code === null) {
-    return (
-      <div aria-busy className="flex flex-col gap-4 pt-2">
-        <Skeleton className="aspect-[16/10] w-full rounded-lg" />
-        <Skeleton className="h-7 w-2/3 rounded-xs" />
-        <SkeletonText lines={1} />
-      </div>
-    );
-  }
+  if (!masjid.data || code === null) return <LandingSkeleton />;
 
   const data = masjid.data;
   return (

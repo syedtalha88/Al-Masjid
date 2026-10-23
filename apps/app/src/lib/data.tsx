@@ -28,6 +28,8 @@ export interface AppData {
 }
 
 const DataContext = createContext<AppData | null>(null);
+/** The raw context — for tests that provide a memory store and a test query client (the app uses `DataProvider`). */
+export const AppDataContext = DataContext;
 
 /** Registration / follow sync is never needed for the first paint: its code loads right after start. */
 const loadSync = () => import('./device/sync.ts');
@@ -154,7 +156,13 @@ export function useFollowedIds(): readonly string[] {
  * The content versions of the followed masjids — polled on focus and every 60 s while visible; prunes cached queries
  * of older versions whenever new versions arrive.
  */
-export function useMasjidVersions(): { readonly versions: MasjidVersions | undefined; readonly refresh: () => void } {
+export function useMasjidVersions(): {
+  readonly versions: MasjidVersions | undefined;
+  /** `error` only when no versions are known at all (first open offline); cached versions keep working. */
+  readonly failed: boolean;
+  /** Checks the versions now (pull-to-refresh); resolves when the answer is in. */
+  readonly refresh: () => Promise<void>;
+} {
   const { api, queryClient } = useAppData();
   const ids = useFollowedIds();
   const query = useQuery({ ...versionsQuery(api, ids), placeholderData: (previous) => previous });
@@ -163,8 +171,9 @@ export function useMasjidVersions(): { readonly versions: MasjidVersions | undef
   }, [query.data, queryClient]);
   return {
     versions: query.data,
-    refresh: () => {
-      void query.refetch();
+    failed: query.isError && query.data === undefined,
+    refresh: async () => {
+      await query.refetch();
     },
   };
 }

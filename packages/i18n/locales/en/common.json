@@ -12,10 +12,34 @@
   "newUpdates": "{count, plural, one {# new update} other {# new updates}}",
   "countdown": {
     "hoursMinutes": "{hours}h {minutes}m left",
-    "minutes": "{minutes}m left"
+    "minutes": "{minutes}m left",
+    "soon": "Starts in {minutes} min",
+    "now": "Jamaat now"
   },
   "home": {
-    "greeting": "Assalamu Alaikum"
+    "greeting": "Assalamu Alaikum",
+    "lead": "Stay connected with your masjids.",
+    "qibla": "Qibla direction",
+    "updates": "Updates",
+    "updatesNew": "Updates, new items",
+    "recent": "Recent Updates",
+    "noUpdates": "No updates yet. Notices from your masjids will appear here.",
+    "noTimings": "Prayer times will appear once the masjid sets them.",
+    "noJamaat": "No jamaat times set",
+    "suspended": "This masjid is temporarily unavailable.",
+    "loadFailed": "Couldn’t load this masjid.",
+    "strip": "Jamaat times, {date}",
+    "emptyTitle": "Add your first masjid",
+    "emptyBody": "Scan the QR code on your masjid’s poster to see prayer times, notices and dua requests.",
+    "emptyScan": "Scan masjid QR",
+    "emptyCode": "Enter code",
+    "ramadan": "Ramadan",
+    "sehri": "Sehri ends",
+    "iftar": "Iftar",
+    "eidFitr": "Eid ul-Fitr Salah",
+    "eidAdha": "Eid ul-Adha Salah",
+    "today": "Today",
+    "tomorrow": "Tomorrow"
   },
   "nav": {
     "back": "Back",
@@ -65,7 +89,9 @@
       "share": "Tap the Share button in Safari",
       "add": "Choose “Add to Home Screen”",
       "open": "Open {app} from your Home Screen"
-    }
+    },
+    "nextPrayer": "Next Prayer",
+    "refreshing": "Refreshing…"
   },
   "hijri": {
     "date": "{day} {month} {year}",
@@ -84,5 +110,25 @@
       "m11": "Dhu al-Qa’dah",
       "m12": "Dhu al-Hijjah"
     }
+  },
+  "prayer": {
+    "fajr": "Fajr",
+    "dhuhr": "Dhuhr",
+    "asr": "Asr",
+    "maghrib": "Maghrib",
+    "isha": "Isha",
+    "jumuah": "Jumu’ah"
+  },
+  "item": {
+    "announcement": "Notice",
+    "event": "Event",
+    "facilities": "Facilities",
+    "timing": "Timing update",
+    "hadith": "Today’s Hadith",
+    "ayah": "Today’s Ayah",
+    "dua": "Request for Dua",
+    "campaign": "Donation campaign",
+    "chanda": "Weekly chanda",
+    "video": "Bayan"
   }
 }

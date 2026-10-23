@@ -227,5 +227,58 @@
   "hijri.months.m12": {
     "context": "Name of Hijri (Islamic calendar) month 12 as commonly written in India",
     "maxLength": 20
+  },
+  "prayer.jumuah": {
+    "context": "Friday congregational prayer; replaces Dhuhr on Fridays in the prayer strip",
+    "maxLength": 10
+  },
+  "prayer.maghrib": {
+    "context": "Prayer name in a narrow strip column (5 columns on a phone)",
+    "maxLength": 10
+  },
+  "countdown.soon": {
+    "context": "Under 10 minutes before a jamaat; {minutes} is 1-9",
+    "maxLength": 22
+  },
+  "countdown.now": {
+    "context": "Shown for 10 minutes after the jamaat started",
+    "maxLength": 16
+  },
+  "ui.nextPrayer": {
+    "context": "Small label above the next prayer name",
+    "maxLength": 20
+  },
+  "home.qibla": {
+    "context": "Icon button in the Home header that opens the Qibla compass (screen readers)"
+  },
+  "home.updatesNew": {
+    "context": "Bell button in the Home header when there are unseen updates (screen readers)"
+  },
+  "home.strip": {
+    "context": "Screen-reader name of the 5 jamaat times row; {date} is e.g. \"Thursday, 22 October 2026\""
+  },
+  "home.emptyScan": {
+    "context": "Big button on Home when no masjid is followed yet",
+    "maxLength": 24
+  },
+  "home.emptyCode": {
+    "context": "Second button: type the 8-character masjid code",
+    "maxLength": 24
+  },
+  "home.sehri": {
+    "context": "Ramadan card: the time Sehri (pre-dawn meal) ends",
+    "maxLength": 18
+  },
+  "home.iftar": {
+    "context": "Ramadan card: the time of Iftar (breaking the fast)",
+    "maxLength": 14
+  },
+  "item.dua": {
+    "context": "Category label of a dua request post (also its title when it has none)",
+    "maxLength": 24
+  },
+  "item.video": {
+    "context": "Category label of a recorded talk (bayan) post",
+    "maxLength": 16
   }
 }

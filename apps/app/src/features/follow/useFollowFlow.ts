@@ -1,5 +1,5 @@
 import { haptic } from '@mc/ui/motion';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { useFollowedIds } from '../../lib/data.tsx';
 import { useFollow } from './useFollow.ts';
@@ -25,6 +25,8 @@ export function useFollowFlow(masjidId: string | null, onOpen: (masjidId: string
   const followMasjid = useFollow();
   const followed = useFollowedIds();
   const [phase, setPhase] = useState<FollowPhase>('preview');
+  // A ref, not the phase: two completion callbacks in the same frame would both still see `followed`.
+  const opened = useRef(false);
   const already = masjidId !== null && phase === 'preview' && followed.includes(masjidId);
   return {
     phase,
@@ -41,15 +43,18 @@ export function useFollowFlow(masjidId: string | null, onOpen: (masjidId: string
         onOpen(masjidId);
       } else {
         haptic('success');
+        opened.current = false;
         setPhase('followed');
       }
     },
     complete: () => {
-      if (masjidId === null || phase !== 'followed') return;
+      if (masjidId === null || phase !== 'followed' || opened.current) return;
+      opened.current = true;
       setPhase('opened');
       onOpen(masjidId);
     },
     reset: () => {
+      opened.current = false;
       setPhase('preview');
     },
   };

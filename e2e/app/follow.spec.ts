@@ -1,4 +1,5 @@
 import { expect, test } from '@mc/config/playwright';
+import type { Page } from '@playwright/test';
 
 import { APP_URL } from '../../playwright.config.ts';
 import { followedIds } from '../support/device.ts';
@@ -7,6 +8,11 @@ import { followedIds } from '../support/device.ts';
 // journey is `scan.scan.spec.ts` (Chromium fake camera). Needs the dev seed (TESTA001 = Test Masjid Alpha).
 
 const DETAIL = /\/masjid\/[0-9a-f-]{36}$/;
+/** On Masjid Detail: the URL and its screen (WebKit commits the URL change a moment later than it reports it). */
+async function onDetail(page: Page) {
+  await expect(page).toHaveURL(DETAIL);
+  await expect(page.locator('section[data-screen]:not([inert]) h1')).toBeVisible();
+}
 
 test('enter code: typing the 8 characters finds the masjid, Follow opens Masjid Detail, Back returns Home', async ({
   page,
@@ -33,7 +39,7 @@ test('enter code: typing the 8 characters finds the masjid, Follow opens Masjid 
   await expectAxeClean();
   await preview.getByRole('button', { name: 'Follow masjid' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'You now follow Test Masjid Alpha' })).toBeVisible();
-  await expect(page).toHaveURL(DETAIL);
+  await onDetail(page);
   expect(await followedIds(page)).toHaveLength(1);
 
   // Opened as the first page: the in-app back goes to Home (the browser's back would leave the site).
@@ -48,13 +54,13 @@ test('a pasted follow link works in the code box; an already followed masjid off
   await code.fill(`${new URL(APP_URL).origin}/m/TESTA001`);
   const preview = page.getByRole('dialog', { name: 'Follow masjid' });
   await preview.getByRole('button', { name: 'Follow masjid' }).click();
-  await expect(page).toHaveURL(DETAIL);
+  await onDetail(page);
 
   await page.goto(`${APP_URL}/scan?enter=code`);
   await page.getByRole('textbox', { name: 'Masjid code' }).pressSequentially('TESTA001');
   await expect(page.getByText('You already follow this masjid.')).toBeVisible();
   await page.getByRole('button', { name: 'Open', exact: true }).click();
-  await expect(page).toHaveURL(DETAIL);
+  await onDetail(page);
   expect(await followedIds(page)).toHaveLength(1);
 });
 
@@ -64,7 +70,7 @@ test('/m/:code landing: follow from the link (iPhone Safari shows the "follow it
   expectAxeClean,
 }) => {
   await page.goto(`${APP_URL}/m/test-a001`);
-  await expect(page.getByRole('heading', { level: 1, name: 'Test Masjid Alpha' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Test Masjid Alpha' })).toBeVisible({ timeout: 15_000 });
   if (browserName === 'webkit') {
     // DECISIONS #14: following belongs in the Home Screen app — show how, with the code large.
     await expect(page.getByRole('heading', { name: 'Follow it in the Masjid Connect app' })).toBeVisible();
@@ -75,13 +81,14 @@ test('/m/:code landing: follow from the link (iPhone Safari shows the "follow it
     await expect(page.getByText('TEST-A001')).toHaveCount(0);
   }
   await page.getByRole('button', { name: 'Follow masjid' }).click();
-  await expect(page).toHaveURL(DETAIL);
+  await onDetail(page);
   expect(await followedIds(page)).toHaveLength(1);
 });
 
 test('/m/:code with an unknown code: friendly not-found with "Scan again"', async ({ page }) => {
   await page.goto(`${APP_URL}/m/ZZZZ0000`);
-  await expect(page.getByRole('heading', { name: 'Masjid not found' })).toBeVisible();
+  // WebKit on a busy runner: the strings chunk + lookup can take a few seconds.
+  await expect(page.getByRole('heading', { name: 'Masjid not found' })).toBeVisible({ timeout: 15_000 });
   await page.getByRole('button', { name: 'Scan again' }).click();
   await expect(page).toHaveURL(`${APP_URL}/scan`);
   await expect(page.getByRole('heading', { name: 'Scan masjid QR' })).toBeVisible();

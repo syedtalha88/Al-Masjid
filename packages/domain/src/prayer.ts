@@ -27,20 +27,20 @@ export type AsrMadhab = 'hanafi' | 'shafi';
 export interface PrayerConfig {
   readonly adhanMode: 'auto' | 'manual';
   /** "HH:mm" — required for manual adhan. */
-  readonly adhanTime?: string;
+  readonly adhanTime?: string | undefined;
   /** −15…15 minutes added to a calculated adhan. */
-  readonly adhanAdjustMin?: number;
+  readonly adhanAdjustMin?: number | undefined;
   readonly jamaatMode: 'fixed' | 'offset' | 'none';
   /** "HH:mm" — required for a fixed jamaat. */
-  readonly jamaatTime?: string;
+  readonly jamaatTime?: string | undefined;
   /** 0…60 minutes after adhan — required for an offset jamaat. */
-  readonly jamaatOffsetMin?: number;
+  readonly jamaatOffsetMin?: number | undefined;
 }
 
 export interface JumuahJamaat {
   /** 1…3. */
   readonly seq: number;
-  readonly khutbahTime?: string;
+  readonly khutbahTime?: string | undefined;
   readonly jamaatTime: string;
 }
 

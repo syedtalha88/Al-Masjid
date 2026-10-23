@@ -4,7 +4,9 @@ import type { Page } from '@playwright/test';
 import { APP_URL } from '../../playwright.config.ts';
 
 // T0.9 acceptance (08 §3): stack push/pop, Android/browser back, swipe-back, tabs keep their stacks,
-// re-tap pops to root + scrolls top, modal, focus management, inert covered screens, stress and perf.
+// re-tap pops to root + scrolls top, modal, focus management, inert covered screens, stress and perf. The stack is
+// exercised with the `/demo/:n` placeholder screens (opened as a deep link over the Home root, so their numbers stay
+// 1, 2, 3…); Home is the real screen since T2.5, so root-scrolling uses the long Settings tab.
 
 const title = (page: Page) => page.locator('section[data-screen]:not([inert]) h1');
 const expectTop = async (page: Page, name: string) => {
@@ -38,9 +40,11 @@ async function drag(page: Page, fromX: number, toX: number, durationMs: number) 
   await page.mouse.up();
 }
 
+const HOME = 'Assalamu Alaikum';
+
 test.beforeEach(async ({ page }) => {
-  await page.goto(APP_URL);
-  await expectTop(page, 'Masjid Connect');
+  await page.goto(`${APP_URL}/demo/1`);
+  await expectTop(page, 'Screen 1');
 });
 
 test('push and back: new screen on top, focus on its title, previous screen inert and restored', async ({ page }) => {
@@ -58,22 +62,23 @@ test('push and back: new screen on top, focus on its title, previous screen iner
   await settle(page);
   await expect(page.locator(':focus')).toHaveText('Screen 2');
   await expect(page).toHaveURL(/\/demo\/2$/);
-  await expect(page.locator('section[data-screen][inert]')).toHaveCount(1);
+  // Covered: Screen 1 and the Home root under the deep link.
+  await expect(page.locator('section[data-screen][inert]')).toHaveCount(2);
 
   await page.locator('section[data-screen]:not([inert])').getByRole('button', { name: 'Back' }).click();
-  await expectTop(page, 'Masjid Connect');
+  await expectTop(page, 'Screen 1');
   await settle(page);
   // Focus returns to the control that opened the screen if it had focus; otherwise to the title (DECISIONS #44).
   const trail = await page.evaluate(() => (window as unknown as { __focusTrail: string[] }).__focusTrail);
   const openerHadFocus = trail.includes('Open next screen');
-  await expect(page.locator(':focus')).toHaveText(openerHadFocus ? 'Open next screen' : 'Masjid Connect');
+  await expect(page.locator(':focus')).toHaveText(openerHadFocus ? 'Open next screen' : 'Screen 1');
 });
 
 test('Android / browser back pops, forward pushes again', async ({ page }) => {
   await openNext(page);
   await expectTop(page, 'Screen 2');
   await page.goBack();
-  await expectTop(page, 'Masjid Connect');
+  await expectTop(page, 'Screen 1');
   await page.goForward();
   await expectTop(page, 'Screen 2');
 });
@@ -89,10 +94,10 @@ test('stress: rapid double push then double pop never breaks the stack', async (
   await openNext(page);
   await page.goBack();
   await page.goBack();
-  await expectTop(page, 'Masjid Connect');
+  await expectTop(page, 'Screen 1');
   await settle(page);
-  // Popped screens are gone; only the root remains.
-  await expect(page.locator('[data-tab="home"] section[data-screen]')).toHaveCount(1);
+  // Popped screens are gone; only Screen 1 over the Home root remains.
+  await expect(page.locator('[data-tab="home"] section[data-screen]')).toHaveCount(2);
 });
 
 test('swipe-back: a short drag springs back, a long drag pops; interrupting with a push is safe', async ({ page }) => {
@@ -122,19 +127,22 @@ test('tabs keep their own stacks; re-tapping the active tab pops to root and scr
   await tab(page, 'Home').click();
   await expectTop(page, 'Screen 2'); // Home's stack was kept
 
-  // Re-tap the active tab → pop to root. Then scroll the root so "scrolls to top" is really checked.
+  // Re-tap the active tab → pop to root.
   await tab(page, 'Home').click();
-  await expectTop(page, 'Masjid Connect');
+  await expectTop(page, HOME);
+  await expect(page).toHaveURL(new RegExp(`${APP_URL.replace(/[./]/g, '\\$&')}/?$`));
+
+  // A scrolled root, two pushes, re-tap → back at the root, scrolled to top (the long Settings tab).
+  await tab(page, 'Settings').click();
   await settle(page);
   await scroller(page).evaluate((element) => {
     element.scrollTop = 400;
   });
   await openNextInPlace(page);
   await openNextInPlace(page);
-  await expectTop(page, 'Screen 3');
   await settle(page);
-  await tab(page, 'Home').click();
-  await expectTop(page, 'Masjid Connect');
+  await tab(page, 'Settings').click();
+  await expect(page.locator('section[data-screen]:not([inert]) [data-screen-scroll]')).toHaveCount(1);
   await settle(page);
   await expect.poll(() => scroller(page).evaluate((element) => element.scrollTop)).toBe(0);
 
@@ -142,9 +150,8 @@ test('tabs keep their own stacks; re-tapping the active tab pops to root and scr
   await scroller(page).evaluate((element) => {
     element.scrollTop = 250;
   });
-  await tab(page, 'Home').click();
+  await tab(page, 'Settings').click();
   await expect.poll(() => scroller(page).evaluate((element) => element.scrollTop)).toBe(0);
-  await expect(page).toHaveURL(new RegExp(`${APP_URL.replace(/[./]/g, '\\$&')}/?$`));
 });
 
 test('scroll position is kept per screen across push/pop', async ({ page }) => {
@@ -182,12 +189,12 @@ test('Urdu (RTL): push, back and swipe from the right edge work', async ({ page 
   });
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
-  await page.locator('section[data-screen]:not([inert])').getByRole('button').first().click();
+  await page.locator('section[data-screen]:not([inert])').getByRole('button', { name: 'اگلی اسکرین کھولیں' }).click();
   await expect(page).toHaveURL(/\/demo\/2$/);
   await settle(page);
   const width = page.viewportSize()?.width ?? 400;
   await drag(page, width - 4, width - 320, 300);
-  await expect(page).not.toHaveURL(/\/demo\//);
+  await expect(page).toHaveURL(/\/demo\/1$/);
 });
 
 test('no accessibility violations on a tab root, a pushed screen and the modal', async ({ page, expectAxeClean }) => {

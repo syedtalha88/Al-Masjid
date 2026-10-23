@@ -13,9 +13,10 @@ const expectTop = (page: Page, name: string) => expect(title(page)).toHaveText(n
 const openNext = (page: Page) =>
   page.locator('section[data-screen]:not([inert])').getByRole('button', { name: 'Open next screen' }).click();
 
+// The demo placeholders, opened over the Home root (Home is a real screen since T2.6).
 test.beforeEach(async ({ page }) => {
-  await page.goto(APP_URL);
-  await expectTop(page, 'Masjid Connect');
+  await page.goto(`${APP_URL}/demo/1`);
+  await expectTop(page, 'Screen 1');
 });
 
 test('push/pop with 4× CPU throttling: no long task over 50 ms, smooth frames', async ({ page, perfTrace }) => {
@@ -25,7 +26,7 @@ test('push/pop with 4× CPU throttling: no long task over 50 ms, smooth frames',
   await expectTop(page, 'Screen 2');
   await settle(page);
   await page.goBack();
-  await expectTop(page, 'Masjid Connect');
+  await expectTop(page, 'Screen 1');
   await settle(page);
   await perfTrace.start();
   for (let round = 0; round < 3; round += 1) {
@@ -33,7 +34,7 @@ test('push/pop with 4× CPU throttling: no long task over 50 ms, smooth frames',
     await expectTop(page, 'Screen 2');
     await settle(page);
     await page.goBack();
-    await expectTop(page, 'Masjid Connect');
+    await expectTop(page, 'Screen 1');
     await settle(page);
   }
   expectSmooth(await perfTrace.stop());

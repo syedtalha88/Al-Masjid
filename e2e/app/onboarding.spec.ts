@@ -79,7 +79,8 @@ test('arriving via /m/:code skips "add your first masjid" and follows that masji
   await page.goto(`${APP_URL}/m/TESTA001`);
   if (browserName === 'webkit') {
     // iPhone Safari: the "follow it in the app" explainer comes first (DECISIONS #14); go on here instead.
-    await expect(page.getByText('TEST-A001')).toBeVisible();
+    // WebKit on a busy runner: the landing chunk, its strings and the lookup can take a few seconds.
+    await expect(page.getByText('TEST-A001')).toBeVisible({ timeout: 15_000 });
     await page.getByRole('button', { name: 'Use it here in Safari instead' }).click();
     await page.getByRole('button', { name: 'Follow masjid' }).click();
   }
@@ -92,7 +93,9 @@ test('arriving via /m/:code skips "add your first masjid" and follows that masji
   );
   await finishRemaining(page);
   expect((await followed).status()).toBe(200);
-  await expect(page.getByRole('status')).toHaveText('You now follow Test Masjid Alpha.');
+  await expect(page.getByRole('status').filter({ hasText: 'You now follow' })).toHaveText(
+    'You now follow Test Masjid Alpha.',
+  );
   expect(new URL(page.url()).pathname).toBe('/');
   const device = await storedDevice(page);
   expect(device?.['follows']).toEqual([expect.objectContaining({ sync: 'synced' })]);
