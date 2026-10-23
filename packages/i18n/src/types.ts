@@ -4,6 +4,7 @@ import type admin from '../locales/en/admin.json';
 import type common from '../locales/en/common.json';
 import type errors from '../locales/en/errors.json';
 import type follow from '../locales/en/follow.json';
+import type masjid from '../locales/en/masjid.json';
 import type onboarding from '../locales/en/onboarding.json';
 import type superAdmin from '../locales/en/super.json';
 
@@ -12,6 +13,7 @@ export interface Resources {
   common: typeof common;
   errors: typeof errors;
   follow: typeof follow;
+  masjid: typeof masjid;
   onboarding: typeof onboarding;
   super: typeof superAdmin;
 }

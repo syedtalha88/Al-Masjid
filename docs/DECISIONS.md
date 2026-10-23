@@ -1006,6 +1006,26 @@ path, #14) and desktop browsers have no native QR detector; Android Chrome has. 
   to follow again when it was (`restoreFollow`).
 - Masjid Detail stays a placeholder until T2.8; suspended / failed masjids show a short note row.
 
+### #97 — Masjid Detail (PHASE_02 T2.8) — ACCEPTED (Claude Code, 23 Oct 2026)
+**Decision:**
+- **Layout:** own scroller (not `Screen`) so the hero can sit under a transparent bar; back and "…" are white circles
+  (`onImage`) in both bar states; the bar fades to solid with the name between 60 % and 80 % of the hero scrolled
+  (08 §4); parallax and overscroll scale are transforms written once per frame, off with reduced motion. The sheet fills
+  at least the screen so the bar can always turn solid.
+- **Mute** (DECISIONS #16) lives on the server (push targeting): `setMuted` changes the device copy at once, PATCHes when
+  the follow is on the server, rolls back and says so when it can't (offline); a follow still queued sends its mute
+  flag right after its PUT.
+- **Share** = the follow link `/m/:code` (no tracking parameters) via Web Share, else a sheet with WhatsApp (`wa.me`
+  link) and Copy link. **Directions** = Google Maps directions URL in a new tab (`noopener`). Both are plain
+  navigations — no request from our servers.
+- **Overview rows** show only sections with content: first page of each type's feed (5 cached, version-keyed requests
+  that the section screens of T2.11 reuse); Weekly Chanda when the masjid shows it and has weeks. Unseen counts as in
+  #96 (none when not followed). Rows open `/masjid/:id/:section` (placeholder until T2.11).
+- **Prayer Timings tab** shows today's Adhan / Jamaat until A6 (T2.9) replaces it.
+- **Not followed** (opened from a link): its own versions + bundle lookup; no Notifications action.
+- **Shared-element morph** (08 §3.5, "progressive enhancement") deferred to F44: it needs a navigator hook for a
+  cross-layer overlay; the acceptance alternative "disabled (documented)" applies until then.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

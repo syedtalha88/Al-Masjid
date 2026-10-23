@@ -20,6 +20,7 @@ import { Route as DemoNumberRouteImport } from './routes/demo.$number'
 import { Route as ItemsPublicIdRouteImport } from './routes/items.$publicId'
 import { Route as MCodeRouteImport } from './routes/m.$code'
 import { Route as MasjidMasjidIdRouteImport } from './routes/masjid.$masjidId'
+import { Route as MasjidMasjidIdSectionRouteImport } from './routes/masjid_.$masjidId.$section'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +77,11 @@ const MasjidMasjidIdRoute = MasjidMasjidIdRouteImport.update({
   path: '/masjid/$masjidId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MasjidMasjidIdSectionRoute = MasjidMasjidIdSectionRouteImport.update({
+  id: '/masjid_/$masjidId/$section',
+  path: '/masjid/$masjidId/$section',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/items/$publicId': typeof ItemsPublicIdRoute
   '/m/$code': typeof MCodeRoute
   '/masjid/$masjidId': typeof MasjidMasjidIdRoute
+  '/masjid/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/items/$publicId': typeof ItemsPublicIdRoute
   '/m/$code': typeof MCodeRoute
   '/masjid/$masjidId': typeof MasjidMasjidIdRoute
+  '/masjid/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/items/$publicId': typeof ItemsPublicIdRoute
   '/m/$code': typeof MCodeRoute
   '/masjid/$masjidId': typeof MasjidMasjidIdRoute
+  '/masjid_/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/items/$publicId'
     | '/m/$code'
     | '/masjid/$masjidId'
+    | '/masjid/$masjidId/$section'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/items/$publicId'
     | '/m/$code'
     | '/masjid/$masjidId'
+    | '/masjid/$masjidId/$section'
   id:
     | '__root__'
     | '/'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/items/$publicId'
     | '/m/$code'
     | '/masjid/$masjidId'
+    | '/masjid_/$masjidId/$section'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +183,7 @@ export interface RootRouteChildren {
   ItemsPublicIdRoute: typeof ItemsPublicIdRoute
   MCodeRoute: typeof MCodeRoute
   MasjidMasjidIdRoute: typeof MasjidMasjidIdRoute
+  MasjidMasjidIdSectionRoute: typeof MasjidMasjidIdSectionRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MasjidMasjidIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/masjid_/$masjidId/$section': {
+      id: '/masjid_/$masjidId/$section'
+      path: '/masjid/$masjidId/$section'
+      fullPath: '/masjid/$masjidId/$section'
+      preLoaderRoute: typeof MasjidMasjidIdSectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -267,6 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   ItemsPublicIdRoute: ItemsPublicIdRoute,
   MCodeRoute: MCodeRoute,
   MasjidMasjidIdRoute: MasjidMasjidIdRoute,
+  MasjidMasjidIdSectionRoute: MasjidMasjidIdSectionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

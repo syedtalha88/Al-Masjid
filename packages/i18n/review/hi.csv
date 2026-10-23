@@ -261,6 +261,34 @@ follow,landing.iosNoApp,Don’t have the app yet? Add it to your Home Screen fir
 follow,landing.iosHere,Use it here in Safari instead,इसके बजाय यहीं Safari में इस्तेमाल करें,no
 follow,landing.codeLabel,Masjid code,मस्जिद कोड,no
 follow,landing.continue,Continue,जारी रखें,no
+masjid,overview,Overview,सारांश,no
+masjid,timings,Prayer Timings,नमाज़ के समय,no
+masjid,announcements,Announcements,सूचनाएँ,no
+masjid,notifications,Notifications,नोटिफ़िकेशन,no
+masjid,share,Share,शेयर,no
+masjid,directions,Directions,रास्ता,no
+masjid,more,More options,और विकल्प,no
+masjid,mute,Mute notifications,नोटिफ़िकेशन बंद करें,no
+masjid,unmute,Turn on notifications,नोटिफ़िकेशन चालू करें,no
+masjid,mutedToast,Notifications are off for this masjid,इस मस्जिद के नोटिफ़िकेशन बंद हैं,no
+masjid,unmutedToast,Notifications are on for this masjid,इस मस्जिद के नोटिफ़िकेशन चालू हैं,no
+masjid,muteFailed,Couldn’t change notifications. Check your connection and try again.,नोटिफ़िकेशन नहीं बदल सके। इंटरनेट देखें और फिर कोशिश करें।,no
+masjid,hadith,Hadith & Quran,हदीस और क़ुरआन,no
+masjid,duas,Dua Requests,दुआ की गुज़ारिशें,no
+masjid,campaigns,Donation Campaigns,चंदा अभियान,no
+masjid,chanda,Weekly Chanda,हफ़्ते का चंदा,no
+masjid,bayans,Bayans,बयान,no
+masjid,suspended,This masjid is temporarily unavailable,यह मस्जिद अभी कुछ समय के लिए उपलब्ध नहीं है,no
+masjid,shareTitle,Share masjid,मस्जिद शेयर करें,no
+masjid,shareText,Follow {name} on {app},{app} पर {name} को फ़ॉलो करें,no
+masjid,whatsapp,Share on WhatsApp,WhatsApp पर शेयर करें,no
+masjid,copy,Copy link,लिंक कॉपी करें,no
+masjid,copied,Link copied,लिंक कॉपी हो गया,no
+masjid,noAnnouncements,No announcements yet.,अभी कोई सूचना नहीं।,no
+masjid,adhan,Adhan,अज़ान,no
+masjid,jamaat,Jamaat,जमात,no
+masjid,tabsLabel,Masjid sections,मस्जिद के हिस्से,no
+masjid,gone,This masjid is no longer listed.,यह मस्जिद अब सूची में नहीं है।,no
 onboarding,progress,Step {current} of {total},चरण {current} / {total},no
 onboarding,next,Continue,आगे बढ़ें,no
 onboarding,back,Back,पीछे,no

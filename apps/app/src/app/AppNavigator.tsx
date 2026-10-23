@@ -34,10 +34,10 @@ export function AppNavigator() {
   const router = useRouter();
   const adapter = useMemo(() => tanstackAdapter(router), [router]);
   const { i18n } = useTranslation();
-  // The Scan modal's strings load while idle (like its code — StackNavigator), so it opens at once.
+  // Strings of the Scan modal and Masjid Detail load while idle (like their code — StackNavigator), so they open at once.
   useEffect(() => {
     const load = () => {
-      void i18n.loadNamespaces('follow');
+      void i18n.loadNamespaces(['follow', 'masjid']);
     };
     if (typeof window.requestIdleCallback === 'function') {
       const handle = window.requestIdleCallback(load);

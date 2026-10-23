@@ -261,6 +261,34 @@ follow,landing.iosNoApp,Don’t have the app yet? Add it to your Home Screen fir
 follow,landing.iosHere,Use it here in Safari instead,బదులుగా ఇక్కడే Safariలో ఉపయోగించండి,no
 follow,landing.codeLabel,Masjid code,మసీదు కోడ్,no
 follow,landing.continue,Continue,కొనసాగించండి,no
+masjid,overview,Overview,సారాంశం,no
+masjid,timings,Prayer Timings,నమాజ్ సమయాలు,no
+masjid,announcements,Announcements,ప్రకటనలు,no
+masjid,notifications,Notifications,నోటిఫికేషన్‌లు,no
+masjid,share,Share,షేర్,no
+masjid,directions,Directions,దారి,no
+masjid,more,More options,మరిన్ని ఎంపికలు,no
+masjid,mute,Mute notifications,నోటిఫికేషన్‌లు ఆపండి,no
+masjid,unmute,Turn on notifications,నోటిఫికేషన్‌లు ఆన్ చేయండి,no
+masjid,mutedToast,Notifications are off for this masjid,ఈ మసీదు నోటిఫికేషన్‌లు ఆపివేయబడ్డాయి,no
+masjid,unmutedToast,Notifications are on for this masjid,ఈ మసీదు నోటిఫికేషన్‌లు ఆన్‌లో ఉన్నాయి,no
+masjid,muteFailed,Couldn’t change notifications. Check your connection and try again.,నోటిఫికేషన్‌లను మార్చలేకపోయాం. ఇంటర్నెట్ తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.,no
+masjid,hadith,Hadith & Quran,హదీస్ & ఖుర్ఆన్,no
+masjid,duas,Dua Requests,దుఆ విన్నపాలు,no
+masjid,campaigns,Donation Campaigns,విరాళాల ప్రచారాలు,no
+masjid,chanda,Weekly Chanda,వారపు చందా,no
+masjid,bayans,Bayans,బయాన్‌లు,no
+masjid,suspended,This masjid is temporarily unavailable,ఈ మసీదు ప్రస్తుతం అందుబాటులో లేదు,no
+masjid,shareTitle,Share masjid,మసీదును షేర్ చేయండి,no
+masjid,shareText,Follow {name} on {app},{app}లో {name}ను ఫాలో చేయండి,no
+masjid,whatsapp,Share on WhatsApp,WhatsAppలో షేర్ చేయండి,no
+masjid,copy,Copy link,లింక్ కాపీ చేయండి,no
+masjid,copied,Link copied,లింక్ కాపీ అయింది,no
+masjid,noAnnouncements,No announcements yet.,ఇంకా ప్రకటనలు లేవు.,no
+masjid,adhan,Adhan,అజాన్,no
+masjid,jamaat,Jamaat,జమాత్,no
+masjid,tabsLabel,Masjid sections,మసీదు విభాగాలు,no
+masjid,gone,This masjid is no longer listed.,ఈ మసీదు ఇప్పుడు జాబితాలో లేదు.,no
 onboarding,progress,Step {current} of {total},దశ {current} / {total},no
 onboarding,next,Continue,కొనసాగించండి,no
 onboarding,back,Back,వెనుకకు,no

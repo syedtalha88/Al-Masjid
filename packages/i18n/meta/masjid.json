@@ -1,0 +1,37 @@
+{
+  "overview": {
+    "context": "Tab on a masjid page",
+    "maxLength": 14
+  },
+  "timings": {
+    "context": "Tab on a masjid page",
+    "maxLength": 18
+  },
+  "announcements": {
+    "context": "Tab on a masjid page and a section row",
+    "maxLength": 18
+  },
+  "notifications": {
+    "context": "Round action button label under the masjid name",
+    "maxLength": 14
+  },
+  "share": {
+    "context": "Round action button label",
+    "maxLength": 12
+  },
+  "directions": {
+    "context": "Round action button label: opens Google Maps directions",
+    "maxLength": 12
+  },
+  "shareText": {
+    "context": "Shared message; {name} = masjid name, {app} = app name; a link follows it"
+  },
+  "adhan": {
+    "context": "Column header: call-to-prayer time",
+    "maxLength": 10
+  },
+  "jamaat": {
+    "context": "Column header: congregation time",
+    "maxLength": 10
+  }
+}

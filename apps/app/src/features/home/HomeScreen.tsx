@@ -14,8 +14,8 @@ import { useMemo } from 'react';
 import { configQuery } from '../../lib/api/queries.ts';
 import { useNow } from '../../lib/clock.ts';
 import { useAppData, useDeviceState } from '../../lib/data.tsx';
+import { ItemList } from '../content/ItemList.tsx';
 import { HomeMasjidCard } from './components/HomeMasjidCard.tsx';
-import { RecentUpdates } from './components/RecentUpdates.tsx';
 import { EidCard, RamadanCard } from './components/SeasonCards.tsx';
 import { useHomeData } from './hooks/useHomeData.ts';
 import { eidView, hasUnseen, prayerView, ramadanView } from './lib/home-view.ts';
@@ -153,7 +153,13 @@ export function HomeScreen() {
                   navigator.selectTab('updates');
                 }}
               />
-              <RecentUpdates items={data.recent} loading={data.recentLoading} masjids={names} now={now} />
+              <ItemList
+                items={data.recent}
+                loading={data.recentLoading}
+                masjids={names}
+                now={now}
+                emptyText={t('home.noUpdates')}
+              />
             </section>
           </div>
         )}

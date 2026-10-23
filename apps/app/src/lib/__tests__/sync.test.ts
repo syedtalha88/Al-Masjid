@@ -10,6 +10,7 @@ import {
   reconcileFollows,
   reorderFollows,
   restoreFollow,
+  setMuted,
   type SyncDeps,
   syncFollows,
   unfollowLocally,
@@ -36,11 +37,13 @@ let store: DeviceStore;
 let deps: SyncDeps;
 let serverFollows: Set<string>;
 let registrations: number;
+let serverMuted: Map<string, boolean>;
 
 beforeEach(async () => {
   store = createDeviceStore(memoryBackend(), 'en');
   await store.load();
   serverFollows = new Set();
+  serverMuted = new Map();
   registrations = 0;
   const api = createApiClient({
     base: BASE,
@@ -56,6 +59,11 @@ beforeEach(async () => {
     http.put(`${BASE}/devices/me/follows/:id`, ({ params }) => {
       serverFollows.add(String(params['id']));
       return HttpResponse.json({ status: 'followed' });
+    }),
+    http.patch(`${BASE}/devices/me/follows/:id`, async ({ params, request }) => {
+      const body = (await request.json()) as { muted: boolean };
+      serverMuted.set(String(params['id']), body.muted);
+      return new HttpResponse(null, { status: 204 });
     }),
     http.delete(`${BASE}/devices/me/follows/:id`, ({ params }) => {
       serverFollows.delete(String(params['id']));
@@ -191,6 +199,33 @@ describe('reorder and undo', () => {
     expect(store.current().follows[1]).toMatchObject({ masjidId: B, sync: 'follow', followedAt: original.followedAt });
     await syncFollows(deps);
     expect(serverFollows.has(B)).toBe(true);
+  });
+});
+
+describe('setMuted', () => {
+  it('a synced follow is muted on the server at once; a queued one with its follow', async () => {
+    await onboard();
+    await ensureRegistered(deps);
+    await followLocally(store, A, NOW);
+    await syncFollows(deps);
+    expect(await setMuted(deps, A, true)).toBe('saved');
+    expect(serverMuted.get(A)).toBe(true);
+    await followLocally(store, B, NOW);
+    expect(await setMuted(deps, B, true)).toBe('queued');
+    expect(serverMuted.has(B)).toBe(false);
+    await syncFollows(deps);
+    expect(serverMuted.get(B)).toBe(true);
+    expect(await setMuted(deps, C, true)).toBe('queued'); // not followed: nothing to do
+  });
+
+  it('rolls the device copy back when the server cannot be reached', async () => {
+    await onboard();
+    await ensureRegistered(deps);
+    await followLocally(store, A, NOW);
+    await syncFollows(deps);
+    server.use(http.patch(`${BASE}/devices/me/follows/:id`, () => HttpResponse.error()));
+    await expect(setMuted(deps, A, true)).rejects.toThrow();
+    expect(store.current().follows[0]?.muted).toBe(false);
   });
 });
 

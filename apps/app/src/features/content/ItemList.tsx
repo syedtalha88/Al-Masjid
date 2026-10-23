@@ -1,24 +1,28 @@
-// Home "Recent Updates" (07 A2): the 5 newest items across followed masjids as rows with category icon circles.
+// A list of feed items as rows with category icon circles (Home "Recent Updates" — 07 A2, Masjid Detail
+// Announcements — A5): title, then masjid name (when several masjids are mixed) and relative time.
 import { useLocale, useTranslation } from '@mc/i18n/react';
 import type { FeedItem, MasjidProfile } from '@mc/shared/contracts/public';
 import { ListRow, Skeleton, SkeletonText } from '@mc/ui/components';
 import { useNavigator } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
 
-import { templatesQuery } from '../../../lib/api/queries.ts';
-import { useAppData } from '../../../lib/data.tsx';
-import { masjidName } from '../../../lib/masjid.ts';
-import { ItemIcon } from '../../content/ItemIcon.tsx';
-import { itemKind, itemTitle } from '../../content/lib/item-view.ts';
+import { templatesQuery } from '../../lib/api/queries.ts';
+import { useAppData } from '../../lib/data.tsx';
+import { masjidName } from '../../lib/masjid.ts';
+import { ItemIcon } from './ItemIcon.tsx';
+import { itemKind, itemTitle } from './lib/item-view.ts';
 
-export interface RecentUpdatesProps {
+export interface ItemListProps {
   readonly items: readonly FeedItem[];
   readonly loading: boolean;
-  readonly masjids: ReadonlyMap<string, MasjidProfile>;
+  /** Masjid names for mixed lists; omit for one masjid's own list. */
+  readonly masjids?: ReadonlyMap<string, MasjidProfile>;
   readonly now: Date;
+  /** Shown when there is nothing (and nothing loading). */
+  readonly emptyText: string;
 }
 
-export function RecentUpdates({ items, loading, masjids, now }: RecentUpdatesProps) {
+export function ItemList({ items, loading, masjids, now, emptyText }: ItemListProps) {
   const { t } = useTranslation();
   const { locale, format } = useLocale();
   const navigator = useNavigator();
@@ -36,13 +40,13 @@ export function RecentUpdates({ items, loading, masjids, now }: RecentUpdatesPro
         ))}
       </div>
     ) : (
-      <p className="py-4 type-callout text-text-secondary">{t('home.noUpdates')}</p>
+      <p className="py-4 type-callout text-text-secondary">{emptyText}</p>
     );
   }
   return (
     <ul className="flex flex-col">
       {items.map((item) => {
-        const masjid = masjids.get(item.masjidId);
+        const masjid = masjids?.get(item.masjidId);
         const meta = [masjid ? masjidName(masjid, locale) : null, format.relative(new Date(item.publishedAt), now)]
           .filter(Boolean)
           .join(' · ');

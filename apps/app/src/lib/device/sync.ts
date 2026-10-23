@@ -145,6 +145,32 @@ export async function restoreFollow(store: DeviceStore, follow: LocalFollow, ind
   });
 }
 
+/**
+ * Masjid Detail "Notifications" toggle (DECISIONS #16 per-masjid mute). Changes the device copy at once; the server copy
+ * (it decides who gets pushes) is updated now when the follow is already there, else together with the follow.
+ *
+ * @returns `saved` (server updated) or `queued` (sent with the pending follow / once registered).
+ * @throws the API error after rolling the device copy back (offline, refused) — the screen says so.
+ */
+export async function setMuted(deps: SyncDeps, masjidId: string, muted: boolean): Promise<'saved' | 'queued'> {
+  const follow = deps.store.current().follows.find((entry) => entry.masjidId === masjidId);
+  if (!follow) return 'queued';
+  const apply = (value: boolean) =>
+    deps.store.update((current) => ({
+      ...current,
+      follows: current.follows.map((entry) => (entry.masjidId === masjidId ? { ...entry, muted: value } : entry)),
+    }));
+  await apply(muted);
+  if (!deps.store.current().credentials || follow.sync !== 'synced') return 'queued';
+  try {
+    await deps.api.mute(masjidId, muted);
+    return 'saved';
+  } catch (error) {
+    await apply(follow.muted);
+    throw error;
+  }
+}
+
 export type SyncOutcome = { readonly sent: number; readonly dropped: readonly string[] };
 
 /**
@@ -158,8 +184,11 @@ export async function syncFollows(deps: SyncDeps): Promise<SyncOutcome> {
   for (const follow of deps.store.current().follows) {
     if (follow.sync === 'synced') continue;
     try {
-      if (follow.sync === 'follow') await deps.api.follow(follow.masjidId);
-      else await deps.api.unfollow(follow.masjidId);
+      if (follow.sync === 'follow') {
+        await deps.api.follow(follow.masjidId);
+        // Muted before the follow reached the server: the flag goes with it.
+        if (follow.muted) await deps.api.mute(follow.masjidId, true);
+      } else await deps.api.unfollow(follow.masjidId);
       sent += 1;
       await deps.store.update((current) => ({
         ...current,
