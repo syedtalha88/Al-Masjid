@@ -280,5 +280,28 @@
   "item.video": {
     "context": "Category label of a recorded talk (bayan) post",
     "maxLength": 16
+  },
+  "ui.newUpdatesShort": {
+    "context": "Next to a green circle with the number, e.g. [3] new updates; keep short (2 short lines)",
+    "maxLength": 16
+  },
+  "masjids.add": {
+    "context": "Pill button in the My Masjids header",
+    "maxLength": 18
+  },
+  "masjids.edit": {
+    "context": "Header button that enters reorder/unfollow mode",
+    "maxLength": 10
+  },
+  "masjids.done": {
+    "context": "Header button that leaves reorder mode",
+    "maxLength": 10
+  },
+  "masjids.undo": {
+    "context": "Toast action that brings back an unfollowed masjid",
+    "maxLength": 12
+  },
+  "masjids.reorder": {
+    "context": "Screen-reader name of the drag handle; {name} is the masjid name"
   }
 }

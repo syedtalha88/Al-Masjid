@@ -91,7 +91,9 @@
       "open": "Open {app} from your Home Screen"
     },
     "nextPrayer": "Next Prayer",
-    "refreshing": "Refreshing…"
+    "refreshing": "Refreshing…",
+    "newUpdatesShort": "{count, plural, one {new update} other {new updates}}",
+    "reorderHint": "Drag to reorder, or use the arrow keys."
   },
   "hijri": {
     "date": "{day} {month} {year}",
@@ -130,5 +132,22 @@
     "campaign": "Donation campaign",
     "chanda": "Weekly chanda",
     "video": "Bayan"
+  },
+  "masjids": {
+    "add": "Add Masjid",
+    "addAnother": "Add Another Masjid",
+    "addTitle": "Add a masjid",
+    "edit": "Edit",
+    "done": "Done",
+    "limit": "You can follow up to {max} masjids.",
+    "unfollow": "Unfollow",
+    "unfollowTitle": "Unfollow {name}?",
+    "unfollowBody": "You’ll stop getting its timings and updates. You can follow it again anytime.",
+    "unfollowed": "Unfollowed {name}",
+    "undo": "Undo",
+    "reorder": "Reorder {name}",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "editHint": "Drag to change the order, or tap a masjid for more options."
   }
 }

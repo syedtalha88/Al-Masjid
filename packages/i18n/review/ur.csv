@@ -144,6 +144,8 @@ common,ui.iosInstall.add,Choose “Add to Home Screen”,“ہوم اسکرین 
 common,ui.iosInstall.open,Open {app} from your Home Screen,ہوم اسکرین سے {app} کھولیں,no
 common,ui.nextPrayer,Next Prayer,اگلی نماز,no
 common,ui.refreshing,Refreshing…,تازہ ہو رہا ہے…,no
+common,ui.newUpdatesShort,"{count, plural, one {new update} other {new updates}}","{count, plural, one {نئی اپڈیٹ} other {نئی اپڈیٹس}}",no
+common,ui.reorderHint,"Drag to reorder, or use the arrow keys.",ترتیب بدلنے کے لیے کھینچیں، یا تیر والی کیز دبائیں۔,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,مغرب کے بعد,no
 common,hijri.months.m1,Muharram,محرم,no
@@ -174,6 +176,21 @@ common,item.dua,Request for Dua,دعا کی درخواست,no
 common,item.campaign,Donation campaign,چندہ مہم,no
 common,item.chanda,Weekly chanda,ہفتہ وار چندہ,no
 common,item.video,Bayan,بیان,no
+common,masjids.add,Add Masjid,مسجد شامل کریں,no
+common,masjids.addAnother,Add Another Masjid,ایک اور مسجد شامل کریں,no
+common,masjids.addTitle,Add a masjid,مسجد شامل کریں,no
+common,masjids.edit,Edit,ترمیم,no
+common,masjids.done,Done,ہو گیا,no
+common,masjids.limit,You can follow up to {max} masjids.,آپ زیادہ سے زیادہ {max} مساجد فالو کر سکتے ہیں۔,no
+common,masjids.unfollow,Unfollow,ان فالو کریں,no
+common,masjids.unfollowTitle,Unfollow {name}?,{name} کو ان فالو کریں؟,no
+common,masjids.unfollowBody,You’ll stop getting its timings and updates. You can follow it again anytime.,اس کے اوقات اور اپڈیٹس ملنا بند ہو جائیں گے۔ آپ اسے کبھی بھی دوبارہ فالو کر سکتے ہیں۔,no
+common,masjids.unfollowed,Unfollowed {name},{name} کو ان فالو کیا,no
+common,masjids.undo,Undo,واپس لیں,no
+common,masjids.reorder,Reorder {name},{name} کی ترتیب بدلیں,no
+common,masjids.moveUp,Move up,اوپر لے جائیں,no
+common,masjids.moveDown,Move down,نیچے لے جائیں,no
+common,masjids.editHint,"Drag to change the order, or tap a masjid for more options.",ترتیب بدلنے کے لیے کھینچیں، یا مزید اختیارات کے لیے مسجد پر ٹیپ کریں۔,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,یہ نہیں ملا۔ ہو سکتا ہے اسے ہٹا دیا گیا ہو۔,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,یہ کام یہاں دستیاب نہیں ہے۔,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,کچھ معلومات غلط لگ رہی ہیں۔ براہِ کرم جانچ کر دوبارہ کوشش کریں۔,no

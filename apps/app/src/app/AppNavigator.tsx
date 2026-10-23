@@ -1,4 +1,5 @@
 import { useTranslation } from '@mc/i18n/react';
+import { navigation } from '@mc/ui/motion';
 import {
   HomeIcon,
   MasjidsIcon,
@@ -11,7 +12,7 @@ import {
   UpdatesIcon,
 } from '@mc/ui/navigation';
 import { useRouter } from '@tanstack/react-router';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { NotFoundScreen } from './NotFoundScreen.tsx';
 import { RouteError } from './RouteError.tsx';
@@ -32,6 +33,23 @@ export const NAV_CONFIG: NavConfig = {
 export function AppNavigator() {
   const router = useRouter();
   const adapter = useMemo(() => tanstackAdapter(router), [router]);
+  const { i18n } = useTranslation();
+  // The Scan modal's strings load while idle (like its code — StackNavigator), so it opens at once.
+  useEffect(() => {
+    const load = () => {
+      void i18n.loadNamespaces('follow');
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+      const handle = window.requestIdleCallback(load);
+      return () => {
+        window.cancelIdleCallback(handle);
+      };
+    }
+    const timer = setTimeout(load, navigation.idlePreloadDelayMs);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [i18n]);
   return (
     <StackNavigator
       adapter={adapter}

@@ -20,6 +20,7 @@ export {
   feedback,
   gesture,
   loop,
+  navigation,
   press,
   type PressKind,
   spring,

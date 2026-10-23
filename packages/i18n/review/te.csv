@@ -144,6 +144,8 @@ common,ui.iosInstall.add,Choose “Add to Home Screen”,“హోమ్ స్�
 common,ui.iosInstall.open,Open {app} from your Home Screen,హోమ్ స్క్రీన్ నుండి {app} తెరవండి,no
 common,ui.nextPrayer,Next Prayer,తదుపరి నమాజ్,no
 common,ui.refreshing,Refreshing…,రిఫ్రెష్ అవుతోంది…,no
+common,ui.newUpdatesShort,"{count, plural, one {new update} other {new updates}}","{count, plural, one {కొత్త అప్‌డేట్} other {కొత్త అప్‌డేట్‌లు}}",no
+common,ui.reorderHint,"Drag to reorder, or use the arrow keys.","క్రమం మార్చడానికి లాగండి, లేదా బాణం కీలను ఉపయోగించండి.",no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,మగ్రిబ్ తర్వాత,no
 common,hijri.months.m1,Muharram,ముహర్రం,no
@@ -174,6 +176,21 @@ common,item.dua,Request for Dua,దుఆ విన్నపం,no
 common,item.campaign,Donation campaign,విరాళాల ప్రచారం,no
 common,item.chanda,Weekly chanda,వారపు చందా,no
 common,item.video,Bayan,బయాన్,no
+common,masjids.add,Add Masjid,మసీదు జోడించండి,no
+common,masjids.addAnother,Add Another Masjid,మరో మసీదు జోడించండి,no
+common,masjids.addTitle,Add a masjid,మసీదు జోడించండి,no
+common,masjids.edit,Edit,మార్చు,no
+common,masjids.done,Done,పూర్తయింది,no
+common,masjids.limit,You can follow up to {max} masjids.,మీరు గరిష్ఠంగా {max} మసీదులను ఫాలో చేయవచ్చు.,no
+common,masjids.unfollow,Unfollow,అన్‌ఫాలో చేయండి,no
+common,masjids.unfollowTitle,Unfollow {name}?,{name}ను అన్‌ఫాలో చేయాలా?,no
+common,masjids.unfollowBody,You’ll stop getting its timings and updates. You can follow it again anytime.,"దీని సమయాలు, అప్‌డేట్‌లు రావడం ఆగిపోతాయి. మీరు ఎప్పుడైనా మళ్లీ ఫాలో చేయవచ్చు.",no
+common,masjids.unfollowed,Unfollowed {name},{name}ను అన్‌ఫాలో చేశారు,no
+common,masjids.undo,Undo,రద్దు చేయి,no
+common,masjids.reorder,Reorder {name},{name} క్రమాన్ని మార్చండి,no
+common,masjids.moveUp,Move up,పైకి జరపండి,no
+common,masjids.moveDown,Move down,కిందికి జరపండి,no
+common,masjids.editHint,"Drag to change the order, or tap a masjid for more options.","క్రమం మార్చడానికి లాగండి, లేదా మరిన్ని ఎంపికల కోసం మసీదుపై నొక్కండి.",no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,ఇది కనిపించలేదు. ఇది తొలగించబడి ఉండవచ్చు.,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,కొన్ని వివరాలు సరిగా లేవు. దయచేసి చూసి మళ్లీ ప్రయత్నించండి.,no

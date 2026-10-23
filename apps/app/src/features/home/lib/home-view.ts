@@ -36,6 +36,7 @@ export interface PrayerView {
   readonly next: {
     readonly prayer: PrayerName | 'jumuah';
     readonly time: string;
+    readonly at: Date;
     readonly countdown: Countdown;
   } | null;
   /** Today's Maghrib (calculated) — the Hijri date rolls over then. */
@@ -61,7 +62,7 @@ export function prayerView(bundle: ActiveMasjidBundle, now: Date): PrayerView | 
     date: day.date,
     slots,
     activeIndex: index >= 0 ? index : null,
-    next: next ? { prayer: next.prayer, time: next.time, countdown: countdown(next.at, now) } : null,
+    next: next ? { prayer: next.prayer, time: next.time, at: next.at, countdown: countdown(next.at, now) } : null,
     maghrib: todayDay.calculated.maghrib,
   };
 }

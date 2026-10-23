@@ -12,11 +12,10 @@ import { join } from 'node:path';
  * T2.3) needs +5.8 kB even after dropping the ICU parser and moving to Zod Mini (DECISIONS #92, owner rule "quality
  * over bundle size"); 176 kB since T2.4 (onboarding gate + shared-chunk split, +0.3 kB); 180 kB since T2.5 (follow routes + the follow flow's
  * success check make rolldown split Motion into two preloaded shared chunks: +~1 kB code, +~3 kB lost gzip context —
- * DECISIONS #94); 184 kB since T2.6 (Home: shared modules in the entry now carry what Home uses — TanStack's query observer,
- * the new glyphs, time helpers — F43 splits them). Earlier: Phase 00 220 kB
- * (#47), back to 170 kB with F23.
+ * DECISIONS #94); 184 kB at T2.6 (Home); 182 kB since T2.7 —
+ * the versions poller left the entry (F43, part 1; glyphs and time helpers still to split).
  */
-const APP_INITIAL_JS = '184 kB';
+const APP_INITIAL_JS = '182 kB';
 const ADMIN_INITIAL_JS = '220 kB';
 const INITIAL_CSS = '25 kB';
 const LAZY_CHUNK = '60 kB';

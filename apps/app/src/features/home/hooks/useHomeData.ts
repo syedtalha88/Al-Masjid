@@ -6,7 +6,8 @@ import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
 import { bundleQuery, feedQuery, templatesQuery } from '../../../lib/api/queries.ts';
-import { useAppData, useDeviceState, useFollowedIds, useMasjidVersions } from '../../../lib/data.tsx';
+import { useAppData, useDeviceState, useFollowedIds } from '../../../lib/data.tsx';
+import { useMasjidVersions } from '../../../lib/versions.ts';
 import { mergeRecent } from '../lib/home-view.ts';
 
 /** Home shows the 5 newest items across followed masjids (07 A2). */
@@ -25,6 +26,8 @@ export interface HomeData {
   /** No versions could be loaded at all (offline on a first open) — the screen offers a retry. */
   readonly failed: boolean;
   readonly recent: readonly FeedItem[];
+  /** First feed page per masjid (My Masjids' "N new updates"). */
+  readonly itemsByMasjid: ReadonlyMap<string, readonly FeedItem[]>;
   /** Feeds still loading (first time). */
   readonly recentLoading: boolean;
   readonly refresh: () => Promise<void>;
@@ -65,6 +68,11 @@ export function useHomeData(): HomeData {
     [ids, versions, bundles],
   );
 
+  const itemsByMasjid = useMemo(
+    () => new Map(ids.map((id, index) => [id, feeds[index]?.data?.items ?? []] as const)),
+    [ids, feeds],
+  );
+
   const recent = useMemo(
     () =>
       mergeRecent(
@@ -86,6 +94,7 @@ export function useHomeData(): HomeData {
     empty: ids.length === 0,
     failed: failed && ids.length > 0,
     recent,
+    itemsByMasjid,
     recentLoading: feeds.some((query) => query.isPending && query.fetchStatus === 'fetching'),
     refresh: refreshAll,
   };

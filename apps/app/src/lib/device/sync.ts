@@ -116,6 +116,35 @@ export async function unfollowLocally(store: DeviceStore, masjidId: string): Pro
   }));
 }
 
+/** My Masjids reorder (07 A3): the visible follows in this order — kept on this device only; others keep theirs after. */
+export async function reorderFollows(store: DeviceStore, orderedIds: readonly string[]): Promise<void> {
+  await store.update((current) => {
+    const byId = new Map(current.follows.map((follow) => [follow.masjidId, follow]));
+    const ordered = orderedIds.flatMap((id): LocalFollow[] => {
+      const follow = byId.get(id);
+      return follow && follow.sync !== 'unfollow' ? [follow] : [];
+    });
+    const rest = current.follows.filter((follow) => !ordered.includes(follow));
+    return { ...current, follows: [...ordered, ...rest] };
+  });
+}
+
+/**
+ * Undo of an unfollow (07 A3 undo toast): the follow returns to its place with its original follow date. If the server
+ * still has it (the removal was not sent yet) it is simply kept; otherwise it is queued to be followed again.
+ *
+ * @param index - its position in the list before the unfollow.
+ */
+export async function restoreFollow(store: DeviceStore, follow: LocalFollow, index: number): Promise<void> {
+  await store.update((current) => {
+    const pending = current.follows.find((entry) => entry.masjidId === follow.masjidId);
+    const others = current.follows.filter((entry) => entry.masjidId !== follow.masjidId);
+    const restored: LocalFollow = { ...follow, sync: pending?.sync === 'unfollow' ? 'synced' : 'follow' };
+    others.splice(Math.min(Math.max(index, 0), others.length), 0, restored);
+    return { ...current, follows: others };
+  });
+}
+
 export type SyncOutcome = { readonly sent: number; readonly dropped: readonly string[] };
 
 /**

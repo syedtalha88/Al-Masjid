@@ -1,14 +1,8 @@
-import { useTranslation } from '@mc/i18n/react';
 import { createFileRoute } from '@tanstack/react-router';
 
-import { PlaceholderScreen } from '../app/PlaceholderScreen.tsx';
+import { MyMasjidsScreen } from '../features/masjids/MyMasjidsScreen.tsx';
 
+/** A3 My Masjids — tab root. */
 export const Route = createFileRoute('/masjids')({
-  component: MyMasjidsTab,
+  component: MyMasjidsScreen,
 });
-
-/** My Masjids tab root (Phase 0 placeholder). */
-function MyMasjidsTab() {
-  const { t } = useTranslation();
-  return <PlaceholderScreen title={t('tabs.myMasjids')} />;
-}

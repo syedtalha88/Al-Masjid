@@ -66,3 +66,45 @@ export async function followByCode(page: Page, appUrl: string, codes: readonly s
   await page.reload();
   return ids;
 }
+
+/**
+ * Registers this device through the app's own origin (Cloudflare's test Turnstile key locally — DECISIONS #93) and
+ * stores the credentials in the device document, so follow changes reach the server. Call before `followByCode`.
+ */
+export async function registerDevice(page: Page): Promise<string> {
+  return page.evaluate(async () => {
+    const response = await fetch('/api/v1/devices', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        locale: 'en',
+        audiencePref: 'brothers',
+        platform: 'android',
+        privacyVersion: 'draft-1',
+        turnstileToken: 'XXXX.DUMMY.TOKEN.XXXX',
+      }),
+    });
+    const credentials = (await response.json()) as { deviceId: string; secret: string };
+    await new Promise<void>((resolve, reject) => {
+      const open = indexedDB.open('mc-device');
+      open.onsuccess = () => {
+        const store = open.result.transaction('kv', 'readwrite').objectStore('kv');
+        const get = store.get('device');
+        get.onsuccess = () => {
+          const device = get.result as Record<string, unknown>;
+          const put = store.put(
+            { ...device, credentials, privacyVersion: 'draft-1', registrationPending: false },
+            'device',
+          );
+          put.onsuccess = () => {
+            resolve();
+          };
+          put.onerror = () => {
+            reject(new Error('could not store credentials'));
+          };
+        };
+      };
+    });
+    return credentials.deviceId;
+  });
+}

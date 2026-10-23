@@ -991,6 +991,21 @@ path, #14) and desktop browsers have no native QR detector; Android Chrome has. 
   modules so lazy-only code leaves the entry.
 - **Open:** LCP warm ≤ 1.0 s / cold ≤ 2.5 s is measured by Lighthouse on staging after the deploy (report).
 
+### #96 — My Masjids (PHASE_02 T2.7) — ACCEPTED (Claude Code, 23 Oct 2026)
+**Decision:**
+- **"N new updates"** per masjid = items of its first feed page newer than the later of the last Updates visit
+  (`updatesSeenAt`, the only seen marker — 07 A13) and when it was followed, so a newly followed masjid does not show its
+  history as new. Shown as 9+ above nine.
+- **Mint row** = the masjid with the soonest next jamaat (07 A3).
+- **Reorder** is device-only (follow order in the device document; the server keeps no order). `ReorderList` (`@mc/ui`):
+  drag handle with pointer capture (rows slide by transform, haptic on pick-up and on each slot change), Arrow Up/Down on
+  the focused handle; the single-pointer alternative required by WCAG 2.5.7 is the row menu (tap a row in edit mode →
+  Move up / Move down / Unfollow). Entering edit mode: "Edit" in the header or long-press a row.
+- **Unfollow** asks first (destructive dialog), hides at once, syncs in the background; the toast's Undo (5 s) puts the
+  follow back in its old position with its original follow date — kept as is when the removal was not sent yet, queued
+  to follow again when it was (`restoreFollow`).
+- Masjid Detail stays a placeholder until T2.8; suspended / failed masjids show a short note row.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

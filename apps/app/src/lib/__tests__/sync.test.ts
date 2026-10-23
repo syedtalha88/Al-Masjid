@@ -8,6 +8,8 @@ import {
   ensureRegistered,
   followLocally,
   reconcileFollows,
+  reorderFollows,
+  restoreFollow,
   type SyncDeps,
   syncFollows,
   unfollowLocally,
@@ -158,6 +160,37 @@ describe('local follows', () => {
     expect(store.current().follows.map((follow) => [follow.masjidId, follow.sync])).toEqual([[B, 'follow']]);
     server.use(http.put(`${BASE}/devices/me/follows/${B}`, () => problem(500, 'INTERNAL_ERROR')));
     await expect(syncFollows(deps)).rejects.toThrow();
+  });
+});
+
+describe('reorder and undo', () => {
+  it('reorders the visible follows; pending unfollows stay out of the way', async () => {
+    for (const id of [A, B, C]) await followLocally(store, id, NOW);
+    await reorderFollows(store, [C, A, B]);
+    expect(visibleFollows(store.current().follows).map((follow) => follow.masjidId)).toEqual([C, A, B]);
+  });
+
+  it('undo before the removal was sent keeps the server follow; after it, follows again — in the same place', async () => {
+    await onboard();
+    await ensureRegistered(deps);
+    for (const id of [A, B, C]) await followLocally(store, id, NOW);
+    await syncFollows(deps);
+    const original = store.current().follows.find((follow) => follow.masjidId === B);
+    if (!original) throw new Error('missing');
+    await unfollowLocally(store, B);
+    await restoreFollow(store, original, 1);
+    expect(store.current().follows.map((follow) => [follow.masjidId, follow.sync])).toEqual([
+      [A, 'synced'],
+      [B, 'synced'],
+      [C, 'synced'],
+    ]);
+    await unfollowLocally(store, B);
+    await syncFollows(deps);
+    expect(serverFollows.has(B)).toBe(false);
+    await restoreFollow(store, original, 1);
+    expect(store.current().follows[1]).toMatchObject({ masjidId: B, sync: 'follow', followedAt: original.followedAt });
+    await syncFollows(deps);
+    expect(serverFollows.has(B)).toBe(true);
   });
 });
 

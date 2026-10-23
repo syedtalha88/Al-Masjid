@@ -1,12 +1,10 @@
 // The app's data context (T2.3): device store (IndexedDB), API client, persisted TanStack Query cache, versions
 // poller, registration retry queue and follow reconciliation. Screens use the hooks; nothing here renders UI.
-import type { MasjidVersions } from '@mc/shared/contracts/public';
-import { type QueryClient, useQuery } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createContext, type ReactNode, use, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 
 import { type ApiClient, createApiClient } from './api/client.ts';
-import { pruneStaleVersions, versionsQuery } from './api/queries.ts';
 import { recordServerTime } from './clock.ts';
 import { DEVICE_DB, idbBackend, QUERY_CACHE_DB } from './device/idb.ts';
 import { createDeviceStore, type DeviceState, type DeviceStore, visibleFollows } from './device/store.ts';
@@ -150,30 +148,4 @@ export function useDeviceState(): DeviceState {
 export function useFollowedIds(): readonly string[] {
   const { follows } = useDeviceState();
   return useMemo(() => visibleFollows(follows).map((follow) => follow.masjidId), [follows]);
-}
-
-/**
- * The content versions of the followed masjids — polled on focus and every 60 s while visible; prunes cached queries
- * of older versions whenever new versions arrive.
- */
-export function useMasjidVersions(): {
-  readonly versions: MasjidVersions | undefined;
-  /** `error` only when no versions are known at all (first open offline); cached versions keep working. */
-  readonly failed: boolean;
-  /** Checks the versions now (pull-to-refresh); resolves when the answer is in. */
-  readonly refresh: () => Promise<void>;
-} {
-  const { api, queryClient } = useAppData();
-  const ids = useFollowedIds();
-  const query = useQuery({ ...versionsQuery(api, ids), placeholderData: (previous) => previous });
-  useEffect(() => {
-    if (query.data) pruneStaleVersions(queryClient, query.data);
-  }, [query.data, queryClient]);
-  return {
-    versions: query.data,
-    failed: query.isError && query.data === undefined,
-    refresh: async () => {
-      await query.refetch();
-    },
-  };
 }

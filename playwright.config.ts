@@ -37,7 +37,14 @@ export default defineConfig({
       use: { ...devices['Pixel 7'], launchOptions: { args: ['--ignore-certificate-errors'] } },
       testIgnore: /\.(perf|scan)\.spec\.ts$/,
     },
-    { name: 'iphone-14', use: { ...devices['iPhone 14'] }, testIgnore: /\.(perf|scan)\.spec\.ts$/ },
+    {
+      name: 'iphone-14',
+      use: { ...devices['iPhone 14'] },
+      testIgnore: /\.(perf|scan)\.spec\.ts$/,
+      // Playwright's WebKit on Windows fetches one resource at a time (~200 ms each, measured T2.7), so a screen that
+      // needs a few lazy chunks takes seconds to appear locally; real Safari multiplexes over HTTP/2.
+      expect: { timeout: 15_000 },
+    },
     // Scan journey (10 §6 journey 2): Chromium's fake camera plays a generated QR video (e2e/support/scan-feed.ts).
     // Desktop Chromium has no native BarcodeDetector, so this also runs the WebAssembly reader (DECISIONS #94).
     {

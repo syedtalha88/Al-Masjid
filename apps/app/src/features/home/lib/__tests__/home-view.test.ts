@@ -69,7 +69,12 @@ describe('prayerView', () => {
     expect(view?.date).toBe(THURSDAY);
     expect(view?.slots.map((slot) => slot.time)).toEqual(['05:30', '13:30', '16:45', '18:30', '20:30']);
     expect(view?.activeIndex).toBe(1);
-    expect(view?.next).toEqual({ prayer: 'dhuhr', time: '13:30', countdown: { kind: 'left', hours: 1, minutes: 49 } });
+    expect(view?.next).toEqual({
+      prayer: 'dhuhr',
+      time: '13:30',
+      at: ist(THURSDAY, '13:30'),
+      countdown: { kind: 'left', hours: 1, minutes: 49 },
+    });
   });
 
   it.each([
