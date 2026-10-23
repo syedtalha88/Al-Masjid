@@ -26,5 +26,27 @@
   "adhan": "Adhan",
   "jamaat": "Jamaat",
   "tabsLabel": "Masjid sections",
-  "gone": "This masjid is no longer listed."
+  "gone": "This masjid is no longer listed.",
+  "daily": "Daily Timings",
+  "specialDates": "Special Dates",
+  "sunrise": "Sunrise",
+  "calculated": "Calculated for this masjid’s location",
+  "note": "Timings may change on special occasions. Please check announcements.",
+  "pickDate": "Choose a date",
+  "prevDay": "Previous day",
+  "nextDay": "Next day",
+  "todayDate": "Today, {date}",
+  "jumuahTimings": "Jumu’ah Timings",
+  "jumuahN": "Jumu’ah {n}",
+  "noJumuah": "No Jumu’ah timings set.",
+  "noSpecial": "No special dates coming up.",
+  "timingsTabs": "Timings views",
+  "special": {
+    "eid_ul_fitr": "Eid ul-Fitr",
+    "eid_ul_adha": "Eid ul-Adha",
+    "taraweeh": "Taraweeh",
+    "shab_e_barat": "Shab-e-Barat",
+    "shab_e_qadr": "Shab-e-Qadr",
+    "other": "Special"
+  }
 }

@@ -146,6 +146,7 @@ common,ui.nextPrayer,Next Prayer,अगली नमाज़,no
 common,ui.refreshing,Refreshing…,रीफ़्रेश हो रहा है…,no
 common,ui.newUpdatesShort,"{count, plural, one {new update} other {new updates}}","{count, plural, one {नया अपडेट} other {नए अपडेट}}",no
 common,ui.reorderHint,"Drag to reorder, or use the arrow keys.","क्रम बदलने के लिए खींचें, या तीर वाली कुंजियाँ दबाएँ।",no
+common,ui.khutbah,Khutbah {time},ख़ुत्बा {time},no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,मग़रिब के बाद,no
 common,hijri.months.m1,Muharram,मुहर्रम,no
@@ -289,6 +290,26 @@ masjid,adhan,Adhan,अज़ान,no
 masjid,jamaat,Jamaat,जमात,no
 masjid,tabsLabel,Masjid sections,मस्जिद के हिस्से,no
 masjid,gone,This masjid is no longer listed.,यह मस्जिद अब सूची में नहीं है।,no
+masjid,daily,Daily Timings,रोज़ के समय,no
+masjid,specialDates,Special Dates,ख़ास दिन,no
+masjid,sunrise,Sunrise,सूर्योदय,no
+masjid,calculated,Calculated for this masjid’s location,इस मस्जिद की जगह के हिसाब से निकाला गया,no
+masjid,note,Timings may change on special occasions. Please check announcements.,ख़ास मौक़ों पर समय बदल सकते हैं। कृपया सूचनाएँ देखें।,no
+masjid,pickDate,Choose a date,तारीख़ चुनें,no
+masjid,prevDay,Previous day,पिछला दिन,no
+masjid,nextDay,Next day,अगला दिन,no
+masjid,todayDate,"Today, {date}","आज, {date}",no
+masjid,jumuahTimings,Jumu’ah Timings,जुमा के समय,no
+masjid,jumuahN,Jumu’ah {n},जुमा {n},no
+masjid,noJumuah,No Jumu’ah timings set.,जुमा के समय तय नहीं हैं।,no
+masjid,noSpecial,No special dates coming up.,आने वाले कोई ख़ास दिन नहीं।,no
+masjid,timingsTabs,Timings views,समय के हिस्से,no
+masjid,special.eid_ul_fitr,Eid ul-Fitr,ईद-उल-फ़ित्र,no
+masjid,special.eid_ul_adha,Eid ul-Adha,ईद-उल-अज़हा,no
+masjid,special.taraweeh,Taraweeh,तरावीह,no
+masjid,special.shab_e_barat,Shab-e-Barat,शब-ए-बरात,no
+masjid,special.shab_e_qadr,Shab-e-Qadr,शब-ए-क़द्र,no
+masjid,special.other,Special,ख़ास दिन,no
 onboarding,progress,Step {current} of {total},चरण {current} / {total},no
 onboarding,next,Continue,आगे बढ़ें,no
 onboarding,back,Back,पीछे,no

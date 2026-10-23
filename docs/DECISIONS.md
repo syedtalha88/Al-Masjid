@@ -1026,6 +1026,20 @@ path, #14) and desktop browsers have no native QR detector; Android Chrome has. 
 - **Shared-element morph** (08 §3.5, "progressive enhancement") deferred to F44: it needs a navigator hook for a
   cross-layer overlay; the acceptance alternative "disabled (documented)" applies until then.
 
+### #98 — Prayer Timings (PHASE_02 T2.9) — ACCEPTED (Claude Code, 23 Oct 2026)
+**Decision:**
+- One `TimingsContent` for the A6 screen (`/masjid/:id/timings`, reached from Home's next-prayer panel) and Masjid
+  Detail's "Prayer Timings" tab (07 A5: same content without the bar).
+- Rows are the `@mc/domain` output as is (`resolveSchedule` → `timingRows`): Fajr, Sunrise (muted, Adhan only), Dhuhr —
+  or Jumu'ah with the first jamaat on Fridays — Asr, Maghrib, Isha; calculated adhans carry a dot with the tooltip
+  "Calculated for this masjid's location". The next jamaat's row is tinted only on the day it falls on.
+- Date stepper range today −7 … +60 (arrows disable at the ends, the date sheet is bounded the same way); the Hijri date
+  uses the masjid's offset (else the global one). Changing day slides the table ±40 px from the side it comes from
+  (`slideIn`, `tween.quick`, mirrored in RTL; a fade with reduced motion).
+- Special Dates lists today's and later entries grouped by date; admin labels/notes are shown as entered.
+- F43 part 2 done: `@mc/ui/icons/glyphs.tsx` is a barrel over one module per glyph, so icons used only by lazy screens
+  stay out of the entry (−2.1 kB).
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

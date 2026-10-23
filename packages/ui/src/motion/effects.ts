@@ -118,3 +118,27 @@ export function snapTo(element: HTMLElement, scale: number): Effect {
     },
   };
 }
+
+/** How far content slides in when stepping between days (08 §5.5 date stepper), px. */
+const SLIDE_PX = 40;
+
+/**
+ * New content slides in from the side it comes from (+1 = next → from the inline end) and fades in (`tween.quick`). The
+ * caller passes the direction already mirrored for RTL; with reduced motion use `crossfadeIn`.
+ */
+export function slideIn(element: HTMLElement, direction: 1 | -1): Effect {
+  const controls = animate(0, 1, {
+    ...tween.quick,
+    onUpdate: (progress) => {
+      element.style.opacity = String(progress);
+      element.style.transform = `translateX(${String(direction * SLIDE_PX * (1 - progress))}px)`;
+    },
+  });
+  return {
+    stop() {
+      controls.stop();
+      element.style.opacity = '';
+      element.style.transform = '';
+    },
+  };
+}

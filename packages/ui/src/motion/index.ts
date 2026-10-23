@@ -1,7 +1,7 @@
 // `@mc/ui/motion` — the only source of animation timing in the apps (08_MOTION; lint rule mc/no-adhoc-motion).
 export { CountUp, type CountUpProps } from './CountUp.tsx';
 export { DigitRoll, type DigitRollProps } from './DigitRoll.tsx';
-export { breathe, crossfadeIn, drawStrokesIn, type Effect, shake, snapTo, sweep } from './effects.ts';
+export { breathe, crossfadeIn, drawStrokesIn, type Effect, shake, slideIn, snapTo, sweep } from './effects.ts';
 export { haptic, type HapticKind, HAPTICS, isHapticsEnabled, setHapticsEnabled, useHaptics } from './haptics.ts';
 export { type DeviceHints, isLowEndDevice, JANK, JankMonitor, trackMotion, useLiteMotion } from './lite.ts';
 export {

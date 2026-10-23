@@ -146,6 +146,7 @@ common,ui.nextPrayer,Next Prayer,اگلی نماز,no
 common,ui.refreshing,Refreshing…,تازہ ہو رہا ہے…,no
 common,ui.newUpdatesShort,"{count, plural, one {new update} other {new updates}}","{count, plural, one {نئی اپڈیٹ} other {نئی اپڈیٹس}}",no
 common,ui.reorderHint,"Drag to reorder, or use the arrow keys.",ترتیب بدلنے کے لیے کھینچیں، یا تیر والی کیز دبائیں۔,no
+common,ui.khutbah,Khutbah {time},خطبہ {time},no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,مغرب کے بعد,no
 common,hijri.months.m1,Muharram,محرم,no
@@ -289,6 +290,26 @@ masjid,adhan,Adhan,اذان,no
 masjid,jamaat,Jamaat,جماعت,no
 masjid,tabsLabel,Masjid sections,مسجد کے حصے,no
 masjid,gone,This masjid is no longer listed.,یہ مسجد اب فہرست میں نہیں ہے۔,no
+masjid,daily,Daily Timings,روزانہ اوقات,no
+masjid,specialDates,Special Dates,خاص دن,no
+masjid,sunrise,Sunrise,طلوعِ آفتاب,no
+masjid,calculated,Calculated for this masjid’s location,اس مسجد کے مقام کے مطابق حساب کیا گیا,no
+masjid,note,Timings may change on special occasions. Please check announcements.,خاص مواقع پر اوقات بدل سکتے ہیں۔ براہِ کرم اعلانات دیکھیں۔,no
+masjid,pickDate,Choose a date,تاریخ منتخب کریں,no
+masjid,prevDay,Previous day,پچھلا دن,no
+masjid,nextDay,Next day,اگلا دن,no
+masjid,todayDate,"Today, {date}",آج، {date},no
+masjid,jumuahTimings,Jumu’ah Timings,جمعہ کے اوقات,no
+masjid,jumuahN,Jumu’ah {n},جمعہ {n},no
+masjid,noJumuah,No Jumu’ah timings set.,جمعہ کے اوقات طے نہیں ہیں۔,no
+masjid,noSpecial,No special dates coming up.,آنے والے کوئی خاص دن نہیں۔,no
+masjid,timingsTabs,Timings views,اوقات کے حصے,no
+masjid,special.eid_ul_fitr,Eid ul-Fitr,عید الفطر,no
+masjid,special.eid_ul_adha,Eid ul-Adha,عید الاضحیٰ,no
+masjid,special.taraweeh,Taraweeh,تراویح,no
+masjid,special.shab_e_barat,Shab-e-Barat,شبِ برات,no
+masjid,special.shab_e_qadr,Shab-e-Qadr,شبِ قدر,no
+masjid,special.other,Special,خاص دن,no
 onboarding,progress,Step {current} of {total},مرحلہ {current} از {total},no
 onboarding,next,Continue,آگے بڑھیں,no
 onboarding,back,Back,پیچھے,no

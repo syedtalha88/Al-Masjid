@@ -146,6 +146,7 @@ common,ui.nextPrayer,Next Prayer,తదుపరి నమాజ్,no
 common,ui.refreshing,Refreshing…,రిఫ్రెష్ అవుతోంది…,no
 common,ui.newUpdatesShort,"{count, plural, one {new update} other {new updates}}","{count, plural, one {కొత్త అప్‌డేట్} other {కొత్త అప్‌డేట్‌లు}}",no
 common,ui.reorderHint,"Drag to reorder, or use the arrow keys.","క్రమం మార్చడానికి లాగండి, లేదా బాణం కీలను ఉపయోగించండి.",no
+common,ui.khutbah,Khutbah {time},ఖుత్బా {time},no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,మగ్రిబ్ తర్వాత,no
 common,hijri.months.m1,Muharram,ముహర్రం,no
@@ -289,6 +290,26 @@ masjid,adhan,Adhan,అజాన్,no
 masjid,jamaat,Jamaat,జమాత్,no
 masjid,tabsLabel,Masjid sections,మసీదు విభాగాలు,no
 masjid,gone,This masjid is no longer listed.,ఈ మసీదు ఇప్పుడు జాబితాలో లేదు.,no
+masjid,daily,Daily Timings,రోజువారీ సమయాలు,no
+masjid,specialDates,Special Dates,ప్రత్యేక రోజులు,no
+masjid,sunrise,Sunrise,సూర్యోదయం,no
+masjid,calculated,Calculated for this masjid’s location,ఈ మసీదు స్థానం ఆధారంగా లెక్కించబడింది,no
+masjid,note,Timings may change on special occasions. Please check announcements.,ప్రత్యేక సందర్భాల్లో సమయాలు మారవచ్చు. దయచేసి ప్రకటనలు చూడండి.,no
+masjid,pickDate,Choose a date,తేదీని ఎంచుకోండి,no
+masjid,prevDay,Previous day,మునుపటి రోజు,no
+masjid,nextDay,Next day,తదుపరి రోజు,no
+masjid,todayDate,"Today, {date}","ఈరోజు, {date}",no
+masjid,jumuahTimings,Jumu’ah Timings,జుమా సమయాలు,no
+masjid,jumuahN,Jumu’ah {n},జుమా {n},no
+masjid,noJumuah,No Jumu’ah timings set.,జుమా సమయాలు నిర్ణయించలేదు.,no
+masjid,noSpecial,No special dates coming up.,రాబోయే ప్రత్యేక రోజులు లేవు.,no
+masjid,timingsTabs,Timings views,సమయాల విభాగాలు,no
+masjid,special.eid_ul_fitr,Eid ul-Fitr,ఈదుల్ ఫిత్ర్,no
+masjid,special.eid_ul_adha,Eid ul-Adha,ఈదుల్ అజ్‌హా,no
+masjid,special.taraweeh,Taraweeh,తరావీహ్,no
+masjid,special.shab_e_barat,Shab-e-Barat,షబ్-ఎ-బరాత్,no
+masjid,special.shab_e_qadr,Shab-e-Qadr,షబ్-ఎ-ఖద్ర్,no
+masjid,special.other,Special,ప్రత్యేక రోజు,no
 onboarding,progress,Step {current} of {total},దశ {current} / {total},no
 onboarding,next,Continue,కొనసాగించండి,no
 onboarding,back,Back,వెనుకకు,no

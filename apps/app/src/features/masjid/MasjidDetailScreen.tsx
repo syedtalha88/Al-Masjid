@@ -54,7 +54,7 @@ import { ItemList } from '../content/ItemList.tsx';
 import { RamadanCard } from '../home/components/SeasonCards.tsx';
 import { prayerView, ramadanView } from '../home/lib/home-view.ts';
 import { shareNatively, ShareSheet, type ShareTarget } from './components/ShareSheet.tsx';
-import { TimingsPanel } from './components/TimingsPanel.tsx';
+import { TimingsContent } from './components/TimingsContent.tsx';
 import { useMasjidDetail } from './hooks/useMasjidDetail.ts';
 import { directionsLink, followLink, type SectionId, sectionRows } from './lib/detail-view.ts';
 
@@ -278,7 +278,7 @@ function Detail({ masjidId }: { readonly masjidId: string }) {
                       }}
                     />
                   ) : id === 'timings' ? (
-                    <TimingsPanel bundle={bundle} now={now} />
+                    <TimingsContent bundle={bundle} now={now} />
                   ) : (
                     <ItemList
                       items={detail.pages.get('announcement') ?? []}

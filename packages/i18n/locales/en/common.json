@@ -93,7 +93,8 @@
     "nextPrayer": "Next Prayer",
     "refreshing": "Refreshing…",
     "newUpdatesShort": "{count, plural, one {new update} other {new updates}}",
-    "reorderHint": "Drag to reorder, or use the arrow keys."
+    "reorderHint": "Drag to reorder, or use the arrow keys.",
+    "khutbah": "Khutbah {time}"
   },
   "hijri": {
     "date": "{day} {month} {year}",

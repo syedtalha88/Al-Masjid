@@ -68,7 +68,9 @@ function ActiveCard({ bundle, now }: { readonly bundle: ActiveMasjidBundle; read
             prayer={view.next?.prayer ?? null}
             countdown={view.next?.countdown ?? null}
             emptyText={t('home.noJamaat')}
-            onPress={open}
+            onPress={() => {
+              navigator.push(`/masjid/${masjid.id}/timings`);
+            }}
           />
           <PrayerStrip
             slots={view.slots}

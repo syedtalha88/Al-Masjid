@@ -93,7 +93,8 @@
     "nextPrayer": "اگلی نماز",
     "refreshing": "تازہ ہو رہا ہے…",
     "newUpdatesShort": "{count, plural, one {نئی اپڈیٹ} other {نئی اپڈیٹس}}",
-    "reorderHint": "ترتیب بدلنے کے لیے کھینچیں، یا تیر والی کیز دبائیں۔"
+    "reorderHint": "ترتیب بدلنے کے لیے کھینچیں، یا تیر والی کیز دبائیں۔",
+    "khutbah": "خطبہ {time}"
   },
   "hijri": {
     "date": "{day} {month} {year}",

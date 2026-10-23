@@ -13,9 +13,9 @@ import { join } from 'node:path';
  * over bundle size"); 176 kB since T2.4 (onboarding gate + shared-chunk split, +0.3 kB); 180 kB since T2.5 (follow routes + the follow flow's
  * success check make rolldown split Motion into two preloaded shared chunks: +~1 kB code, +~3 kB lost gzip context —
  * DECISIONS #94); 184 kB at T2.6 (Home); 182 kB since T2.7 —
- * the versions poller left the entry (F43, part 1; glyphs and time helpers still to split).
+ * the versions poller left the entry (F43, part 1); 181 kB since T2.9 — one module per glyph (F43, part 2).
  */
-const APP_INITIAL_JS = '182 kB';
+const APP_INITIAL_JS = '181 kB';
 const ADMIN_INITIAL_JS = '220 kB';
 const INITIAL_CSS = '25 kB';
 const LAZY_CHUNK = '60 kB';

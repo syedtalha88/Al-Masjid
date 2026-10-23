@@ -39,7 +39,7 @@ test('header, actions, tabs and section rows', async ({ page, expectAxeClean, ca
 
   await detail.getByRole('tab', { name: 'Prayer Timings' }).click();
   await expect(detail.getByRole('columnheader', { name: 'Jamaat' })).toBeVisible();
-  await expect(detail.getByRole('rowheader')).toHaveCount(5);
+  await expect(detail.getByRole('rowheader')).toHaveCount(6); // incl. Sunrise
   await detail.getByRole('tab', { name: 'Announcements' }).click();
   await expect(detail.getByRole('tabpanel').getByRole('listitem').first()).toBeVisible();
 

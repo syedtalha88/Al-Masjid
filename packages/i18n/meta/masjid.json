@@ -33,5 +33,20 @@
   "jamaat": {
     "context": "Column header: congregation time",
     "maxLength": 10
+  },
+  "daily": {
+    "context": "Tab in the prayer timings screen",
+    "maxLength": 18
+  },
+  "specialDates": {
+    "context": "Tab: Eid, Taraweeh and other special timings",
+    "maxLength": 16
+  },
+  "calculated": {
+    "context": "Tooltip of a small dot next to a time worked out from the sun position"
+  },
+  "todayDate": {
+    "context": "Date pill when the shown day is today; {date} e.g. \"8 Oct 2026\"",
+    "maxLength": 24
   }
 }
