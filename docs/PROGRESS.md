@@ -24,9 +24,10 @@
 Last commit = the T2.10 commit (Updates + performance fixes). CI was green on `adc58db`; later pushes cancel each
 other's runs (only the newest counts) — **first: check CI of the newest `main` commit** (curl
 `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=main&per_page=5`; `gh` is not installed).
-**Then: re-run the full local e2e** (`--project=pixel-7 --project=iphone-14 --project=scan --workers=1`) — the run
-after the T2.10 persistence/store/time changes was still going at handoff (targeted specs and all unit/coverage gates
-were green). Also `pnpm test:perf` (navigation + `updates.perf`).
+**Full local e2e after the T2.10 changes finished: 187 passed, 27 skipped, 2 failed** — both
+`e2e/components/showcase.spec.ts` Sheet tests on iphone-14 ("focus returns to the opener", "a long drag dismisses"),
+which run against the Vite dev server on 5173; the run took 9.3 h (the PC slept), so re-run just those two first
+(`--project=iphone-14 -g "Sheet"`, dev server running) before treating them as real. Also `pnpm test:perf`.
 **Next task: T2.11** (Announcements, Hadith & Quran, Dua Requests — read side): replaces the placeholders
 `/masjid/:id/:section` (`routes/masjid_.$masjidId.$section.tsx`) and `/items/:publicId` (`routes/items.$publicId.tsx`).
 Template notices need body rendering with params (time/date/prayer formatting) — titles already come from
