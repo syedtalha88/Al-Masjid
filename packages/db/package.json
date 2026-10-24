@@ -32,6 +32,6 @@
   "dependencies": {
     "@mc/domain": "workspace:*",
     "mongodb": "7.6.0",
-    "zod": "4.6.5"
+    "zod": "4.6.6"
   }
 }

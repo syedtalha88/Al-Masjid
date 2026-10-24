@@ -1,3 +1,5 @@
+import { gzipSync } from 'node:zlib';
+
 import { problemSchema } from '@mc/shared/contracts';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
@@ -321,6 +323,30 @@ describe('JSON bodies', () => {
       415,
       'UNSUPPORTED_MEDIA_TYPE',
     );
+  });
+
+  it('refuses compressed bodies with 415 — GHSA-27r3-jxmh-p828 (trailing bytes after gzip crash body-parser < 2.4)', async () => {
+    let uncaught: unknown;
+    const onUncaught = (error: unknown) => {
+      uncaught = error;
+    };
+    process.on('uncaughtException', onUncaught);
+    try {
+      const body = Buffer.concat([gzipSync('{"name":"x"}'), Buffer.from('trailing')]);
+      expectProblem(
+        await request(app())
+          .post('/api/v1/things')
+          .set('Content-Type', 'application/json')
+          .set('Content-Encoding', 'gzip')
+          .send(body),
+        415,
+        'UNSUPPORTED_MEDIA_TYPE',
+      );
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(uncaught).toBeUndefined();
+    } finally {
+      process.off('uncaughtException', onUncaught);
+    }
   });
 
   it('rejects $-prefixed and dotted keys anywhere (NoSQL operator injection)', async () => {

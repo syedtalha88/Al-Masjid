@@ -14,6 +14,8 @@ const METHODS_WITH_BODY = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
  *   otherwise 415 `UNSUPPORTED_MEDIA_TYPE` — so a form post can't sneak past validation.
  * - Malformed JSON → 400 `INVALID_JSON`; too large → 413 `PAYLOAD_TOO_LARGE` (mapped in errors.ts).
  * - `strict: true` accepts only objects/arrays at the top level.
+ * - `inflate: false`: our clients never compress request bodies, so any `Content-Encoding` → 415. This also closes
+ *   GHSA-27r3-jxmh-p828 (trailing bytes after a gzip frame crash the process in body-parser < 2.4.0).
  */
 export function jsonBody(): RequestHandler[] {
   return [
@@ -27,6 +29,6 @@ export function jsonBody(): RequestHandler[] {
       }
       next();
     },
-    express.json({ limit: JSON_BODY_LIMIT, strict: true, type: 'application/json' }),
+    express.json({ limit: JSON_BODY_LIMIT, strict: true, inflate: false, type: 'application/json' }),
   ];
 }

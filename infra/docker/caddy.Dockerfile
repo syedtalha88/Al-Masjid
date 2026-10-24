@@ -24,10 +24,12 @@ COPY --from=caddy-build /usr/bin/caddy /usr/bin/caddy
 # no-new-privileges + cap_drop ALL a non-root user may not exec a binary with file capabilities ("operation not
 # permitted"), and we listen on high ports anyway — so strip it. libcap is a build-time tool removed in the same
 # layer, so its version isn't pinned (Alpine drops old package versions); the base image is pinned by digest.
+# curl (+ libcurl, brotli, nghttp2, c-ares, …) is removed: nothing here uses it — healthchecks use busybox wget —
+# and it was the only path for CVE-2026-111497 (brotli-libs, Trivy 24 Oct 2026).
 # hadolint ignore=DL3018
 RUN apk add --no-cache --virtual .setcap libcap && \
     setcap -r /usr/bin/caddy && \
-    apk del .setcap && \
+    apk del .setcap curl && \
     addgroup -S -g 1000 caddy && adduser -S -u 1000 -G caddy -H -s /sbin/nologin caddy
 COPY infra/caddy/Caddyfile /etc/caddy/Caddyfile
 USER 1000:1000
