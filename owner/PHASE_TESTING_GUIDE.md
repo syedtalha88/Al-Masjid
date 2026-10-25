@@ -92,7 +92,7 @@ Claude Code seeds 3 test masjids ("Test Masjid Alpha/Beta/Gamma") on staging and
 | 2.5 | iPhone camera path | On iPhone, scan a test QR with the **normal Camera app** | Safari page explains to open the installed app and tap Scan (shows the code) |
 | 2.6 | Home screen | Follow 2–3 masjids → Home | Looks like reference sheet 1, screen 1: greeting, Hijri date, masjid cards you can swipe, next prayer + countdown, 5 prayer times, recent updates |
 | 2.7 | Countdown | Watch the countdown when a minute changes | Numbers roll smoothly; times are correct for the masjid |
-| 2.8 | Masjid page | Tap a masjid card | Picture slides/morphs into a big header image; white sheet with Verified badge, 3 round buttons, tabs, sections (like reference 1, screen 3) |
+| 2.8 | Masjid page | Tap a masjid card | The page slides in with a big header image (the picture "morphing" from the card comes later — DECISIONS #103); white sheet with Verified badge, 3 round buttons, tabs, sections (like reference 1, screen 3) |
 | 2.9 | Directions & Share | Tap Directions; tap Share | Google Maps opens to the masjid; share sheet/WhatsApp with link |
 | 2.10 | Prayer Timings | Masjid → Prayer Timings; tap next/previous day arrows | Adhan & Jamaat columns; table slides left/right when changing day; Friday shows Jumu'ah |
 | 2.11 | Updates tab | Open Updates; tap filter chips | Timeline with colored icons and line (reference 2, screen 4); filters animate |
@@ -104,6 +104,7 @@ Claude Code seeds 3 test masjids ("Test Masjid Alpha/Beta/Gamma") on staging and
 | 2.17 | Low-end phone feel | Use Android A for 5 minutes: switch tabs, open/close masjids, scroll fast | Smooth; no stutter; no white flashes |
 | 2.18 | Unfollow & reorder | My Masjids → Edit → drag to reorder; unfollow one | Order is kept after closing app; unfollowed masjid disappears |
 | 2.19 | Clear all data | Settings → My data → Clear all data | Confirmation; app returns to onboarding |
+| 2.19a | Back closes sheets (Android) | Open any sheet (My Masjids → Add Masjid; Settings → Language) → press Android back (button or swipe) | The sheet slides away and you stay on the same screen; a second back goes to the previous screen |
 | 2.20 | Android link opening | With the app installed on Android (from Chrome), send yourself a masjid link (Masjid page → Share) on WhatsApp. (a) Close the app fully, tap the link. (b) Open the app on the Updates tab, switch to WhatsApp, tap the link again | (a) and (b): opens inside the installed app (no browser address bar) **showing that masjid** (its follow page, or "already following" with Open) — in (b) not just the screen you left. Also long-press the app icon → "Updates" opens the Updates tab. Note the result either way (some phones ask "Open with" the first time) |
 | 2.21 | Speed check | Laptop Chrome → Lighthouse → Mobile report on staging app | Performance ≥ 90, Accessibility ≥ 95 |
 
