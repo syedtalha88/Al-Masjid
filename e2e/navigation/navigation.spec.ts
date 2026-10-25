@@ -6,7 +6,7 @@ import { APP_URL } from '../../playwright.config.ts';
 // T0.9 acceptance (08 §3): stack push/pop, Android/browser back, swipe-back, tabs keep their stacks,
 // re-tap pops to root + scrolls top, modal, focus management, inert covered screens, stress and perf. The stack is
 // exercised with the `/demo/:n` placeholder screens (opened as a deep link over the Home root, so their numbers stay
-// 1, 2, 3…); Home is the real screen since T2.5, so root-scrolling uses the long Settings tab.
+// 1, 2, 3…); Home is the real screen since T2.5. Root scrolling uses the Settings tab (real since T2.12) with a test spacer.
 
 const title = (page: Page) => page.locator('section[data-screen]:not([inert]) h1');
 const expectTop = async (page: Page, name: string) => {
@@ -132,14 +132,30 @@ test('tabs keep their own stacks; re-tapping the active tab pops to root and scr
   await expectTop(page, HOME);
   await expect(page).toHaveURL(new RegExp(`${APP_URL.replace(/[./]/g, '\\$&')}/?$`));
 
-  // A scrolled root, two pushes, re-tap → back at the root, scrolled to top (the long Settings tab).
+  // A scrolled root, two pushes, re-tap → back at the root, scrolled to top. Settings is short on these phones, so a
+  // spacer makes its root scrollable (the behaviour under test is the navigator's, not the screen's).
   await tab(page, 'Settings').click();
   await settle(page);
   await scroller(page).evaluate((element) => {
+    const spacer = document.createElement('div');
+    spacer.style.height = '2000px';
+    element.append(spacer);
     element.scrollTop = 400;
   });
-  await openNextInPlace(page);
-  await openNextInPlace(page);
+  // Scrolled for real (WebKit may apply the new layout a frame later).
+  await expect.poll(() => scroller(page).evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+  const pushInPlace = (name: RegExp) =>
+    page
+      .locator('section[data-screen]:not([inert])')
+      .getByRole('button', { name })
+      .first()
+      .evaluate((button: HTMLElement) => {
+        button.click();
+      });
+  await pushInPlace(/^Privacy Policy/);
+  await expectTop(page, 'Privacy Policy');
+  await pushInPlace(/^Contact & Grievance/);
+  await expectTop(page, 'Contact & Grievance');
   await settle(page);
   await tab(page, 'Settings').click();
   await expect(page.locator('section[data-screen]:not([inert]) [data-screen-scroll]')).toHaveCount(1);

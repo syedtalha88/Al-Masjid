@@ -1,0 +1,63 @@
+{
+  "language": {
+    "context": "Settings row",
+    "maxLength": 28
+  },
+  "audience": {
+    "context": "Settings row: brother or sister choice",
+    "maxLength": 28
+  },
+  "notifications": {
+    "context": "Settings row (Phase 4)",
+    "maxLength": 28
+  },
+  "saved": {
+    "context": "Settings row: bookmarked posts on this phone",
+    "maxLength": 28
+  },
+  "vibration": {
+    "context": "Settings switch (Android)",
+    "maxLength": 28
+  },
+  "install": {
+    "context": "Settings row",
+    "maxLength": 28
+  },
+  "myData": {
+    "context": "Settings row: what is stored about this app",
+    "maxLength": 28
+  },
+  "privacy": {
+    "context": "Settings row: legal page",
+    "maxLength": 28
+  },
+  "grievance": {
+    "context": "Settings row: grievance officer (IT Rules)",
+    "maxLength": 28
+  },
+  "about": {
+    "context": "Settings row",
+    "maxLength": 28
+  },
+  "clearAll": {
+    "context": "Destructive button",
+    "maxLength": 32
+  },
+  "comingSoon": {
+    "context": "Trailing label of a disabled row",
+    "maxLength": 18
+  },
+  "installed": {
+    "context": "Trailing value of the Install row",
+    "maxLength": 16
+  },
+  "clearBody": {
+    "context": "Confirmation dialog body — keep the meaning exact (05 §4)"
+  },
+  "officerTimes": {
+    "context": "IT Rules: acknowledgement within 24 hours (05 §3)"
+  },
+  "aboutFree": {
+    "context": "Promise shown in About; keep all four statements"
+  }
+}

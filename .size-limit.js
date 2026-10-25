@@ -15,9 +15,11 @@ import { join } from 'node:path';
  * DECISIONS #94); 184 kB at T2.6 (Home); 182 kB since T2.7 —
  * the versions poller left the entry (F43, part 1); 181 kB since T2.9 — one module per glyph (F43, part 2); 184 kB since
  * T2.11 — the content screens share more of Motion and intl-messageformat, so rolldown splits them into more preloaded
- * chunks (+3.1 kB, mostly lost gzip context; owner 24 Oct 2026: "10–20 kB is fine, focus on quality" — DECISIONS #100).
+ * chunks (+3.1 kB, mostly lost gzip context; owner 24 Oct 2026: "10–20 kB is fine, focus on quality" — DECISIONS #100);
+ * 186 kB since T2.12 — the start-up sync of queued Settings changes / a queued "Clear all data" and the stored
+ * Vibration choice (F16) run from the data layer in the entry (+1.1 kB — DECISIONS #101).
  */
-const APP_INITIAL_JS = '184 kB';
+const APP_INITIAL_JS = '186 kB';
 const ADMIN_INITIAL_JS = '220 kB';
 const INITIAL_CSS = '25 kB';
 const LAZY_CHUNK = '60 kB';

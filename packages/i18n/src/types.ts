@@ -7,6 +7,7 @@ import type errors from '../locales/en/errors.json';
 import type follow from '../locales/en/follow.json';
 import type masjid from '../locales/en/masjid.json';
 import type onboarding from '../locales/en/onboarding.json';
+import type settings from '../locales/en/settings.json';
 import type superAdmin from '../locales/en/super.json';
 
 export interface Resources {
@@ -17,6 +18,7 @@ export interface Resources {
   follow: typeof follow;
   masjid: typeof masjid;
   onboarding: typeof onboarding;
+  settings: typeof settings;
   super: typeof superAdmin;
 }
 

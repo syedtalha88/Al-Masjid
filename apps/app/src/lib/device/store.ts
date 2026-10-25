@@ -13,6 +13,10 @@ const MAX_SAVED = 500;
 const MAX_AMEENS = 2000;
 
 const LOCALE = z.enum(['en', 'hi', 'ur', 'te']);
+const credentialsSchema = z.object({
+  deviceId: uuidText,
+  secret: z.string().check(z.regex(/^[A-Za-z0-9_-]{43}$/)),
+});
 const instant = z.iso.datetime();
 
 /**
@@ -30,7 +34,14 @@ export type LocalFollow = z.infer<typeof followSchema>;
 const stateSchema = z.object({
   version: z.literal(DEVICE_STATE_VERSION),
   /** Returned once by `POST /devices` (03 §1); absent until registration succeeds. */
-  credentials: z.optional(z.object({ deviceId: uuidText, secret: z.string().check(z.regex(/^[A-Za-z0-9_-]{43}$/)) })),
+  credentials: z.optional(credentialsSchema),
+  /** Language / brother-sister changed while the server could not be told (Settings, T2.12): sent on the next sync. */
+  prefsPending: z.optional(z.boolean()),
+  /**
+   * "Clear all data" while offline (05 §4 "works offline-queued"): the old device's credentials, kept only until its
+   * server record is deleted. Nothing else of the old device remains.
+   */
+  pendingDeletion: z.optional(credentialsSchema),
   locale: LOCALE,
   audiencePref: z.optional(z.enum(['brothers', 'sisters'])),
   /** Privacy notice version accepted on onboarding page 4 (05 §2). */

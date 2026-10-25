@@ -400,7 +400,7 @@ onboarding,language.hint,You can change it anytime in Settings.,आप इसे
 onboarding,audience.title,Who is using this app?,यह ऐप कौन इस्तेमाल कर रहा है?,no
 onboarding,audience.brother,Brother,भाई,no
 onboarding,audience.sister,Sister,बहन,no
-onboarding,audience.help,Used only to show bayans meant for you. Saved on this phone. You can change it anytime in Settings.,सिर्फ़ आपके लिए बने बयान दिखाने के लिए। यह इसी फ़ोन में सेव रहता है। आप इसे कभी भी सेटिंग्स में बदल सकते हैं।,no
+onboarding,audience.help,Used only to show posts meant for you. Kept on this phone and on our server. You can change it anytime in Settings.,सिर्फ़ आपके लिए बनी पोस्ट दिखाने के लिए। यह इस फ़ोन में और हमारे सर्वर पर रहता है। आप इसे कभी भी सेटिंग्स में बदल सकते हैं।,no
 onboarding,privacy.title,Privacy at a glance,निजता एक नज़र में,no
 onboarding,privacy.noAccount,No account. No name or phone number.,"कोई अकाउंट नहीं। न नाम, न फ़ोन नंबर।",no
 onboarding,privacy.location,Your location never leaves your phone.,आपकी लोकेशन आपके फ़ोन से बाहर नहीं जाती।,no
@@ -418,6 +418,74 @@ onboarding,install.title,Keep the app on your phone,ऐप को अपने �
 onboarding,install.body,"Install it to open it from your home screen, even without internet.","इसे इंस्टॉल करें ताकि होम स्क्रीन से खोल सकें, इंटरनेट के बिना भी।",no
 onboarding,followed,You now follow {name}.,अब आप {name} को फ़ॉलो कर रहे हैं।,no
 onboarding,followFailed,We couldn’t add that masjid right now. Open the link again when you’re online.,अभी वह मस्जिद नहीं जुड़ सकी। ऑनलाइन होने पर लिंक फिर से खोलें।,no
+settings,language,Language,भाषा,no
+settings,languageSheet,Choose your language,अपनी भाषा चुनें,no
+settings,audience,Brother / Sister,भाई / बहन,no
+settings,audienceSheet,Who is using this app?,यह ऐप कौन इस्तेमाल कर रहा है?,no
+settings,brother,Brother,भाई,no
+settings,sister,Sister,बहन,no
+settings,audienceHelp,Used only to show posts meant for you. Kept on this phone and on our server; change it any time.,सिर्फ़ आपके लिए बनी पोस्ट दिखाने के लिए। यह इस फ़ोन में और हमारे सर्वर पर रहता है; कभी भी बदलें।,no
+settings,notifications,Notifications,सूचनाएँ,no
+settings,comingSoon,Coming soon,जल्द आ रहा है,no
+settings,saved,Saved,सेव की गई,no
+settings,vibration,Vibration,वाइब्रेशन,no
+settings,vibrationHint,A short buzz when you tap,टैप करने पर हल्का कंपन,no
+settings,install,Install app,ऐप इंस्टॉल करें,no
+settings,installed,Installed,इंस्टॉल है,no
+settings,installTitle,Keep the app on your phone,ऐप को अपने फ़ोन पर रखें,no
+settings,installBody,"Install it to open it from your home screen, even without internet.","इसे इंस्टॉल करें ताकि होम स्क्रीन से खोल सकें, इंटरनेट के बिना भी।",no
+settings,installButton,Install,इंस्टॉल करें,no
+settings,installUnavailable,Open this page in Chrome to install the app.,ऐप इंस्टॉल करने के लिए यह पेज Chrome में खोलें।,no
+settings,myData,My data,मेरा डेटा,no
+settings,privacy,Privacy Policy,निजता नीति,no
+settings,grievance,Contact & Grievance,संपर्क और शिकायत,no
+settings,about,About,ऐप के बारे में,no
+settings,savedEmpty,Nothing saved yet,अभी कुछ सेव नहीं किया,no
+settings,savedEmptyBody,Tap the bookmark on a hadith or ayah to keep it on this phone.,"किसी हदीस या आयत पर बुकमार्क टैप करें, वह इस फ़ोन में रहेगी।",no
+settings,savedOn,Saved {date},{date} को सेव किया,no
+settings,savedUnavailable,Open it once while online to read it here.,इसे यहाँ पढ़ने के लिए एक बार इंटरनेट पर खोलें।,no
+settings,dataLead,{app} has no accounts. This is everything kept about this app.,{app} में कोई अकाउंट नहीं है। इस ऐप के बारे में बस इतना ही रखा जाता है।,no
+settings,onServer,On our server,हमारे सर्वर पर,no
+settings,onPhone,On this phone,इस फ़ोन में,no
+settings,field.appId,App ID,ऐप आईडी,no
+settings,field.language,Language,भाषा,no
+settings,field.audience,Brother / Sister,भाई / बहन,no
+settings,field.platform,Phone type,फ़ोन का प्रकार,no
+settings,field.privacyVersion,Privacy notice accepted,स्वीकार की गई निजता सूचना,no
+settings,field.push,Notifications,सूचनाएँ,no
+settings,field.follows,Masjids followed,फ़ॉलो की गई मस्जिदें,no
+settings,field.createdAt,First used,पहली बार इस्तेमाल,no
+settings,field.lastSeen,Last used,आख़िरी बार इस्तेमाल,no
+settings,field.saved,Saved posts,सेव की गई पोस्ट,no
+settings,field.ameens,Ameens said,कहे गए आमीन,no
+settings,field.reader,Reader and vibration,पढ़ने और वाइब्रेशन की सेटिंग,no
+settings,pushOn,On,चालू,no
+settings,pushOff,Off,बंद,no
+settings,platform.android,Android,एंड्रॉइड,no
+settings,platform.ios,iPhone or iPad,आईफ़ोन या आईपैड,no
+settings,platform.desktop,Computer,कंप्यूटर,no
+settings,platform.other,Other,अन्य,no
+settings,notRegistered,"This phone has not connected to our server yet, so nothing about it is kept there.","यह फ़ोन अभी हमारे सर्वर से नहीं जुड़ा है, इसलिए वहाँ इसके बारे में कुछ नहीं रखा गया।",no
+settings,serverOffline,Connect to the internet to see our server’s copy.,हमारे सर्वर की कॉपी देखने के लिए इंटरनेट से जुड़ें।,no
+settings,readerSettings,Arabic text {size}% · transliteration {transliteration} · vibration {vibration},अरबी लिखावट {size}% · उच्चारण {transliteration} · वाइब्रेशन {vibration},no
+settings,on,on,चालू,no
+settings,off,off,बंद,no
+settings,clearAll,Clear all data,सारा डेटा मिटाएँ,no
+settings,clearTitle,Clear all data?,सारा डेटा मिटाएँ?,no
+settings,clearBody,This removes all your masjids and settings from this phone and deletes your app ID from our server.,इससे आपकी सभी मस्जिदें और सेटिंग्स इस फ़ोन से हट जाएँगी और हमारे सर्वर से आपकी ऐप आईडी मिटा दी जाएगी।,no
+settings,clearQueued,Cleared on this phone. Our server’s copy will be deleted when you are back online.,इस फ़ोन से मिटा दिया गया। इंटरनेट आने पर हमारे सर्वर की कॉपी भी मिटा दी जाएगी।,no
+settings,draft,DRAFT — requires legal review,मसौदा — कानूनी समीक्षा बाकी,no
+settings,docVersion,Version {version},संस्करण {version},no
+settings,officer,Grievance Officer,शिकायत अधिकारी,no
+settings,officerTimes,We acknowledge every complaint within 24 hours.,हम हर शिकायत की पुष्टि 24 घंटे के भीतर करते हैं।,no
+settings,emailOfficer,Email the Grievance Officer,शिकायत अधिकारी को ईमेल करें,no
+settings,formSoon,"A complaint form inside the app is coming soon. Until then, please write by email.",ऐप के अंदर शिकायत फ़ॉर्म जल्द आ रहा है। तब तक कृपया ईमेल से लिखें।,no
+settings,officerOffline,Connect to the internet to see the Grievance Officer’s details.,शिकायत अधिकारी की जानकारी देखने के लिए इंटरनेट से जुड़ें।,no
+settings,aboutFree,"Free forever. No ads, ever. No account. No tracking.",हमेशा मुफ़्त। कभी कोई विज्ञापन नहीं। कोई अकाउंट नहीं। कोई ट्रैकिंग नहीं।,no
+settings,aboutCommunity,Made for the community.,समुदाय के लिए बनाया गया।,no
+settings,appVersion,Version {version},संस्करण {version},no
+settings,landingTitle,Shared post,शेयर की गई पोस्ट,no
+settings,landingApp,Get the app,ऐप पाएँ,no
 super,title,Super Admin,सुपर एडमिन,no
 super,nav.label,Super Admin sections,सुपर एडमिन के हिस्से,no
 super,nav.dashboard,Dashboard,डैशबोर्ड,no

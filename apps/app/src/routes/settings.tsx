@@ -1,14 +1,8 @@
-import { useTranslation } from '@mc/i18n/react';
 import { createFileRoute } from '@tanstack/react-router';
 
-import { PlaceholderScreen } from '../app/PlaceholderScreen.tsx';
+import { SettingsScreen } from '../features/settings/SettingsScreen.tsx';
 
+/** A15 Settings tab root. */
 export const Route = createFileRoute('/settings')({
-  component: SettingsTab,
+  component: SettingsScreen,
 });
-
-/** Settings tab root (Phase 0 placeholder). */
-function SettingsTab() {
-  const { t } = useTranslation();
-  return <PlaceholderScreen title={t('tabs.settings')} />;
-}

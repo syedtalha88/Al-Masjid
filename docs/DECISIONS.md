@@ -1107,6 +1107,35 @@ path, #14) and desktop browsers have no native QR detector; Android Chrome has. 
 - **Seed:** the Alpha event notice has a gradient "photo" (`seed/notice-alpha`, ThumbHash only) and Gamma has one
   archived illness request (800 h old) — 31 items.
 
+### #101 — Settings and the post landing (PHASE_02 T2.12) — ACCEPTED (Claude Code, 25 Oct 2026)
+**Decision:**
+- **Server-side preferences:** Language and Brother/Sister change the phone at once and the server device record
+  (`PATCH /devices/me`, both fields sent together). Offline / 5xx / 429 → `prefsPending` in the device document, sent on
+  start and on `online`; an unregistered device sends nothing (registration carries the current values); a forgotten
+  device registers again. Feeds refilter without extra code — their query keys carry `aud`.
+- **Clear all data** (05 §4, journey 12): `DELETE /devices/me` first, then the device document is reset (language kept),
+  the query cache is cleared (its persisted entries go with it), the unseen badge resets, and onboarding shows.
+  Offline, the phone is cleared at once and only the old credentials stay (`pendingDeletion`) until the server record is
+  deleted on the next start/online — 05 §4 "works offline-queued". A 401 (already gone) counts as deleted. The two new
+  device-document fields are optional, so existing phones' documents still validate (no reset).
+- **My data** shows exactly `GET /devices/me` (in memory only, never persisted — it carries the app ID) and what the
+  phone keeps (follows, saved count, Ameen count, reader/vibration settings).
+- **Vibration (F16):** `settings.vibration` drives `setHapticsEnabled` from start; the switch shows only where
+  `navigator.vibrate` exists (Android) — iOS has no web haptics.
+- **Notifications row:** "Coming soon", dev/staging builds only (`DEV || VITE_PUBLIC_SHOWCASE`), per the phase file.
+- **Legal:** the Privacy Policy reader shows the DRAFT tag and version (English draft for every locale until the human
+  translations); it ends with a Contact & Grievance button (axe: a scrollable page needs a keyboard stop). Contact &
+  Grievance shows the officer from `/config`; the mail link appears only for a real address (the migration's
+  "NOT SET" placeholders until C10). The in-app grievance form is Phase 8. Terms / content policy / licences: Phase 8.
+- **`/p/:publicId`:** the item detail in a read-only mode (no Ameen button — the count shows — and no bookmark) with
+  Follow masjid (the `/m/:code` follow flow) and, outside the installed app, install guidance. A browser cannot open the
+  installed app by itself, so "Open app" (07 A16) is that guidance. A first-time visitor onboards — "add your first
+  masjid" is skipped as for `/m/:code` — and returns to the post. The landing loads all four string namespaces at once.
+- **Copy fix:** onboarding's Brother/Sister help said "saved on this phone"; the server keeps it too (privacy notice §2)
+  — corrected in all four locales.
+- **Bundle:** initial JS limit 186 kB (184.1 kB): the start-up sync of queued Settings changes / deletion and the
+  Vibration hook live in the data layer (+1.1 kB; owner rule "quality over bundle size").
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

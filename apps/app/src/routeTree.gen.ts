@@ -20,6 +20,12 @@ import { Route as DemoNumberRouteImport } from './routes/demo.$number'
 import { Route as ItemsPublicIdRouteImport } from './routes/items.$publicId'
 import { Route as MCodeRouteImport } from './routes/m.$code'
 import { Route as MasjidMasjidIdRouteImport } from './routes/masjid.$masjidId'
+import { Route as PPublicIdRouteImport } from './routes/p.$publicId'
+import { Route as SettingsAboutRouteImport } from './routes/settings_.about'
+import { Route as SettingsDataRouteImport } from './routes/settings_.data'
+import { Route as SettingsGrievanceRouteImport } from './routes/settings_.grievance'
+import { Route as SettingsPrivacyRouteImport } from './routes/settings_.privacy'
+import { Route as SettingsSavedRouteImport } from './routes/settings_.saved'
 import { Route as MasjidMasjidIdSectionRouteImport } from './routes/masjid_.$masjidId.$section'
 import { Route as MasjidMasjidIdAnnouncementsRouteImport } from './routes/masjid_.$masjidId.announcements'
 import { Route as MasjidMasjidIdDuasRouteImport } from './routes/masjid_.$masjidId.duas'
@@ -81,6 +87,36 @@ const MasjidMasjidIdRoute = MasjidMasjidIdRouteImport.update({
   path: '/masjid/$masjidId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PPublicIdRoute = PPublicIdRouteImport.update({
+  id: '/p/$publicId',
+  path: '/p/$publicId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsAboutRoute = SettingsAboutRouteImport.update({
+  id: '/settings_/about',
+  path: '/settings/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsDataRoute = SettingsDataRouteImport.update({
+  id: '/settings_/data',
+  path: '/settings/data',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsGrievanceRoute = SettingsGrievanceRouteImport.update({
+  id: '/settings_/grievance',
+  path: '/settings/grievance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsPrivacyRoute = SettingsPrivacyRouteImport.update({
+  id: '/settings_/privacy',
+  path: '/settings/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsSavedRoute = SettingsSavedRouteImport.update({
+  id: '/settings_/saved',
+  path: '/settings/saved',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MasjidMasjidIdSectionRoute = MasjidMasjidIdSectionRouteImport.update({
   id: '/masjid_/$masjidId/$section',
   path: '/masjid/$masjidId/$section',
@@ -120,6 +156,12 @@ export interface FileRoutesByFullPath {
   '/items/$publicId': typeof ItemsPublicIdRoute
   '/m/$code': typeof MCodeRoute
   '/masjid/$masjidId': typeof MasjidMasjidIdRoute
+  '/p/$publicId': typeof PPublicIdRoute
+  '/settings/about': typeof SettingsAboutRoute
+  '/settings/data': typeof SettingsDataRoute
+  '/settings/grievance': typeof SettingsGrievanceRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
+  '/settings/saved': typeof SettingsSavedRoute
   '/masjid/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
   '/masjid/$masjidId/announcements': typeof MasjidMasjidIdAnnouncementsRoute
   '/masjid/$masjidId/duas': typeof MasjidMasjidIdDuasRoute
@@ -138,6 +180,12 @@ export interface FileRoutesByTo {
   '/items/$publicId': typeof ItemsPublicIdRoute
   '/m/$code': typeof MCodeRoute
   '/masjid/$masjidId': typeof MasjidMasjidIdRoute
+  '/p/$publicId': typeof PPublicIdRoute
+  '/settings/about': typeof SettingsAboutRoute
+  '/settings/data': typeof SettingsDataRoute
+  '/settings/grievance': typeof SettingsGrievanceRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
+  '/settings/saved': typeof SettingsSavedRoute
   '/masjid/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
   '/masjid/$masjidId/announcements': typeof MasjidMasjidIdAnnouncementsRoute
   '/masjid/$masjidId/duas': typeof MasjidMasjidIdDuasRoute
@@ -157,6 +205,12 @@ export interface FileRoutesById {
   '/items/$publicId': typeof ItemsPublicIdRoute
   '/m/$code': typeof MCodeRoute
   '/masjid/$masjidId': typeof MasjidMasjidIdRoute
+  '/p/$publicId': typeof PPublicIdRoute
+  '/settings_/about': typeof SettingsAboutRoute
+  '/settings_/data': typeof SettingsDataRoute
+  '/settings_/grievance': typeof SettingsGrievanceRoute
+  '/settings_/privacy': typeof SettingsPrivacyRoute
+  '/settings_/saved': typeof SettingsSavedRoute
   '/masjid_/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
   '/masjid_/$masjidId/announcements': typeof MasjidMasjidIdAnnouncementsRoute
   '/masjid_/$masjidId/duas': typeof MasjidMasjidIdDuasRoute
@@ -177,6 +231,12 @@ export interface FileRouteTypes {
     | '/items/$publicId'
     | '/m/$code'
     | '/masjid/$masjidId'
+    | '/p/$publicId'
+    | '/settings/about'
+    | '/settings/data'
+    | '/settings/grievance'
+    | '/settings/privacy'
+    | '/settings/saved'
     | '/masjid/$masjidId/$section'
     | '/masjid/$masjidId/announcements'
     | '/masjid/$masjidId/duas'
@@ -195,6 +255,12 @@ export interface FileRouteTypes {
     | '/items/$publicId'
     | '/m/$code'
     | '/masjid/$masjidId'
+    | '/p/$publicId'
+    | '/settings/about'
+    | '/settings/data'
+    | '/settings/grievance'
+    | '/settings/privacy'
+    | '/settings/saved'
     | '/masjid/$masjidId/$section'
     | '/masjid/$masjidId/announcements'
     | '/masjid/$masjidId/duas'
@@ -213,6 +279,12 @@ export interface FileRouteTypes {
     | '/items/$publicId'
     | '/m/$code'
     | '/masjid/$masjidId'
+    | '/p/$publicId'
+    | '/settings_/about'
+    | '/settings_/data'
+    | '/settings_/grievance'
+    | '/settings_/privacy'
+    | '/settings_/saved'
     | '/masjid_/$masjidId/$section'
     | '/masjid_/$masjidId/announcements'
     | '/masjid_/$masjidId/duas'
@@ -232,6 +304,12 @@ export interface RootRouteChildren {
   ItemsPublicIdRoute: typeof ItemsPublicIdRoute
   MCodeRoute: typeof MCodeRoute
   MasjidMasjidIdRoute: typeof MasjidMasjidIdRoute
+  PPublicIdRoute: typeof PPublicIdRoute
+  SettingsAboutRoute: typeof SettingsAboutRoute
+  SettingsDataRoute: typeof SettingsDataRoute
+  SettingsGrievanceRoute: typeof SettingsGrievanceRoute
+  SettingsPrivacyRoute: typeof SettingsPrivacyRoute
+  SettingsSavedRoute: typeof SettingsSavedRoute
   MasjidMasjidIdSectionRoute: typeof MasjidMasjidIdSectionRoute
   MasjidMasjidIdAnnouncementsRoute: typeof MasjidMasjidIdAnnouncementsRoute
   MasjidMasjidIdDuasRoute: typeof MasjidMasjidIdDuasRoute
@@ -318,6 +396,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MasjidMasjidIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/p/$publicId': {
+      id: '/p/$publicId'
+      path: '/p/$publicId'
+      fullPath: '/p/$publicId'
+      preLoaderRoute: typeof PPublicIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings_/about': {
+      id: '/settings_/about'
+      path: '/settings/about'
+      fullPath: '/settings/about'
+      preLoaderRoute: typeof SettingsAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings_/data': {
+      id: '/settings_/data'
+      path: '/settings/data'
+      fullPath: '/settings/data'
+      preLoaderRoute: typeof SettingsDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings_/grievance': {
+      id: '/settings_/grievance'
+      path: '/settings/grievance'
+      fullPath: '/settings/grievance'
+      preLoaderRoute: typeof SettingsGrievanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings_/privacy': {
+      id: '/settings_/privacy'
+      path: '/settings/privacy'
+      fullPath: '/settings/privacy'
+      preLoaderRoute: typeof SettingsPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings_/saved': {
+      id: '/settings_/saved'
+      path: '/settings/saved'
+      fullPath: '/settings/saved'
+      preLoaderRoute: typeof SettingsSavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/masjid_/$masjidId/$section': {
       id: '/masjid_/$masjidId/$section'
       path: '/masjid/$masjidId/$section'
@@ -368,6 +488,12 @@ const rootRouteChildren: RootRouteChildren = {
   ItemsPublicIdRoute: ItemsPublicIdRoute,
   MCodeRoute: MCodeRoute,
   MasjidMasjidIdRoute: MasjidMasjidIdRoute,
+  PPublicIdRoute: PPublicIdRoute,
+  SettingsAboutRoute: SettingsAboutRoute,
+  SettingsDataRoute: SettingsDataRoute,
+  SettingsGrievanceRoute: SettingsGrievanceRoute,
+  SettingsPrivacyRoute: SettingsPrivacyRoute,
+  SettingsSavedRoute: SettingsSavedRoute,
   MasjidMasjidIdSectionRoute: MasjidMasjidIdSectionRoute,
   MasjidMasjidIdAnnouncementsRoute: MasjidMasjidIdAnnouncementsRoute,
   MasjidMasjidIdDuasRoute: MasjidMasjidIdDuasRoute,

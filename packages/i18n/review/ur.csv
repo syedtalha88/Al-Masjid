@@ -400,7 +400,7 @@ onboarding,language.hint,You can change it anytime in Settings.,آپ اسے کب
 onboarding,audience.title,Who is using this app?,یہ ایپ کون استعمال کر رہا ہے؟,no
 onboarding,audience.brother,Brother,بھائی,no
 onboarding,audience.sister,Sister,بہن,no
-onboarding,audience.help,Used only to show bayans meant for you. Saved on this phone. You can change it anytime in Settings.,صرف آپ کے لیے بنے بیانات دکھانے کے لیے۔ یہ اسی فون میں محفوظ رہتا ہے۔ آپ اسے کبھی بھی سیٹنگز میں بدل سکتے ہیں۔,no
+onboarding,audience.help,Used only to show posts meant for you. Kept on this phone and on our server. You can change it anytime in Settings.,صرف آپ کے لیے بنی پوسٹس دکھانے کے لیے۔ یہ اس فون اور ہمارے سرور پر رہتا ہے۔ آپ اسے کبھی بھی سیٹنگز میں بدل سکتے ہیں۔,no
 onboarding,privacy.title,Privacy at a glance,رازداری ایک نظر میں,no
 onboarding,privacy.noAccount,No account. No name or phone number.,کوئی اکاؤنٹ نہیں۔ نہ نام، نہ فون نمبر۔,no
 onboarding,privacy.location,Your location never leaves your phone.,آپ کا مقام آپ کے فون سے باہر نہیں جاتا۔,no
@@ -418,6 +418,74 @@ onboarding,install.title,Keep the app on your phone,ایپ کو اپنے فون 
 onboarding,install.body,"Install it to open it from your home screen, even without internet.",اسے انسٹال کریں تاکہ ہوم اسکرین سے کھول سکیں، انٹرنیٹ کے بغیر بھی۔,no
 onboarding,followed,You now follow {name}.,اب آپ {name} کو فالو کر رہے ہیں۔,no
 onboarding,followFailed,We couldn’t add that masjid right now. Open the link again when you’re online.,ابھی وہ مسجد شامل نہیں ہو سکی۔ آن لائن ہونے پر لنک دوبارہ کھولیں۔,no
+settings,language,Language,زبان,no
+settings,languageSheet,Choose your language,اپنی زبان منتخب کریں,no
+settings,audience,Brother / Sister,بھائی / بہن,no
+settings,audienceSheet,Who is using this app?,یہ ایپ کون استعمال کر رہا ہے؟,no
+settings,brother,Brother,بھائی,no
+settings,sister,Sister,بہن,no
+settings,audienceHelp,Used only to show posts meant for you. Kept on this phone and on our server; change it any time.,صرف آپ کے لیے بنی پوسٹس دکھانے کے لیے۔ یہ اس فون اور ہمارے سرور پر رہتا ہے؛ کبھی بھی بدلیں۔,no
+settings,notifications,Notifications,اطلاعات,no
+settings,comingSoon,Coming soon,جلد آ رہا ہے,no
+settings,saved,Saved,محفوظ شدہ,no
+settings,vibration,Vibration,وائبریشن,no
+settings,vibrationHint,A short buzz when you tap,ٹیپ کرنے پر ہلکی سی تھرتھراہٹ,no
+settings,install,Install app,ایپ انسٹال کریں,no
+settings,installed,Installed,انسٹال ہے,no
+settings,installTitle,Keep the app on your phone,ایپ کو اپنے فون پر رکھیں,no
+settings,installBody,"Install it to open it from your home screen, even without internet.",اسے انسٹال کریں تاکہ ہوم اسکرین سے کھول سکیں، انٹرنیٹ کے بغیر بھی۔,no
+settings,installButton,Install,انسٹال کریں,no
+settings,installUnavailable,Open this page in Chrome to install the app.,ایپ انسٹال کرنے کے لیے یہ صفحہ Chrome میں کھولیں۔,no
+settings,myData,My data,میرا ڈیٹا,no
+settings,privacy,Privacy Policy,رازداری کی پالیسی,no
+settings,grievance,Contact & Grievance,رابطہ اور شکایت,no
+settings,about,About,ایپ کے بارے میں,no
+settings,savedEmpty,Nothing saved yet,ابھی کچھ محفوظ نہیں کیا,no
+settings,savedEmptyBody,Tap the bookmark on a hadith or ayah to keep it on this phone.,کسی حدیث یا آیت پر بُک مارک ٹیپ کریں، وہ اس فون میں رہے گی۔,no
+settings,savedOn,Saved {date},{date} کو محفوظ کیا,no
+settings,savedUnavailable,Open it once while online to read it here.,اسے یہاں پڑھنے کے لیے ایک بار انٹرنیٹ پر کھولیں۔,no
+settings,dataLead,{app} has no accounts. This is everything kept about this app.,{app} میں کوئی اکاؤنٹ نہیں۔ اس ایپ کے بارے میں بس اتنا ہی رکھا جاتا ہے۔,no
+settings,onServer,On our server,ہمارے سرور پر,no
+settings,onPhone,On this phone,اس فون میں,no
+settings,field.appId,App ID,ایپ آئی ڈی,no
+settings,field.language,Language,زبان,no
+settings,field.audience,Brother / Sister,بھائی / بہن,no
+settings,field.platform,Phone type,فون کی قسم,no
+settings,field.privacyVersion,Privacy notice accepted,قبول کردہ رازداری نوٹس,no
+settings,field.push,Notifications,اطلاعات,no
+settings,field.follows,Masjids followed,فالو کی گئی مساجد,no
+settings,field.createdAt,First used,پہلی بار استعمال,no
+settings,field.lastSeen,Last used,آخری بار استعمال,no
+settings,field.saved,Saved posts,محفوظ پوسٹس,no
+settings,field.ameens,Ameens said,کہے گئے آمین,no
+settings,field.reader,Reader and vibration,پڑھنے اور وائبریشن کی ترتیبات,no
+settings,pushOn,On,آن,no
+settings,pushOff,Off,آف,no
+settings,platform.android,Android,اینڈرائیڈ,no
+settings,platform.ios,iPhone or iPad,آئی فون یا آئی پیڈ,no
+settings,platform.desktop,Computer,کمپیوٹر,no
+settings,platform.other,Other,دیگر,no
+settings,notRegistered,"This phone has not connected to our server yet, so nothing about it is kept there.",یہ فون ابھی ہمارے سرور سے نہیں جڑا، اس لیے وہاں اس کے بارے میں کچھ نہیں رکھا گیا۔,no
+settings,serverOffline,Connect to the internet to see our server’s copy.,ہمارے سرور کی کاپی دیکھنے کے لیے انٹرنیٹ سے جڑیں۔,no
+settings,readerSettings,Arabic text {size}% · transliteration {transliteration} · vibration {vibration},عربی متن {size}% · تلفظ {transliteration} · وائبریشن {vibration},no
+settings,on,on,آن,no
+settings,off,off,آف,no
+settings,clearAll,Clear all data,سارا ڈیٹا مٹائیں,no
+settings,clearTitle,Clear all data?,سارا ڈیٹا مٹائیں؟,no
+settings,clearBody,This removes all your masjids and settings from this phone and deletes your app ID from our server.,اس سے آپ کی تمام مساجد اور ترتیبات اس فون سے ہٹ جائیں گی اور ہمارے سرور سے آپ کی ایپ آئی ڈی مٹا دی جائے گی۔,no
+settings,clearQueued,Cleared on this phone. Our server’s copy will be deleted when you are back online.,اس فون سے مٹا دیا گیا۔ انٹرنیٹ آنے پر ہمارے سرور کی کاپی بھی مٹا دی جائے گی۔,no
+settings,draft,DRAFT — requires legal review,مسودہ — قانونی جائزہ باقی,no
+settings,docVersion,Version {version},ورژن {version},no
+settings,officer,Grievance Officer,شکایت افسر,no
+settings,officerTimes,We acknowledge every complaint within 24 hours.,ہم ہر شکایت کی تصدیق 24 گھنٹوں کے اندر کرتے ہیں۔,no
+settings,emailOfficer,Email the Grievance Officer,شکایت افسر کو ای میل کریں,no
+settings,formSoon,"A complaint form inside the app is coming soon. Until then, please write by email.",ایپ کے اندر شکایت فارم جلد آ رہا ہے۔ تب تک براہ کرم ای میل سے لکھیں۔,no
+settings,officerOffline,Connect to the internet to see the Grievance Officer’s details.,شکایت افسر کی تفصیلات دیکھنے کے لیے انٹرنیٹ سے جڑیں۔,no
+settings,aboutFree,"Free forever. No ads, ever. No account. No tracking.",ہمیشہ مفت۔ کبھی کوئی اشتہار نہیں۔ کوئی اکاؤنٹ نہیں۔ کوئی ٹریکنگ نہیں۔,no
+settings,aboutCommunity,Made for the community.,برادری کے لیے بنایا گیا۔,no
+settings,appVersion,Version {version},ورژن {version},no
+settings,landingTitle,Shared post,شیئر کی گئی پوسٹ,no
+settings,landingApp,Get the app,ایپ حاصل کریں,no
 super,title,Super Admin,سپر ایڈمن,no
 super,nav.label,Super Admin sections,سپر ایڈمن کے حصے,no
 super,nav.dashboard,Dashboard,ڈیش بورڈ,no

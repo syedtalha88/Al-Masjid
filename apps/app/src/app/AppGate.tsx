@@ -1,4 +1,5 @@
-// First launch (07 A1): until onboarding is done the app shows it instead of the tabs. Opened from a follow link
+// First launch (07 A1): until onboarding is done the app shows it instead of the tabs. Opened from a shared post
+// (`/p/:publicId`) it returns to that post afterwards. Opened from a follow link
 // (`/m/:code`, 03 §3) the "add your first masjid" page is skipped and that masjid is followed when onboarding ends
 // (07 A1 "auto-follows after onboarding"); the app then lands on Home. In iPhone Safari (not the installed app) the
 // follow landing comes first (DECISIONS #14): following belongs in the Home Screen app, whose storage is separate.
@@ -26,6 +27,14 @@ export function arrivalCode(pathname: string = window.location.pathname): string
   return match?.[1] ?? null;
 }
 
+/**
+ * The post of a `/p/:publicId` URL the app was opened with (a shared post, 07 A16): onboarding skips "add your first
+ * masjid" (the post offers to follow its masjid) and returns to the post when it ends.
+ */
+export function arrivalPost(pathname: string = window.location.pathname): string | null {
+  return /^\/p\/([A-Za-z0-9_-]{12})\/?$/.exec(pathname)?.[1] ?? null;
+}
+
 export interface AppGateProps {
   readonly children: ReactNode;
   /** Loads the screens onboarding leads to while it is showing (online) — the landing is instant and works offline. */
@@ -39,6 +48,7 @@ export function AppGate({ children, preload }: AppGateProps) {
   const { t } = useTranslation('onboarding');
   const { locale } = useLocale();
   const [code, setCode] = useState(() => arrivalCode());
+  const [post] = useState(() => arrivalPost());
   // Developer tools (`/_dev/showcase`, dev/staging builds only — DECISIONS #58) are not part of the product flow.
   const [devTool] = useState(() => window.location.pathname.startsWith('/_dev/'));
   const [arrived, setArrived] = useState(false);
@@ -50,7 +60,7 @@ export function AppGate({ children, preload }: AppGateProps) {
 
   const onFinished = (next: OnboardingNext) => {
     // The router mounts after this render and reads the replaced URL.
-    window.history.replaceState(null, '', next);
+    window.history.replaceState(null, '', post ? `/p/${post}` : next);
     if (!code) return;
     void (async () => {
       try {
@@ -75,7 +85,7 @@ export function AppGate({ children, preload }: AppGateProps) {
           }}
         />
       ) : (
-        <Onboarding arrivedWithCode={code !== null} onFinished={onFinished} />
+        <Onboarding arrivedWithCode={code !== null || post !== null} onFinished={onFinished} />
       )}
     </Suspense>
   );

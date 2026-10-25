@@ -96,13 +96,15 @@ export function createApiClient(options: ApiClientOptions) {
       method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
       body?: unknown;
       device?: boolean;
+      /** Device auth with these credentials instead of the current ones (a queued "Clear all data"). */
+      as?: DeviceCredentials;
       signal?: AbortSignal;
     } = {},
   ): Promise<T> {
     const method = init.method ?? 'GET';
     const headers: Record<string, string> = {};
     if (init.device) {
-      const credentials = options.credentials();
+      const credentials = init.as ?? options.credentials();
       if (!credentials) throw new ProblemError(NOT_REGISTERED, undefined);
       headers['Authorization'] = `Device ${credentials.deviceId}.${credentials.secret}`;
     }
@@ -118,7 +120,7 @@ export function createApiClient(options: ApiClientOptions) {
           ...(init.signal ? { signal: init.signal } : {}),
         });
       } catch (error) {
-        if (error instanceof ProblemError && error.problem.code === 'DEVICE_AUTH_REQUIRED' && init.device) {
+        if (error instanceof ProblemError && error.problem.code === 'DEVICE_AUTH_REQUIRED' && init.device && !init.as) {
           options.onAuthLost?.();
         }
         if (method !== 'GET' || attempt >= GET_RETRIES || !retryable(error)) throw error;
@@ -144,7 +146,9 @@ export function createApiClient(options: ApiClientOptions) {
     me: (): Promise<DeviceRecord> => call('/devices/me', deviceRecordSchema, { device: true }),
     updateMe: (body: UpdateDeviceRequest): Promise<undefined> =>
       call('/devices/me', empty, { method: 'PATCH', body, device: true }),
-    deleteMe: (): Promise<undefined> => call('/devices/me', empty, { method: 'DELETE', device: true }),
+    /** Clear all data (05 §4); `as` deletes a former device whose deletion was queued offline. */
+    deleteMe: (as?: DeviceCredentials): Promise<undefined> =>
+      call('/devices/me', empty, { method: 'DELETE', device: true, ...(as ? { as } : {}) }),
     resolve: async (code: string, signal?: AbortSignal): Promise<MasjidSummary> =>
       (await call(`/masjids/resolve/${enc(code)}`, resolveMasjidResponseSchema, signal ? { signal } : {})).masjid,
     follows: (): Promise<FollowList> => call('/devices/me/follows', followListSchema, { device: true }),

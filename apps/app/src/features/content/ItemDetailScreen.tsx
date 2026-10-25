@@ -26,7 +26,7 @@ import { BookmarkIcon, CalendarIcon, ClockIcon, CopyIcon, DownloadIcon, ShareIco
 import { Pressable } from '@mc/ui/motion';
 import { Screen, useNavigator, useScreen } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { createContext, type ReactNode, use, useState } from 'react';
 
 import { templatesQuery } from '../../lib/api/queries.ts';
 import { now as correctedNow, useNow } from '../../lib/clock.ts';
@@ -52,12 +52,31 @@ const SCALE_STEP = 0.1;
 const SCALE_MIN = 0.8;
 const SCALE_MAX = 1.6;
 
+/**
+ * How a detail renders: in the app (default), or read-only on the `/p/:publicId` landing (07 A16) — no Ameen button
+ * (the count still shows) and no bookmark, with the landing's own actions at the end.
+ */
+export interface DetailMode {
+  readonly readOnly: boolean;
+  readonly footer?: ReactNode;
+}
+const DetailModeContext = createContext<DetailMode>({ readOnly: false });
+
 export function ItemDetailScreen() {
   const { params } = useScreen();
   return (
     <ContentGate>
       <ItemDetail publicId={params['publicId'] ?? ''} />
     </ContentGate>
+  );
+}
+
+/** One item's detail — the in-app screen, or (with `mode`) the post landing. */
+export function ItemDetailView({ publicId, mode }: { readonly publicId: string; readonly mode: DetailMode }) {
+  return (
+    <DetailModeContext value={mode}>
+      <ItemDetail publicId={publicId} />
+    </DetailModeContext>
   );
 }
 
@@ -115,6 +134,12 @@ function ItemDetail({ publicId }: { readonly publicId: string }) {
 interface DetailProps {
   readonly item: FeedItem;
   readonly masjid: MasjidSummary | null;
+}
+
+/** The landing's own actions (Follow, get the app) — nothing in the app. */
+function LandingFooter() {
+  const { footer } = use(DetailModeContext);
+  return footer ? <>{footer}</> : null;
 }
 
 function useMasjidLabel(masjid: MasjidSummary | null): string | undefined {
@@ -248,6 +273,7 @@ function NoticeDetail({ item, masjid }: DetailProps) {
           </Card>
         ) : null}
         <ShareButton item={item} masjid={masjid} />
+        <LandingFooter />
       </article>
     </Screen>
   );
@@ -263,6 +289,7 @@ function Reader({ item, masjid }: DetailProps) {
   const scale = useDeviceSelector((state) => state.settings.arabicScale);
   const showTransliteration = useDeviceSelector((state) => state.settings.transliteration);
   const saved = useSaved({ saved: t('savedToast'), removed: t('removedToast') });
+  const { readOnly } = use(DetailModeContext);
   const library = item.daily?.library;
   if (!library) return null;
   const text = libraryText(library, locale);
@@ -276,15 +303,17 @@ function Reader({ item, masjid }: DetailProps) {
       title={t('hadithQuran')}
       {...(name ? { subtitle: name } : {})}
       actions={
-        <IconButton
-          label={isSaved ? t('saved') : t('save')}
-          aria-pressed={isSaved}
-          icon={<BookmarkIcon filled={isSaved} />}
-          className={isSaved ? 'text-primary-700' : undefined}
-          onPress={() => {
-            saved.toggle(item, masjid);
-          }}
-        />
+        readOnly ? undefined : (
+          <IconButton
+            label={isSaved ? t('saved') : t('save')}
+            aria-pressed={isSaved}
+            icon={<BookmarkIcon filled={isSaved} />}
+            className={isSaved ? 'text-primary-700' : undefined}
+            onPress={() => {
+              saved.toggle(item, masjid);
+            }}
+          />
+        )
       }
     >
       <article className="flex flex-col gap-5 pt-2 pb-6">
@@ -376,6 +405,7 @@ function Reader({ item, masjid }: DetailProps) {
           </Button>
           <ShareButton item={item} masjid={masjid} />
         </div>
+        <LandingFooter />
       </article>
     </Screen>
   );
@@ -389,6 +419,7 @@ function DuaDetail({ item, masjid }: DetailProps) {
   const now = useNow();
   const name = useMasjidLabel(masjid);
   const ameen = useAmeen([item.publicId]);
+  const { readOnly } = use(DetailModeContext);
   const dua = item.dua;
   if (!dua) return null;
   const person = duaPerson(item);
@@ -435,19 +466,26 @@ function DuaDetail({ item, masjid }: DetailProps) {
             {dua.janazaPlace ? t('janaza', { when, place: dua.janazaPlace }) : t('janazaTime', { when })}
           </p>
         ) : null}
-        <div className="flex justify-center py-2">
-          <AmeenButton
-            size="lg"
-            said={ameen.said(item.publicId)}
-            onSay={() => {
-              ameen.say(item.publicId);
-            }}
-            label={t('ameen')}
-            saidLabel={t('ameenSaid')}
-            count={count === undefined ? undefined : t('ameenCount', { count })}
-          />
-        </div>
+        {readOnly ? (
+          count === undefined ? null : (
+            <p className="text-center type-callout text-text-secondary">{t('ameenCount', { count })}</p>
+          )
+        ) : (
+          <div className="flex justify-center py-2">
+            <AmeenButton
+              size="lg"
+              said={ameen.said(item.publicId)}
+              onSay={() => {
+                ameen.say(item.publicId);
+              }}
+              label={t('ameen')}
+              saidLabel={t('ameenSaid')}
+              count={count === undefined ? undefined : t('ameenCount', { count })}
+            />
+          </div>
+        )}
         <ShareButton item={item} masjid={masjid} />
+        <LandingFooter />
       </article>
     </Screen>
   );

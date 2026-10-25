@@ -1,5 +1,6 @@
 // The app's data context (T2.3): device store (IndexedDB), API client, persisted TanStack Query cache, versions
 // poller, registration retry queue and follow reconciliation. Screens use the hooks; nothing here renders UI.
+import { setHapticsEnabled } from '@mc/ui/motion';
 import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createContext, type ReactNode, use, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 
@@ -92,10 +93,26 @@ export function DataProvider({
   }, [data.store, data.queryClient, persistence]);
   useEffect(() => (loaded ? persistence.start(data.queryClient) : undefined), [loaded, persistence, data.queryClient]);
 
+  // Settings → Vibration (F16, 08 §7): the stored choice drives the haptics switch.
+  useEffect(() => {
+    if (!loaded) return;
+    const apply = () => {
+      setHapticsEnabled(data.store.current().settings.vibration);
+    };
+    apply();
+    return data.store.subscribe(apply);
+  }, [loaded, data.store]);
+
   useEffect(() => {
     if (!loaded) return;
     const retry = () => {
       const state = data.store.current();
+      // "Clear all data" done offline: delete the old server record (05 §4), even before onboarding again.
+      if (state.pendingDeletion) {
+        void import('./device/preferences.ts')
+          .then((module) => module.finishPendingDeletion(data.sync))
+          .catch(() => undefined);
+      }
       if (!state.onboardedAt) return;
       void loadSync()
         .then(async (module) => {
@@ -104,6 +121,10 @@ export function DataProvider({
           // Ameens said offline or before registration (08 §5.6 "retries later"); the code loads only when needed.
           if (data.store.current().pendingAmeens.length > 0) {
             await (await import('./device/ameen.ts')).flushAmeens(data.sync);
+          }
+          // A Settings change the server has not heard of (T2.12).
+          if (data.store.current().prefsPending) {
+            await (await import('./device/preferences.ts')).syncPreferences(data.sync);
           }
         })
         .catch(() => undefined);
