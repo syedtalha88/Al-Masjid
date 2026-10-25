@@ -251,6 +251,12 @@ jobs:
       - name: Lighthouse diagnostics (annotation)
         if: failure() && hashFiles('lhci.log') != ''
         run: node scripts/ci-annotate.mjs 'lighthouse output' tail -n 80 lhci.log
+      # Pixel comparison only inside the pinned Playwright Linux image the baselines were made in (DECISIONS #103);
+      # the script reseeds the database as of the baselines' fixed instant, so today's seed is restored afterwards.
+      - name: Visual baselines (key screens × 4 locales × 2 phones)
+        run: |
+          pnpm test:visual
+          pnpm db:reset
 
       # The e2e image: hooks present and working through Caddy.
       - name: Test stack (runtime-test image) up

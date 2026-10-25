@@ -19,10 +19,15 @@ if (!uri) throw new Error('MONGODB_URI_SYSTEM is missing — run `pnpm setup:loc
 const host = new URL(uri).hostname;
 if (!['localhost', '127.0.0.1', 'mongo'].includes(host)) throw new Error('db:seed only writes to the local database');
 
+// `SEED_NOW` (ISO instant) writes the seed as of a fixed moment — the visual baselines (`pnpm test:visual`) need the
+// same dates, prayer times and "2 hours ago" labels on every run.
+const fixedNow = process.env['SEED_NOW'];
+const now = fixedNow ? new Date(fixedNow) : new Date();
+if (Number.isNaN(now.getTime())) throw new Error('SEED_NOW must be an ISO instant, e.g. 2026-10-21T06:30:00Z');
+
 const database = process.env['MONGODB_DB_NAME'] ?? 'masjid_connect_dev';
 const handle = createDbHandle({ uri, database, process: 'script', local: true });
 try {
-  const now = new Date();
   const written = await writeDevSeed(handle, systemScope(), buildDevSeed({ now, today: calendarDateInZone(now) }));
   process.stdout.write(
     `db:seed — ${String(written)} documents in ${database}; follow codes ${Object.values(SEED_FOLLOW_CODES).join(', ')}.\n`,
