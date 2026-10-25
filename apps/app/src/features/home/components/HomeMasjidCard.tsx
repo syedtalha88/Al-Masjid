@@ -59,7 +59,7 @@ function ActiveCard({ bundle, now }: { readonly bundle: ActiveMasjidBundle; read
   const { locale, format } = useLocale();
   const navigator = useNavigator();
   const { masjid } = bundle;
-  // Recomputed once a minute (the clock's re-render) — two days of times per masjid.
+  // Recomputed once a minute (`useNow()` keeps one Date per minute) — two days of times per masjid.
   const view = useMemo(() => prayerView(bundle, now), [bundle, now]);
   const open = () => {
     navigator.push(`/masjid/${masjid.id}`);

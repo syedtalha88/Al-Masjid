@@ -1,6 +1,8 @@
 // TimelineList (06 §6 Content, ref-2/4 Updates): 44px icon circles joined by a 2px border-coloured line; masjid name,
 // title, a two-line snippet, time; chevron; a small primary dot on unseen rows. Rows past the first screens skip
 // rendering until near the viewport (`content-visibility: auto` — the list stays light with hundreds of rows).
+// Masjid name, title and snippet are admin-written text in any language: `dir="auto"` (an English notice in the Urdu UI
+// reads left-to-right with its "…" at its end — T2.14).
 import type { ReactNode } from 'react';
 
 import { CaretRightIcon } from '../icons/glyphs.tsx';
@@ -42,10 +44,18 @@ export function TimelineList({
           <Pressable kind="card" onPress={row.onPress} className="flex w-full items-start gap-3 py-2 text-start">
             <span className="relative z-10 shrink-0">{row.icon}</span>
             <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-              {row.masjid ? <span className="truncate type-subhead-strong text-text">{row.masjid}</span> : null}
-              <span className="line-clamp-2 type-subhead-strong text-text">{row.title}</span>
+              {row.masjid ? (
+                <span dir="auto" className="truncate type-subhead-strong text-text">
+                  {row.masjid}
+                </span>
+              ) : null}
+              <span dir="auto" className="line-clamp-2 type-subhead-strong text-text">
+                {row.title}
+              </span>
               {row.snippet ? (
-                <span className="line-clamp-2 type-footnote text-text-secondary">{row.snippet}</span>
+                <span dir="auto" className="line-clamp-2 type-footnote text-text-secondary">
+                  {row.snippet}
+                </span>
               ) : null}
               <span className="type-caption text-text-tertiary">{row.time}</span>
             </span>

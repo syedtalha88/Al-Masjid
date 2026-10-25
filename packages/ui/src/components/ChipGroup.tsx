@@ -1,4 +1,4 @@
-import { type KeyboardEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { type KeyboardEvent, useEffect, useRef, useState } from 'react';
 
 import { useMotionPrefs } from '../motion/MotionProvider.tsx';
 import { Pressable } from '../motion/Pressable.tsx';
@@ -54,21 +54,31 @@ export function ChipGroup<Id extends string>({ chips, value, onChange, label, cl
     0,
   );
 
-  useLayoutEffect(() => {
+  // Measured when layout has happened anyway — the ResizeObserver's first callback (after layout, before paint) and
+  // scrolls — never synchronously in a commit: a parent's re-render during navigation would otherwise force a full
+  // page layout inside the tap (≈ 125 ms at 4× CPU, perf trace T2.14). Keyed by content, not array identity.
+  const chipsKey = chips.map((chip) => `${chip.id}\u0000${chip.label}`).join('\u0001');
+  useEffect(() => {
     const node = scroller.current;
     if (!node) return;
     const update = () => {
       setOverflow(overflowOf(node));
     };
-    update();
     node.addEventListener('scroll', update, { passive: true });
-    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
-    observer?.observe(node);
+    if (typeof ResizeObserver === 'undefined') {
+      update();
+      return () => {
+        node.removeEventListener('scroll', update);
+      };
+    }
+    // A new observer per change of chips: its first callback measures after the next layout.
+    const observer = new ResizeObserver(update);
+    observer.observe(node);
     return () => {
       node.removeEventListener('scroll', update);
-      observer?.disconnect();
+      observer.disconnect();
     };
-  }, [chips]);
+  }, [chipsKey]);
 
   // Keep the active chip fully visible (scrolls the row only, never the page).
   useEffect(() => {

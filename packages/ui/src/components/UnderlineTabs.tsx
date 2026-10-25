@@ -4,7 +4,6 @@ import {
   type PointerEvent,
   type ReactNode,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -73,8 +72,11 @@ export function UnderlineTabs<Id extends string>({
     0,
   );
 
-  // Measure the active tab (layout read once per change/resize), then move the indicator by transform only.
-  useLayoutEffect(() => {
+  // Measure the active tab (layout read once per change/resize), then move the indicator by transform only. Read in
+  // the ResizeObserver callback — after layout, before paint — never synchronously in a commit: a parent's re-render
+  // during navigation forced a page layout inside the tap (perf trace T2.14). Keyed by content, not array identity.
+  const tabsKey = tabs.map((tab) => `${tab.id}\u0000${tab.label}`).join('\u0001');
+  useEffect(() => {
     const container = list.current;
     if (!container) return;
     const measure = () => {
@@ -88,11 +90,17 @@ export function UnderlineTabs<Id extends string>({
       const transform = `translateX(${String(offset)}px) scaleX(${String(tab.width / 100)})`;
       setIndicator((current) => ({ transform, animate: current !== null }));
     };
-    measure();
-    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
-    observer?.observe(container);
-    return () => observer?.disconnect();
-  }, [activeIndex, tabs]);
+    // A new observer per change: its first callback (after the next layout) measures; later ones follow resizes.
+    if (typeof ResizeObserver === 'undefined') {
+      measure();
+      return;
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(container);
+    return () => {
+      observer.disconnect();
+    };
+  }, [activeIndex, tabsKey]);
 
   return (
     <div

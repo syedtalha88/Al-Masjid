@@ -136,6 +136,25 @@ describe('reduced motion (08 §6)', () => {
     expect(screen.getByText('5:16', { selector: '.sr-only' })).toBeTruthy();
   });
 
+  it('DigitRoll keeps words whole and numbers left-to-right (Urdu: joined letters, "30" not "03")', () => {
+    const text = '1 گھنٹے 30 منٹ باقی';
+    const { container } = render(<DigitRoll text={text} />, { wrapper: withMotion });
+    const visible = container.querySelector('[aria-hidden]');
+    // Words are plain text (one run each, so the script's letters join); only numbers sit in rolling slots.
+    expect(visible?.textContent).toBe(text);
+    const numbers = [...container.querySelectorAll('[data-digits]')];
+    expect(numbers.map((node) => [node.getAttribute('dir'), node.textContent])).toEqual([
+      ['ltr', '1'],
+      ['ltr', '30'],
+    ]);
+    for (const word of ['گھنٹے', 'منٹ باقی']) {
+      expect([...container.querySelectorAll('[data-text]')].some((node) => node.textContent.includes(word))).toBe(true);
+    }
+    // A time stays one left-to-right group with its separator.
+    const { container: time } = render(<DigitRoll text="5:15 PM" />, { wrapper: withMotion });
+    expect([...time.querySelectorAll('[data-digits]')].map((node) => node.textContent)).toEqual(['5:15']);
+  });
+
   it('SuccessCheck appears fully drawn, without drawing animation, and completes at once', () => {
     mockReducedMotion(true);
     const onComplete = vi.fn();

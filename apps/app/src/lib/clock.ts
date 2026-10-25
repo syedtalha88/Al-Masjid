@@ -2,7 +2,7 @@
 // `Date` header when the drift exceeds 2 minutes, re-rendering on minute boundaries and at midnight in India — never
 // every second (08 §5.5: once per minute).
 import { correctedNow, msUntilNextMinute } from '@mc/domain/time';
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 
 let offsetMs: number | null = null;
 const listeners = new Set<() => void>();
@@ -34,13 +34,12 @@ const subscribe = (listener: () => void) => {
  * offset changes. Paused while the page is hidden; refreshed when it becomes visible.
  */
 export function useNow(): Date {
-  // Both only trigger re-renders; the value is always read fresh below.
-  useSyncExternalStore(
+  const offset = useSyncExternalStore(
     subscribe,
     () => offsetMs,
     () => null,
   );
-  const [, setTick] = useState(0);
+  const [tick, setTick] = useState(0);
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const schedule = () => {
@@ -66,5 +65,8 @@ export function useNow(): Date {
       document.removeEventListener('visibilitychange', onVisibility);
     };
   }, []);
-  return now();
+  // One Date per tick / offset: callers memoise on it (`useMemo(…, [now])`), and a new Date on every render made each
+  // navigation re-render recompute prayer times (≈ 20 ms at 4× CPU, T2.14 trace). Read fresh when either changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- tick and offset are the triggers; `now()` reads the clock
+  return useMemo(() => now(), [tick, offset]);
 }

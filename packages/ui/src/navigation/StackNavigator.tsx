@@ -5,6 +5,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
   type RefObject,
+  startTransition,
   Suspense,
   useCallback,
   useEffect,
@@ -185,6 +186,40 @@ export function StackNavigator({
       },
     };
   }, [adapter, config, state, activeStack, reduced, screens]);
+
+  // Screens get a navigator api that never changes identity (it calls the latest one): with the changing `api` in
+  // context, every mounted screen that calls `useNavigator()` re-rendered on each push, pop and tab switch — inside
+  // the tap (perf trace T2.14). `activeTab` reads the current value; the tab bar, which shows it, gets `api` itself.
+  const latestApi = useRef(api);
+  useLayoutEffect(() => {
+    latestApi.current = api;
+  }, [api]);
+  const stableApi = useMemo<NavigatorApi>(
+    () => ({
+      get activeTab() {
+        return latestApi.current.activeTab;
+      },
+      push: (href) => {
+        latestApi.current.push(href);
+      },
+      replace: (href) => {
+        latestApi.current.replace(href);
+      },
+      back: () => {
+        latestApi.current.back();
+      },
+      selectTab: (tab) => {
+        latestApi.current.selectTab(tab);
+      },
+      presentModal: (href) => {
+        latestApi.current.presentModal(href);
+      },
+      preload: (href) => {
+        latestApi.current.preload(href);
+      },
+    }),
+    [],
+  );
 
   // The modal backdrop starts transparent (the driver's default opacity is 1).
   useLayoutEffect(() => {
@@ -480,6 +515,7 @@ export function StackNavigator({
         initialX={initial.x}
         initialDim={initial.dim}
         initialOpacity={initial.opacity}
+        deferContent={entering}
         registry={screens}
         scrollCache={scrollCache}
         pendingFallback={pendingFallback}
@@ -491,7 +527,7 @@ export function StackNavigator({
   const modalEntry = state.modal ?? state.leavingModal;
 
   return (
-    <NavigatorContext value={api}>
+    <NavigatorContext value={stableApi}>
       <div className="fixed inset-0 overflow-hidden bg-text">
         <div
           ref={appLayer}
@@ -513,6 +549,8 @@ export function StackNavigator({
                   else tabLayers.current.delete(tab);
                 }}
                 data-tab={tab}
+                // `visibility`, not `content-visibility: hidden` (tried in T2.14 for cheaper tab switches): WebKit then
+                // lost the hidden tab's scroll position.
                 className={`absolute inset-0 ${active ? '' : 'invisible'}`}
                 inert={!active}
                 aria-hidden={!active || undefined}
@@ -577,9 +615,18 @@ interface ScreenSlotProps {
   readonly scrollCache: Map<string, number>;
   readonly pendingFallback: ReactNode;
   readonly errorFallback: (props: { readonly reset: () => void }) => ReactNode;
+  /** Mounted by a push: the layer starts moving at once, the content renders as a transition (below). */
+  readonly deferContent: boolean;
 }
 
-/** A screen and its context; memoized so navigation re-renders only screens whose state changed (08 §8). */
+/**
+ * A screen and its context; memoized so navigation re-renders only screens whose state changed (08 §8).
+ *
+ * A pushed screen's content renders in a React transition: rendering a full screen synchronously inside the tap took
+ * ~90 ms at 4× CPU (Masjid Detail, perf trace T2.14) — a long task that delays the slide's first frame. As a
+ * transition it is rendered in 5 ms slices while the layer already slides in (plain background first, content within
+ * the first frames).
+ */
 const ScreenSlot = memo(function ScreenSlot({
   entry,
   tab,
@@ -596,11 +643,19 @@ const ScreenSlot = memo(function ScreenSlot({
   scrollCache,
   pendingFallback,
   errorFallback,
+  deferContent,
 }: ScreenSlotProps) {
   const info = useMemo<ScreenInfo>(
     () => ({ entry, tab, depth, isTop, params, search, isModal }),
     [entry, tab, depth, isTop, params, search, isModal],
   );
+  const [showContent, setShowContent] = useState(!deferContent);
+  useEffect(() => {
+    if (showContent) return;
+    startTransition(() => {
+      setShowContent(true);
+    });
+  }, [showContent]);
   return (
     <ScreenHost
       entryKey={entry.key}
@@ -611,9 +666,7 @@ const ScreenSlot = memo(function ScreenSlot({
     >
       <ScreenContext value={info}>
         <ScreenBoundary fallback={errorFallback}>
-          <Suspense fallback={pendingFallback}>
-            <Content />
-          </Suspense>
+          <Suspense fallback={pendingFallback}>{showContent ? <Content /> : pendingFallback}</Suspense>
         </ScreenBoundary>
       </ScreenContext>
     </ScreenHost>

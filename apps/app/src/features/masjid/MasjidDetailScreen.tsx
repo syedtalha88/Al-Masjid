@@ -128,7 +128,9 @@ function Detail({ masjidId }: { readonly masjidId: string }) {
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(paint);
     };
-    paint();
+    // First values in the next frame: the markup already starts as at the top (bar hidden, hero in place), and reading
+    // `scrollTop` / `offsetHeight` during the mount forced a layout of the new screen inside the tap (T2.14 trace).
+    onScroll();
     node.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       cancelAnimationFrame(frame);

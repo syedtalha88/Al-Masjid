@@ -59,6 +59,7 @@ export const ItemList = memo(
               <ListRow
                 leading={<ItemIcon item={item} />}
                 title={itemTitle(item, locale, templates, t(`item.${itemKind(item)}`))}
+                textDir="auto"
                 subtitle={meta}
                 chevron
                 onPress={() => {

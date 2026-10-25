@@ -18,6 +18,11 @@ export interface ListRowProps {
   readonly onPress?: () => void;
   /** Clamp the subtitle to this many lines (default 2). */
   readonly subtitleLines?: 1 | 2 | 3;
+  /**
+   * `auto` when the title is text the user did not choose the language of (an admin-written notice): an English title
+   * in the Urdu UI then reads left-to-right and its "…" lands at its end, not its start (T2.11, T2.14).
+   */
+  readonly textDir?: 'auto';
   readonly className?: string;
 }
 
@@ -36,6 +41,7 @@ export function ListRow({
   chevron,
   onPress,
   subtitleLines = 2,
+  textDir,
   className,
 }: ListRowProps) {
   const showChevron = chevron ?? onPress !== undefined;
@@ -43,7 +49,9 @@ export function ListRow({
     <>
       {leading ? <span className="inline-flex shrink-0">{leading}</span> : null}
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="type-subhead-strong text-text">{title}</span>
+        <span dir={textDir} className="type-subhead-strong text-text">
+          {title}
+        </span>
         {subtitle ? (
           <span className={`type-footnote text-text-secondary ${CLAMP[subtitleLines]}`}>{subtitle}</span>
         ) : null}
