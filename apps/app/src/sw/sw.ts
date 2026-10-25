@@ -21,6 +21,7 @@ import {
   DEVICE_DB_STORE,
   DEVICE_KEY,
   queuedAmeens,
+  SW_CACHES,
   SW_SOURCE_HEADER,
   type SwSource,
 } from '../lib/sw-protocol.ts';
@@ -34,13 +35,8 @@ interface SyncEvent extends ExtendableEvent {
 const isSyncEvent = (event: Event): event is SyncEvent => 'tag' in event && typeof event.tag === 'string';
 
 const DAY = 24 * 60 * 60;
-/** Runtime cache names (versioned so a future layout change can drop them). */
-const CACHE = {
-  assets: 'mc-assets-v1',
-  images: 'mc-images-v1',
-  api: 'mc-api-v1',
-  versions: 'mc-versions-v1',
-} as const;
+/** Runtime cache names (shared with the page, which empties the personal ones on "Clear all data"). */
+const CACHE = SW_CACHES;
 
 /**
  * Workbox's plugin classes declare optional callbacks as `T | undefined`, which `exactOptionalPropertyTypes`
@@ -112,14 +108,25 @@ registerRoute(
   }),
 );
 
-// Versioned API GETs (`?v=`) are immutable for that version → CacheFirst.
+// Versioned public API GETs (`?v=`) are immutable for that version → CacheFirst. Only the three public versioned
+// resources, never a request with device credentials, and only answers the server marked `public` (security review L1).
+const VERSIONED = /^\/api\/v1\/(?:masjids\/[^/]+\/(?:bundle|feed)|items\/[^/]+)$/;
+const onlyPublic = {
+  cacheWillUpdate: ({ response }: { response: Response }): Response | null =>
+    /(?:^|[\s,])public(?:$|[\s,])/.test(response.headers.get('cache-control') ?? '') ? response : null,
+};
 registerRoute(
   ({ url, sameOrigin, request }) =>
-    sameOrigin && request.method === 'GET' && url.pathname.startsWith('/api/v1/') && url.searchParams.has('v'),
+    sameOrigin &&
+    request.method === 'GET' &&
+    VERSIONED.test(url.pathname) &&
+    url.searchParams.has('v') &&
+    !request.headers.has('authorization'),
   new CacheFirst({
     cacheName: CACHE.api,
     plugins: plugins(
       new CacheableResponsePlugin({ statuses: [200] }),
+      onlyPublic,
       new ExpirationPlugin({ maxEntries: 500, maxAgeSeconds: 30 * DAY, purgeOnQuotaError: true }),
       markCached('cache'),
     ),

@@ -179,6 +179,21 @@ https://{$APP_HOST} {
 		import csp-app
 		import spa /srv/app
 	}
+	# A preview whose include failed (api-public down or erroring) falls back to the plain shell: a poster scan must
+	# still open the app (security review L4). Only the two preview paths; other errors keep Caddy's defaults.
+	handle_errors {
+		@ogFallback path_regexp ^/(m|p)/[A-Za-z0-9_-]{1,32}/?$
+		handle @ogFallback {
+			import security-headers
+			import csp-app
+			header Cache-Control "no-store"
+			root * /srv/app
+			rewrite * /index.html
+			file_server {
+				status 200
+			}
+		}
+	}
 }
 
 https://{$ADMIN_HOST} {

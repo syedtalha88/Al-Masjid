@@ -23,6 +23,8 @@ Server timeouts: `requestTimeout` 15 s (uploads 120 s), `headersTimeout` 10 s, `
 | code resolve (`/masjids/resolve`) | 30 / min / device-or-IP |
 | follow/unfollow | 60 / hour / device |
 | ameen | 120 / hour / device |
+| device self (`GET/PATCH/DELETE /devices/me`, `GET /devices/me/follows`) | 120 / hour / device (DECISIONS #103, review L2) |
+| public list reads (`/masjids/versions`, `/ameens`) | 1200 / min / IP — generous (CGNAT, Jumu'ah peaks); the CDN absorbs most (DECISIONS #103) |
 | reports | 10 / day / device |
 | grievances | 5 / day / IP + Turnstile |
 | admin login options/verify, invite read, registration | 30 / 10 min / IP (IPv6 by /64) — DECISIONS #81, #80; 20 / hour / credential counting **failed** assertions of a known credential only (#80 L3) |

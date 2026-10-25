@@ -174,6 +174,7 @@ export function publicRoutes(deps: PublicRouteDeps): RouteDefinition[] {
       summary: 'What the server stores about this device (05 §4)',
       tags: ['devices'],
       auth: 'device',
+      rateLimit: [{ bucket: 'deviceSelf', key: 'device' }],
       responses: { 200: deviceRecordSchema },
       handler: async ({ auth, reply }) => {
         const record = await getDeviceRecord(db, auth.scope);
@@ -191,6 +192,7 @@ export function publicRoutes(deps: PublicRouteDeps): RouteDefinition[] {
       summary: 'Change language, brother/sister choice or accepted privacy version',
       tags: ['devices'],
       auth: 'device',
+      rateLimit: [{ bucket: 'deviceSelf', key: 'device' }],
       request: { body: updateDeviceRequestSchema },
       responses: { 204: z.object({}) },
       handler: async ({ auth, body, reply }) => {
@@ -208,6 +210,7 @@ export function publicRoutes(deps: PublicRouteDeps): RouteDefinition[] {
       summary: 'Clear all data: delete the device, its follows and Ameens',
       tags: ['devices'],
       auth: 'device',
+      rateLimit: [{ bucket: 'deviceSelf', key: 'device' }],
       responses: { 204: z.object({}) },
       handler: async ({ auth, reply }) => {
         await deleteDevice(db, auth.scope);
@@ -239,6 +242,7 @@ export function publicRoutes(deps: PublicRouteDeps): RouteDefinition[] {
       summary: 'The server copy of this device’s follows',
       tags: ['follows'],
       auth: 'device',
+      rateLimit: [{ bucket: 'deviceSelf', key: 'device' }],
       responses: { 200: followListSchema },
       handler: async ({ auth, reply }) => {
         const follows = await listFollows(db, auth.scope);
@@ -300,6 +304,7 @@ export function publicRoutes(deps: PublicRouteDeps): RouteDefinition[] {
       summary: 'Content version and status of up to 20 masjids',
       tags: ['masjids'],
       auth: 'none',
+      rateLimit: [{ bucket: 'publicReads', key: 'ip' }],
       cacheControl: CACHE.versions,
       request: {
         query: z.object({
@@ -426,6 +431,7 @@ export function publicRoutes(deps: PublicRouteDeps): RouteDefinition[] {
       summary: 'Live Ameen counts of up to 30 dua requests (kept out of immutable responses)',
       tags: ['feed'],
       auth: 'none',
+      rateLimit: [{ bucket: 'publicReads', key: 'ip' }],
       cacheControl: CACHE.ameens,
       request: {
         query: z.object({

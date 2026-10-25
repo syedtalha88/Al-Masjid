@@ -17,9 +17,13 @@ const ESCAPES: Readonly<Record<string, string>> = {
   '>': '&gt;',
   '"': '&quot;',
   "'": '&#39;',
+  // Caddy renders this fragment as a template (`httpInclude` inside og.html): a raw `{{ … }}` in a masjid name or
+  // title would run there (env, includes, a meta refresh…). Braces as entities read the same to crawlers.
+  '{': '&#123;',
+  '}': '&#125;',
 };
-/** Escapes text for an HTML attribute value. */
-export const escapeHtml = (text: string): string => text.replace(/[&<>"']/g, (char) => ESCAPES[char] ?? char);
+/** Escapes text for an HTML attribute value inside a Caddy template (also `{` / `}` — security review H1). */
+export const escapeHtml = (text: string): string => text.replace(/[&<>"'{}]/g, (char) => ESCAPES[char] ?? char);
 
 const GENERIC = {
   title: BRAND.name,
@@ -28,7 +32,7 @@ const GENERIC = {
 
 const DAILY_TITLES = { hadith: 'Hadith of the day', ayah: 'Ayah of the day' } as const;
 
-/** The OpenGraph + Twitter tags (one per line). */
+/** The OpenGraph + Twitter tags (one per line); never a raw `{` or `}` (Caddy template delimiters — escaped). */
 export function previewTags(input: { title: string; description: string; url?: string; appOrigin?: string }): string {
   const meta = (key: 'property' | 'name', name: string, content: string) =>
     `<meta ${key}="${name}" content="${escapeHtml(content)}">`;

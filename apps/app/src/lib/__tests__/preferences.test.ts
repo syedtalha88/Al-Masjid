@@ -3,7 +3,13 @@ import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { createApiClient } from '../api/client.ts';
-import { clearAllData, finishPendingDeletion, syncPreferences, updatePreferences } from '../device/preferences.ts';
+import {
+  clearAllData,
+  finishPendingDeletion,
+  syncPreferences,
+  updatePreferences,
+  wipeCachedContent,
+} from '../device/preferences.ts';
 import { createDeviceStore, type DeviceStore, memoryBackend } from '../device/store.ts';
 import type { SyncDeps } from '../device/sync.ts';
 
@@ -130,6 +136,27 @@ describe('clear all data (05 §4, journey 12)', () => {
     expect(state.audiencePref).toBeUndefined();
     expect(state.pendingDeletion).toBeUndefined();
     expect(state.settings).toEqual({ vibration: true, arabicScale: 1, transliteration: true });
+  });
+
+  it('also empties the cached copies of followed masjids — worker caches and persisted queries (M1)', async () => {
+    const deleted: string[] = [];
+    const queryCache = memoryBackend();
+    await queryCache.setMany([
+      ['q:["bundle","m1",3]', {}],
+      ['q:["feed","m1",3,"brothers"]', {}],
+    ]);
+    const cachesLike = {
+      delete: (name: string) => {
+        deleted.push(name);
+        return Promise.resolve(true);
+      },
+    };
+    mode = 'offline';
+    expect(await clearAllData(deps, { caches: cachesLike, queryCache })).toBe('queued');
+    expect(deleted.sort()).toEqual(['mc-api-v1', 'mc-images-v1', 'mc-versions-v1']);
+    expect(await queryCache.entries()).toEqual([]);
+    // A cache that cannot be emptied does not stop the rest.
+    await wipeCachedContent({ caches: { delete: () => Promise.reject(new Error('blocked')) }, queryCache });
   });
 
   it('offline: the phone is cleared now; the old record is deleted when the connection returns', async () => {

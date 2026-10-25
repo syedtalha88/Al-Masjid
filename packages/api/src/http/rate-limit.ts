@@ -32,6 +32,8 @@ export const RATE_LIMITS = {
   codeResolve: { points: 30, durationSec: 60 }, // per device, or IP without one
   follow: { points: 60, durationSec: HOUR },
   ameen: { points: 120, durationSec: HOUR },
+  deviceSelf: { points: 120, durationSec: HOUR }, // GET/PATCH/DELETE /devices/me, GET …/follows (review L2)
+  publicReads: { points: 1200, durationSec: 60 }, // versions + ameen counts per IP — generous (CGNAT, Jumu'ah peaks)
   reports: { points: 10, durationSec: DAY },
   grievancesIp: { points: 5, durationSec: DAY },
   adminLoginIp: { points: 30, durationSec: 600, wide: true }, // DECISIONS #81 (several admins on one Wi-Fi)

@@ -6,6 +6,9 @@ import type { Locale } from '@mc/i18n/locales';
 import { NetworkError, ProblemError } from '@mc/shared/http';
 
 import { isAuthLost } from '../api/client.ts';
+import { PERSONAL_CACHES } from '../sw-protocol.ts';
+import { idbBackend, QUERY_CACHE_DB } from './idb.ts';
+import type { KeyValueBackend } from './store.ts';
 import { handleAuthLost, type SyncDeps } from './sync.ts';
 
 export interface PreferenceChange {
@@ -72,15 +75,46 @@ export async function syncPreferences(deps: SyncDeps): Promise<'saved' | 'queued
   return send(deps);
 }
 
+/** Where the phone keeps copies of followed masjids' content, besides the device document. */
+export interface CachedContent {
+  /** Cache Storage (`undefined` where unavailable). */
+  readonly caches: Pick<CacheStorage, 'delete'> | undefined;
+  /** The persisted query cache. */
+  readonly queryCache: KeyValueBackend;
+}
+
+const defaultCachedContent = (): CachedContent => ({
+  caches: typeof caches === 'undefined' ? undefined : caches,
+  queryCache: idbBackend(QUERY_CACHE_DB),
+});
+
+/**
+ * Empties the copies of followed masjids' content (05 §4 "local wipe"; security review M1): the worker's caches that
+ * reveal the follows (feeds, bundles, the versions URL listing the ids, photos) and every persisted query. App code and
+ * fonts stay. Never rejects — a cache that cannot be emptied is left as it is.
+ */
+export async function wipeCachedContent(content: CachedContent = defaultCachedContent()): Promise<void> {
+  await Promise.all([
+    ...PERSONAL_CACHES.map((name) => content.caches?.delete(name).catch(() => false)),
+    content.queryCache
+      .entries()
+      .then((entries) => content.queryCache.delMany(entries.map(([key]) => key)))
+      .catch(() => undefined),
+  ]);
+}
+
 /**
  * Clear all data (05 §4): deletes this device's server record (its follows and Ameens go with it — 02 §5), then wipes
- * the phone's copy back to a fresh state in the current language (the app shows onboarding). Offline, the phone is
- * cleared at once and only the old credentials stay, to delete the server record later ({@link finishPendingDeletion}).
- * The caller clears the query cache.
+ * the phone's copy back to a fresh state in the current language (the app shows onboarding) and empties the cached
+ * content ({@link wipeCachedContent}). Offline, the phone is cleared at once and only the old credentials stay, to
+ * delete the server record later ({@link finishPendingDeletion}). The caller clears the in-memory query cache.
  *
  * @returns `deleted` or `queued`.
  */
-export async function clearAllData(deps: SyncDeps): Promise<'deleted' | 'queued'> {
+export async function clearAllData(
+  deps: SyncDeps,
+  cached: CachedContent = defaultCachedContent(),
+): Promise<'deleted' | 'queued'> {
   const credentials = deps.store.current().credentials;
   let queued = false;
   if (credentials) {
@@ -94,6 +128,7 @@ export async function clearAllData(deps: SyncDeps): Promise<'deleted' | 'queued'
     }
   }
   await deps.store.clear();
+  await wipeCachedContent(cached);
   if (queued && credentials) {
     await deps.store.update((current) => ({ ...current, pendingDeletion: credentials }));
   }

@@ -11,6 +11,20 @@
 export const SW_SOURCE_HEADER = 'X-MC-SW';
 export type SwSource = 'cache' | 'fallback';
 
+/** The worker's runtime caches (versioned names, so a layout change can drop them). */
+export const SW_CACHES = {
+  assets: 'mc-assets-v1',
+  images: 'mc-images-v1',
+  api: 'mc-api-v1',
+  versions: 'mc-versions-v1',
+} as const;
+
+/**
+ * Caches that reveal which masjids this phone follows (feeds, bundles, the versions URL listing the ids, masjid photos)
+ * — emptied by "Clear all data" (05 §4). App code and fonts (`assets`) stay.
+ */
+export const PERSONAL_CACHES = [SW_CACHES.api, SW_CACHES.versions, SW_CACHES.images] as const;
+
 /** Background Sync tag: Ameens said offline are sent by the worker when the connection returns (01 §5.6). */
 export const AMEEN_SYNC_TAG = 'mc-ameen';
 

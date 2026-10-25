@@ -3,6 +3,17 @@ import { describe, expect, it } from 'vitest';
 import { escapeHtml, previewTags } from '../src/routes/link-preview.ts';
 
 describe('previewTags', () => {
+  it('never lets a Caddy template action through (security review H1)', () => {
+    const tags = previewTags({
+      title: '{{env `MC_SECRET`}} Masjid',
+      description: '{{httpInclude "/api/v1/devices/me"}} {{b64dec `PHA+`}}',
+      url: 'https://app.example/p/{{x}}',
+    });
+    expect(tags).not.toMatch(/[{}]/);
+    expect(tags).toContain('content="&#123;&#123;env `MC_SECRET`&#125;&#125; Masjid"');
+    expect(escapeHtml('{}')).toBe('&#123;&#125;');
+  });
+
   it('escapes every value; absolute URLs only with an app origin', () => {
     const html = previewTags({
       title: 'Masjid "<script>alert(1)</script>" & Co\'s',
