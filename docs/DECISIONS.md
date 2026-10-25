@@ -1136,6 +1136,46 @@ path, #14) and desktop browsers have no native QR detector; Android Chrome has. 
 - **Bundle:** initial JS limit 186 kB (184.1 kB): the start-up sync of queued Settings changes / deletion and the
   Vibration hook live in the data layer (+1.1 kB; owner rule "quality over bundle size").
 
+### #102 — PWA / offline completion (PHASE_02 T2.13) — ACCEPTED (Claude Code, 25 Oct 2026)
+**Decision:**
+- **Runtime caching** stays as built in T0.11 (01 §5.6 already met: shell precache, versioned API CacheFirst, versions
+  NetworkFirst 3 s, media images CacheFirst 300 / 30 days). New: API answers read from Cache Storage carry
+  `X-MC-SW: cache` (immutable answer) or `X-MC-SW: fallback` (versions, network failed / timed out) — one Workbox
+  plugin, last after expiration. Page and worker share `apps/app/src/lib/sw-protocol.ts` (constants + one pure function,
+  no dependencies, so nothing extra enters the worker).
+- **Server clock (bug found):** the client took the clock offset from every response's `Date`, and keeps the latest. A
+  cached answer — browser HTTP cache (`max-age=31536000, immutable`), the worker's cache, a CDN hit — carries the
+  `Date` of when it was stored, so an offline start with a bundle cached three days earlier moved "now" (countdowns,
+  Hijri date) three days back. Now only answers whose `Date` is from now count: no `X-MC-SW`, no `Age > 0`, no
+  `max-age > 0` (`freshDate`, unit-tested). `no-store` and CDN-only (`s-maxage`) answers still measure.
+- **Offline banner (01 §5.6 "or requests fail"):** besides `navigator.onLine`, the client reports whether the server
+  answered (`lib/reachability.ts`): a request with no answer (network failure, timeout, worker fallback) shows the
+  banner; any answer hides it; an `online` event clears it. Answers from the worker's immutable cache say neither.
+  Recovery (unreachable → answer) runs the same retry as `online` (registration, follows, Ameens, Settings).
+  `AppSurfaces` (`@mc/ui/pwa`) takes an optional `unreachable` flag; the admin app is unchanged.
+- **Background Sync for Ameen (where supported — Chromium):** after a tap leaves the Ameen queued, the page registers
+  sync `mc-ameen`; the worker reads the device document **read-only** (credentials + `pendingAmeens`, field-checked by
+  `queuedAmeens`) and POSTs each; 429/5xx/network → throw → the browser retries later. The page dequeues on its next
+  flush (the server counts once per device, so the resend changes nothing) — one writer of the device document only.
+  Elsewhere (Safari, Firefox): start / `online` / reachability recovery, as before.
+- **Persistent storage:** `navigator.storage.persist()` once per start as soon as the device follows a masjid
+  (skipped when already persistent; Chromium grants installed apps silently, Firefox may ask once).
+- **Link capture (Android WebAPK) — documented behaviour:** a WebAPK registers intent filters for its manifest scope
+  (`/` on the app origin), so `https://app.<domain>/m/<code>` and `/p/<id>` tapped in another app (WhatsApp) open the
+  installed app; links followed inside Chrome stay in Chrome; iOS never captures links (the `/m/:code` Safari explainer,
+  DECISIONS #94). **Bug found:** the manifest's `launch_handler: focus-existing` (T0.11) only focuses an open app and
+  queues the URL in `window.launchQueue` — without a consumer a follow link tapped while the app was open did nothing.
+  `lib/launch.ts` consumes it: tab root → switch tab, modal path → present it, otherwise push; other origins and the
+  launch that loaded the document are ignored. Shortcuts (Updates, Qibla) use the same path. Verified by the owner on
+  a real phone (guide 2.20) — headless browsers have no WebAPK.
+- **iOS standalone detection:** already in `lib/platform.ts` (`display-mode: standalone` or `navigator.standalone`),
+  used by onboarding, Settings → Install, the `/m/:code` and `/p/:id` landings; no change.
+- **Journey 4 (10 §6)** `e2e/app/offline.spec.ts`: both phones — API unreachable on a live connection → reload → Home,
+  Prayer Timings, Updates from the persisted query cache + banner, banner clears when the server answers; Chromium —
+  no network → the worker serves shell + API, answers marked `fallback` / `cache`. WebKit skips the worker case
+  (Playwright's WebKit does not run workers offline reliably — as T0.11).
+- **Bundle:** initial JS 184.8 kB (+0.7 kB; limit 186 kB unchanged).
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

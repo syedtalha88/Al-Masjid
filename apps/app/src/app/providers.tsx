@@ -6,6 +6,7 @@ import { RouterProvider } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import { type AppData, createAppData, DataProvider } from '../lib/data.tsx';
+import { useServerUnreachable } from '../lib/reachability.ts';
 import { AppGate } from './AppGate.tsx';
 import { RoutePending } from './RoutePending.tsx';
 import { createAppRouter } from './router.tsx';
@@ -19,6 +20,11 @@ const siteKey = (): string => {
 /** A Turnstile token — the helper loads only when a registration actually happens. */
 const turnstileToken = async (): Promise<string> =>
   (await import('../lib/turnstile.ts')).turnstileTokenSource(siteKey())();
+
+/** The offline banner also shows while API requests get no answer (01 §5.6). */
+function Surfaces() {
+  return <AppSurfaces unreachable={useServerUnreachable()} />;
+}
 
 /**
  * Root providers: motion (lazy features, reduced/lite prefs) → i18n (locale already applied to `<html lang dir>` by
@@ -42,7 +48,7 @@ export function AppProviders({ data }: { readonly data?: AppData }) {
             <AppGate preload={preload}>
               <RouterProvider router={router} />
             </AppGate>
-            <AppSurfaces />
+            <Surfaces />
           </ToastProvider>
         </DataProvider>
       </I18nProvider>

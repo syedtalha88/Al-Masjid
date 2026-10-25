@@ -14,6 +14,7 @@ import {
 import { useRouter } from '@tanstack/react-router';
 import { useEffect, useMemo } from 'react';
 
+import { useLaunchLinks } from '../lib/launch.ts';
 import { useUnseenCount } from '../lib/unseen.ts';
 import { NotFoundScreen } from './NotFoundScreen.tsx';
 import { RouteError } from './RouteError.tsx';
@@ -67,6 +68,8 @@ export function AppNavigator() {
 function MusalliTabBar({ api }: { readonly api: NavigatorApi }) {
   const { t } = useTranslation();
   const unseen = useUnseenCount();
+  // The tab bar lives as long as the navigator and holds its api: links that launch the open app land here (T2.13).
+  useLaunchLinks(api, NAV_CONFIG);
   return (
     <TabBar
       api={api}

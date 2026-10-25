@@ -5,6 +5,7 @@
 import { NetworkError, ProblemError } from '@mc/shared/http';
 
 import { isAuthLost, isProblem } from '../api/client.ts';
+import { AMEEN_SYNC_TAG } from '../sw-protocol.ts';
 import type { DeviceStore } from './store.ts';
 import { handleAuthLost, type SyncDeps } from './sync.ts';
 
@@ -72,6 +73,37 @@ export async function flushAmeens(deps: SyncDeps): Promise<AmeenFlush> {
     }
   }
   return remaining();
+}
+
+/** Background Sync (WICG; Chromium only) — not in TypeScript's DOM library. */
+interface SyncRegistration {
+  readonly sync: { register(tag: string): Promise<void> };
+}
+const hasSync = (
+  registration: ServiceWorkerRegistration,
+): registration is ServiceWorkerRegistration & SyncRegistration =>
+  'sync' in registration && typeof registration.sync === 'object' && registration.sync !== null;
+
+/**
+ * Asks the service worker to send the queued Ameens when the connection returns, even if the app is closed by then
+ * (01 §5.6 "Background Sync where supported"). Elsewhere the queue waits for the next start / `online` event.
+ *
+ * @returns whether a sync was registered; never rejects.
+ */
+export async function requestBackgroundAmeens(
+  container: ServiceWorkerContainer | undefined = typeof navigator === 'undefined'
+    ? undefined
+    : navigator.serviceWorker,
+): Promise<boolean> {
+  try {
+    // `getRegistration`, not `ready`: `ready` never settles without a worker (dev server, tests).
+    const registration = await container?.getRegistration();
+    if (!registration?.active || !hasSync(registration)) return false;
+    await registration.sync.register(AMEEN_SYNC_TAG);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**

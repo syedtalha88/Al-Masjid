@@ -1,6 +1,7 @@
 // The musalli app's API client (03 §7): one typed function per api-public endpoint, built on `requestJson` (every
 // body validated with the shared contracts). Device auth header injection, 10 s timeout, GET retried twice with jitter
-// (never on 4xx), and the server clock offset from each response's `Date` header (00 §7 drift correction).
+// (never on 4xx), the server clock offset from each fresh response's `Date` header (00 §7 drift correction), and
+// whether the server answered at all (the offline banner, 01 §5.6).
 import { serverClockOffset } from '@mc/domain/time';
 import {
   type AmeenCounts,
@@ -36,6 +37,8 @@ import {
 import { NetworkError, ProblemError, requestJson, ResponseError } from '@mc/shared/http';
 import * as z from 'zod/mini';
 
+import { SW_SOURCE_HEADER } from '../sw-protocol.ts';
+
 /** 03 §7: client timeout (uploads excluded — none in this app). */
 export const API_TIMEOUT_MS = 10_000;
 const GET_RETRIES = 2;
@@ -52,8 +55,13 @@ export interface ApiClientOptions {
   readonly credentials: () => DeviceCredentials | undefined;
   /** A device request answered 401 `DEVICE_AUTH_REQUIRED`: the device must register again. */
   readonly onAuthLost?: () => void;
-  /** Each response's server-clock offset (ms; `null` when unusable). */
+  /** Server-clock offset (ms; `null` when unusable) of each response whose `Date` is from now ({@link freshDate}). */
   readonly onServerTime?: (offsetMs: number | null) => void;
+  /**
+   * `true` when the server answered (any status), `false` when a request got no answer (network failure, timeout, or
+   * the service worker fell back to its cache). Answers from the worker's cache of immutable responses say neither.
+   */
+  readonly onReachability?: (reachable: boolean) => void;
   readonly fetch?: typeof fetch;
   /** Backoff before retry `attempt` (1-based); default 300–600 ms × attempt with jitter. */
   readonly backoff?: (attempt: number) => Promise<void>;
@@ -63,6 +71,16 @@ export interface ApiClientOptions {
 const retryable = (error: unknown): boolean =>
   (error instanceof NetworkError && error.reason !== 'aborted') ||
   ((error instanceof ProblemError || error instanceof ResponseError) && error.status >= 500);
+
+/**
+ * Whether a response's `Date` says when the server answered: not from the service worker's cache (it marks those), not
+ * aged in a shared cache (`Age`), and not browser-cacheable (`max-age` — an HTTP-cache hit keeps its original `Date`,
+ * so a bundle cached days ago would move the app's clock by days).
+ */
+export const freshDate = (headers: Headers): boolean =>
+  headers.get(SW_SOURCE_HEADER) === null &&
+  Number(headers.get('age') ?? 0) === 0 &&
+  !/(?:^|[\s,])max-age=[1-9]/i.test(headers.get('cache-control') ?? '');
 
 const defaultBackoff = (attempt: number) =>
   new Promise<void>((resolve) => {
@@ -81,11 +99,16 @@ export type FeedParams = {
 export function createApiClient(options: ApiClientOptions) {
   const doFetch = options.fetch ?? ((input, init) => fetch(input, init));
   const backoff = options.backoff ?? defaultBackoff;
-  // Records the server clock offset of every response that has a Date header.
+  // Records whether the server answered, and the server clock offset of every fresh response.
   const timedFetch: typeof fetch = async (input, init) => {
     const sentAt = Date.now();
     const response = await doFetch(input, init);
-    options.onServerTime?.(serverClockOffset(response.headers.get('date'), sentAt, Date.now()));
+    const source = response.headers.get(SW_SOURCE_HEADER);
+    if (source === null) options.onReachability?.(true);
+    else if (source === 'fallback') options.onReachability?.(false);
+    if (freshDate(response.headers)) {
+      options.onServerTime?.(serverClockOffset(response.headers.get('date'), sentAt, Date.now()));
+    }
     return response;
   };
 
@@ -120,6 +143,7 @@ export function createApiClient(options: ApiClientOptions) {
           ...(init.signal ? { signal: init.signal } : {}),
         });
       } catch (error) {
+        if (error instanceof NetworkError && error.reason !== 'aborted') options.onReachability?.(false);
         if (error instanceof ProblemError && error.problem.code === 'DEVICE_AUTH_REQUIRED' && init.device && !init.as) {
           options.onAuthLost?.();
         }

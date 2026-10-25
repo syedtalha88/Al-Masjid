@@ -98,13 +98,13 @@ Claude Code seeds 3 test masjids ("Test Masjid Alpha/Beta/Gamma") on staging and
 | 2.11 | Updates tab | Open Updates; tap filter chips | Timeline with colored icons and line (reference 2, screen 4); filters animate |
 | 2.12 | Announcements / Hadith / Dua | Open each from the masjid page | Match references 2 and 3 styles; Arabic text looks beautiful and is right-to-left |
 | 2.13 | Ameen | On a dua request tap **Ameen** | Bounce + count goes up by 1; tapping again doesn't add more |
-| 2.14 | Offline | Airplane mode ON → close app → reopen | Home, timings and updates still show; small "You're offline" banner |
+| 2.14 | Offline | (a) Airplane mode ON → close app → reopen. (b) Airplane mode OFF, connect to a Wi-Fi that has no internet (e.g. a phone hotspot whose mobile data is off) → reopen the app, wait ~15 seconds. (c) On Android, airplane mode ON → tap Ameen on a dua → close the app → airplane mode OFF → after a minute open the dua on another phone | (a) and (b): Home, timings and updates still show; small "You're offline" banner, which goes away by itself when the internet is back. (c) the count went up without opening the app again (Android only; on iPhone it is sent the next time the app opens) |
 | 2.15 | Urdu | Settings → Language → اردو | Whole app right-to-left; back-swipe from the right edge; Arabic still correct; times/amounts readable |
 | 2.16 | Telugu & Hindi | Switch languages and browse every screen | No cut-off text, no "□" boxes |
 | 2.17 | Low-end phone feel | Use Android A for 5 minutes: switch tabs, open/close masjids, scroll fast | Smooth; no stutter; no white flashes |
 | 2.18 | Unfollow & reorder | My Masjids → Edit → drag to reorder; unfollow one | Order is kept after closing app; unfollowed masjid disappears |
 | 2.19 | Clear all data | Settings → My data → Clear all data | Confirmation; app returns to onboarding |
-| 2.20 | Android link opening | With app installed on Android, tap a masjid link in WhatsApp | Opens inside the installed app (not a browser tab) — note result either way |
+| 2.20 | Android link opening | With the app installed on Android (from Chrome), send yourself a masjid link (Masjid page → Share) on WhatsApp. (a) Close the app fully, tap the link. (b) Open the app on the Updates tab, switch to WhatsApp, tap the link again | (a) and (b): opens inside the installed app (no browser address bar) **showing that masjid** (its follow page, or "already following" with Open) — in (b) not just the screen you left. Also long-press the app icon → "Updates" opens the Updates tab. Note the result either way (some phones ask "Open with" the first time) |
 | 2.21 | Speed check | Laptop Chrome → Lighthouse → Mobile report on staging app | Performance ≥ 90, Accessibility ≥ 95 |
 
 ---

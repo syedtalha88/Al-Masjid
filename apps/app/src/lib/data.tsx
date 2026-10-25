@@ -11,6 +11,8 @@ import { createDeviceStore, type DeviceState, type DeviceStore, visibleFollows }
 import type { SyncDeps } from './device/sync.ts';
 import { platformKind } from './platform.ts';
 import { appRelease, CACHE_MAX_AGE_MS, createQueryClient, createQueryPersistence } from './query/persist.ts';
+import { isServerUnreachable, reportReachability, subscribeReachability } from './reachability.ts';
+import { requestPersistentStorage } from './storage.ts';
 
 export interface AppData {
   readonly store: DeviceStore;
@@ -49,6 +51,7 @@ export function createAppData(options: CreateAppDataOptions): AppData {
     base: apiBase(),
     credentials: () => store.current().credentials,
     onServerTime: recordServerTime,
+    onReachability: reportReachability,
     onAuthLost: () => {
       const sync = holder.sync;
       if (sync)
@@ -120,7 +123,8 @@ export function DataProvider({
           else await module.ensureRegistered(data.sync);
           // Ameens said offline or before registration (08 §5.6 "retries later"); the code loads only when needed.
           if (data.store.current().pendingAmeens.length > 0) {
-            await (await import('./device/ameen.ts')).flushAmeens(data.sync);
+            const ameen = await import('./device/ameen.ts');
+            if ((await ameen.flushAmeens(data.sync)).pending > 0) await ameen.requestBackgroundAmeens();
           }
           // A Settings change the server has not heard of (T2.12).
           if (data.store.current().prefsPending) {
@@ -131,10 +135,31 @@ export function DataProvider({
     };
     retry();
     window.addEventListener('online', retry);
+    // The server answers again after requests failed while the browser thought it was online (01 §5.6).
+    let unreachable = isServerUnreachable();
+    const unsubscribe = subscribeReachability(() => {
+      const now = isServerUnreachable();
+      if (unreachable && !now) retry();
+      unreachable = now;
+    });
     return () => {
       window.removeEventListener('online', retry);
+      unsubscribe();
     };
   }, [loaded, data]);
+
+  // 01 §5.6: ask the browser to keep this device's data once it follows a masjid (once per start).
+  useEffect(() => {
+    if (!loaded) return;
+    let asked = false;
+    const check = () => {
+      if (asked || visibleFollows(data.store.current().follows).length === 0) return;
+      asked = true;
+      void requestPersistentStorage();
+    };
+    check();
+    return data.store.subscribe(check);
+  }, [loaded, data.store]);
 
   if (!loaded) return <>{fallback}</>;
   return (

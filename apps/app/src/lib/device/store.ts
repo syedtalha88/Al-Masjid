@@ -6,6 +6,8 @@ import { isLocale, type Locale } from '@mc/i18n/locales';
 import { publicIdText, uuidText } from '@mc/shared/contracts/public';
 import * as z from 'zod/mini';
 
+import { DEVICE_KEY } from '../sw-protocol.ts';
+
 export const DEVICE_STATE_VERSION = 1;
 /** 00 §4.1 — the server enforces it too. */
 export const MAX_FOLLOWS = 20;
@@ -135,7 +137,8 @@ export function memoryBackend(initial: Readonly<Record<string, unknown>> = {}): 
 export const visibleFollows = (follows: readonly LocalFollow[]): LocalFollow[] =>
   follows.filter((follow) => follow.sync !== 'unfollow');
 
-const STATE_KEY = 'device';
+/** Shared with the service worker, which reads queued Ameens (Background Sync). */
+const STATE_KEY = DEVICE_KEY;
 
 export interface DeviceStore {
   /** The current state (after `load()`); a fresh state before. */

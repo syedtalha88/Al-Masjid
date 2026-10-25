@@ -31,7 +31,7 @@ export function idbBackend(database: string): KeyValueBackend {
   };
 }
 
-/** The device document's database. */
-export const DEVICE_DB = 'mc-device';
+/** The device document's database (shared with the service worker — `sw-protocol.ts`). */
+export { DEVICE_DB } from '../sw-protocol.ts';
 /** The persisted TanStack Query cache's database (01 §5.6). */
 export const QUERY_CACHE_DB = 'mc-query-cache';

@@ -119,6 +119,73 @@ describe('createApiClient', () => {
     expect(measured).toBeLessThan(11 * 60_000);
   });
 
+  it('measures the clock only from fresh answers — never cached ones with an old Date (T2.13)', async () => {
+    const offsets: (number | null)[] = [];
+    const daysAgo = new Date(Date.now() - 3 * 24 * 60 * 60_000).toUTCString();
+    let headers: Record<string, string> = {};
+    server.use(http.get(`${BASE}/config`, () => HttpResponse.json(CONFIG, { headers: { Date: daysAgo, ...headers } })));
+    const api = createApiClient({
+      base: BASE,
+      credentials: () => undefined,
+      onServerTime: (offset) => offsets.push(offset),
+      backoff: noWait,
+    });
+    // A browser HTTP-cache hit of an immutable bundle, a shared-cache hit, and both service-worker cache reads.
+    for (const cached of [
+      { 'Cache-Control': 'public, max-age=31536000, immutable' },
+      { 'Cache-Control': 'public, s-maxage=15', Age: '12' },
+      { 'X-MC-SW': 'cache' },
+      { 'X-MC-SW': 'fallback' },
+    ]) {
+      headers = cached;
+      await api.config();
+    }
+    expect(offsets).toEqual([]);
+    // CDN-only caching (`s-maxage`), `no-store` and `max-age=0` answers come from the server now.
+    for (const fresh of [{ 'Cache-Control': 'public, s-maxage=60' }, { 'Cache-Control': 'no-store' }, { Age: '0' }]) {
+      headers = fresh;
+      await api.config();
+    }
+    expect(offsets).toHaveLength(3);
+    for (const offset of offsets) expect(offset).toBeLessThan(-2 * 24 * 60 * 60_000);
+  });
+
+  it('reports whether the server answered: any status yes, no answer or a worker fallback no (T2.13)', async () => {
+    const reports: boolean[] = [];
+    const api = createApiClient({
+      base: BASE,
+      credentials: () => credentials,
+      onReachability: (reachable) => reports.push(reachable),
+      backoff: noWait,
+    });
+    server.use(http.get(`${BASE}/config`, () => HttpResponse.json(CONFIG)));
+    await api.config();
+    server.use(http.get(`${BASE}/masjids/resolve/:code`, () => problem(404, 'MASJID_NOT_FOUND')));
+    await api.resolve('ZZZZZZZZ').catch(() => undefined);
+    expect(reports).toEqual([true, true]);
+
+    reports.length = 0;
+    server.use(http.post(`${BASE}/items/:id/ameen`, () => HttpResponse.error()));
+    await api.ameen('seedA0000001').catch(() => undefined);
+    expect(reports).toEqual([false]);
+
+    reports.length = 0;
+    server.use(
+      http.get(`${BASE}/masjids/versions`, () => HttpResponse.json({}, { headers: { 'X-MC-SW': 'fallback' } })),
+      http.get(`${BASE}/templates`, () => HttpResponse.json({ templates: [] }, { headers: { 'X-MC-SW': 'cache' } })),
+    );
+    await api.versions([ID]);
+    await api.templates().catch(() => undefined);
+    // The fallback says "no answer"; an immutable answer from the worker's cache says nothing either way.
+    expect(reports).toEqual([false]);
+
+    reports.length = 0;
+    const aborted = new AbortController();
+    aborted.abort();
+    await api.config(aborted.signal).catch(() => undefined);
+    expect(reports).toEqual([]);
+  });
+
   it('covers every endpoint shape (follow, mute, unfollow, register, bundle, feed, item, ameen, library)', async () => {
     server.use(
       http.post(`${BASE}/devices`, () => HttpResponse.json({ deviceId: ID, secret: 'B'.repeat(43) }, { status: 201 })),

@@ -7,7 +7,7 @@ import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import type { ApiClient } from '../../../lib/api/client.ts';
 import { queryKeys } from '../../../lib/api/keys.ts';
 import { useAppData, useDeviceSelector } from '../../../lib/data.tsx';
-import { ameenDisplayCount, flushAmeens, sayAmeenLocally } from '../../../lib/device/ameen.ts';
+import { ameenDisplayCount, flushAmeens, requestBackgroundAmeens, sayAmeenLocally } from '../../../lib/device/ameen.ts';
 
 /** 03 §3 `GET /ameens?items=` accepts up to 30 ids. */
 const IDS_PER_REQUEST = 30;
@@ -87,7 +87,10 @@ export function useAmeen(publicIds: readonly string[]): AmeenApi {
     (publicId: string) => {
       void (async () => {
         if (!(await sayAmeenLocally(store, publicId))) return;
-        recordConfirmed((await flushAmeens(sync)).confirmed);
+        const flushed = await flushAmeens(sync);
+        recordConfirmed(flushed.confirmed);
+        // Still queued (offline): the service worker sends it when the connection returns, where it can.
+        if (flushed.pending > 0) await requestBackgroundAmeens();
       })().catch(() => undefined);
     },
     [store, sync],
