@@ -18,14 +18,47 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (handoff 24 Oct 2026 — Phase 02 IN PROGRESS, 11 of 14 tasks done)
+## ▶ Next session — start here (handoff 25 Oct 2026 — Phase 02 IN PROGRESS, 12 of 14 tasks done)
 
-**Update 25 Oct 2026:** **T2.12 done** (DECISIONS #101) — next task **T2.13** PWA/offline completion (SW runtime caching
-per 01 §5.6, `storage.persist()` after the first follow, offline banner, install prompts, `/m/:code` link capture note,
-iOS standalone detection; journey 4). Then T2.14 quality gates. **Update 24 Oct 2026 (later):** **T2.11 done**
-(DECISIONS #100). CI was red on new advisories → fixed in `8c5fdfc`; **F45: on/after
-26 Oct** bump body-parser 2.4.0 + serialize-javascript 7.1.3 and remove the time-boxed ignores. The older notes below
-still apply.
+**State (25 Oct 2026, evening):** branch `feat/phase-02` = `main` = **`4b518bb`** (T2.12). **T2.1–T2.12 done**
+(DECISIONS #90–#101); working tree clean. Done today: T2.11 (`609615c`), T2.12 (`4b518bb`), CI advisories fix (`8c5fdfc`).
+
+**Do first, in this order:**
+1. **CI.** `609615c` (T2.11) failed in the Build job at step **"MongoDB users + migrations (db:reset)"** — the same
+   `pnpm db:reset` passes locally (seed now 31 items: notice photo `image_key`/`image_thumbhash`, archived dua
+   `archived_at`). Logs need a GitHub token (`gh` not installed), so check the run of `4b518bb` (was in progress at
+   handoff): if it fails at the same step, reproduce CI exactly — fresh Docker volumes (`pnpm db:start` on an empty
+   `mc-dev` volume, then `pnpm db:reset`), and compare the seed documents against the item validator
+   (`packages/db/src/schema/content.ts`: `image_thumbhash` ≤ 64, `dua.archived_at`). Ask the owner for the log text if
+   it cannot be reproduced.
+2. **F45** (allowed from 25 Oct 21:25 UTC): `pnpm update -r body-parser serialize-javascript` (→ 2.4.0 / 7.1.3), delete
+   the two entries in `osv-scanner.toml` (or the file) and the date-gated `--ignore` lines in `ci.yml` + `nightly.yml`;
+   keep `inflate: false` (body.ts) — it stays right regardless.
+3. **O23 — not solved yet.** Owner, 25 Oct 2026: the Cloudflare cache rule is enabled. Re-check the same day:
+   `node scripts/check-cdn-cache.mjs https://app-staging.almasjids.com` → versioned bundle and feed still
+   `cf-cache-status: DYNAMIC` six times in a row (never HIT); the origin headers are right
+   (`Cache-Control: public, max-age=31536000, immutable`, `Vary: Accept-Encoding`, no Set-Cookie). DYNAMIC = no cache
+   rule applies, so the rule does not match: ask the owner to compare it with infra/cloudflare/README.md §4 rule 1
+   field by field (Hostname **equals** `app-staging.almasjids.com`, URI **Path** starts with `/api/v1/`, Method GET;
+   action **Eligible for cache**, Edge TTL "Use cache-control header if present", rule **deployed**, nothing later in the
+   list overriding it). Nightly's "CDN caches versioned API responses" stays red until then.
+4. **Next task: T2.13** PWA/offline completion (SW runtime caching per 01 §5.6 — versioned API CacheFirst, versions
+   NetworkFirst 3 s, images CacheFirst with expiration; `storage.persist()` after the first follow; offline banner;
+   install prompts in Settings are done in T2.12; `/m/:code` WebAPK link capture — document; iOS standalone detection;
+   journey 4 offline). Then **T2.14** quality gates (journeys 1–5, 8, 12 on both profiles, 4-locale visual baselines,
+   perf traces, Lighthouse, axe), then the phase completion protocol (CLAUDE.md §5).
+
+**Owner to-dos still open for Phase 02:** O23 (above); O8 Turnstile switch on staging (site key variable + secret
+together, when asked); O16 low-end Android phone (optional); the Grievance Officer's real details in Super Admin before
+launch (the app hides the mail link while the "NOT SET" placeholders are there — DECISIONS #101).
+
+**Local session notes (this PC):** Docker Desktop is at `%LOCALAPPDATA%/Programs/DockerDesktop/Docker Desktop.exe`; if
+`docker` says "manually paused", ask the owner (do not unpause). `MSYS_NO_PATHCONV=1` only for raw `docker` commands —
+it breaks `pnpm`. WebKit e2e here is slow: long journeys use `test.slow()`; run heavy jobs (coverage) **not** in
+parallel with an iPhone e2e run, or WebKit times out. After changing app code, **rebuild `apps/app/dist`** before e2e.
+
+**History of this handoff:** 25 Oct — T2.12 done. 24 Oct (later) — T2.11 done; CI advisories fixed in `8c5fdfc`. The
+older notes below still apply.
 
 **State:** branch `feat/phase-02`, fast-forwarded to `main` after every task. **T2.1–T2.10 done** (DECISIONS #90–#99).
 Last commit = the T2.10 commit (Updates + performance fixes). CI was green on `adc58db`; later pushes cancel each
@@ -91,7 +124,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O19 | ~~Screen-reader check (TalkBack + VoiceOver)~~ | Re-review V-7 | – | **done 20 Oct 2026** — owner: "mobile testing is working fine" |
 | O21 | ~~Dated confirmation of the Atlas IP access list~~ | T1.12 evidence | – | **done 22 Oct 2026** — owner: "I confirm" (`docs/reports/evidence/PHASE_01_T1.12_atlas-ip-list_2026-10-22.txt`) |
 | O12 | ~~Super Admin passkey on staging~~ — **done 22 Oct 2026** | Phase 01 T1.9 | – | done |
-| O23 | **Cloudflare Cache Rule "App API (origin)"** (infra/cloudflare/README.md §4 rule 1) — check it exists and is enabled | T2.2 acceptance: staging versioned bundle/feed answer `cf-cache-status: DYNAMIC` (23 Oct 2026, origin sends `public, max-age=31536000, immutable`) — Cloudflare is not caching `/api/v1/*`; until fixed, every read reaches the VPS | 5 min | **pending** — then Claude Code re-runs `scripts/check-cdn-cache.mjs` |
+| O23 | **Cloudflare Cache Rule "App API (origin)"** (infra/cloudflare/README.md §4 rule 1) — check it exists and is enabled | T2.2 acceptance: staging versioned bundle/feed answer `cf-cache-status: DYNAMIC` (23 Oct 2026, origin sends `public, max-age=31536000, immutable`) — Cloudflare is not caching `/api/v1/*`; until fixed, every read reaches the VPS | 5 min | **owner, 25 Oct 2026: enabled** — re-check the same day still `DYNAMIC` (never HIT) with correct origin headers → the rule does not match yet; compare it with README §4 rule 1 (see the handoff above) |
 | O24 | **Confirm the bundle-size raises** — musalli initial JS limit 170 → 175 (T2.3) → 176 (T2.4) → 180 (T2.5) → 184 (T2.6) → 182 (T2.7) → 181 kB (T2.9, after F43 parts 1–2) → 184 kB (T2.11; owner 24 Oct 2026: "10–20 kB is fine, focus on quality") → **186 kB** (T2.12) under the owner rule "quality over bundle size" | DECISIONS #92–#94; the alternative is deeper chunk tuning (Motion split) | 1 answer | **answered 24 Oct 2026:** "I can manage a few kB if it's increasing" — raises of a few kB are fine; keep recording each in DECISIONS / `.size-limit.js` |
 | O22 | ~~Host-layer update on the VPS~~ | F36, F37, F40, L-5, #86 L5 | – | **done 22 Oct 2026** — `provision.sh host aa2d1ac` (checksum confirmed), `make-env.sh staging --force`, Redis restarted; `--verify-roles` 17/17, `check.sh` 114 PASS · 0 FAIL · 2 WARN (evidence `docs/reports/evidence/PHASE_01_T1.1_verify-roles_2026-10-22.txt`, `PHASE_01_T1.12_check-sh_2026-10-22.txt`) |
 
