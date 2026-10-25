@@ -94,7 +94,7 @@ common,home.suspended,This masjid is temporarily unavailable.,ఈ మసీద�
 common,home.loadFailed,Couldn’t load this masjid.,ఈ మసీదును లోడ్ చేయలేకపోయాం.,no
 common,home.strip,"Jamaat times, {date}","జమాత్ సమయాలు, {date}",no
 common,home.emptyTitle,Add your first masjid,మీ మొదటి మసీదును జోడించండి,no
-common,home.emptyBody,"Scan the QR code on your masjid’s poster to see prayer times, notices and dua requests.","నమాజ్ సమయాలు, ప్రకటనలు, దుఆ విన్నపాలు చూడటానికి మీ మసీదు పోస్టర్‌పై ఉన్న QR కోడ్‌ను స్కాన్ చేయండి.",no
+common,home.emptyBody,"Scan the QR code on your masjid’s poster to see prayer times, notices and dua requests.","నమాజ్ సమయాలు, ప్రకటనలు, దువా విన్నపాలు చూడటానికి మీ మసీదు పోస్టర్‌పై ఉన్న QR కోడ్‌ను స్కాన్ చేయండి.",no
 common,home.emptyScan,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 common,home.emptyCode,Enter code,కోడ్ నమోదు చేయండి,no
 common,home.ramadan,Ramadan,రంజాన్,no
@@ -173,7 +173,7 @@ common,item.facilities,Facilities,సౌకర్యాలు,no
 common,item.timing,Timing update,సమయ మార్పు,no
 common,item.hadith,Today’s Hadith,నేటి హదీస్,no
 common,item.ayah,Today’s Ayah,నేటి ఆయత్,no
-common,item.dua,Request for Dua,దుఆ విన్నపం,no
+common,item.dua,Request for Dua,దువా విన్నపం,no
 common,item.campaign,Donation campaign,విరాళాల ప్రచారం,no
 common,item.chanda,Weekly chanda,వారపు చందా,no
 common,item.video,Bayan,బయాన్,no
@@ -194,7 +194,7 @@ common,masjids.moveDown,Move down,కిందికి జరపండి,no
 common,masjids.editHint,"Drag to change the order, or tap a masjid for more options.","క్రమం మార్చడానికి లాగండి, లేదా మరిన్ని ఎంపికల కోసం మసీదుపై నొక్కండి.",no
 common,updates.all,All,అన్నీ,no
 common,updates.announcements,Announcements,ప్రకటనలు,no
-common,updates.duas,Dua,దుఆ,no
+common,updates.duas,Dua,దువా,no
 common,updates.donations,Donations,విరాళాలు,no
 common,updates.hadith,Hadith & Quran,హదీస్ & ఖుర్ఆన్,no
 common,updates.bayans,Bayans,బయాన్‌లు,no
@@ -204,6 +204,74 @@ common,updates.filters,Filter updates,అప్‌డేట్‌లను ఫ�
 common,updates.yesterday,Yesterday,నిన్న,no
 common,updates.new,New,కొత్తది,no
 common,updates.loadingMore,Loading more…,మరిన్ని లోడ్ అవుతున్నాయి…,no
+content,announcements,Announcements,ప్రకటనలు,no
+content,hadithQuran,Hadith & Quran,హదీస్ & ఖుర్ఆన్,no
+content,duaRequests,Dua Requests,దువా విన్నపాలు,no
+content,filters,Filter by category,వర్గం ప్రకారం వడపోయండి,no
+content,kinds,Hadith or Quran,హదీస్ లేదా ఖుర్ఆన్,no
+content,chip.all,All,అన్నీ,no
+content,chip.general,General,సాధారణం,no
+content,chip.event,Events,కార్యక్రమాలు,no
+content,chip.facilities,Facilities,సౌకర్యాలు,no
+content,chip.timing,Timing,సమయాలు,no
+content,chip.illness,Illness,అనారోగ్యం,no
+content,chip.inteqal,Inteqal,ఇంతెకాల్,no
+content,chip.other,Other,ఇతర,no
+content,tag.important,Important,ముఖ్యం,no
+content,tag.general,General,సాధారణం,no
+content,tag.event,Event,కార్యక్రమం,no
+content,tag.facilities,Facilities,సౌకర్యాలు,no
+content,tag.timing,Timing,సమయం,no
+content,tag.illness,Illness,అనారోగ్యం,no
+content,tag.inteqal,Inteqal,ఇంతెకాల్,no
+content,tag.other,Other,ఇతర,no
+content,hadith,Hadith,హదీస్,no
+content,quran,Quran,ఖుర్ఆన్,no
+content,todayHadith,Today’s Hadith,నేటి హదీస్,no
+content,todayAyah,Today’s Ayah,నేటి ఆయత్,no
+content,quoted,“{text}”,“{text}”,no
+content,english,English,ఇంగ్లీష్,no
+content,noteFromMasjid,Note from masjid,మస్జిద్ నుండి గమనిక,no
+content,share,Share,షేర్ చేయండి,no
+content,readFull,Read Full,పూర్తిగా చదవండి,no
+content,save,Save,సేవ్ చేయండి,no
+content,saved,Saved,సేవ్ అయింది,no
+content,savedToast,Saved on this phone,ఈ ఫోన్‌లో సేవ్ అయింది,no
+content,removedToast,Removed from Saved,సేవ్ నుండి తీసేశాం,no
+content,requestForDua,Request for Dua,దువా విన్నపం,no
+content,forPerson,For {name},{name} కోసం,no
+content,forPrivate,For a brother or sister from our community,మన సమాజంలోని ఒక సోదరుడు లేదా సోదరి కోసం,no
+content,ameen,Ameen,ఆమీన్,no
+content,ameenSaid,You said Ameen,మీరు ఆమీన్ అన్నారు,no
+content,ameenCount,"{count, plural, =0 {No one has said Ameen yet} one {# said Ameen} other {# said Ameen}}","{count, plural, =0 {ఇంకా ఎవరూ ఆమీన్ అనలేదు} one {# మంది ఆమీన్ అన్నారు} other {# మంది ఆమీన్ అన్నారు}}",no
+content,janaza,Janaza: {when} · {place},జనాజా: {when} · {place},no
+content,janazaTime,Janaza: {when},జనాజా: {when},no
+content,older,Older ({count}),పాతవి ({count}),no
+content,olderHint,Requests older than 30 days,30 రోజుల కంటే పాత విన్నపాలు,no
+content,emptyAnnouncements,No announcements yet,ఇంకా ప్రకటనలు లేవు,no
+content,emptyAnnouncementsBody,"When the masjid posts a notice, it will appear here.",మస్జిద్ ప్రకటన చేసినప్పుడు అది ఇక్కడ కనిపిస్తుంది.,no
+content,emptyHadith,Nothing shared yet,ఇంకా ఏమీ షేర్ చేయలేదు,no
+content,emptyHadithBody,Daily hadith and Quran ayat from the masjid will appear here.,"మస్జిద్ పంపే రోజువారీ హదీస్, ఖుర్ఆన్ ఆయతులు ఇక్కడ కనిపిస్తాయి.",no
+content,emptyDuas,No dua requests,దువా విన్నపాలు లేవు,no
+content,emptyDuasBody,Dua requests from the masjid will appear here.,మస్జిద్ దువా విన్నపాలు ఇక్కడ కనిపిస్తాయి.,no
+content,noneInFilter,Nothing in this category yet.,ఈ వర్గంలో ఇంకా ఏమీ లేదు.,no
+content,eventDate,Event: {date},కార్యక్రమం: {date},no
+content,addToCalendar,Add to calendar,క్యాలెండర్‌లో చేర్చండి,no
+content,edited,Edited,మార్చబడింది,no
+content,openPhoto,Open photo,ఫోటో తెరవండి,no
+content,closePhoto,Close photo,ఫోటో మూసివేయండి,no
+content,photoAlt,Photo for this notice,ఈ ప్రకటన ఫోటో,no
+content,shareItemText,{title} — {masjid},{title} — {masjid},no
+content,smaller,Smaller Arabic text,అరబిక్ అక్షరాలు చిన్నవిగా,no
+content,larger,Larger Arabic text,అరబిక్ అక్షరాలు పెద్దవిగా,no
+content,transliteration,Show transliteration,ఉచ్చారణ చూపించు,no
+content,copy,Copy text,టెక్స్ట్ కాపీ చేయండి,no
+content,copied,Copied,కాపీ అయింది,no
+content,source,Source: {name},మూలం: {name},no
+content,license,Licence: {license},లైసెన్స్: {license},no
+content,gone,This post is no longer available,ఈ పోస్ట్ ఇక అందుబాటులో లేదు,no
+content,goneBody,The masjid may have removed it.,మస్జిద్ దీన్ని తీసేసి ఉండవచ్చు.,no
+content,back,Go back,వెనక్కి వెళ్ళండి,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,ఇది కనిపించలేదు. ఇది తొలగించబడి ఉండవచ్చు.,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,కొన్ని వివరాలు సరిగా లేవు. దయచేసి చూసి మళ్లీ ప్రయత్నించండి.,no
@@ -287,7 +355,7 @@ masjid,mutedToast,Notifications are off for this masjid,ఈ మసీదు న�
 masjid,unmutedToast,Notifications are on for this masjid,ఈ మసీదు నోటిఫికేషన్‌లు ఆన్‌లో ఉన్నాయి,no
 masjid,muteFailed,Couldn’t change notifications. Check your connection and try again.,నోటిఫికేషన్‌లను మార్చలేకపోయాం. ఇంటర్నెట్ తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.,no
 masjid,hadith,Hadith & Quran,హదీస్ & ఖుర్ఆన్,no
-masjid,duas,Dua Requests,దుఆ విన్నపాలు,no
+masjid,duas,Dua Requests,దువా విన్నపాలు,no
 masjid,campaigns,Donation Campaigns,విరాళాల ప్రచారాలు,no
 masjid,chanda,Weekly Chanda,వారపు చందా,no
 masjid,bayans,Bayans,బయాన్‌లు,no

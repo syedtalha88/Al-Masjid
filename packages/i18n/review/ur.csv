@@ -204,6 +204,74 @@ common,updates.filters,Filter updates,اپڈیٹس چھانٹیں,no
 common,updates.yesterday,Yesterday,کل,no
 common,updates.new,New,نیا,no
 common,updates.loadingMore,Loading more…,مزید لوڈ ہو رہا ہے…,no
+content,announcements,Announcements,اعلانات,no
+content,hadithQuran,Hadith & Quran,حدیث اور قرآن,no
+content,duaRequests,Dua Requests,دعا کی درخواستیں,no
+content,filters,Filter by category,زمرے کے لحاظ سے چھانٹیں,no
+content,kinds,Hadith or Quran,حدیث یا قرآن,no
+content,chip.all,All,سب,no
+content,chip.general,General,عام,no
+content,chip.event,Events,پروگرام,no
+content,chip.facilities,Facilities,سہولیات,no
+content,chip.timing,Timing,اوقات,no
+content,chip.illness,Illness,بیماری,no
+content,chip.inteqal,Inteqal,انتقال,no
+content,chip.other,Other,دیگر,no
+content,tag.important,Important,اہم,no
+content,tag.general,General,عام,no
+content,tag.event,Event,پروگرام,no
+content,tag.facilities,Facilities,سہولیات,no
+content,tag.timing,Timing,اوقات,no
+content,tag.illness,Illness,بیماری,no
+content,tag.inteqal,Inteqal,انتقال,no
+content,tag.other,Other,دیگر,no
+content,hadith,Hadith,حدیث,no
+content,quran,Quran,قرآن,no
+content,todayHadith,Today’s Hadith,آج کی حدیث,no
+content,todayAyah,Today’s Ayah,آج کی آیت,no
+content,quoted,“{text}”,“{text}”,no
+content,english,English,انگریزی,no
+content,noteFromMasjid,Note from masjid,مسجد کی طرف سے نوٹ,no
+content,share,Share,شیئر کریں,no
+content,readFull,Read Full,پورا پڑھیں,no
+content,save,Save,محفوظ کریں,no
+content,saved,Saved,محفوظ ہے,no
+content,savedToast,Saved on this phone,اس فون میں محفوظ ہو گیا,no
+content,removedToast,Removed from Saved,محفوظ سے ہٹا دیا,no
+content,requestForDua,Request for Dua,دعا کی درخواست,no
+content,forPerson,For {name},{name} کے لیے,no
+content,forPrivate,For a brother or sister from our community,ہماری برادری کے ایک بھائی یا بہن کے لیے,no
+content,ameen,Ameen,آمین,no
+content,ameenSaid,You said Ameen,آپ نے آمین کہا,no
+content,ameenCount,"{count, plural, =0 {No one has said Ameen yet} one {# said Ameen} other {# said Ameen}}","{count, plural, =0 {ابھی کسی نے آمین نہیں کہا} one {# نے آمین کہا} other {# نے آمین کہا}}",no
+content,janaza,Janaza: {when} · {place},جنازہ: {when} · {place},no
+content,janazaTime,Janaza: {when},جنازہ: {when},no
+content,older,Older ({count}),پرانی ({count}),no
+content,olderHint,Requests older than 30 days,30 دن سے پرانی درخواستیں,no
+content,emptyAnnouncements,No announcements yet,ابھی کوئی اعلان نہیں,no
+content,emptyAnnouncementsBody,"When the masjid posts a notice, it will appear here.",مسجد جب کوئی اعلان کرے گی، وہ یہاں نظر آئے گا۔,no
+content,emptyHadith,Nothing shared yet,ابھی کچھ شیئر نہیں ہوا,no
+content,emptyHadithBody,Daily hadith and Quran ayat from the masjid will appear here.,مسجد کی روزانہ حدیث اور قرآن کی آیات یہاں نظر آئیں گی۔,no
+content,emptyDuas,No dua requests,کوئی دعا کی درخواست نہیں,no
+content,emptyDuasBody,Dua requests from the masjid will appear here.,مسجد کی دعا کی درخواستیں یہاں نظر آئیں گی۔,no
+content,noneInFilter,Nothing in this category yet.,اس زمرے میں ابھی کچھ نہیں۔,no
+content,eventDate,Event: {date},پروگرام: {date},no
+content,addToCalendar,Add to calendar,کیلنڈر میں شامل کریں,no
+content,edited,Edited,ترمیم شدہ,no
+content,openPhoto,Open photo,تصویر کھولیں,no
+content,closePhoto,Close photo,تصویر بند کریں,no
+content,photoAlt,Photo for this notice,اس اعلان کی تصویر,no
+content,shareItemText,{title} — {masjid},{title} — {masjid},no
+content,smaller,Smaller Arabic text,عربی متن چھوٹا کریں,no
+content,larger,Larger Arabic text,عربی متن بڑا کریں,no
+content,transliteration,Show transliteration,تلفظ دکھائیں,no
+content,copy,Copy text,متن کاپی کریں,no
+content,copied,Copied,کاپی ہو گیا,no
+content,source,Source: {name},ماخذ: {name},no
+content,license,Licence: {license},لائسنس: {license},no
+content,gone,This post is no longer available,یہ پوسٹ اب دستیاب نہیں,no
+content,goneBody,The masjid may have removed it.,ممکن ہے مسجد نے اسے ہٹا دیا ہو۔,no
+content,back,Go back,واپس جائیں,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,یہ نہیں ملا۔ ہو سکتا ہے اسے ہٹا دیا گیا ہو۔,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,یہ کام یہاں دستیاب نہیں ہے۔,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,کچھ معلومات غلط لگ رہی ہیں۔ براہِ کرم جانچ کر دوبارہ کوشش کریں۔,no

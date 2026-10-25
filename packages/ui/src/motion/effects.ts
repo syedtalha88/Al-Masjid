@@ -61,6 +61,41 @@ export function shake(element: HTMLElement): Effect {
   };
 }
 
+/**
+ * Celebration pop (Ameen, 08 §5.6): `element` scales 0.92 → 1.06 (`spring.snappy`) → 1 (`spring.bouncy`) while `lift`
+ * (the icon) rises 3 px and returns the same way. Springs take two keyframes, so each moves in two legs. Transform
+ * only; callers skip it with reduced motion.
+ */
+export function celebratePop(element: HTMLElement, lift?: HTMLElement): Effect {
+  const legs: { stop(): void }[] = [];
+  const run = (from: number, to: number, back: number, write: (value: number) => void) => {
+    legs.push(
+      animate(from, to, {
+        ...spring.snappy,
+        onUpdate: write,
+        onComplete: () => {
+          legs.push(animate(to, back, { ...spring.bouncy, onUpdate: write }));
+        },
+      }),
+    );
+  };
+  run(0.92, 1.06, 1, (scale) => {
+    element.style.transform = `scale(${String(scale)})`;
+  });
+  if (lift) {
+    run(0, -3, 0, (y) => {
+      lift.style.transform = `translateY(${String(y)}px)`;
+    });
+  }
+  return {
+    stop() {
+      for (const leg of legs) leg.stop();
+      element.style.transform = '';
+      if (lift) lift.style.transform = '';
+    },
+  };
+}
+
 /** Endless gentle scale pulse (scanner brackets, 08 §5.8). Callers skip it with reduced motion. */
 export function breathe(element: HTMLElement): Effect {
   const controls = animate(1, loop.scanBreatheScale, {

@@ -3,6 +3,7 @@
 export { IconFrame, type IconProps } from './icons/Icon.tsx';
 export { MasjidGlyph, MasjidTile } from './icons/MasjidTile.tsx';
 export { type Prayer, PrayerIcon, PRAYERS } from './icons/PrayerIcon.tsx';
+export { HadithHeroArt } from './illustrations/HadithHeroArt.tsx';
 export {
   BellIllustration,
   type IllustrationProps,

@@ -101,6 +101,10 @@ export function DataProvider({
         .then(async (module) => {
           if (state.credentials) await module.reconcileFollows(data.sync);
           else await module.ensureRegistered(data.sync);
+          // Ameens said offline or before registration (08 §5.6 "retries later"); the code loads only when needed.
+          if (data.store.current().pendingAmeens.length > 0) {
+            await (await import('./device/ameen.ts')).flushAmeens(data.sync);
+          }
         })
         .catch(() => undefined);
     };

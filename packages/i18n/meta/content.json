@@ -1,0 +1,146 @@
+{
+  "announcements": {
+    "context": "Screen title: a masjid’s notices",
+    "maxLength": 24
+  },
+  "hadithQuran": {
+    "context": "Screen title: daily hadith and Quran ayat",
+    "maxLength": 24
+  },
+  "duaRequests": {
+    "context": "Screen title: dua requests (illness, death, other)",
+    "maxLength": 24
+  },
+  "chip.all": {
+    "context": "Filter chip above a list",
+    "maxLength": 14
+  },
+  "chip.general": {
+    "context": "Filter chip above a list",
+    "maxLength": 14
+  },
+  "chip.event": {
+    "context": "Filter chip above a list",
+    "maxLength": 14
+  },
+  "chip.facilities": {
+    "context": "Filter chip above a list",
+    "maxLength": 14
+  },
+  "chip.timing": {
+    "context": "Filter chip above a list",
+    "maxLength": 14
+  },
+  "chip.illness": {
+    "context": "Filter chip above a list",
+    "maxLength": 14
+  },
+  "chip.inteqal": {
+    "context": "Filter chip above a list",
+    "maxLength": 14
+  },
+  "chip.other": {
+    "context": "Filter chip above a list",
+    "maxLength": 14
+  },
+  "tag.important": {
+    "context": "Small category tag on a card",
+    "maxLength": 14
+  },
+  "tag.general": {
+    "context": "Small category tag on a card",
+    "maxLength": 14
+  },
+  "tag.event": {
+    "context": "Small category tag on a card",
+    "maxLength": 14
+  },
+  "tag.facilities": {
+    "context": "Small category tag on a card",
+    "maxLength": 14
+  },
+  "tag.timing": {
+    "context": "Small category tag on a card",
+    "maxLength": 14
+  },
+  "tag.illness": {
+    "context": "Small category tag on a card",
+    "maxLength": 14
+  },
+  "tag.inteqal": {
+    "context": "Small category tag on a card",
+    "maxLength": 14
+  },
+  "tag.other": {
+    "context": "Small category tag on a card",
+    "maxLength": 14
+  },
+  "hadith": {
+    "context": "Segmented control: hadith tab",
+    "maxLength": 14
+  },
+  "quran": {
+    "context": "Segmented control: Quran ayat tab",
+    "maxLength": 14
+  },
+  "todayHadith": {
+    "context": "Mint pill on the hero card",
+    "maxLength": 20
+  },
+  "todayAyah": {
+    "context": "Mint pill on the hero card",
+    "maxLength": 20
+  },
+  "quoted": {
+    "context": "Wraps a translation in the language’s quotation marks"
+  },
+  "english": {
+    "context": "Tag: the translation shown is English (no translation in the app language)",
+    "maxLength": 12
+  },
+  "share": {
+    "context": "Button label",
+    "maxLength": 14
+  },
+  "readFull": {
+    "context": "Button label: open the full reader",
+    "maxLength": 16
+  },
+  "save": {
+    "context": "Bookmark button: keep on this phone",
+    "maxLength": 14
+  },
+  "saved": {
+    "context": "Bookmark button when saved",
+    "maxLength": 14
+  },
+  "ameen": {
+    "context": "Button on a dua request (term from glossary)",
+    "maxLength": 12
+  },
+  "forPrivate": {
+    "context": "Shown instead of the name when the family keeps it private"
+  },
+  "janaza": {
+    "context": "Row with the funeral prayer time and place",
+    "maxLength": 60
+  },
+  "older": {
+    "context": "Collapsible section of requests older than 30 days",
+    "maxLength": 20
+  },
+  "addToCalendar": {
+    "context": "Button: downloads a calendar file for the event",
+    "maxLength": 24
+  },
+  "smaller": {
+    "context": "Accessible name of the A− button in the reader"
+  },
+  "larger": {
+    "context": "Accessible name of the A+ button in the reader"
+  },
+  "transliteration": {
+    "context": "Switch label in the reader",
+    "maxLength": 28
+  }
+}

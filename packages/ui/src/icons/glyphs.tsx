@@ -4,6 +4,7 @@
 export { BackspaceIcon } from './glyph/BackspaceIcon.tsx';
 export { BellIcon } from './glyph/BellIcon.tsx';
 export { BellSlashIcon } from './glyph/BellSlashIcon.tsx';
+export { BookmarkIcon } from './glyph/BookmarkIcon.tsx';
 export { BookOpenIcon } from './glyph/BookOpenIcon.tsx';
 export { CalendarIcon } from './glyph/CalendarIcon.tsx';
 export { CameraIcon } from './glyph/CameraIcon.tsx';

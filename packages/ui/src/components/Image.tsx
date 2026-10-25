@@ -11,11 +11,12 @@ const RATIO: Readonly<Record<ImageRatio, string>> = {
 };
 
 export interface ImageProps {
-  readonly src: string;
+  /** The photo; `null` paints the ThumbHash only (no media origin configured, seed keys). */
+  readonly src: string | null;
   /** Required: describe the photo, or `''` when it is decorative (the card text says it all). */
   readonly alt: string;
   /** Base64 ThumbHash stored with the image key (06 §5) — drawn until the photo loads. */
-  readonly thumbhash?: string;
+  readonly thumbhash?: string | undefined;
   /** Reserved box (no layout shift): masjid hero 16:10, campaign 16:9, list thumbs 3:4. */
   readonly ratio?: ImageRatio;
   /** Radius class (default `rounded-lg`, 20 px). */
@@ -67,7 +68,7 @@ export function Image({
   return (
     <div className={`relative overflow-hidden bg-surface-muted ${RATIO[ratio]} ${rounded} ${className ?? ''}`}>
       {thumbhash ? <canvas ref={canvas} aria-hidden className="absolute inset-0 size-full" /> : null}
-      {failedSrc === src ? null : (
+      {src === null || failedSrc === src ? null : (
         <img
           src={src}
           alt={alt}

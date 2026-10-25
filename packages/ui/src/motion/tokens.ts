@@ -139,4 +139,7 @@ export const gesture = {
   pullExponent: 0.7,
   pullRefreshPx: 72,
   pullHoldPx: 56,
+  /** Image viewer double-tap (07 A7): a second tap within this time and distance zooms in/out. */
+  doubleTapMs: 300,
+  doubleTapSlopPx: 24,
 } as const;

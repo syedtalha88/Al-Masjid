@@ -10,6 +10,7 @@
     "./follow-code": "./src/follow-code.ts",
     "./geo": "./src/geo.ts",
     "./hijri": "./src/hijri.ts",
+    "./ics": "./src/ics.ts",
     "./money": "./src/money.ts",
     "./prayer": "./src/prayer.ts",
     "./thumbhash": "./src/thumbhash.ts",

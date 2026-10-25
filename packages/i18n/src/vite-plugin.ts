@@ -77,26 +77,27 @@ export function mapCatalogueStrings(value: unknown, convert: (message: string) =
   return value;
 }
 
+const PARSER = '@formatjs/icu-messageformat-parser';
+/** The one module that keeps the real parser: notice templates arrive at runtime (runtime-message.ts, lazy chunk). */
+const RUNTIME_MESSAGE = /[\\/]packages[\\/]i18n[\\/]src[\\/]runtime-message\.ts$/;
+
 /**
  * Production builds only (PROGRESS F14, DECISIONS #92): every catalogue string becomes its ICU AST (marked with
  * `PRECOMPILED_MARK`), and the FormatJS message parser is replaced by its `no-parser` stub — the parser (≈ 10 kB gzip)
- * never ships. `icu-format.ts` formats the ASTs. Dev keeps plain strings and the parser.
+ * is not in the app's initial code. `icu-format.ts` formats the ASTs. Only `runtime-message.ts` (lazy, for notice
+ * templates from the API) imports the real parser. Dev keeps plain strings and the parser everywhere.
  */
 export function mcIcuPrecompile(): Plugin {
   return {
     name: 'mc-icu-precompile',
     apply: 'build',
     enforce: 'pre',
-    config: () => ({
-      resolve: {
-        alias: [
-          {
-            find: /^@formatjs\/icu-messageformat-parser$/,
-            replacement: '@formatjs/icu-messageformat-parser/no-parser.js',
-          },
-        ],
-      },
-    }),
+    async resolveId(source, importer, options) {
+      if (source !== PARSER || (importer !== undefined && RUNTIME_MESSAGE.test(importer.split('?')[0] ?? ''))) {
+        return null;
+      }
+      return this.resolve(`${PARSER}/no-parser.js`, importer, { ...options, skipSelf: true });
+    },
     async transform(code, id) {
       if (!CATALOGUE.test(id.split('?')[0] ?? '')) return null;
       const { parse } = await import('@formatjs/icu-messageformat-parser');

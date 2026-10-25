@@ -10,8 +10,11 @@ import { useAppData, useFollowedIds } from './data.tsx';
 /**
  * The content versions of the followed masjids — polled on focus and every 60 s while visible; prunes cached queries
  * of older versions whenever new versions arrive.
+ *
+ * @param only - masjids a screen needs: when all are followed, the shared poll of the followed masjids answers;
+ *   otherwise (a masjid opened from a link) these ids get their own poll.
  */
-export function useMasjidVersions(): {
+export function useMasjidVersions(only?: readonly string[]): {
   readonly versions: MasjidVersions | undefined;
   /** `error` only when no versions are known at all (first open offline); cached versions keep working. */
   readonly failed: boolean;
@@ -19,7 +22,8 @@ export function useMasjidVersions(): {
   readonly refresh: () => Promise<void>;
 } {
   const { api, queryClient } = useAppData();
-  const ids = useFollowedIds();
+  const followed = useFollowedIds();
+  const ids = only?.some((id) => !followed.includes(id)) ? only : followed;
   const query = useQuery({ ...versionsQuery(api, ids), placeholderData: (previous) => previous });
   useEffect(() => {
     if (query.data) pruneStaleVersions(queryClient, query.data);

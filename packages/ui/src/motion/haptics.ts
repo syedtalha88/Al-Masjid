@@ -4,6 +4,8 @@ import { useCallback, useSyncExternalStore } from 'react';
 export const HAPTICS = {
   selection: 8,
   impactLight: 12,
+  /** Ameen tap (08 §5.6). */
+  ameen: 15,
   success: [15, 40, 15],
   warning: [30, 60, 30],
 } as const satisfies Record<string, number | readonly number[]>;

@@ -1065,6 +1065,48 @@ path, #14) and desktop browsers have no native QR detector; Android Chrome has. 
 - **Perf project** runs without Playwright's trace (its DOM snapshots run inside the page and showed up as long tasks);
   flings are synthesised natively (`Input.synthesizeScrollGesture`), not with `mouse.wheel` (which waits in the page).
 
+### #100 — Announcements, Hadith & Quran, Dua Requests — read side (PHASE_02 T2.11) — ACCEPTED (Claude Code, 24 Oct 2026)
+**Decision:**
+- **Routes:** `/masjid/:id/{announcements,hadith,duas}` (static segments win over `$section`, which stays the Phase 5/6
+  placeholder) and `/items/:publicId` for every item: notice detail, the Read Full reader for hadith/ayah (Read Full
+  pushes the same route — no separate reader URL), dua detail; other types show title + text until their phases.
+- **Lists reuse the Updates paging** (`useTimeline(type, [masjidId])`); a followed masjid shares the followed-masjids
+  versions poll, a masjid opened from a link gets its own. Category chips filter the loaded pages on the device (the
+  sentinel keeps paging while a filter shows few rows). The detail renders from the cached feed pages (instant,
+  offline) and fetches `GET /items/:id` only for links/pushes; it is persisted (Saved opens offline).
+- **Template bodies at runtime:** notice templates are full ICU (02 §2, C9 editor), so they need the parser the app
+  build removed (F14). `@mc/i18n/runtime-message` is the only module that keeps the real parser — `mcIcuPrecompile`
+  now uses `resolveId` (no-parser stub for every other importer) — and it loads lazily, only where a template body is
+  shown. Params are formatted per declared type (time/date/ranges → `x_start`/`x_end`, prayer names from
+  `common:prayer`); a value of the wrong type is dropped, so the body falls back to nothing rather than to wrong text.
+- **Hero card:** the newest item of the tab is the hero; the "Today's Hadith/Ayah" pill only when it was published
+  today (IST). The picture is our own token-coloured SVG (lantern, open book, arched window) — 06 §5 forbids stock
+  photos in UI chrome and 07 A8 forbids people; the owner can swap in a licensed photo later.
+- **Ameen** (`lib/device/ameen.ts`): recorded on the phone at once (button state, `ameens`) and queued
+  (`pendingAmeens`); sent on the tap, on start and on `online` (also after registration). Offline / 5xx / 429 stop
+  quietly and keep the queue; a removed item is dropped; the server is idempotent per device. Shown count = max(live
+  `GET /ameens` count, the exact count our POST returned) + 1 while ours is queued; nothing when no count is known.
+  Motion 08 §5.6: Motion springs take two keyframes, so the pop runs 0.92 → 1.06 (`spring.snappy`) → 1
+  (`spring.bouncy`); the ripple starts at the tap point (CSS vars on the shared `ripple` utility); haptic `ameen` 15 ms.
+- **"Older":** a dua request is archived when the server marked it or after 30 days (no archive job before Phase 8);
+  the section is collapsed by default.
+- **Privacy wording:** a private name shows "For a brother or sister from our community" (no gender is stored, so the
+  wording stays neutral).
+- **Admin/library text gets `dir="auto"`** (titles, bodies, notes, messages, transliterations): English text in the
+  Urdu UI keeps its own direction (found in the Urdu screenshot — the full stop jumped to the start). Arabic keeps
+  `lang="ar" dir="rtl"` and is never mirrored (e2e checks direction, transform, Amiri in all four locales).
+- **Image viewer:** native modal `<dialog>`, pinch around the fingers with rubber band (1–4×), pan, double-tap,
+  wheel/`+`/`−`/`0`; releases settle with `spring.smooth` via the navigator driver's channels; geometry is pure
+  (`zoom.ts`, property-tested). It closes with Esc / its button, like Sheet and Dialog (no history entry).
+- **Add to calendar:** `@mc/domain/ics` builds one VEVENT (UTC, RFC 5545 escaping and 75-octet folding, so no text can
+  inject a property); downloaded through an object URL — nothing leaves the phone.
+- **Report ("…")** is not shown until Phase 8 builds reporting (phase file "Out of scope").
+- **Bundle:** initial JS 181 → 184 kB limit (182.96 kB): the new screens share more of Motion and intl-messageformat, so
+  rolldown splits them into more preloaded chunks (+3.1 kB, mostly lost gzip context). Owner, 24 Oct 2026: "10–20 kB
+  is fine, focus on quality".
+- **Seed:** the Alpha event notice has a gradient "photo" (`seed/notice-alpha`, ThumbHash only) and Gamma has one
+  archived illness request (800 h old) — 31 items.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

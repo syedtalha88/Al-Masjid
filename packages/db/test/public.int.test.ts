@@ -103,17 +103,20 @@ afterAll(async () => {
 });
 
 describe('dev seed (T2.2)', () => {
-  it('writes 3 active masjids, 10 placeholder library entries, 8 templates and 30 items — idempotently', async () => {
+  it('writes 3 active masjids, 10 placeholder library entries, 8 templates and 31 items — idempotently', async () => {
     expect(await raw('masjids').countDocuments({ status: 'active' })).toBe(3);
     expect(await raw('content_library').countDocuments({ status: 'verified' })).toBe(10);
     expect(await raw('notice_templates').countDocuments({ status: 'active' })).toBe(SEED_TEMPLATES.length);
     expect(SEED_TEMPLATES).toHaveLength(8);
-    expect(await raw('items').countDocuments({ status: 'published' })).toBe(30);
+    expect(await raw('items').countDocuments({ status: 'published' })).toBe(31);
+    // T2.11: a notice photo (seed key → the app paints its ThumbHash) and an archived dua request (07 A9 "Older").
+    expect(await raw('items').countDocuments({ image_key: 'seed/notice-alpha' })).toBe(1);
+    expect(await raw('items').countDocuments({ 'dua.archived_at': { $exists: true } })).toBe(1);
     // Again: same documents, the versions move on so caches refetch.
     const before = (await raw('masjids').findOne({ _id: ALPHA }))?.['content_version'];
     if (!asSystem) throw new Error('no system handle');
     await writeDevSeed(asSystem.handle, systemScope(), buildDevSeed({ now: NOW, today: TODAY }));
-    expect(await raw('items').countDocuments({})).toBe(30);
+    expect(await raw('items').countDocuments({})).toBe(31);
     expect(await raw('masjids').countDocuments({})).toBe(3);
     const after = (await raw('masjids').findOne({ _id: ALPHA }))?.['content_version'];
     expect(Number(after)).toBe(Number(before) + 1);

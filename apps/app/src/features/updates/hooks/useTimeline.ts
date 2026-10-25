@@ -1,4 +1,4 @@
-// Updates data (07 A13): per followed masjid, its feed pages (first page shared with Home's cache; later pages by
+// Updates data (07 A13) — also a masjid's section lists (07 A7–A9): per followed masjid, its feed pages (first page shared with Home's cache; later pages by
 // cursor), merged newest first by `mergeTimeline`. `loadMore` pages the masjids holding the merge back.
 import type { FeedItem, FeedPage, ItemType } from '@mc/shared/contracts/public';
 import { useQueries, useQueryClient } from '@tanstack/react-query';
@@ -24,13 +24,18 @@ export interface Timeline {
   readonly refresh: () => Promise<void>;
 }
 
-export function useTimeline(type: ItemType | undefined): Timeline {
+/**
+ * @param type - one item type (a filter chip or a section screen), or every type.
+ * @param only - these masjids instead of all followed ones (a masjid's section screens, 07 A7–A9).
+ */
+export function useTimeline(type: ItemType | undefined, only?: readonly string[]): Timeline {
   const { api } = useAppData();
   const queryClient = useQueryClient();
-  const ids = useFollowedIds();
+  const followed = useFollowedIds();
+  const ids = only ?? followed;
   const audiencePref = useDeviceSelector((state) => state.audiencePref);
   const audience = audiencePref ?? 'brothers';
-  const { versions, failed, refresh } = useMasjidVersions();
+  const { versions, failed, refresh } = useMasjidVersions(only);
   // Extra pages per masjid beyond the first, for this filter.
   const [extra, setExtra] = useState<Readonly<Record<string, number>>>({});
   const [forType, setForType] = useState(type);

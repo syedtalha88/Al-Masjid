@@ -204,6 +204,74 @@ common,updates.filters,Filter updates,अपडेट छाँटें,no
 common,updates.yesterday,Yesterday,कल,no
 common,updates.new,New,नया,no
 common,updates.loadingMore,Loading more…,और लोड हो रहा है…,no
+content,announcements,Announcements,सूचनाएँ,no
+content,hadithQuran,Hadith & Quran,हदीस और क़ुरआन,no
+content,duaRequests,Dua Requests,दुआ की गुज़ारिशें,no
+content,filters,Filter by category,श्रेणी से छाँटें,no
+content,kinds,Hadith or Quran,हदीस या क़ुरआन,no
+content,chip.all,All,सभी,no
+content,chip.general,General,आम,no
+content,chip.event,Events,कार्यक्रम,no
+content,chip.facilities,Facilities,सुविधाएँ,no
+content,chip.timing,Timing,समय,no
+content,chip.illness,Illness,बीमारी,no
+content,chip.inteqal,Inteqal,इंतक़ाल,no
+content,chip.other,Other,अन्य,no
+content,tag.important,Important,ज़रूरी,no
+content,tag.general,General,आम,no
+content,tag.event,Event,कार्यक्रम,no
+content,tag.facilities,Facilities,सुविधाएँ,no
+content,tag.timing,Timing,समय,no
+content,tag.illness,Illness,बीमारी,no
+content,tag.inteqal,Inteqal,इंतक़ाल,no
+content,tag.other,Other,अन्य,no
+content,hadith,Hadith,हदीस,no
+content,quran,Quran,क़ुरआन,no
+content,todayHadith,Today’s Hadith,आज की हदीस,no
+content,todayAyah,Today’s Ayah,आज की आयत,no
+content,quoted,“{text}”,“{text}”,no
+content,english,English,अंग्रेज़ी,no
+content,noteFromMasjid,Note from masjid,मस्जिद की ओर से नोट,no
+content,share,Share,शेयर करें,no
+content,readFull,Read Full,पूरा पढ़ें,no
+content,save,Save,सेव करें,no
+content,saved,Saved,सेव किया गया,no
+content,savedToast,Saved on this phone,इस फ़ोन में सेव हो गया,no
+content,removedToast,Removed from Saved,सेव से हटा दिया,no
+content,requestForDua,Request for Dua,दुआ की गुज़ारिश,no
+content,forPerson,For {name},{name} के लिए,no
+content,forPrivate,For a brother or sister from our community,हमारी बिरादरी के एक भाई या बहन के लिए,no
+content,ameen,Ameen,आमीन,no
+content,ameenSaid,You said Ameen,आपने आमीन कहा,no
+content,ameenCount,"{count, plural, =0 {No one has said Ameen yet} one {# said Ameen} other {# said Ameen}}","{count, plural, =0 {अभी किसी ने आमीन नहीं कहा} one {# ने आमीन कहा} other {# ने आमीन कहा}}",no
+content,janaza,Janaza: {when} · {place},जनाज़ा: {when} · {place},no
+content,janazaTime,Janaza: {when},जनाज़ा: {when},no
+content,older,Older ({count}),पुरानी ({count}),no
+content,olderHint,Requests older than 30 days,30 दिन से पुरानी गुज़ारिशें,no
+content,emptyAnnouncements,No announcements yet,अभी कोई सूचना नहीं,no
+content,emptyAnnouncementsBody,"When the masjid posts a notice, it will appear here.","मस्जिद जब कोई सूचना देगी, वह यहाँ दिखेगी।",no
+content,emptyHadith,Nothing shared yet,अभी कुछ शेयर नहीं हुआ,no
+content,emptyHadithBody,Daily hadith and Quran ayat from the masjid will appear here.,मस्जिद की रोज़ की हदीस और क़ुरआन की आयतें यहाँ दिखेंगी।,no
+content,emptyDuas,No dua requests,कोई दुआ की गुज़ारिश नहीं,no
+content,emptyDuasBody,Dua requests from the masjid will appear here.,मस्जिद की दुआ की गुज़ारिशें यहाँ दिखेंगी।,no
+content,noneInFilter,Nothing in this category yet.,इस श्रेणी में अभी कुछ नहीं।,no
+content,eventDate,Event: {date},कार्यक्रम: {date},no
+content,addToCalendar,Add to calendar,कैलेंडर में जोड़ें,no
+content,edited,Edited,बदला गया,no
+content,openPhoto,Open photo,फ़ोटो खोलें,no
+content,closePhoto,Close photo,फ़ोटो बंद करें,no
+content,photoAlt,Photo for this notice,इस सूचना की फ़ोटो,no
+content,shareItemText,{title} — {masjid},{title} — {masjid},no
+content,smaller,Smaller Arabic text,अरबी लिखावट छोटी करें,no
+content,larger,Larger Arabic text,अरबी लिखावट बड़ी करें,no
+content,transliteration,Show transliteration,उच्चारण दिखाएँ,no
+content,copy,Copy text,टेक्स्ट कॉपी करें,no
+content,copied,Copied,कॉपी हो गया,no
+content,source,Source: {name},स्रोत: {name},no
+content,license,Licence: {license},लाइसेंस: {license},no
+content,gone,This post is no longer available,यह पोस्ट अब उपलब्ध नहीं है,no
+content,goneBody,The masjid may have removed it.,हो सकता है मस्जिद ने इसे हटा दिया हो।,no
+content,back,Go back,वापस जाएँ,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,यह नहीं मिला। हो सकता है इसे हटा दिया गया हो।,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,यह काम यहाँ उपलब्ध नहीं है।,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,कुछ जानकारी गलत लग रही है। कृपया जाँचकर फिर कोशिश करें।,no

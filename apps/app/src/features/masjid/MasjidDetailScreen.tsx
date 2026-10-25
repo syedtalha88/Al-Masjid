@@ -138,8 +138,12 @@ function Detail({ masjidId }: { readonly masjidId: string }) {
 
   const onShare = async () => {
     if (!bundle) return;
-    const target = { name, url: followLink(window.location.origin, bundle.masjid.followCode) };
-    if (!(await shareNatively(target, t('shareText', { name, app: BRAND.name })))) setShare(target);
+    const target = {
+      name,
+      url: followLink(window.location.origin, bundle.masjid.followCode),
+      text: t('shareText', { name, app: BRAND.name }),
+    };
+    if (!(await shareNatively(target))) setShare(target);
   };
 
   const toggleMute = async () => {

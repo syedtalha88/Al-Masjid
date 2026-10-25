@@ -59,6 +59,32 @@ describe('mcIcuPrecompile', () => {
     expect(plugin.apply).toBe('build');
   });
 
+  it('replaces the parser with its no-parser stub everywhere except runtime-message.ts', async () => {
+    const plugin = mcIcuPrecompile();
+    const resolved: string[] = [];
+    const context = {
+      resolve: (source: string) => {
+        resolved.push(source);
+        return Promise.resolve({ id: `/resolved/${source}` });
+      },
+    };
+    const resolveId = plugin.resolveId as (
+      this: typeof context,
+      source: string,
+      importer: string | undefined,
+      options: object,
+    ) => Promise<{ id: string } | null>;
+    const parser = '@formatjs/icu-messageformat-parser';
+    expect(await resolveId.call(context, parser, '/repo/node_modules/intl-messageformat/lib/core.js', {})).toEqual({
+      id: `/resolved/${parser}/no-parser.js`,
+    });
+    expect(await resolveId.call(context, parser, undefined, {})).toEqual({ id: `/resolved/${parser}/no-parser.js` });
+    expect(await resolveId.call(context, parser, 'C:\\repo\\packages\\i18n\\src\\runtime-message.ts', {})).toBeNull();
+    expect(await resolveId.call(context, parser, '/repo/packages/i18n/src/runtime-message.ts?v=1', {})).toBeNull();
+    expect(await resolveId.call(context, 'intl-messageformat', '/repo/x.ts', {})).toBeNull();
+    expect(resolved).toEqual([`${parser}/no-parser.js`, `${parser}/no-parser.js`]);
+  });
+
   it('maps only string leaves', () => {
     expect(mapCatalogueStrings({ a: 'x', b: 1, c: [true, 'y'], d: null }, (text) => text.toUpperCase())).toEqual({
       a: 'X',

@@ -370,6 +370,8 @@ type ItemSpec =
       important?: boolean;
       audience?: 'everyone' | 'brothers' | 'sisters';
       eventInDays?: number;
+      /** A generated gradient "photo" (like the masjid photos — no file; the app paints its ThumbHash). */
+      image?: SeedMasjidKey;
     }
   | { kind: 'template'; template: string; params: Document }
   | { kind: 'daily'; library: number; daily: 'hadith' | 'ayah'; note?: string }
@@ -381,9 +383,11 @@ type ItemSpec =
       person?: string;
       /** Janaza 5 hours after the request was published. */
       janaza?: { place: string };
+      /** Archived by the 30-day rule (07 A9 "Older"). */
+      archived?: boolean;
     };
 
-/** 30 items, 10 per masjid; `hoursAgo` spreads them over the last three weeks. */
+/** 31 items, 10 per masjid + one archived dua request (Gamma); `hoursAgo` spreads them over the last three weeks. */
 const ITEMS: Readonly<Record<SeedMasjidKey, readonly (ItemSpec & { hoursAgo: number })[]>> = {
   alpha: [
     {
@@ -408,6 +412,7 @@ const ITEMS: Readonly<Record<SeedMasjidKey, readonly (ItemSpec & { hoursAgo: num
       title: 'Children’s weekend class',
       body: 'A weekend class for children starts this Saturday after Asr. Parents are requested to register at the office.',
       eventInDays: 2,
+      image: 'alpha',
     },
     {
       hoursAgo: 52,
@@ -539,6 +544,14 @@ const ITEMS: Readonly<Record<SeedMasjidKey, readonly (ItemSpec & { hoursAgo: num
       category: 'general',
       title: 'Thank you for your support',
       body: 'JazakAllah Khair to everyone who helped with the masjid cleaning last week.',
+    },
+    {
+      hoursAgo: 800,
+      kind: 'dua',
+      library: 7,
+      category: 'illness',
+      message: 'Please continue to remember the sick of our community in your duas.',
+      archived: true,
     },
   ],
 };
@@ -714,6 +727,9 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
             body: spec.body,
             content_locale: spec.locale ?? 'en',
             is_important: spec.important ?? false,
+            ...(spec.image
+              ? { image_key: `seed/notice-${spec.image}`, image_thumbhash: seedPhoto(spec.image).thumbhash }
+              : {}),
             announcement: {
               category: spec.category,
               ...(spec.eventInDays === undefined
@@ -756,6 +772,7 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
               name_private: spec.person === undefined,
               library_id: libraryId(spec.library),
               ...(spec.janaza ? { janaza_at: at(spec.hoursAgo - 5), janaza_place: spec.janaza.place } : {}),
+              ...(spec.archived ? { archived_at: at(spec.hoursAgo - 30 * 24) } : {}),
             },
           };
       }
