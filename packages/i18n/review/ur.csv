@@ -43,7 +43,19 @@ admin,home.tiles.video,Bayan Video,بیان ویڈیو,no
 admin,home.tiles.specialDates,Special Dates & Ramadan,خاص تاریخیں اور رمضان,no
 admin,home.tiles.myPosts,My Posts,میری پوسٹس,no
 admin,home.tiles.profile,Masjid Profile,مسجد پروفائل,no
+admin,home.tiles.ruqyah,Ruqyah,رقیہ,no
+admin,home.tiles.bloodCamp,Blood Camp,خون کا عطیہ کیمپ,no
+admin,home.tiles.needy,Help the Needy,ضرورت مندوں کی مدد,no
 admin,home.superAdmin,Super Admin,سپر ایڈمن,no
+admin,home.followers,"{count, plural, one {# follower} other {# followers}}","{count, plural, one {# فالوور} other {# فالوورز}}",no
+admin,home.today.nextJamaat,Next jamaat,اگلی جماعت,no
+admin,home.today.tomorrow,Tomorrow,کل,no
+admin,home.today.noJamaat,No jamaat set for today,آج کوئی جماعت مقرر نہیں,no
+admin,home.today.unset,Prayer times are not set yet,نماز کے اوقات ابھی مقرر نہیں ہیں,no
+admin,home.today.edit,Edit timings,اوقات بدلیں,no
+admin,home.today.set,Set prayer times,نماز کے اوقات مقرر کریں,no
+admin,home.quota,Notifications today: {used} of {limit} used,آج کی اطلاعات: {limit} میں سے {used} استعمال,no
+admin,home.soon,Soon,جلد,no
 admin,comingSoon.title,Coming soon,جلد آ رہا ہے,no
 admin,comingSoon.body,This part of the app is being built. It will appear here in an update.,ایپ کا یہ حصہ بن رہا ہے۔ یہ اگلی اپڈیٹ میں یہاں نظر آئے گا۔,no
 admin,account.title,My account,میرا اکاؤنٹ,no

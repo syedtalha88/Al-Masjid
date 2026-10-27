@@ -50,9 +50,23 @@
       "video": "Bayan Video",
       "specialDates": "Special Dates & Ramadan",
       "myPosts": "My Posts",
-      "profile": "Masjid Profile"
+      "profile": "Masjid Profile",
+      "ruqyah": "Ruqyah",
+      "bloodCamp": "Blood Camp",
+      "needy": "Help the Needy"
     },
-    "superAdmin": "Super Admin"
+    "superAdmin": "Super Admin",
+    "followers": "{count, plural, one {# follower} other {# followers}}",
+    "today": {
+      "nextJamaat": "Next jamaat",
+      "tomorrow": "Tomorrow",
+      "noJamaat": "No jamaat set for today",
+      "unset": "Prayer times are not set yet",
+      "edit": "Edit timings",
+      "set": "Set prayer times"
+    },
+    "quota": "Notifications today: {used} of {limit} used",
+    "soon": "Soon"
   },
   "comingSoon": {
     "title": "Coming soon",

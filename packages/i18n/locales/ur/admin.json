@@ -50,9 +50,23 @@
       "video": "بیان ویڈیو",
       "specialDates": "خاص تاریخیں اور رمضان",
       "myPosts": "میری پوسٹس",
-      "profile": "مسجد پروفائل"
+      "profile": "مسجد پروفائل",
+      "ruqyah": "رقیہ",
+      "bloodCamp": "خون کا عطیہ کیمپ",
+      "needy": "ضرورت مندوں کی مدد"
     },
-    "superAdmin": "سپر ایڈمن"
+    "superAdmin": "سپر ایڈمن",
+    "followers": "{count, plural, one {# فالوور} other {# فالوورز}}",
+    "today": {
+      "nextJamaat": "اگلی جماعت",
+      "tomorrow": "کل",
+      "noJamaat": "آج کوئی جماعت مقرر نہیں",
+      "unset": "نماز کے اوقات ابھی مقرر نہیں ہیں",
+      "edit": "اوقات بدلیں",
+      "set": "نماز کے اوقات مقرر کریں"
+    },
+    "quota": "آج کی اطلاعات: {limit} میں سے {used} استعمال",
+    "soon": "جلد"
   },
   "comingSoon": {
     "title": "جلد آ رہا ہے",

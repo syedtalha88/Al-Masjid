@@ -200,6 +200,27 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [x] T2.13 — PWA/offline completion — **done 25 Oct 2026 (DECISIONS #102):** runtime caching was complete since T0.11; the worker now marks API answers from Cache Storage (`X-MC-SW: cache | fallback`, shared `lib/sw-protocol.ts`). **Bug fixed:** the server-clock offset was taken from cached answers too (immutable bundles keep their old `Date`) — an offline start could move "now" by days; only fresh answers measure now (`freshDate`). Offline banner also when requests fail (`lib/reachability.ts`; recovery re-runs the start-up sync). Background Sync `mc-ameen` (worker reads the device document read-only and POSTs queued Ameens; Chromium). `storage.persist()` once a masjid is followed. **Bug fixed:** `launch_handler: focus-existing` without a `launchQueue` consumer — a follow link tapped while the app was open only focused it; `lib/launch.ts` routes it (tab / modal / push), shortcuts too; WebAPK link capture documented (#102), owner check 2.20 (and 2.14 extended). iOS standalone detection already in `lib/platform.ts`. Tests: app unit 154 (+client 2, offline 10); e2e journey 4 `e2e/app/offline.spec.ts` (both phones: API unreachable on a live connection → reload → Home/timings/Updates from cache + banner + recovery; Chromium: no network → worker serves shell + API, answers marked) — Pixel 7 regression offline/pwa/content/home/follow 22/22, iPhone offline 1 passed + 1 skipped (worker case). Initial JS 184.8 kB (limit 186).
 - [x] T2.14 — Quality gates — **done 25 Oct 2026, with one deviation (DECISIONS #103):** visual regression `e2e/visual/screens.visual.spec.ts` — 10 screens × en/hi/ur/te × Pixel 7 + iPhone 14 = 80 baselines, made and compared only in the pinned Playwright Linux image (`pnpm test:visual[:update]`, CI step), deterministic (fixed-instant seed `SEED_NOW` + fixed page clock; two identical re-runs). The baselines found two bugs (fixed): Urdu countdown letters unjoined and "30" shown as "03" (`DigitRoll`), English admin text in the Urdu timeline with "…" first (`dir="auto"`). Real-screen perf spec `e2e/app/screens.perf.spec.ts` found 100–130 ms taps; fixed forced layouts (ChipGroup, UnderlineTabs, Masjid Detail), navigator context re-rendering every screen, `useNow()` defeating memos, synchronous mounting of pushed screens (now a transition), hidden tabs `content-visibility` → ≈ 50–75 ms, still over 08 §8 → spec `fixme`, **F46 (Phase 03 first task)**. F21 closed (dialog close requests), F22 musalli icons (Phosphor, MIT), F18/F42/F43/F44 → Phase 9, F45/F1 date-bound. Pixel 7 e2e 100 passed / 1 skipped after the changes; strict perf specs (navigator, Updates fling) pass. Initial JS 185.2 kB (limit 186, owner O24).
 
+**Phase 03** — started 27 Oct 2026 (branch `feat/phase-03`). New features added by the owner before the start: DECISIONS #104.
+
+- [ ] T3.0 — Real-screen motion budget (F46) — **code done 27 Oct 2026 (DECISIONS #105), waiting for CI on `ci/f46-perf`** (perf specs ×3): navigation as a React transition, stable screen-slot props (both apps), `useQueries` `combine` in `useHomeData`, motion promises resolved after the frame, Sheet height cached. Local Pixel 7 regression 56/56; locally ≈ at the 50 ms line (noisy PC) — CI decides.
+- [x] T3.1 — Admin Home completion — **done 27 Oct 2026:** api-admin `GET /masjids/:masjidId/{stats,notifications/quota,timings}` (repos `@mc/db/repos/admin.ts`, document readers shared in `repos/read.ts` incl. `timingsOf`; contracts `@mc/shared/contracts/admin.ts`; openapi regenerated); Home: followers chip, today strip (next jamaat resolved on the phone with `@mc/domain/prayer`, "Set prayer times" before any save), tiles with `phase`/`route` (later phases dev/staging only — `SHOW_COMING_SOON`; Ruqyah / Blood Camp / Help the Needy tiles added, #104), quota pill. Tests: db int 4 (as mc_admin), api int 3, admin unit 9 (today strip incl. Jumu'ah and after Isha, tile visibility); e2e admin screens 4 locales + axe green with the new strip asserted (7/7 admin specs). Inbox banner: arrives with Phase 5/8 content.
+- [ ] T3.2 — Prayer timings editor (B4)
+- [ ] T3.3 — Special dates & Ramadan (B11)
+- [ ] T3.4 — Content Library (C8 + admin browse)
+- [ ] T3.5 — Notice templates (C9) + ICU rendering
+- [ ] T3.6 — Notice creator (B5) + image pipeline
+- [ ] T3.7 — Hadith/Ayah publisher (B6)
+- [ ] T3.8 — Dua request creator (B7)
+- [ ] T3.9 — My Posts (B12) & edits
+- [ ] T3.10 — Masjid Profile (B13, partial)
+- [ ] T3.11 — Shared preview & publish components
+- [ ] T3.12 — Usability verification
+- [ ] T3.13 — Voice notes (B14 + A18)
+- [ ] T3.14 — Adhkar after salah (B16 + A20)
+- [ ] T3.15 — Ruqyah (B15 + A19)
+- [ ] T3.16 — Ilm contacts (B17 + A21)
+- [ ] T3.17 — Blood donation camp (B18 + A22)
+
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
 | # | Found in | Description | Planned fix (phase/task) |

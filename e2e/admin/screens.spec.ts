@@ -102,6 +102,10 @@ for (const locale of LOCALES) {
         await adminPage.getByRole('checkbox', { name: label(locale, 'admin', 'undertaking.agree') }).check();
         await adminPage.getByRole('button', { name: label(locale, 'admin', 'undertaking.continue') }).click();
         await expect(adminPage.getByText(`Test Masjid ${locale}`).first()).toBeVisible();
+        // T3.1: the today strip of a masjid without timings asks to set them; the quota pill shows today's usage.
+        await expect(adminPage.getByText(label(locale, 'admin', 'home.today.unset'))).toBeVisible();
+        await expect(adminPage.getByRole('button', { name: label(locale, 'admin', 'home.today.set') })).toBeVisible();
+        await adminPage.waitForLoadState('networkidle');
         await adminShot('b3-home-admin');
         await adminPage.goto(`${ADMIN_URL}/account`);
         await adminPage.waitForLoadState('networkidle');

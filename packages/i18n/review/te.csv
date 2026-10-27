@@ -43,7 +43,19 @@ admin,home.tiles.video,Bayan Video,బయాన్ వీడియో,no
 admin,home.tiles.specialDates,Special Dates & Ramadan,ప్రత్యేక తేదీలు & రమజాన్,no
 admin,home.tiles.myPosts,My Posts,నా పోస్ట్‌లు,no
 admin,home.tiles.profile,Masjid Profile,మస్జిద్ ప్రొఫైల్,no
+admin,home.tiles.ruqyah,Ruqyah,రుఖ్యా,no
+admin,home.tiles.bloodCamp,Blood Camp,రక్తదాన శిబిరం,no
+admin,home.tiles.needy,Help the Needy,అవసరంలో ఉన్నవారికి సహాయం,no
 admin,home.superAdmin,Super Admin,సూపర్ అడ్మిన్,no
+admin,home.followers,"{count, plural, one {# follower} other {# followers}}","{count, plural, one {# ఫాలోవర్} other {# ఫాలోవర్లు}}",no
+admin,home.today.nextJamaat,Next jamaat,తదుపరి జమాత్,no
+admin,home.today.tomorrow,Tomorrow,రేపు,no
+admin,home.today.noJamaat,No jamaat set for today,ఈరోజు జమాత్ నిర్ణయించలేదు,no
+admin,home.today.unset,Prayer times are not set yet,నమాజ్ సమయాలు ఇంకా నిర్ణయించలేదు,no
+admin,home.today.edit,Edit timings,సమయాలు మార్చండి,no
+admin,home.today.set,Set prayer times,నమాజ్ సమయాలు సెట్ చేయండి,no
+admin,home.quota,Notifications today: {used} of {limit} used,ఈరోజు నోటిఫికేషన్లు: {limit} లో {used} వాడారు,no
+admin,home.soon,Soon,త్వరలో,no
 admin,comingSoon.title,Coming soon,త్వరలో వస్తోంది,no
 admin,comingSoon.body,This part of the app is being built. It will appear here in an update.,యాప్‌లో ఈ భాగం తయారవుతోంది. ఇది ఒక అప్‌డేట్‌లో ఇక్కడ కనిపిస్తుంది.,no
 admin,account.title,My account,నా ఖాతా,no
