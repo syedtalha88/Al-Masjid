@@ -9,7 +9,7 @@
 |---|---|---|---|---|
 | 00 | Foundation, tooling & design system | **Accepted by the owner** — closure: report final, V-31 done; waiting for owner 0.15/0.16 + #79 (DECISIONS #62) | [final](reports/PHASE_00_REPORT.md) | 16 Oct 2026 |
 | 01 | Database, security core, passkey auth, Super Admin | **DONE** (owner tested 1.1–1.12 on staging, 22 Oct 2026) | [final](reports/PHASE_01_REPORT.md) | 22 Oct 2026 |
-| 02 | Musalli app core (follow, timings, feed, offline, install) | **AWAITING OWNER VERIFICATION** (27 Oct 2026; staging on `cdd39fa`) | [report](reports/PHASE_02_REPORT.md) | – |
+| 02 | Musalli app core (follow, timings, feed, offline, install) | **DONE** (owner tested the Phase 02 checks on staging `cdd39fa`, incl. a low-end device, 27 Oct 2026) | [final](reports/PHASE_02_REPORT.md) | 27 Oct 2026 |
 | 03 | Masjid Admin content tools | NOT STARTED | – | – |
 | 04 | Push notifications | NOT STARTED | – | – |
 | 05 | Donations, chanda & UPI change-lock | NOT STARTED | – | – |
@@ -18,7 +18,11 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (handoff 27 Oct 2026 — Phase 02 AWAITING OWNER VERIFICATION)
+## ▶ Next session — start here (27 Oct 2026 — Phase 02 DONE; new features requested before Phase 03)
+
+**Owner, 27 Oct 2026:** "works perfectly, good to go from my side; looks good on low-end devices; no design changes". Phase 02 is DONE. The owner then asked for new features before Phase 03 (Ruqyah, needy people, adhkar, ilm contacts, blood camp, personal zakat tracker, voice messages) — questions asked, answers pending; they become DECISIONS entries and spec/phase changes before any code.
+
+**Earlier handoff (same day):**
 
 **State (27 Oct 2026):** `main` = `feat/phase-02` (docs commit after `cdd39fa`); CI on `cdd39fa` fully green (224 e2e,
 0 flaky; perf, Lighthouse, visual, admin flows) and **staging runs `cdd39fa`** (both APIs `db: ok, redis: ok`).
@@ -131,7 +135,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O13 | ~~Install `@simplewebauthn/server` 14.0.3~~ | T1.8 passkey routes | – | **done 20 Oct 2026** by the owner (lockfile: the library + its own dependencies only; `pnpm audit --prod`: no known vulnerabilities) |
 | O14 | ~~Answer DECISIONS #70~~ | – | – | **done 19 Oct 2026** — owner: "do the best one" → option A accepted and implemented (`deploy.sh --bootstrap-super-admin`) |
 | O15 | ~~Cloudflare "Network Error Logging" switch~~ | Re-review L4 / DECISIONS #74 | – | **done 20 Oct 2026** (owner checked the zone; per #74 the privacy notice names Cloudflare's NEL if it stays on) |
-| O16 | **A low-end Android test phone** (≈ ₹8,000 class, e.g. a 3–4 GB RAM model) for the real-device performance check | F20 / DECISIONS #74 — the Poco F7 is too fast to prove the budget | when available (Phase 2) | pending |
+| O16 | **A low-end Android test phone** (≈ ₹8,000 class, e.g. a 3–4 GB RAM model) for the real-device performance check | F20 / DECISIONS #74 — the Poco F7 is too fast to prove the budget | when available (Phase 2) | **Owner, 27 Oct 2026: tested on low-end devices — "looks good"** (subjective check done; the measured gate is F46) |
 | O17 | ~~Host-layer reinstall + DEPLOY.md §8 + `check.sh`~~ | Re-review L9 | – | **done 20 Oct 2026**: `provision.sh host 2719f01…` (checksum checked), edge networks recreated (internal), `check.sh` **106 PASS · 0 FAIL · 2 WARN** (userns remap; production not deployed yet), staging on `58aa924` with `db: ok, redis: ok` |
 | O20 | ~~Database privilege check on staging~~ | Closes T1.1 | – | **done 20 Oct 2026** — 17/17 PASS |
 | O18 | ~~VPS provider backups~~ | Re-review S-L7 / 05 §2 | – | **done 20 Oct 2026** — Hostinger automatic backups **weekly**, on |
@@ -235,7 +239,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F43 | T2.6 (23 Oct 2026) | Keep lazy-only code out of the musalli entry: ~~split `@mc/ui/icons/glyphs.tsx` into one module per icon~~ (done T2.9: `icons/glyph/*`, −2.1 kB) and `@mc/domain/time` helpers used only by screens, and ~~move `useMasjidVersions` (TanStack query observer) out of `lib/data.tsx`~~ (done T2.7: `lib/versions.ts`, −2.7 kB) — each shared module sits whole in the entry chunk | **Deferred to Phase 9 hardening (DECISIONS #103)**, with F42 |
 | F44 | T2.8 (23 Oct 2026) | Shared-element morph Home / My Masjids card thumb → Masjid Detail hero (08 §3.5, progressive): a FLIP (transform only) between the two navigator layers, measured once, off in lite motion; must pass the 4× CPU perf trace. Deferred: the stack navigator animates whole screen layers, so the morph needs a navigator hook for a per-push overlay element | **Deferred to Phase 9 polish (DECISIONS #103):** needs a navigator hook for a per-push overlay; the push slides with parallax meanwhile (owner guide 2.8 updated) |
 | F45 | CI (24 Oct 2026) | New advisories turned CI red: zod 4.6.6, undici 8.12.3, fast-uri 3.1.9 bumped; Caddy image drops unused curl (only path for brotli CVE-2026-111497). Two fixes are younger than `minimumReleaseAge` (3 days): **body-parser 2.4.0** (GHSA-27r3-jxmh-p828, DoS — mitigated now by `inflate: false` + test) usable from 25 Oct 11:40 UTC, **serialize-javascript 7.1.3** (GHSA-m5mm-p8h7-m29v, build-time only) from 25 Oct 21:25 UTC. Both are time-boxed ignores until 27 Oct 2026 (`osv-scanner.toml`, date-gated `pnpm audit --ignore` in ci.yml + nightly.yml). **To do on/after 26 Oct:** `pnpm update -r body-parser serialize-javascript`, delete `osv-scanner.toml` entries and the `--ignore` lines | **Closed 27 Oct 2026:** body-parser 2.4.0 and serialize-javascript 7.1.4 (lockfile), `osv-scanner.toml` deleted, date-gated `--ignore` removed from ci.yml + nightly.yml; `pnpm audit` and osv-scanner clean with no ignores |
-| F46 | T2.14 (25 Oct 2026, DECISIONS #103) | Real-screen motion budget (08 §8): `e2e/app/screens.perf.spec.ts` (Home → Masjid Detail push + swipe-back, tab switches, sheet open/drag/dismiss at 4× CPU) is `test.fixme` — after the T2.14 fixes (100–130 ms → ≈ 50–75 ms) long tasks still exceed 50 ms, 6–13 % frames drop, one forced layout on sheet open. Next suspects from the profiles: the pop's React commit (≈ 50 ms microtasks when Home becomes top again), style recalculation of a tab layer on show, the sheet's first measurement in a rAF. Re-enable the spec when green; check on a low-end Android (O16) | **Phase 03, first task** (before new screens) |
+| F46 | T2.14 (25 Oct 2026, DECISIONS #103; owner 27 Oct 2026: smooth on low-end devices) | Real-screen motion budget (08 §8): `e2e/app/screens.perf.spec.ts` (Home → Masjid Detail push + swipe-back, tab switches, sheet open/drag/dismiss at 4× CPU) is `test.fixme` — after the T2.14 fixes (100–130 ms → ≈ 50–75 ms) long tasks still exceed 50 ms, 6–13 % frames drop, one forced layout on sheet open. Next suspects from the profiles: the pop's React commit (≈ 50 ms microtasks when Home becomes top again), style recalculation of a tab layer on show, the sheet's first measurement in a rAF. Re-enable the spec when green; check on a low-end Android (O16) | **Phase 03, first task** (before new screens) |
 | F20 | F19 | Perf spec (4× CPU throttle): 1 of 23 runs had long tasks of 189 + 110 ms right after a rebuild. T0.12: the perf spec now traces with attribution (input / chunk evaluation / animation frame / style-layout), dropped frames and forced layouts — 16/16 clean over 8 repeats. Remaining: the same transitions on a real low-end Android (owner guide) | **Merged into F46 (DECISIONS #103):** Phase 03 first task, judged on a real low-end Android (O16) |
 
 ## Session log (newest first, one line each)

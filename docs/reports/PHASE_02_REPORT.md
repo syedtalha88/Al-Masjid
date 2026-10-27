@@ -1,6 +1,9 @@
 # PHASE 02 REPORT — Musalli app core (follow, timings, feed, offline, install)
 
-> **Status: AWAITING OWNER VERIFICATION** (27 Oct 2026). One deviation the owner should know first: the real-screen
+> **Status: DONE — FINAL (27 Oct 2026).** The owner tested the Phase 02 checks on staging `cdd39fa`, including a
+> low-end device: "works perfectly, good to go; looks good on low-end devices; no design changes".
+>
+> Before sign-off: One deviation the owner should know first: the real-screen
 > motion budget (08 §8) is **not met yet** — F46, the first task of Phase 03 (§5).
 
 **Date:** 27 Oct 2026 · **Commit range:** `f7ef8a9..cdd39fa` on `main` (Phase 02 started 22 Oct 2026) ·
