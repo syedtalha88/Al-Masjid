@@ -75,7 +75,16 @@ for (const locale of LOCALES) {
   });
 }
 
-test('arriving via /m/:code skips "add your first masjid" and follows that masjid', async ({ page, browserName }) => {
+for (const locale of LOCALES) {
+  test(`journey 1 via /m/:code (${locale.code}): skips "add your first masjid", follows it, Home counts down`, async ({
+    page,
+    browserName,
+  }) => {
+    await followLinkJourney(page, browserName, locale);
+  });
+}
+
+async function followLinkJourney(page: Page, browserName: string, locale: (typeof LOCALES)[number]) {
   await page.goto(`${APP_URL}/m/TESTA001`);
   if (browserName === 'webkit') {
     // iPhone Safari: the "follow it in the app" explainer comes first (DECISIONS #14); go on here instead.
@@ -84,7 +93,7 @@ test('arriving via /m/:code skips "add your first masjid" and follows that masji
     await page.getByRole('button', { name: 'Use it here in Safari instead' }).click();
     await page.getByRole('button', { name: 'Follow masjid' }).click();
   }
-  await throughPrivacy(page, LOCALES[0]);
+  await throughPrivacy(page, locale);
   await next(page).click(); // privacy → Continue
   await expect(page.getByRole('heading', { name: 'Add your first masjid' })).toHaveCount(0);
   const followed = page.waitForResponse(
@@ -93,13 +102,19 @@ test('arriving via /m/:code skips "add your first masjid" and follows that masji
   );
   await finishRemaining(page);
   expect((await followed).status()).toBe(200);
-  await expect(page.getByRole('status').filter({ hasText: 'You now follow' })).toHaveText(
-    'You now follow Test Masjid Alpha.',
-  );
+  if (locale.code === 'en') {
+    await expect(page.getByRole('status').filter({ hasText: 'You now follow' })).toHaveText(
+      'You now follow Test Masjid Alpha.',
+    );
+  }
   expect(new URL(page.url()).pathname).toBe('/');
   const device = await storedDevice(page);
   expect(device?.['follows']).toEqual([expect.objectContaining({ sync: 'synced' })]);
-});
+  // Home shows the followed masjid with the next jamaat's live countdown (its rolling digits) — in every locale.
+  const home = page.locator('section[data-screen]:not([inert])');
+  await expect(home.locator('[data-digits]').first()).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('lang', locale.code);
+}
 
 test('offline at "Continue": onboarding goes on and the device registers once back online', async ({
   page,

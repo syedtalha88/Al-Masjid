@@ -30,14 +30,12 @@ import {
 import { Screen, useNavigator } from '@mc/ui/navigation';
 import { useState } from 'react';
 
+import { SHOW_COMING_SOON } from '../../lib/build.ts';
 import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
 import type { PreferenceChange } from '../../lib/device/preferences.ts';
 import { promptInstall, useCanInstall } from '../../lib/install.ts';
 import { isStandalone, platformKind } from '../../lib/platform.ts';
 import { SettingsGroup, type SettingsRow } from './components/SettingsGroup.tsx';
-
-/** Visible-but-disabled "Coming soon" rows exist in dev and staging builds only (PHASE_02 "Out of scope"). */
-const SHOW_COMING_SOON = import.meta.env.DEV || import.meta.env.VITE_PUBLIC_SHOWCASE === 'true';
 
 type SheetId = 'language' | 'audience' | 'install' | null;
 

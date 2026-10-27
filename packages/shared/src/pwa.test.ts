@@ -48,13 +48,10 @@ describe.each(['app', 'admin'] as const)('webManifest(%s)', (app) => {
 });
 
 describe('app-only manifest fields', () => {
-  it('musalli app focuses the open window and has Qibla + Updates shortcuts; admin has neither', () => {
+  it('musalli app focuses the open window and has the Updates shortcut (Qibla from Phase 7); admin has neither', () => {
     const app = webManifest('app');
     expect(app.launch_handler).toEqual({ client_mode: 'focus-existing' });
-    expect(app.shortcuts?.map((shortcut) => shortcut.url)).toEqual([
-      '/qibla?source=shortcut',
-      '/updates?source=shortcut',
-    ]);
+    expect(app.shortcuts?.map((shortcut) => shortcut.url)).toEqual(['/updates?source=shortcut']);
     const admin = webManifest('admin');
     expect(admin.launch_handler).toBeUndefined();
     expect(admin.shortcuts).toBeUndefined();

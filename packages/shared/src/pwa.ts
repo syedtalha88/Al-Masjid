@@ -68,7 +68,7 @@ export interface WebManifest {
 /**
  * The web app manifest of each PWA (PHASE_00 T0.11): name from `BRAND`, `id`/`scope` `/`, standalone,
  * portrait, canvas colors, any + maskable icons and the monochrome badge; the musalli app adds
- * `launch_handler` (focus the open window) and shortcuts (Qibla, Updates).
+ * `launch_handler` (focus the open window) and shortcuts (Updates; Qibla from Phase 7).
  *
  * @param app - `app` (musalli) or `admin`.
  * @returns a JSON-serializable manifest; pure.
@@ -111,7 +111,7 @@ export function webManifest(app: BrandMarkApp): WebManifest {
     ...base,
     launch_handler: { client_mode: 'focus-existing' },
     shortcuts: [
-      { name: 'Qibla', url: '/qibla?source=shortcut', icons: shortcutIcon },
+      // Qibla joins in Phase 7 (its screen is a dev/staging placeholder until then — PHASE_02 "Out of scope").
       { name: 'Updates', url: '/updates?source=shortcut', icons: shortcutIcon },
     ],
   };
