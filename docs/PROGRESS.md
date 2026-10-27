@@ -9,7 +9,7 @@
 |---|---|---|---|---|
 | 00 | Foundation, tooling & design system | **Accepted by the owner** — closure: report final, V-31 done; waiting for owner 0.15/0.16 + #79 (DECISIONS #62) | [final](reports/PHASE_00_REPORT.md) | 16 Oct 2026 |
 | 01 | Database, security core, passkey auth, Super Admin | **DONE** (owner tested 1.1–1.12 on staging, 22 Oct 2026) | [final](reports/PHASE_01_REPORT.md) | 22 Oct 2026 |
-| 02 | Musalli app core (follow, timings, feed, offline, install) | **IN PROGRESS** (started 22 Oct 2026) | – | – |
+| 02 | Musalli app core (follow, timings, feed, offline, install) | **AWAITING OWNER VERIFICATION** (27 Oct 2026; staging on `cdd39fa`) | [report](reports/PHASE_02_REPORT.md) | – |
 | 03 | Masjid Admin content tools | NOT STARTED | – | – |
 | 04 | Push notifications | NOT STARTED | – | – |
 | 05 | Donations, chanda & UPI change-lock | NOT STARTED | – | – |
@@ -18,18 +18,24 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (handoff 25 Oct 2026, later — Phase 02 IN PROGRESS, 13 of 14 tasks done)
+## ▶ Next session — start here (handoff 27 Oct 2026 — Phase 02 AWAITING OWNER VERIFICATION)
 
-**Update (25 Oct 2026, later):** **T2.13 done** (DECISIONS #102). **CI item 1 below is closed:** the red Build of `609615c`
-was not the seed — the annotations (readable without a token: `GET /repos/…/check-runs/<job id>/annotations`) show the
-`mongo` container **unhealthy** for 2 min (replica set never initiated, `local.oplog.rs not found`) on that runner;
-`db:reset` never ran a query. `26f7fcc` passed the same step and the whole CI + staging release. A seed sweep over 8 days
-of hourly `now` values (all valid) ruled out time-dependence. If it recurs: give the healthcheck a longer `start_period`
-or initiate the replica set in `db:start` itself. **Next:** F45 (from 25 Oct 21:25 UTC), then **T2.14** quality gates.
-Owner asks: O23 (Cloudflare rule), guide 2.14/2.20 on a phone when convenient.
+**State (27 Oct 2026):** `main` = `feat/phase-02` (docs commit after `cdd39fa`); CI on `cdd39fa` fully green (224 e2e,
+0 flaky; perf, Lighthouse, visual, admin flows) and **staging runs `cdd39fa`** (both APIs `db: ok, redis: ok`).
+T2.1–T2.14 done (DECISIONS #90–#103); phase-verifier findings fixed or declared; security review: H1/M1 fixed.
+What happened in this session, for the owner: `owner/SESSION_HISTORY_2026-10-27.md`.
 
-**State (25 Oct 2026, evening):** branch `feat/phase-02` = `main` = **`4b518bb`** (T2.12). **T2.1–T2.12 done**
-(DECISIONS #90–#101); working tree clean. Done today: T2.11 (`609615c`), T2.12 (`4b518bb`), CI advisories fix (`8c5fdfc`).
+**Do first:**
+1. **Ask the owner whether the Phase 02 checks passed** (`owner/PHASE_TESTING_GUIDE.md` → Phase 02, 2.1–2.21 incl.
+   2.19a; test codes TESTA001 / TESTB002 / TESTC003). Do **not** start Phase 03 before the owner confirms (CLAUDE.md §3).
+2. After 28 Oct: **F1** (Node 24 → 26) before Phase 03 work.
+3. Phase 03's first task is **F46** (real-screen motion budget — `e2e/app/screens.perf.spec.ts` is `fixme`), judged
+   on a low-end Android (O16).
+
+**Owner to-dos still open:** O23 (Cloudflare cache rule — `cf-cache-status` still DYNAMIC), O8 (Turnstile keys on
+staging), O16 (low-end phone), Grievance Officer details before launch, Phase 00 checks 0.15/0.16 (last).
+
+**Older handoff (25 Oct 2026, kept for context):**
 
 **Do first, in this order:**
 1. **CI.** `609615c` (T2.11) failed in the Build job at step **"MongoDB users + migrations (db:reset)"** — the same
@@ -236,6 +242,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-27 | 02 / close | T2.14 quality gates (visual baselines in the Playwright Linux image, real-screen perf traces → F46), security review (H1 template injection in link previews, M1 local wipe — fixed), F45 closed, phase-verifier findings fixed (CI e2e rate limit in a test helper, journey 1 in 4 locales, Qibla placeholder dev/staging only, side-by-side images). CI green on `cdd39fa`, staging deployed → **AWAITING OWNER VERIFICATION** (DECISIONS #103) |
 | 2026-10-25 | 02 / T2.13 | PWA/offline completion — DECISIONS #102: worker marks cached API answers; two bugs fixed (clock offset from cached `Date` headers; `focus-existing` launches never navigated → `launchQueue` consumer); banner on failed requests; Background Sync for Ameen; `storage.persist()`; journey 4 e2e. CI red of `609615c` = MongoDB container unhealthy on the runner (flake), `26f7fcc` green + released |
 | 2026-10-25 | 02 / T2.12 | Settings (language/brother-sister to the server, queued offline; Saved; Vibration — F16 closed; Install; My data; Clear all data incl. offline queue; Privacy, Grievance, About) and the `/p/` post landing — DECISIONS #101. Found: onboarding's Brother/Sister help understated what the server keeps (fixed in 4 locales); the legal reader had no keyboard stop (axe) → a Contact & Grievance button; the landing loaded its strings in two rounds → one gate. Perf traces 3/3 green after Docker was resumed. |
 | 2026-10-24 | 02 / T2.11 | Announcements, Hadith & Quran (+ reader), Dua Requests with Ameen (offline queue), item detail, image viewer, .ics, runtime ICU for template bodies (lazy, only module with the parser) — DECISIONS #100. The 9.3 h e2e's two iPhone Sheet failures re-ran green (PC had slept). Urdu screenshot exposed English admin text losing its direction → `dir="auto"`. Owner: bundle +10–20 kB acceptable for quality (memory updated). |

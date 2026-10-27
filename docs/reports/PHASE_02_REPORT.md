@@ -3,9 +3,9 @@
 > **Status: AWAITING OWNER VERIFICATION** (27 Oct 2026). One deviation the owner should know first: the real-screen
 > motion budget (08 §8) is **not met yet** — F46, the first task of Phase 03 (§5).
 
-**Date:** 27 Oct 2026 · **Commit range:** `f7ef8a9..ab3465e` on `main` (Phase 02 started 22 Oct 2026) ·
+**Date:** 27 Oct 2026 · **Commit range:** `f7ef8a9..cdd39fa` on `main` (Phase 02 started 22 Oct 2026) ·
 **Staging URLs:** app https://app-staging.almasjids.com · admin https://admin-staging.almasjids.com ·
-**Deployed release:** RELEASE_PLACEHOLDER
+**Deployed release:** `cdd39fa` — signed staging manifest from CI run 40451892203 (green 27 Oct 2026 05:17 UTC), pulled by the staging deploy timer; both APIs report `cdd39fa` with `db: ok, redis: ok` (checked 27 Oct 2026 16:23 UTC)
 
 ## 1. Summary
 
@@ -41,15 +41,15 @@ banner — also when the phone is connected but has no internet.
 
 | Gate | Result | Numbers |
 |---|---|---|
-| Typecheck / lint / format / i18n | ✅ | CI_STATIC |
-| Unit + component (coverage gates) | ✅ | app 155 (90 % lines), ui 243, domain 146 (100 %), shared, i18n, api 115, config — CI_UNIT |
-| DB policy matrix / privileges / explain | ✅ | CI_INT (`pnpm db:test` + `test:int`: api 188 locally) |
-| Security scans | ✅ | gitleaks, osv-scanner and `pnpm audit` with **no ignores** (F45 closed), Semgrep, hadolint, Trivy — CI_SEC |
-| E2E (Pixel 7 / iPhone 14) | CI_E2E | journeys 1–5, 8, 12 on both phones — except journey 2 (Chromium only, no fake camera in WebKit) and journey 4's worker case (Chromium only) |
+| Typecheck / lint / format / i18n | ✅ | 0 warnings (CI, `cdd39fa`) |
+| Unit + component (coverage gates) | ✅ | app 155 (90 % lines), ui 243, domain 146 (100 %), shared, i18n, api 115, config — CI coverage gates green |
+| DB policy matrix / privileges / explain | ✅ | CI green (`pnpm db:test` + `test:int`: api 188 locally) |
+| Security scans | ✅ | gitleaks, osv-scanner and `pnpm audit` with **no ignores** (F45 closed), Semgrep, hadolint, Trivy — CI green |
+| E2E (Pixel 7 / iPhone 14) | ✅ | CI `cdd39fa`: **224 passed, 0 failed, 0 flaky**, 28 skipped by design; admin passkey/test-hooks 8 passed; journeys 1–5, 8, 12 on both phones — except journey 2 (Chromium only, no fake camera in WebKit) and journey 4's worker case (Chromium only) |
 | Accessibility (axe) | ✅ | `expectAxeClean` in every screen spec except the Scan modal (§5); serious/critical 0 |
-| Visual regression | CI_VISUAL | 10 screens × en/hi/ur/te × Pixel 7 + iPhone 14 = 80 baselines in the pinned Playwright Linux image; two identical local re-runs |
+| Visual regression | ✅ (CI) | 10 screens × en/hi/ur/te × Pixel 7 + iPhone 14 = 80 baselines in the pinned Playwright Linux image; two identical local re-runs |
 | Bundle budgets | ⚠️ deviation | musalli initial JS **185.3 kB** gz (phase target ≤ 170; limit 186 per owner O24) |
-| Lighthouse (mobile, CI built stack) | CI_LHCI | `/` (onboarding) — Home with masjids not measured (§5) |
+| Lighthouse (mobile, CI built stack) | ✅ (CI budgets, median of 5) | `/` (onboarding) — Home with masjids not measured (§5) |
 | Motion perf traces | ⚠️ partial | navigator push/pop + swipe and the Updates fling meet 08 §8 in CI; real screens: F46 (§5) |
 | phase-verifier | ✅ after fixes | first run FAIL (27 Oct): typecheck, CI e2e (rate limit in a test helper), journey 1 scope, Qibla placeholder in production, side-by-side images, doc gaps — all fixed or declared (#103) |
 | security-reviewer | 0 HIGH / 0 MEDIUM open | H1 (template injection in link previews) and M1 (local wipe) fixed and verified; L1, L2, L4, L7 fixed; L3, L5, L6, L8 justified (#103) |
