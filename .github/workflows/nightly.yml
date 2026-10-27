@@ -31,11 +31,7 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup
       - run: docker run --rm -v "$PWD:/src" "$OSV_IMAGE" scan source --lockfile /src/pnpm-lock.yaml
-      # Time-boxed ignore, same as osv-scanner.toml (PROGRESS F45).
-      - run: |
-          ignore=()
-          if [[ "$(date -u +%F)" < 2026-10-27 ]]; then ignore=(--ignore GHSA-27r3-jxmh-p828); fi
-          pnpm audit --prod --audit-level high "${ignore[@]}"
+      - run: pnpm audit --prod --audit-level high
 
   images-perf:
     name: Images (Trivy, fresh DB) · motion perf ×3

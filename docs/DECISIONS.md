@@ -1248,7 +1248,7 @@ path, #14) and desktop browsers have no native QR detector; Android Chrome has. 
     also waits for the Cloudflare cache rule (O23). CI Lighthouse on the built stack stays the gate meanwhile.
   - **F18** (`/demo/:n`) → Phase 9: every tab root, Scan and the spacer are real; `/demo/:n` remains only as the
     navigator specs' generic fixture (no link to it, no data).
-  - **F45** (body-parser / serialize-javascript) — the second release becomes installable at 21:25 UTC today; the
+  - **F45** — closed 27 Oct 2026: body-parser 2.4.0, serialize-javascript 7.1.4, all ignores removed. (Was: the
     time-boxed ignores keep CI correct until 27 Oct; done in the first session after that time (before Phase 03).
   - **F1** (Node 26) — cannot start before 28 Oct 2026 (Active LTS); first session after that.
 
