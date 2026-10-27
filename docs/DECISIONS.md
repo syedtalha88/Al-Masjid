@@ -1216,7 +1216,7 @@ path, #14) and desktop browsers have no native QR detector; Android Chrome has. 
 - **Journeys 1–5, 8, 12:** both phones, except journey 2 (camera scan) on Chromium only — Playwright's WebKit has no
   fake camera; the iPhone covers the Enter-code follow path (`follow.spec.ts`). Journey 4's worker case is Chromium
   only (#102).
-- **Initial JS budget — deviation:** the phase file's "≤ 170 KB gz" is not met: 184.8 kB, `pnpm size` limit 186 kB.
+- **Initial JS budget — deviation:** the phase file's "≤ 170 KB gz" is not met: 185.3 kB, `pnpm size` limit 186 kB.
   Owner's rule (O24, 24 Oct 2026: "10–20 kB is fine, focus on quality"; memory "quality over bundle size"); each raise
   is recorded (#92–#102). Cutting back (F42/F43) moves to Phase 9 hardening.
 - **Security review of the phase (25 Oct 2026) — 1 HIGH, 1 MEDIUM, 8 LOW:**
@@ -1235,6 +1235,20 @@ path, #14) and desktop browsers have no native QR detector; Android Chrome has. 
     versions; **L5** (staging Turnstile test keys) = owner item O8; **L6** (items view block-list fields, nothing leaks
     through the API allow-list) → Phase 5 with campaigns; **L8** — F45 closes by the body-parser bump, not by moving
     the date.
+- **Phase verifier (27 Oct 2026) — fixed:** typecheck of the offline spec; CI e2e red since T2.13 because `followByCode`
+  resolved codes per test against the 30/min per-IP `codeResolve` limit (now once per worker, clear error); journey 1
+  now also "follow via `/m/:code` → Home counts down" in en/hi/ur/te; the Qibla placeholder (Home button) is
+  dev/staging-only (`lib/build.ts SHOW_COMING_SOON`) and its manifest shortcut arrives with Phase 7; side-by-side
+  reference images (`docs/reports/evidence/PHASE_02_side-by-side_*.png`); `pnpm verify` includes `test:visual`.
+- **Further declared deviations:**
+  - **T2.6 LCP (warm ≤ 1.0 s / cold ≤ 2.5 s) of a Home with masjids — not measured.** CI Lighthouse loads `/` on fresh
+    storage (onboarding: 99/100/100) and the staging Lighthouse is report-only until F42 and O23; deferred with F42 to
+    Phase 9.
+  - **T2.2 "CDN HIT on staging"** — the automated check exists (Nightly) and still shows `DYNAMIC`: the Cloudflare
+    cache rule does not match yet (owner item O23). Correctness does not depend on it (versions bump in the same
+    transaction); only origin load does.
+  - **F20** (real low-end Android motion check) merges into F46 (Phase 03, O16).
+  - The Scan modal (A4) has no axe pass (its camera states are covered by unit tests); added with F46's motion work.
 - **Follow-ups closed or deferred:**
   - **F21** (back closes sheets) — closed by the platform: every sheet/dialog is a modal `<dialog>` (`showModal`), and
     since Chrome 120 the Android back button / gesture is a close request that fires `cancel` (CloseWatcher

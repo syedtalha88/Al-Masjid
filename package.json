@@ -43,7 +43,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "verify:quick": "turbo run typecheck typecheck:root lint lint:root test && prettier --check .",
-    "verify": "turbo run typecheck typecheck:root lint lint:root test:coverage && prettier --check . && pnpm i18n:check && pnpm db:test && pnpm test:int && pnpm check:dev-proxy && pnpm --filter @mc/app --filter @mc/admin build && pnpm check:dist && pnpm scan:bundles && pnpm size && pnpm test:e2e && pnpm test:perf && pnpm lhci",
+    "verify": "turbo run typecheck typecheck:root lint lint:root test:coverage && prettier --check . && pnpm i18n:check && pnpm db:test && pnpm test:int && pnpm check:dev-proxy && pnpm --filter @mc/app --filter @mc/admin build && pnpm check:dist && pnpm scan:bundles && pnpm size && pnpm test:e2e && pnpm test:perf && pnpm lhci && pnpm test:visual && pnpm db:reset",
     "lint:root": "eslint scripts e2e eslint.config.js playwright.config.ts .size-limit.js --max-warnings 0 --no-warn-ignored",
     "setup:local": "node scripts/setup-local.mjs",
     "db:stop": "node scripts/compose.mjs dev down",

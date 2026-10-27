@@ -20,7 +20,7 @@
 | Visual regression | Playwright screenshots | key screens × 4 locales, compared to baselines; reviewed against design references | `e2e/visual/**` |
 | Accessibility | `@axe-core/playwright` | every e2e page state; zero serious/critical violations | e2e |
 | Performance | Lighthouse CI (mobile, simulated slow 4G, 4× CPU) + `size-limit` | budgets in 01 §9 | CI |
-| Motion perf | Playwright + Chrome trace (Performance API long tasks) during transitions | no long task > 50 ms on the 5 main transitions, 4× CPU throttle | `e2e/perf/**` |
+| Motion perf | Playwright + Chrome trace (Performance API long tasks) during transitions | no long task > 50 ms on the 5 main transitions, 4× CPU throttle | `e2e/**/*.perf.spec.ts` (`perf` project) |
 | Security | Semgrep, CodeQL, gitleaks, osv-scanner, Trivy (images + config), hadolint, ZAP baseline (nightly), CSP violation listener in e2e | | CI |
 | Infra | `infra/vps/check.sh` (hardening checklist), header/cache-rule checks against staging, container healthchecks | ports, firewall, origin-pull enforcement, Cloudflare cache behaviour | CI (staging job) + phase reports |
 | Load | k6 (Phase 4/9) | read endpoints at 2,000 rps through Cloudflare, origin cache-miss capacity, push fan-out 50k | `load/` |
