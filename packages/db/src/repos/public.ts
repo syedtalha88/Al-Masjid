@@ -2,7 +2,7 @@
 // `ameen_counters` with the public scope (02 §4.1–4.2 — the mc_public user cannot read the source collections at all).
 // Results are JSON-ready (ids as canonical text, instants as ISO strings) in the shape of the API contracts; callers
 // pass typed values only, never a raw filter.
-import { type Document, Long, UUID } from 'mongodb';
+import { type Document, UUID } from 'mongodb';
 
 import type { DbHandle } from '../client.ts';
 import { StateError } from '../effects.ts';
@@ -22,55 +22,10 @@ import {
 } from '../schema/enums.ts';
 import { publicScope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
-import { fromInt64, idText } from '../values.ts';
+import { idText } from '../values.ts';
+import { arrayOf, compact, idOf, iso, maybeOneOf, need, numberOf, objectOf, oneOf, text, timingsOf } from './read.ts';
 
-// --- document readers (documents come back untyped through the gateway; the collections' validators define them) --
-
-const text = (doc: Document, key: string): string | undefined => {
-  const value: unknown = doc[key];
-  return typeof value === 'string' ? value : undefined;
-};
-const need = (doc: Document, key: string): string => {
-  const value = text(doc, key);
-  if (value === undefined) throw new Error(`public view document without ${key}`);
-  return value;
-};
-/** An enum field (validators guarantee the value; drift fails loudly instead of leaking an unknown value). */
-const oneOf = <T extends string>(doc: Document, key: string, values: readonly T[]): T => {
-  const value = need(doc, key);
-  const found = values.find((candidate) => candidate === value);
-  if (found === undefined) throw new Error(`public view document with unexpected ${key}`);
-  return found;
-};
-const maybeOneOf = <T extends string>(doc: Document, key: string, values: readonly T[]): T | undefined =>
-  text(doc, key) === undefined ? undefined : oneOf(doc, key, values);
-const numberOf = (doc: Document, key: string): number | undefined => {
-  const value: unknown = doc[key];
-  if (typeof value === 'number') return value;
-  return value instanceof Long ? fromInt64(value) : undefined;
-};
-const iso = (doc: Document, key: string): string | undefined => {
-  const value: unknown = doc[key];
-  return value instanceof Date ? value.toISOString() : undefined;
-};
-const idOf = (doc: Document, key = '_id'): string => {
-  const value: unknown = doc[key];
-  if (!(value instanceof UUID)) throw new Error(`public view document without UUID ${key}`);
-  return idText(value);
-};
-const objectOf = (doc: Document, key: string): Document | undefined => {
-  const value: unknown = doc[key];
-  return typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Date)
-    ? value // a sub-document of a validated collection
-    : undefined;
-};
-const arrayOf = (doc: Document, key: string): Document[] => {
-  const value: unknown = doc[key];
-  return Array.isArray(value) ? (value as Document[]) : []; // arrays of sub-documents per the validator
-};
-/** Keeps only defined properties (contracts use absent, never undefined-valued, optional fields). */
-const compact = <T extends Record<string, unknown>>(value: T): T =>
-  Object.fromEntries(Object.entries(value).filter(([, field]) => field !== undefined)) as T; // same keys, fewer
+// --- document readers: ./read.ts (shared with the admin repositories) -----------------------------------------
 
 const i18n = <K extends string>(
   doc: Document | undefined,
@@ -184,18 +139,6 @@ export async function getMasjidVersions(handle: DbHandle, ids: readonly UUID[]):
   );
 }
 
-const prayerOf = (doc: Document | undefined) => {
-  const value = doc ?? {};
-  return compact({
-    adhanMode: text(value, 'adhan_mode') === 'manual' ? ('manual' as const) : ('auto' as const),
-    adhanTime: text(value, 'adhan_time'),
-    adhanAdjustMin: numberOf(value, 'adhan_adjust_min') ?? 0,
-    jamaatMode: maybeOneOf(value, 'jamaat_mode', ['fixed', 'offset', 'none'] as const) ?? 'none',
-    jamaatTime: text(value, 'jamaat_time'),
-    jamaatOffsetMin: numberOf(value, 'jamaat_offset_min'),
-  });
-};
-
 const SPECIAL_DATES_MAX = 100;
 
 /**
@@ -215,7 +158,6 @@ export async function getMasjidBundle(handle: DbHandle, id: UUID, fromDate: stri
   const specials = await (
     await view(handle, 'v_pub_special_timings')
   ).find({ masjid_id: id, date: { $gte: fromDate } }, { limit: SPECIAL_DATES_MAX }); // the view sorts by date
-  const prayers = timings ? (objectOf(timings, 'prayers') ?? {}) : {};
   const start = text(masjid, 'ramadan_start');
   const end = text(masjid, 'ramadan_end');
   return {
@@ -232,24 +174,7 @@ export async function getMasjidBundle(handle: DbHandle, id: UUID, fromDate: stri
       showChanda: masjid['show_chanda'] === true,
       chandaWeekStart: numberOf(masjid, 'chanda_week_start') ?? 5,
     }),
-    timings: timings
-      ? {
-          prayers: {
-            fajr: prayerOf(objectOf(prayers, 'fajr')),
-            dhuhr: prayerOf(objectOf(prayers, 'dhuhr')),
-            asr: prayerOf(objectOf(prayers, 'asr')),
-            maghrib: prayerOf(objectOf(prayers, 'maghrib')),
-            isha: prayerOf(objectOf(prayers, 'isha')),
-          },
-          jumuah: arrayOf(timings, 'jumuah').map((slot) =>
-            compact({
-              seq: numberOf(slot, 'seq') ?? 1,
-              khutbahTime: text(slot, 'khutbah_time'),
-              jamaatTime: need(slot, 'jamaat_time'),
-            }),
-          ),
-        }
-      : null,
+    timings: timings ? timingsOf(timings) : null,
     specialDates: specials.map((doc) =>
       compact({
         id: idOf(doc),

@@ -2,6 +2,7 @@
 // contract always matches what is mounted.
 import type { RouteDefinition } from '../http/define-route.ts';
 import { type AdminAuthDeps, adminSessionRoutes } from './admin-auth.ts';
+import { adminMasjidRoutes } from './admin-masjid.ts';
 import { type AdminPasskeyDeps, adminPasskeyRoutes } from './admin-passkeys.ts';
 import { linkPreviewRoutes } from './link-preview.ts';
 import { type PublicRouteDeps, publicRoutes } from './public.ts';
@@ -20,5 +21,8 @@ export function apiPublicRoutes(deps: PublicRouteDeps & { readonly appOrigin?: s
 
 /** api-admin feature routes (03 §4) and Super Admin routes (03 §5, mounted under `/api/super`). */
 export function adminRoutes(deps: AdminRouteDeps): { routes: RouteDefinition[]; superRoutes: RouteDefinition[] } {
-  return { routes: [...adminSessionRoutes(deps), ...adminPasskeyRoutes(deps)], superRoutes: superRoutes(deps) };
+  return {
+    routes: [...adminSessionRoutes(deps), ...adminPasskeyRoutes(deps), ...adminMasjidRoutes(deps)],
+    superRoutes: superRoutes(deps),
+  };
 }

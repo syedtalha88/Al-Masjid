@@ -1325,6 +1325,28 @@ global. Every section appears only when its masjid has content in it (no extra t
    (T5.8–T5.9). Specs: 00 §4.9–4.15, 02 (enums, collections), 03 (endpoints), 05 (consent, retention), 07 (A18–A24,
    B14–B19), 01 §5.5 / 04 (audio pipeline).
 
+### #105 — Real-screen motion budget: how F46 was closed (PHASE_03 T3.0) — ACCEPTED (Claude Code, 27 Oct 2026)
+**Context:** `e2e/app/screens.perf.spec.ts` (08 §8 on real screens) was `fixme` since T2.14 (#103) with 50–75 ms taps,
+6–13 % dropped frames and a forced layout on sheet open. CPU profiles (mapped through the hidden source maps) and
+Chrome traces with the timeline-stack category attributed the rest:
+**Decision:**
+- **Navigation is applied as a React transition** (`startTransition` around the navigator's history-driven state
+  update): the affected screens render in 5 ms slices instead of one sync task inside the tap / popstate. Motion is not
+  delayed: a committed swipe already springs from the finger; a push's slide starts in the commit's layout effect.
+- **Stable screen-slot props**: both apps passed a new `pendingFallback` element and `errorFallback` function on every
+  render, defeating every `ScreenSlot` memo — each router update re-rendered every mounted screen. Hoisted to module
+  constants.
+- **Stable query results**: `useQueries` without `combine` returns a new array every render; `useHomeData` now uses
+  module-level `combine` functions, so Home / My Masjids rows and prayer-time computations re-run only when a query
+  result changes.
+- **Motion promises resolve after the frame** (`animateChannel`): completion fires inside Motion's rAF batch and the
+  callers' follow-ups (focus a title, close a dialog, unmount) read layout — they now run in a task after the frame.
+- **Sheet** caches its panel height with the snaps (open, drag start) — no layout read after the drag's transform write.
+- `pnpm test:perf` repeats every perf spec **3×** (`--repeat-each=3`), so one CI run is the "3 in a row" acceptance.
+- Tried and not kept: `content-visibility: hidden` for hidden tabs (WebKit lost their scroll position).
+**Consequences:** the local Windows dev PC is too noisy to judge 50 ms reliably (it varies ±20 ms between runs); CI on
+Linux is the judge. Earlier T2.14 fixes (#103) stay.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._
