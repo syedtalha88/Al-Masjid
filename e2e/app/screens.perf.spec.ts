@@ -9,12 +9,9 @@ import { followByCode } from '../support/device.ts';
 // over 50 ms, < 5 % dropped frames, no forced layout from animation frames. (Qibla rotation: Phase 7.) Runs in the
 // `perf` project (`pnpm test:perf`, one worker). Needs the dev seed.
 
-// NOT YET GREEN (DECISIONS #103, PROGRESS F46): written in T2.14, this spec found 100–130 ms taps on the real screens;
-// fixes in T2.14 (forced layouts in ChipGroup / UnderlineTabs / Masjid Detail, stable navigator context, one Date per
-// minute, pushed screens rendered as a transition) brought them to ≈ 50–75 ms at 4× CPU, but long tasks, dropped
-// frames (6–13 %) and one forced layout on sheet open remain over the 08 §8 limits. The navigator (navigation.perf)
-// and the Updates fling pass those limits in CI. Re-enable when F46 is done.
-test.fixme(true, 'F46 — real-screen motion budget not met yet (DECISIONS #103)');
+// F46 (PHASE_03 T3.0): fixed by applying navigation as a React transition, stable screen-slot props, stable query
+// results (`combine`), motion promises resolved after the frame, and no layout reads during sheet drags. `pnpm
+// test:perf` repeats every perf spec 3× (DECISIONS #105).
 
 const top = (page: Page) => page.locator('section[data-screen]:not([inert])');
 const tab = (page: Page, name: RegExp) => page.getByRole('navigation', { name: 'Main' }).getByRole('button', { name });

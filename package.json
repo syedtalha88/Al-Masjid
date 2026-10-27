@@ -24,7 +24,7 @@
     "test:int": "turbo run test:int",
     "test:coverage": "turbo run test:coverage",
     "test:e2e": "playwright test --project=pixel-7 --project=iphone-14 --project=scan",
-    "test:perf": "playwright test --project=perf --workers=1",
+    "test:perf": "playwright test --project=perf --workers=1 --repeat-each=3",
     "test:visual": "node scripts/visual.mjs",
     "test:visual:update": "node scripts/visual.mjs --update",
     "i18n:check": "pnpm --filter @mc/i18n i18n:check",

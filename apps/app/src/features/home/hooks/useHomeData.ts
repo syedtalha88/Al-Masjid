@@ -1,8 +1,8 @@
 // Home's data (07 A2, 01 §5.2): followed masjids in the user's order → their content versions → the immutable bundle
 // and first feed page of each version (persisted, so Home renders offline from cache). Pull-to-refresh re-checks the
 // versions; changed masjids load their new bundle/feed by key.
-import type { ActiveMasjidBundle, FeedItem } from '@mc/shared/contracts/public';
-import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { ActiveMasjidBundle, FeedItem, FeedPage, MasjidBundle } from '@mc/shared/contracts/public';
+import { type FetchStatus, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
 import { bundleQuery, feedQuery, templatesQuery } from '../../../lib/api/queries.ts';
@@ -12,6 +12,14 @@ import { mergeRecent } from '../lib/home-view.ts';
 
 /** Home shows the 5 newest items across followed masjids (07 A2). */
 export const RECENT_LIMIT = 5;
+
+/** The parts of each bundle query Home reads; a new array only when one of them changed (see `combine` below). */
+const pickBundles = (results: readonly { data?: MasjidBundle | undefined; isError: boolean }[]) =>
+  results.map((result) => ({ data: result.data, isError: result.isError }));
+
+/** The parts of each feed query Home reads. */
+const pickFeeds = (results: readonly { data?: FeedPage | undefined; isPending: boolean; fetchStatus: FetchStatus }[]) =>
+  results.map((result) => ({ data: result.data, isPending: result.isPending, fetchStatus: result.fetchStatus }));
 
 export type HomeMasjid =
   | { readonly id: string; readonly state: 'loading' | 'failed' }
@@ -42,17 +50,21 @@ export function useHomeData(): HomeData {
   const audience = audiencePref ?? 'brothers';
   useQuery(templatesQuery(api)); // template titles for notices (cached for an hour)
 
+  // `combine` (module-level, stable): without it useQueries hands out a new array on every render, so every memo below
+  // — and the memoised rows of Home / My Masjids — re-ran on any state change, prayer times included (F46 trace).
   const bundles = useQueries({
     queries: ids.map((id) => {
       const v = versions?.[id]?.v;
       return { ...bundleQuery(api, id, v ?? 0), enabled: v !== undefined };
     }),
+    combine: pickBundles,
   });
   const feeds = useQueries({
     queries: ids.map((id) => {
       const entry = versions?.[id];
       return { ...feedQuery(api, id, entry?.v ?? 0, audience), enabled: entry?.status === 'active' };
     }),
+    combine: pickFeeds,
   });
 
   const masjids = useMemo(

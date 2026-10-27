@@ -102,11 +102,17 @@ export function StackNavigator({
   const scrollTopAfterPop = useRef(false);
   const generation = useRef(0);
 
+  // A navigation is applied as a transition: React renders the affected screens in 5 ms slices instead of one
+  // blocking task inside the tap / popstate (50–100 ms at 4× CPU on real screens — F46, DECISIONS #103). Motion does
+  // not wait for it: a swipe-back already springs from the finger, and pushes start in the commit's layout effect.
+  // The reducer is functional, so back-to-back navigations still compose.
   useEffect(
     () =>
       adapter.subscribe((location, replaced) => {
         locations.set(location.key, location);
-        setState((current) => reduceLocation(config, current, location, replaced));
+        startTransition(() => {
+          setState((current) => reduceLocation(config, current, location, replaced));
+        });
       }),
     [adapter, config, locations],
   );

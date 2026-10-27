@@ -153,7 +153,12 @@ export function animateChannel(
       offCancel();
       if (layer.running.get(channel)?.done === done) layer.running.delete(channel);
       release();
-      resolve(completed);
+      // Resolved in a task after the frame: completion fires inside Motion's requestAnimationFrame batch, and the
+      // callers' follow-ups (focus a title, close a dialog, unmount) read layout — inside the frame that forced a
+      // layout (08 §8 "no layout from animation frames"; F46 trace: sheet dismiss, push/pop focus).
+      setTimeout(() => {
+        resolve(completed);
+      }, 0);
     };
     const offComplete = value.on('animationComplete', () => {
       settle(true);

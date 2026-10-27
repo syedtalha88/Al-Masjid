@@ -10,7 +10,7 @@
 | 00 | Foundation, tooling & design system | **Accepted by the owner** — closure: report final, V-31 done; waiting for owner 0.15/0.16 + #79 (DECISIONS #62) | [final](reports/PHASE_00_REPORT.md) | 16 Oct 2026 |
 | 01 | Database, security core, passkey auth, Super Admin | **DONE** (owner tested 1.1–1.12 on staging, 22 Oct 2026) | [final](reports/PHASE_01_REPORT.md) | 22 Oct 2026 |
 | 02 | Musalli app core (follow, timings, feed, offline, install) | **DONE** (owner tested the Phase 02 checks on staging `cdd39fa`, incl. a low-end device, 27 Oct 2026) | [final](reports/PHASE_02_REPORT.md) | 27 Oct 2026 |
-| 03 | Masjid Admin content tools | NOT STARTED | – | – |
+| 03 | Masjid Admin content tools | **IN PROGRESS** (started 27 Oct 2026; branch `feat/phase-03`) | – | – |
 | 04 | Push notifications | NOT STARTED | – | – |
 | 05 | Donations, chanda & UPI change-lock | NOT STARTED | – | – |
 | 06 | Bayan videos | NOT STARTED | – | – |

@@ -97,8 +97,10 @@ export function Sheet({ open, onClose, title, snaps = ['content'], closeButton =
 
   if (open && !mounted) setMounted(true);
 
-  // Never 0 (an unlaid-out panel), so percentages stay finite.
-  const height = () => Math.max(panel.current?.offsetHeight ?? 0, 1);
+  // The panel's height, measured with the snaps (on open and at drag start) — never read during a drag: a layout
+  // read right after the drag's transform write forced a layout on every move (perf trace, F46). Never 0.
+  const panelHeight = useRef(1);
+  const height = () => panelHeight.current;
   const toPercent = (px: number) => (px / height()) * 100;
   const offset = () => (getChannel(panel.current, 'y') / 100) * height();
   /** Open-state offsets (px from fully open): 0 = top of the panel at its max position. */
@@ -106,10 +108,11 @@ export function Sheet({ open, onClose, title, snaps = ['content'], closeButton =
     const node = panel.current;
     const content = scroller.current;
     if (!node || !content) return;
-    const panelHeight = node.offsetHeight;
-    const natural = panelHeight - content.clientHeight + content.scrollHeight;
+    const measured = Math.max(node.offsetHeight, 1);
+    panelHeight.current = measured;
+    const natural = measured - content.clientHeight + content.scrollHeight;
     snapOffsets.current = snaps
-      .map((snap) => (snap === 'full' ? 0 : Math.max(panelHeight - natural, 0)))
+      .map((snap) => (snap === 'full' ? 0 : Math.max(measured - natural, 0)))
       .filter((value, index, all) => all.indexOf(value) === index);
   }, [snaps]);
 
