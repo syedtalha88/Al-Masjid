@@ -71,7 +71,7 @@ async function visitOnline(page: Page): Promise<string> {
 }
 
 /** After the offline reload: Home, Prayer Timings and Updates render from the cache, the banner shows throughout. */
-async function expectCachedApp(page: Page, capture: (name: string) => Promise<void>) {
+async function expectCachedApp(page: Page, capture: (name: string) => Promise<unknown>) {
   const card = page.getByRole('list', { name: 'My Masjids' }).locator(':scope > li').first();
   await expect(card.getByText('Test Masjid Alpha')).toBeVisible();
   await expect(banner(page)).toHaveText(OFFLINE_TEXT);
