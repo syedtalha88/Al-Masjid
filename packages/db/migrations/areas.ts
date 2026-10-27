@@ -47,4 +47,6 @@ export const SCHEMA_AREAS: Readonly<
   '0006_views': { collections: [], views: [...PUBLIC_VIEWS, ...ADMIN_VIEWS] },
   // PHASE_02 T2.2: feed and special-date order inside the views (index-backed pages).
   '0008_view_order': { collections: [], views: ['v_pub_items', 'v_pub_special_timings'] },
+  // PHASE_03 T3.4 (DECISIONS #104): library kind `dhikr` (+ repeat, occasions); template param type `phone`.
+  '0009_library_dhikr': { collections: ['content_library', 'notice_templates'], views: ['v_pub_library'] },
 };

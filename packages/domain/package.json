@@ -14,7 +14,8 @@
     "./money": "./src/money.ts",
     "./prayer": "./src/prayer.ts",
     "./thumbhash": "./src/thumbhash.ts",
-    "./time": "./src/time.ts"
+    "./time": "./src/time.ts",
+    "./timings": "./src/timings.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

@@ -96,6 +96,8 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
         'source_license',
         'tags',
         'dua_category',
+        'repeat',
+        'occasions',
       ),
     },
   ],

@@ -18,7 +18,29 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (27 Oct 2026 — Phase 02 DONE; new features requested before Phase 03)
+## ▶ Next session — start here (27 Oct 2026, evening — Phase 03 IN PROGRESS, stopped at the owner's request)
+
+**State:** branch `feat/phase-03` (pushed); `main` = staging = `cdd39fa` (Phase 02, owner-verified). Work order agreed:
+T3.0 → T3.1 → T3.4 → T3.5 → T3.11 → T3.2 → T3.3 → T3.6–T3.10 → T3.13–T3.17 → T3.12.
+
+**Do first:**
+1. **T3.0 (F46) CI result**: commit `b2a8d1e` was pushed to branch `ci/f46-perf` (CI runs the perf specs 3× via
+   `pnpm test:perf`). Check its run (`api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/f46-perf`;
+   unauthenticated API = 60 requests/hour — poll sparingly). Green → tick T3.0. Red → read the perf annotations; the
+   profiling tools used are described in DECISIONS #105. Delete the `ci/f46-perf` branch afterwards.
+2. **T3.4 Content Library — in progress:** done so far: migration `0009_library_dhikr` (library kind `dhikr` +
+   `repeat`/`occasions`, template param type `phone`, `v_pub_library` exposes the new fields), public contracts
+   and repository updated, local DB migrated. Still to do: import JSON schema (`scripts/library.schema.json`) +
+   dry-run report, `search_text` normalisation in `@mc/domain` (test-first), state functions import/verify/retire/
+   update (+ audit actions), Super Admin API (★ import, list, PATCH, verify, retire) and C8 screens, admin browse/search
+   + `GET /library/suggestion` (daily rotation, no repeat within 60 days), `docs/content-library-format.md` with a
+   placeholder row only.
+3. **T3.2** still needs: `saveTimings` state function (If-Match rev → 412, version bump, audit), PUT/preview API,
+   activation rule, B4 editor, "timings updated" system notice (needs T3.5 templates + T3.6 publish path), journey 6.
+   The validation rules are done (`@mc/domain/timings`).
+4. F1 (Node 26) is allowed from 28 Oct 2026.
+
+**Earlier (same day): Phase 02 DONE; new features before Phase 03**
 
 **Owner, 27 Oct 2026:** "works perfectly, good to go from my side; looks good on low-end devices; no design changes". Phase 02 is DONE. The owner then asked for new features before Phase 03 (Ruqyah, needy people, adhkar, ilm contacts, blood camp, personal zakat tracker, voice messages). Questions asked and **answered the same day → DECISIONS #104** (owner: Ruqyah = masjid text or audio + Content Library; needy people without UPI change-lock; voice notes up to 10 min; rest as recommended). Specs updated: 00 §4.9–4.15, 01 §5.5 Audio, 02, 03, 04 R13–R14, 05, 07 A18–A24 / B14–B19; phases: **Phase 03** T3.0 (F46 first) + T3.13–T3.17, Phase 04 voice push text, **Phase 05** T5.8–T5.9.
 
@@ -204,9 +226,9 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 - [ ] T3.0 — Real-screen motion budget (F46) — **code done 27 Oct 2026 (DECISIONS #105), waiting for CI on `ci/f46-perf`** (perf specs ×3): navigation as a React transition, stable screen-slot props (both apps), `useQueries` `combine` in `useHomeData`, motion promises resolved after the frame, Sheet height cached. Local Pixel 7 regression 56/56; locally ≈ at the 50 ms line (noisy PC) — CI decides.
 - [x] T3.1 — Admin Home completion — **done 27 Oct 2026:** api-admin `GET /masjids/:masjidId/{stats,notifications/quota,timings}` (repos `@mc/db/repos/admin.ts`, document readers shared in `repos/read.ts` incl. `timingsOf`; contracts `@mc/shared/contracts/admin.ts`; openapi regenerated); Home: followers chip, today strip (next jamaat resolved on the phone with `@mc/domain/prayer`, "Set prayer times" before any save), tiles with `phase`/`route` (later phases dev/staging only — `SHOW_COMING_SOON`; Ruqyah / Blood Camp / Help the Needy tiles added, #104), quota pill. Tests: db int 4 (as mc_admin), api int 3, admin unit 9 (today strip incl. Jumu'ah and after Isha, tile visibility); e2e admin screens 4 locales + axe green with the new strip asserted (7/7 admin specs). Inbox banner: arrives with Phase 5/8 content.
-- [ ] T3.2 — Prayer timings editor (B4)
+- [ ] T3.2 — Prayer timings editor (B4) — **partly done:** `@mc/domain/timings` `validateTimings` (60 days: jamaat vs adhan incl. midnight, Isha after Maghrib, Fajr vs sunrise warning, Jumu'ah vs khutbah; 100 % coverage). Rest after T3.4/T3.5/T3.11 (see handoff).
 - [ ] T3.3 — Special dates & Ramadan (B11)
-- [ ] T3.4 — Content Library (C8 + admin browse)
+- [ ] T3.4 — Content Library (C8 + admin browse) — **in progress:** migration `0009_library_dhikr` (dhikr kind, repeat, occasions; template param `phone`), contracts + public repo updated. Rest: see handoff.
 - [ ] T3.5 — Notice templates (C9) + ICU rendering
 - [ ] T3.6 — Notice creator (B5) + image pipeline
 - [ ] T3.7 — Hadith/Ayah publisher (B6)
@@ -269,6 +291,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-27 (evening) | 03 / T3.0–T3.4 | Phase 03 started. T3.0 F46 fixes (navigation as transition, stable renders, `combine`, post-frame motion promises; DECISIONS #105) — waiting for CI on `ci/f46-perf`. T3.1 Admin Home done (stats/quota/timings API, today strip, tiles, quota pill). T3.2 domain validation done. T3.4 started (migration 0009). Stopped at the owner's request (usage limit) |
 | 2026-10-27 | 02 → 03 | Phase 02 DONE (owner verified on staging `cdd39fa`, incl. low-end devices). New features agreed with the owner (DECISIONS #104): voice notes, Ruqyah, adhkar after salah, Ilm contacts, blood camp (Phase 3); needy people, personal zakat tracker (Phase 5) — specs and phase files updated, no code yet |
 | 2026-10-27 | 02 / close | T2.14 quality gates (visual baselines in the Playwright Linux image, real-screen perf traces → F46), security review (H1 template injection in link previews, M1 local wipe — fixed), F45 closed, phase-verifier findings fixed (CI e2e rate limit in a test helper, journey 1 in 4 locales, Qibla placeholder dev/staging only, side-by-side images). CI green on `cdd39fa`, staging deployed → **AWAITING OWNER VERIFICATION** (DECISIONS #103) |
 | 2026-10-25 | 02 / T2.13 | PWA/offline completion — DECISIONS #102: worker marks cached API answers; two bugs fixed (clock offset from cached `Date` headers; `focus-existing` launches never navigated → `launchQueue` consumer); banner on failed requests; Background Sync for Ameen; `storage.persist()`; journey 4 e2e. CI red of `609615c` = MongoDB container unhealthy on the runner (flake), `26f7fcc` green + released |

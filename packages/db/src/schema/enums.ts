@@ -26,7 +26,9 @@ export const AUDIENCE_PREF = ['brothers', 'sisters'] as const;
 export const LOCALE = ['en', 'hi', 'ur', 'te'] as const;
 export const ANNOUNCEMENT_CATEGORY = ['general', 'event', 'facilities', 'timing'] as const;
 export const DUA_CATEGORY = ['illness', 'inteqal', 'other'] as const;
-export const LIBRARY_KIND = ['hadith', 'ayah', 'dua'] as const;
+export const LIBRARY_KIND = ['hadith', 'ayah', 'dua', 'dhikr'] as const; // dhikr: DECISIONS #104
+/** When a `dhikr` library entry is said (DECISIONS #104). */
+export const DHIKR_OCCASION = ['after_salah', 'morning', 'evening'] as const;
 export const LIBRARY_STATUS = ['draft', 'verified', 'retired'] as const;
 export const TEMPLATE_STATUS = ['active', 'retired'] as const;
 export const CAMPAIGN_PURPOSE = ['renovation', 'repair', 'utilities', 'welfare', 'other'] as const;
@@ -60,4 +62,5 @@ export const TEMPLATE_PARAM_TYPE = [
   'prayer',
   'number',
   'short_text',
+  'phone', // E.164, rendered as a WhatsApp button (blood camp — DECISIONS #104)
 ] as const;

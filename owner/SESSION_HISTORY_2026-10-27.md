@@ -37,3 +37,12 @@
    **TESTA001**, **TESTB002**, **TESTC003**.
 3. Tell Claude Code "Phase 02 checks passed" (or what failed) — then Phase 02 is closed and Phase 03 starts with F46.
 4. Still open from you: O23 (Cloudflare cache rule), O8 (Turnstile keys on staging), O16 (low-end Android phone).
+
+## Later on 27 Oct — Phase 02 closed, new features, Phase 03 started
+
+| What | Result |
+|---|---|
+| You confirmed Phase 02 ("works perfectly, good on low-end devices, no design changes") | Phase 02 marked **DONE** |
+| Your 7 new features → 8 questions → your answers | **DECISIONS #104**; specs 00/01/02/03/04/05/07 and phase files 03/04/05 updated (voice notes ≤ 10 min, Ruqyah, adhkar, Ilm contacts, blood camp → Phase 3; needy people, zakat tracker → Phase 5) |
+| Phase 03 started (branch `feat/phase-03`) | T3.0 smoothness fixes done, **waiting for CI** (branch `ci/f46-perf`); **T3.1 Admin Home done** (followers, next jamaat, tiles incl. Ruqyah / Blood Camp / Help the Needy, notifications quota — 4 languages, tests green); T3.2 timing rules done; T3.4 started (database migration for dhikr + phone contacts) |
+| Stopped at your request (usage limit) | Everything committed and pushed to `feat/phase-03`; nothing deployed — staging still runs Phase 02 |

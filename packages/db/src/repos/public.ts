@@ -13,6 +13,7 @@ import {
   CALC_METHOD,
   CAMPAIGN_PURPOSE,
   CAMPAIGN_STATUS,
+  DHIKR_OCCASION,
   DUA_CATEGORY,
   ITEM_TYPE,
   LIBRARY_KIND,
@@ -204,6 +205,12 @@ export async function getMasjidBundle(handle: DbHandle, id: UUID, fromDate: stri
 
 const LOCALES = ['en', 'hi', 'ur', 'te'] as const;
 
+/** A dhikr's occasions (validated enum values), or absent. */
+const occasionsOf = (doc: Document) => {
+  const value: unknown = doc['occasions'];
+  return Array.isArray(value) ? value.map((entry: unknown) => oneOf({ entry }, 'entry', DHIKR_OCCASION)) : undefined;
+};
+
 const libraryOf = (doc: Document) => ({
   id: idOf(doc),
   kind: oneOf(doc, 'kind', LIBRARY_KIND),
@@ -213,6 +220,10 @@ const libraryOf = (doc: Document) => ({
   reference: need(doc, 'reference'),
   sourceName: need(doc, 'source_name'),
   sourceLicense: need(doc, 'source_license'),
+  ...compact({
+    repeat: numberOf(doc, 'repeat'),
+    occasions: occasionsOf(doc),
+  }),
 });
 export type PublicLibraryEntry = ReturnType<typeof libraryOf>;
 

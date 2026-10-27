@@ -229,7 +229,7 @@ export type FollowList = z.infer<typeof followListSchema>;
 /** A verified Content Library entry (Arabic, transliterations, translations, attribution — 05 §9). */
 export const libraryEntrySchema = z.object({
   id: uuidText,
-  kind: z.enum(['hadith', 'ayah', 'dua']),
+  kind: z.enum(['hadith', 'ayah', 'dua', 'dhikr']),
   arabic: z.string(),
   transliteration: i18nOptional,
   translation: z.object({
@@ -241,6 +241,9 @@ export const libraryEntrySchema = z.object({
   reference: z.string(),
   sourceName: z.string(),
   sourceLicense: z.string(),
+  /** kind `dhikr` (DECISIONS #104): times it is said, and when. */
+  repeat: z.optional(z.number().check(z.int(), z.minimum(1), z.maximum(1000))),
+  occasions: z.optional(z.array(z.enum(['after_salah', 'morning', 'evening']))),
 });
 export type LibraryEntry = z.infer<typeof libraryEntrySchema>;
 
@@ -339,7 +342,7 @@ export const noticeTemplateSchema = z.object({
   params: z.array(
     z.object({
       name: z.string(),
-      type: z.enum(['time', 'date', 'date_range', 'time_range', 'prayer', 'number', 'short_text']),
+      type: z.enum(['time', 'date', 'date_range', 'time_range', 'prayer', 'number', 'short_text', 'phone']),
       required: z.boolean(),
     }),
   ),
