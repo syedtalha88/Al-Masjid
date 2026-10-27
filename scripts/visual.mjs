@@ -48,6 +48,11 @@ const hosts = 'printf "127.0.0.1 app.localhost admin.localhost\\n" >> /etc/hosts
 const env = { ...process.env, MSYS_NO_PATHCONV: '1' };
 
 if (process.platform === 'linux') {
+  // The container runs as root (it edits its /etc/hosts); whatever it writes into the mounted repository (results,
+  // baselines, caches) is handed back to the calling user on exit — root-owned `test-results/` broke the next
+  // Playwright step in CI (EACCES on .last-run.json).
+  const owner = `${String(process.getuid?.() ?? 0)}:${String(process.getgid?.() ?? 0)}`;
+  const giveBack = `trap 'chown -R ${owner} /repo/test-results /repo/e2e/visual /repo/node_modules/.cache 2>/dev/null || true' EXIT`;
   run(
     'docker',
     [
@@ -66,7 +71,7 @@ if (process.platform === 'linux') {
       IMAGE,
       'bash',
       '-c',
-      `set -e; ${hosts}; corepack enable >/dev/null; ${playwright}`,
+      `set -e; ${giveBack}; ${hosts}; corepack enable >/dev/null; ${playwright}`,
     ],
     { env },
   );
