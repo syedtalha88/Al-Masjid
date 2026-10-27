@@ -1266,6 +1266,65 @@ path, #14) and desktop browsers have no native QR detector; Android Chrome has. 
     time-boxed ignores keep CI correct until 27 Oct; done in the first session after that time (before Phase 03).
   - **F1** (Node 26) — cannot start before 28 Oct 2026 (Active LTS); first session after that.
 
+### #104 — New features before launch: voice notes, Ruqyah, adhkar, ilm contacts, blood camp, needy people, personal zakat tracker — ACCEPTED (owner, 27 Oct 2026)
+**Context:** after verifying Phase 02 the owner asked for seven features. Claude Code asked 8 questions with
+recommendations (rules involved: CLAUDE.md §2.1 privacy, §2.2 money, §2.3 religious text; DPDP Act; cost). Owner's
+answers, 27 Oct 2026: 1 — Ruqyah set by the masjid, as text it enters **or** audio it uploads, **and** the Content
+Library as an option; 2 — needy people as recommended, details entered by the masjid; **no UPI change-lock for them —
+the masjid adds the UPI ID**; zakat-eligible tag yes; 3–6 — as recommended; 7 — as recommended but voice notes up to
+**10 minutes**; 8 — fold into the existing phases ("go with it" = recommended).
+**Decision:** everything stays **per masjid** — a musalli sees only what the masjids they follow publish; nothing is
+global. Every section appears only when its masjid has content in it (no extra toggles for admins).
+1. **Voice notes (Phase 3).** Admins record (MediaRecorder) or pick an audio file, **≤ 10 min**, for announcements,
+   dua requests, daily content, Ruqyah entries. A **one-line title is required** with every voice note (it is what
+   push, lists, search and screen readers use; voice is not translated). Upload `POST /api/admin/masjids/:id/audio`
+   (busboy, ≤ 25 MB, magic bytes: Ogg/Opus, WebM, MP4/M4A/AAC, MP3, WAV, 3GP), stored as Cloudinary `video` resource
+   `m/<masjidId>/a/<uuid>` (the original is not kept beyond Cloudinary's master); duration from the upload response —
+   over 600 s → rejected and deleted. Delivery: `media.<domain>/a/m4a/<key>` → one named transformation (AAC ~48 kbps
+   mono, universal incl. iOS) through Caddy's allow-list and Cloudflare, `immutable`. Musalli: inline player
+   (play/pause, scrub, 1×/1.5×/2×, remaining time), audio cached by the worker only after it was played (range
+   requests). Push (Phase 4) shows the title + "🎤 Voice message". Moderation, reports, takedown and retention apply
+   to audio exactly as to text (Phase 8). Cost: Cloudinary Free plan first; Super Admin Stats show stored audio
+   minutes; moving to a paid plan is an owner decision later (CLAUDE.md §4 "paid service").
+2. **Ruqyah (Phase 3).** A masjid section with headings by category (`nazar` "Protection from Nazar", `sihr`
+   "Protection from black magic", `shifa` "Healing", `protection` "Daily protection", `general`). Each entry is one
+   of: a **Content Library** entry (verified source, as hadith/ayah), **text entered by the masjid** (Arabic + one
+   translation + optional reference — labelled "Added by <masjid>", never as a verified source), or **audio uploaded
+   by the masjid** (with the ownership/permission checkbox, 05 §9). Optional masjid-written instruction per entry
+   (e.g. when to listen) — guidance comes from the masjid, never from the app. ≤ 50 entries per masjid.
+3. **Adhkar after salah (Phase 3).** Library kind `dhikr` (owner imports from a verified source; fields add `repeat`
+   and occasion tags `after_salah`, `morning`, `evening`). The masjid turns "Adhkar after salah" on and picks an
+   ordered set (≤ 30). Home shows an "Adhkar after salah" card for **30 minutes after each fard prayer's jamaat**
+   (adhan when no jamaat) of the first followed masjid that has a set; "See all" always reachable from Masjid Detail.
+   A tap counter for `repeat` lives on the device only.
+4. **Ilm — ask someone (Phase 3).** Masjid contacts: name, role, topics, WhatsApp number (E.164), audience
+   `brothers|sisters`, **consent confirmed** by the admin (required). Musallis see the contacts for their own
+   Brother/Sister choice; one tap opens `https://wa.me/<number>` — the number is not printed on screen (it is still in
+   the public link: consent text says so; audience is a display filter, not access control). ≤ 10 per masjid.
+5. **Blood donation camp (Phase 3).** A masjid-pickable notice template `blood_donation_camp` with four params —
+   date, time range, place, contact (new template param type `phone`, rendered as a WhatsApp button). Shown as an
+   announcement (category `event`, `event_at`) and as a card on Home / Masjid Detail until the camp is over. **No donor
+   list or blood groups in the app** (health data of musallis — CLAUDE.md §2.1).
+6. **Needy people (Phase 5).** Masjid-verified people in need: display name (**first name or initials only**),
+   category (`widow | orphan | disability | illness | elderly | homeless | debt | student | other`), short reason,
+   **their own UPI ID + payee name** (set by the masjid — no change-lock, owner's choice; every change is in the audit
+   log and visible to the Super Admin), **cap** and **received so far (updated by the masjid by hand; history
+   append-only)**, optional **zakat-eligible** tag (the masjid's statement), **consent confirmed** (required;
+   guardian's consent for orphans/minors). The person's phone and private notes are kept **encrypted, admin-only**
+   (never public). Public list ordered **least-funded first** (received ÷ cap, then oldest), progress bar
+   "₹1,200 of ₹3,000"; reaching the cap → `fulfilled` automatically and hidden. Pay = UPI deep link / QR straight to
+   the person (we never touch money — CLAUDE.md §2.2). Personal data deleted 90 days after fulfilled/closed. ≤ 100
+   active per masjid. **Risk accepted by the owner:** without a change-lock, a compromised admin account could swap a
+   person's UPI ID; mitigations: audit trail, Super Admin view, the masjid's own review.
+7. **Personal zakat tracker (Phase 5) — on the device only.** The musalli enters the zakat they owe (no calculation —
+   nisab/rates are fiqh), logs each payment (amount, date, optional note or the needy person paid), sees what remains.
+   Nothing goes to the server (no account, CLAUDE.md §2.1); lost with "Clear all data" or a new phone — the screen says
+   so. Money in integer paise.
+8. **Phase placement:** Phase 3 = F46 first (motion budget), then voice notes, adhkar, Ruqyah, ilm contacts, blood
+   camp (T3.0, T3.13–T3.17). Phase 4 = push text for voice items. Phase 5 = needy people and the zakat tracker
+   (T5.8–T5.9). Specs: 00 §4.9–4.15, 02 (enums, collections), 03 (endpoints), 05 (consent, retention), 07 (A18–A24,
+   B14–B19), 01 §5.5 / 04 (audio pipeline).
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

@@ -10,6 +10,10 @@
 - Admins: display name, optional phone (encrypted), ui locale, passkey public keys, session metadata (browser+OS summary only).
 - Grievances: contact optional, encrypted.
 - Dua requests: name optional, private by default (third-party health/death information). UI hint about family consent.
+- **Needy people** (Phase 5, DECISIONS #104): personal data of third parties who are often vulnerable. Shown publicly: first name or initials, category, short reason, UPI ID + payee name, amounts — nothing else. Phone and private notes encrypted (AES-256-GCM, field key), admin-only, decrypt audited. The admin must tick that **the person (or, for minors/orphans, a guardian) agreed** to be listed with these details; the tick is stored. Deleted 90 days after fulfilled/closed (§6). A person can ask the masjid or the Grievance Officer to be removed at once.
+- **Ilm contacts** (Phase 3, #104): name, role, topics, WhatsApp number of masjid volunteers — published on purpose; admin ticks that each person agreed ("visible to everyone using the app"). Removal on request.
+- **Zakat tracker** (Phase 5, #104): stored only on the musalli's phone (IndexedDB); never sent; covered by "Clear all data". The privacy notice says so.
+- **Blood camps** (#104): no donor list, no blood groups or health data of musallis are collected.
 
 ## 2. Notice & consent
 - **Musalli privacy-at-a-glance** screen in onboarding (4 languages): what's stored on the phone, what's stored on our server (anonymous device id, language, brother/sister choice, followed masjids, notification token), why, how to delete (Settings → Clear all data), link to full privacy policy and grievance officer. Button "Continue". Store `privacy_version` accepted locally and on the device record (field `privacy_version`).
@@ -62,11 +66,13 @@ Exactly as `02_DATA_MODEL.md §6`; constants in `compliance.ts`; retention job w
 - Copy everywhere: "Payments go directly to the masjid's verified UPI account. Masjid Connect does not receive, hold or manage any money." and "Amount received is reported by the masjid."
 - No claims of tax deductibility (80G), no "guaranteed" language.
 - Campaign creation requires undertaking acceptance and an active (approved) payment profile.
+- **Needy people** (#104): footer "Verified by <masjid>. Payments go directly to the person. Masjid Connect does not receive, hold or manage any money." and "Amount received is reported by the masjid." The "zakat-eligible" tag is labelled as the masjid's statement.
 
 ## 9. Intellectual property
 - Content Library entries store `source_name` and `source_license`; import rejects rows without them. Attribution rendered under each hadith/ayah (small reference line).
 - Videos: upload screen requires a checkbox "This bayan is ours or we have permission to share it" (stored with the item).
 - Images: same checkbox for campaign/announcement images.
+- **Voice notes and Ruqyah audio** (#104): the same checkbox ("This recording is ours or we have permission to share it"), stored with the item / entry. Masjid-entered Ruqyah text is labelled "Added by <masjid>" — never presented as a verified source.
 - No third-party trademarks (DECISIONS #18). Fonts are OFL (Inter, Noto, Amiri) — include licenses in `/licenses` page generated at build (also lists npm licenses of shipped code).
 
 ## 10. Legal pages (drafts by Claude Code, final text by owner + lawyer)

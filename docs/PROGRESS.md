@@ -20,7 +20,9 @@
 
 ## ▶ Next session — start here (27 Oct 2026 — Phase 02 DONE; new features requested before Phase 03)
 
-**Owner, 27 Oct 2026:** "works perfectly, good to go from my side; looks good on low-end devices; no design changes". Phase 02 is DONE. The owner then asked for new features before Phase 03 (Ruqyah, needy people, adhkar, ilm contacts, blood camp, personal zakat tracker, voice messages) — questions asked, answers pending; they become DECISIONS entries and spec/phase changes before any code.
+**Owner, 27 Oct 2026:** "works perfectly, good to go from my side; looks good on low-end devices; no design changes". Phase 02 is DONE. The owner then asked for new features before Phase 03 (Ruqyah, needy people, adhkar, ilm contacts, blood camp, personal zakat tracker, voice messages). Questions asked and **answered the same day → DECISIONS #104** (owner: Ruqyah = masjid text or audio + Content Library; needy people without UPI change-lock; voice notes up to 10 min; rest as recommended). Specs updated: 00 §4.9–4.15, 01 §5.5 Audio, 02, 03, 04 R13–R14, 05, 07 A18–A24 / B14–B19; phases: **Phase 03** T3.0 (F46 first) + T3.13–T3.17, Phase 04 voice push text, **Phase 05** T5.8–T5.9.
+
+**Next: start Phase 03 with T3.0 (F46).** F1 (Node 26) on/after 28 Oct, early in Phase 03.
 
 **Earlier handoff (same day):**
 
@@ -202,7 +204,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | # | Found in | Description | Planned fix (phase/task) |
 |---|---|---|---|
-| F1 | T0.1 | Move Node 24 → 26 when Node 26 enters Active LTS (28 Oct 2026): `.nvmrc`, `engines`, `@types/node`, Docker base image, CI (DECISIONS #32) | First session after 28 Oct 2026 (Node 26 Active LTS) — before Phase 03 work (DECISIONS #103) |
+| F1 | T0.1 | Move Node 24 → 26 when Node 26 enters Active LTS (28 Oct 2026): `.nvmrc`, `engines`, `@types/node`, Docker base image, CI (DECISIONS #32) | On/after 28 Oct 2026 (Node 26 Active LTS) — early in Phase 03 (DECISIONS #103) |
 | F2 | T0.2 | ~~Prove client bundles contain only `VITE_PUBLIC_*`~~ — **closed 14 Oct 2026**: `envPrefix` + `parseClientEnv` at build (T0.4) and `pnpm scan:bundles` in CI and inside the web image build (T0.3, DECISIONS #49) | – |
 | F9 | Audit 9 Oct | ~~SSH-from-CI deploy texts~~ — **closed 14 Oct 2026**: 04 §12.1, 01 §4, PHASE_00 T0.3/T0.14 and HANDOFF now describe pull deploys (DECISIONS #27, #49) | – |
 | F10 | Audit 9 Oct | ~~Atlas tier for staging~~ — **closed 16 Oct 2026: DECISIONS #60** (staging on Atlas M0 Free — it supports custom roles via Atlas, views, validators, transactions; production M10 + backup confirmed in Phase 9). Original: Owner wants no paid services. Phase 1 needs an Atlas staging tier with custom roles + views + transactions — likely not the free tier (verify). Decide before Phase 1: paid Atlas tier vs. self-hosted MongoDB for staging. Production Atlas M10 (~$60–80/mo) is in the plan. | Before Phase 1 (owner) |
@@ -246,6 +248,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-27 | 02 → 03 | Phase 02 DONE (owner verified on staging `cdd39fa`, incl. low-end devices). New features agreed with the owner (DECISIONS #104): voice notes, Ruqyah, adhkar after salah, Ilm contacts, blood camp (Phase 3); needy people, personal zakat tracker (Phase 5) — specs and phase files updated, no code yet |
 | 2026-10-27 | 02 / close | T2.14 quality gates (visual baselines in the Playwright Linux image, real-screen perf traces → F46), security review (H1 template injection in link previews, M1 local wipe — fixed), F45 closed, phase-verifier findings fixed (CI e2e rate limit in a test helper, journey 1 in 4 locales, Qibla placeholder dev/staging only, side-by-side images). CI green on `cdd39fa`, staging deployed → **AWAITING OWNER VERIFICATION** (DECISIONS #103) |
 | 2026-10-25 | 02 / T2.13 | PWA/offline completion — DECISIONS #102: worker marks cached API answers; two bugs fixed (clock offset from cached `Date` headers; `focus-existing` launches never navigated → `launchQueue` consumer); banner on failed requests; Background Sync for Ameen; `storage.persist()`; journey 4 e2e. CI red of `609615c` = MongoDB container unhealthy on the runner (flake), `26f7fcc` green + released |
 | 2026-10-25 | 02 / T2.12 | Settings (language/brother-sister to the server, queued offline; Saved; Vibration — F16 closed; Install; My data; Clear all data incl. offline queue; Privacy, Grievance, About) and the `/p/` post landing — DECISIONS #101. Found: onboarding's Brother/Sister help understated what the server keeps (fixed in 4 locales); the legal reader had no keyboard stop (axe) → a Contact & Grievance button; the landing loaded its strings in two rounds → one gate. Perf traces 3/3 green after Docker was resumed. |

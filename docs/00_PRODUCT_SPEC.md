@@ -143,6 +143,56 @@ Language · Brother/Sister · Notifications (status + enable/fix + per-masjid mu
 - Masjid share: Web Share API → text "Follow <Masjid> on Masjid Connect" + `https://<app-domain>/m/<CODE>`; fallback buttons WhatsApp (`https://wa.me/?text=`) and Copy link.
 - Post share: link `https://<app-domain>/p/<postPublicId>` (landing shows the item and a follow button).
 
+> §4.9–4.15 were added on 27 Oct 2026 (DECISIONS #104). Everything is **per masjid**: a musalli sees only what the
+> masjids they follow publish. A section appears only when its masjid has content in it.
+
+### 4.9 Voice notes (Phase 3)
+- Admins can attach a **voice note** (record in the app, or pick an audio file) to an announcement, a dua request, a
+  daily hadith/ayah post and a Ruqyah entry. Maximum **10 minutes**. A **one-line title is required** with every voice
+  note — it is what push, lists and screen readers show (voice is never translated).
+- Musalli: inline player (play/pause, scrub, 1× / 1.5× / 2×, time left); works offline once played.
+- Reports, moderation, takedown and retention apply to voice exactly as to text.
+
+### 4.10 Ruqyah (Phase 3)
+- A masjid section "Ruqyah" with headings: Protection from Nazar · Protection from black magic · Healing (Shifa) ·
+  Daily protection · General.
+- Each entry is one of: a **Content Library** entry (verified source); **text the masjid enters** (Arabic +
+  translation + optional reference, labelled "Added by <masjid>"); **audio the masjid uploads** (ownership/permission
+  checkbox required). Optional instruction per entry written by the masjid (e.g. when to listen). ≤ 50 entries.
+- The app never adds its own religious text or guidance (CLAUDE.md §2.3).
+
+### 4.11 Adhkar after salah (Phase 3)
+- The masjid turns it on and picks an ordered set (≤ 30) of `dhikr` entries from the verified Content Library.
+- Home shows an "Adhkar after salah" card for 30 minutes after each fard prayer's jamaat (or adhan when there is no
+  jamaat); "See all" from Masjid Detail any time. Each dhikr shows its repeat count with a tap counter (on the phone
+  only).
+
+### 4.12 Ilm — ask someone (Phase 3)
+- The masjid lists people who can be contacted for Islamic questions or advice: name, role, topics, WhatsApp number,
+  for **brothers** or for **sisters**; the admin must confirm each person agreed to be listed.
+- Musallis see the contacts for their Brother/Sister choice; one tap opens a WhatsApp chat. ≤ 10 contacts.
+
+### 4.13 Blood donation camp (Phase 3)
+- A ready-made notice: date, time, place, contact — nothing else. Shown as an announcement and as a card on Home and
+  Masjid Detail until the camp is over; one tap contacts the organiser on WhatsApp.
+- No donor list or blood groups are collected in the app.
+
+### 4.14 Needy people (Phase 5)
+- The masjid adds people it has verified as in need: **first name or initials only**, category (widow · orphan ·
+  disability · illness · elderly · homeless · debt · student · other), a short reason, **their own UPI ID** and payee
+  name, a **cap** (how much they need) and, updated by the masjid by hand, **received so far**; optional
+  "zakat-eligible" tag (the masjid's statement). The admin must confirm the person's consent (a guardian's for
+  orphans/minors). Their phone number and private notes are stored encrypted and shown only to the masjid's admins.
+- Musallis see the list **least-funded first** with a progress bar ("₹1,200 of ₹3,000"); "Pay" opens their UPI app (or
+  shows a QR) straight to the person — the app never handles money. A person whose cap is reached disappears
+  automatically. Filter: zakat-eligible. Footer: "Verified by <masjid>. Payments go directly to the person."
+- Personal data is deleted 90 days after a person is fulfilled or removed. ≤ 100 active per masjid.
+
+### 4.15 My zakat — personal tracker (Phase 5)
+- On the phone only (no account, nothing sent to the server): the zakat amount the user owes (entered by them — the
+  app does not calculate zakat), each payment logged (amount, date, optional note or the needy person paid), what
+  remains. Lost with "Clear all data" or a new phone — the screen says so.
+
 ## 5. Super Admin capabilities (summary)
 Dashboard (SLA alerts first) · Masjids (create, edit, activate, suspend, delete-with-retention, set quotas, per-masjid Hijri offset) · Admins (invite, re-invite, revoke sessions, revoke passkeys, remove) · Payment profile approvals (side-by-side old/new, payee name, approve → 24h hold → active; reject with reason) · Moderation queue (reports with SLA countdown, preview, remove/restore, suspend masjid) · Grievances (ack/resolve with timers) · Legal orders register (3-hour timer) · Content library (import JSON, review, verify, retire) · Notice templates (4-language text, params, icon) · Global settings (Hijri offset, default quotas, maintenance banner) · Audit log (filter by actor/masjid/action/date, export CSV) · QR poster generator · Stats (masjids, followers, push success rate, Cloudinary credits used).
 

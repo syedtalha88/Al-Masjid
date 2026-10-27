@@ -1,13 +1,15 @@
 # PHASE 03 — Masjid Admin Content Tools
 
 ## Goal
-A masjid admin with little English can, using only taps, keep prayer times, special dates and Ramadan settings current, and publish notices (from templates), daily hadith/ayah (from the verified library), and dua requests — with a faithful preview and a clear publish moment. The Super Admin can import and verify the Content Library and manage notice templates. Musallis see changes within one version poll. (Push sending is Phase 4; this phase records `notify` intent and creates pending `notification_jobs` outbox documents.)
+A masjid admin with little English can, using only taps, keep prayer times, special dates and Ramadan settings current, and publish notices (from templates), daily hadith/ayah (from the verified library), and dua requests — with a faithful preview and a clear publish moment. The Super Admin can import and verify the Content Library and manage notice templates. Musallis see changes within one version poll. Added 27 Oct 2026 (DECISIONS #104): **voice notes** on posts, **Ruqyah**, **adhkar after salah**, **Ilm contacts** and the **blood donation camp** notice — and, first of all, the real-screen motion budget (F46). (Push sending is Phase 4; this phase records `notify` intent and creates pending `notification_jobs` outbox documents.)
 
 ## Read before starting
-`CLAUDE.md` · `00_PRODUCT_SPEC.md` §3.2, §4.2, §4.3 (Announcements, Daily, Dua), §7 · `02_DATA_MODEL.md` (masjid_timings, special_timings, items, content_library, notice_templates, audit_log, §4 policy, §5 side effects) · `03_API_SPEC.md` §4 (Masjid-scoped), §5 (Library, Templates) · `04_SECURITY.md` §5–6 · `05_LEGAL_COMPLIANCE_IMPLEMENTATION.md` §2, §9 · `06_DESIGN_SYSTEM.md` §3 (admin scale), §6 (admin components) · `07_SCREEN_SPECS.md` B3–B7, B11–B13, C8–C9 · `08_MOTION.md` §5.12 · `09_I18N.md` §7–8.
+`CLAUDE.md` · `00_PRODUCT_SPEC.md` §3.2, §4.2, §4.3 (Announcements, Daily, Dua), §7 · `02_DATA_MODEL.md` (masjid_timings, special_timings, items, content_library, notice_templates, audit_log, §4 policy, §5 side effects) · `03_API_SPEC.md` §4 (Masjid-scoped), §5 (Library, Templates) · `04_SECURITY.md` §5–6 · `05_LEGAL_COMPLIANCE_IMPLEMENTATION.md` §2, §9 · `06_DESIGN_SYSTEM.md` §3 (admin scale), §6 (admin components) · `07_SCREEN_SPECS.md` B3–B7, B11–B13, C8–C9 · `08_MOTION.md` §5.12, §8 · `09_I18N.md` §7–8 · **DECISIONS #103 (F46), #104** · `00_PRODUCT_SPEC.md` §4.9–4.13 · `07_SCREEN_SPECS.md` A18–A22, B14–B18 · `01_ARCHITECTURE.md` §5.5 (Audio) · `04_SECURITY.md` R14.
 
 ## Owner prerequisites
 - Cloudinary account on the **Free plan** (no credit card; MFA on — DECISIONS #40). Claude Code gives exact steps to: turn on **strict transformations**, create the six named transformations (480/960/1440 × AVIF/WebP), create two API keys (one for `api-admin`, one for `worker`), and add the `media-staging.<domain>` Cloudflare record pointing at the staging VPS (Caddy proxies to Cloudinary). Keys go only into the staging VPS env files.
+- Cloudinary: one more named transformation for audio (`audio_m4a`: AAC ~48 kbps mono) — Claude Code gives the steps; the Free plan first, owner watches the credits in Super Admin Stats (#104).
+- Content Library JSON may now also contain `dhikr` entries (with `repeat`, `occasions`) and Ruqyah entries — same verified-source rules (CLAUDE.md §2.3).
 - **Real content is not required to finish this phase** (placeholders are used). But tell the owner now that before the pilot they must supply a verified Content Library JSON (format below) and reviewed template translations (see owner legal doc).
 
 ## Out of scope
@@ -16,6 +18,10 @@ Push delivery, donations, chanda, videos, moderation.
 ---
 
 ## Tasks
+
+### T3.0 — Real-screen motion budget (F46) — first
+**Do:** Make `e2e/app/screens.perf.spec.ts` (Home → Masjid Detail push + swipe-back pop, tab switches, sheet open/drag/dismiss at 4× CPU) pass the 08 §8 limits and remove its `test.fixme`. Start from the T2.14 profiles (DECISIONS #103): the pop's React commit when Home becomes top again, a tab layer's style recalculation on show, the sheet's first measurement in a rAF; add the Scan modal's axe pass. Check on a low-end Android (owner O16; owner reported "looks good" on 27 Oct).
+**Acceptance:** [ ] The real-screen perf spec passes in CI 3 runs in a row (no `fixme`). [ ] No regression in the navigator / Updates fling specs. [ ] Scan modal axe clean.
 
 ### T3.1 — Admin Home completion
 **Do:** Tiles become live (Prayer Times, Notice, Hadith/Ayah, Dua Request, Special Dates & Ramadan, My Posts, Masjid Profile). Donation Drive, Chanda, Bayan Video tiles show "Coming soon" (hidden in production builds until their phase). Header with followers chip (`GET /stats`), today strip, quota pill (reads `GET /notifications/quota`; counting implemented here, sending in Phase 4), inbox banner placeholder.
@@ -65,7 +71,27 @@ Push delivery, donations, chanda, videos, moderation.
 **Do:** Prepare a "5-task usability script" in the report for the owner (set Maghrib jamaat offset, publish "No water 10–2", publish today's hadith, create an illness dua request with private name, delete a post) — owner runs it with a real masjid person (owner guide Phase 03).
 **Acceptance:** [ ] Script included; all 5 tasks achievable in ≤ 6 taps each (documented tap counts).
 
+### T3.13 — Voice notes (B14 + A18)
+**Do:** `POST /audio` per 01 §5.5 Audio (busboy limits, magic bytes, Cloudinary `video` resource, duration ≤ 600 s from the upload response — else delete + `422 AUDIO_TOO_LONG`, 48-value peak envelope, storage adapter `cloudinary` + local `fs`, rate limit `adminUploads`); Caddy `media` route `/a/m4a/<key>` allow-list; CSP `media-src`. `voice` on announcement / daily_content / dua_request (title required) — Zod, validator, `v_pub_items`. Admin recorder B14 (MediaRecorder; Safari produces MP4/AAC, Chrome Ogg/Opus or WebM — both accepted; auto-stop at 10:00; pause/resume; re-record; file picker; ownership checkbox). Musalli player A18 (`VoiceNote` in `@mc/ui`, one at a time, speed, scrub, offline after first play — worker CacheFirst with range requests, max 30 / 30 days). Push copy for voice items is Phase 4.
+**Acceptance:** [ ] Upload tests: 10:01 audio refused and deleted; non-audio / polyglot / oversized refused; Safari MP4 and Chrome Opus accepted (fixtures generated, never real recitation). [ ] E2E: admin records (fake mic) → musalli plays it (both phones). [ ] Player keyboard + screen-reader labels; reduced motion. [ ] Removal deletes the media (integration with the storage adapter).
+
+### T3.14 — Adhkar after salah (B16 + A20)
+**Do:** Library kind `dhikr` (+ `repeat`, `occasions`) through import, review and verify (T3.4). Admin `GET/PUT /adhkar` (verified `dhikr` only, ≤ 30, ordered). Bundle `adhkar`. Musalli Home card 30 min after each fard jamaat (adhan when no jamaat) for the first followed masjid with a set — computed with `@mc/domain/prayer`; list screen with device-only tap counter.
+**Acceptance:** [ ] Domain tests for the 30-minute window across every prayer and the after-Isha / midnight edge. [ ] E2E with a pinned clock: card appears after Dhuhr jamaat and is gone 30 min later. [ ] Placeholder library entries only (10 §5).
+
+### T3.15 — Ruqyah (B15 + A19)
+**Do:** `ruqyah_entries` collection (02), policy cells + tests, view `v_pub_ruqyah`, migration (validator `oneOf` by source, indexes). Admin CRUD + order (`/ruqyah`); sources: library (verified, any kind), masjid text, audio (T3.13). Public `GET /masjids/:id/ruqyah?v=` (immutable with v) + `sections.ruqyah` count in the bundle; Masjid Detail row; A19 screen grouped by category; "Added by <masjid>" label for masjid text.
+**Acceptance:** [ ] Policy matrix + DB privileges for the new collection. [ ] Masjid text never shown with a source/verified line (component test). [ ] 50-entry limit; audio requires the ownership tick. [ ] 4-locale screenshots; Arabic never mirrored.
+
+### T3.16 — Ilm contacts (B17 + A21)
+**Do:** `masjid_contacts` collection, policy + view `v_pub_contacts`, admin CRUD in Masjid Profile (consent tick required, E.164 validation, ≤ 10), bundle `contacts`; A21 rows for the device's Brother/Sister choice; `wa.me` link with a localized greeting.
+**Acceptance:** [ ] API refuses a contact without `consentConfirmed: true`. [ ] Sisters' contacts not shown on a brothers device and vice versa (e2e). [ ] The number is not rendered as text (component test).
+
+### T3.17 — Blood donation camp (B18 + A22)
+**Do:** Template param type `phone` (E.164; WhatsApp button in renderers); seed template `blood_donation_camp` (date, time range, place, contact) with draft translations; Admin Home tile opening B5 with it preselected; A22 card on Home / Masjid Detail until the camp's end.
+**Acceptance:** [ ] Template renders in 4 locales (ICU tests). [ ] Card hidden after the end time (pinned-clock e2e). [ ] No new collection or personal data.
+
 ---
 
 ## Phase exit criteria
-E2E journeys 6–7 green; library and template flows tested; image pipeline security tests green; budgets (admin initial JS ≤ 220 KB gz); phase-verifier PASS; security-reviewer clean; report includes tap counts and screenshots of every admin screen in 4 locales.
+E2E journeys 6–7 green; F46 perf spec green (T3.0); voice note record → play e2e green; library and template flows tested; image pipeline security tests green; budgets (admin initial JS ≤ 220 KB gz); phase-verifier PASS; security-reviewer clean; report includes tap counts and screenshots of every admin screen in 4 locales.

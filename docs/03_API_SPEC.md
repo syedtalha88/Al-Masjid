@@ -52,6 +52,8 @@ Exceeded → 429 with `Retry-After`.
 | `GET /masjids/versions?ids=` | – | `{[id]: {v, status}}` for ≤ 20 ids | s-maxage=15, swr=60 |
 | `GET /masjids/:id/bundle?v=` | – | Masjid profile, schedules (raw config — client resolves times), jumu'ah, special dates (next 60 days), ramadan, active payment profile `{vpa, payeeName}`, active campaigns summary, chanda (last 8 weeks if shown) | immutable w/ v |
 | `GET /masjids/:id/feed?v=&type=&aud=&cursor=&limit=` | – | Paginated items (limit ≤ 30), `aud` ∈ brothers/sisters → returns everyone + that audience | immutable w/ v |
+| `GET /masjids/:id/ruqyah?v=` | – | Ruqyah entries by category, library content and audio URLs expanded (DECISIONS #104) | immutable w/ v |
+| `GET /masjids/:id/beneficiaries?v=&zakat=` | – | Active needy people, least-funded first; public fields only (Phase 5, #104) | immutable w/ v |
 | `GET /items/:publicId?v=&aud=` | – | Full item incl. type detail + library content | immutable w/ v |
 | `POST /items/:publicId/ameen` | Device | Idempotent (via `recordAmeen`); returns `{count}` | no-store |
 | `GET /library/:id` | – | Library entry (verified only) | s-maxage=86400 |
@@ -59,6 +61,9 @@ Exceeded → 429 with `Retry-After`.
 | `POST /reports` | Device + Turnstile | `{targetType, targetPublicId, reason, details?}` | no-store |
 | `POST /grievances` | Turnstile | `{category, description, contact?}` → `{publicRef}` | no-store |
 | `GET /legal/:doc/:locale` | – | Markdown → sanitized HTML for privacy/terms/grievance-officer/content-policy | s-maxage=3600 |
+
+
+Bundle additions (DECISIONS #104): `adhkar` (enabled + the ordered `dhikr` library entries), `contacts` (Ilm — both audiences; the client shows the device's own), `sections {ruqyah: count, needy: count}` so Masjid Detail can show its rows without loading the lists. Items carry `voice {url, durationS, peaks?}` when they have a voice note.
 
 Non-API routes on the app origin: `/m/:code` (SPA route — landing/follow), `/p/:publicId` (SPA route — item landing). Both work for non-installed visitors. For link previews (WhatsApp), Caddy routes these two paths to `api-public`, which returns the built `index.html` with OpenGraph `<meta>` tags injected server-side (masjid name / item title only, HTML-escaped, no inline scripts; uniform generic tags for unknown codes) — `Cache-Control: public, s-maxage=300`.
 
@@ -94,10 +99,17 @@ Non-API routes on the app origin: `/m/:code` (SPA route — landing/follow), `/p
 | Chanda | `GET /chanda` · `PUT /chanda/:weekStart` `{amountPaise, note?, notify}` · `PATCH /chanda/settings` `{show, weekStart}` |
 | Payment | `GET /payment` (active + pending) · `POST /payment/requests` `{vpa, payeeName, note}` |
 | Videos (YouTube links only — DECISIONS #39) | `POST /videos/preview` `{url}` → `{youtubeId, startS?, title, thumbnailPreviewUrl}` (strict parse + oEmbed; `422 INVALID_VIDEO_LINK` / `422 VIDEO_UNAVAILABLE`) · `POST /videos` `{url, title, speaker?, description?, audience, locale, notify}` → published item (thumbnail copied to Cloudinary) · `PATCH /videos/:id` · `DELETE /videos/:id` |
+| Voice notes | `POST /audio` (multipart ≤ 25 MB; Ogg/Opus, WebM, MP4/M4A/AAC, MP3, WAV, 3GP by magic bytes; duration ≤ 600 s) → `{audioKey, durationS, peaks}` — attached as `voice` to `POST /items/announcement`, `/items/daily-content`, `/items/dua` (then `title` required) and to Ruqyah entries (#104) |
+| Ruqyah | `GET /ruqyah` · `POST /ruqyah` · `PATCH /ruqyah/:id` · `DELETE /ruqyah/:id` · `PUT /ruqyah/order` (#104) |
+| Adhkar | `GET /adhkar` · `PUT /adhkar` `{enabled, libraryIds[] ≤ 30}` (verified `dhikr` entries only) (#104) |
+| Ilm contacts | `GET /contacts` · `POST /contacts` (`consentConfirmed: true` required) · `PATCH /contacts/:id` · `DELETE /contacts/:id` (#104) |
+| Needy people (Phase 5) | `GET /beneficiaries?status=` · `POST /beneficiaries` (`consentConfirmed: true` required) · `PATCH /beneficiaries/:id` · `POST /beneficiaries/:id/received` `{receivedPaise}` · `POST /beneficiaries/:id/close` · `GET /beneficiaries/:id/private` (decrypts phone/note for own masjid admins; audited) (#104) |
 | Library/templates (read) | `GET /library?kind=&q=&category=&cursor=` · `GET /library/suggestion?kind=` · `GET /templates` |
 | Notifications | `GET /notifications/quota` `{used, limit, resetsAt}` · `GET /notifications/jobs?cursor=` |
 | Stats | `GET /stats` `{followers, itemsThisWeek, ameenThisWeek}` (`ameenThisWeek` from `masjid_stats.ameens_7d`, up to 1 h old) |
 | Uploads | `POST /images` (multipart, purpose ∈ announcement/campaign) → `{imageKey, urls}` |
+
+The blood donation camp (#104) is an announcement from the masjid-pickable template `blood_donation_camp` (`POST /items/announcement`) — no endpoint of its own.
 
 Publishing endpoints accept `notify: boolean` and return `{item, notification: {queued, targeted, quotaLeft} | null}`.
 

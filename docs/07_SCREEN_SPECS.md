@@ -152,6 +152,46 @@ Large title "Settings". Grouped list (iOS style, white grouped cards on canvas):
 - Annual terms reminder sheet.
 - Push notification: title = masjid name, body = item title/first line, icon = app icon (badge monochrome icon for Android), click → `/items/:publicId`.
 
+## A18. Voice note player (inside A7, A8, A9, item detail, A19) — DECISIONS #104
+- `VoiceNote`: play/pause (56 px circle), waveform from `peaks` (decorative) with a scrub thumb, elapsed / remaining,
+  speed chip 1× → 1.5× → 2×. One plays at a time; leaving the screen pauses. Title always visible above (required).
+- Offline: a played note is kept by the worker; an unplayed one shows "Available when online". Reduced motion: no
+  waveform animation. Screen reader: "Voice message, 3 minutes 20 seconds, play".
+
+## A19. Ruqyah — Masjid Detail row "Ruqyah" (only when the masjid has entries)
+- Inline NavBar + masjid subtitle. Sections with headings: Protection from Nazar · Protection from black magic ·
+  Healing (Shifa) · Daily protection · General (only non-empty ones, in this order).
+- Entry card: optional title; library entry → `HadithCard`-style Arabic (Amiri, never mirrored) + translation +
+  reference + source line; masjid text → same card with "Added by <masjid>" instead of a source; audio → A18 player.
+  Masjid instruction (if any) in a muted InfoNote under the entry ("Listen after Asr…" — written by the masjid).
+
+## A20. Adhkar after salah
+- Home card (30 min after each fard jamaat — adhan when no jamaat — of the first followed masjid with a set): title
+  "Adhkar after salah · <prayer>", the first dhikr (Arabic, Amiri), "See all". Dismissible for that prayer.
+- List screen (also from Masjid Detail row "Adhkar"): ordered dhikr cards — Arabic, transliteration (toggle as A8),
+  translation, reference; repeat count with a large tap counter (haptic tick, resets per session — device only).
+
+## A21. Ilm — Masjid Detail row "Ask the masjid" (only when contacts exist for the device's audience)
+- Intro line "For Islamic questions and advice, contact:". Contact rows: avatar initial, name, role, topics, a
+  WhatsApp button "Message" → `https://wa.me/<number>?text=<"Assalamu alaikum" in the UI language>`. The number is
+  not printed. Only contacts for the device's Brother/Sister choice.
+
+## A22. Blood donation camp card (Home + Masjid Detail while the camp is upcoming)
+- Card: drop icon, "Blood donation camp", date · time range, place, "Contact on WhatsApp" button (template param
+  `phone`); opens the announcement detail. Disappears after the camp's end time.
+
+## A23. Help the needy (Phase 5) — Masjid Detail row "Help the needy" (only when active entries exist)
+- Intro: "Verified by <masjid>. Payments go directly to the person." Chip "Zakat-eligible" filter.
+- Rows least-funded first: category icon + label, display name, reason (2 lines), ProgressBar "₹1,200 of ₹3,000",
+  zakat tag. Tap → sheet: details, "Pay with UPI" (UPI deep link to the person, amount left blank), "Show UPI QR",
+  payee name + VPA copy, "Amount received is reported by the masjid." After returning from the UPI app: "Log this in
+  My zakat?" (A24).
+
+## A24. My zakat (Phase 5) — Settings → "My zakat (only on this phone)"
+- Amount owed (NumberPad; label for the year, e.g. "1447 AH"), list of payments (amount, date, note / needy person),
+  remaining (large), "Add payment". Notice: "Saved only on this phone. Clear all data or a new phone removes it. The
+  app does not calculate zakat."
+
 ---
 
 # Part B — Masjid Admin app (`apps/admin`)
@@ -220,6 +260,34 @@ Success: check animation + "Published. 1,240 people will be notified." + buttons
 
 ## B13. Masjid Profile
 - Photo (change), names in 4 scripts (view; change requests go to Super Admin), area/address (view), Hijri adjust (−2…+2 with today's Hijri preview), Chanda settings, Payment (B8), Admins list (view; owners only), My account (language, sessions, passkeys list with labels, "Log out", "Log out all devices"), Undertaking (view accepted version).
+
+## B14. Voice note recorder (in B5, B6, B7, B15) — DECISIONS #104
+- Big record button (56 px+), live level meter, timer counting to 10:00 (auto-stop), pause/resume, play back, re-record,
+  "Use this". Or "Choose audio file". Title field required (one line) when a voice note is attached. Upload progress;
+  ownership checkbox.
+
+## B15. Ruqyah
+- List grouped by category; "+ Add" → choose: From library (search `verified` entries) · Type text (Arabic +
+  translation + reference) · Record / upload audio (B14). Optional instruction. Drag to reorder; delete with confirm.
+
+## B16. Adhkar after salah
+- Switch "Show adhkar after salah", ordered list of chosen `dhikr` entries from the library (add, reorder, remove),
+  preview of the Home card.
+
+## B17. Ilm contacts (in B13 Masjid Profile)
+- List (max 10); add/edit: name, role, topics, WhatsApp number (+91 prefilled), "For brothers / For sisters", required
+  checkbox "This person agreed to be listed — their name and WhatsApp will be visible to app users".
+
+## B18. Blood donation camp
+- Admin Home tile → the `blood_donation_camp` template in B5 directly: date, time range, place, contact number —
+  preview — publish (notify on by default).
+
+## B19. Needy people (Phase 5)
+- List with status chips (Active · Fulfilled · Closed), each with progress. Add/edit: display name ("first name or
+  initials only"), category cards, reason, UPI ID (+ scan UPI QR) and payee name, cap (NumberPad), zakat-eligible
+  switch, private phone/note (encrypted, "only admins of this masjid see this"), required consent checkbox ("The person
+  — or a guardian for a child — agreed to be listed with these details"). "Update received" sheet (live %); reaching
+  the cap shows "Fulfilled — hidden from the app". Close / delete with confirm.
 
 ---
 

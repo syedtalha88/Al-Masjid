@@ -34,6 +34,8 @@ Threat actors: opportunistic bots/scrapers, fraudsters targeting donations, comm
 | R10 | XSS → session theft in admin | No user HTML anywhere; React escaping; strict CSP + Trusted Types; HttpOnly cookies; admin app on separate origin |
 | R11 | NoSQL injection / mass assignment | Express `query parser: 'simple'`; every input Zod-parsed with `.strict()` objects into primitives; repositories accept typed args only; `$`/`.`-key guard; policy-layer field allow-lists for every update; MongoDB `$jsonSchema` validators with `additionalProperties: false`; no `$where`/`$function`/`$accumulator`/server-side JS (Semgrep rule; Atlas server-side JS disabled where configurable) |
 | R12 | VPS compromise | Hardened host (§12.2), SSH keys only + restricted source, no public ports except 80/443 from Cloudflare, containers non-root/read-only/cap-dropped, per-process credentials (a compromised `api-public` container still can't use admin/system credentials — DECISIONS #7), Atlas IP access list = VPS IP only, secrets files mode 600, automatic security updates, provider snapshots |
+| R13 | Needy person's UPI ID swapped (DECISIONS #104 — no change-lock, owner's choice) | Admin-only write through `state/beneficiary.ts`; every create/change of `vpa`/`payee_name` audited with old → new; Super Admin can list recent beneficiary UPI changes; musalli sheet shows payee name next to the VPA; UPI apps show the payee name before paying |
+| R14 | Abusive or unlawful audio (voice notes, Ruqyah audio) | Same report → moderation → removal path as items (removal deletes the media + CDN purge); ownership checkbox; length ≤ 10 min, size ≤ 25 MB, magic-byte allow-list, re-encoded by Cloudinary to one AAC rendition (no original served) |
 
 ## 3. Authentication (admins)
 

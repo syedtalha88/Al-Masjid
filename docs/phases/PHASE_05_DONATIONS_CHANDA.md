@@ -1,10 +1,10 @@
 # PHASE 05 — Donations, Chanda & UPI Change-Lock
 
 ## Goal
-Masjids can run transparent donation drives and show weekly chanda; musallis donate in one tap through any UPI app (or the QR) directly to the masjid's **verified** UPI account; and no one — not even a compromised admin account — can silently redirect donations.
+Masjids can run transparent donation drives and show weekly chanda; musallis donate in one tap through any UPI app (or the QR) directly to the masjid's **verified** UPI account; and no one — not even a compromised admin account — can silently redirect donations to the masjid. Added 27 Oct 2026 (DECISIONS #104): **needy people** the masjid has verified, paid directly through UPI (least-funded first, auto-hidden at their cap), and a personal **zakat tracker** that lives only on the phone.
 
 ## Read before starting
-`CLAUDE.md` · `00_PRODUCT_SPEC.md` §4.3 (Donation campaigns, Weekly chanda) · `01_ARCHITECTURE.md` §5.7 (upi, money) · `02_DATA_MODEL.md` (payment_profiles + state machine, campaigns, campaign_amount_history, chanda_weeks) · `03_API_SPEC.md` (Campaigns, Chanda, Payment, Super Payments, jobs payment-activate & campaign-close) · `04_SECURITY.md` §2 R1, §6 · `05_LEGAL_COMPLIANCE_IMPLEMENTATION.md` §8 · `06_DESIGN_SYSTEM.md` (ProgressBar, AmountPair, MetaRow, QrCodeView, ChandaChart) · `07_SCREEN_SPECS.md` A10, A11, B8, B9, C4 · `08_MOTION.md` §5.7 · **ref-2/3 and ref-3/4**.
+`CLAUDE.md` · `00_PRODUCT_SPEC.md` §4.3 (Donation campaigns, Weekly chanda) · `01_ARCHITECTURE.md` §5.7 (upi, money) · `02_DATA_MODEL.md` (payment_profiles + state machine, campaigns, campaign_amount_history, chanda_weeks) · `03_API_SPEC.md` (Campaigns, Chanda, Payment, Super Payments, jobs payment-activate & campaign-close) · `04_SECURITY.md` §2 R1, §6 · `05_LEGAL_COMPLIANCE_IMPLEMENTATION.md` §8 · `06_DESIGN_SYSTEM.md` (ProgressBar, AmountPair, MetaRow, QrCodeView, ChandaChart) · `07_SCREEN_SPECS.md` A10, A11, B8, B9, C4 · `08_MOTION.md` §5.7 · **ref-2/3 and ref-3/4** · **DECISIONS #104** · `00_PRODUCT_SPEC.md` §4.14–4.15 · `02_DATA_MODEL.md` beneficiaries · `05_LEGAL_COMPLIANCE_IMPLEMENTATION.md` §1, §8 · `04_SECURITY.md` R13 · `07_SCREEN_SPECS.md` A23, A24, B19.
 
 ## Owner prerequisites
 - A real masjid (or the owner's own) UPI ID for a ₹1 end-to-end test on staging. **Strong recommendation for real masjids: a merchant/business UPI ID** (from a bank current account or a free business-UPI app), because some UPI apps restrict or warn on intent-based payments to personal UPI IDs. The QR path works regardless.
@@ -40,8 +40,16 @@ Any payment processing, payment confirmation/reconciliation, receipts, 80G.
 **Do:** Updates chips gain Donations/Chanda; unseen counts; push texts for campaign create/update and chanda (localized); Super Admin Stats show active campaigns count.
 **Acceptance:** [ ] Visual baselines updated for all affected screens.
 
+### T5.8 — Needy people (B19 + A23)
+**Do:** `beneficiaries` + `beneficiary_amount_history` (02), migration (validator, indexes, append-only privileges), `state/beneficiary.ts` (create, update, `setReceived` → `funded_permille`, auto-`fulfilled` at the cap and history row in one transaction, close, delete; every change audited with old → new UPI fields), private phone/note encrypted with the field key (Phase 1 crypto) and decrypted only for own-masjid admins (audited), view `v_pub_beneficiaries`, retention (90 days after fulfilled/closed). Admin API + UI B19 (consent tick required — guardian wording for minors; "first name or initials only" hint; UPI QR scan via `parseUpiUri`). Public `GET /masjids/:id/beneficiaries?v=&zakat=` least-funded first; bundle `sections.needy`; A23 list + pay sheet using `buildUpiUri` and the QR sheet from T5.4; disclaimers in 4 locales.
+**Acceptance:** [ ] Policy matrix + DB-privilege tests (history append-only; `private_enc` never in any public response — integration test greps every public response). [ ] Ordering and auto-fulfil tests (concurrent `setReceived`). [ ] Consent required (API 422 without it). [ ] Retention purge test. [ ] E2E: admin adds a person → musalli sees them → masjid sets received = cap → gone after the next poll.
+
+### T5.9 — My zakat (A24, device only)
+**Do:** Device document `zakat {label ≤20, owed_paise, payments [{at, amount_paise, note? ≤60, beneficiary_public_id?}] ≤ 500}` (schema-versioned, validated, part of Clear all data); A24 screen in Settings; "Log this in My zakat?" after a needy-person payment; money helpers from `@mc/domain/money`; no network calls.
+**Acceptance:** [ ] Unit tests: remaining never negative display, paise integers, 500-entry cap. [ ] E2E: nothing about zakat is sent to the server (network assertion) and Clear all data removes it. [ ] Notice text in 4 locales.
+
 ### T5.7 — Quality gates
-**Do:** Full e2e journey 9; budgets (QR generator code lazy); axe; security-reviewer focus on payment flow.
+**Do:** Full e2e journey 9 + the T5.8/T5.9 journeys; budgets (QR generator code lazy); axe; security-reviewer focus on payment flow.
 **Acceptance:** [ ] All green.
 
 ---
