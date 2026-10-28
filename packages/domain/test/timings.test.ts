@@ -72,6 +72,13 @@ describe('validateTimings', () => {
     ]);
   });
 
+  it('several problems come back in prayer order, Jumuah last', () => {
+    const jumuah = [{ seq: 1, khutbahTime: '13:30', jamaatTime: '13:00' }];
+    expect(
+      validateTimings(schedule({ isha: fixed('19:00'), fajr: fixed('06:30') }, jumuah), FROM).map((i) => i.prayer),
+    ).toEqual(['fajr', 'isha', 'jumuah']);
+  });
+
   it('a problem that starts later in the range is reported with that later date', () => {
     // Isha adhan is earliest around 20 Nov (≈ 18:55) and gets later again in December (≈ 18:58 on 5 Dec).
     const issues = validateTimings(schedule({ isha: fixed('18:57') }), '2026-11-20', 30);

@@ -1347,6 +1347,25 @@ Chrome traces with the timeline-stack category attributed the rest:
 **Consequences:** the local Windows dev PC is too noisy to judge 50 ms reliably (it varies ±20 ms between runs); CI on
 Linux is the judge. Earlier T2.14 fixes (#103) stay.
 
+### #106 — Content Library search (PHASE_03 T3.4) — ACCEPTED (Claude Code, 28 Oct 2026)
+**Context:** 02 asks for a `search_text` that is "lowercase, NFKD, Arabic harakat/tatweel removed" over all
+translations, transliterations, reference and tags, with a `default_language: "none"` text index, and T3.4 for
+"normalized search incl. Arabic without harakat". Removing every combining mark (the usual NFKD recipe) would also
+remove Devanagari and Telugu vowel signs — letters of the word, not diacritics.
+**Decision:**
+- `@mc/domain/search` `normalizeSearch`: NFKD → lower case → remove Latin combining diacritics (U+0300–036F), Arabic
+  harakat/shadda/sukun/hamza-madda marks/superscript alef, Quranic annotation marks, tatweel, and invisible characters
+  (ZWSP/ZWNJ/ZWJ, direction marks and controls, BOM, soft hyphen) → every non-letter/digit/mark run becomes one space.
+  NFKD followed by mark removal also folds أ إ آ to ا. Indic vowel signs stay. Idempotent (property test).
+- `librarySearchText` puts reference and tags first, then the English translation, Arabic, other translations and
+  transliterations; above the 20 000-character validator limit it is cut at the last whole word, so the identifying
+  fields always survive.
+- Queries use the text index: `searchTerms` (normalized, unique, ≤ 8 words) are each quoted, so `$text` ANDs them
+  (every word must appear). Whole words only — no prefix match: admins mostly tap topic/category chips, and a regex
+  over 20 kB documents would scan the collection on every keystroke.
+**Consequences:** "pati" does not find "patience"; a typed word must be complete. Revisit with real library data if
+admins struggle (T3.12 usability check).
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._
