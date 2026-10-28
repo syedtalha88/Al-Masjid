@@ -291,6 +291,7 @@ errors,UNSAFE_INPUT,Some details look wrong. Please check and try again.,कु�
 errors,INVALID_JSON,Something went wrong sending your request. Please try again.,आपका अनुरोध भेजने में दिक्कत हुई। कृपया फिर कोशिश करें।,no
 errors,PAYLOAD_TOO_LARGE,That is too large to send. Please try something smaller.,यह भेजने के लिए बहुत बड़ा है। कृपया कुछ छोटा भेजें।,no
 errors,UNSUPPORTED_MEDIA_TYPE,Something went wrong sending your request. Please try again.,आपका अनुरोध भेजने में दिक्कत हुई। कृपया फिर कोशिश करें।,no
+errors,UPLOAD_INVALID,We could not read that file. Please choose one file and try again.,हम वह फ़ाइल नहीं पढ़ सके। कृपया एक फ़ाइल चुनें और फिर से कोशिश करें।,no
 errors,CORS_NOT_ALLOWED,That action isn’t available here.,यह काम यहाँ उपलब्ध नहीं है।,no
 errors,INTERNAL_ERROR,Something went wrong on our side. Please try again in a moment.,हमारी तरफ़ से कुछ गड़बड़ हुई। कृपया थोड़ी देर में फिर कोशिश करें।,no
 errors,RATE_LIMITED,Too many tries. Please wait a little and try again.,बहुत ज़्यादा कोशिशें हो गईं। थोड़ा रुककर फिर से कोशिश करें।,no

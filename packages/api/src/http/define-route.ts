@@ -9,6 +9,7 @@ import { ApiProblem } from './problem.ts';
 import { enforceRateLimits, type RateLimitRule } from './rate-limit.ts';
 import { getRequestId } from './request-id.ts';
 import { findUnsafeKey } from './unsafe-keys.ts';
+import { isMultipart, readUpload, type Upload, UPLOAD_FIELD } from './upload.ts';
 
 const EMPTY = z.object({});
 type EmptyObject = typeof EMPTY;
@@ -48,6 +49,8 @@ export interface RouteContext<P, Q, B, R extends Responses, A extends RouteAuth 
   readonly params: P;
   readonly query: Q;
   readonly body: B;
+  /** The uploaded file — set exactly on routes declared with `upload`. */
+  readonly file: Upload | undefined;
   /** Always set: the request-id middleware runs before every route (03 §0 step 1). */
   readonly requestId: string;
   readonly req: Request;
@@ -86,6 +89,11 @@ export interface RouteSpec<
   /** Success bodies are an HTML fragment (string) instead of JSON — the link-preview tags only (03 §3). */
   readonly htmlFragment?: true;
   readonly request?: { readonly params?: P; readonly query?: Q; readonly body?: B };
+  /**
+   * The request body is one file (`multipart/form-data`, field `file`) of at most `maxBytes`, read into memory after
+   * auth and rate limits (04 §6 "Files"). Excludes `request.body`. Routes without it answer multipart with 415.
+   */
+  readonly upload?: { readonly maxBytes: number };
   readonly responses: R;
   readonly handler: (
     context: RouteContext<z.output<P>, z.output<Q>, z.core.output<B>, R, A>,
@@ -190,6 +198,7 @@ export function defineRoute<
     typeof spec.cacheControl === 'function' ? spec.cacheControl(status) : (spec.cacheControl ?? 'no-store');
 
   const rateLimit = spec.rateLimit ?? [];
+  if (spec.upload && spec.request?.body) throw new Error('defineRoute: `upload` and `request.body` exclude each other');
 
   const handle: RequestHandler = async (req, res) => {
     const clock = clockOf(req);
@@ -209,6 +218,8 @@ export function defineRoute<
     });
     const params = parsePart('params', paramsSchema, req.params) as z.output<P>; // parsed by P's schema
     const query = parsePart('query', querySchema, req.query) as z.output<Q>; // parsed by Q's schema
+    if (!spec.upload && isMultipart(req)) throw new ApiProblem(415, 'UNSUPPORTED_MEDIA_TYPE');
+    const file = spec.upload ? await readUpload(req, spec.upload) : undefined;
     const body = parsePart('body', bodySchema, req.body) as z.core.output<B>; // parsed by B's schema
 
     // authenticateRequest returns a session exactly for the session modes, authenticateDevice a device for 'device'.
@@ -219,6 +230,7 @@ export function defineRoute<
       params,
       query,
       body,
+      file,
       requestId: getRequestId(res) ?? 'missing-request-id',
       req,
       res,
@@ -267,6 +279,22 @@ export function defineRoute<
             body: {
               required: true,
               content: { 'application/json': { schema: forOpenApi(spec.request.body, 'input') } },
+            },
+          }
+        : {}),
+      ...(spec.upload
+        ? {
+            body: {
+              required: true,
+              content: {
+                'multipart/form-data': {
+                  schema: {
+                    type: 'object',
+                    properties: { [UPLOAD_FIELD]: { type: 'string', format: 'binary' } },
+                    required: [UPLOAD_FIELD],
+                  },
+                },
+              },
             },
           }
         : {}),

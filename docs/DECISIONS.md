@@ -1366,6 +1366,23 @@ remove Devanagari and Telugu vowel signs — letters of the word, not diacritics
 **Consequences:** "pati" does not find "patience"; a typed word must be complete. Revisit with real library data if
 admins struggle (T3.12 usability check).
 
+### #107 — Multipart uploads: `@fastify/busboy`, one file, read after auth (PHASE_03 T3.4) — ACCEPTED (Claude Code, 28 Oct 2026)
+**Context:** 01 §4 and 04 §6 name `busboy` for uploads (library import now; images, audio in T3.6/T3.13). `busboy`'s last
+release is 1.6.0 (19 Apr 2022) — "abandoned" under CLAUDE.md §6 (no release in 18 months). The global body gate
+(`jsonBody`, before routing) answered every non-JSON body with 415, so no route could receive a file.
+**Decision:**
+- **`@fastify/busboy` 3.2.4** (the maintained fork, same streaming API and limits; the multipart parser inside undici,
+  Node's `fetch`; no dependencies) in `@mc/api` only — server-side, no client bundle impact.
+- `http/upload.ts` `readUpload`: exactly one part, a file in field `file`, no text fields, a per-route byte limit, held in
+  memory only; violations → 400 `UPLOAD_INVALID` (new code, 4 locales) / 413 `PAYLOAD_TOO_LARGE` / 415.
+- `defineRoute({ upload: { maxBytes } })` reads the file **after** authentication and rate limits (so nobody
+  unauthenticated makes the server buffer a body); `upload` and `request.body` exclude each other. The global gate lets
+  `multipart/form-data` through unparsed, and every route without `upload` answers it with 415 — the "no form posts"
+  rule now holds per route.
+- OpenAPI documents upload routes as `multipart/form-data` with a binary `file`.
+**Consequences:** 01 §4 and 04 §6 now name `@fastify/busboy`. Content checks (magic bytes, JSON schema) stay with each
+route — the claimed file name and type are never trusted.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

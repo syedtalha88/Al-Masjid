@@ -128,7 +128,7 @@ masjid-connect/
 | Push | `web-push` (VAPID) | `worker` only |
 | Video | **YouTube links** (DECISIONS #39): oEmbed check, copied thumbnail, `youtube-nocookie.com` embed after tap | No video hosting, no player library |
 | Images | `sharp` sanitize/re-encode → **Cloudinary** signed server-side upload (DECISIONS #40) | Named transformations 480/960/1440 × AVIF/WebP; strict transformations ON |
-| Multipart | `busboy` (streaming, hard limits) | Admin image uploads only |
+| Multipart | `@fastify/busboy` (streaming, hard limits — DECISIONS #107) | Admin uploads only (images, audio, library import) |
 | QR generate | `qrcode` (SVG output) | Posters, UPI QR |
 | QR scan | `BarcodeDetector` where available, else `barcode-detector` ponyfill over `zxing-wasm` (lazy chunk + self-hosted `.wasm`; CSP `'wasm-unsafe-eval'` on the app origin) | DECISIONS #94 (`qr-scanner` is unmaintained) |
 | Prayer times | `adhan` (adhan-js) | Wrapped in `packages/domain/prayer` |

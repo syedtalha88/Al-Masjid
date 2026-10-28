@@ -6,6 +6,7 @@
   "INVALID_JSON": "Something went wrong sending your request. Please try again.",
   "PAYLOAD_TOO_LARGE": "That is too large to send. Please try something smaller.",
   "UNSUPPORTED_MEDIA_TYPE": "Something went wrong sending your request. Please try again.",
+  "UPLOAD_INVALID": "We could not read that file. Please choose one file and try again.",
   "CORS_NOT_ALLOWED": "That action isn’t available here.",
   "INTERNAL_ERROR": "Something went wrong on our side. Please try again in a moment.",
   "RATE_LIMITED": "Too many tries. Please wait a little and try again.",

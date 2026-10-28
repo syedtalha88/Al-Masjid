@@ -34,9 +34,10 @@
     "vitest": "5.0.3"
   },
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "9.1.0",
+    "@fastify/busboy": "3.2.4",
     "@mc/db": "workspace:*",
     "@mc/domain": "workspace:*",
-    "@asteasolutions/zod-to-openapi": "9.1.0",
     "@mc/shared": "workspace:*",
     "@simplewebauthn/server": "14.0.3",
     "express": "5.2.1",

@@ -397,6 +397,82 @@ describe('JSON bodies', () => {
   });
 });
 
+describe('uploads (04 §6 "Files")', () => {
+  const upload = defineRoute({
+    method: 'post',
+    path: '/files',
+    summary: 'test',
+    auth: 'none',
+    upload: { maxBytes: 64 },
+    responses: { 201: z.object({ size: z.number(), filename: z.string(), mimeType: z.string() }) },
+    handler: ({ file, reply }) =>
+      reply(201, { size: file?.bytes.length ?? -1, filename: file?.filename ?? '', mimeType: file?.mimeType ?? '' }),
+  });
+  const json = defineRoute({
+    method: 'post',
+    path: '/things',
+    summary: 'test',
+    auth: 'none',
+    request: { body: z.object({ name: z.string() }) },
+    responses: { 201: z.object({ name: z.string() }) },
+    handler: ({ body, reply }) => reply(201, { name: body.name }),
+  });
+  const app = () => publicApp([upload, json]);
+
+  it('reads one file of at most maxBytes into memory', async () => {
+    const response = await request(app())
+      .post('/api/v1/files')
+      .attach('file', Buffer.from('{"ok":true}'), { filename: 'library.json', contentType: 'application/json' });
+    expect(response.status).toBe(201);
+    expect(response.body).toEqual({ size: 11, filename: 'library.json', mimeType: 'application/json' });
+  });
+
+  it('a file over maxBytes → 413', async () => {
+    expectProblem(
+      await request(app()).post('/api/v1/files').attach('file', Buffer.alloc(65), 'big.json'),
+      413,
+      'PAYLOAD_TOO_LARGE',
+    );
+  });
+
+  it('no file, another field name, a second file or any text field → 400 UPLOAD_INVALID', async () => {
+    const cases = [
+      request(app()).post('/api/v1/files').field('note', 'x'),
+      request(app()).post('/api/v1/files').attach('other', Buffer.from('x'), 'a.json'),
+      request(app())
+        .post('/api/v1/files')
+        .attach('file', Buffer.from('x'), 'a.json')
+        .attach('file', Buffer.from('y'), 'b.json'),
+      request(app()).post('/api/v1/files').field('note', 'x').attach('file', Buffer.from('x'), 'a.json'),
+    ];
+    for (const response of await Promise.all(cases)) expectProblem(response, 400, 'UPLOAD_INVALID');
+  });
+
+  it('a JSON body to an upload route, or multipart to a JSON route → 415', async () => {
+    expectProblem(await request(app()).post('/api/v1/files').send({ name: 'x' }), 415, 'UNSUPPORTED_MEDIA_TYPE');
+    expectProblem(
+      await request(app()).post('/api/v1/things').attach('file', Buffer.from('{"name":"x"}'), 'a.json'),
+      415,
+      'UNSUPPORTED_MEDIA_TYPE',
+    );
+  });
+
+  it('`upload` and a body schema cannot be combined', () => {
+    expect(() =>
+      defineRoute({
+        method: 'post',
+        path: '/both',
+        summary: 'test',
+        auth: 'none',
+        upload: { maxBytes: 1 },
+        request: { body: z.object({}) },
+        responses: { 204: z.undefined() },
+        handler: ({ reply }) => reply(204, undefined),
+      }),
+    ).toThrow(/exclude each other/);
+  });
+});
+
 describe('response contracts', () => {
   it('strips undeclared fields so internal data cannot leak', async () => {
     const route = defineRoute({

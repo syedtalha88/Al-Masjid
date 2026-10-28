@@ -12,6 +12,7 @@ export const API_ERRORS = {
   INVALID_JSON: 400,
   PAYLOAD_TOO_LARGE: 413,
   UNSUPPORTED_MEDIA_TYPE: 415,
+  UPLOAD_INVALID: 400, // multipart: no file, extra parts or fields (Phase 3)
   CORS_NOT_ALLOWED: 403,
   INTERNAL_ERROR: 500,
   // Rate limits and availability (03 §2, 01 §10)
