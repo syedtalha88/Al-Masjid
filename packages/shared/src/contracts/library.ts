@@ -177,3 +177,41 @@ export const libraryVerifySchema = z.strictObject({ verifiedBy: safeText(120, { 
 export const superLibraryEntryResponseSchema = z
   .object({ entry: superLibraryEntrySchema })
   .meta({ id: 'SuperLibraryEntryResponse' });
+
+// --- masjid admins: browse and today's suggestion (B6 / B7) ------------------------------------------------------------
+
+/** A verified entry as an admin picks it: content, attribution and the chips (tags, dua category). */
+export const adminLibraryEntrySchema = z
+  .object({
+    id: z.string(),
+    kind: z.enum(LIBRARY_KINDS),
+    arabic: z.string(),
+    transliteration: localesOut,
+    translation: localesOut.extend({ en: z.string() }),
+    reference: z.string(),
+    sourceName: z.string(),
+    sourceLicense: z.string(),
+    tags: z.array(z.string()),
+    duaCategory: z.enum(DUA_CATEGORIES).optional(),
+    repeat: z.int().optional(),
+    occasions: z.array(z.enum(DHIKR_OCCASIONS)).optional(),
+  })
+  .meta({ id: 'AdminLibraryEntry' });
+export type AdminLibraryEntry = z.infer<typeof adminLibraryEntrySchema>;
+
+export const adminLibraryQuerySchema = z.object({
+  kind: z.enum(LIBRARY_KINDS).optional(),
+  category: z.enum(DUA_CATEGORIES).optional(),
+  tag: libraryTagSchema.optional(),
+  q: z.string().max(200).optional(),
+  cursor: z.string().max(200).optional(),
+});
+export const adminLibraryListSchema = z
+  .object({ entries: z.array(adminLibraryEntrySchema), next: z.string().optional() })
+  .meta({ id: 'AdminLibraryList' });
+
+/** `GET /masjids/:masjidId/library/suggestion?kind=` — daily content is a hadith or an ayah (02 items.daily). */
+export const librarySuggestionQuerySchema = z.object({ kind: z.enum(['hadith', 'ayah']) });
+export const librarySuggestionSchema = z
+  .object({ entry: adminLibraryEntrySchema.nullable() })
+  .meta({ id: 'AdminLibrarySuggestion' });

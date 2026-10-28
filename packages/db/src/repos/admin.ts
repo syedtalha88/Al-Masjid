@@ -18,7 +18,7 @@ const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 export const quotaUsageId = (masjidId: UUID, day: string): string => `${idText(masjidId)}:${day}`;
 
 /** @throws StateError `MASJID_NOT_FOUND` unless `masjidId` is one of the admin's masjids. */
-function requireOwnMasjid(scope: Scope, masjidId: UUID): void {
+export function requireOwnMasjid(scope: Scope, masjidId: UUID): void {
   if (scope.kind !== 'admin' || !scopeMasjidIds(scope).some((id) => id.equals(masjidId))) {
     throw new StateError('MASJID_NOT_FOUND');
   }

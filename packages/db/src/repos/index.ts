@@ -1,6 +1,16 @@
 // `@mc/db/repos` — typed, policy-enforced read repositories per aggregate (T1.4/T1.11).
 export { getAdminSchedule, getMasjidStats, getPushQuota, quotaUsageId } from './admin.ts';
 export {
+  type AdminLibraryRow,
+  getLibraryEntryForSuper,
+  type LibraryFilter,
+  listLibraryForAdmin,
+  listLibraryForSuper,
+  SUGGESTION_REPEAT_DAYS,
+  suggestLibraryEntry,
+  type SuperLibraryRow,
+} from './library.ts';
+export {
   FEED_PAGE_MAX,
   findDuaItemId,
   getAmeenCounts,

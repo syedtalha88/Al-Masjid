@@ -6,6 +6,7 @@ export * from './hijri.ts';
 export * from './money.ts';
 export * from './phone.ts';
 export * from './prayer.ts';
+export * from './rotation.ts';
 export * from './search.ts';
 export * from './thumbhash.ts';
 export * from './time.ts';

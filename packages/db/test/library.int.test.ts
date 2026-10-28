@@ -1,14 +1,20 @@
 // PHASE_03 T3.4 data layer against a migrated MongoDB (DECISIONS #106, #108): Content Library import (★, all or
 // nothing, draft), edits (content edits send a verified entry back to draft), verify, retire, duplicates, audit, and
 // what admins may see (verified only). Religious text: the 10 §5 placeholders only.
-import type { UUID } from 'mongodb';
+import { Long, type UUID } from 'mongodb';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { MIGRATIONS } from '../migrations/index.ts';
 import { createDbHandle, type DbHandle } from '../src/client.ts';
 import { StateError } from '../src/effects.ts';
 import { runMigrations } from '../src/migrate/index.ts';
-import { getLibraryEntry } from '../src/repos/index.ts';
+import {
+  getLibraryEntry,
+  getLibraryEntryForSuper,
+  listLibraryForAdmin,
+  listLibraryForSuper,
+  suggestLibraryEntry,
+} from '../src/repos/index.ts';
 import { adminScope, superScope } from '../src/scope.ts';
 import { scoped } from '../src/scoped.ts';
 import {
@@ -233,5 +239,120 @@ describe('verify, edit, retire (DECISIONS #108)', () => {
     expect(await code(verifyLibraryEntry(h(), admin, { id, verifiedBy: 'Test Reviewer' }))).toBe('FORBIDDEN');
     expect(await code(updateLibraryEntry(h(), admin, { id, patch: { tags: [] } }))).toBe('FORBIDDEN');
     expect(await code(retireLibraryEntry(h(), admin, { id }))).toBe('FORBIDDEN');
+  });
+});
+
+describe('library reads (C8 review list; admin browse, search and suggestion)', () => {
+  const MASJID = newId();
+  const ownAdmin = () => adminScope({ adminId: newId(), masjids: [{ id: MASJID, role: 'owner' }] });
+  let setUps = 0;
+  /** Each test imports its own entries; `tag` is unique to them (earlier tests' entries stay in the database). */
+  const setUp = async () => {
+    setUps += 1;
+    const tag = `shifa${String(setUps)}`;
+    const rows = [
+      entry({ tags: [tag], kind: 'dua', duaCategory: 'illness' }),
+      entry({ tags: ['patience'] }),
+      entry({ tags: ['patience'] }),
+      entry({ kind: 'ayah', tags: [] }),
+    ];
+    await importLibraryEntries(h(), fresh(), { entries: rows });
+    const ids: UUID[] = [];
+    for (const row of rows) {
+      const doc = await byReference(row.reference);
+      if (!doc) throw new Error('not imported');
+      ids.push(doc._id);
+    }
+    // All but the last hadith are verified.
+    for (const id of [ids[0], ids[1], ids[3]])
+      if (id) await verifyLibraryEntry(h(), stale(), { id, verifiedBy: 'Test Reviewer' });
+    return { rows, ids, tag };
+  };
+
+  it('Super Admin: every status, filters by status / kind / category / tag; one entry in full', async () => {
+    const { rows, ids, tag } = await setUp();
+    const drafts = await listLibraryForSuper(h(), stale(), { status: 'draft', tag: 'patience' });
+    expect(drafts.rows.map((row) => row.reference)).toContain(rows[2]?.reference);
+    expect(drafts.rows.every((row) => row.status === 'draft')).toBe(true);
+    const duas = await listLibraryForSuper(h(), stale(), { kind: 'dua', category: 'illness' });
+    expect(duas.rows.map((row) => row.reference)).toContain(rows[0]?.reference);
+    const one = ids[0] ? await getLibraryEntryForSuper(h(), stale(), ids[0]) : null;
+    expect(one).toMatchObject({
+      status: 'verified',
+      verifiedBy: 'Test Reviewer',
+      duaCategory: 'illness',
+      tags: [tag],
+    });
+    expect(await getLibraryEntryForSuper(h(), stale(), newId())).toBeNull();
+    expect(await code(listLibraryForSuper(h(), ownAdmin(), {}))).toBe('FORBIDDEN');
+    expect(await code(listLibraryForSuper(h(), stale(), { cursor: 'forged' }))).toBe('INVALID_CURSOR');
+  });
+
+  it('admins see verified entries only — drafts and retired never (T3.4 acceptance)', async () => {
+    const { rows, ids } = await setUp();
+    if (ids[1]) await retireLibraryEntry(h(), stale(), { id: ids[1] });
+    const all: string[] = [];
+    let cursor: string | undefined;
+    do {
+      const pageOf = await listLibraryForAdmin(h(), ownAdmin(), MASJID, cursor ? { cursor } : {});
+      all.push(...pageOf.rows.map((row) => row.reference));
+      cursor = pageOf.next;
+    } while (cursor);
+    expect(all).toContain(rows[0]?.reference); // verified
+    expect(all).toContain(rows[3]?.reference); // verified
+    expect(all).not.toContain(rows[1]?.reference); // retired
+    expect(all).not.toContain(rows[2]?.reference); // draft
+    const other = adminScope({ adminId: newId(), masjids: [{ id: newId(), role: 'owner' }] });
+    expect(await code(listLibraryForAdmin(h(), other, MASJID, {}))).toBe('MASJID_NOT_FOUND');
+  });
+
+  it('search: Arabic without harakat, any case, every word must match; chips by tag and category', async () => {
+    const { rows, tag } = await setUp();
+    const search = async (q: string) =>
+      (await listLibraryForAdmin(h(), ownAdmin(), MASJID, { q })).rows.map((row) => row.reference);
+    expect(await search(rows[0]?.reference.toLowerCase() ?? '')).toEqual([rows[0]?.reference]);
+    expect(await search('نص')).toEqual(expect.arrayContaining([rows[0]?.reference])); // stored with harakat
+    expect(await search(`${tag.toUpperCase()} development`)).toEqual([rows[0]?.reference]);
+    expect(await search(`${tag} absentword`)).toEqual([]);
+    const byTag = await listLibraryForAdmin(h(), ownAdmin(), MASJID, { tag, category: 'illness' });
+    expect(byTag.rows.map((row) => row.reference)).toEqual([rows[0]?.reference]);
+    expect(byTag.rows[0]).not.toHaveProperty('status');
+  });
+
+  it("today's suggestion: stable for the day, a verified entry of the kind, not one published in the last 60 days", async () => {
+    await setUp();
+    const now = new Date('2026-10-28T06:00:00Z');
+    const first = await suggestLibraryEntry(h(), ownAdmin(), MASJID, { kind: 'hadith', now });
+    expect(first?.kind).toBe('hadith');
+    expect(await suggestLibraryEntry(h(), ownAdmin(), MASJID, { kind: 'hadith', now })).toEqual(first);
+    // Publish it as daily content today → tomorrow's suggestion is another entry.
+    const published = new Date('2026-10-28T06:30:00Z');
+    if (!first) throw new Error('no suggestion');
+    await raw('items').insertOne({
+      _id: newId(),
+      public_id: 'TESTLIB00001',
+      masjid_id: MASJID,
+      status: 'published',
+      notify: false,
+      masjid_visible: true,
+      published_at: published,
+      published_version: Long.fromNumber(1),
+      created_by: newId(),
+      created_at: published,
+      updated_at: published,
+      type: 'daily_content',
+      audience: 'everyone',
+      is_important: false,
+      daily: {
+        library_id: (await raw('content_library').findOne({ reference: first.reference }))?._id,
+        kind: 'hadith',
+      },
+    });
+    for (let day = 1; day <= 5; day += 1) {
+      const later = new Date(now.getTime() + day * 24 * 60 * 60 * 1000);
+      const next = await suggestLibraryEntry(h(), ownAdmin(), MASJID, { kind: 'hadith', now: later });
+      expect(next?.reference).not.toBe(first.reference);
+    }
+    expect(await code(suggestLibraryEntry(h(), anAdmin(), MASJID, { kind: 'ayah', now }))).toBe('MASJID_NOT_FOUND');
   });
 });

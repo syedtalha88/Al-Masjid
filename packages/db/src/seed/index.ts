@@ -5,6 +5,7 @@
 // Pure document builders plus one writer; scripts/jobs call the writer with `systemScope()` (only they may build one).
 import { createHash } from 'node:crypto';
 
+import { librarySearchText } from '@mc/domain/search';
 import { rgbaToThumbHash } from '@mc/domain/thumbhash';
 import { type Document, Long, UUID } from 'mongodb';
 
@@ -682,7 +683,13 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
     verified_at: now,
     status: 'verified',
     import_batch_id: IMPORT_BATCH,
-    search_text: `dev sample ${entry.kind} ${entry.tags.join(' ')}`,
+    search_text: librarySearchText({
+      arabic: PLACEHOLDER.arabic,
+      transliteration: { en: PLACEHOLDER.transliteration },
+      translation: PLACEHOLDER.translation,
+      reference: `DEV-SAMPLE-${String(index + 1).padStart(3, '0')}`,
+      tags: entry.tags,
+    }),
     created_at: now,
     updated_at: now,
   }));
