@@ -24,15 +24,16 @@
 T3.0 → T3.1 → T3.4 → T3.5 → T3.11 → T3.2 → T3.3 → T3.6–T3.10 → T3.13–T3.17 → T3.12.
 
 **Do first:**
-1. **CI on `ci/f46-perf` (`b2a8d1e`) — checked 28 Oct 2026: FAILED at "Security scans → osv-scanner (lockfile)"**
-   (typecheck, unit and integration green; the Build/e2e/perf job was cancelled, so the T3.0 perf specs never ran).
-   Almost certainly a NEW advisory on a dependency (not T3.0 code): reproduce locally with
-   `docker run --rm -v "$PWD:/src" <OSV_IMAGE from ci.yml> scan source --lockfile /src/pnpm-lock.yaml`, bump the
-   affected package (pnpm `minimumReleaseAge` may hold a fresh fix — if so, a time-boxed ignore as in F45 with a
-   follow-up row), commit on `feat/phase-03`, push again to `ci/f46-perf` and wait for the perf result. 1. **T3.0 (F46) CI result**: commit `b2a8d1e` was pushed to branch `ci/f46-perf` (CI runs the perf specs 3× via
-   `pnpm test:perf`). Check its run (`api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/f46-perf`;
-   unauthenticated API = 60 requests/hour — poll sparingly). Green → tick T3.0. Red → read the perf annotations; the
-   profiling tools used are described in DECISIONS #105. Delete the `ci/f46-perf` branch afterwards.
+1. **T3.0 (F46) CI result.** The first run on `ci/f46-perf` (`b2a8d1e`) failed at osv-scanner (two new advisories,
+   not T3.0 code) — **fixed 28 Oct 2026:** `qs` 6.16.0 → 6.16.1 by `pnpm dedupe` (GHSA-6pq8-jhm2-2vcw); `deepmerge`
+   4.3.1 has no fix → time-boxed ignore in `osv-scanner.toml` until 28 Nov 2026 (build-time only, **F47**). The same
+   session also fixed three leftovers of `b37bc39` that would have failed the unit/static jobs: stale `openapi.json`,
+   template param `phone` unhandled in the app renderer (switch exhaustiveness; new `@mc/domain/phone` `isE164`), and
+   the raw-color test reading `DECISIONS #104` as a hex color. `feat/phase-03` was pushed to `ci/f46-perf` again
+   (CI runs the perf specs 3× via `pnpm test:perf`). Check its run
+   (`api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/f46-perf`; unauthenticated API = 60
+   requests/hour — poll sparingly). Green → tick T3.0. Red → read the perf annotations; the profiling tools used are
+   described in DECISIONS #105. Delete the `ci/f46-perf` branch afterwards.
 2. **T3.4 Content Library — in progress:** done so far: migration `0009_library_dhikr` (library kind `dhikr` +
    `repeat`/`occasions`, template param type `phone`, `v_pub_library` exposes the new fields), public contracts
    and repository updated, local DB migrated. Still to do: import JSON schema (`scripts/library.schema.json`) +
@@ -291,11 +292,13 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F45 | CI (24 Oct 2026) | New advisories turned CI red: zod 4.6.6, undici 8.12.3, fast-uri 3.1.9 bumped; Caddy image drops unused curl (only path for brotli CVE-2026-111497). Two fixes are younger than `minimumReleaseAge` (3 days): **body-parser 2.4.0** (GHSA-27r3-jxmh-p828, DoS — mitigated now by `inflate: false` + test) usable from 25 Oct 11:40 UTC, **serialize-javascript 7.1.3** (GHSA-m5mm-p8h7-m29v, build-time only) from 25 Oct 21:25 UTC. Both are time-boxed ignores until 27 Oct 2026 (`osv-scanner.toml`, date-gated `pnpm audit --ignore` in ci.yml + nightly.yml). **To do on/after 26 Oct:** `pnpm update -r body-parser serialize-javascript`, delete `osv-scanner.toml` entries and the `--ignore` lines | **Closed 27 Oct 2026:** body-parser 2.4.0 and serialize-javascript 7.1.4 (lockfile), `osv-scanner.toml` deleted, date-gated `--ignore` removed from ci.yml + nightly.yml; `pnpm audit` and osv-scanner clean with no ignores |
 | F46 | T2.14 (25 Oct 2026, DECISIONS #103; owner 27 Oct 2026: smooth on low-end devices) | Real-screen motion budget (08 §8): `e2e/app/screens.perf.spec.ts` (Home → Masjid Detail push + swipe-back, tab switches, sheet open/drag/dismiss at 4× CPU) is `test.fixme` — after the T2.14 fixes (100–130 ms → ≈ 50–75 ms) long tasks still exceed 50 ms, 6–13 % frames drop, one forced layout on sheet open. Next suspects from the profiles: the pop's React commit (≈ 50 ms microtasks when Home becomes top again), style recalculation of a tab layer on show, the sheet's first measurement in a rAF. Re-enable the spec when green; check on a low-end Android (O16) | **Phase 03, first task** (before new screens) |
 | F20 | F19 | Perf spec (4× CPU throttle): 1 of 23 runs had long tasks of 189 + 110 ms right after a rebuild. T0.12: the perf spec now traces with attribution (input / chunk evaluation / animation frame / style-layout), dropped frames and forced layouts — 16/16 clean over 8 repeats. Remaining: the same transitions on a real low-end Android (owner guide) | **Merged into F46 (DECISIONS #103):** Phase 03 first task, judged on a real low-end Android (O16) |
+| F47 | CI (28 Oct 2026) | osv-scanner: **deepmerge 4.3.1** (GHSA-gcqx-w48m-w2h4, prototype poisoning, medium) via vite-plugin-pwa → workbox-build 7.4.1 → @rollup/plugin-node-resolve 16.0.3 — all on their latest version, no fixed deepmerge exists. Build-time only (merges the plugin's defaults with our own SW build config; nothing untrusted, nothing shipped) → time-boxed ignore in `osv-scanner.toml` until 28 Nov 2026 | On expiry (or earlier, on a Renovate bump): a fixed deepmerge / a parent without it → bump and delete the entry; else re-assess (vite-plugin-pwa 2.x, or a pnpm override to a maintained drop-in) and extend with a new date |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-10-28 | 03 / T3.0 CI | CI on `ci/f46-perf` red at osv-scanner: qs 6.16.1 (dedupe), deepmerge time-boxed ignore (F47). Fixed three `b37bc39` leftovers (stale openapi.json, `phone` param in the app renderer + `@mc/domain/phone`, raw-color test vs `DECISIONS #1xx`). Re-pushed to `ci/f46-perf` for the perf result |
 | 2026-10-27 (evening) | 03 / T3.0–T3.4 | Phase 03 started. T3.0 F46 fixes (navigation as transition, stable renders, `combine`, post-frame motion promises; DECISIONS #105) — waiting for CI on `ci/f46-perf`. T3.1 Admin Home done (stats/quota/timings API, today strip, tiles, quota pill). T3.2 domain validation done. T3.4 started (migration 0009). Stopped at the owner's request (usage limit) |
 | 2026-10-27 | 02 → 03 | Phase 02 DONE (owner verified on staging `cdd39fa`, incl. low-end devices). New features agreed with the owner (DECISIONS #104): voice notes, Ruqyah, adhkar after salah, Ilm contacts, blood camp (Phase 3); needy people, personal zakat tracker (Phase 5) — specs and phase files updated, no code yet |
 | 2026-10-27 | 02 / close | T2.14 quality gates (visual baselines in the Playwright Linux image, real-screen perf traces → F46), security review (H1 template injection in link previews, M1 local wipe — fixed), F45 closed, phase-verifier findings fixed (CI e2e rate limit in a test helper, journey 1 in 4 locales, Qibla placeholder dev/staging only, side-by-side images). CI green on `cdd39fa`, staging deployed → **AWAITING OWNER VERIFICATION** (DECISIONS #103) |

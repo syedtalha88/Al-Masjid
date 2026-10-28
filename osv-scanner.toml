@@ -1,0 +1,11 @@
+# osv-scanner configuration (CI "Security scans" + Nightly). Every entry is time-boxed: ignoreUntil makes the
+# scan fail again on that date, so nothing stays hidden. Each one has a PROGRESS follow-up to remove it.
+
+# deepmerge 4.3.1 (vite-plugin-pwa → workbox-build → @rollup/plugin-node-resolve) — prototype poisoning when
+# merging attacker-supplied objects. Build-time only: the plugin merges its own defaults with our service-worker
+# build config; no untrusted input is ever merged, nothing ships to clients or servers. No fixed release exists
+# (4.3.1 is the last, 2023) and every parent is on its latest version. Re-check on expiry (F47).
+[[IgnoredVulns]]
+id = "GHSA-gcqx-w48m-w2h4"
+ignoreUntil = 2026-11-28T00:00:00Z
+reason = "Build-time only (workbox-build bundling our own config), no untrusted input; no fixed deepmerge release (F47)"
