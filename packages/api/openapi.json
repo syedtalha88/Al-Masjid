@@ -815,6 +815,149 @@
           "timings"
         ]
       },
+      "AdminLibraryList": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminLibraryEntry"
+            }
+          },
+          "next": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "entries"
+        ]
+      },
+      "AdminLibraryEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "hadith",
+              "ayah",
+              "dua",
+              "dhikr"
+            ]
+          },
+          "arabic": {
+            "type": "string"
+          },
+          "transliteration": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "hi": {
+                "type": "string"
+              },
+              "ur": {
+                "type": "string"
+              },
+              "te": {
+                "type": "string"
+              }
+            }
+          },
+          "translation": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "hi": {
+                "type": "string"
+              },
+              "ur": {
+                "type": "string"
+              },
+              "te": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "en"
+            ]
+          },
+          "reference": {
+            "type": "string"
+          },
+          "sourceName": {
+            "type": "string"
+          },
+          "sourceLicense": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "duaCategory": {
+            "type": "string",
+            "enum": [
+              "illness",
+              "inteqal",
+              "other"
+            ]
+          },
+          "repeat": {
+            "type": "integer"
+          },
+          "occasions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "after_salah",
+                "morning",
+                "evening"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "arabic",
+          "transliteration",
+          "translation",
+          "reference",
+          "sourceName",
+          "sourceLicense",
+          "tags"
+        ]
+      },
+      "AdminLibrarySuggestion": {
+        "type": "object",
+        "properties": {
+          "entry": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminLibraryEntry"
+              },
+              {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "entry"
+        ]
+      },
       "SuperDashboard": {
         "type": "object",
         "properties": {
@@ -1344,6 +1487,250 @@
           "at",
           "actorType",
           "action"
+        ]
+      },
+      "SuperLibraryList": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuperLibraryEntry"
+            }
+          },
+          "next": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "entries"
+        ]
+      },
+      "SuperLibraryEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "hadith",
+              "ayah",
+              "dua",
+              "dhikr"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "verified",
+              "retired"
+            ]
+          },
+          "arabic": {
+            "type": "string"
+          },
+          "transliteration": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "hi": {
+                "type": "string"
+              },
+              "ur": {
+                "type": "string"
+              },
+              "te": {
+                "type": "string"
+              }
+            }
+          },
+          "translation": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "hi": {
+                "type": "string"
+              },
+              "ur": {
+                "type": "string"
+              },
+              "te": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "en"
+            ]
+          },
+          "reference": {
+            "type": "string"
+          },
+          "sourceName": {
+            "type": "string"
+          },
+          "sourceLicense": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "duaCategory": {
+            "type": "string",
+            "enum": [
+              "illness",
+              "inteqal",
+              "other"
+            ]
+          },
+          "repeat": {
+            "type": "integer"
+          },
+          "occasions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "after_salah",
+                "morning",
+                "evening"
+              ]
+            }
+          },
+          "verifiedBy": {
+            "type": "string"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "importBatchId": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "arabic",
+          "transliteration",
+          "translation",
+          "reference",
+          "sourceName",
+          "sourceLicense",
+          "tags",
+          "importBatchId",
+          "updatedAt"
+        ]
+      },
+      "SuperLibraryEntryResponse": {
+        "type": "object",
+        "properties": {
+          "entry": {
+            "$ref": "#/components/schemas/SuperLibraryEntry"
+          }
+        },
+        "required": [
+          "entry"
+        ]
+      },
+      "SuperLibraryImportReport": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "integer"
+          },
+          "valid": {
+            "type": "integer"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "row": {
+                  "type": "integer"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "row",
+                "path",
+                "message"
+              ]
+            }
+          },
+          "duplicates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "row": {
+                  "type": "integer"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "hadith",
+                    "ayah",
+                    "dua",
+                    "dhikr"
+                  ]
+                },
+                "reference": {
+                  "type": "string"
+                },
+                "in": {
+                  "type": "string",
+                  "enum": [
+                    "file",
+                    "library"
+                  ]
+                }
+              },
+              "required": [
+                "row",
+                "kind",
+                "reference",
+                "in"
+              ]
+            }
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "imported": {
+            "type": "integer"
+          },
+          "batchId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "entries",
+          "valid",
+          "errors",
+          "duplicates",
+          "truncated",
+          "imported"
         ]
       }
     },
@@ -5064,6 +5451,134 @@
         }
       }
     },
+    "/api/admin/masjids/{masjidId}/library": {
+      "get": {
+        "summary": "Verified Content Library entries: kind, category and tag chips, search (B6/B7)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hadith",
+                "ayah",
+                "dua",
+                "dhikr"
+              ]
+            },
+            "required": false,
+            "name": "kind",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "illness",
+                "inteqal",
+                "other"
+              ]
+            },
+            "required": false,
+            "name": "category",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,39}$"
+            },
+            "required": false,
+            "name": "tag",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "required": false,
+            "name": "q",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLibraryList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/library/suggestion": {
+      "get": {
+        "summary": "Today's hadith/ayah suggestion — same all day, not one published in the last 60 days (B6)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hadith",
+                "ayah"
+              ]
+            },
+            "required": true,
+            "name": "kind",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLibrarySuggestion"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/super/dashboard": {
       "get": {
         "summary": "Pending activations, masjid counts and passkey clone alerts (C1)",
@@ -6225,6 +6740,448 @@
               "text/csv": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/library": {
+      "get": {
+        "summary": "Content Library review list — every status, filters and search (C8)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "verified",
+                "retired"
+              ]
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hadith",
+                "ayah",
+                "dua",
+                "dhikr"
+              ]
+            },
+            "required": false,
+            "name": "kind",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "illness",
+                "inteqal",
+                "other"
+              ]
+            },
+            "required": false,
+            "name": "category",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,39}$"
+            },
+            "required": false,
+            "name": "tag",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "required": false,
+            "name": "q",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperLibraryList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/library/{id}": {
+      "get": {
+        "summary": "One Content Library entry in full, any status (C8 review)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperLibraryEntryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Edit an entry — changing its text sends a verified entry back to draft (DECISIONS #108)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "arabic": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000
+                  },
+                  "transliteration": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4000
+                      },
+                      "hi": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4000
+                      },
+                      "ur": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4000
+                      },
+                      "te": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4000
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "translation": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4000
+                      },
+                      "hi": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4000
+                      },
+                      "ur": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4000
+                      },
+                      "te": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4000
+                      }
+                    },
+                    "required": [
+                      "en"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "reference": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "source_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "source_license": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9_-]{0,39}$"
+                    },
+                    "maxItems": 20
+                  },
+                  "dua_category": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "illness",
+                      "inteqal",
+                      "other",
+                      null
+                    ]
+                  },
+                  "repeat": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1,
+                    "maximum": 1000
+                  },
+                  "occasions": {
+                    "type": [
+                      "array",
+                      "null"
+                    ],
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "after_salah",
+                        "morning",
+                        "evening"
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 3
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperLibraryEntryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/library/import/dry-run": {
+      "post": {
+        "summary": "Check a Content Library file: row errors and duplicates; nothing is written",
+        "tags": [
+          "super"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperLibraryImportReport"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/library/import": {
+      "post": {
+        "summary": "★ Import a Content Library file as draft — all entries, or none when anything is wrong",
+        "tags": [
+          "super"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperLibraryImportReport"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/library/{id}/verify": {
+      "post": {
+        "summary": "Verify a draft entry (records who verified it); admins may pick it from now on",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "verifiedBy": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 120
+                  }
+                },
+                "required": [
+                  "verifiedBy"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperLibraryEntryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/library/{id}/retire": {
+      "post": {
+        "summary": "Retire an entry (final): no longer selectable or shown",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperLibraryEntryResponse"
                 }
               }
             }

@@ -12,7 +12,10 @@ import { scoped } from '../scoped.ts';
 import { idText, newId } from '../values.ts';
 import { requireSuper } from './guards.ts';
 
-type LocaleTexts = Readonly<Partial<Record<'en' | 'hi' | 'ur' | 'te', string>>>;
+/** Texts per locale; an `undefined` value means "absent" (dropped before writing — the validator wants strings). */
+type LocaleTexts = Readonly<Partial<Record<'en' | 'hi' | 'ur' | 'te', string | undefined>>>;
+const present = (texts: LocaleTexts | undefined): Record<string, string> =>
+  Object.fromEntries(Object.entries(texts ?? {}).filter((pair): pair is [string, string] => pair[1] !== undefined));
 type Kind = (typeof LIBRARY_KIND)[number];
 
 /** The content of one entry, already validated by the caller's contract (`libraryImportRowSchema`). */
@@ -51,8 +54,8 @@ function assertKindFields(entry: { kind: Kind; duaCategory?: unknown; repeat?: u
 const searchTextOf = (entry: LibraryEntryInput) =>
   librarySearchText({
     arabic: entry.arabic,
-    transliteration: entry.transliteration ?? {},
-    translation: entry.translation,
+    transliteration: present(entry.transliteration),
+    translation: present(entry.translation),
     reference: entry.reference,
     tags: entry.tags ?? [],
   });
@@ -117,8 +120,8 @@ export async function importLibraryEntries(
           _id: newId(),
           kind: entry.kind,
           arabic: entry.arabic,
-          transliteration: { ...entry.transliteration },
-          translation: { ...entry.translation },
+          transliteration: present(entry.transliteration),
+          translation: present(entry.translation),
           reference: entry.reference,
           source_name: entry.sourceName,
           source_license: entry.sourceLicense,
@@ -215,8 +218,8 @@ export async function updateLibraryEntry(
   const p = input.patch;
   const set: Record<string, unknown> = {
     ...(p.arabic === undefined ? {} : { arabic: p.arabic }),
-    ...(p.transliteration === undefined ? {} : { transliteration: { ...p.transliteration } }),
-    ...(p.translation === undefined ? {} : { translation: { ...p.translation } }),
+    ...(p.transliteration === undefined ? {} : { transliteration: present(p.transliteration) }),
+    ...(p.translation === undefined ? {} : { translation: present(p.translation) }),
     ...(p.reference === undefined ? {} : { reference: p.reference }),
     ...(p.sourceName === undefined ? {} : { source_name: p.sourceName }),
     ...(p.sourceLicense === undefined ? {} : { source_license: p.sourceLicense }),
