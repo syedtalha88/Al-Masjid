@@ -2933,7 +2933,8 @@
                                     "enum": [
                                       "hadith",
                                       "ayah",
-                                      "dua"
+                                      "dua",
+                                      "dhikr"
                                     ]
                                   },
                                   "arabic": {
@@ -2986,6 +2987,22 @@
                                   },
                                   "sourceLicense": {
                                     "type": "string"
+                                  },
+                                  "repeat": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 1000
+                                  },
+                                  "occasions": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string",
+                                      "enum": [
+                                        "after_salah",
+                                        "morning",
+                                        "evening"
+                                      ]
+                                    }
                                   }
                                 },
                                 "required": [
@@ -3048,7 +3065,8 @@
                                     "enum": [
                                       "hadith",
                                       "ayah",
-                                      "dua"
+                                      "dua",
+                                      "dhikr"
                                     ]
                                   },
                                   "arabic": {
@@ -3101,6 +3119,22 @@
                                   },
                                   "sourceLicense": {
                                     "type": "string"
+                                  },
+                                  "repeat": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 1000
+                                  },
+                                  "occasions": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string",
+                                      "enum": [
+                                        "after_salah",
+                                        "morning",
+                                        "evening"
+                                      ]
+                                    }
                                   }
                                 },
                                 "required": [
@@ -3462,7 +3496,8 @@
                                   "enum": [
                                     "hadith",
                                     "ayah",
-                                    "dua"
+                                    "dua",
+                                    "dhikr"
                                   ]
                                 },
                                 "arabic": {
@@ -3515,6 +3550,22 @@
                                 },
                                 "sourceLicense": {
                                   "type": "string"
+                                },
+                                "repeat": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 1000
+                                },
+                                "occasions": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "after_salah",
+                                      "morning",
+                                      "evening"
+                                    ]
+                                  }
                                 }
                               },
                               "required": [
@@ -3577,7 +3628,8 @@
                                   "enum": [
                                     "hadith",
                                     "ayah",
-                                    "dua"
+                                    "dua",
+                                    "dhikr"
                                   ]
                                 },
                                 "arabic": {
@@ -3630,6 +3682,22 @@
                                 },
                                 "sourceLicense": {
                                   "type": "string"
+                                },
+                                "repeat": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 1000
+                                },
+                                "occasions": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "after_salah",
+                                      "morning",
+                                      "evening"
+                                    ]
+                                  }
                                 }
                               },
                               "required": [
@@ -3975,7 +4043,8 @@
                           "enum": [
                             "hadith",
                             "ayah",
-                            "dua"
+                            "dua",
+                            "dhikr"
                           ]
                         },
                         "arabic": {
@@ -4028,6 +4097,22 @@
                         },
                         "sourceLicense": {
                           "type": "string"
+                        },
+                        "repeat": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 1000
+                        },
+                        "occasions": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "after_salah",
+                              "morning",
+                              "evening"
+                            ]
+                          }
                         }
                       },
                       "required": [
@@ -4156,7 +4241,8 @@
                                     "time_range",
                                     "prayer",
                                     "number",
-                                    "short_text"
+                                    "short_text",
+                                    "phone"
                                   ]
                                 },
                                 "required": {
