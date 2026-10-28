@@ -15,6 +15,7 @@
     "./contracts": "./src/contracts/index.ts",
     "./contracts/public": "./src/contracts/public.ts",
     "./contracts/problem": "./src/contracts/problem.ts",
+    "./contracts/library-schema": "./src/contracts/library-schema.ts",
     "./errors": "./src/errors.ts",
     "./http": "./src/http/request-json.ts",
     "./testing/msw": "./src/testing/msw.ts",

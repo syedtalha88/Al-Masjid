@@ -1383,6 +1383,30 @@ release is 1.6.0 (19 Apr 2022) — "abandoned" under CLAUDE.md §6 (no release i
 **Consequences:** 01 §4 and 04 §6 now name `@fastify/busboy`. Content checks (magic bytes, JSON schema) stay with each
 route — the claimed file name and type are never trusted.
 
+### #108 — Content Library workflow: import, edit, verify, retire (PHASE_03 T3.4) — ACCEPTED (Claude Code, 28 Oct 2026)
+**Context:** 07 C8 / 03 §5 give the steps (upload → dry-run report → import as `draft` → review → ★ Verify / Retire)
+but not what an edit of a verified entry means, how large a file may be, or whether a partly bad file imports.
+**Decision:**
+- **File:** JSON `{format: "masjid-connect-library", version: 1, entries: [...]}`, ≤ 500 entries, ≤ 4 MB, uploaded as a
+  file (DECISIONS #107). Field names follow 02 (snake_case); unknown keys are errors. JSON Schema:
+  `scripts/library.schema.json` (generated from the Zod contract, byte-compared by a test).
+- **Dry run first, as its own route:** `POST /library/import/dry-run` (no step-up) returns the report — every row
+  error with row number + field path, duplicates (`kind + reference`) within the file and against the whole library
+  (draft, verified and retired). ★`POST /library/import` (step-up) re-validates the same file and imports **all or
+  nothing**: any error or duplicate → nothing is written and the report (status 200) says why, with `imported: 0`; otherwise every row is inserted as `draft` in one transaction with one `import_batch_id` and
+  one `library.import` audit entry (`batch`, `entries`).
+- **Edits (`PATCH /library/:id`):** draft and verified entries only; retired entries are read-only. Changing what an
+  entry *says* (Arabic, translations, transliterations, reference, source, repeat, occasions) sends a verified entry
+  back to `draft` and clears `verified_by/at` — published content must never show unverified words; tags and the dua
+  category are metadata and keep the status. `kind` never changes (retire and re-import instead).
+- **Verify:** draft → verified, `verified_by` (the scholar/reviewer, 2–120 chars) + `verified_at`, audited. Not a ★
+  action: the step-up already guards the import, and verification is the Super Admin's careful per-entry review.
+- **Retire:** draft or verified → retired (final). Items that used the entry keep their reference; the public view
+  hides retired entries, so their library content disappears from bundles (02 `v_pub_library`).
+- `search_text` is recomputed by the data layer on every content change (DECISIONS #106).
+**Consequences:** a fix to a verified translation needs a fresh verification before musallis see the entry again (the
+items that reference it show without the library body until then). Recorded in `docs/content-library-format.md`.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

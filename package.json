@@ -33,6 +33,7 @@
     "check:image": "node scripts/check-server-image.mjs",
     "scan:bundles": "node scripts/scan-bundles.mjs --self-test && node scripts/scan-bundles.mjs",
     "pwa:assets": "node scripts/generate-pwa-assets.ts",
+    "library:schema": "node scripts/library-schema.ts",
     "size": "size-limit",
     "lhci": "node scripts/lighthouse.ts",
     "stack:up": "pnpm --filter @mc/app --filter @mc/admin build && node scripts/compose.mjs stack up --build",

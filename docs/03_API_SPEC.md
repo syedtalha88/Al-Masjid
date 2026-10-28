@@ -123,7 +123,7 @@ Publishing endpoints accept `notify: boolean` and return `{item, notification: {
 | Moderation | `GET /reports?status=&cursor=` · ★`POST /items/:id/remove` `{reason, reportIds[]?, legalOrderId?}` · ★`POST /items/:id/restore` · `POST /reports/:id/dismiss` |
 | Grievances | `GET /grievances` · `POST /grievances/:id/ack` · `POST /grievances/:id/resolve` · ★`GET /grievances/:id/contact` |
 | Legal orders | `GET/POST /legal-orders` · `PATCH /legal-orders/:id` · `POST /legal-orders/:id/document` |
-| Library | ★`POST /library/import` (JSON file, schema-validated, dry-run first) · `PATCH /library/:id` · `POST /library/:id/verify` `{verifiedBy}` · `POST /library/:id/retire` |
+| Library | `GET /library?status=&kind=&category=&tag=&q=&cursor=` · `GET /library/:id` · `POST /library/import/dry-run` (multipart JSON file → report) · ★`POST /library/import` (same file; all or nothing, as `draft`) · `PATCH /library/:id` · `POST /library/:id/verify` `{verifiedBy}` · `POST /library/:id/retire` (DECISIONS #108) |
 | Templates | `GET/POST/PATCH /templates` |
 | Settings | `GET/PATCH /settings` |
 | Audit | `GET /audit?actor=&masjid=&action=&from=&to=&cursor=` · `GET /audit/export.csv` |
