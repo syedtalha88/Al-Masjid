@@ -36,6 +36,9 @@ const TRACE_CATEGORIES = [
   'disabled-by-default-devtools.timeline',
   'disabled-by-default-devtools.timeline.frame',
   'v8.execute',
+  // Diagnosis only (`MC_PERF_STACKS=1`): JS stacks on Layout / style events — which code forced a layout. Off by
+  // default: capturing stacks costs time inside the measured frames.
+  ...(process.env['MC_PERF_STACKS'] ? ['disabled-by-default-devtools.timeline.stack'] : []),
 ];
 
 export interface AxeOptions {
@@ -222,7 +225,7 @@ export const test = base.extend<McFixtures>({
     let cdp: CDPSession | undefined;
     const state = { tracing: false };
     await use({
-      async start({ cpuThrottle = 4 } = {}) {
+      async start({ cpuThrottle = Number(process.env['MC_PERF_CPU'] ?? 4) } = {}) {
         if (browserName !== 'chromium') throw new Error('perfTrace needs Chromium (the `perf` project)');
         cdp = await page.context().newCDPSession(page);
         await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuThrottle });
@@ -259,7 +262,10 @@ export function expectSmooth(report: TraceReport, { maxDroppedRatio = 0.05 }: Sm
     droppedRatio,
     `visible dropped frames ${String(droppedVisible)} (all dropped ${String(dropped)}) of ${String(presented + dropped)}`,
   ).toBeLessThan(maxDroppedRatio);
-  expect(report.layoutsInAnimationFrames, 'layouts forced inside requestAnimationFrame callbacks').toBe(0);
+  expect(
+    report.layoutsInAnimationFrames,
+    `layouts forced inside requestAnimationFrame callbacks:\n${report.animationFrameLayouts.join('\n')}`,
+  ).toBe(0);
 }
 
 export { expect };

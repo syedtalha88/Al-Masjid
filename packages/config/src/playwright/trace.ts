@@ -54,6 +54,11 @@ export interface TraceReport {
   readonly frames: FrameStats;
   /** `Layout` events inside `requestAnimationFrame` callbacks: layout thrash caused by animation code. */
   readonly layoutsInAnimationFrames: number;
+  /**
+   * One line per such layout: when, how long, the script calls inside that frame (`name@file:line:col` of the bundle —
+   * map with the hidden source maps) and, when traced with the stack category (`MC_PERF_STACKS=1`), its JS stack.
+   */
+  readonly animationFrameLayouts: readonly string[];
 }
 
 export interface AnalyzeOptions {
@@ -124,6 +129,14 @@ function classify(event: TraceEvent): { category: TaskCategory; label: string } 
 }
 
 const round = (ms: number): number => Math.round(ms * 10) / 10;
+/** `name@file:line:col` of a FunctionCall event or a stack frame (`args.data`). */
+const location = (event: Pick<TraceEvent, 'args'>): string => {
+  const value = event.args?.['data'];
+  const frame = isRecord(value) ? value : {};
+  const name = typeof frame['functionName'] === 'string' && frame['functionName'] !== '' ? frame['functionName'] : '?';
+  const position = (key: string) => (typeof frame[key] === 'number' ? String(frame[key]) : '?');
+  return `${name}@${fileName(frame['url'])}:${position('lineNumber')}:${position('columnNumber')}`;
+};
 const end = (event: TraceEvent): number => event.ts + (event.dur ?? 0);
 const within = (inner: TraceEvent, outer: TraceEvent): boolean =>
   inner !== outer && inner.ts >= outer.ts && end(inner) <= end(outer);
@@ -215,12 +228,32 @@ export function analyzeTrace(events: readonly TraceEvent[], { longTaskMs = 50 }:
     );
 
   const animationFrames = onMain.filter((event) => event.name === 'FireAnimationFrame');
-  const layoutsInAnimationFrames = onMain.filter(
-    (event) =>
-      event.name === 'Layout' && animationFrames.some((frame) => sameThread(event, frame) && within(event, frame)),
-  ).length;
+  const forced = onMain.flatMap((event) => {
+    if (event.name !== 'Layout') return [];
+    const frame = animationFrames.find((candidate) => sameThread(event, candidate) && within(event, candidate));
+    return frame ? [{ event, frame }] : [];
+  });
+  const animationFrameLayouts = forced.map(({ event, frame }) => {
+    const calls = onMain
+      .filter((call) => call.name === 'FunctionCall' && sameThread(call, frame) && within(call, frame))
+      .map(location);
+    const begin = event.args?.['beginData'];
+    const stack = isRecord(begin) && Array.isArray(begin['stackTrace']) ? begin['stackTrace'].slice(0, 6) : [];
+    return [
+      `+${String(round((event.ts - origin) / 1000))} ms: layout ${String(round((event.dur ?? 0) / 1000))} ms`,
+      `in a ${String(round((frame.dur ?? 0) / 1000))} ms frame; calls: ${calls.join(', ') || '-'}`,
+      ...(stack.length > 0
+        ? [`; stack: ${stack.map((entry) => location({ args: { data: entry } })).join(' < ')}`]
+        : []),
+    ].join(' ');
+  });
 
-  return { longTasks, frames: frameStats(events, rendererPids), layoutsInAnimationFrames };
+  return {
+    longTasks,
+    frames: frameStats(events, rendererPids),
+    layoutsInAnimationFrames: forced.length,
+    animationFrameLayouts,
+  };
 }
 
 /** One line per long task for assertion messages. */
