@@ -18,33 +18,43 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (27 Oct 2026, evening — Phase 03 IN PROGRESS, stopped at the owner's request)
+## ▶ Next session — start here (28 Oct 2026, evening — Phase 03 IN PROGRESS)
 
 **State:** branch `feat/phase-03` (pushed); `main` = staging = `cdd39fa` (Phase 02, owner-verified). Work order agreed:
 T3.0 → T3.1 → T3.4 → T3.5 → T3.11 → T3.2 → T3.3 → T3.6–T3.10 → T3.13–T3.17 → T3.12.
 
 **Do first:**
-1. **T3.0 (F46) CI result.** The first run on `ci/f46-perf` (`b2a8d1e`) failed at osv-scanner (two new advisories,
-   not T3.0 code) — **fixed 28 Oct 2026:** `qs` 6.16.0 → 6.16.1 by `pnpm dedupe` (GHSA-6pq8-jhm2-2vcw); `deepmerge`
-   4.3.1 has no fix → time-boxed ignore in `osv-scanner.toml` until 28 Nov 2026 (build-time only, **F47**). The same
-   session also fixed three leftovers of `b37bc39` that would have failed the unit/static jobs: stale `openapi.json`,
-   template param `phone` unhandled in the app renderer (switch exhaustiveness; new `@mc/domain/phone` `isE164`), and
-   the raw-color test reading `DECISIONS #104` as a hex color. `feat/phase-03` was pushed to `ci/f46-perf` again
-   (CI runs the perf specs 3× via `pnpm test:perf`). Check its run
-   (`api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/f46-perf`; unauthenticated API = 60
-   requests/hour — poll sparingly). Green → tick T3.0. Red → read the perf annotations; the profiling tools used are
-   described in DECISIONS #105. Delete the `ci/f46-perf` branch afterwards.
-2. **T3.4 Content Library — in progress:** done so far: migration `0009_library_dhikr` (library kind `dhikr` +
-   `repeat`/`occasions`, template param type `phone`, `v_pub_library` exposes the new fields), public contracts
-   and repository updated, local DB migrated. Still to do: import JSON schema (`scripts/library.schema.json`) +
-   dry-run report, `search_text` normalisation in `@mc/domain` (test-first), state functions import/verify/retire/
-   update (+ audit actions), Super Admin API (★ import, list, PATCH, verify, retire) and C8 screens, admin browse/search
-   + `GET /library/suggestion` (daily rotation, no repeat within 60 days), `docs/content-library-format.md` with a
-   placeholder row only.
+1. **T3.0 (F46) — CI ran the perf specs for the first time on `1906d91` (run 40718273615): RED, only "Motion
+   performance".** Everything else green (static, unit + coverage, integration, security incl. Trivy, e2e 222 passed).
+   Findings (3 of 3 repeats of each):
+   - `layouts forced inside requestAnimationFrame callbacks` = 1–2 in `e2e/app/screens.perf.spec.ts` (Home → Masjid
+     Detail push, swipe-back pop) **and in `e2e/navigation/navigation.perf.spec.ts` (showcase push/pop), which was
+     green on `cdd39fa`** → most likely a regression from the T3.0 changes (DECISIONS #105: navigation as a React
+     transition with the push slide starting in the commit's layout effect; motion promises resolving after the frame).
+   - one long task 66 ms on Home → Detail: `requestAnimationFrame` 49.9 ms.
+   - flaky e2e `navigation.spec.ts` "rapid double push then double pop" (a covered screen intercepts the click) — the
+     same transition change is the suspect (a deferred push vs a fast second tap).
+   Next: reproduce `navigation.perf.spec.ts` locally with the trace attribution (fixtures.ts reports which rAF callback
+   forced the layout), bisect against `b2a8d1e^` if needed, fix, push to `ci/f46-perf` again. Delete `ci/f46-perf` when
+   green.
+2. **T3.4 Content Library — in progress.** Done (28 Oct): search normalisation `@mc/domain/search` (#106); multipart
+   uploads read after auth with `@fastify/busboy` (#107, `defineRoute({ upload })`, new code `UPLOAD_INVALID`); import
+   contract `@mc/shared/contracts/library.ts` + generated `scripts/library.schema.json` (`pnpm library:schema`, byte
+   test); state functions `importLibraryEntries` (★, all or nothing) / `findLibraryDuplicates` / `updateLibraryEntry`
+   (content edit → back to draft) / `verifyLibraryEntry` / `retireLibraryEntry` with audit actions (#108; 10 DB tests).
+   Still to do: Super Admin routes (`GET /library`, `GET /library/:id`, `POST /library/import/dry-run`, ★`POST
+   /library/import`, PATCH, verify, retire — 03 §5 updated) + super list repo; admin browse/search repo + route
+   (`$text` with quoted terms, #106) and `GET /library/suggestion` (daily rotation per masjid, no repeat within 60 days);
+   policy-matrix/API test "only verified selectable"; C8 screens; `docs/content-library-format.md` (placeholder row
+   only); seed `search_text` via `librarySearchText`.
 3. **T3.2** still needs: `saveTimings` state function (If-Match rev → 412, version bump, audit), PUT/preview API,
    activation rule, B4 editor, "timings updated" system notice (needs T3.5 templates + T3.6 publish path), journey 6.
    The validation rules are done (`@mc/domain/timings`).
 4. F1 (Node 26) is allowed from 28 Oct 2026.
+5. `owner/PHASE_TESTING_GUIDE.md` has an uncommitted one-character change made outside these sessions (2.14 "(c)" →
+   "( c)") — ask the owner whether to keep it.
+
+**Earlier (27 Oct 2026, evening): Phase 03 started** — T3.0 code, T3.1 Admin Home, T3.2 validation, migration 0009.
 
 **Earlier (same day): Phase 02 DONE; new features before Phase 03**
 
@@ -234,7 +244,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [x] T3.1 — Admin Home completion — **done 27 Oct 2026:** api-admin `GET /masjids/:masjidId/{stats,notifications/quota,timings}` (repos `@mc/db/repos/admin.ts`, document readers shared in `repos/read.ts` incl. `timingsOf`; contracts `@mc/shared/contracts/admin.ts`; openapi regenerated); Home: followers chip, today strip (next jamaat resolved on the phone with `@mc/domain/prayer`, "Set prayer times" before any save), tiles with `phase`/`route` (later phases dev/staging only — `SHOW_COMING_SOON`; Ruqyah / Blood Camp / Help the Needy tiles added, #104), quota pill. Tests: db int 4 (as mc_admin), api int 3, admin unit 9 (today strip incl. Jumu'ah and after Isha, tile visibility); e2e admin screens 4 locales + axe green with the new strip asserted (7/7 admin specs). Inbox banner: arrives with Phase 5/8 content.
 - [ ] T3.2 — Prayer timings editor (B4) — **partly done:** `@mc/domain/timings` `validateTimings` (60 days: jamaat vs adhan incl. midnight, Isha after Maghrib, Fajr vs sunrise warning, Jumu'ah vs khutbah; 100 % coverage). Rest after T3.4/T3.5/T3.11 (see handoff).
 - [ ] T3.3 — Special dates & Ramadan (B11)
-- [ ] T3.4 — Content Library (C8 + admin browse) — **in progress:** migration `0009_library_dhikr` (dhikr kind, repeat, occasions; template param `phone`), contracts + public repo updated. Rest: see handoff.
+- [ ] T3.4 — Content Library (C8 + admin browse) — **in progress:** migration 0009; search normalisation (#106); uploads (#107); import contract + JSON schema; state functions import/edit/verify/retire (#108). Rest: routes, admin search + suggestion, C8, format doc — see handoff.
 - [ ] T3.5 — Notice templates (C9) + ICU rendering
 - [ ] T3.6 — Notice creator (B5) + image pipeline
 - [ ] T3.7 — Hadith/Ayah publisher (B6)
@@ -298,7 +308,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
-| 2026-10-28 | 03 / T3.0 CI | CI on `ci/f46-perf` red at osv-scanner: qs 6.16.1 (dedupe), deepmerge time-boxed ignore (F47); then Trivy (Caddy go-jose → 4.1.6 via xcaddy) and admin coverage (tests for the T3.1 hooks). Fixed three `b37bc39` leftovers (stale openapi.json, `phone` param in the app renderer + `@mc/domain/phone`, raw-color test vs `DECISIONS #1xx`). Re-pushed to `ci/f46-perf` for the perf result |
+| 2026-10-28 | 03 / T3.0 CI, T3.4 | CI on `ci/f46-perf` red at osv-scanner: qs 6.16.1 (dedupe), deepmerge time-boxed ignore (F47); then Trivy (Caddy go-jose → 4.1.6 via xcaddy) and admin coverage (tests for the T3.1 hooks). Fixed three `b37bc39` leftovers (stale openapi.json, `phone` param in the app renderer + `@mc/domain/phone`, raw-color test vs `DECISIONS #1xx`). Perf specs then ran: red (forced layouts in rAF, also in the showcase nav spec — likely a T3.0 regression; next session). T3.4: search (#106), uploads (#107), import contract + JSON schema, state functions (#108) |
 | 2026-10-27 (evening) | 03 / T3.0–T3.4 | Phase 03 started. T3.0 F46 fixes (navigation as transition, stable renders, `combine`, post-frame motion promises; DECISIONS #105) — waiting for CI on `ci/f46-perf`. T3.1 Admin Home done (stats/quota/timings API, today strip, tiles, quota pill). T3.2 domain validation done. T3.4 started (migration 0009). Stopped at the owner's request (usage limit) |
 | 2026-10-27 | 02 → 03 | Phase 02 DONE (owner verified on staging `cdd39fa`, incl. low-end devices). New features agreed with the owner (DECISIONS #104): voice notes, Ruqyah, adhkar after salah, Ilm contacts, blood camp (Phase 3); needy people, personal zakat tracker (Phase 5) — specs and phase files updated, no code yet |
 | 2026-10-27 | 02 / close | T2.14 quality gates (visual baselines in the Playwright Linux image, real-screen perf traces → F46), security review (H1 template injection in link previews, M1 local wipe — fixed), F45 closed, phase-verifier findings fixed (CI e2e rate limit in a test helper, journey 1 in 4 locales, Qibla placeholder dev/staging only, side-by-side images). CI green on `cdd39fa`, staging deployed → **AWAITING OWNER VERIFICATION** (DECISIONS #103) |
