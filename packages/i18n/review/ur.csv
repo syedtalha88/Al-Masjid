@@ -318,6 +318,8 @@ errors,INVALID_CURSOR,This list changed. Please reload it.,یہ فہرست بد�
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,لگتا ہے آپ آف لائن ہیں۔ براہِ کرم کنکشن چیک کر کے دوبارہ کوشش کریں۔,no
 errors,ITEM_NOT_FOUND,This post is no longer available.,یہ پوسٹ اب دستیاب نہیں ہے۔,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,ہم یہ جانچ نہیں سکے کہ یہ اصلی فون ہے۔ براہِ کرم دوبارہ کوشش کریں۔,no
+errors,LIBRARY_ENTRY_NOT_FOUND,This library entry no longer exists.,یہ لائبریری اندراج اب موجود نہیں ہے۔,no
+errors,LIBRARY_DUPLICATE,An entry with this kind and reference is already in the library.,اسی قسم اور حوالے والا اندراج لائبریری میں پہلے سے موجود ہے۔,no
 follow,scan.title,Scan masjid QR,مسجد کا QR اسکین کریں,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,اپنا کیمرا مسجد کے پوسٹر پر لگے QR کوڈ کی طرف کریں۔,no
 follow,scan.torch,Flashlight,ٹارچ,no

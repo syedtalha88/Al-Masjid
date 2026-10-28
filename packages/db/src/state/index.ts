@@ -56,6 +56,17 @@ export { followMasjid, MAX_FOLLOWS_PER_DEVICE, unfollowMasjid } from './follows.
 export { requireSuper, STEP_UP_WINDOW_MS } from './guards.ts';
 export * from './later.ts';
 export {
+  findLibraryDuplicates,
+  importLibraryEntries,
+  type LibraryEntryInput,
+  type LibraryKey,
+  libraryKey,
+  type LibraryPatch,
+  retireLibraryEntry,
+  updateLibraryEntry,
+  verifyLibraryEntry,
+} from './library.ts';
+export {
   changeMasjidStatus,
   createMasjid,
   type MasjidTransition,

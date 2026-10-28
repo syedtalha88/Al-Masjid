@@ -42,6 +42,9 @@ export const API_ERRORS = {
   // Public API (03 §3, Phase 2)
   ITEM_NOT_FOUND: 404,
   TURNSTILE_FAILED: 403,
+  // Content Library (03 §5, Phase 3)
+  LIBRARY_ENTRY_NOT_FOUND: 404,
+  LIBRARY_DUPLICATE: 409,
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

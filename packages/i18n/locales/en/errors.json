@@ -32,5 +32,7 @@
   "INVALID_CURSOR": "This list changed. Please reload it.",
   "NETWORK": "You seem to be offline. Please check your connection and try again.",
   "ITEM_NOT_FOUND": "This post is no longer available.",
-  "TURNSTILE_FAILED": "We could not check that this is a real phone. Please try again."
+  "TURNSTILE_FAILED": "We could not check that this is a real phone. Please try again.",
+  "LIBRARY_ENTRY_NOT_FOUND": "This library entry no longer exists.",
+  "LIBRARY_DUPLICATE": "An entry with this kind and reference is already in the library."
 }

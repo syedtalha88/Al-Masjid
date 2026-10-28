@@ -92,6 +92,10 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'credential.revoke': ['reason', 'credential'],
   'session.revoke': ['reason', 'count'],
   'settings.update': ['fields'],
+  'library.import': ['batch', 'entries'],
+  'library.update': ['fields', 'back_to_draft'],
+  'library.verify': [],
+  'library.retire': ['from'],
 };
 const META_LIMIT_BYTES = 4096;
 
