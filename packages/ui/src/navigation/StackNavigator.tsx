@@ -242,23 +242,60 @@ export function StackNavigator({
     const current = () => run === generation.current;
     const nodes = (key: string) => screens.get(key);
     const stopTracking = trackMotion();
+    // Navigations render as transitions, so several history changes may arrive as ONE state change whose
+    // `transition` describes only the last step (DECISIONS #109). Screens the skipped steps moved are settled here:
+    // every screen that left slides off and unmounts — not only `transition.from` — and covered screens of the stack
+    // that never got their covering animation are put in place directly.
+    const retireLeaving = (tab: string, except: string | undefined, instant: boolean): Promise<boolean>[] =>
+      (state.leaving[tab] ?? [])
+        .filter((entry) => entry.key !== except)
+        .map((entry) => {
+          const node = nodes(entry.key);
+          const done = instant
+            ? Promise.resolve(true)
+            : reduced
+              ? animateChannel(node?.element, 'opacity', 0, 'fade')
+              : animateChannel(node?.element, 'x', offscreenX(), 'smooth');
+          return done.then((completed) => {
+            setState((latest) => finishLeaving(latest, entry.key));
+            return completed;
+          });
+        });
+    const settleCovered = (tab: string, keep: readonly string[]) => {
+      for (const entry of state.stacks[tab] ?? []) {
+        if (keep.includes(entry.key)) continue;
+        const node = nodes(entry.key);
+        setChannel(node?.element, 'x', coveredX());
+        setChannel(node?.dim, 'opacity', navigation.coveredDim);
+      }
+    };
 
     switch (transition.type) {
       case 'push': {
         const incoming = nodes(transition.to);
         const outgoing = nodes(transition.from);
+        settleCovered(transition.tab, [transition.to, transition.from]);
+        // An outgoing screen a skipped push mounted but never showed is still off-screen: cover it directly.
+        const outgoingShown = getChannel(outgoing?.element, 'x') !== offscreenX();
         let moves: Promise<boolean>[];
-        if (reduced) {
+        if (reduced || !outgoingShown) {
           setChannel(outgoing?.element, 'x', coveredX());
           setChannel(outgoing?.dim, 'opacity', navigation.coveredDim);
+        }
+        if (reduced) {
           moves = [animateChannel(incoming?.element, 'opacity', 1, 'fade')];
         } else {
           moves = [
             animateChannel(incoming?.element, 'x', 0, 'smooth'),
-            animateChannel(outgoing?.element, 'x', coveredX(), 'smooth'),
-            animateChannel(outgoing?.dim, 'opacity', navigation.coveredDim, 'smooth'),
+            ...(outgoingShown
+              ? [
+                  animateChannel(outgoing?.element, 'x', coveredX(), 'smooth'),
+                  animateChannel(outgoing?.dim, 'opacity', navigation.coveredDim, 'smooth'),
+                ]
+              : []),
           ];
         }
+        moves.push(...retireLeaving(transition.tab, undefined, false));
         void Promise.all(moves).then(() => {
           stopTracking();
           if (current()) focusTitle(incoming?.element);
@@ -288,6 +325,8 @@ export function StackNavigator({
             animateChannel(target?.dim, 'opacity', 0, 'smooth'),
           ];
         }
+        settleCovered(transition.tab, [transition.to]);
+        moves.push(...retireLeaving(transition.tab, transition.from, native));
         void Promise.all(moves).then(() => {
           stopTracking();
           setState((latest) => finishLeaving(latest, transition.from));

@@ -1407,6 +1407,21 @@ but not what an edit of a verified entry means, how large a file may be, or whet
 **Consequences:** a fix to a verified translation needs a fresh verification before musallis see the entry again (the
 items that reference it show without the library body until then). Recorded in `docs/content-library-format.md`.
 
+### #109 — Batched navigations: the navigator settles every screen a skipped step moved (PHASE_03 T3.0) — ACCEPTED (Claude Code, 28 Oct 2026)
+**Context:** since #105 navigations are applied as React transitions. React may render several history changes as
+one update (two quick back presses, a pop followed by a push), and the reduced `transition` then describes only the
+last step. The navigator animated just that step: a screen popped by an earlier, skipped step stayed mounted at x = 0,
+inert and on top — taps fell through to the tab layer (CI flake "rapid double push then double pop", 28 Oct 2026). A
+component test reproduces it deterministically (`packages/ui/test/stack-navigator-batching.test.tsx`).
+**Decision:** keep the transition (it removes the 50–100 ms tap task) and make the transition effect independent of
+how many steps were batched: on a push or pop every screen in the tab's `leaving` list slides off with the same spring
+and is unmounted (not only `transition.from`); stack screens below the new top are put at the covered position
+directly; an outgoing screen that a skipped push mounted but never showed is covered without animating across.
+Also: perf failures now list, for every layout forced inside an animation frame, the script calls of that frame
+(and its JS stack with `MC_PERF_STACKS=1`), so a CI-only failure names its cause.
+**Consequences:** a batched double pop looks like one pop that also slides the higher screen away. No change for
+single navigations.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

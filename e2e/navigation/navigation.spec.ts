@@ -100,6 +100,32 @@ test('stress: rapid double push then double pop never breaks the stack', async (
   await expect(page.locator('[data-tab="home"] section[data-screen]')).toHaveCount(2);
 });
 
+// Navigations are applied as React transitions (DECISIONS #105), so back-to-back ones may render as one update: the
+// navigator must still animate off and remove every screen that left, not only the last transition's.
+test('two pops that render as one update leave no screen behind, and the top stays tappable', async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName !== 'chromium', 'CPU throttling needs Chromium (CDP)');
+  await openNext(page);
+  await openNext(page);
+  await openNext(page);
+  await expectTop(page, 'Screen 4');
+  await settle(page);
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 6 });
+  await page.evaluate(() => {
+    history.back();
+    history.back();
+  });
+  await expectTop(page, 'Screen 2');
+  await settle(page);
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+  await expect(page.locator('[data-tab="home"] section[data-screen]')).toHaveCount(3);
+  await openNext(page);
+  await expectTop(page, 'Screen 3');
+});
+
 test('swipe-back: a short drag springs back, a long drag pops; interrupting with a push is safe', async ({ page }) => {
   await openNext(page);
   await expectTop(page, 'Screen 2');
