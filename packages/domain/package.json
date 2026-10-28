@@ -12,6 +12,7 @@
     "./hijri": "./src/hijri.ts",
     "./ics": "./src/ics.ts",
     "./money": "./src/money.ts",
+    "./phone": "./src/phone.ts",
     "./prayer": "./src/prayer.ts",
     "./thumbhash": "./src/thumbhash.ts",
     "./time": "./src/time.ts",

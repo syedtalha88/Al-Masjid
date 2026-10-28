@@ -1,6 +1,7 @@
 // View rules of the content screens (07 A7–A9; lazy screens only — `item-view.ts` holds what Home needs): library text
 // in the app language with the English fallback (00 §4.3), announcement tags and filters, dua privacy, the 30-day
 // "Older" split, and notice-template arguments formatted by their declared type (02 §2).
+import { isE164 } from '@mc/domain/phone';
 import { isCalendarDate, isWallClock } from '@mc/domain/time';
 import type { Locale } from '@mc/i18n/locales';
 import type { FeedItem, LibraryEntry, NoticeTemplate, TemplateParamValue } from '@mc/shared/contracts/public';
@@ -140,6 +141,9 @@ export function templateArguments(
         break;
       case 'short_text':
         if (typeof value === 'string') result[param.name] = value;
+        break;
+      case 'phone':
+        if (isE164(value)) result[param.name] = value;
         break;
     }
   }

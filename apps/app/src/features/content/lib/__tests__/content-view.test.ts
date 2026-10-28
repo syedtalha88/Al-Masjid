@@ -141,6 +141,7 @@ describe('notice templates (02 §2: ICU body + typed params formatted per locale
       { name: 'hours', type: 'time_range', required: true },
       { name: 'n', type: 'number', required: true },
       { name: 'who', type: 'short_text', required: false },
+      { name: 'contact', type: 'phone', required: false },
     ],
     system: true,
   };
@@ -148,7 +149,15 @@ describe('notice templates (02 §2: ICU body + typed params formatted per locale
   it('formats each argument by its declared type; ranges become _start/_end', () => {
     expect(
       templateArguments(
-        { prayer: 'isha', time: '21:15', from: '2026-10-24', hours: { start: '10:00', end: '14:00' }, n: 3, who: 'x' },
+        {
+          prayer: 'isha',
+          time: '21:15',
+          from: '2026-10-24',
+          hours: { start: '10:00', end: '14:00' },
+          n: 3,
+          who: 'x',
+          contact: '+910000000000',
+        },
         template.params,
         format,
       ),
@@ -160,13 +169,14 @@ describe('notice templates (02 §2: ICU body + typed params formatted per locale
       hours_end: 'T(14:00)',
       n: 3,
       who: 'x',
+      contact: '+910000000000',
     });
   });
 
   it('drops values that do not match their type (the message then falls back)', () => {
     expect(
       templateArguments(
-        { prayer: 'lunch', time: '25:00', from: 'tomorrow', hours: '10:00', n: '3' },
+        { prayer: 'lunch', time: '25:00', from: 'tomorrow', hours: '10:00', n: '3', contact: '0000000000' },
         template.params,
         format,
       ),
