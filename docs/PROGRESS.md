@@ -24,7 +24,12 @@
 T3.0 → T3.1 → T3.4 → T3.5 → T3.11 → T3.2 → T3.3 → T3.6–T3.10 → T3.13–T3.17 → T3.12.
 
 **Do first:**
-1. **T3.0 (F46) CI result**: commit `b2a8d1e` was pushed to branch `ci/f46-perf` (CI runs the perf specs 3× via
+1. **CI on `ci/f46-perf` (`b2a8d1e`) — checked 28 Oct 2026: FAILED at "Security scans → osv-scanner (lockfile)"**
+   (typecheck, unit and integration green; the Build/e2e/perf job was cancelled, so the T3.0 perf specs never ran).
+   Almost certainly a NEW advisory on a dependency (not T3.0 code): reproduce locally with
+   `docker run --rm -v "$PWD:/src" <OSV_IMAGE from ci.yml> scan source --lockfile /src/pnpm-lock.yaml`, bump the
+   affected package (pnpm `minimumReleaseAge` may hold a fresh fix — if so, a time-boxed ignore as in F45 with a
+   follow-up row), commit on `feat/phase-03`, push again to `ci/f46-perf` and wait for the perf result. 1. **T3.0 (F46) CI result**: commit `b2a8d1e` was pushed to branch `ci/f46-perf` (CI runs the perf specs 3× via
    `pnpm test:perf`). Check its run (`api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/f46-perf`;
    unauthenticated API = 60 requests/hour — poll sparingly). Green → tick T3.0. Red → read the perf annotations; the
    profiling tools used are described in DECISIONS #105. Delete the `ci/f46-perf` branch afterwards.
