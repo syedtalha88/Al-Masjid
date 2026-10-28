@@ -15,6 +15,8 @@ export interface RequestJsonOptions<T> {
   readonly method?: HttpMethod;
   /** Serialized as JSON with `Content-Type: application/json`. */
   readonly body?: unknown;
+  /** A file upload instead of `body`: sent as `multipart/form-data` (the browser sets the boundary). */
+  readonly form?: FormData;
   readonly headers?: Readonly<Record<string, string>>;
   /** Caller cancellation (e.g. TanStack Query's signal). */
   readonly signal?: AbortSignal;
@@ -104,7 +106,16 @@ const isJson = (contentType: string | null, subtype: 'json' | 'problem+json'): b
  *   ResponseError for any other unusable response (wrong status, content type, JSON or shape).
  */
 export async function requestJson<T>(url: string | URL, options: RequestJsonOptions<T>): Promise<T> {
-  const { schema, method = 'GET', body, signal, timeoutMs = DEFAULT_TIMEOUT_MS, fetch: doFetch = fetch } = options;
+  const {
+    schema,
+    method = 'GET',
+    body,
+    form,
+    signal,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+    fetch: doFetch = fetch,
+  } = options;
+  if (body !== undefined && form !== undefined) throw new TypeError('requestJson: body and form exclude each other');
   const headers: Record<string, string> = {
     Accept: 'application/json, application/problem+json',
     ...options.headers,
@@ -131,6 +142,7 @@ export async function requestJson<T>(url: string | URL, options: RequestJsonOpti
         headers,
         signal: controller.signal,
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+        ...(form === undefined ? {} : { body: form }),
       });
     } catch (error) {
       const reason = controller.signal.aborted ? abortReason() : 'failed';

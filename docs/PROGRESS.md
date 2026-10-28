@@ -24,6 +24,17 @@
 T3.0 → T3.1 → T3.4 → T3.5 → T3.11 → T3.2 → T3.3 → T3.6–T3.10 → T3.13–T3.17 → T3.12.
 
 **Do first:**
+0. **Stopped mid-investigation (28 Oct 2026, late — owner asked to hold).** CI on `c3b339e` (navigator batching fix,
+   DECISIONS #109): everything green except e2e `navigation.spec.ts` "rapid double push then double pop" and the new
+   "two pops that render as one update" (click intercepted by `div[data-tab=home]` / "element is not stable"). The fix
+   is real (component test `stack-navigator-batching.test.tsx` red before, green after) but not the whole cause.
+   **Reproduces locally under contention:** `playwright test --project=pixel-7 --workers=6 e2e/navigation/navigation.spec.ts
+   --repeat-each=5` → 6 failures (several specs, repeat 2). Next: inspect those traces/screenshots; suspects — the
+   transition (#105) deferring commits while history moves on, lazy route chunks suspending inside the transition (a
+   suspended transition does not commit), the driver resolving promises in a later task. If not found quickly, revert
+   `startTransition` in StackNavigator (keep #109) and fix the tap cost differently. Perf specs did not run yet
+   (e2e failed first). T3.4: routes done (`b7b4cc1`); C8 screens + `docs/content-library-format.md` still to do;
+   `requestJson({ form })` added for the upload.
 1. **T3.0 (F46) — CI ran the perf specs for the first time on `1906d91` (run 40718273615): RED, only "Motion
    performance".** Everything else green (static, unit + coverage, integration, security incl. Trivy, e2e 222 passed).
    Findings (3 of 3 repeats of each):

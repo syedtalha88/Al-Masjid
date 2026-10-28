@@ -61,6 +61,30 @@ describe('requestJson — success', () => {
     expect(result).toEqual({ body: { locale: 'ur' }, type: 'application/json', csrf: '1' });
   });
 
+  it('POSTs a FormData upload as multipart (the boundary set by fetch); body and form exclude each other', async () => {
+    server.use(
+      http.post(`${API}/upload`, async ({ request }) => {
+        const raw = await request.text();
+        return HttpResponse.json({
+          type: request.headers.get('content-type'),
+          part: raw.includes('name="file"; filename="library.json"') && raw.includes('{"ok":true}'),
+        });
+      }),
+    );
+    const form = new FormData();
+    form.append('file', new Blob(['{"ok":true}'], { type: 'application/json' }), 'library.json');
+    const result = await requestJson(`${API}/upload`, {
+      method: 'POST',
+      form,
+      schema: z.object({ type: z.string(), part: z.boolean() }),
+    });
+    expect(result.type).toMatch(/^multipart\/form-data; boundary=/);
+    expect(result.part).toBe(true);
+    await expect(
+      requestJson(`${API}/upload`, { method: 'POST', form, body: {}, schema: z.object({}) }),
+    ).rejects.toThrow(TypeError);
+  });
+
   it('accepts a JSON content type with parameters', async () => {
     server.use(
       http.get(`${API}/charset`, () =>
