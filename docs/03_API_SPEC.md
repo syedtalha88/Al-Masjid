@@ -124,7 +124,7 @@ Publishing endpoints accept `notify: boolean` and return `{item, notification: {
 | Grievances | `GET /grievances` · `POST /grievances/:id/ack` · `POST /grievances/:id/resolve` · ★`GET /grievances/:id/contact` |
 | Legal orders | `GET/POST /legal-orders` · `PATCH /legal-orders/:id` · `POST /legal-orders/:id/document` |
 | Library | `GET /library?status=&kind=&category=&tag=&q=&cursor=` · `GET /library/:id` · `POST /library/import/dry-run` (multipart JSON file → report) · ★`POST /library/import` (same file; all or nothing, as `draft`) · `PATCH /library/:id` · `POST /library/:id/verify` `{verifiedBy}` · `POST /library/:id/retire` (DECISIONS #108) |
-| Templates | `GET/POST/PATCH /templates` |
+| Templates | `GET /templates` · `GET /templates/:key` · `POST /templates` (always `draft`) · `PATCH /templates/:key` (edits; `status` active/retired — active needs reviewed translations; params only while draft) · `POST /templates/starters` (adds missing starters as drafts) — ICU checked in all 4 languages (DECISIONS #111) |
 | Settings | `GET/PATCH /settings` |
 | Audit | `GET /audit?actor=&masjid=&action=&from=&to=&cursor=` · `GET /audit/export.csv` |
 | Posters | `GET /masjids/:id/poster-data` (follow code, deep link, names) — poster rendered client-side |

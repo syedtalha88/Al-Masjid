@@ -9,6 +9,7 @@ import { linkPreviewRoutes } from './link-preview.ts';
 import { type PublicRouteDeps, publicRoutes } from './public.ts';
 import { type SuperRouteDeps, superRoutes } from './super.ts';
 import { superLibraryRoutes } from './super-library.ts';
+import { superTemplateRoutes } from './super-templates.ts';
 
 export type AdminRouteDeps = AdminAuthDeps & AdminPasskeyDeps & SuperRouteDeps;
 export type { PublicRouteDeps };
@@ -30,6 +31,6 @@ export function adminRoutes(deps: AdminRouteDeps): { routes: RouteDefinition[]; 
       ...adminMasjidRoutes(deps),
       ...adminLibraryRoutes(deps),
     ],
-    superRoutes: [...superRoutes(deps), ...superLibraryRoutes(deps)],
+    superRoutes: [...superRoutes(deps), ...superLibraryRoutes(deps), ...superTemplateRoutes(deps)],
   };
 }

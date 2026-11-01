@@ -39,3 +39,4 @@ export {
   listMasjids,
   type MasjidRow,
 } from './super.ts';
+export { getTemplateForSuper, listTemplatesForSuper, type SuperTemplateRow } from './templates.ts';

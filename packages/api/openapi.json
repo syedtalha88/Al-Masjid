@@ -1732,6 +1732,174 @@
           "truncated",
           "imported"
         ]
+      },
+      "SuperTemplateList": {
+        "type": "object",
+        "properties": {
+          "templates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuperTemplate"
+            }
+          }
+        },
+        "required": [
+          "templates"
+        ]
+      },
+      "SuperTemplate": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "general",
+              "event",
+              "facilities",
+              "timing"
+            ]
+          },
+          "icon": {
+            "type": "string"
+          },
+          "isImportantDefault": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "hi": {
+                "type": "string"
+              },
+              "ur": {
+                "type": "string"
+              },
+              "te": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "hi": {
+                "type": "string"
+              },
+              "ur": {
+                "type": "string"
+              },
+              "te": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
+          },
+          "params": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "time",
+                    "date",
+                    "date_range",
+                    "time_range",
+                    "prayer",
+                    "number",
+                    "short_text",
+                    "phone"
+                  ]
+                },
+                "required": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "name",
+                "type",
+                "required"
+              ]
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "active",
+              "retired"
+            ]
+          },
+          "translationReviewed": {
+            "type": "boolean"
+          },
+          "system": {
+            "type": "boolean"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "key",
+          "category",
+          "icon",
+          "isImportantDefault",
+          "title",
+          "body",
+          "params",
+          "status",
+          "translationReviewed",
+          "system",
+          "updatedAt"
+        ]
+      },
+      "SuperTemplateResponse": {
+        "type": "object",
+        "properties": {
+          "template": {
+            "$ref": "#/components/schemas/SuperTemplate"
+          }
+        },
+        "required": [
+          "template"
+        ]
+      },
+      "SuperStarterTemplatesAdded": {
+        "type": "object",
+        "properties": {
+          "added": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "added"
+        ]
       }
     },
     "parameters": {}
@@ -7182,6 +7350,447 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SuperLibraryEntryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/templates": {
+      "get": {
+        "summary": "Every notice template, any status (C9)",
+        "tags": [
+          "super"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperTemplateList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a notice template — always a draft until its translations are reviewed",
+        "tags": [
+          "super"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]{2,63}$"
+                  },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "general",
+                      "event",
+                      "facilities",
+                      "timing"
+                    ]
+                  },
+                  "icon": {
+                    "type": "string",
+                    "enum": [
+                      "drop",
+                      "lightning",
+                      "clock",
+                      "mosque",
+                      "crescent",
+                      "calendar",
+                      "broom",
+                      "car",
+                      "wrench",
+                      "warning",
+                      "moon_stars",
+                      "bowl_food",
+                      "search",
+                      "heart",
+                      "heartbeat",
+                      "megaphone",
+                      "info",
+                      "map_pin",
+                      "hands_praying"
+                    ]
+                  },
+                  "isImportantDefault": {
+                    "type": "boolean"
+                  },
+                  "title": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "hi": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "ur": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "te": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      }
+                    },
+                    "required": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "body": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1500
+                      },
+                      "hi": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1500
+                      },
+                      "ur": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1500
+                      },
+                      "te": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1500
+                      }
+                    },
+                    "required": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "params": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-zA-Z0-9]{0,39}$"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "time",
+                            "date",
+                            "date_range",
+                            "time_range",
+                            "prayer",
+                            "number",
+                            "short_text",
+                            "phone"
+                          ]
+                        },
+                        "required": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "type",
+                        "required"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 4
+                  },
+                  "translationReviewed": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "key",
+                  "category",
+                  "icon",
+                  "isImportantDefault",
+                  "title",
+                  "body",
+                  "params",
+                  "translationReviewed"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperTemplateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/templates/{key}": {
+      "get": {
+        "summary": "One notice template (C9 editor)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "key",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperTemplateResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Edit a template or move its status (activation needs reviewed translations)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "key",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "general",
+                      "event",
+                      "facilities",
+                      "timing"
+                    ]
+                  },
+                  "icon": {
+                    "type": "string",
+                    "enum": [
+                      "drop",
+                      "lightning",
+                      "clock",
+                      "mosque",
+                      "crescent",
+                      "calendar",
+                      "broom",
+                      "car",
+                      "wrench",
+                      "warning",
+                      "moon_stars",
+                      "bowl_food",
+                      "search",
+                      "heart",
+                      "heartbeat",
+                      "megaphone",
+                      "info",
+                      "map_pin",
+                      "hands_praying"
+                    ]
+                  },
+                  "isImportantDefault": {
+                    "type": "boolean"
+                  },
+                  "title": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "hi": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "ur": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "te": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      }
+                    },
+                    "required": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "body": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1500
+                      },
+                      "hi": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1500
+                      },
+                      "ur": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1500
+                      },
+                      "te": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1500
+                      }
+                    },
+                    "required": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "params": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-zA-Z0-9]{0,39}$"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "time",
+                            "date",
+                            "date_range",
+                            "time_range",
+                            "prayer",
+                            "number",
+                            "short_text",
+                            "phone"
+                          ]
+                        },
+                        "required": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "type",
+                        "required"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 4
+                  },
+                  "translationReviewed": {
+                    "type": "boolean"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "retired"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperTemplateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/templates/starters": {
+      "post": {
+        "summary": "Add the missing starter templates (00 §4.3) as drafts; existing keys are left as they are",
+        "tags": [
+          "super"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperStarterTemplatesAdded"
                 }
               }
             }

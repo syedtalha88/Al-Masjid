@@ -2,90 +2,13 @@
 // run → ★ all-or-nothing import as draft), file checks (UTF-8, JSON, envelope, size, multipart only), edits, verify,
 // retire, and the admin reads — verified entries only (acceptance), today's suggestion, other masjids unreachable.
 // Religious text: the 10 §5 placeholders only.
-import { randomBytes } from 'node:crypto';
-
-import { type DbHandle, publicScope } from '@mc/db';
-import { runMigrations } from '@mc/db/migrate';
-import { MIGRATIONS } from '@mc/db/migrations';
-import { registerCredential } from '@mc/db/state';
-import { createTestDatabase, processUserHandle, type TestDatabase } from '@mc/db/testing';
-import { ManualClock } from '@mc/shared/clock';
 import { LIBRARY_IMPORT_FORMAT, LIBRARY_IMPORT_MAX_BYTES } from '@mc/shared/contracts';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import { createAdminApp } from '../src/app.ts';
-import { sessionAuthenticator } from '../src/auth/session.ts';
-import { type FieldKeyRing, hashToken, newToken } from '../src/crypto/field.ts';
-import { memoryRateLimiter } from '../src/http/rate-limit.ts';
-import { bootstrapSuperAdminInvite } from '../src/jobs/bootstrap-super-admin.ts';
-import { adminRoutes } from '../src/routes/index.ts';
-import { passkeyDeps, silentLogger } from './helpers.ts';
+import { CSRF, superHarness } from './super-harness.ts';
 
-const ORIGIN = 'https://admin.test';
-const CSRF = { Origin: ORIGIN, 'X-MC-CSRF': '1' };
-const pepper = randomBytes(32);
-const keyRing: FieldKeyRing = { currentId: 'k1', keys: new Map([['k1', randomBytes(32)]]) };
-const clock = new ManualClock(new Date('2026-10-28T08:00:00Z'));
-
-let test: TestDatabase | undefined;
-let handle: DbHandle | undefined;
-let asAdmin: Awaited<ReturnType<typeof processUserHandle>> | undefined;
-const h = () => {
-  if (!handle) throw new Error('no handle');
-  return handle;
-};
-const t = () => {
-  if (!test) throw new Error('no test database');
-  return test;
-};
-const app = () => {
-  const built = adminRoutes({ db: h(), pepper, adminOrigin: ORIGIN, keyRing, ...passkeyDeps(ORIGIN, clock) });
-  return createAdminApp({
-    logger: silentLogger(),
-    release: 't',
-    trustedProxyMode: 'none',
-    adminOrigin: ORIGIN,
-    clock,
-    rateLimiter: memoryRateLimiter(),
-    authenticate: sessionAuthenticator({ db: h(), pepper, clock }),
-    routes: built.routes,
-    superRoutes: built.superRoutes,
-  }).app;
-};
-
-async function register(inviteUrlText: string): Promise<string> {
-  const token = new URL(inviteUrlText).hash.slice(1);
-  const sessionToken = newToken();
-  await registerCredential(h(), publicScope(), {
-    inviteTokenHash: hashToken(token, pepper),
-    credential: {
-      id: randomBytes(32),
-      publicKey: randomBytes(77),
-      counter: 0,
-      transports: ['internal'],
-      backedUp: true,
-      deviceType: 'multiDevice',
-      label: 'Test phone',
-    },
-    sessionTokenHash: hashToken(sessionToken, pepper),
-    now: clock.now(),
-  });
-  return `__Host-mc_sess=${sessionToken}`;
-}
-
-let superCookie = '';
-const stepUp = (on: boolean) =>
-  t()
-    .db.collection<{ token_hash: Buffer; step_up_at?: Date }>('admin_sessions')
-    .updateOne(
-      { token_hash: hashToken(superCookie.split('=')[1] ?? '', pepper) },
-      on ? { $set: { step_up_at: clock.now() } } : { $unset: { step_up_at: '' } },
-    );
-const asSuper = (method: 'get' | 'post' | 'patch', path: string) => {
-  const call = request(app())[method](`/api/super${path}`).set('Cookie', superCookie);
-  return method === 'get' ? call : call.set(CSRF);
-};
+const { app, asSuper, stepUp, register, db } = superHarness('library_routes');
 
 let counter = 0;
 const row = (over: Record<string, unknown> = {}) => {
@@ -106,7 +29,7 @@ const file = (entries: unknown[]) =>
   Buffer.from(JSON.stringify({ format: LIBRARY_IMPORT_FORMAT, version: 1, entries }));
 const upload = (path: string, bytes: Buffer) =>
   asSuper('post', path).attach('file', bytes, { filename: 'library.json', contentType: 'application/json' });
-const count = () => t().db.collection('content_library').countDocuments();
+const count = () => db().collection('content_library').countDocuments();
 
 interface Report {
   entries: number;
@@ -116,27 +39,6 @@ interface Report {
   duplicates: { row: number; in: string }[];
   batchId?: string;
 }
-
-beforeAll(async () => {
-  test = await createTestDatabase('library_routes');
-  await runMigrations(test.db, MIGRATIONS);
-  asAdmin = await processUserHandle(test, 'mc_admin');
-  handle = asAdmin.handle;
-  const { inviteUrl } = await bootstrapSuperAdminInvite(h(), {
-    displayName: 'Test Owner',
-    uiLocale: 'en',
-    force: false,
-    adminOrigin: ORIGIN,
-    pepper,
-    now: clock.now(),
-  });
-  superCookie = await register(inviteUrl);
-});
-
-afterAll(async () => {
-  await asAdmin?.dispose();
-  await test?.dispose();
-});
 
 describe('import: dry run, then ★ all or nothing', () => {
   it('the dry run reports row errors and duplicates (file and library) and writes nothing', async () => {
@@ -173,9 +75,9 @@ describe('import: dry run, then ★ all or nothing', () => {
     const done = await upload('/library/import', file(rows));
     expect(done.status).toBe(200);
     expect(done.body).toMatchObject({ entries: 2, valid: 2, imported: 2, batchId: expect.any(String) as unknown });
-    const stored = await t().db.collection('content_library').find({ reference: rows[0]?.reference }).toArray();
+    const stored = await db().collection('content_library').find({ reference: rows[0]?.reference }).toArray();
     expect(stored[0]).toMatchObject({ status: 'draft' });
-    const audit = await t().db.collection('audit_log').findOne({ action: 'library.import', 'meta.entries': 2 });
+    const audit = await db().collection('audit_log').findOne({ action: 'library.import', 'meta.entries': 2 });
     expect(audit).toMatchObject({ actor_type: 'super_admin' });
   });
 
