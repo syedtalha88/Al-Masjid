@@ -37,7 +37,7 @@ Done: T3.1, T3.4. Built and waiting for CI: T3.0, T3.5.
    content-view.ts`, `hooks/useNoticeBody.ts`) must move to a shared path so `PreviewFrame` renders exactly the musalli
    output (acceptance: DOM snapshot equality). Template arguments are already shared (`@mc/i18n/template-args`).
 3. Then T3.2 (timings editor: `saveTimings`, PUT/preview API, B4, the system notice `timings_updated` — the template
-   exists now), T3.3, T3.6 (needs the Cloudinary API key — owner) …
+   exists now), T3.3, T3.6 (Cloudinary keys are in place locally; staging keys at T3.6) …
 4. F1 (Node 26) is allowed since 28 Oct 2026 — not done yet.
 
 **What happened 28 Oct – 1 Nov 2026 (details in the session log and DECISIONS #106–#112):**
@@ -50,11 +50,9 @@ Done: T3.1, T3.4. Built and waiting for CI: T3.0, T3.5.
   C8 screens, owner guide `docs/content-library-format.md`.
 - **T3.5** built: 16 starter templates (`@mc/i18n/templates`, texts in `locales/*/templates.json`), `draft` status
   (migration 0010), C9 screens, ICU checks in the API and live in the editor (#111).
-- Owner gave Cloudinary details (1 Nov): moved out of `.env.local.api-public` (forbidden there) into
-  `.env.local.api-admin` without reading them in the transcript; cloud name set to `g0ytozsb` (the file held a
-  different 14-character value — owner to confirm); the value saved as "api key" was the **API secret**; the numeric
-  **API key is still missing** (ask at T3.6). Staging keys go to the VPS env files of api-admin and worker (one key
-  each) at T3.6.
+- Cloudinary (owner, 1 Nov): cloud name `g0ytozsb` (owner confirmed), API key and API secret are in `.env.local.api-admin`
+  (moved out of `.env.local.api-public`, where the env schema forbids them — values never shown in the transcript;
+  all three pass the env rules). Staging keys go to the VPS env files of api-admin and worker (one key each) at T3.6.
 
 **Local session notes (this PC):** Node needs a `*.localhost` DNS shim for Playwright (`NODE_OPTIONS=--require
 <scratchpad>/localhost-shim.cjs`; recreate it in a new session — it patches `dns.lookup` for `*.localhost`). E2E and
