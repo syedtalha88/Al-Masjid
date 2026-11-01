@@ -26,13 +26,14 @@ const noContent = noContentSchema;
 export function call<T>(
   path: string,
   schema: RequestJsonOptions<T>['schema'],
-  options: { method?: HttpMethod; body?: unknown; signal?: AbortSignal } = {},
+  options: { method?: HttpMethod; body?: unknown; form?: FormData; signal?: AbortSignal } = {},
 ): Promise<T> {
   const method = options.method ?? 'GET';
   return requestJson(path, {
     schema,
     method,
     ...(options.body === undefined ? {} : { body: options.body }),
+    ...(options.form === undefined ? {} : { form: options.form }),
     ...(options.signal ? { signal: options.signal } : {}),
     ...(method === 'GET' ? {} : { headers: { 'X-MC-CSRF': '1' } }),
   });

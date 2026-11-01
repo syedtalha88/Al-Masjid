@@ -507,6 +507,7 @@ super,nav.dashboard,Dashboard,డాష్‌బోర్డ్,no
 super,nav.masjids,Masjids,మస్జిద్‌లు,no
 super,nav.settings,Settings,సెట్టింగ్స్,no
 super,nav.audit,Audit log,ఆడిట్ లాగ్,no
+super,nav.library,Content Library,కంటెంట్ లైబ్రరీ,no
 super,status.pending,Pending,పెండింగ్,no
 super,status.active,Active,యాక్టివ్,no
 super,status.suspended,Suspended,నిలిపివేయబడింది,no
@@ -631,3 +632,61 @@ super,audit.actorType.admin,Admin,అడ్మిన్,no
 super,audit.actorType.super_admin,Super Admin,సూపర్ అడ్మిన్,no
 super,audit.actorType.system,System,సిస్టమ్,no
 super,audit.actorType.device,Device,డివైస్,no
+super,library.statusFilter,Status,స్థితి,no
+super,library.kindFilter,Kind,రకం,no
+super,library.fileLabel,Your file,మీ ఫైల్,no
+super,library.search,"Search reference, words or tags","రిఫరెన్స్, పదాలు లేదా ట్యాగ్‌లు వెతకండి",no
+super,library.all,All,అన్నీ,no
+super,library.kinds.hadith,Hadith,హదీస్,no
+super,library.kinds.ayah,Ayah,ఆయత్,no
+super,library.kinds.dua,Dua,దువా,no
+super,library.kinds.dhikr,Dhikr,జిక్ర్,no
+super,library.statuses.draft,Draft,డ్రాఫ్ట్,no
+super,library.statuses.verified,Verified,ధృవీకరించబడింది,no
+super,library.statuses.retired,Retired,తొలగించబడింది,no
+super,library.import,Import file,ఫైల్ ఇంపోర్ట్ చేయండి,no
+super,library.empty,No entries. Import a library file to start.,ఎంట్రీలు లేవు. ప్రారంభించడానికి లైబ్రరీ ఫైల్‌ను ఇంపోర్ట్ చేయండి.,no
+super,library.loadMore,Show more,మరిన్ని చూపించు,no
+super,library.importTitle,Import library file,లైబ్రరీ ఫైల్ ఇంపోర్ట్,no
+super,library.importIntro,Choose a JSON file in the library format. It is checked first — nothing is saved until you import.,లైబ్రరీ ఫార్మాట్‌లోని JSON ఫైల్‌ను ఎంచుకోండి. ముందుగా దాన్ని తనిఖీ చేస్తాం — ఇంపోర్ట్ చేసే వరకు ఏదీ సేవ్ కాదు.,no
+super,library.chooseFile,Choose file,ఫైల్ ఎంచుకోండి,no
+super,library.otherFile,Choose another file,మరో ఫైల్ ఎంచుకోండి,no
+super,library.checking,Checking the file…,ఫైల్‌ను తనిఖీ చేస్తున్నాం…,no
+super,library.ready,{valid} of {entries} entries are ready,{entries} లో {valid} ఎంట్రీలు సిద్ధంగా ఉన్నాయి,no
+super,library.problems,"{count, plural, one {# problem} other {# problems}}","{count, plural, one {# సమస్య} other {# సమస్యలు}}",no
+super,library.problemRow,Row {row} · {field}: {message},వరుస {row} · {field}: {message},no
+super,library.duplicates,"{count, plural, one {# entry is already there} other {# entries are already there}}","{count, plural, one {# ఎంట్రీ ఇప్పటికే ఉంది} other {# ఎంట్రీలు ఇప్పటికే ఉన్నాయి}}",no
+super,library.duplicateRow,Row {row} · {reference} — {where},వరుస {row} · {reference} — {where},no
+super,library.inFile,repeated in this file,ఈ ఫైల్‌లో మళ్లీ వచ్చింది,no
+super,library.inLibrary,already in the library,లైబ్రరీలో ఇప్పటికే ఉంది,no
+super,library.truncated,Only the first 200 are listed.,మొదటి 200 మాత్రమే చూపించాం.,no
+super,library.fixFirst,Fix the file and choose it again — an import is all or nothing.,ఫైల్‌ను సరిచేసి మళ్లీ ఎంచుకోండి — ఇంపోర్ట్ పూర్తిగా జరుగుతుంది లేదా అసలు జరగదు.,no
+super,library.importAll,"{count, plural, one {Import # entry as draft} other {Import # entries as draft}}","{count, plural, one {# ఎంట్రీని డ్రాఫ్ట్‌గా ఇంపోర్ట్ చేయండి} other {# ఎంట్రీలను డ్రాఫ్ట్‌గా ఇంపోర్ట్ చేయండి}}",no
+super,library.imported,"{count, plural, one {# entry imported as draft.} other {# entries imported as draft.}}","{count, plural, one {# ఎంట్రీ డ్రాఫ్ట్‌గా ఇంపోర్ట్ అయింది.} other {# ఎంట్రీలు డ్రాఫ్ట్‌గా ఇంపోర్ట్ అయ్యాయి.}}",no
+super,library.reviewDrafts,Review drafts,డ్రాఫ్ట్‌లు చూడండి,no
+super,library.arabic,Arabic,అరబిక్,no
+super,library.translations,Translations,అనువాదాలు,no
+super,library.transliterations,Transliterations,లిప్యంతరీకరణలు,no
+super,library.missing,Not given,ఇవ్వలేదు,no
+super,library.reference,Reference,రిఫరెన్స్,no
+super,library.source,Source,మూలం,no
+super,library.license,License,లైసెన్స్,no
+super,library.tags,Tags,ట్యాగ్‌లు,no
+super,library.category,Dua category,దువా వర్గం,no
+super,library.categories.illness,Illness,అనారోగ్యం,no
+super,library.categories.inteqal,Inteqal,ఇంతెఖాల్,no
+super,library.categories.other,Other,ఇతర,no
+super,library.repeat,"{count, plural, one {Said # time} other {Said # times}}","{count, plural, one {# సార్లు చదవండి} other {# సార్లు చదవండి}}",no
+super,library.occasions.after_salah,After salah,నమాజ్ తర్వాత,no
+super,library.occasions.morning,Morning,ఉదయం,no
+super,library.occasions.evening,Evening,సాయంత్రం,no
+super,library.verifiedBy,Verified by {name} on {date},{name} {date} న ధృవీకరించారు,no
+super,library.verify,Verify,ధృవీకరించు,no
+super,library.verifyTitle,Verify this entry,ఈ ఎంట్రీని ధృవీకరించండి,no
+super,library.verifyHint,Check every text against the source first. Write the name of the scholar or reviewer who checked it.,ముందుగా ప్రతి పాఠాన్ని మూలంతో సరిపోల్చండి. తనిఖీ చేసిన ఆలిమ్ లేదా సమీక్షకుని పేరు రాయండి.,no
+super,library.verifier,Verified by,ధృవీకరించినవారు,no
+super,library.verified,Entry verified. Admins can choose it now.,ఎంట్రీ ధృవీకరించబడింది. ఇప్పుడు అడ్మిన్‌లు దీన్ని ఎంచుకోవచ్చు.,no
+super,library.retire,Retire,తొలగించు,no
+super,library.retireTitle,Retire this entry?,ఈ ఎంట్రీని తొలగించాలా?,no
+super,library.retireBody,Admins can no longer choose it and it disappears from the app. This cannot be undone.,"అడ్మిన్‌లు ఇకపై దీన్ని ఎంచుకోలేరు, ఇది యాప్ నుండి తొలగిపోతుంది. దీన్ని వెనక్కి తీసుకోలేం.",no
+super,library.retired,Entry retired.,ఎంట్రీ తొలగించబడింది.,no

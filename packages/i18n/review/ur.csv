@@ -507,6 +507,7 @@ super,nav.dashboard,Dashboard,ڈیش بورڈ,no
 super,nav.masjids,Masjids,مساجد,no
 super,nav.settings,Settings,سیٹنگز,no
 super,nav.audit,Audit log,آڈٹ لاگ,no
+super,nav.library,Content Library,مواد کی لائبریری,no
 super,status.pending,Pending,زیرِ التوا,no
 super,status.active,Active,فعال,no
 super,status.suspended,Suspended,معطل,no
@@ -631,3 +632,61 @@ super,audit.actorType.admin,Admin,ایڈمن,no
 super,audit.actorType.super_admin,Super Admin,سپر ایڈمن,no
 super,audit.actorType.system,System,سسٹم,no
 super,audit.actorType.device,Device,ڈیوائس,no
+super,library.statusFilter,Status,حالت,no
+super,library.kindFilter,Kind,قسم,no
+super,library.fileLabel,Your file,آپ کی فائل,no
+super,library.search,"Search reference, words or tags",حوالہ، الفاظ یا ٹیگ تلاش کریں,no
+super,library.all,All,سب,no
+super,library.kinds.hadith,Hadith,حدیث,no
+super,library.kinds.ayah,Ayah,آیت,no
+super,library.kinds.dua,Dua,دعا,no
+super,library.kinds.dhikr,Dhikr,ذکر,no
+super,library.statuses.draft,Draft,مسودہ,no
+super,library.statuses.verified,Verified,تصدیق شدہ,no
+super,library.statuses.retired,Retired,ہٹایا گیا,no
+super,library.import,Import file,فائل امپورٹ کریں,no
+super,library.empty,No entries. Import a library file to start.,کوئی اندراج نہیں۔ شروع کرنے کے لیے لائبریری فائل امپورٹ کریں۔,no
+super,library.loadMore,Show more,مزید دکھائیں,no
+super,library.importTitle,Import library file,لائبریری فائل امپورٹ کریں,no
+super,library.importIntro,Choose a JSON file in the library format. It is checked first — nothing is saved until you import.,لائبریری فارمیٹ کی JSON فائل چنیں۔ پہلے اس کی جانچ ہوتی ہے — امپورٹ کرنے تک کچھ محفوظ نہیں ہوتا۔,no
+super,library.chooseFile,Choose file,فائل چنیں,no
+super,library.otherFile,Choose another file,دوسری فائل چنیں,no
+super,library.checking,Checking the file…,فائل کی جانچ ہو رہی ہے…,no
+super,library.ready,{valid} of {entries} entries are ready,{entries} میں سے {valid} اندراجات تیار ہیں,no
+super,library.problems,"{count, plural, one {# problem} other {# problems}}","{count, plural, one {# مسئلہ} other {# مسائل}}",no
+super,library.problemRow,Row {row} · {field}: {message},سطر {row} · {field}: {message},no
+super,library.duplicates,"{count, plural, one {# entry is already there} other {# entries are already there}}","{count, plural, one {# اندراج پہلے سے موجود ہے} other {# اندراجات پہلے سے موجود ہیں}}",no
+super,library.duplicateRow,Row {row} · {reference} — {where},سطر {row} · {reference} — {where},no
+super,library.inFile,repeated in this file,اس فائل میں دہرایا گیا,no
+super,library.inLibrary,already in the library,لائبریری میں پہلے سے موجود,no
+super,library.truncated,Only the first 200 are listed.,صرف پہلے 200 دکھائے گئے ہیں۔,no
+super,library.fixFirst,Fix the file and choose it again — an import is all or nothing.,فائل درست کر کے دوبارہ چنیں — امپورٹ یا تو مکمل ہوتا ہے یا بالکل نہیں۔,no
+super,library.importAll,"{count, plural, one {Import # entry as draft} other {Import # entries as draft}}","{count, plural, one {# اندراج مسودے کے طور پر امپورٹ کریں} other {# اندراجات مسودے کے طور پر امپورٹ کریں}}",no
+super,library.imported,"{count, plural, one {# entry imported as draft.} other {# entries imported as draft.}}","{count, plural, one {# اندراج مسودے کے طور پر امپورٹ ہوا۔} other {# اندراجات مسودے کے طور پر امپورٹ ہوئے۔}}",no
+super,library.reviewDrafts,Review drafts,مسودے دیکھیں,no
+super,library.arabic,Arabic,عربی,no
+super,library.translations,Translations,تراجم,no
+super,library.transliterations,Transliterations,رومن تلفظ,no
+super,library.missing,Not given,نہیں دیا گیا,no
+super,library.reference,Reference,حوالہ,no
+super,library.source,Source,ماخذ,no
+super,library.license,License,لائسنس,no
+super,library.tags,Tags,ٹیگ,no
+super,library.category,Dua category,دعا کی قسم,no
+super,library.categories.illness,Illness,بیماری,no
+super,library.categories.inteqal,Inteqal,انتقال,no
+super,library.categories.other,Other,دیگر,no
+super,library.repeat,"{count, plural, one {Said # time} other {Said # times}}","{count, plural, one {# بار پڑھیں} other {# بار پڑھیں}}",no
+super,library.occasions.after_salah,After salah,نماز کے بعد,no
+super,library.occasions.morning,Morning,صبح,no
+super,library.occasions.evening,Evening,شام,no
+super,library.verifiedBy,Verified by {name} on {date},{name} نے {date} کو تصدیق کی,no
+super,library.verify,Verify,تصدیق کریں,no
+super,library.verifyTitle,Verify this entry,اس اندراج کی تصدیق کریں,no
+super,library.verifyHint,Check every text against the source first. Write the name of the scholar or reviewer who checked it.,پہلے ہر متن کو ماخذ سے ملائیں۔ جانچنے والے عالم یا جائزہ کار کا نام لکھیں۔,no
+super,library.verifier,Verified by,تصدیق کنندہ,no
+super,library.verified,Entry verified. Admins can choose it now.,اندراج کی تصدیق ہو گئی۔ اب ایڈمن اسے چن سکتے ہیں۔,no
+super,library.retire,Retire,ہٹائیں,no
+super,library.retireTitle,Retire this entry?,یہ اندراج ہٹائیں؟,no
+super,library.retireBody,Admins can no longer choose it and it disappears from the app. This cannot be undone.,ایڈمن اسے مزید نہیں چن سکیں گے اور یہ ایپ سے ہٹ جائے گا۔ یہ واپس نہیں ہو سکتا۔,no
+super,library.retired,Entry retired.,اندراج ہٹا دیا گیا۔,no

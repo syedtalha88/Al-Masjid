@@ -20,6 +20,24 @@ import {
 
 const LOCALES: readonly Locale[] = ['en', 'hi', 'ur', 'te'];
 
+/** A Content Library import row — the 10 §5 placeholders only (never real religious text). */
+const LIBRARY_ROW = {
+  kind: 'hadith',
+  arabic: 'نص تجريبي للعرض فقط',
+  transliteration: { en: 'Sample transliteration — DEV ONLY' },
+  translation: {
+    en: 'Sample translation text for development. Not a real hadith.',
+    hi: 'विकास के लिए नमूना अनुवाद। यह वास्तविक हदीस नहीं है।',
+    ur: 'ترقی کے لیے نمونہ ترجمہ۔ یہ اصل حدیث نہیں ہے۔',
+    te: 'అభివృద్ధి కోసం నమూనా అనువాదం. ఇది నిజమైన హదీస్ కాదు.',
+  },
+  source_name: 'Development fixture',
+  source_license: 'N/A — not for production',
+  tags: ['patience'],
+};
+const libraryFile = (entries: readonly object[]) =>
+  Buffer.from(JSON.stringify({ format: 'masjid-connect-library', version: 1, entries }));
+
 async function settled(page: Page, path: string): Promise<void> {
   await page.goto(`${ADMIN_URL}${path}`);
   await page.waitForLoadState('networkidle');
@@ -76,6 +94,33 @@ for (const locale of LOCALES) {
         await settled(page, path);
         await shot(name);
       }
+
+      // --- C8 Content Library (T3.4): list → import (dry-run report, ★ import) → review → verify sheet ---
+      await settled(page, '/super/library');
+      await shot('c8-library');
+      const reference = `DEV-SAMPLE-E2E-${locale.toUpperCase()}-${Date.now().toString(36)}`; // the stack database outlives a run
+      const entry = (suffix: string) => ({ ...LIBRARY_ROW, reference: `${reference}-${suffix}` });
+      await settled(page, '/super/library/import');
+      await page.locator('input[type="file"]').setInputFiles({
+        name: 'library.json',
+        mimeType: 'application/json',
+        buffer: libraryFile([entry('1'), entry('2')]),
+      });
+      const importAll = page.locator('section[data-screen]:not([inert])').getByRole('button', { name: /2/ });
+      await expect(importAll).toBeVisible();
+      await shot('c8-import-report');
+      await importAll.click();
+      const stepUp = page.getByRole('dialog', { name: label(locale, 'super', 'stepUp.title') });
+      await stepUp.getByRole('button', { name: label(locale, 'super', 'stepUp.confirm') }).click();
+      await expect(page.getByRole('button', { name: label(locale, 'super', 'library.reviewDrafts') })).toBeVisible();
+      const listed = await page.request.get(`${ADMIN_URL}/api/super/library?q=${encodeURIComponent(`${reference}-1`)}`);
+      const [first] = ((await listed.json()) as { entries: { id: string }[] }).entries;
+      expect(first).toBeDefined();
+      await settled(page, `/super/library/${first?.id ?? ''}`);
+      await shot('c8-entry');
+      await page.getByRole('button', { name: label(locale, 'super', 'library.verify') }).click();
+      await expect(page.getByRole('textbox', { name: label(locale, 'super', 'library.verifier') })).toBeVisible();
+      await shot('c8-verify');
 
       // --- a masjid admin on their own phone ---
       const created = await page.request.post(`${ADMIN_URL}/api/super/admins`, {

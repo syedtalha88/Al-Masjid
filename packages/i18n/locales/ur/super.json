@@ -5,7 +5,8 @@
     "dashboard": "ڈیش بورڈ",
     "masjids": "مساجد",
     "settings": "سیٹنگز",
-    "audit": "آڈٹ لاگ"
+    "audit": "آڈٹ لاگ",
+    "library": "مواد کی لائبریری"
   },
   "status": {
     "pending": "زیرِ التوا",
@@ -158,5 +159,73 @@
       "system": "سسٹم",
       "device": "ڈیوائس"
     }
+  },
+  "library": {
+    "statusFilter": "حالت",
+    "kindFilter": "قسم",
+    "fileLabel": "آپ کی فائل",
+    "search": "حوالہ، الفاظ یا ٹیگ تلاش کریں",
+    "all": "سب",
+    "kinds": {
+      "hadith": "حدیث",
+      "ayah": "آیت",
+      "dua": "دعا",
+      "dhikr": "ذکر"
+    },
+    "statuses": {
+      "draft": "مسودہ",
+      "verified": "تصدیق شدہ",
+      "retired": "ہٹایا گیا"
+    },
+    "import": "فائل امپورٹ کریں",
+    "empty": "کوئی اندراج نہیں۔ شروع کرنے کے لیے لائبریری فائل امپورٹ کریں۔",
+    "loadMore": "مزید دکھائیں",
+    "importTitle": "لائبریری فائل امپورٹ کریں",
+    "importIntro": "لائبریری فارمیٹ کی JSON فائل چنیں۔ پہلے اس کی جانچ ہوتی ہے — امپورٹ کرنے تک کچھ محفوظ نہیں ہوتا۔",
+    "chooseFile": "فائل چنیں",
+    "otherFile": "دوسری فائل چنیں",
+    "checking": "فائل کی جانچ ہو رہی ہے…",
+    "ready": "{entries} میں سے {valid} اندراجات تیار ہیں",
+    "problems": "{count, plural, one {# مسئلہ} other {# مسائل}}",
+    "problemRow": "سطر {row} · {field}: {message}",
+    "duplicates": "{count, plural, one {# اندراج پہلے سے موجود ہے} other {# اندراجات پہلے سے موجود ہیں}}",
+    "duplicateRow": "سطر {row} · {reference} — {where}",
+    "inFile": "اس فائل میں دہرایا گیا",
+    "inLibrary": "لائبریری میں پہلے سے موجود",
+    "truncated": "صرف پہلے 200 دکھائے گئے ہیں۔",
+    "fixFirst": "فائل درست کر کے دوبارہ چنیں — امپورٹ یا تو مکمل ہوتا ہے یا بالکل نہیں۔",
+    "importAll": "{count, plural, one {# اندراج مسودے کے طور پر امپورٹ کریں} other {# اندراجات مسودے کے طور پر امپورٹ کریں}}",
+    "imported": "{count, plural, one {# اندراج مسودے کے طور پر امپورٹ ہوا۔} other {# اندراجات مسودے کے طور پر امپورٹ ہوئے۔}}",
+    "reviewDrafts": "مسودے دیکھیں",
+    "arabic": "عربی",
+    "translations": "تراجم",
+    "transliterations": "رومن تلفظ",
+    "missing": "نہیں دیا گیا",
+    "reference": "حوالہ",
+    "source": "ماخذ",
+    "license": "لائسنس",
+    "tags": "ٹیگ",
+    "category": "دعا کی قسم",
+    "categories": {
+      "illness": "بیماری",
+      "inteqal": "انتقال",
+      "other": "دیگر"
+    },
+    "repeat": "{count, plural, one {# بار پڑھیں} other {# بار پڑھیں}}",
+    "occasions": {
+      "after_salah": "نماز کے بعد",
+      "morning": "صبح",
+      "evening": "شام"
+    },
+    "verifiedBy": "{name} نے {date} کو تصدیق کی",
+    "verify": "تصدیق کریں",
+    "verifyTitle": "اس اندراج کی تصدیق کریں",
+    "verifyHint": "پہلے ہر متن کو ماخذ سے ملائیں۔ جانچنے والے عالم یا جائزہ کار کا نام لکھیں۔",
+    "verifier": "تصدیق کنندہ",
+    "verified": "اندراج کی تصدیق ہو گئی۔ اب ایڈمن اسے چن سکتے ہیں۔",
+    "retire": "ہٹائیں",
+    "retireTitle": "یہ اندراج ہٹائیں؟",
+    "retireBody": "ایڈمن اسے مزید نہیں چن سکیں گے اور یہ ایپ سے ہٹ جائے گا۔ یہ واپس نہیں ہو سکتا۔",
+    "retired": "اندراج ہٹا دیا گیا۔"
   }
 }

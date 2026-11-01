@@ -507,6 +507,7 @@ super,nav.dashboard,Dashboard,डैशबोर्ड,no
 super,nav.masjids,Masjids,मस्जिदें,no
 super,nav.settings,Settings,सेटिंग,no
 super,nav.audit,Audit log,ऑडिट लॉग,no
+super,nav.library,Content Library,सामग्री लाइब्रेरी,no
 super,status.pending,Pending,बाक़ी,no
 super,status.active,Active,चालू,no
 super,status.suspended,Suspended,रोकी गई,no
@@ -631,3 +632,61 @@ super,audit.actorType.admin,Admin,एडमिन,no
 super,audit.actorType.super_admin,Super Admin,सुपर एडमिन,no
 super,audit.actorType.system,System,सिस्टम,no
 super,audit.actorType.device,Device,डिवाइस,no
+super,library.statusFilter,Status,स्थिति,no
+super,library.kindFilter,Kind,प्रकार,no
+super,library.fileLabel,Your file,आपकी फ़ाइल,no
+super,library.search,"Search reference, words or tags","संदर्भ, शब्द या टैग खोजें",no
+super,library.all,All,सभी,no
+super,library.kinds.hadith,Hadith,हदीस,no
+super,library.kinds.ayah,Ayah,आयत,no
+super,library.kinds.dua,Dua,दुआ,no
+super,library.kinds.dhikr,Dhikr,ज़िक्र,no
+super,library.statuses.draft,Draft,ड्राफ़्ट,no
+super,library.statuses.verified,Verified,सत्यापित,no
+super,library.statuses.retired,Retired,हटाया गया,no
+super,library.import,Import file,फ़ाइल इम्पोर्ट करें,no
+super,library.empty,No entries. Import a library file to start.,कोई प्रविष्टि नहीं। शुरू करने के लिए लाइब्रेरी फ़ाइल इम्पोर्ट करें।,no
+super,library.loadMore,Show more,और दिखाएँ,no
+super,library.importTitle,Import library file,लाइब्रेरी फ़ाइल इम्पोर्ट करें,no
+super,library.importIntro,Choose a JSON file in the library format. It is checked first — nothing is saved until you import.,लाइब्रेरी फ़ॉर्मेट की JSON फ़ाइल चुनें। पहले इसकी जाँच होती है — इम्पोर्ट करने तक कुछ भी सेव नहीं होता।,no
+super,library.chooseFile,Choose file,फ़ाइल चुनें,no
+super,library.otherFile,Choose another file,दूसरी फ़ाइल चुनें,no
+super,library.checking,Checking the file…,फ़ाइल की जाँच हो रही है…,no
+super,library.ready,{valid} of {entries} entries are ready,{entries} में से {valid} प्रविष्टियाँ तैयार हैं,no
+super,library.problems,"{count, plural, one {# problem} other {# problems}}","{count, plural, one {# समस्या} other {# समस्याएँ}}",no
+super,library.problemRow,Row {row} · {field}: {message},पंक्ति {row} · {field}: {message},no
+super,library.duplicates,"{count, plural, one {# entry is already there} other {# entries are already there}}","{count, plural, one {# प्रविष्टि पहले से है} other {# प्रविष्टियाँ पहले से हैं}}",no
+super,library.duplicateRow,Row {row} · {reference} — {where},पंक्ति {row} · {reference} — {where},no
+super,library.inFile,repeated in this file,इस फ़ाइल में दोहराई गई,no
+super,library.inLibrary,already in the library,लाइब्रेरी में पहले से है,no
+super,library.truncated,Only the first 200 are listed.,केवल पहली 200 दिखाई गई हैं।,no
+super,library.fixFirst,Fix the file and choose it again — an import is all or nothing.,फ़ाइल ठीक करके फिर से चुनें — इम्पोर्ट या तो पूरा होता है या बिल्कुल नहीं।,no
+super,library.importAll,"{count, plural, one {Import # entry as draft} other {Import # entries as draft}}","{count, plural, one {# प्रविष्टि ड्राफ़्ट के रूप में इम्पोर्ट करें} other {# प्रविष्टियाँ ड्राफ़्ट के रूप में इम्पोर्ट करें}}",no
+super,library.imported,"{count, plural, one {# entry imported as draft.} other {# entries imported as draft.}}","{count, plural, one {# प्रविष्टि ड्राफ़्ट के रूप में इम्पोर्ट हुई।} other {# प्रविष्टियाँ ड्राफ़्ट के रूप में इम्पोर्ट हुईं।}}",no
+super,library.reviewDrafts,Review drafts,ड्राफ़्ट देखें,no
+super,library.arabic,Arabic,अरबी,no
+super,library.translations,Translations,अनुवाद,no
+super,library.transliterations,Transliterations,लिप्यंतरण,no
+super,library.missing,Not given,नहीं दिया गया,no
+super,library.reference,Reference,संदर्भ,no
+super,library.source,Source,स्रोत,no
+super,library.license,License,लाइसेंस,no
+super,library.tags,Tags,टैग,no
+super,library.category,Dua category,दुआ श्रेणी,no
+super,library.categories.illness,Illness,बीमारी,no
+super,library.categories.inteqal,Inteqal,इंतिक़ाल,no
+super,library.categories.other,Other,अन्य,no
+super,library.repeat,"{count, plural, one {Said # time} other {Said # times}}","{count, plural, one {# बार पढ़ें} other {# बार पढ़ें}}",no
+super,library.occasions.after_salah,After salah,नमाज़ के बाद,no
+super,library.occasions.morning,Morning,सुबह,no
+super,library.occasions.evening,Evening,शाम,no
+super,library.verifiedBy,Verified by {name} on {date},{name} द्वारा {date} को सत्यापित,no
+super,library.verify,Verify,सत्यापित करें,no
+super,library.verifyTitle,Verify this entry,इस प्रविष्टि को सत्यापित करें,no
+super,library.verifyHint,Check every text against the source first. Write the name of the scholar or reviewer who checked it.,पहले हर पाठ को स्रोत से मिलाएँ। जाँच करने वाले आलिम या समीक्षक का नाम लिखें।,no
+super,library.verifier,Verified by,सत्यापित करने वाले,no
+super,library.verified,Entry verified. Admins can choose it now.,प्रविष्टि सत्यापित हुई। अब एडमिन इसे चुन सकते हैं।,no
+super,library.retire,Retire,हटाएँ,no
+super,library.retireTitle,Retire this entry?,यह प्रविष्टि हटाएँ?,no
+super,library.retireBody,Admins can no longer choose it and it disappears from the app. This cannot be undone.,एडमिन इसे अब नहीं चुन पाएँगे और यह ऐप से हट जाएगी। इसे वापस नहीं किया जा सकता।,no
+super,library.retired,Entry retired.,प्रविष्टि हटा दी गई।,no

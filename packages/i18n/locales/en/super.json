@@ -5,7 +5,8 @@
     "dashboard": "Dashboard",
     "masjids": "Masjids",
     "settings": "Settings",
-    "audit": "Audit log"
+    "audit": "Audit log",
+    "library": "Content Library"
   },
   "status": {
     "pending": "Pending",
@@ -158,5 +159,73 @@
       "system": "System",
       "device": "Device"
     }
+  },
+  "library": {
+    "statusFilter": "Status",
+    "kindFilter": "Kind",
+    "fileLabel": "Your file",
+    "search": "Search reference, words or tags",
+    "all": "All",
+    "kinds": {
+      "hadith": "Hadith",
+      "ayah": "Ayah",
+      "dua": "Dua",
+      "dhikr": "Dhikr"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "verified": "Verified",
+      "retired": "Retired"
+    },
+    "import": "Import file",
+    "empty": "No entries. Import a library file to start.",
+    "loadMore": "Show more",
+    "importTitle": "Import library file",
+    "importIntro": "Choose a JSON file in the library format. It is checked first — nothing is saved until you import.",
+    "chooseFile": "Choose file",
+    "otherFile": "Choose another file",
+    "checking": "Checking the file…",
+    "ready": "{valid} of {entries} entries are ready",
+    "problems": "{count, plural, one {# problem} other {# problems}}",
+    "problemRow": "Row {row} · {field}: {message}",
+    "duplicates": "{count, plural, one {# entry is already there} other {# entries are already there}}",
+    "duplicateRow": "Row {row} · {reference} — {where}",
+    "inFile": "repeated in this file",
+    "inLibrary": "already in the library",
+    "truncated": "Only the first 200 are listed.",
+    "fixFirst": "Fix the file and choose it again — an import is all or nothing.",
+    "importAll": "{count, plural, one {Import # entry as draft} other {Import # entries as draft}}",
+    "imported": "{count, plural, one {# entry imported as draft.} other {# entries imported as draft.}}",
+    "reviewDrafts": "Review drafts",
+    "arabic": "Arabic",
+    "translations": "Translations",
+    "transliterations": "Transliterations",
+    "missing": "Not given",
+    "reference": "Reference",
+    "source": "Source",
+    "license": "License",
+    "tags": "Tags",
+    "category": "Dua category",
+    "categories": {
+      "illness": "Illness",
+      "inteqal": "Inteqal",
+      "other": "Other"
+    },
+    "repeat": "{count, plural, one {Said # time} other {Said # times}}",
+    "occasions": {
+      "after_salah": "After salah",
+      "morning": "Morning",
+      "evening": "Evening"
+    },
+    "verifiedBy": "Verified by {name} on {date}",
+    "verify": "Verify",
+    "verifyTitle": "Verify this entry",
+    "verifyHint": "Check every text against the source first. Write the name of the scholar or reviewer who checked it.",
+    "verifier": "Verified by",
+    "verified": "Entry verified. Admins can choose it now.",
+    "retire": "Retire",
+    "retireTitle": "Retire this entry?",
+    "retireBody": "Admins can no longer choose it and it disappears from the app. This cannot be undone.",
+    "retired": "Entry retired."
   }
 }
