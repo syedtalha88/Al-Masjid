@@ -1422,6 +1422,24 @@ Also: perf failures now list, for every layout forced inside an animation frame,
 **Consequences:** a batched double pop looks like one pop that also slides the higher screen away. No change for
 single navigations.
 
+### #110 — T3.0 outcome: synchronous push/pop, transition for tab roots; the perf trace ignores the test driver (PHASE_03 T3.0) — ACCEPTED (Claude Code, 1 Nov 2026)
+**Context:** with every navigation applied as a React transition (#105), CI failed two navigation e2e tests on every
+run ("rapid double push then double pop", and #109's "two pops in one update" — a covered screen swallowing the tap,
+or the top still moving), even after #109. An experiment commit with synchronous navigation (CI run 41290687905) made
+the whole e2e suite green; its perf run showed (a) tab switches dropping 8.6 % of frames without the transition, (b)
+the "layouts forced in animation frames" reported since T3.0 came from `raf@(inline)` — Playwright's injected
+element-stability loop, which reads layout before every click — and (c) one real forced layout: the Masjid Detail hero
+parallax read `scrollTop` / `offsetHeight` in its first animation frame after mount (3.6 ms).
+**Decision:**
+- Push and pop update the navigator synchronously; locations of a tab root (tab switch, pop to root) are applied as a
+  transition. #109 stays (any batched update still settles every screen).
+- The perf analyser does not count a forced layout in a frame that ran only URL-less scripts (the app's CSP allows no
+  inline script, so those are the test driver's); the failure message still lists them, marked.
+- Masjid Detail parallax: the hero height comes from a ResizeObserver, and the first paint runs in its callback (after
+  layout); scroll paints stay rAF-batched.
+**Consequences:** tapping fast through push/pop can never race a deferred stack update. Long tasks on push are
+judged by CI's perf specs as before (#105's other fixes — stable screen props, `combine`, post-frame promises — stay).
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

@@ -102,17 +102,19 @@ export function StackNavigator({
   const scrollTopAfterPop = useRef(false);
   const generation = useRef(0);
 
-  // A navigation is applied as a transition: React renders the affected screens in 5 ms slices instead of one
-  // blocking task inside the tap / popstate (50–100 ms at 4× CPU on real screens — F46, DECISIONS #103). Motion does
-  // not wait for it: a swipe-back already springs from the finger, and pushes start in the commit's layout effect.
-  // The reducer is functional, so back-to-back navigations still compose.
+  // Push and pop apply synchronously: a deferred stack update let a fast second tap or back land on a screen that was
+  // already leaving (CI e2e, 28 Oct–1 Nov 2026 — DECISIONS #110). Locations of a tab root (tab switches, pop to root)
+  // are applied as a transition: re-showing a whole tab is the costly render, and its fade tolerates a deferred commit
+  // (dropped frames 8.6 % → within budget with the transition). Batched updates are settled by #109 either way.
   useEffect(
     () =>
       adapter.subscribe((location, replaced) => {
         locations.set(location.key, location);
-        startTransition(() => {
+        const apply = () => {
           setState((current) => reduceLocation(config, current, location, replaced));
-        });
+        };
+        if (config.tabs.some((tab) => tab.path === location.pathname)) startTransition(apply);
+        else apply();
       }),
     [adapter, config, locations],
   );

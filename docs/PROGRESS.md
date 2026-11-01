@@ -24,17 +24,14 @@
 T3.0 → T3.1 → T3.4 → T3.5 → T3.11 → T3.2 → T3.3 → T3.6–T3.10 → T3.13–T3.17 → T3.12.
 
 **Do first:**
-0. **Stopped mid-investigation (28 Oct 2026, late — owner asked to hold).** CI on `c3b339e` (navigator batching fix,
-   DECISIONS #109): everything green except e2e `navigation.spec.ts` "rapid double push then double pop" and the new
-   "two pops that render as one update" (click intercepted by `div[data-tab=home]` / "element is not stable"). The fix
-   is real (component test `stack-navigator-batching.test.tsx` red before, green after) but not the whole cause.
-   **Reproduces locally under contention:** `playwright test --project=pixel-7 --workers=6 e2e/navigation/navigation.spec.ts
-   --repeat-each=5` → 6 failures (several specs, repeat 2). Next: inspect those traces/screenshots; suspects — the
-   transition (#105) deferring commits while history moves on, lazy route chunks suspending inside the transition (a
-   suspended transition does not commit), the driver resolving promises in a later task. If not found quickly, revert
-   `startTransition` in StackNavigator (keep #109) and fix the tap cost differently. Perf specs did not run yet
-   (e2e failed first). T3.4: routes done (`b7b4cc1`); C8 screens + `docs/content-library-format.md` still to do;
-   `requestJson({ form })` added for the upload.
+0. **1 Nov 2026 — T3.0 cause found (DECISIONS #110):** the navigation transition caused the CI e2e failures (an
+   experiment with synchronous navigation was e2e-green); the reported rAF layouts were Playwright's own stability loop
+   (now not counted) plus one real one in the Masjid Detail parallax (fixed). Push/pop now synchronous, tab roots as a
+   transition; pushed to `ci/f46-perf` — check the run: green → tick T3.0, delete `ci/f46-perf` and
+   `exp/no-transition`. New advisories: seroval updated, glob/minimatch time-boxed (F48). T3.4: C8 screens done
+   (`7615b8c`, screenshots + axe ×4 locales); left: `docs/content-library-format.md`. Cloudinary (owner, 1 Nov): cloud
+   name + API secret in `.env.local.api-admin`; the numeric **API key** is still missing (ask when T3.6 needs it);
+   staging keys go to the VPS env files of api-admin and worker (one key each) at T3.6.
 1. **T3.0 (F46) — CI ran the perf specs for the first time on `1906d91` (run 40718273615): RED, only "Motion
    performance".** Everything else green (static, unit + coverage, integration, security incl. Trivy, e2e 222 passed).
    Findings (3 of 3 repeats of each):
@@ -314,6 +311,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F46 | T2.14 (25 Oct 2026, DECISIONS #103; owner 27 Oct 2026: smooth on low-end devices) | Real-screen motion budget (08 §8): `e2e/app/screens.perf.spec.ts` (Home → Masjid Detail push + swipe-back, tab switches, sheet open/drag/dismiss at 4× CPU) is `test.fixme` — after the T2.14 fixes (100–130 ms → ≈ 50–75 ms) long tasks still exceed 50 ms, 6–13 % frames drop, one forced layout on sheet open. Next suspects from the profiles: the pop's React commit (≈ 50 ms microtasks when Home becomes top again), style recalculation of a tab layer on show, the sheet's first measurement in a rAF. Re-enable the spec when green; check on a low-end Android (O16) | **Phase 03, first task** (before new screens) |
 | F20 | F19 | Perf spec (4× CPU throttle): 1 of 23 runs had long tasks of 189 + 110 ms right after a rebuild. T0.12: the perf spec now traces with attribution (input / chunk evaluation / animation frame / style-layout), dropped frames and forced layouts — 16/16 clean over 8 repeats. Remaining: the same transitions on a real low-end Android (owner guide) | **Merged into F46 (DECISIONS #103):** Phase 03 first task, judged on a real low-end Android (O16) |
 | F47 | CI (28 Oct 2026) | osv-scanner: **deepmerge 4.3.1** (GHSA-gcqx-w48m-w2h4, prototype poisoning, medium) via vite-plugin-pwa → workbox-build 7.4.1 → @rollup/plugin-node-resolve 16.0.3 — all on their latest version, no fixed deepmerge exists. Build-time only (merges the plugin's defaults with our own SW build config; nothing untrusted, nothing shipped) → time-boxed ignore in `osv-scanner.toml` until 28 Nov 2026 | On expiry (or earlier, on a Renovate bump): a fixed deepmerge / a parent without it → bump and delete the entry; else re-assess (vite-plugin-pwa 2.x, or a pnpm override to a maintained drop-in) and extend with a new date |
+| F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
 
 ## Session log (newest first, one line each)
 
