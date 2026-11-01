@@ -247,13 +247,6 @@ jobs:
       - name: Lighthouse diagnostics (annotation)
         if: failure() && hashFiles('lhci.log') != ''
         run: node scripts/ci-annotate.mjs 'lighthouse output' tail -n 80 lhci.log
-      # Pixel comparison only inside the pinned Playwright Linux image the baselines were made in (DECISIONS #103);
-      # the script reseeds the database as of the baselines' fixed instant, so today's seed is restored afterwards.
-      - name: Visual baselines (key screens × 4 locales × 2 phones)
-        run: |
-          pnpm test:visual
-          pnpm db:reset
-
       # The e2e image: hooks present and working through Caddy.
       - name: Test stack (runtime-test image) up
         run: node scripts/compose.mjs stack-test up --build
@@ -263,6 +256,14 @@ jobs:
         env:
           E2E_TEST_HOOKS: '1'
         run: pnpm exec playwright test e2e/smoke/test-hooks.spec.ts e2e/admin/ --project=pixel-7
+      # Pixel comparison only inside the pinned Playwright Linux image the baselines were made in (DECISIONS #103);
+      # the script reseeds the database as of the baselines' fixed instant and the spec pins the API clock to it through
+      # the test hooks (date windows such as "special dates of the last 7 days" follow the server clock — #112), so it
+      # runs on the test stack; today's seed is restored afterwards.
+      - name: Visual baselines (key screens × 4 locales × 2 phones)
+        run: |
+          pnpm test:visual
+          pnpm db:reset
 
       - name: Stack diagnostics (annotations)
         if: failure()

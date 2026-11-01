@@ -1440,6 +1440,42 @@ parallax read `scrollTop` / `offsetHeight` in its first animation frame after mo
 **Consequences:** tapping fast through push/pop can never race a deferred stack update. Long tasks on push are
 judged by CI's perf specs as before (#105's other fixes — stable screen props, `combine`, post-frame promises — stay).
 
+### #111 — Notice templates: draft until reviewed, retired ones still render, starters by Super Admin action (PHASE_03 T3.5) — ACCEPTED (Claude Code, 1 Nov 2026)
+**Context:** 02 had `template_status: active | retired` and `translation_reviewed`, and C9 says "translation reviewed"
+is required before activation — but a new template had no state other than active, `v_pub_templates` hid retired
+templates (published notices that used one would lose their text), and the starter set (00 §4.3) needed a home that
+every environment gets, with its translations in the translators' review flow.
+**Decision:**
+- Status `draft` (migration 0010). Created templates are always `draft`; `active` requires `translation_reviewed`;
+  `active → retired`, `retired → active`; never back to draft. Params change only while `draft` (published notices
+  store values by param name). Changing the title or body of an active template must re-confirm the review in the same
+  request. System templates (e.g. `timings_updated`) cannot be retired.
+- `v_pub_templates` shows `active` **and** `retired` (old notices keep rendering); drafts are never public. The admin
+  picker (policy cell) still shows active, non-system templates only.
+- **Starters:** structure in `@mc/i18n/templates`, texts in `locales/*/templates.json` (reviewed through the review
+  CSV like every string; `i18n:check` validates their ICU and placeholder parity). They reach the database through C9's
+  **"Add starter templates"** (Super Admin, as `draft`, existing keys untouched, audited) — not through a migration: the
+  migrator user has no data privileges on `notice_templates`, and a data migration's checksum would break when the
+  translators edit the texts. The dev seed inserts them active for dev/staging.
+- ICU is validated by the API in all four languages (`@mc/i18n/runtime-message` `messageArguments`): valid ICU, no
+  arguments in titles, body arguments only from the params (a range param `x` provides `x_start` / `x_end`); C9 shows
+  the same checks live and renders a preview with sample values.
+- 16 starters: the 14 of 00 §4.3, `blood_donation_camp` (#104), and the system `timings_updated` (T3.2). Icons: a
+  fixed set (`@mc/shared/contracts/template-icons`, glyphs in `@mc/ui` TemplateIcon; eight new Phosphor glyphs).
+**Consequences:** on a new database (production) the Super Admin adds the starters and activates each one after the
+translations are reviewed — a pilot prerequisite (owner). Template text reaches the apps only through the database.
+
+### #112 — Visual baselines pin the API clock too (PHASE_03, CI) — ACCEPTED (Claude Code, 1 Nov 2026)
+**Context:** the visual baselines (#103) are seeded as of `VISUAL_NOW` (21 Oct 2026) and the page clock is pinned, but
+the API filtered special dates against its real clock ("from 7 days ago"); once the real date passed 28 Oct the Eid
+card vanished from Home and the comparison failed — a test that rots with the calendar (CI, 1 Nov 2026).
+**Decision:** the visual spec sets the API clock to `VISUAL_NOW` through the test hook (`PUT /api/v1/test/clock`) and
+resets it afterwards; CI runs the step on the runtime-test stack (after the hooks step). Without the hook the spec
+fails with a message naming the test stack.
+**Consequences:** `pnpm test:visual` needs `pnpm stack:up:test`. Known residue: the baselines predate the Qibla
+button's dev/staging gating (`SHOW_COMING_SOON`); the small compass difference is within the screenshot tolerance —
+refresh the baselines at the next intended UI change.
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

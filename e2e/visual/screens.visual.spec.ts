@@ -10,11 +10,24 @@ import { VISUAL_NOW } from './visual-now.ts';
 // - run only through `pnpm test:visual` — inside the pinned Playwright Linux image (the same pixels locally and in CI)
 //   after the database was reset and seeded as of VISUAL_NOW (`SEED_NOW`), so items, Ramadan / Eid dates and "2 hours
 //   ago" never move and no Ameen counts carry over from other specs;
-// - the page clock is fixed at VISUAL_NOW and the API's `Date` header is dropped (the app would correct the clock);
+// - the page clock AND the API clock (test hook) are fixed at VISUAL_NOW — server-side date windows such as the
+//   bundle's "special dates from 7 days ago" follow the server clock, so a real clock let the baselines rot as the days
+//   passed (DECISIONS #112) — and the API's `Date` header is dropped (the app would correct the clock);
 // - no service worker, animations off, carets hidden; screenshots in CSS pixels (small files).
 // Masjid photos are ThumbHash placeholders (no media server in the test stack).
 
 test.use({ serviceWorkers: 'block' });
+
+const API_CLOCK = `${APP_URL}/api/v1/test/clock`;
+test.beforeAll(async ({ request }) => {
+  const pinned = await request.put(API_CLOCK, { data: { set: VISUAL_NOW } });
+  expect(pinned.status(), 'visual baselines need the test stack (`pnpm stack:up:test`) for the API clock hook').toBe(
+    200,
+  );
+});
+test.afterAll(async ({ request }) => {
+  await request.put(API_CLOCK, { data: { reset: true } });
+});
 
 const LOCALES = ['en', 'hi', 'ur', 'te'] as const;
 
