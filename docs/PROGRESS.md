@@ -18,45 +18,51 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (28 Oct 2026, evening — Phase 03 IN PROGRESS)
+## ▶ Next session — start here (1 Nov 2026, evening — Phase 03 IN PROGRESS, stopped at the owner's request)
 
-**State:** branch `feat/phase-03` (pushed); `main` = staging = `cdd39fa` (Phase 02, owner-verified). Work order agreed:
+**State:** branch `feat/phase-03` (pushed, last commit `1165371` + this handoff); `main` = staging = `cdd39fa`
+(Phase 02, owner-verified) — nothing deployed. Work order agreed:
 T3.0 → T3.1 → T3.4 → T3.5 → T3.11 → T3.2 → T3.3 → T3.6–T3.10 → T3.13–T3.17 → T3.12.
+Done: T3.1, T3.4. Built and waiting for CI: T3.0, T3.5.
 
 **Do first:**
-0. **1 Nov 2026 (late):** T3.0 confirmed in CI (`1b12d73`: e2e and motion-perf green; only the visual step red — the
-   baselines rotted with the calendar: the API filtered special dates by its real clock → fixed by pinning the API clock
-   in the visual spec on the test stack, #112; re-run on `ci/f46-perf` and tick T3.0 when green, then delete the
-   branch). T3.5 built (see the checklist); next: admin screens e2e for C9, then T3.11 shared preview/publish components.
-1. **T3.0 (F46) — CI ran the perf specs for the first time on `1906d91` (run 40718273615): RED, only "Motion
-   performance".** Everything else green (static, unit + coverage, integration, security incl. Trivy, e2e 222 passed).
-   Findings (3 of 3 repeats of each):
-   - `layouts forced inside requestAnimationFrame callbacks` = 1–2 in `e2e/app/screens.perf.spec.ts` (Home → Masjid
-     Detail push, swipe-back pop) **and in `e2e/navigation/navigation.perf.spec.ts` (showcase push/pop), which was
-     green on `cdd39fa`** → most likely a regression from the T3.0 changes (DECISIONS #105: navigation as a React
-     transition with the push slide starting in the commit's layout effect; motion promises resolving after the frame).
-   - one long task 66 ms on Home → Detail: `requestAnimationFrame` 49.9 ms.
-   - flaky e2e `navigation.spec.ts` "rapid double push then double pop" (a covered screen intercepts the click) — the
-     same transition change is the suspect (a deferred push vs a fast second tap).
-   Next: reproduce `navigation.perf.spec.ts` locally with the trace attribution (fixtures.ts reports which rAF callback
-   forced the layout), bisect against `b2a8d1e^` if needed, fix, push to `ci/f46-perf` again. Delete `ci/f46-perf` when
-   green.
-2. **T3.4 Content Library — in progress.** Done (28 Oct): search normalisation `@mc/domain/search` (#106); multipart
-   uploads read after auth with `@fastify/busboy` (#107, `defineRoute({ upload })`, new code `UPLOAD_INVALID`); import
-   contract `@mc/shared/contracts/library.ts` + generated `scripts/library.schema.json` (`pnpm library:schema`, byte
-   test); state functions `importLibraryEntries` (★, all or nothing) / `findLibraryDuplicates` / `updateLibraryEntry`
-   (content edit → back to draft) / `verifyLibraryEntry` / `retireLibraryEntry` with audit actions (#108; 10 DB tests).
-   Still to do: Super Admin routes (`GET /library`, `GET /library/:id`, `POST /library/import/dry-run`, ★`POST
-   /library/import`, PATCH, verify, retire — 03 §5 updated) + super list repo; admin browse/search repo + route
-   (`$text` with quoted terms, #106) and `GET /library/suggestion` (daily rotation per masjid, no repeat within 60 days);
-   policy-matrix/API test "only verified selectable"; C8 screens; `docs/content-library-format.md` (placeholder row
-   only); seed `search_text` via `librarySearchText`.
-3. **T3.2** still needs: `saveTimings` state function (If-Match rev → 412, version bump, audit), PUT/preview API,
-   activation rule, B4 editor, "timings updated" system notice (needs T3.5 templates + T3.6 publish path), journey 6.
-   The validation rules are done (`@mc/domain/timings`).
-4. F1 (Node 26) is allowed from 28 Oct 2026.
-5. `owner/PHASE_TESTING_GUIDE.md` has an uncommitted one-character change made outside these sessions (2.14 "(c)" →
-   "( c)") — ask the owner whether to keep it.
+1. **CI run 41297459005 on `ci/f46-perf` (`1165371`) was in progress at handoff** — check it
+   (`api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/f46-perf&per_page=1`; unauthenticated = 60
+   requests/hour). The previous run (`1b12d73`) had e2e (224 passed) and the motion-perf specs green — only the visual
+   step failed, now fixed (#112, 16/16 green locally in the pinned image). All green → **tick T3.0** (F46 closed,
+   DECISIONS #105, #109, #110) and **tick T3.5** (#111), delete the remote branch `ci/f46-perf`. Red → read the
+   annotations (perf failures now name the script behind a forced layout; `MC_PERF_STACKS=1` adds JS stacks).
+2. **Next task: T3.11** shared preview & publish components. Finding: the cards are already in `@mc/ui`
+   (`AnnouncementCard`, `HadithCard`, `DuaRequestCard`); the item → card glue (`apps/app/src/features/content/lib/
+   content-view.ts`, `hooks/useNoticeBody.ts`) must move to a shared path so `PreviewFrame` renders exactly the musalli
+   output (acceptance: DOM snapshot equality). Template arguments are already shared (`@mc/i18n/template-args`).
+3. Then T3.2 (timings editor: `saveTimings`, PUT/preview API, B4, the system notice `timings_updated` — the template
+   exists now), T3.3, T3.6 (needs the Cloudinary API key — owner) …
+4. F1 (Node 26) is allowed since 28 Oct 2026 — not done yet.
+
+**What happened 28 Oct – 1 Nov 2026 (details in the session log and DECISIONS #106–#112):**
+- CI repairs: new advisories (qs, seroval updated; deepmerge, glob, minimatch time-boxed — F47 to 28 Nov, F48 to
+  1 Dec); Caddy rebuilt with go-jose 4.1.6 (Trivy); missing tests for T3.1 hooks.
+- **T3.0 root causes:** the navigation transition (#105) raced fast taps → push/pop are synchronous again, tab roots
+  stay a transition (#110), batched updates settle every screen (#109); the "forced layouts in rAF" were Playwright's
+  own stability loop (now not counted) plus one real one in the Masjid Detail parallax (fixed with a ResizeObserver).
+- **T3.4** done: search (#106), uploads after auth with `@fastify/busboy` (#107), import/review workflow (#108),
+  C8 screens, owner guide `docs/content-library-format.md`.
+- **T3.5** built: 16 starter templates (`@mc/i18n/templates`, texts in `locales/*/templates.json`), `draft` status
+  (migration 0010), C9 screens, ICU checks in the API and live in the editor (#111).
+- Owner gave Cloudinary details (1 Nov): moved out of `.env.local.api-public` (forbidden there) into
+  `.env.local.api-admin` without reading them in the transcript; cloud name set to `g0ytozsb` (the file held a
+  different 14-character value — owner to confirm); the value saved as "api key" was the **API secret**; the numeric
+  **API key is still missing** (ask at T3.6). Staging keys go to the VPS env files of api-admin and worker (one key
+  each) at T3.6.
+
+**Local session notes (this PC):** Node needs a `*.localhost` DNS shim for Playwright (`NODE_OPTIONS=--require
+<scratchpad>/localhost-shim.cjs`; recreate it in a new session — it patches `dns.lookup` for `*.localhost`). E2E and
+`pnpm test:visual` need the runtime-test stack (`pnpm stack:up:test`, rebuild after API changes) and a fresh app build;
+build the musalli app WITHOUT `VITE_PUBLIC_SHOWCASE` to match CI. `pnpm test:visual` leaves the fixed-date seed — run
+`pnpm db:reset` afterwards. Vitest workers sometimes crash on Windows (exit 0xC0000409) — re-run. Use `set -o
+pipefail` when piping gates through `tail`. The Edit/Write tools turn `\uXXXX` in regexes into literal characters —
+write such lines with a script that builds the escapes.
 
 **Earlier (27 Oct 2026, evening): Phase 03 started** — T3.0 code, T3.1 Admin Home, T3.2 validation, migration 0009.
 
@@ -244,12 +250,12 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 **Phase 03** — started 27 Oct 2026 (branch `feat/phase-03`). New features added by the owner before the start: DECISIONS #104.
 
-- [ ] T3.0 — Real-screen motion budget (F46) — **code done 27 Oct 2026 (DECISIONS #105), waiting for CI on `ci/f46-perf`** (perf specs ×3): navigation as a React transition, stable screen-slot props (both apps), `useQueries` `combine` in `useHomeData`, motion promises resolved after the frame, Sheet height cached. Local Pixel 7 regression 56/56; locally ≈ at the 50 ms line (noisy PC) — CI decides.
+- [ ] T3.0 — Real-screen motion budget (F46) — **fixed 1 Nov 2026, waiting for the final CI run** (DECISIONS #105, #109, #110): synchronous push/pop + tab roots as a transition, batched navigations settle every screen, Masjid Detail parallax without layout reads in rAF, perf trace ignores the test driver; CI on `1b12d73`: e2e 224 passed, motion-perf green; tick when run 41297459005 is green.
 - [x] T3.1 — Admin Home completion — **done 27 Oct 2026:** api-admin `GET /masjids/:masjidId/{stats,notifications/quota,timings}` (repos `@mc/db/repos/admin.ts`, document readers shared in `repos/read.ts` incl. `timingsOf`; contracts `@mc/shared/contracts/admin.ts`; openapi regenerated); Home: followers chip, today strip (next jamaat resolved on the phone with `@mc/domain/prayer`, "Set prayer times" before any save), tiles with `phase`/`route` (later phases dev/staging only — `SHOW_COMING_SOON`; Ruqyah / Blood Camp / Help the Needy tiles added, #104), quota pill. Tests: db int 4 (as mc_admin), api int 3, admin unit 9 (today strip incl. Jumu'ah and after Isha, tile visibility); e2e admin screens 4 locales + axe green with the new strip asserted (7/7 admin specs). Inbox banner: arrives with Phase 5/8 content.
 - [ ] T3.2 — Prayer timings editor (B4) — **partly done:** `@mc/domain/timings` `validateTimings` (60 days: jamaat vs adhan incl. midnight, Isha after Maghrib, Fajr vs sunrise warning, Jumu'ah vs khutbah; 100 % coverage). Rest after T3.4/T3.5/T3.11 (see handoff).
 - [ ] T3.3 — Special dates & Ramadan (B11)
 - [x] T3.4 — Content Library (C8 + admin browse) — **done 1 Nov 2026 (DECISIONS #106–#108):** search normalisation (`@mc/domain/search`, harakat-free Arabic, Indic vowel signs kept); single-file uploads after auth (`@fastify/busboy`); import contract + generated `scripts/library.schema.json`; state functions import (★, all or nothing, draft) / edit (text edit → back to draft) / verify / retire, audited; Super Admin API + C8 screens (list, import report, review in Amiri, verify, retire — screenshots + axe ×4 locales); admin browse/search + daily suggestion (no repeat within 60 days). Acceptance: rows without source/license/reference refused (contract + JSON Schema tests); admins see verified entries only (DB test through the admin policy cell + API test as `mc_admin`); search normalisation tests. Owner guide: `docs/content-library-format.md`. Not built: a Super Admin edit form (the PATCH API exists; tags/text fixes by re-import or later UI).
-- [ ] T3.5 — Notice templates (C9) + ICU rendering — **built 1 Nov 2026 (DECISIONS #111, #112), screenshots pending:** 16 starters (texts in `locales/*/templates.json`, review CSV), shared `@mc/i18n/template-args` + rendering tests for every starter × 4 locales (acceptance), status `draft` (migration 0010; unreviewed templates cannot be activated — DB + API tests, acceptance), retired templates still render, ICU checks in the API and live in C9, C9 list/editor/new with preview, eight new template icons. Left: C9 screenshots + axe ×4 (`e2e/admin/screens.spec.ts`, added), then tick.
+- [ ] T3.5 — Notice templates (C9) + ICU rendering — **built 1 Nov 2026 (DECISIONS #111, #112), screenshots done, waiting for the final CI run:** 16 starters (texts in `locales/*/templates.json`, review CSV), shared `@mc/i18n/template-args` + rendering tests for every starter × 4 locales (acceptance), status `draft` (migration 0010; unreviewed templates cannot be activated — DB + API tests, acceptance), retired templates still render, ICU checks in the API and live in C9, C9 list/editor/new with preview, eight new template icons. C9 screenshots + axe ×4 locales pass (`e2e/admin/screens.spec.ts`). Tick when CI run 41297459005 is green.
 - [ ] T3.6 — Notice creator (B5) + image pipeline
 - [ ] T3.7 — Hadith/Ayah publisher (B6)
 - [ ] T3.8 — Dua request creator (B7)
@@ -313,6 +319,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-01 | 03 / T3.0, T3.4, T3.5 | T3.0 causes found and fixed (#109, #110; trace attribution; parallax layout read); CI e2e + perf green on `1b12d73`, visual step fixed by pinning the API clock (#112). T3.4 done (C8 screens, format guide). T3.5 built: starters, draft status (0010), template API with ICU checks, C9 screens (#111). New advisories handled (F48). Cloudinary details from the owner moved to the api-admin env file. Stopped at the owner's request; CI on `1165371` running |
 | 2026-10-28 | 03 / T3.0 CI, T3.4 | CI on `ci/f46-perf` red at osv-scanner: qs 6.16.1 (dedupe), deepmerge time-boxed ignore (F47); then Trivy (Caddy go-jose → 4.1.6 via xcaddy) and admin coverage (tests for the T3.1 hooks). Fixed three `b37bc39` leftovers (stale openapi.json, `phone` param in the app renderer + `@mc/domain/phone`, raw-color test vs `DECISIONS #1xx`). Perf specs then ran: red (forced layouts in rAF, also in the showcase nav spec — likely a T3.0 regression; next session). T3.4: search (#106), uploads (#107), import contract + JSON schema, state functions (#108) |
 | 2026-10-27 (evening) | 03 / T3.0–T3.4 | Phase 03 started. T3.0 F46 fixes (navigation as transition, stable renders, `combine`, post-frame motion promises; DECISIONS #105) — waiting for CI on `ci/f46-perf`. T3.1 Admin Home done (stats/quota/timings API, today strip, tiles, quota pill). T3.2 domain validation done. T3.4 started (migration 0009). Stopped at the owner's request (usage limit) |
 | 2026-10-27 | 02 → 03 | Phase 02 DONE (owner verified on staging `cdd39fa`, incl. low-end devices). New features agreed with the owner (DECISIONS #104): voice notes, Ruqyah, adhkar after salah, Ilm contacts, blood camp (Phase 3); needy people, personal zakat tracker (Phase 5) — specs and phase files updated, no code yet |
