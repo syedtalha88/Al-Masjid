@@ -150,5 +150,44 @@
       "indexes": []
     }
   ],
-  "views": []
+  "views": [
+    {
+      "name": "v_pub_templates",
+      "viewOn": "notice_templates",
+      "pipeline": [
+        {
+          "$match": {
+            "status": {
+              "$in": ["active", "retired"]
+            }
+          }
+        },
+        {
+          "$project": {
+            "category": {
+              "$numberInt": "1"
+            },
+            "icon": {
+              "$numberInt": "1"
+            },
+            "is_important_default": {
+              "$numberInt": "1"
+            },
+            "title": {
+              "$numberInt": "1"
+            },
+            "body": {
+              "$numberInt": "1"
+            },
+            "params": {
+              "$numberInt": "1"
+            },
+            "system": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    }
+  ]
 }

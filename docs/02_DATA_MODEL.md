@@ -43,7 +43,7 @@ announcement_category: general | event | facilities | timing
 dua_category:         illness | inteqal | other
 library_kind:         hadith | ayah | dua | dhikr        -- dhikr: DECISIONS #104
 library_status:       draft | verified | retired
-template_status:      active | retired
+template_status:      draft | active | retired   -- draft: DECISIONS #111 (unreviewed, never public)
 campaign_purpose:     renovation | repair | utilities | welfare | other
 campaign_status:      active | completed | closed
 payment_status:       pending | approved_on_hold | active | rejected | superseded
@@ -244,7 +244,7 @@ Every cell (allowed **and** denied) has a test (10 §1, "Policy matrix"). A gene
 | `v_pub_chanda_weeks` | chanda_weeks | `visible:true, masjid_visible:true` | `masjid_id, week_start, amount_paise, note` |
 | `v_pub_payment_profiles` | payment_profiles | `status:'active', masjid_visible:true` | `masjid_id, vpa, payee_name, effective_at` |
 | `v_pub_library` | content_library | `status:'verified'` | content + attribution fields |
-| `v_pub_templates` | notice_templates | `status:'active'` (system templates included — musallis need them to render system items such as "Payment details updated"; the admin picker excludes `system:true`) | template fields |
+| `v_pub_templates` | notice_templates | `status` active or retired — retired ones still render published notices (DECISIONS #111); never `draft` (system templates included — musallis need them to render system items such as "Payment details updated"; the admin picker excludes `system:true`) | template fields |
 | `v_pub_settings` | app_settings | `_id:'global'` | public fields only |
 | `v_pub_ruqyah` | ruqyah_entries | `status:'active', masjid_visible:true` | everything except `created_by`, `audio.rights_confirmed` (DECISIONS #104) |
 | `v_pub_contacts` | masjid_contacts | `status:'active', masjid_visible:true` | `_id, masjid_id, name, role, topics, whatsapp, audience, sort` (both audiences — the client filters; audience is a display filter, not access control) |

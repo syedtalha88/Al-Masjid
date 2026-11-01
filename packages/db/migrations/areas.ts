@@ -50,5 +50,5 @@ export const SCHEMA_AREAS: Readonly<
   // PHASE_03 T3.4 (DECISIONS #104): library kind `dhikr` (+ repeat, occasions); template param type `phone`.
   '0009_library_dhikr': { collections: ['content_library', 'notice_templates'], views: ['v_pub_library'] },
   // PHASE_03 T3.5 (DECISIONS #111): template status `draft` — unreviewed templates are never active.
-  '0010_template_draft': { collections: ['notice_templates'] },
+  '0010_template_draft': { collections: ['notice_templates'], views: ['v_pub_templates'] },
 };

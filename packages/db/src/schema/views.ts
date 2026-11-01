@@ -102,7 +102,8 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
     },
   ],
   v_pub_templates: [
-    { $match: { status: 'active' } },
+    // Retired templates stay readable: published notices that used them must still render (DECISIONS #111).
+    { $match: { status: { $in: ['active', 'retired'] } } },
     { $project: keep('category', 'icon', 'is_important_default', 'title', 'body', 'params', 'system') },
   ],
   v_pub_settings: [
