@@ -45,6 +45,10 @@ export const API_ERRORS = {
   // Content Library (03 §5, Phase 3)
   LIBRARY_ENTRY_NOT_FOUND: 404,
   LIBRARY_DUPLICATE: 409,
+  // Notice templates (03 §5, Phase 3)
+  TEMPLATE_NOT_FOUND: 404,
+  TEMPLATE_EXISTS: 409,
+  TEMPLATE_REVIEW_REQUIRED: 409,
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

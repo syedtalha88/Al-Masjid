@@ -84,3 +84,12 @@ export {
   updateMasjid,
   updateSettings,
 } from './super.ts';
+export {
+  addStarterTemplates,
+  createTemplate,
+  type StarterTemplateInput,
+  type TemplateInput,
+  type TemplateParamInput,
+  type TemplatePatch,
+  updateTemplate,
+} from './templates.ts';

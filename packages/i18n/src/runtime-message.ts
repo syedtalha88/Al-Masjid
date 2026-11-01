@@ -2,7 +2,7 @@
 // unlike catalogue strings, which are precompiled at build time (icu-format.ts). This module is the only one that ships
 // the FormatJS parser (≈ 10 kB gzip): `mcIcuPrecompile` keeps the real parser for it alone, and apps load it lazily, only
 // on screens that show a template body.
-import { parse } from '@formatjs/icu-messageformat-parser';
+import { parse, TYPE } from '@formatjs/icu-messageformat-parser';
 import { IntlMessageFormat } from 'intl-messageformat';
 
 import { INTL_LOCALE, type Locale } from './locales.ts';
@@ -41,6 +41,31 @@ export function formatRuntimeMessage(
   try {
     const result = formatter.format(values);
     return typeof result === 'string' ? result : null;
+  } catch {
+    return null;
+  }
+}
+
+type Elements = ReturnType<typeof parse>;
+/** Names used by a parsed message: arguments, and arguments inside plural / select branches. */
+function collect(elements: Elements, into: Set<string>): void {
+  for (const element of elements) {
+    if (element.type === TYPE.literal || element.type === TYPE.pound) continue;
+    if ('value' in element && typeof element.value === 'string') into.add(element.value);
+    if ('options' in element) for (const option of Object.values(element.options)) collect(option.value, into);
+  }
+}
+
+/**
+ * The argument names an ICU message uses (C9 editor and the template API check them against the template's params).
+ *
+ * @returns the names, sorted; `null` when the message is not valid ICU.
+ */
+export function messageArguments(message: string): readonly string[] | null {
+  try {
+    const names = new Set<string>();
+    collect(parse(message, { ignoreTag: true }), names);
+    return [...names].sort();
   } catch {
     return null;
   }

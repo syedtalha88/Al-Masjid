@@ -96,6 +96,9 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'library.update': ['fields', 'back_to_draft'],
   'library.verify': [],
   'library.retire': ['from'],
+  'template.create': [],
+  'template.update': ['fields', 'status'],
+  'template.add_starters': ['added'],
 };
 const META_LIMIT_BYTES = 4096;
 
