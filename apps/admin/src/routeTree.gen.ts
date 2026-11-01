@@ -22,6 +22,9 @@ import { Route as SuperLibraryImportRouteImport } from './routes/super.library.i
 import { Route as SuperMasjidsIndexRouteImport } from './routes/super.masjids.index'
 import { Route as SuperMasjidsIdRouteImport } from './routes/super.masjids.$id'
 import { Route as SuperMasjidsNewRouteImport } from './routes/super.masjids.new'
+import { Route as SuperTemplatesIndexRouteImport } from './routes/super.templates.index'
+import { Route as SuperTemplatesKeyRouteImport } from './routes/super.templates.$key'
+import { Route as SuperTemplatesNewRouteImport } from './routes/super.templates.new'
 import { Route as SuperMasjidsIdEditRouteImport } from './routes/super.masjids.$id.edit'
 
 const IndexRoute = IndexRouteImport.update({
@@ -89,6 +92,21 @@ const SuperMasjidsNewRoute = SuperMasjidsNewRouteImport.update({
   path: '/super/masjids/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperTemplatesIndexRoute = SuperTemplatesIndexRouteImport.update({
+  id: '/super/templates/',
+  path: '/super/templates/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperTemplatesKeyRoute = SuperTemplatesKeyRouteImport.update({
+  id: '/super/templates/$key',
+  path: '/super/templates/$key',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperTemplatesNewRoute = SuperTemplatesNewRouteImport.update({
+  id: '/super/templates/new',
+  path: '/super/templates/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuperMasjidsIdEditRoute = SuperMasjidsIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -107,8 +125,11 @@ export interface FileRoutesByFullPath {
   '/super/library/import': typeof SuperLibraryImportRoute
   '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren
   '/super/masjids/new': typeof SuperMasjidsNewRoute
+  '/super/templates/$key': typeof SuperTemplatesKeyRoute
+  '/super/templates/new': typeof SuperTemplatesNewRoute
   '/super/library/': typeof SuperLibraryIndexRoute
   '/super/masjids/': typeof SuperMasjidsIndexRoute
+  '/super/templates/': typeof SuperTemplatesIndexRoute
   '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute
 }
 export interface FileRoutesByTo {
@@ -123,8 +144,11 @@ export interface FileRoutesByTo {
   '/super/library/import': typeof SuperLibraryImportRoute
   '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren
   '/super/masjids/new': typeof SuperMasjidsNewRoute
+  '/super/templates/$key': typeof SuperTemplatesKeyRoute
+  '/super/templates/new': typeof SuperTemplatesNewRoute
   '/super/library': typeof SuperLibraryIndexRoute
   '/super/masjids': typeof SuperMasjidsIndexRoute
+  '/super/templates': typeof SuperTemplatesIndexRoute
   '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute
 }
 export interface FileRoutesById {
@@ -140,8 +164,11 @@ export interface FileRoutesById {
   '/super/library/import': typeof SuperLibraryImportRoute
   '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren
   '/super/masjids/new': typeof SuperMasjidsNewRoute
+  '/super/templates/$key': typeof SuperTemplatesKeyRoute
+  '/super/templates/new': typeof SuperTemplatesNewRoute
   '/super/library/': typeof SuperLibraryIndexRoute
   '/super/masjids/': typeof SuperMasjidsIndexRoute
+  '/super/templates/': typeof SuperTemplatesIndexRoute
   '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute
 }
 export interface FileRouteTypes {
@@ -158,8 +185,11 @@ export interface FileRouteTypes {
     | '/super/library/import'
     | '/super/masjids/$id'
     | '/super/masjids/new'
+    | '/super/templates/$key'
+    | '/super/templates/new'
     | '/super/library/'
     | '/super/masjids/'
+    | '/super/templates/'
     | '/super/masjids/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -174,8 +204,11 @@ export interface FileRouteTypes {
     | '/super/library/import'
     | '/super/masjids/$id'
     | '/super/masjids/new'
+    | '/super/templates/$key'
+    | '/super/templates/new'
     | '/super/library'
     | '/super/masjids'
+    | '/super/templates'
     | '/super/masjids/$id/edit'
   id:
     | '__root__'
@@ -190,8 +223,11 @@ export interface FileRouteTypes {
     | '/super/library/import'
     | '/super/masjids/$id'
     | '/super/masjids/new'
+    | '/super/templates/$key'
+    | '/super/templates/new'
     | '/super/library/'
     | '/super/masjids/'
+    | '/super/templates/'
     | '/super/masjids/$id/edit'
   fileRoutesById: FileRoutesById
 }
@@ -207,8 +243,11 @@ export interface RootRouteChildren {
   SuperLibraryImportRoute: typeof SuperLibraryImportRoute
   SuperMasjidsIdRoute: typeof SuperMasjidsIdRouteWithChildren
   SuperMasjidsNewRoute: typeof SuperMasjidsNewRoute
+  SuperTemplatesKeyRoute: typeof SuperTemplatesKeyRoute
+  SuperTemplatesNewRoute: typeof SuperTemplatesNewRoute
   SuperLibraryIndexRoute: typeof SuperLibraryIndexRoute
   SuperMasjidsIndexRoute: typeof SuperMasjidsIndexRoute
+  SuperTemplatesIndexRoute: typeof SuperTemplatesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -304,6 +343,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperMasjidsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/super/templates/': {
+      id: '/super/templates/'
+      path: '/super/templates'
+      fullPath: '/super/templates/'
+      preLoaderRoute: typeof SuperTemplatesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super/templates/$key': {
+      id: '/super/templates/$key'
+      path: '/super/templates/$key'
+      fullPath: '/super/templates/$key'
+      preLoaderRoute: typeof SuperTemplatesKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super/templates/new': {
+      id: '/super/templates/new'
+      path: '/super/templates/new'
+      fullPath: '/super/templates/new'
+      preLoaderRoute: typeof SuperTemplatesNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/masjids/$id/edit': {
       id: '/super/masjids/$id/edit'
       path: '/edit'
@@ -338,8 +398,11 @@ const rootRouteChildren: RootRouteChildren = {
   SuperLibraryImportRoute: SuperLibraryImportRoute,
   SuperMasjidsIdRoute: SuperMasjidsIdRouteWithChildren,
   SuperMasjidsNewRoute: SuperMasjidsNewRoute,
+  SuperTemplatesKeyRoute: SuperTemplatesKeyRoute,
+  SuperTemplatesNewRoute: SuperTemplatesNewRoute,
   SuperLibraryIndexRoute: SuperLibraryIndexRoute,
   SuperMasjidsIndexRoute: SuperMasjidsIndexRoute,
+  SuperTemplatesIndexRoute: SuperTemplatesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

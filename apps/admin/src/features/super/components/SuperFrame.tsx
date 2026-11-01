@@ -6,12 +6,13 @@ import type { ReactNode } from 'react';
 
 import { StepUpProvider } from '../../auth/components/StepUpProvider.tsx';
 
-export type SuperSection = 'dashboard' | 'masjids' | 'library' | 'settings' | 'audit';
+export type SuperSection = 'dashboard' | 'masjids' | 'library' | 'templates' | 'settings' | 'audit';
 
 export const SUPER_SECTIONS: readonly { readonly key: SuperSection; readonly path: string }[] = [
   { key: 'dashboard', path: '/super' },
   { key: 'masjids', path: '/super/masjids' },
   { key: 'library', path: '/super/library' },
+  { key: 'templates', path: '/super/templates' },
   { key: 'settings', path: '/super/settings' },
   { key: 'audit', path: '/super/audit' },
 ];

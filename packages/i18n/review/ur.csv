@@ -511,6 +511,7 @@ super,nav.masjids,Masjids,مساجد,no
 super,nav.settings,Settings,سیٹنگز,no
 super,nav.audit,Audit log,آڈٹ لاگ,no
 super,nav.library,Content Library,مواد کی لائبریری,no
+super,nav.templates,Notice templates,اطلاع کے ٹیمپلیٹ,no
 super,status.pending,Pending,زیرِ التوا,no
 super,status.active,Active,فعال,no
 super,status.suspended,Suspended,معطل,no
@@ -693,6 +694,59 @@ super,library.retire,Retire,ہٹائیں,no
 super,library.retireTitle,Retire this entry?,یہ اندراج ہٹائیں؟,no
 super,library.retireBody,Admins can no longer choose it and it disappears from the app. This cannot be undone.,ایڈمن اسے مزید نہیں چن سکیں گے اور یہ ایپ سے ہٹ جائے گا۔ یہ واپس نہیں ہو سکتا۔,no
 super,library.retired,Entry retired.,اندراج ہٹا دیا گیا۔,no
+super,templates.new,New template,نیا ٹیمپلیٹ,no
+super,templates.addStarters,Add starter templates,ابتدائی ٹیمپلیٹ شامل کریں,no
+super,templates.startersAdded,"{count, plural, =0 {All starter templates are already there.} one {# starter template added as draft.} other {# starter templates added as draft.}}","{count, plural, =0 {تمام ابتدائی ٹیمپلیٹ پہلے سے موجود ہیں۔} one {# ابتدائی ٹیمپلیٹ مسودے کے طور پر شامل ہوا۔} other {# ابتدائی ٹیمپلیٹ مسودے کے طور پر شامل ہوئے۔}}",no
+super,templates.empty,No templates yet. Add the starter templates to begin.,ابھی کوئی ٹیمپلیٹ نہیں۔ شروع کرنے کے لیے ابتدائی ٹیمپلیٹ شامل کریں۔,no
+super,templates.statuses.draft,Draft,مسودہ,no
+super,templates.statuses.active,Active,فعال,no
+super,templates.statuses.retired,Retired,ہٹایا گیا,no
+super,templates.categories.general,General,عام,no
+super,templates.categories.event,Event,تقریب,no
+super,templates.categories.facilities,Facilities,سہولیات,no
+super,templates.categories.timing,Timing,اوقات,no
+super,templates.system,System,سسٹم,no
+super,templates.key,Key,کی,no
+super,templates.keyHint,"Lower-case letters, digits and _ — cannot be changed later.",چھوٹے حروف، ہندسے اور _ — بعد میں تبدیل نہیں ہو سکتی۔,no
+super,templates.category,Category,زمرہ,no
+super,templates.icon,Icon,آئیکن,no
+super,templates.important,Important by default,پہلے سے اہم,no
+super,templates.params,Fill-in fields,بھرنے کے خانے,no
+super,templates.paramsHint,What the imam fills in with pickers. Fixed once the template is active.,جو امام پکر سے بھرتے ہیں۔ ٹیمپلیٹ فعال ہونے کے بعد یہ نہیں بدلتے۔,no
+super,templates.paramName,Name,نام,no
+super,templates.paramType,Type,قسم,no
+super,templates.paramRequired,Required,ضروری,no
+super,templates.addParam,Add field,خانہ شامل کریں,no
+super,templates.removeParam,Remove field,خانہ ہٹائیں,no
+super,templates.types.time,Time,وقت,no
+super,templates.types.date,Date,تاریخ,no
+super,templates.types.date_range,Date range,تاریخوں کی مدت,no
+super,templates.types.time_range,Time range,وقت کی مدت,no
+super,templates.types.prayer,Prayer,نماز,no
+super,templates.types.number,Number,عدد,no
+super,templates.types.short_text,Short text,مختصر متن,no
+super,templates.types.phone,Phone number,فون نمبر,no
+super,templates.language,Language,زبان,no
+super,templates.title,Title,عنوان,no
+super,templates.body,Text,متن,no
+super,templates.bodyHint,Use '{name}' for a field; a range field gives '{name_start}' and '{name_end}'.,خانے کے لیے '{name}' لکھیں؛ مدت والا خانہ '{name_start}' اور '{name_end}' دیتا ہے۔,no
+super,templates.available,Available: {names},دستیاب: {names},no
+super,templates.preview,Preview with sample values,نمونے کی قدروں کے ساتھ پیش منظر,no
+super,templates.invalid,This text cannot be read. Check the {braces}.,یہ متن پڑھا نہیں جا سکتا۔ {braces} جانچیں۔,no
+super,templates.unknownArgument,Uses a field that does not exist: {names},ایسا خانہ استعمال ہوا جو موجود نہیں: {names},no
+super,templates.titleArguments,Titles cannot use fields.,عنوان میں خانے استعمال نہیں ہو سکتے۔,no
+super,templates.reviewed,Translations reviewed,تراجم جانچ لیے,no
+super,templates.reviewedHint,Tick only after a person has checked all four languages. Needed to activate.,صرف تب نشان لگائیں جب کسی شخص نے چاروں زبانیں جانچ لی ہوں۔ فعال کرنے کے لیے ضروری۔,no
+super,templates.save,Save,محفوظ کریں,no
+super,templates.saved,Template saved.,ٹیمپلیٹ محفوظ ہو گیا۔,no
+super,templates.create,Create draft,مسودہ بنائیں,no
+super,templates.activate,Activate,فعال کریں,no
+super,templates.activated,Template is active — admins can use it now.,ٹیمپلیٹ فعال ہے — ایڈمن اب اسے استعمال کر سکتے ہیں۔,no
+super,templates.retire,Retire,ہٹائیں,no
+super,templates.retireTitle,Retire this template?,یہ ٹیمپلیٹ ہٹائیں؟,no
+super,templates.retireBody,Admins can no longer pick it. Notices already published with it stay readable.,ایڈمن اسے مزید نہیں چن سکیں گے۔ اس سے پہلے بھیجی گئی اطلاعات پڑھی جا سکیں گی۔,no
+super,templates.retired,Template retired.,ٹیمپلیٹ ہٹا دیا گیا۔,no
+super,templates.reviewFirst,Review all four translations before activating.,فعال کرنے سے پہلے چاروں تراجم جانچیں۔,no
 templates,no_water_time_range.title,No water supply,پانی کی فراہمی بند,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} سے {hours_end} تک پانی دستیاب نہیں ہوگا۔,no
 templates,electricity_cut_time_range.title,Power cut,بجلی بند,no

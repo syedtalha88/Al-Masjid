@@ -11,6 +11,7 @@ import {
   libraryImportReportSchema,
   noContentSchema,
   problemSchema,
+  starterTemplatesAddedSchema,
   type SuperAdminCreate,
   superAdminCreatedSchema,
   superDashboardSchema,
@@ -23,6 +24,10 @@ import {
   type SuperMasjidPatch,
   type SuperSettingsPatch,
   superSettingsSchema,
+  type SuperTemplateCreate,
+  superTemplateListSchema,
+  type SuperTemplatePatch,
+  superTemplateResponseSchema,
 } from '@mc/shared/contracts';
 import { ProblemError, ResponseError } from '@mc/shared/http';
 
@@ -107,6 +112,15 @@ export const superApi = {
     }),
   retireLibraryEntry: (entryId: string) =>
     call(`${SUPER_API}/library/${id(entryId)}/retire`, superLibraryEntryResponseSchema, { method: 'POST' }),
+  templates: (signal?: AbortSignal) =>
+    call(`${SUPER_API}/templates`, superTemplateListSchema, signal ? { signal } : {}),
+  template: (key: string, signal?: AbortSignal) =>
+    call(`${SUPER_API}/templates/${id(key)}`, superTemplateResponseSchema, signal ? { signal } : {}),
+  createTemplate: (body: SuperTemplateCreate) =>
+    call(`${SUPER_API}/templates`, superTemplateResponseSchema, { method: 'POST', body }),
+  updateTemplate: (key: string, body: SuperTemplatePatch) =>
+    call(`${SUPER_API}/templates/${id(key)}`, superTemplateResponseSchema, { method: 'PATCH', body }),
+  addStarterTemplates: () => call(`${SUPER_API}/templates/starters`, starterTemplatesAddedSchema, { method: 'POST' }),
   /** CSV export (★): fetched with the session cookie and handed to the browser as a download. */
   async auditCsv(params: Omit<AuditQuery, 'cursor'>): Promise<Blob> {
     const response = await fetch(`${SUPER_API}/audit/export.csv${query(params)}`, {

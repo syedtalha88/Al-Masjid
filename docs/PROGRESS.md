@@ -24,14 +24,10 @@
 T3.0 → T3.1 → T3.4 → T3.5 → T3.11 → T3.2 → T3.3 → T3.6–T3.10 → T3.13–T3.17 → T3.12.
 
 **Do first:**
-0. **1 Nov 2026 — T3.0 cause found (DECISIONS #110):** the navigation transition caused the CI e2e failures (an
-   experiment with synchronous navigation was e2e-green); the reported rAF layouts were Playwright's own stability loop
-   (now not counted) plus one real one in the Masjid Detail parallax (fixed). Push/pop now synchronous, tab roots as a
-   transition; pushed to `ci/f46-perf` — check the run: green → tick T3.0, delete `ci/f46-perf` and
-   `exp/no-transition`. New advisories: seroval updated, glob/minimatch time-boxed (F48). T3.4: C8 screens done
-   (`7615b8c`, screenshots + axe ×4 locales); left: `docs/content-library-format.md`. Cloudinary (owner, 1 Nov): cloud
-   name + API secret in `.env.local.api-admin`; the numeric **API key** is still missing (ask when T3.6 needs it);
-   staging keys go to the VPS env files of api-admin and worker (one key each) at T3.6.
+0. **1 Nov 2026 (late):** T3.0 confirmed in CI (`1b12d73`: e2e and motion-perf green; only the visual step red — the
+   baselines rotted with the calendar: the API filtered special dates by its real clock → fixed by pinning the API clock
+   in the visual spec on the test stack, #112; re-run on `ci/f46-perf` and tick T3.0 when green, then delete the
+   branch). T3.5 built (see the checklist); next: admin screens e2e for C9, then T3.11 shared preview/publish components.
 1. **T3.0 (F46) — CI ran the perf specs for the first time on `1906d91` (run 40718273615): RED, only "Motion
    performance".** Everything else green (static, unit + coverage, integration, security incl. Trivy, e2e 222 passed).
    Findings (3 of 3 repeats of each):
@@ -253,7 +249,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [ ] T3.2 — Prayer timings editor (B4) — **partly done:** `@mc/domain/timings` `validateTimings` (60 days: jamaat vs adhan incl. midnight, Isha after Maghrib, Fajr vs sunrise warning, Jumu'ah vs khutbah; 100 % coverage). Rest after T3.4/T3.5/T3.11 (see handoff).
 - [ ] T3.3 — Special dates & Ramadan (B11)
 - [x] T3.4 — Content Library (C8 + admin browse) — **done 1 Nov 2026 (DECISIONS #106–#108):** search normalisation (`@mc/domain/search`, harakat-free Arabic, Indic vowel signs kept); single-file uploads after auth (`@fastify/busboy`); import contract + generated `scripts/library.schema.json`; state functions import (★, all or nothing, draft) / edit (text edit → back to draft) / verify / retire, audited; Super Admin API + C8 screens (list, import report, review in Amiri, verify, retire — screenshots + axe ×4 locales); admin browse/search + daily suggestion (no repeat within 60 days). Acceptance: rows without source/license/reference refused (contract + JSON Schema tests); admins see verified entries only (DB test through the admin policy cell + API test as `mc_admin`); search normalisation tests. Owner guide: `docs/content-library-format.md`. Not built: a Super Admin edit form (the PATCH API exists; tags/text fixes by re-import or later UI).
-- [ ] T3.5 — Notice templates (C9) + ICU rendering
+- [ ] T3.5 — Notice templates (C9) + ICU rendering — **built 1 Nov 2026 (DECISIONS #111, #112), screenshots pending:** 16 starters (texts in `locales/*/templates.json`, review CSV), shared `@mc/i18n/template-args` + rendering tests for every starter × 4 locales (acceptance), status `draft` (migration 0010; unreviewed templates cannot be activated — DB + API tests, acceptance), retired templates still render, ICU checks in the API and live in C9, C9 list/editor/new with preview, eight new template icons. Left: C9 screenshots + axe ×4 (`e2e/admin/screens.spec.ts`, added), then tick.
 - [ ] T3.6 — Notice creator (B5) + image pipeline
 - [ ] T3.7 — Hadith/Ayah publisher (B6)
 - [ ] T3.8 — Dua request creator (B7)

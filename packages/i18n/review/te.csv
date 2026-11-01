@@ -511,6 +511,7 @@ super,nav.masjids,Masjids,మస్జిద్‌లు,no
 super,nav.settings,Settings,సెట్టింగ్స్,no
 super,nav.audit,Audit log,ఆడిట్ లాగ్,no
 super,nav.library,Content Library,కంటెంట్ లైబ్రరీ,no
+super,nav.templates,Notice templates,నోటీసు టెంప్లేట్‌లు,no
 super,status.pending,Pending,పెండింగ్,no
 super,status.active,Active,యాక్టివ్,no
 super,status.suspended,Suspended,నిలిపివేయబడింది,no
@@ -693,6 +694,59 @@ super,library.retire,Retire,తొలగించు,no
 super,library.retireTitle,Retire this entry?,ఈ ఎంట్రీని తొలగించాలా?,no
 super,library.retireBody,Admins can no longer choose it and it disappears from the app. This cannot be undone.,"అడ్మిన్‌లు ఇకపై దీన్ని ఎంచుకోలేరు, ఇది యాప్ నుండి తొలగిపోతుంది. దీన్ని వెనక్కి తీసుకోలేం.",no
 super,library.retired,Entry retired.,ఎంట్రీ తొలగించబడింది.,no
+super,templates.new,New template,కొత్త టెంప్లేట్,no
+super,templates.addStarters,Add starter templates,ప్రారంభ టెంప్లేట్‌లను జోడించండి,no
+super,templates.startersAdded,"{count, plural, =0 {All starter templates are already there.} one {# starter template added as draft.} other {# starter templates added as draft.}}","{count, plural, =0 {ప్రారంభ టెంప్లేట్‌లన్నీ ఇప్పటికే ఉన్నాయి.} one {# ప్రారంభ టెంప్లేట్ డ్రాఫ్ట్‌గా జోడించబడింది.} other {# ప్రారంభ టెంప్లేట్‌లు డ్రాఫ్ట్‌గా జోడించబడ్డాయి.}}",no
+super,templates.empty,No templates yet. Add the starter templates to begin.,ఇంకా టెంప్లేట్‌లు లేవు. ప్రారంభించడానికి ప్రారంభ టెంప్లేట్‌లను జోడించండి.,no
+super,templates.statuses.draft,Draft,డ్రాఫ్ట్,no
+super,templates.statuses.active,Active,యాక్టివ్,no
+super,templates.statuses.retired,Retired,తొలగించబడింది,no
+super,templates.categories.general,General,సాధారణ,no
+super,templates.categories.event,Event,కార్యక్రమం,no
+super,templates.categories.facilities,Facilities,సౌకర్యాలు,no
+super,templates.categories.timing,Timing,సమయం,no
+super,templates.system,System,సిస్టమ్,no
+super,templates.key,Key,కీ,no
+super,templates.keyHint,"Lower-case letters, digits and _ — cannot be changed later.","చిన్న అక్షరాలు, అంకెలు, _ — తర్వాత మార్చలేరు.",no
+super,templates.category,Category,వర్గం,no
+super,templates.icon,Icon,ఐకాన్,no
+super,templates.important,Important by default,డిఫాల్ట్‌గా ముఖ్యమైనది,no
+super,templates.params,Fill-in fields,నింపే ఫీల్డ్‌లు,no
+super,templates.paramsHint,What the imam fills in with pickers. Fixed once the template is active.,ఇమామ్ పికర్‌లతో నింపేవి. టెంప్లేట్ యాక్టివ్ అయ్యాక మారవు.,no
+super,templates.paramName,Name,పేరు,no
+super,templates.paramType,Type,రకం,no
+super,templates.paramRequired,Required,తప్పనిసరి,no
+super,templates.addParam,Add field,ఫీల్డ్ జోడించండి,no
+super,templates.removeParam,Remove field,ఫీల్డ్ తీసివేయండి,no
+super,templates.types.time,Time,సమయం,no
+super,templates.types.date,Date,తేదీ,no
+super,templates.types.date_range,Date range,తేదీల వ్యవధి,no
+super,templates.types.time_range,Time range,సమయ వ్యవధి,no
+super,templates.types.prayer,Prayer,నమాజ్,no
+super,templates.types.number,Number,సంఖ్య,no
+super,templates.types.short_text,Short text,చిన్న వచనం,no
+super,templates.types.phone,Phone number,ఫోన్ నంబర్,no
+super,templates.language,Language,భాష,no
+super,templates.title,Title,శీర్షిక,no
+super,templates.body,Text,వచనం,no
+super,templates.bodyHint,Use '{name}' for a field; a range field gives '{name_start}' and '{name_end}'.,"ఫీల్డ్ కోసం '{name}' రాయండి; వ్యవధి ఫీల్డ్ '{name_start}', '{name_end}' ఇస్తుంది.",no
+super,templates.available,Available: {names},అందుబాటులో: {names},no
+super,templates.preview,Preview with sample values,నమూనా విలువలతో ప్రివ్యూ,no
+super,templates.invalid,This text cannot be read. Check the {braces}.,ఈ వచనాన్ని చదవలేం. {braces} తనిఖీ చేయండి.,no
+super,templates.unknownArgument,Uses a field that does not exist: {names},లేని ఫీల్డ్ ఉపయోగించబడింది: {names},no
+super,templates.titleArguments,Titles cannot use fields.,శీర్షికల్లో ఫీల్డ్‌లు ఉపయోగించలేరు.,no
+super,templates.reviewed,Translations reviewed,అనువాదాలు తనిఖీ చేశాం,no
+super,templates.reviewedHint,Tick only after a person has checked all four languages. Needed to activate.,ఒక వ్యక్తి నాలుగు భాషలనూ తనిఖీ చేసిన తర్వాతే టిక్ చేయండి. యాక్టివ్ చేయడానికి అవసరం.,no
+super,templates.save,Save,సేవ్ చేయండి,no
+super,templates.saved,Template saved.,టెంప్లేట్ సేవ్ అయింది.,no
+super,templates.create,Create draft,డ్రాఫ్ట్ సృష్టించండి,no
+super,templates.activate,Activate,యాక్టివ్ చేయండి,no
+super,templates.activated,Template is active — admins can use it now.,టెంప్లేట్ యాక్టివ్ — అడ్మిన్‌లు ఇప్పుడు దీన్ని ఉపయోగించవచ్చు.,no
+super,templates.retire,Retire,తొలగించు,no
+super,templates.retireTitle,Retire this template?,ఈ టెంప్లేట్‌ను తొలగించాలా?,no
+super,templates.retireBody,Admins can no longer pick it. Notices already published with it stay readable.,అడ్మిన్‌లు ఇకపై దీన్ని ఎంచుకోలేరు. దీనితో ఇప్పటికే పంపిన నోటీసులు చదవగలిగేలా ఉంటాయి.,no
+super,templates.retired,Template retired.,టెంప్లేట్ తొలగించబడింది.,no
+super,templates.reviewFirst,Review all four translations before activating.,యాక్టివ్ చేసే ముందు నాలుగు అనువాదాలనూ తనిఖీ చేయండి.,no
 templates,no_water_time_range.title,No water supply,నీటి సరఫరా నిలిపివేత,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.,no
 templates,electricity_cut_time_range.title,Power cut,విద్యుత్ నిలిపివేత,no

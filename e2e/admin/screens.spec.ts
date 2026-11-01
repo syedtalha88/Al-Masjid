@@ -42,6 +42,8 @@ async function settled(page: Page, path: string): Promise<void> {
   await page.goto(`${ADMIN_URL}${path}`);
   await page.waitForLoadState('networkidle');
   await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
+  // A screen still showing its skeleton has not loaded (a failing request retries quietly) — never shoot that.
+  await expect(page.locator('section[data-screen]:not([inert]) .skeleton')).toHaveCount(0);
 }
 
 for (const locale of LOCALES) {
@@ -121,6 +123,16 @@ for (const locale of LOCALES) {
       await page.getByRole('button', { name: label(locale, 'super', 'library.verify') }).click();
       await expect(page.getByRole('textbox', { name: label(locale, 'super', 'library.verifier') })).toBeVisible();
       await shot('c8-verify');
+
+      // --- C9 notice templates (T3.5): list, an editor with its live preview, a new template ---
+      for (const [name, path] of [
+        ['c9-templates', '/super/templates'],
+        ['c9-template', '/super/templates/no_water_time_range'],
+        ['c9-template-new', '/super/templates/new'],
+      ] as const) {
+        await settled(page, path);
+        await shot(name);
+      }
 
       // --- a masjid admin on their own phone ---
       const created = await page.request.post(`${ADMIN_URL}/api/super/admins`, {

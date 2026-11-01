@@ -472,6 +472,9 @@ importers:
       '@mc/domain':
         specifier: workspace:*
         version: link:../domain
+      '@mc/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@mc/shared':
         specifier: workspace:*
         version: link:../shared

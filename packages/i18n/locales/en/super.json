@@ -6,7 +6,8 @@
     "masjids": "Masjids",
     "settings": "Settings",
     "audit": "Audit log",
-    "library": "Content Library"
+    "library": "Content Library",
+    "templates": "Notice templates"
   },
   "status": {
     "pending": "Pending",
@@ -227,5 +228,66 @@
     "retireTitle": "Retire this entry?",
     "retireBody": "Admins can no longer choose it and it disappears from the app. This cannot be undone.",
     "retired": "Entry retired."
+  },
+  "templates": {
+    "new": "New template",
+    "addStarters": "Add starter templates",
+    "startersAdded": "{count, plural, =0 {All starter templates are already there.} one {# starter template added as draft.} other {# starter templates added as draft.}}",
+    "empty": "No templates yet. Add the starter templates to begin.",
+    "statuses": {
+      "draft": "Draft",
+      "active": "Active",
+      "retired": "Retired"
+    },
+    "categories": {
+      "general": "General",
+      "event": "Event",
+      "facilities": "Facilities",
+      "timing": "Timing"
+    },
+    "system": "System",
+    "key": "Key",
+    "keyHint": "Lower-case letters, digits and _ — cannot be changed later.",
+    "category": "Category",
+    "icon": "Icon",
+    "important": "Important by default",
+    "params": "Fill-in fields",
+    "paramsHint": "What the imam fills in with pickers. Fixed once the template is active.",
+    "paramName": "Name",
+    "paramType": "Type",
+    "paramRequired": "Required",
+    "addParam": "Add field",
+    "removeParam": "Remove field",
+    "types": {
+      "time": "Time",
+      "date": "Date",
+      "date_range": "Date range",
+      "time_range": "Time range",
+      "prayer": "Prayer",
+      "number": "Number",
+      "short_text": "Short text",
+      "phone": "Phone number"
+    },
+    "language": "Language",
+    "title": "Title",
+    "body": "Text",
+    "bodyHint": "Use '{name}' for a field; a range field gives '{name_start}' and '{name_end}'.",
+    "available": "Available: {names}",
+    "preview": "Preview with sample values",
+    "invalid": "This text cannot be read. Check the {braces}.",
+    "unknownArgument": "Uses a field that does not exist: {names}",
+    "titleArguments": "Titles cannot use fields.",
+    "reviewed": "Translations reviewed",
+    "reviewedHint": "Tick only after a person has checked all four languages. Needed to activate.",
+    "save": "Save",
+    "saved": "Template saved.",
+    "create": "Create draft",
+    "activate": "Activate",
+    "activated": "Template is active — admins can use it now.",
+    "retire": "Retire",
+    "retireTitle": "Retire this template?",
+    "retireBody": "Admins can no longer pick it. Notices already published with it stay readable.",
+    "retired": "Template retired.",
+    "reviewFirst": "Review all four translations before activating."
   }
 }
