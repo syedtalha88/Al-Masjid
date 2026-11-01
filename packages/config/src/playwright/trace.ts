@@ -52,7 +52,7 @@ export interface FrameStats {
 export interface TraceReport {
   readonly longTasks: readonly LongTask[];
   readonly frames: FrameStats;
-  /** `Layout` events inside `requestAnimationFrame` callbacks: layout thrash caused by animation code. */
+  /** `Layout` events inside the page's own `requestAnimationFrame` callbacks: layout thrash caused by animation code. */
   readonly layoutsInAnimationFrames: number;
   /**
    * One line per such layout: when, how long, the script calls inside that frame (`name@file:line:col` of the bundle —
@@ -233,10 +233,16 @@ export function analyzeTrace(events: readonly TraceEvent[], { longTaskMs = 50 }:
     const frame = animationFrames.find((candidate) => sameThread(event, candidate) && within(event, candidate));
     return frame ? [{ event, frame }] : [];
   });
+  const callsIn = (frame: TraceEvent) =>
+    onMain.filter((call) => call.name === 'FunctionCall' && sameThread(call, frame) && within(call, frame));
+  // A frame that ran only URL-less scripts is the test driver's own (Playwright's injected "is the element stable?"
+  // rAF loop reads layout before every click): the app cannot run inline scripts (CSP, 04 §7), so it is not counted.
+  const injectedOnly = (frame: TraceEvent) => {
+    const calls = callsIn(frame);
+    return calls.length > 0 && calls.every((call) => fileName(data(call)['url']) === '(inline)');
+  };
   const animationFrameLayouts = forced.map(({ event, frame }) => {
-    const calls = onMain
-      .filter((call) => call.name === 'FunctionCall' && sameThread(call, frame) && within(call, frame))
-      .map(location);
+    const calls = callsIn(frame).map(location);
     const begin = event.args?.['beginData'];
     const stack = isRecord(begin) && Array.isArray(begin['stackTrace']) ? begin['stackTrace'].slice(0, 6) : [];
     return [
@@ -245,13 +251,14 @@ export function analyzeTrace(events: readonly TraceEvent[], { longTaskMs = 50 }:
       ...(stack.length > 0
         ? [`; stack: ${stack.map((entry) => location({ args: { data: entry } })).join(' < ')}`]
         : []),
+      ...(injectedOnly(frame) ? ['(test driver — not counted)'] : []),
     ].join(' ');
   });
 
   return {
     longTasks,
     frames: frameStats(events, rendererPids),
-    layoutsInAnimationFrames: forced.length,
+    layoutsInAnimationFrames: forced.filter(({ frame }) => !injectedOnly(frame)).length,
     animationFrameLayouts,
   };
 }

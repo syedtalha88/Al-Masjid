@@ -138,6 +138,21 @@ describe('analyzeTrace — frames and layout thrash', () => {
       expect.stringMatching(/layout 1 ms in a 10 ms frame; calls: -$/),
     ]);
   });
+
+  it("does not count frames that ran only URL-less scripts (the test driver's own rAF loop) — still listed", () => {
+    const injected = { functionName: 'raf', url: '', lineNumber: 7339, columnNumber: 17 };
+    const events = [
+      ...meta,
+      x('FireAnimationFrame', 100, 1),
+      x('FunctionCall', 100.1, 0.5, { data: injected }),
+      x('Layout', 100.2, 0.1),
+    ];
+    const report = analyzeTrace(events);
+    expect(report.layoutsInAnimationFrames).toBe(0);
+    expect(report.animationFrameLayouts).toEqual([
+      expect.stringMatching(/raf@\(inline\):7339:17 \(test driver — not counted\)$/),
+    ]);
+  });
 });
 
 describe('parseTrace', () => {
