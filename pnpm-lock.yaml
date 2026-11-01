@@ -585,6 +585,9 @@ importers:
       '@mc/domain':
         specifier: workspace:*
         version: link:../domain
+      '@mc/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       mongodb:
         specifier: 7.6.0
         version: 7.6.0

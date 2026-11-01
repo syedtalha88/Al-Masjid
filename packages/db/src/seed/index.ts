@@ -7,6 +7,7 @@ import { createHash } from 'node:crypto';
 
 import { librarySearchText } from '@mc/domain/search';
 import { rgbaToThumbHash } from '@mc/domain/thumbhash';
+import { STARTER_TEMPLATES } from '@mc/i18n/templates';
 import { type Document, Long, UUID } from 'mongodb';
 
 import type { DbHandle } from '../client.ts';
@@ -209,155 +210,13 @@ const LIBRARY: readonly { kind: 'hadith' | 'ayah' | 'dua'; dua?: 'illness' | 'in
 ];
 const libraryId = (index: number) => seedId(`library-${String(index)}`);
 
-// --- notice templates (product copy; hi/ur/te are drafts — translation_reviewed: false) ----------------------------
-
-type Four = { en: string; hi: string; ur: string; te: string };
-type TemplateParam = {
-  name: string;
-  type: 'time' | 'date' | 'date_range' | 'time_range' | 'prayer' | 'number' | 'short_text';
-};
-interface SeedTemplate {
-  readonly key: string;
-  readonly category: 'general' | 'event' | 'facilities' | 'timing';
-  readonly icon: string;
-  readonly important: boolean;
-  readonly params: readonly TemplateParam[];
-  readonly title: Four;
-  readonly body: Four;
-}
+// --- notice templates ---------------------------------------------------------------------------------------------
 
 /**
- * ICU arguments: a param `x` of a range type is passed as `x_start` and `x_end`; every value is formatted for the
- * reader's locale by the app before the message is formatted (times, dates, prayer names).
+ * The starter templates (`@mc/i18n/templates`, 00 §4.3) — active on dev and staging so every flow can be tried; on a new
+ * production database they arrive as `draft` (migration 0011) until the Super Admin has reviewed every language.
  */
-export const SEED_TEMPLATES: readonly SeedTemplate[] = [
-  {
-    key: 'no_water_time_range',
-    category: 'facilities',
-    icon: 'drop',
-    important: true,
-    params: [{ name: 'hours', type: 'time_range' }],
-    title: { en: 'No water supply', hi: 'पानी की आपूर्ति बंद', ur: 'پانی کی فراہمی بند', te: 'నీటి సరఫరా నిలిపివేత' },
-    body: {
-      en: 'Water will not be available from {hours_start} to {hours_end}.',
-      hi: '{hours_start} से {hours_end} तक पानी उपलब्ध नहीं रहेगा।',
-      ur: '{hours_start} سے {hours_end} تک پانی دستیاب نہیں ہوگا۔',
-      te: '{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.',
-    },
-  },
-  {
-    key: 'electricity_cut_time_range',
-    category: 'facilities',
-    icon: 'lightning',
-    important: false,
-    params: [{ name: 'hours', type: 'time_range' }],
-    title: { en: 'Power cut', hi: 'बिजली कटौती', ur: 'بجلی بند', te: 'విద్యుత్ నిలిపివేత' },
-    body: {
-      en: 'There will be no electricity from {hours_start} to {hours_end}.',
-      hi: '{hours_start} से {hours_end} तक बिजली नहीं रहेगी।',
-      ur: '{hours_start} سے {hours_end} تک بجلی نہیں رہے گی۔',
-      te: '{hours_start} నుండి {hours_end} వరకు విద్యుత్ ఉండదు.',
-    },
-  },
-  {
-    key: 'jamaat_time_changed',
-    category: 'timing',
-    icon: 'clock',
-    important: false,
-    params: [
-      { name: 'prayer', type: 'prayer' },
-      { name: 'time', type: 'time' },
-      { name: 'from', type: 'date' },
-    ],
-    title: { en: 'Jamaat time changed', hi: 'जमात का समय बदला', ur: 'جماعت کا وقت تبدیل', te: 'జమాత్ సమయం మారింది' },
-    body: {
-      en: 'From {from}, the {prayer} jamaat will be at {time}.',
-      hi: '{from} से {prayer} की जमात {time} बजे होगी।',
-      ur: '{from} سے {prayer} کی جماعت {time} بجے ہوگی۔',
-      te: '{from} నుండి {prayer} జమాత్ {time}కు జరుగుతుంది.',
-    },
-  },
-  {
-    key: 'jumuah_timing',
-    category: 'timing',
-    icon: 'mosque',
-    important: false,
-    params: [{ name: 'time', type: 'time' }],
-    title: { en: 'Jumu’ah timing', hi: 'जुमा का समय', ur: 'جمعہ کا وقت', te: 'జుమా సమయం' },
-    body: {
-      en: 'This week’s Jumu’ah jamaat will be at {time}.',
-      hi: 'इस हफ़्ते जुमा की जमात {time} बजे होगी।',
-      ur: 'اس ہفتے جمعہ کی جماعت {time} بجے ہوگی۔',
-      te: 'ఈ వారం జుమా జమాత్ {time}కు జరుగుతుంది.',
-    },
-  },
-  {
-    key: 'eid_salah_timing',
-    category: 'timing',
-    icon: 'crescent',
-    important: true,
-    params: [
-      { name: 'date', type: 'date' },
-      { name: 'time', type: 'time' },
-    ],
-    title: { en: 'Eid salah', hi: 'ईद की नमाज़', ur: 'عید کی نماز', te: 'ఈద్ నమాజ్' },
-    body: {
-      en: 'Eid salah will be held on {date} at {time}. Please arrive early.',
-      hi: 'ईद की नमाज़ {date} को {time} बजे होगी। कृपया जल्दी पहुँचें।',
-      ur: 'عید کی نماز {date} کو {time} بجے ہوگی۔ براہِ کرم جلدی تشریف لائیں۔',
-      te: 'ఈద్ నమాజ్ {date}న {time}కు జరుగుతుంది. దయచేసి ముందుగా రండి.',
-    },
-  },
-  {
-    key: 'bayan_event',
-    category: 'event',
-    icon: 'calendar',
-    important: false,
-    params: [
-      { name: 'date', type: 'date' },
-      { name: 'time', type: 'time' },
-      { name: 'speaker', type: 'short_text' },
-    ],
-    title: { en: 'Bayan', hi: 'बयान', ur: 'بیان', te: 'బయాన్' },
-    body: {
-      en: 'Bayan by {speaker} on {date} at {time}. Everyone is welcome.',
-      hi: '{date} को {time} बजे {speaker} का बयान होगा। सभी का स्वागत है।',
-      ur: '{date} کو {time} بجے {speaker} کا بیان ہوگا۔ سب کو خوش آمدید۔',
-      te: '{date}న {time}కు {speaker} బయాన్ ఉంటుంది. అందరికీ స్వాగతం.',
-    },
-  },
-  {
-    key: 'cleanliness_drive',
-    category: 'event',
-    icon: 'broom',
-    important: false,
-    params: [
-      { name: 'date', type: 'date' },
-      { name: 'time', type: 'time' },
-    ],
-    title: { en: 'Cleanliness drive', hi: 'मस्जिद की सफ़ाई', ur: 'مسجد کی صفائی', te: 'మస్జిద్ శుభ్రత' },
-    body: {
-      en: 'Masjid cleanliness drive on {date} at {time}. Volunteers are welcome.',
-      hi: '{date} को {time} बजे मस्जिद की सफ़ाई होगी। स्वयंसेवकों का स्वागत है।',
-      ur: '{date} کو {time} بجے مسجد کی صفائی ہوگی۔ رضاکاروں کا خیر مقدم ہے۔',
-      te: '{date}న {time}కు మస్జిద్ శుభ్రత కార్యక్రమం ఉంటుంది. స్వచ్ఛంద సేవకులకు స్వాగతం.',
-    },
-  },
-  {
-    key: 'parking_closed_date_range',
-    category: 'facilities',
-    icon: 'car',
-    important: false,
-    params: [{ name: 'days', type: 'date_range' }],
-    title: { en: 'Parking closed', hi: 'पार्किंग बंद', ur: 'پارکنگ بند', te: 'పార్కింగ్ మూసివేత' },
-    body: {
-      en: 'The parking area will be closed from {days_start} to {days_end}.',
-      hi: 'पार्किंग {days_start} से {days_end} तक बंद रहेगी।',
-      ur: 'پارکنگ {days_start} سے {days_end} تک بند رہے گی۔',
-      te: 'పార్కింగ్ {days_start} నుండి {days_end} వరకు మూసి ఉంటుంది.',
-    },
-  },
-];
+export const SEED_TEMPLATES = STARTER_TEMPLATES;
 
 // --- items -----------------------------------------------------------------------------------------------------------
 
@@ -698,12 +557,12 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
     category: template.category,
     icon: template.icon,
     is_important_default: template.important,
-    title: template.title,
-    body: template.body,
-    params: template.params.map((param) => ({ name: param.name, type: param.type, required: true })),
+    title: { ...template.title },
+    body: { ...template.body },
+    params: template.params.map((param) => ({ ...param })),
     status: 'active',
     translation_reviewed: false,
-    system: false,
+    system: template.system,
     created_at: now,
     updated_at: now,
   }));

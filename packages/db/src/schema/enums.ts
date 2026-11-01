@@ -30,7 +30,7 @@ export const LIBRARY_KIND = ['hadith', 'ayah', 'dua', 'dhikr'] as const; // dhik
 /** When a `dhikr` library entry is said (DECISIONS #104). */
 export const DHIKR_OCCASION = ['after_salah', 'morning', 'evening'] as const;
 export const LIBRARY_STATUS = ['draft', 'verified', 'retired'] as const;
-export const TEMPLATE_STATUS = ['active', 'retired'] as const;
+export const TEMPLATE_STATUS = ['draft', 'active', 'retired'] as const; // draft: DECISIONS #111
 export const CAMPAIGN_PURPOSE = ['renovation', 'repair', 'utilities', 'welfare', 'other'] as const;
 export const CAMPAIGN_STATUS = ['active', 'completed', 'closed'] as const;
 export const PAYMENT_STATUS = ['pending', 'approved_on_hold', 'active', 'rejected', 'superseded'] as const;

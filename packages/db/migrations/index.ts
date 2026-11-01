@@ -15,6 +15,7 @@ import s0005 from './0005_moderation_audit.snapshot.json' with { type: 'json' };
 import s0006 from './0006_views.snapshot.json' with { type: 'json' };
 import s0008 from './0008_view_order.snapshot.json' with { type: 'json' };
 import s0009 from './0009_library_dhikr.snapshot.json' with { type: 'json' };
+import s0010 from './0010_template_draft.snapshot.json' with { type: 'json' };
 
 /** A schema migration from its snapshot file (canonical EJSON → exact BSON types). */
 function schema(id: string, file: unknown): Migration {
@@ -65,4 +66,5 @@ export const MIGRATIONS: readonly Migration[] = [
   seedAppSettings,
   schema('0008_view_order', s0008),
   schema('0009_library_dhikr', s0009),
+  schema('0010_template_draft', s0010),
 ];
