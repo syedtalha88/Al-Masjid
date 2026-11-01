@@ -690,3 +690,35 @@ super,library.retire,Retire,ہٹائیں,no
 super,library.retireTitle,Retire this entry?,یہ اندراج ہٹائیں؟,no
 super,library.retireBody,Admins can no longer choose it and it disappears from the app. This cannot be undone.,ایڈمن اسے مزید نہیں چن سکیں گے اور یہ ایپ سے ہٹ جائے گا۔ یہ واپس نہیں ہو سکتا۔,no
 super,library.retired,Entry retired.,اندراج ہٹا دیا گیا۔,no
+templates,no_water_time_range.title,No water supply,پانی کی فراہمی بند,no
+templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} سے {hours_end} تک پانی دستیاب نہیں ہوگا۔,no
+templates,electricity_cut_time_range.title,Power cut,بجلی بند,no
+templates,electricity_cut_time_range.body,There will be no electricity from {hours_start} to {hours_end}.,{hours_start} سے {hours_end} تک بجلی نہیں رہے گی۔,no
+templates,jamaat_time_changed.title,Jamaat time changed,جماعت کا وقت تبدیل,no
+templates,jamaat_time_changed.body,"From {from}, the {prayer} jamaat will be at {time}.",{from} سے {prayer} کی جماعت {time} بجے ہوگی۔,no
+templates,jumuah_timing.title,Jumu’ah timing,جمعہ کا وقت,no
+templates,jumuah_timing.body,This week’s Jumu’ah jamaat will be at {time}.,اس ہفتے جمعہ کی جماعت {time} بجے ہوگی۔,no
+templates,eid_salah_timing.title,Eid salah,عید کی نماز,no
+templates,eid_salah_timing.body,Eid salah will be held on {date} at {time}. Please arrive early.,عید کی نماز {date} کو {time} بجے ہوگی۔ براہِ کرم جلدی تشریف لائیں۔,no
+templates,bayan_event.title,Bayan,بیان,no
+templates,bayan_event.body,Bayan by {speaker} on {date} at {time}. Everyone is welcome.,{date} کو {time} بجے {speaker} کا بیان ہوگا۔ سب کو خوش آمدید۔,no
+templates,cleanliness_drive.title,Cleanliness drive,مسجد کی صفائی,no
+templates,cleanliness_drive.body,Masjid cleanliness drive on {date} at {time}. Volunteers are welcome.,{date} کو {time} بجے مسجد کی صفائی ہوگی۔ رضاکاروں کا خیر مقدم ہے۔,no
+templates,parking_closed_date_range.title,Parking closed,پارکنگ بند,no
+templates,parking_closed_date_range.body,The parking area will be closed from {days_start} to {days_end}.,پارکنگ {days_start} سے {days_end} تک بند رہے گی۔,no
+templates,wudu_area_maintenance.title,Wudu area under maintenance,وضو خانے کی مرمت,no
+templates,wudu_area_maintenance.body,The wudu area will be under maintenance from {days_start} to {days_end}. Please make wudu at home.,{days_start} سے {days_end} تک وضو خانے کی مرمت ہوگی۔ براہِ کرم گھر سے وضو کر کے آئیں۔,no
+templates,masjid_closed_repair.title,Masjid closed for repairs,مرمت کے لیے مسجد بند,no
+templates,masjid_closed_repair.body,The masjid will be closed for repairs from {days_start} to {days_end}. Thank you for your patience.,مرمت کی وجہ سے مسجد {days_start} سے {days_end} تک بند رہے گی۔ آپ کے صبر کا شکریہ۔,no
+templates,taraweeh_starts.title,Taraweeh begins,تراویح کا آغاز,no
+templates,taraweeh_starts.body,"Taraweeh salah begins on {date} after Isha, at {time}.",تراویح کی نماز {date} سے عشاء کے بعد {time} بجے شروع ہوگی۔,no
+templates,iftar_arrangement.title,Iftar at the masjid,مسجد میں افطار,no
+templates,iftar_arrangement.body,Iftar will be arranged at the masjid on {date}. Everyone is welcome.,{date} کو مسجد میں افطار کا انتظام ہوگا۔ سب کو خوش آمدید۔,no
+templates,lost_and_found.title,Lost and found,گمشدہ اشیا,no
+templates,lost_and_found.body,Found at the masjid: {item}. Please contact the masjid office to collect it.,مسجد میں ملا: {item}۔ لینے کے لیے براہِ کرم مسجد کے دفتر سے رابطہ کریں۔,no
+templates,general_thanks.title,Thank you,شکریہ,no
+templates,general_thanks.body,Thank you to everyone who helped and supported the masjid.,مسجد کی مدد اور تعاون کرنے والے تمام لوگوں کا شکریہ۔,no
+templates,blood_donation_camp.title,Blood donation camp,خون کے عطیے کا کیمپ,no
+templates,blood_donation_camp.body,"Blood donation camp on {date}, {hours_start} to {hours_end}, at {place}. To register, contact {contact}.",{date} کو {hours_start} سے {hours_end} تک {place} میں خون کے عطیے کا کیمپ۔ نام لکھوانے کے لیے {contact} پر رابطہ کریں۔,no
+templates,timings_updated.title,Prayer timings updated,نماز کے اوقات تبدیل,no
+templates,timings_updated.body,The prayer timings of this masjid have been updated. Please check the new times.,اس مسجد کی نماز کے اوقات تبدیل کر دیے گئے ہیں۔ براہِ کرم نئے اوقات دیکھ لیں۔,no

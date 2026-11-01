@@ -1,10 +1,8 @@
 // View rules of the content screens (07 A7–A9; lazy screens only — `item-view.ts` holds what Home needs): library text
 // in the app language with the English fallback (00 §4.3), announcement tags and filters, dua privacy, the 30-day
 // "Older" split, and notice-template arguments formatted by their declared type (02 §2).
-import { isE164 } from '@mc/domain/phone';
-import { isCalendarDate, isWallClock } from '@mc/domain/time';
 import type { Locale } from '@mc/i18n/locales';
-import type { FeedItem, LibraryEntry, NoticeTemplate, TemplateParamValue } from '@mc/shared/contracts/public';
+import type { FeedItem, LibraryEntry, NoticeTemplate } from '@mc/shared/contracts/public';
 
 /** 00 §4.3: dua requests move under "Older" after 30 days (the server may also mark them archived). */
 export const ARCHIVE_AFTER_DAYS = 30;
@@ -86,69 +84,7 @@ export function splitArchived(
   return { current, older };
 }
 
-/** Prayer names a `prayer` template param may hold (the keys of `common:prayer.*`). */
-const PRAYER_KEYS = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha', 'jumuah'] as const;
-export type PrayerKey = (typeof PRAYER_KEYS)[number];
-const isPrayerKey = (value: unknown): value is PrayerKey =>
-  typeof value === 'string' && (PRAYER_KEYS as readonly string[]).includes(value);
-
-export interface TemplateFormat {
-  /** "HH:mm" → "9:15 PM". */
-  readonly time: (hhmm: string) => string;
-  /** "YYYY-MM-DD" → "26 Sep 2026". */
-  readonly date: (date: string) => string;
-  /** "isha" → "Isha" in the app language. */
-  readonly prayer: (name: PrayerKey) => string;
-}
-
-/**
- * The ICU arguments of a template notice: each declared param formatted by its type for the reader's locale; a range
- * `x` becomes `x_start` and `x_end`; numbers stay numbers (for plurals). Values that do not match their declared type
- * are left out, so the message fails to format and the caller falls back to the title only.
- */
-export function templateArguments(
-  values: Readonly<Record<string, TemplateParamValue>>,
-  params: NoticeTemplate['params'],
-  format: TemplateFormat,
-): Record<string, string | number> {
-  const result: Record<string, string | number> = {};
-  for (const param of params) {
-    const value = values[param.name];
-    if (value === undefined) continue;
-    switch (param.type) {
-      case 'time':
-        if (isWallClock(value)) result[param.name] = format.time(value);
-        break;
-      case 'date':
-        if (isCalendarDate(value)) result[param.name] = format.date(value);
-        break;
-      case 'time_range':
-      case 'date_range': {
-        if (typeof value !== 'object') break;
-        const valid = param.type === 'time_range' ? isWallClock : isCalendarDate;
-        const write = param.type === 'time_range' ? format.time : format.date;
-        if (valid(value.start) && valid(value.end)) {
-          result[`${param.name}_start`] = write(value.start);
-          result[`${param.name}_end`] = write(value.end);
-        }
-        break;
-      }
-      case 'prayer':
-        if (isPrayerKey(value)) result[param.name] = format.prayer(value);
-        break;
-      case 'number':
-        if (typeof value === 'number' && Number.isFinite(value)) result[param.name] = value;
-        break;
-      case 'short_text':
-        if (typeof value === 'string') result[param.name] = value;
-        break;
-      case 'phone':
-        if (isE164(value)) result[param.name] = value;
-        break;
-    }
-  }
-  return result;
-}
+export { type PrayerKey, templateArguments, type TemplateFormat } from '@mc/i18n/template-args';
 
 /** The template body in `locale`, else English (all four are required, but a blank one falls back). */
 export function noticeMessage(template: NoticeTemplate, locale: Locale): string {

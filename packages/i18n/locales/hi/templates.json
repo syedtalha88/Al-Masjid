@@ -1,0 +1,66 @@
+{
+  "no_water_time_range": {
+    "title": "पानी की आपूर्ति बंद",
+    "body": "{hours_start} से {hours_end} तक पानी उपलब्ध नहीं रहेगा।"
+  },
+  "electricity_cut_time_range": {
+    "title": "बिजली कटौती",
+    "body": "{hours_start} से {hours_end} तक बिजली नहीं रहेगी।"
+  },
+  "jamaat_time_changed": {
+    "title": "जमात का समय बदला",
+    "body": "{from} से {prayer} की जमात {time} बजे होगी।"
+  },
+  "jumuah_timing": {
+    "title": "जुमा का समय",
+    "body": "इस हफ़्ते जुमा की जमात {time} बजे होगी।"
+  },
+  "eid_salah_timing": {
+    "title": "ईद की नमाज़",
+    "body": "ईद की नमाज़ {date} को {time} बजे होगी। कृपया जल्दी पहुँचें।"
+  },
+  "bayan_event": {
+    "title": "बयान",
+    "body": "{date} को {time} बजे {speaker} का बयान होगा। सभी का स्वागत है।"
+  },
+  "cleanliness_drive": {
+    "title": "मस्जिद की सफ़ाई",
+    "body": "{date} को {time} बजे मस्जिद की सफ़ाई होगी। स्वयंसेवकों का स्वागत है।"
+  },
+  "parking_closed_date_range": {
+    "title": "पार्किंग बंद",
+    "body": "पार्किंग {days_start} से {days_end} तक बंद रहेगी।"
+  },
+  "wudu_area_maintenance": {
+    "title": "वुज़ू की जगह की मरम्मत",
+    "body": "{days_start} से {days_end} तक वुज़ू की जगह की मरम्मत होगी। कृपया घर से वुज़ू करके आएँ।"
+  },
+  "masjid_closed_repair": {
+    "title": "मरम्मत के लिए मस्जिद बंद",
+    "body": "मरम्मत के कारण मस्जिद {days_start} से {days_end} तक बंद रहेगी। आपके सब्र का शुक्रिया।"
+  },
+  "taraweeh_starts": {
+    "title": "तरावीह शुरू",
+    "body": "तरावीह की नमाज़ {date} से ईशा के बाद {time} बजे शुरू होगी।"
+  },
+  "iftar_arrangement": {
+    "title": "मस्जिद में इफ़्तार",
+    "body": "{date} को मस्जिद में इफ़्तार का इंतज़ाम होगा। सभी का स्वागत है।"
+  },
+  "lost_and_found": {
+    "title": "खोया-पाया",
+    "body": "मस्जिद में मिला: {item}। लेने के लिए कृपया मस्जिद के दफ़्तर से संपर्क करें।"
+  },
+  "general_thanks": {
+    "title": "शुक्रिया",
+    "body": "मस्जिद की मदद और साथ देने वाले सभी लोगों का शुक्रिया।"
+  },
+  "blood_donation_camp": {
+    "title": "रक्तदान शिविर",
+    "body": "{date} को {hours_start} से {hours_end} तक {place} में रक्तदान शिविर। नाम लिखवाने के लिए {contact} पर संपर्क करें।"
+  },
+  "timings_updated": {
+    "title": "नमाज़ के समय बदले",
+    "body": "इस मस्जिद की नमाज़ के समय अपडेट किए गए हैं। कृपया नए समय देख लें।"
+  }
+}

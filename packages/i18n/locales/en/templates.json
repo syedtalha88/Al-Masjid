@@ -1,0 +1,66 @@
+{
+  "no_water_time_range": {
+    "title": "No water supply",
+    "body": "Water will not be available from {hours_start} to {hours_end}."
+  },
+  "electricity_cut_time_range": {
+    "title": "Power cut",
+    "body": "There will be no electricity from {hours_start} to {hours_end}."
+  },
+  "jamaat_time_changed": {
+    "title": "Jamaat time changed",
+    "body": "From {from}, the {prayer} jamaat will be at {time}."
+  },
+  "jumuah_timing": {
+    "title": "Jumu’ah timing",
+    "body": "This week’s Jumu’ah jamaat will be at {time}."
+  },
+  "eid_salah_timing": {
+    "title": "Eid salah",
+    "body": "Eid salah will be held on {date} at {time}. Please arrive early."
+  },
+  "bayan_event": {
+    "title": "Bayan",
+    "body": "Bayan by {speaker} on {date} at {time}. Everyone is welcome."
+  },
+  "cleanliness_drive": {
+    "title": "Cleanliness drive",
+    "body": "Masjid cleanliness drive on {date} at {time}. Volunteers are welcome."
+  },
+  "parking_closed_date_range": {
+    "title": "Parking closed",
+    "body": "The parking area will be closed from {days_start} to {days_end}."
+  },
+  "wudu_area_maintenance": {
+    "title": "Wudu area under maintenance",
+    "body": "The wudu area will be under maintenance from {days_start} to {days_end}. Please make wudu at home."
+  },
+  "masjid_closed_repair": {
+    "title": "Masjid closed for repairs",
+    "body": "The masjid will be closed for repairs from {days_start} to {days_end}. Thank you for your patience."
+  },
+  "taraweeh_starts": {
+    "title": "Taraweeh begins",
+    "body": "Taraweeh salah begins on {date} after Isha, at {time}."
+  },
+  "iftar_arrangement": {
+    "title": "Iftar at the masjid",
+    "body": "Iftar will be arranged at the masjid on {date}. Everyone is welcome."
+  },
+  "lost_and_found": {
+    "title": "Lost and found",
+    "body": "Found at the masjid: {item}. Please contact the masjid office to collect it."
+  },
+  "general_thanks": {
+    "title": "Thank you",
+    "body": "Thank you to everyone who helped and supported the masjid."
+  },
+  "blood_donation_camp": {
+    "title": "Blood donation camp",
+    "body": "Blood donation camp on {date}, {hours_start} to {hours_end}, at {place}. To register, contact {contact}."
+  },
+  "timings_updated": {
+    "title": "Prayer timings updated",
+    "body": "The prayer timings of this masjid have been updated. Please check the new times."
+  }
+}
