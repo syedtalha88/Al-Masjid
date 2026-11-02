@@ -24,8 +24,12 @@
 CI run (41458742300, `ci/phase-03` @ `74b1749`) failed in Motion performance — `screens.perf.spec.ts` "sheet: open"
 (My Masjids → Add Masjid): one long task 51.6 ms / 61.5 ms (retry), almost all `input:click` (budget 50 ms; the same
 spec passed on `1b12d73` and `1165371`). Rows are memoised; the suspect is the Sheet mounting inside the click task
-(render + commit + showModal + motion start + focus). Next: profile it locally (`pnpm test:perf`, `MC_PERF_STACKS=1`),
-move the sheet's mount work out of the input task, then 3 green runs in a row. Then **T3.2** (timings editor;
+(render + commit + showModal + motion start + focus). **Fixed the same day (DECISIONS #114):** the trace showed
+`showModal()` forcing a whole-page style recalculation (661 elements) inside the tap; the sheet now opens across three
+tasks. Local: sheet spec 5/5 green (was 0/5); full perf suite 17/18 (one push/pop repeat at 53.1 ms on this slower PC —
+that spec was green in all 3 recent CI runs); Pixel 7 e2e green with `--workers=1` (incl. every showcase sheet spec;
+only the "shipped image" smoke fails on the local test stack, as expected). Pushed to `ci/phase-03`: tick T3.0 after
+**3 green CI runs in a row** (re-run the workflow for runs 2 and 3), then delete `ci/phase-03`. Then **T3.2** (timings editor;
 `PreviewFrame`/`PublishBar` are ready in `@mc/ui/admin`).
 The notes below are the 1 Nov handoff.
 
