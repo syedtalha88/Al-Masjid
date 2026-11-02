@@ -20,9 +20,13 @@
 
 ## ▶ Next session — start here (2 Nov 2026 — Phase 03 IN PROGRESS)
 
-**2 Nov 2026:** T3.5 ticked (CI run 41297459005 green); T3.11 done (DECISIONS #113). T3.0 needs a **third** green CI run in
-a row (acceptance): the branch `ci/phase-03` was pushed at `74b1749` — check its run; green → tick T3.0 and delete
-`ci/phase-03`. **Next task: T3.2** (timings editor; `PreviewFrame`/`PublishBar` are ready in `@mc/ui/admin`).
+**2 Nov 2026:** T3.5 ticked (CI run 41297459005 green); T3.11 done (DECISIONS #113). **T3.0 is still open:** the third
+CI run (41458742300, `ci/phase-03` @ `74b1749`) failed in Motion performance — `screens.perf.spec.ts` "sheet: open"
+(My Masjids → Add Masjid): one long task 51.6 ms / 61.5 ms (retry), almost all `input:click` (budget 50 ms; the same
+spec passed on `1b12d73` and `1165371`). Rows are memoised; the suspect is the Sheet mounting inside the click task
+(render + commit + showModal + motion start + focus). Next: profile it locally (`pnpm test:perf`, `MC_PERF_STACKS=1`),
+move the sheet's mount work out of the input task, then 3 green runs in a row. Then **T3.2** (timings editor;
+`PreviewFrame`/`PublishBar` are ready in `@mc/ui/admin`).
 The notes below are the 1 Nov handoff.
 
 ### 1 Nov 2026, evening
@@ -255,7 +259,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 **Phase 03** — started 27 Oct 2026 (branch `feat/phase-03`). New features added by the owner before the start: DECISIONS #104.
 
-- [ ] T3.0 — Real-screen motion budget (F46) — **2 of 3 CI runs green in a row** (perf green on `1b12d73` and `1165371` — run 41297459005, all 5 jobs; the red run 41290687905 was the discarded experiment `3603568`); third run on `ci/phase-03` — tick when green (DECISIONS #105, #109, #110): synchronous push/pop + tab roots as a transition, batched navigations settle every screen, Masjid Detail parallax without layout reads in rAF, perf trace ignores the test driver; CI on `1b12d73`: e2e 224 passed, motion-perf green.
+- [ ] T3.0 — Real-screen motion budget (F46) — **3rd CI run red (2 Nov, sheet open 51.6/61.5 ms — see handoff); before that 2 of 3 green** (perf green on `1b12d73` and `1165371` — run 41297459005, all 5 jobs; the red run 41290687905 was the discarded experiment `3603568`); third run on `ci/phase-03` — tick when green (DECISIONS #105, #109, #110): synchronous push/pop + tab roots as a transition, batched navigations settle every screen, Masjid Detail parallax without layout reads in rAF, perf trace ignores the test driver; CI on `1b12d73`: e2e 224 passed, motion-perf green.
 - [x] T3.1 — Admin Home completion — **done 27 Oct 2026:** api-admin `GET /masjids/:masjidId/{stats,notifications/quota,timings}` (repos `@mc/db/repos/admin.ts`, document readers shared in `repos/read.ts` incl. `timingsOf`; contracts `@mc/shared/contracts/admin.ts`; openapi regenerated); Home: followers chip, today strip (next jamaat resolved on the phone with `@mc/domain/prayer`, "Set prayer times" before any save), tiles with `phase`/`route` (later phases dev/staging only — `SHOW_COMING_SOON`; Ruqyah / Blood Camp / Help the Needy tiles added, #104), quota pill. Tests: db int 4 (as mc_admin), api int 3, admin unit 9 (today strip incl. Jumu'ah and after Isha, tile visibility); e2e admin screens 4 locales + axe green with the new strip asserted (7/7 admin specs). Inbox banner: arrives with Phase 5/8 content.
 - [ ] T3.2 — Prayer timings editor (B4) — **partly done:** `@mc/domain/timings` `validateTimings` (60 days: jamaat vs adhan incl. midnight, Isha after Maghrib, Fajr vs sunrise warning, Jumu'ah vs khutbah; 100 % coverage). Rest after T3.4/T3.5/T3.11 (see handoff).
 - [ ] T3.3 — Special dates & Ramadan (B11)
