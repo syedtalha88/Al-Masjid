@@ -564,7 +564,7 @@ super,form.required,Required,ضروری,no
 super,detail.followers,"{count, plural, one {# follower} other {# followers}}","{count, plural, one {# فالوور} other {# فالوورز}}",no
 super,detail.followCode,Follow code,فالو کوڈ,no
 super,detail.activate,Activate,فعال کریں,no
-super,detail.activateHint,Needs at least one admin who has logged in and accepted the undertaking.,کم از کم ایک ایڈمن چاہیے جس نے لاگ اِن کر کے عہد نامہ قبول کیا ہو۔,no
+super,detail.activateHint,"Needs at least one admin who has logged in and accepted the undertaking, and all five jamaat times set.",کم از کم ایک ایڈمن چاہیے جس نے لاگ اِن کر کے عہد نامہ قبول کیا ہو، اور پانچوں جماعت کے اوقات طے ہوں۔,no
 super,detail.suspend,Suspend,معطل کریں,no
 super,detail.unsuspend,Unsuspend,معطلی ختم کریں,no
 super,detail.delete,Delete masjid,مسجد حذف کریں,no

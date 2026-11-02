@@ -564,7 +564,7 @@ super,form.required,Required,తప్పనిసరి,no
 super,detail.followers,"{count, plural, one {# follower} other {# followers}}","{count, plural, one {# ఫాలోవర్} other {# ఫాలోవర్లు}}",no
 super,detail.followCode,Follow code,ఫాలో కోడ్,no
 super,detail.activate,Activate,యాక్టివేట్ చేయండి,no
-super,detail.activateHint,Needs at least one admin who has logged in and accepted the undertaking.,లాగిన్ అయి హామీ పత్రం అంగీకరించిన కనీసం ఒక అడ్మిన్ ఉండాలి.,no
+super,detail.activateHint,"Needs at least one admin who has logged in and accepted the undertaking, and all five jamaat times set.","లాగిన్ అయి హామీ పత్రం అంగీకరించిన కనీసం ఒక అడ్మిన్ ఉండాలి, ఐదు జమాత్ సమయాలు సెట్ చేసి ఉండాలి.",no
 super,detail.suspend,Suspend,నిలిపివేయండి,no
 super,detail.unsuspend,Unsuspend,మళ్లీ ప్రారంభించండి,no
 super,detail.delete,Delete masjid,మస్జిద్ తొలగించండి,no
