@@ -13,12 +13,12 @@ import {
   IconCircle,
   InfoNote,
   JumuahCard,
-  PrayerTable,
   TabPanels,
   UnderlineTabs,
   usePrayerName,
 } from '@mc/ui/components';
-import { CrescentIcon, PrayerIcon } from '@mc/ui/icons';
+import { DayTimings } from '@mc/ui/content';
+import { CrescentIcon } from '@mc/ui/icons';
 import { crossfadeIn, slideIn, useMotionPrefs } from '@mc/ui/motion';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -26,7 +26,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { configQuery } from '../../../lib/api/queries.ts';
 import { useAppData } from '../../../lib/data.tsx';
 import { scheduleOf } from '../../home/lib/home-view.ts';
-import { clampToRange, nextRowKey, timingRows, TIMINGS_RANGE, upcomingSpecials } from '../lib/timings-view.ts';
+import { clampToRange, nextRowKey, TIMINGS_RANGE, upcomingSpecials } from '../lib/timings-view.ts';
 
 type TabId = 'daily' | 'jumuah' | 'special';
 
@@ -106,34 +106,7 @@ export function TimingsContent({ bundle, now }: { readonly bundle: ActiveMasjidB
         {(id) => {
           if (!day) return <InfoNote>{tc('home.noTimings')}</InfoNote>;
           if (id === 'daily') {
-            return (
-              <div className="flex flex-col gap-4">
-                <div ref={table}>
-                  <PrayerTable
-                    caption={format.calendarDate(date, 'long')}
-                    adhanLabel={t('adhan')}
-                    jamaatLabel={t('jamaat')}
-                    calculatedLabel={t('calculated')}
-                    rows={timingRows(day).map((row) => ({
-                      key: row.key,
-                      label: row.key === 'sunrise' ? t('sunrise') : prayerName(row.key),
-                      icon: (
-                        <PrayerIcon
-                          prayer={row.key === 'sunrise' ? 'fajr' : row.key === 'jumuah' ? 'dhuhr' : row.key}
-                          size={22}
-                        />
-                      ),
-                      adhan: row.adhan,
-                      adhanCalculated: row.adhanCalculated,
-                      jamaat: row.jamaat,
-                      muted: row.muted,
-                      highlighted: row.key === highlighted,
-                    }))}
-                  />
-                </div>
-                <InfoNote>{t('note')}</InfoNote>
-              </div>
-            );
+            return <DayTimings day={day} date={date} highlighted={highlighted} tableRef={table} />;
           }
           if (id === 'jumuah') {
             return day.jumuah.length > 0 ? (
