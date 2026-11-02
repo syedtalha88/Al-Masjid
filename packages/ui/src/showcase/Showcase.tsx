@@ -2,10 +2,15 @@
 // chrome (section names, toggles) is developer tooling in English; component text comes from the components'
 // own i18n keys and per-locale sample fixtures (./samples.ts).
 import { rgbaToThumbHash } from '@mc/domain/thumbhash';
-import { LOCALES, NATIVE_NAME } from '@mc/i18n';
+import { type Locale, LOCALES, NATIVE_NAME } from '@mc/i18n';
 import { Bdi, useLocale } from '@mc/i18n/react';
+import type { FeedItem } from '@mc/shared/contracts/public';
 import { type ReactNode, useId, useMemo, useState } from 'react';
 
+import { PreviewFrame } from '../admin/PreviewFrame.tsx';
+import { PublishBar } from '../admin/PublishBar.tsx';
+import { PublishSuccess } from '../admin/PublishSuccess.tsx';
+import { StepHeader } from '../admin/StepHeader.tsx';
 import {
   ArabicText,
   Button,
@@ -50,6 +55,7 @@ import {
   useUpdateAvailableToast,
   VerifiedBadge,
 } from '../components/index.ts';
+import { FeedItemCard } from '../content/ItemCards.tsx';
 import {
   BellIcon,
   BookOpenIcon,
@@ -71,6 +77,33 @@ import { NavBar } from '../navigation/NavBar.tsx';
 import { Screen } from '../navigation/Screen.tsx';
 import { ScanFab } from '../navigation/TabBar.tsx';
 import { ARABIC_SAMPLE, SAMPLES, TRANSLITERATION_SAMPLE } from './samples.ts';
+
+/** A dua request as an admin is about to publish it (placeholder text only — 10 §5). */
+function sampleDua(now: Date): FeedItem {
+  return {
+    publicId: 'showcaseDua1',
+    masjidId: '00000000-0000-4000-8000-000000000001',
+    type: 'dua_request',
+    audience: 'everyone',
+    isImportant: false,
+    publishedAt: new Date(now.getTime() - 2 * 60 * 60_000).toISOString(),
+    body: 'Test dua request message.',
+    dua: {
+      category: 'illness',
+      namePrivate: true,
+      library: {
+        id: '00000000-0000-4000-8000-0000000000aa',
+        kind: 'dua',
+        arabic: ARABIC_SAMPLE,
+        transliteration: { en: TRANSLITERATION_SAMPLE },
+        translation: { en: 'Sample translation text for development. Not a real hadith.' },
+        reference: 'DEV-SAMPLE-001',
+        sourceName: 'Development fixture',
+        sourceLicense: 'N/A — not for production',
+      },
+    },
+  };
+}
 
 /** A 16:10 mint → primary gradient, hashed at runtime (dev only) to show the ThumbHash placeholder. */
 function sampleThumbHash(): string {
@@ -173,6 +206,10 @@ function ShowcaseBody({
   const [offline, setOffline] = useState(false);
   const [update, setUpdate] = useState(false);
   const [progress, setProgress] = useState(0.72);
+  const [now] = useState(() => new Date());
+  const [previewLocale, setPreviewLocale] = useState<Locale>(locale);
+  const [publishing, setPublishing] = useState(false);
+  const [published, setPublished] = useState(false);
   useUpdateAvailableToast(update, () => {
     setUpdate(false);
   });
@@ -592,6 +629,47 @@ function ShowcaseBody({
           onChange={setDate}
           today="2026-09-26"
         />
+      </Section>
+
+      <Section id="publish" title="Admin · StepHeader · PreviewFrame · PublishBar · PublishSuccess">
+        <StepHeader step={3} total={3} label={s.stepLabel} title={s.stepTitle} />
+        <PreviewFrame
+          locale={previewLocale}
+          onLocaleChange={setPreviewLocale}
+          label={s.preview}
+          languageLabel={s.showIn}
+        >
+          <FeedItemCard item={sampleDua(now)} templates={[]} now={now} />
+        </PreviewFrame>
+        <div className="relative">
+          <PublishBar
+            notify={{ checked: notify, onChange: setNotify, label: s.notify, quota: s.notifyHint }}
+            actionLabel={s.publish}
+            busy={publishing}
+            onAction={() => {
+              setPublishing(true);
+              setPublished(true);
+            }}
+          />
+        </div>
+        {published ? (
+          <PublishSuccess
+            title={s.published}
+            message={s.publishedBody}
+            doneLabel={s.done}
+            onDone={() => {
+              setPublished(false);
+              setPublishing(false);
+            }}
+            view={{
+              label: s.view,
+              onPress: () => {
+                setPublished(false);
+                setPublishing(false);
+              },
+            }}
+          />
+        ) : null}
       </Section>
 
       <Section id="pickers" title="TimeWheel · NumberPad">
