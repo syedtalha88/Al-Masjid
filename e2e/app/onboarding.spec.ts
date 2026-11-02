@@ -110,9 +110,11 @@ async function followLinkJourney(page: Page, browserName: string, locale: (typeo
   expect(new URL(page.url()).pathname).toBe('/');
   const device = await storedDevice(page);
   expect(device?.['follows']).toEqual([expect.objectContaining({ sync: 'synced' })]);
-  // Home shows the followed masjid with the next jamaat's live countdown (its rolling digits) — in every locale.
+  // Home shows the followed masjid with the next jamaat's live countdown (its rolling digits) — in every locale. For the
+  // ten minutes after a jamaat starts the countdown reads "Jamaat now" (no digits, a pulsing dot): this test runs on the
+  // real clock and once failed at 20:30 IST, Alpha's Isha (CI 2 Nov 2026).
   const home = page.locator('section[data-screen]:not([inert])');
-  await expect(home.locator('[data-digits]').first()).toBeVisible();
+  await expect(home.locator('[data-digits], .pulse-dot').first()).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('lang', locale.code);
 }
 
