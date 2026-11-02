@@ -1499,6 +1499,18 @@ between two trees, so ids are renamed in order of appearance before comparing; n
 Follow-up F49: `DuaBox`'s translation has no `dir="auto"`, so an English fallback in Urdu puts its full stop at the
 start (already true in A9; fixing it changes the Urdu visual baselines).
 
-## OPEN
+### #114 — A sheet opens across three tasks (PHASE_03 T3.0) — ACCEPTED (Claude Code, 2 Nov 2026)
+**Context:** the third CI run for T3.0 (41458742300) failed "sheet: open" (My Masjids → Add Masjid): one long task of
+51.6 / 61.5 ms; locally 62–82 ms in 5 of 5 runs. The trace put it all in the tap's task: React's commit, then the
+Sheet's open layout effect — `showModal()` (a forced style recalculation of the whole page, 661 elements, 17–22 ms:
+the rest of the page turns inert and focusability is checked), the focus move (blur/focus events), measuring the
+snaps and starting the spring.
+**Decision:** `Sheet` places the panel off-screen in the layout effect (writes only), calls `showModal()` + focuses the
+title in the next task, and measures + starts the spring in the task after that (`setTimeout(…, 0)`, the same device
+the motion driver uses to keep layout reads out of frames). Not `requestAnimationFrame`: the measurement would be a
+layout forced inside an animation frame (08 §8). Reopening during a close still springs back at once.
+**Consequences:** locally 5 of 5 runs green (from 0 of 5). The dialog exists for one extra task after the commit —
+unit tests wait for it (`findByRole`), as a browser user would. The spring starts one frame later at most; the
+press feedback is unchanged (same frame). `Dialog` (alert dialogs) keeps its synchronous open — no perf case yet.
 
 _None — every decision is ACCEPTED (23 Oct 2026)._
