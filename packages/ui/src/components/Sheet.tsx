@@ -122,31 +122,45 @@ export function Sheet({ open, onClose, title, snaps = ['content'], closeButton =
     return range <= 0 ? 1 : Math.min(Math.max(1 - (px - lowest) / range, 0), 1);
   };
 
-  // Open: show the modal dialog, start off-screen, spring to the first snap. Reopening while a close is
-  // still animating springs back from where the sheet is.
+  // Open: start off-screen, show the modal dialog, spring to the first snap — in three tasks. The tap's own task
+  // only commits; `showModal()` restyles the whole page (everything else turns inert) and moves focus, so it runs in
+  // the next task, and measuring the snaps + starting the spring in the one after: all three in the tap's task were
+  // one long task of 52–82 ms at 4× CPU (T3.0, CI 2 Nov 2026; 08 §8 allows 50). The panel waits off-screen in
+  // between, so no frame shows it unplaced. Reopening while a close is still animating springs back from where the
+  // sheet is, at once.
   useLayoutEffect(() => {
     if (!mounted || !open) return;
     const node = dialog.current;
     if (!node) return;
     closing.current = false;
-    if (!node.open) {
-      opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const spring = () => {
+      measureSnaps();
+      const first = toPercent(snapOffsets.current[0] ?? 0);
+      if (reduced) {
+        setChannel(panel.current, 'y', first);
+        void animateChannel(panel.current, 'opacity', 1, 'fade');
+        void animateChannel(backdrop.current, 'opacity', 1, 'fade');
+      } else {
+        void animateChannel(panel.current, 'y', first, 'smooth');
+        void animateChannel(backdrop.current, 'opacity', 1, 'smooth');
+      }
+    };
+    if (node.open) {
+      spring();
+      return;
+    }
+    opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (reduced) initLayer(panel.current, { opacity: 0 });
+    else initLayer(panel.current, { y: 100, opacity: 1 });
+    initLayer(backdrop.current, { opacity: 0 });
+    let timer = setTimeout(() => {
       node.showModal();
       heading.current?.focus({ preventScroll: true });
-      if (reduced) initLayer(panel.current, { opacity: 0 });
-      else initLayer(panel.current, { y: 100, opacity: 1 });
-      initLayer(backdrop.current, { opacity: 0 });
-    }
-    measureSnaps();
-    const first = toPercent(snapOffsets.current[0] ?? 0);
-    if (reduced) {
-      setChannel(panel.current, 'y', first);
-      void animateChannel(panel.current, 'opacity', 1, 'fade');
-      void animateChannel(backdrop.current, 'opacity', 1, 'fade');
-    } else {
-      void animateChannel(panel.current, 'y', first, 'smooth');
-      void animateChannel(backdrop.current, 'opacity', 1, 'smooth');
-    }
+      timer = setTimeout(spring, 0);
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs when the sheet opens
   }, [mounted, open]);
 
