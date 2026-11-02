@@ -164,6 +164,25 @@ for (const locale of LOCALES) {
         await expect(adminPage.getByRole('button', { name: label(locale, 'admin', 'home.today.set') })).toBeVisible();
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b3-home-admin');
+        // T3.2 B4: the editor of a masjid without timings, a jamaat sheet, and the musalli preview in its frame.
+        await adminPage.goto(`${ADMIN_URL}/timings`);
+        await expect(adminPage.getByText(label(locale, 'admin', 'timings.needAll'))).toBeVisible();
+        await adminShot('b4-timings');
+        const jamaat = label(locale, 'admin', 'timings.jamaat');
+        await adminPage
+          .locator('[data-prayer="fajr"]')
+          .getByRole('button', { name: new RegExp(`^${jamaat}`) })
+          .click();
+        await expect(adminPage.getByRole('dialog')).toBeVisible();
+        await adminPage.waitForTimeout(600); // the sheet's spring settles before the shot
+        await adminShot('b4-jamaat-sheet');
+        await adminPage.keyboard.press('Escape');
+        await expect(adminPage.getByRole('dialog')).toHaveCount(0);
+        await adminPage.getByRole('button', { name: label(locale, 'admin', 'timings.preview') }).click();
+        await expect(adminPage.locator('[data-preview-locale]')).toBeVisible();
+        await adminPage.waitForTimeout(600);
+        await adminShot('b4-preview');
+        await adminPage.keyboard.press('Escape');
         await adminPage.goto(`${ADMIN_URL}/account`);
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b13-account-admin');
