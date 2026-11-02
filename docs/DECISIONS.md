@@ -1476,6 +1476,29 @@ fails with a message naming the test stack.
 button's dev/staging gating (`SHOW_COMING_SOON`); the small compass difference is within the screenshot tolerance —
 refresh the baselines at the next intended UI change.
 
+### #113 — Admin preview = the musalli cards from `@mc/ui/content`, in their own locale scope (PHASE_03 T3.11) — ACCEPTED (Claude Code, 2 Nov 2026)
+**Context:** T3.11 requires the preview to render the real musalli components, imported from a shared path, and to
+be byte-identical to the musalli rendering. The cards were already in `@mc/ui`, but the item → card glue (titles,
+template bodies, tags, dua privacy, janaza line, icons) lived in the musalli app. The preview also has to show a
+language other than the admin's own UI language, at the musalli type scale.
+**Decision:** (1) New path `@mc/ui/content`: `item-view`, `content-view`, `ItemIcon` and `useNoticeBody` moved there
+from the app, plus `AnnouncementItemCard` / `DailyItemCard` / `DuaItemCard` (app concerns — navigation, Ameen, Saved,
+Share — are props) and `FeedItemCard` (a fresh item as its section shows it: notice in A7, "Today's" hero in A8, dua
+with no Ameen yet in A9; buttons are no-ops). The musalli rows are now thin wrappers around them. (2) `LocaleScope`
+in `@mc/i18n/react`: a subtree with its own i18next instance per locale; `<html lang dir>` is untouched; the previous
+language stays on screen until the next one has loaded. (3) CSS `.mc-preview` (generated into `type.css` / `fonts.css`,
+plus `base.css`): musalli scale (no admin +2px) and the preview language's font stack. (4) `@mc/ui/admin`:
+`PreviewFrame` (endonym switcher, phone frame, `lang`/`dir` on the screen, 200 ms crossfade on language change),
+`PublishBar`, `StepHeader`, `PublishSuccess`. Components take every label as a prop (admin i18n keys come with the
+flows in T3.6–T3.8). (5) "Byte-identical" is checked as the DOM HTML of the real musalli row against the preview's
+screen, 5 items × 4 locales, with the admin UI in a different language
+(`apps/app/src/features/content/__tests__/preview-parity.test.tsx`). React `useId` values necessarily differ
+between two trees, so ids are renamed in order of appearance before comparing; nothing else is normalized.
+**Consequences:** any change to a musalli section card changes the preview with it (intended). Musalli initial JS
+185.68 kB (limit 186 kB; +0.4 kB over the last recorded figure). The preview's buttons are real but do nothing.
+Follow-up F49: `DuaBox`'s translation has no `dir="auto"`, so an English fallback in Urdu puts its full stop at the
+start (already true in A9; fixing it changes the Urdu visual baselines).
+
 ## OPEN
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

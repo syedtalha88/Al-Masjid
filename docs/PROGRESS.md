@@ -18,7 +18,14 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (1 Nov 2026, evening — Phase 03 IN PROGRESS, stopped at the owner's request)
+## ▶ Next session — start here (2 Nov 2026 — Phase 03 IN PROGRESS)
+
+**2 Nov 2026:** T3.5 ticked (CI run 41297459005 green); T3.11 done (DECISIONS #113). T3.0 needs a **third** green CI run in
+a row (acceptance): the branch `ci/phase-03` was pushed at `74b1749` — check its run; green → tick T3.0 and delete
+`ci/phase-03`. **Next task: T3.2** (timings editor; `PreviewFrame`/`PublishBar` are ready in `@mc/ui/admin`).
+The notes below are the 1 Nov handoff.
+
+### 1 Nov 2026, evening
 
 **State:** branch `feat/phase-03` (pushed, last commit `1165371` + this handoff); `main` = staging = `cdd39fa`
 (Phase 02, owner-verified) — nothing deployed. Work order agreed:
@@ -259,7 +266,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [ ] T3.8 — Dua request creator (B7)
 - [ ] T3.9 — My Posts (B12) & edits
 - [ ] T3.10 — Masjid Profile (B13, partial)
-- [ ] T3.11 — Shared preview & publish components
+- [x] T3.11 — Shared preview & publish components — **done 2 Nov 2026 (DECISIONS #113):** `@mc/ui/content` (item → card glue moved from the musalli app; `AnnouncementItemCard`/`DailyItemCard`/`DuaItemCard`/`FeedItemCard`; musalli rows are thin wrappers), `LocaleScope` (`@mc/i18n/react`), `.mc-preview` CSS scope, `@mc/ui/admin` `PreviewFrame`/`PublishBar`/`StepHeader`/`PublishSuccess` + showcase section. **Acceptance:** DOM parity test real musalli row vs preview, 5 items × 4 locales with the admin UI in another language — 21/21 (`apps/app/src/features/content/__tests__/preview-parity.test.tsx`). Unit: ui +15 (content-items, admin-publish), i18n +1 (LocaleScope). Gates: typecheck/lint/coverage 15/15, prettier, i18n:check, size (app 185.68/186 kB, admin 207.11/220 kB), check:dist. Checked in Chromium (Pixel 7): en, Urdu preview inside an English page (mirrored only in the frame), success moment
 - [ ] T3.12 — Usability verification
 - [ ] T3.13 — Voice notes (B14 + A18)
 - [ ] T3.14 — Adhkar after salah (B16 + A20)
@@ -311,12 +318,14 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F46 | T2.14 (25 Oct 2026, DECISIONS #103; owner 27 Oct 2026: smooth on low-end devices) | ~~Real-screen motion budget (08 §8): `e2e/app/screens.perf.spec.ts` (Home → Masjid Detail push + swipe-back, tab switches, sheet open/drag/dismiss at 4× CPU) is `test.fixme` — after the T2.14 fixes (100–130 ms → ≈ 50–75 ms) long tasks still exceed 50 ms, 6–13 % frames drop, one forced layout on sheet open. Next suspects from the profiles: the pop's React commit (≈ 50 ms microtasks when Home becomes top again), style recalculation of a tab layer on show, the sheet's first measurement in a rAF. Re-enable the spec when green; check on a low-end Android (O16)~~ — **fixed** (T3.0: spec re-enabled, no `fixme`; green in CI runs on `1b12d73` and `1165371`, third run pending; DECISIONS #105, #109, #110) | – |
 | F20 | F19 | Perf spec (4× CPU throttle): 1 of 23 runs had long tasks of 189 + 110 ms right after a rebuild. T0.12: the perf spec now traces with attribution (input / chunk evaluation / animation frame / style-layout), dropped frames and forced layouts — 16/16 clean over 8 repeats. Remaining: the same transitions on a real low-end Android (owner guide) | **Merged into F46 (DECISIONS #103):** Phase 03 first task, judged on a real low-end Android (O16) |
 | F47 | CI (28 Oct 2026) | osv-scanner: **deepmerge 4.3.1** (GHSA-gcqx-w48m-w2h4, prototype poisoning, medium) via vite-plugin-pwa → workbox-build 7.4.1 → @rollup/plugin-node-resolve 16.0.3 — all on their latest version, no fixed deepmerge exists. Build-time only (merges the plugin's defaults with our own SW build config; nothing untrusted, nothing shipped) → time-boxed ignore in `osv-scanner.toml` until 28 Nov 2026 | On expiry (or earlier, on a Renovate bump): a fixed deepmerge / a parent without it → bump and delete the entry; else re-assess (vite-plugin-pwa 2.x, or a pnpm override to a maintained drop-in) and extend with a new date |
+| F49 | T3.11 (2 Nov 2026) | `DuaBox` translation span lacks `dir="auto"`: an English fallback translation in an Urdu UI shows its final full stop at the start (A9, A9 detail and the admin preview). One-line fix in `ContentCards.tsx`; changes the Urdu visual baselines | Phase 03, with the next intended baseline refresh (#112) |
 | F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-02 | 03 / T3.0, T3.5, T3.11 | CI run 41297459005 green → T3.5 ticked, F46 fixed; T3.0 waits for a third green run (`ci/phase-03`). T3.11: `@mc/ui/content`, `LocaleScope`, `.mc-preview`, PreviewFrame/PublishBar/StepHeader/PublishSuccess, DOM parity 21/21 (#113); F49 logged. |
 | 2026-11-01 | 03 / T3.0, T3.4, T3.5 | T3.0 causes found and fixed (#109, #110; trace attribution; parallax layout read); CI e2e + perf green on `1b12d73`, visual step fixed by pinning the API clock (#112). T3.4 done (C8 screens, format guide). T3.5 built: starters, draft status (0010), template API with ICU checks, C9 screens (#111). New advisories handled (F48). Cloudinary details from the owner moved to the api-admin env file. Stopped at the owner's request; CI on `1165371` running |
 | 2026-10-28 | 03 / T3.0 CI, T3.4 | CI on `ci/f46-perf` red at osv-scanner: qs 6.16.1 (dedupe), deepmerge time-boxed ignore (F47); then Trivy (Caddy go-jose → 4.1.6 via xcaddy) and admin coverage (tests for the T3.1 hooks). Fixed three `b37bc39` leftovers (stale openapi.json, `phone` param in the app renderer + `@mc/domain/phone`, raw-color test vs `DECISIONS #1xx`). Perf specs then ran: red (forced layouts in rAF, also in the showcase nav spec — likely a T3.0 regression; next session). T3.4: search (#106), uploads (#107), import contract + JSON schema, state functions (#108) |
 | 2026-10-27 (evening) | 03 / T3.0–T3.4 | Phase 03 started. T3.0 F46 fixes (navigation as transition, stable renders, `combine`, post-frame motion promises; DECISIONS #105) — waiting for CI on `ci/f46-perf`. T3.1 Admin Home done (stats/quota/timings API, today strip, tiles, quota pill). T3.2 domain validation done. T3.4 started (migration 0009). Stopped at the owner's request (usage limit) |
