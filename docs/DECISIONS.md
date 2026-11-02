@@ -1513,4 +1513,17 @@ layout forced inside an animation frame (08 §8). Reopening during a close still
 unit tests wait for it (`findByRole`), as a browser user would. The spring starts one frame later at most; the
 press feedback is unchanged (same frame). `Dialog` (alert dialogs) keeps its synchronous open — no perf case yet.
 
+### #115 — The publish transaction writes the outbox and the quota count as the admin (PHASE_03 T3.2) — ACCEPTED (Claude Code, 2 Nov 2026)
+**Context:** 02 §4.1's matrix gave masjid admins only S on `notification_jobs` and `push_quota_usage`, but DECISIONS
+#9, 01 §5.3 and 02 §2 (`push_quota_usage`: "incremented … inside the publish transaction") have the API write the
+pending outbox job and count the notification in the same transaction as the item — which runs in the admin's scope.
+`mc_admin` already holds find/insert/update on both (02 §4.3); only the policy layer lacked the cells.
+**Decision:** narrow admin cells — `notification_jobs`: I, own masjid, checked: `status: pending`, `sent: 0`,
+`failed: 0`, `bypass_quota: false` (no updates); `push_quota_usage`: I/U, own masjid, only `count` writable. The
+shared publish helpers (`@mc/db/state` `insertPublishedItem`, `enqueueNotification`) are the only callers; the quota is
+counted with a conditional update and a race ends in `NOTIFY_QUOTA_EXCEEDED`, rolling the whole publish back.
+**Consequences:** matrix table and tests updated (admin `SI` / `SIU`); a test proves an admin cannot add a running,
+already-sent, quota-bypassing or other-masjid job, nor change a job or a quota day. Enqueueing to BullMQ after commit
+and the outbox sweeper stay Phase 4 (pending jobs simply wait).
+
 _None — every decision is ACCEPTED (23 Oct 2026)._
