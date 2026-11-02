@@ -1,6 +1,9 @@
 // The icon circle of a feed item in lists (06 §2 "Category → color mapping").
 import type { FeedItem } from '@mc/shared/contracts/public';
-import { IconCircle, type Tone } from '@mc/ui/components';
+import type { ReactNode } from 'react';
+
+import { IconCircle } from '../components/IconCircle.tsx';
+import type { Tone } from '../components/tone.ts';
 import {
   BookOpenIcon,
   CalendarIcon,
@@ -12,12 +15,10 @@ import {
   MegaphoneIcon,
   PlayCircleIcon,
   WrenchIcon,
-} from '@mc/ui/icons';
-import type { ReactNode } from 'react';
+} from '../icons/glyphs.tsx';
+import { itemKind } from './item-view.ts';
 
-import { itemKind } from './lib/item-view.ts';
-
-const DUA_TONE: Readonly<Record<'illness' | 'inteqal' | 'other', Tone>> = {
+export const DUA_TONE: Readonly<Record<'illness' | 'inteqal' | 'other', Tone>> = {
   illness: 'rose',
   inteqal: 'slate',
   other: 'primary',
@@ -48,6 +49,7 @@ function iconOf(item: FeedItem): { readonly icon: ReactNode; readonly tone: Tone
   }
 }
 
+/** The category icon circle of a feed item (lists 48, dua cards 56). */
 export function ItemIcon({ item, size = 48 }: { readonly item: FeedItem; readonly size?: 44 | 48 | 56 }) {
   const { icon, tone } = iconOf(item);
   return (

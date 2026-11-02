@@ -1,7 +1,7 @@
 import type { FeedItem, NoticeTemplate } from '@mc/shared/contracts/public';
 import { describe, expect, it } from 'vitest';
 
-import { itemKind, itemTitle } from '../item-view.ts';
+import { itemKind, itemTitle } from '../src/content/item-view.ts';
 
 const base = {
   publicId: 'abc',

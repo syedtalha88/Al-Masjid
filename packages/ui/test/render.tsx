@@ -1,4 +1,4 @@
-import { createI18n, type Locale } from '@mc/i18n';
+import { createI18n, type Locale, type Namespace } from '@mc/i18n';
 import { I18nProvider } from '@mc/i18n/react';
 import { render } from '@testing-library/react';
 import { domAnimation } from 'motion/react';
@@ -44,10 +44,15 @@ export function stubDialog(): void {
  *
  * @param options.locale - UI locale (default `en`); also sets `<html lang dir>`.
  * @param options.reduced - `prefers-reduced-motion: reduce` (default false).
+ * @param options.namespaces - namespaces to load (default `common` + `errors`).
  */
 export async function renderUi(
   ui: ReactNode,
-  { locale = 'en', reduced = false }: { readonly locale?: Locale; readonly reduced?: boolean } = {},
+  {
+    locale = 'en',
+    reduced = false,
+    namespaces,
+  }: { readonly locale?: Locale; readonly reduced?: boolean; readonly namespaces?: readonly Namespace[] } = {},
 ) {
   mockReducedMotion(reduced);
   document.documentElement.lang = locale;
@@ -56,7 +61,7 @@ export async function renderUi(
   Element.prototype.scrollBy = vi.fn();
   Element.prototype.scrollTo = vi.fn();
   stubDialog();
-  const instance = await createI18n(locale);
+  const instance = await createI18n(locale, namespaces);
   // A wrapper (not a wrapped tree), so `rerender` keeps the providers.
   const wrapper = ({ children }: { readonly children: ReactNode }) => (
     <I18nProvider instance={instance} initialLocale={locale}>

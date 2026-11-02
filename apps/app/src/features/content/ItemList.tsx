@@ -3,6 +3,7 @@
 import { useLocale, useTranslation } from '@mc/i18n/react';
 import type { FeedItem, MasjidProfile } from '@mc/shared/contracts/public';
 import { ListRow, Skeleton, SkeletonText } from '@mc/ui/components';
+import { ItemIcon, itemKind, itemTitle } from '@mc/ui/content';
 import { useNavigator } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { memo } from 'react';
@@ -11,8 +12,6 @@ import { templatesQuery } from '../../lib/api/queries.ts';
 import { useAppData } from '../../lib/data.tsx';
 import { masjidName } from '../../lib/masjid.ts';
 import { sameElements, sameMap } from '../../lib/same.ts';
-import { ItemIcon } from './ItemIcon.tsx';
-import { itemKind, itemTitle } from './lib/item-view.ts';
 
 export interface ItemListProps {
   readonly items: readonly FeedItem[];

@@ -2,10 +2,11 @@
 // date pill, bookmark, "Today's Hadith" when it is today's), older ones regular cards. Text only from the verified
 // Content Library (CLAUDE.md §2.3). Share → the post link; Read Full → the reader; the bookmark saves on this phone.
 import { calendarDateInZone } from '@mc/domain/time';
-import { useLocale, useTranslation } from '@mc/i18n/react';
+import { useTranslation } from '@mc/i18n/react';
 import type { FeedItem } from '@mc/shared/contracts/public';
-import { HadithHeroArt, MosqueIllustration } from '@mc/ui';
-import { HadithCard, SegmentedControl } from '@mc/ui/components';
+import { MosqueIllustration } from '@mc/ui';
+import { SegmentedControl } from '@mc/ui/components';
+import { DailyItemCard } from '@mc/ui/content';
 import { useNavigator, useScreen } from '@mc/ui/navigation';
 import { memo, useCallback, useMemo, useState } from 'react';
 
@@ -16,7 +17,6 @@ import { SectionFrame } from './components/SectionFrame.tsx';
 import { useSaved } from './hooks/useSaved.ts';
 import { useSection } from './hooks/useSection.ts';
 import { useShareItem } from './hooks/useShareItem.ts';
-import { libraryText } from './lib/content-view.ts';
 
 type Kind = 'hadith' | 'ayah';
 
@@ -96,8 +96,11 @@ function HadithSection({ masjidId }: { readonly masjidId: string }) {
   );
 }
 
-/** One hadith / ayah card — memoised (the clock tick must not re-render the Arabic text). */
-const DailyCard = memo(function DailyCard({
+/**
+ * One hadith / ayah card (`@mc/ui/content`, the same as the admin preview) — memoised (the clock tick must not
+ * re-render the Arabic text).
+ */
+export const DailyCard = memo(function DailyCard({
   item,
   hero,
   today,
@@ -112,40 +115,22 @@ const DailyCard = memo(function DailyCard({
   readonly onToggleSave: (item: FeedItem) => void;
   readonly onShare: (item: FeedItem) => void;
 }) {
-  const { t } = useTranslation('content');
-  const { locale, format } = useLocale();
   const navigator = useNavigator();
-  const library = item.daily?.library;
-  if (!library) return null;
-  const text = libraryText(library, locale);
-  const ayah = item.daily?.kind === 'ayah';
   return (
-    <HadithCard
-      variant={hero ? 'hero' : 'regular'}
-      arabic={library.arabic}
-      transliteration={text.transliteration}
-      translation={t('quoted', { text: text.translation })}
-      translationTag={text.fallback ? t('english') : undefined}
-      italic={locale === 'en' || text.fallback}
-      reference={library.reference}
-      date={format.date(new Date(item.publishedAt), 'medium')}
-      todayLabel={today ? t(ayah ? 'todayAyah' : 'todayHadith') : undefined}
-      note={item.daily?.note ? { label: t('noteFromMasjid'), text: item.daily.note } : undefined}
+    <DailyItemCard
+      item={item}
+      hero={hero}
+      today={today}
       saved={saved}
       onToggleSave={() => {
         onToggleSave(item);
       }}
-      saveLabel={t('save')}
-      savedLabel={t('saved')}
       onShare={() => {
         onShare(item);
       }}
-      shareLabel={t('share')}
       onReadFull={() => {
         navigator.push(`/items/${item.publicId}`);
       }}
-      readFullLabel={t('readFull')}
-      art={hero ? <HadithHeroArt /> : undefined}
     />
   );
 });

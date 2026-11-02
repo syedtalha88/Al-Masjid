@@ -12,7 +12,7 @@ import {
   noticeMessage,
   splitArchived,
   templateArguments,
-} from '../content-view.ts';
+} from '../src/content/content-view.ts';
 
 // Religious text: the 10 §5 placeholders only.
 const LIBRARY: LibraryEntry = {

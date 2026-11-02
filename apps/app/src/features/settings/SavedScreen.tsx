@@ -3,6 +3,7 @@
 import { useLocale, useTranslation } from '@mc/i18n/react';
 import { MosqueIllustration } from '@mc/ui';
 import { Button, Divider, EmptyState, ListRow, SkeletonText } from '@mc/ui/components';
+import { ItemIcon, itemKind, itemTitle } from '@mc/ui/content';
 import { Screen, useNavigator } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Fragment } from 'react';
@@ -11,8 +12,6 @@ import { templatesQuery } from '../../lib/api/queries.ts';
 import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
 import { masjidName } from '../../lib/masjid.ts';
 import { useItem } from '../content/hooks/useItem.ts';
-import { ItemIcon } from '../content/ItemIcon.tsx';
-import { itemKind, itemTitle } from '../content/lib/item-view.ts';
 
 export function SavedScreen() {
   const { ready } = useTranslation(['settings', 'content']);
