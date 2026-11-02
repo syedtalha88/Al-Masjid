@@ -18,20 +18,35 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (2 Nov 2026 — Phase 03 IN PROGRESS)
+## ▶ Next session — start here (2 Nov 2026, late — Phase 03 IN PROGRESS)
 
-**2 Nov 2026:** T3.5 ticked (CI run 41297459005 green); T3.11 done (DECISIONS #113). **T3.0 is still open:** the third
-CI run (41458742300, `ci/phase-03` @ `74b1749`) failed in Motion performance — `screens.perf.spec.ts` "sheet: open"
-(My Masjids → Add Masjid): one long task 51.6 ms / 61.5 ms (retry), almost all `input:click` (budget 50 ms; the same
-spec passed on `1b12d73` and `1165371`). Rows are memoised; the suspect is the Sheet mounting inside the click task
-(render + commit + showModal + motion start + focus). **Fixed the same day (DECISIONS #114):** the trace showed
-`showModal()` forcing a whole-page style recalculation (661 elements) inside the tap; the sheet now opens across three
-tasks. Local: sheet spec 5/5 green (was 0/5); full perf suite 17/18 (one push/pop repeat at 53.1 ms on this slower PC —
-that spec was green in all 3 recent CI runs); Pixel 7 e2e green with `--workers=1` (incl. every showcase sheet spec;
-only the "shipped image" smoke fails on the local test stack, as expected). Pushed to `ci/phase-03`: tick T3.0 after
-**3 green CI runs in a row** (re-run the workflow for runs 2 and 3), then delete `ci/phase-03`. Then **T3.2** (timings editor;
-`PreviewFrame`/`PublishBar` are ready in `@mc/ui/admin`).
-The notes below are the 1 Nov handoff.
+**State:** branch `feat/phase-03` pushed (last code commit `e200781` + this handoff); `ci/phase-03` carries the same
+HEAD for CI; `main` = staging = `cdd39fa` — nothing deployed. Done today: T3.5 ticked, **T3.11 done** (#113), **T3.2
+built** (#115), T3.0 sheet fix (#114).
+
+**Do first:**
+1. **T3.0 is not done — the real-screen motion budget is borderline in several cases.** CI history on the shipped code:
+   `1b12d73` green, `1165371` green, `74b1749` red (sheet open 51.6/61.5 ms → fixed by #114: showModal + focus + spring
+   moved out of the tap's task; local sheet spec 0/5 → 5/5), `0e40101` red in e2e only (journey 1's countdown test rotted at
+   20:30 IST — fixed in `1b1c1f4`), `58e9391` red: push/pop long tasks 52–63 ms (≈50 ms **microtasks**, React work) and
+   tab switches 7 % dropped frames (budget 5 %); the sheet case passed. Next: profile push/pop locally
+   (`pnpm test:perf` with `MC_PERF_STACKS=1`; the analysers used for the sheet are easy to rebuild: find the long task's
+   `EventDispatch` / `FunctionCall` and list nested `UpdateLayoutTree`/`Layout` with their `stackTrace`), and compare
+   with a build of `1165371` to rule out T3.11 (the shared cards moved into `@mc/ui/content`). Then 3 green CI runs in a
+   row (push to `ci/phase-03`; a newer push cancels a running run).
+2. **T3.2 — check CI, then tick.** Built and green locally: data layer `saveTimings` (rev concurrency, 00 §4.2 rules on
+   the server, notify → `timing_update` item + pending outbox job + quota count, #115), activation needs five jamaats,
+   API `PUT /timings` (If-Match) + `GET /timings/preview`, B4 editor (cards, adhan/jamaat/Jumu'ah sheets, live checks,
+   confirm sheet with today's changes, notify auto-on, 412 → "Someone else changed the timings", quota dialog, preview
+   in `PreviewFrame` with the shared A6 table `DayTimings`). Acceptance: journey 6 + conflict + invalid times
+   (`e2e/admin/timings.spec.ts`), B4 screenshots + axe ×4 locales (`e2e/admin/screens.spec.ts`), db 45 / api 7 integration
+   tests, editor unit tests. Note: commit `c5fd09b` also carries the errors, data-layer and contract changes (two commit
+   messages were refused by the header-length hook; not rewritten — already pushed).
+3. Then T3.3 (special dates & Ramadan).
+
+**Local session notes:** `E2E_TEST_HOOKS=1` is needed for the admin specs (they skip without it). A musalli page in an
+admin spec must come from the test's own context (`page.context().newPage()`) — its device starts onboarded.
+Shell: build JS snippets with Write + `node file`, not `node -e` with backticks (bash ate several code spans today).
 
 ### 1 Nov 2026, evening
 
@@ -263,9 +278,9 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 **Phase 03** — started 27 Oct 2026 (branch `feat/phase-03`). New features added by the owner before the start: DECISIONS #104.
 
-- [ ] T3.0 — Real-screen motion budget (F46) — **3rd CI run red (2 Nov, sheet open 51.6/61.5 ms — see handoff); before that 2 of 3 green** (perf green on `1b12d73` and `1165371` — run 41297459005, all 5 jobs; the red run 41290687905 was the discarded experiment `3603568`); third run on `ci/phase-03` — tick when green (DECISIONS #105, #109, #110): synchronous push/pop + tab roots as a transition, batched navigations settle every screen, Masjid Detail parallax without layout reads in rAF, perf trace ignores the test driver; CI on `1b12d73`: e2e 224 passed, motion-perf green.
+- [ ] T3.0 — Real-screen motion budget (F46) — **open (2 Nov 2026):** sheet open fixed (#114, local 5/5); CI `58e9391` red on push/pop (≈50 ms microtasks) and tab switches (7 % dropped) — see handoff. Earlier: synchronous push/pop + tab roots as a transition, batched navigations settle every screen, Masjid Detail parallax without layout reads in rAF, perf trace ignores the test driver (DECISIONS #105, #109, #110).
 - [x] T3.1 — Admin Home completion — **done 27 Oct 2026:** api-admin `GET /masjids/:masjidId/{stats,notifications/quota,timings}` (repos `@mc/db/repos/admin.ts`, document readers shared in `repos/read.ts` incl. `timingsOf`; contracts `@mc/shared/contracts/admin.ts`; openapi regenerated); Home: followers chip, today strip (next jamaat resolved on the phone with `@mc/domain/prayer`, "Set prayer times" before any save), tiles with `phase`/`route` (later phases dev/staging only — `SHOW_COMING_SOON`; Ruqyah / Blood Camp / Help the Needy tiles added, #104), quota pill. Tests: db int 4 (as mc_admin), api int 3, admin unit 9 (today strip incl. Jumu'ah and after Isha, tile visibility); e2e admin screens 4 locales + axe green with the new strip asserted (7/7 admin specs). Inbox banner: arrives with Phase 5/8 content.
-- [ ] T3.2 — Prayer timings editor (B4) — **partly done:** `@mc/domain/timings` `validateTimings` (60 days: jamaat vs adhan incl. midnight, Isha after Maghrib, Fajr vs sunrise warning, Jumu'ah vs khutbah; 100 % coverage). Rest after T3.4/T3.5/T3.11 (see handoff).
+- [ ] T3.2 — Prayer timings editor (B4) — **built 2 Nov 2026 (DECISIONS #115), green locally, waiting for CI:** `saveTimings` (rev concurrency, server-side 00 §4.2 rules, notify → `timing_update` item + pending outbox job + quota count), activation needs all five jamaats (API + C2 hint + message), `PUT /timings` (If-Match) and `GET /timings/preview`, B4 editor with sheets, live checks, confirm with today's changes, notify auto-on, conflict and quota dialogs, preview through `PreviewFrame` + shared `DayTimings`. Acceptance: journey 6, conflict sheet, invalid combos blocked (`e2e/admin/timings.spec.ts`); B4 ×4 locales screenshots + axe.
 - [ ] T3.3 — Special dates & Ramadan (B11)
 - [x] T3.4 — Content Library (C8 + admin browse) — **done 1 Nov 2026 (DECISIONS #106–#108):** search normalisation (`@mc/domain/search`, harakat-free Arabic, Indic vowel signs kept); single-file uploads after auth (`@fastify/busboy`); import contract + generated `scripts/library.schema.json`; state functions import (★, all or nothing, draft) / edit (text edit → back to draft) / verify / retire, audited; Super Admin API + C8 screens (list, import report, review in Amiri, verify, retire — screenshots + axe ×4 locales); admin browse/search + daily suggestion (no repeat within 60 days). Acceptance: rows without source/license/reference refused (contract + JSON Schema tests); admins see verified entries only (DB test through the admin policy cell + API test as `mc_admin`); search normalisation tests. Owner guide: `docs/content-library-format.md`. Not built: a Super Admin edit form (the PATCH API exists; tags/text fixes by re-import or later UI).
 - [x] T3.5 — Notice templates (C9) + ICU rendering — **done 2 Nov 2026** (built 1 Nov 2026, DECISIONS #111, #112; CI run 41297459005 green): 16 starters (texts in `locales/*/templates.json`, review CSV), shared `@mc/i18n/template-args` + rendering tests for every starter × 4 locales (acceptance), status `draft` (migration 0010; unreviewed templates cannot be activated — DB + API tests, acceptance), retired templates still render, ICU checks in the API and live in C9, C9 list/editor/new with preview, eight new template icons. C9 screenshots + axe ×4 locales pass (`e2e/admin/screens.spec.ts`).
@@ -333,6 +348,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-02 (late) | 03 / T3.0, T3.2 | Sheet opens across three tasks (#114). T3.2 built end to end: data layer + outbox policy cells (#115), API, B4 editor, journey 6 / conflict / invalid-times e2e, B4 ×4 locales; Urdu time isolation fixed in the editor. CI `58e9391` red on push/pop and tab-switch perf — T3.0 stays open. |
 | 2026-11-02 | 03 / T3.0, T3.5, T3.11 | CI run 41297459005 green → T3.5 ticked, F46 fixed; T3.0 waits for a third green run (`ci/phase-03`). T3.11: `@mc/ui/content`, `LocaleScope`, `.mc-preview`, PreviewFrame/PublishBar/StepHeader/PublishSuccess, DOM parity 21/21 (#113); F49 logged. |
 | 2026-11-01 | 03 / T3.0, T3.4, T3.5 | T3.0 causes found and fixed (#109, #110; trace attribution; parallax layout read); CI e2e + perf green on `1b12d73`, visual step fixed by pinning the API clock (#112). T3.4 done (C8 screens, format guide). T3.5 built: starters, draft status (0010), template API with ICU checks, C9 screens (#111). New advisories handled (F48). Cloudinary details from the owner moved to the api-admin env file. Stopped at the owner's request; CI on `1165371` running |
 | 2026-10-28 | 03 / T3.0 CI, T3.4 | CI on `ci/f46-perf` red at osv-scanner: qs 6.16.1 (dedupe), deepmerge time-boxed ignore (F47); then Trivy (Caddy go-jose → 4.1.6 via xcaddy) and admin coverage (tests for the T3.1 hooks). Fixed three `b37bc39` leftovers (stale openapi.json, `phone` param in the app renderer + `@mc/domain/phone`, raw-color test vs `DECISIONS #1xx`). Perf specs then ran: red (forced layouts in rAF, also in the showcase nav spec — likely a T3.0 regression; next session). T3.4: search (#106), uploads (#107), import contract + JSON schema, state functions (#108) |
