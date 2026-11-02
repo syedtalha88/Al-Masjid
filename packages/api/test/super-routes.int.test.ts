@@ -67,6 +67,22 @@ const app = () =>
   }).app;
 
 /** Registers a passkey for an invite link's token (data layer) and returns the session cookie. */
+/** The masjid's admin saves all five jamaat times — activation needs them (PHASE_03 T3.2). */
+async function saveTimingsAs(cookie: string, masjidId: string): Promise<void> {
+  const offset = { adhanMode: 'auto', adhanAdjustMin: 0, jamaatMode: 'offset', jamaatOffsetMin: 10 };
+  const response = await request(app())
+    .put(`/api/admin/masjids/${masjidId}/timings`)
+    .set(CSRF)
+    .set('Cookie', cookie)
+    .set('If-Match', '"0"')
+    .send({
+      prayers: { fajr: offset, dhuhr: offset, asr: offset, maghrib: offset, isha: offset },
+      jumuah: [{ seq: 1, jamaatTime: '13:30' }],
+      notify: false,
+    });
+  expect(response.status).toBe(200);
+}
+
 async function register(inviteUrlText: string): Promise<{ cookie: string; sessionId: string }> {
   const token = new URL(inviteUrlText).hash.slice(1);
   const sessionToken = newToken();
@@ -269,6 +285,12 @@ describe('onboarding (T1.11 acceptance, API level)', () => {
     ).toBe(204);
     expect((await request(app()).post('/api/admin/probe/write').set(CSRF).set('Cookie', cookie)).status).toBe(204);
 
+    const noTimings = await asSuper('post', `/masjids/${masjidId}/activate`);
+    expect([noTimings.status, (noTimings.body as { code?: string }).code]).toEqual([
+      409,
+      'ACTIVATION_TIMINGS_REQUIRED',
+    ]);
+    await saveTimingsAs(cookie, masjidId);
     expect((await asSuper('post', `/masjids/${masjidId}/activate`)).status).toBe(204);
     const detail = await asSuper('get', `/masjids/${masjidId}`);
     expect(detail.body).toMatchObject({
@@ -467,6 +489,7 @@ describe('audit trail of every T1.11 action (phase-verifier 22 Oct 2026)', () =>
     const { cookie } = await register(inviteUrl);
     const version = ((await asSuper('get', '/settings')).body as { undertakingVersion: string }).undertakingVersion;
     await request(app()).post('/api/admin/auth/undertaking').set(CSRF).set('Cookie', cookie).send({ version });
+    await saveTimingsAs(cookie, masjidId);
     await run('post', `/masjids/${masjidId}/activate`, undefined, [
       { action: 'masjid.activate', target: masjidId, masjid: masjidId },
     ]);

@@ -101,5 +101,7 @@ export async function getAdminSchedule(handle: DbHandle, scope: Scope, masjidId:
       hijriOffset: numberOf(masjid, 'hijri_offset'),
     }),
     timings: timings ? timingsOf(timings) : null,
+    /** Sent back in `If-Match` when saving (0 = no timings yet — PHASE_03 T3.2). */
+    rev: timings ? (numberOf(timings, 'rev') ?? 0) : 0,
   };
 }

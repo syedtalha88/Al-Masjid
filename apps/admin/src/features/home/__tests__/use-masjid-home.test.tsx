@@ -39,6 +39,7 @@ describe('useMasjidHome', () => {
     vi.mocked(masjidApi.schedule).mockResolvedValue({
       masjid: { name: 'Test Masjid Alpha', lat: 17.385, lng: 78.4867, calcMethod: 'karachi', asrMadhab: 'hanafi' },
       timings: null,
+      rev: 0,
     });
     const { result } = renderHook(() => useMasjidHome('m1'), { wrapper: wrapper(client()) });
     await waitFor(() => {

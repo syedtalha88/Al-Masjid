@@ -37,5 +37,9 @@
   "LIBRARY_DUPLICATE": "An entry with this kind and reference is already in the library.",
   "TEMPLATE_NOT_FOUND": "This template no longer exists.",
   "TEMPLATE_EXISTS": "A template with this key already exists.",
-  "TEMPLATE_REVIEW_REQUIRED": "Review all four translations and tick “Translations reviewed” first."
+  "TEMPLATE_REVIEW_REQUIRED": "Review all four translations and tick “Translations reviewed” first.",
+  "PRECONDITION_FAILED": "Someone else changed this just now. Please look at the latest version and try again.",
+  "TIMINGS_INVALID": "Some times don’t fit together. Please check the times marked in red.",
+  "NOTIFY_QUOTA_EXCEEDED": "Today’s notifications are used up. You can still save without notifying followers.",
+  "ACTIVATION_TIMINGS_REQUIRED": "This masjid can be activated once all five jamaat times are set."
 }

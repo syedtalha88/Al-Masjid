@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { adminMasjidStatsSchema, adminScheduleSchema, pushQuotaSchema } from './admin.ts';
+import {
+  adminMasjidStatsSchema,
+  adminScheduleSchema,
+  pushQuotaSchema,
+  timingsPrayerInputSchema,
+  timingsPreviewSchema,
+  timingsSavedSchema,
+  timingsSaveSchema,
+} from './admin.ts';
 import { TEMPLATE_ICONS } from './template-icons.ts';
 import { superTemplateCreateSchema, superTemplatePatchSchema, TEMPLATE_MAX_PARAMS } from './templates.ts';
 
@@ -74,7 +82,67 @@ describe('admin masjid contracts (T3.1)', () => {
     expect(adminMasjidStatsSchema.safeParse({ followers: -1, itemsThisWeek: 0, ameenThisWeek: 0 }).success).toBe(false);
     expect(pushQuotaSchema.safeParse({ used: 2, limit: 8, resetsAt: '2026-11-01T18:30:00.000Z' }).success).toBe(true);
     const masjid = { name: 'Test Masjid Alpha', lat: 17.385, lng: 78.4867, calcMethod: 'karachi', asrMadhab: 'hanafi' };
-    expect(adminScheduleSchema.safeParse({ masjid, timings: null }).success).toBe(true);
-    expect(adminScheduleSchema.safeParse({ masjid: { ...masjid, hijriOffset: 3 }, timings: null }).success).toBe(false);
+    expect(adminScheduleSchema.safeParse({ masjid, timings: null, rev: 0 }).success).toBe(true);
+    expect(adminScheduleSchema.safeParse({ masjid, timings: null }).success).toBe(false); // rev is required
+    expect(
+      adminScheduleSchema.safeParse({ masjid: { ...masjid, hijriOffset: 3 }, timings: null, rev: 0 }).success,
+    ).toBe(false);
+  });
+});
+
+describe('timings editor contracts (T3.2)', () => {
+  const offset = { adhanMode: 'auto', adhanAdjustMin: 0, jamaatMode: 'offset', jamaatOffsetMin: 5 } as const;
+  const body = {
+    prayers: { fajr: offset, dhuhr: offset, asr: offset, maghrib: offset, isha: offset },
+    jumuah: [{ seq: 1, jamaatTime: '13:30' }],
+    notify: true,
+  };
+
+  it('each prayer carries exactly the fields of its modes', () => {
+    expect(timingsPrayerInputSchema.safeParse(offset).success).toBe(true);
+    for (const bad of [
+      { ...offset, adhanTime: '05:00' }, // auto adhan with a time
+      { adhanMode: 'manual', adhanAdjustMin: 0, jamaatMode: 'none' }, // manual without a time
+      { adhanMode: 'auto', adhanAdjustMin: 0, jamaatMode: 'fixed' }, // fixed without a time
+      { ...offset, jamaatTime: '05:30' }, // offset with a fixed time too
+      { adhanMode: 'auto', adhanAdjustMin: 0, jamaatMode: 'none', jamaatOffsetMin: 5 },
+      { ...offset, jamaatOffsetMin: 61 },
+      { ...offset, adhanAdjustMin: 16 },
+    ]) {
+      expect(timingsPrayerInputSchema.safeParse(bad).success).toBe(false);
+    }
+    expect(
+      timingsPrayerInputSchema.safeParse({
+        adhanMode: 'manual',
+        adhanTime: '19:45',
+        adhanAdjustMin: 0,
+        jamaatMode: 'fixed',
+        jamaatTime: '20:00',
+      }).success,
+    ).toBe(true);
+  });
+
+  it("the body: five prayers, 1–3 Jumu'ah jamaats with distinct seq, the notify flag", () => {
+    expect(timingsSaveSchema.safeParse(body).success).toBe(true);
+    expect(timingsSaveSchema.safeParse({ ...body, jumuah: [] }).success).toBe(false);
+    expect(
+      timingsSaveSchema.safeParse({
+        ...body,
+        jumuah: [
+          { seq: 1, jamaatTime: '13:30' },
+          { seq: 1, jamaatTime: '14:00' },
+        ],
+      }).success,
+    ).toBe(false);
+    expect(timingsSaveSchema.safeParse({ ...body, notify: undefined }).success).toBe(false);
+    expect(timingsSavedSchema.safeParse({ rev: 2, item: null }).success).toBe(true);
+    expect(
+      timingsPreviewSchema.safeParse({
+        date: '2026-10-17',
+        sunrise: '06:10',
+        prayers: [{ prayer: 'fajr', adhan: '05:00', calculated: true, jamaat: null }],
+        jumuah: [],
+      }).success,
+    ).toBe(true);
   });
 });

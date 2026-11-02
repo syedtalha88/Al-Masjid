@@ -808,11 +808,394 @@
               "prayers",
               "jumuah"
             ]
+          },
+          "rev": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2000000000
           }
         },
         "required": [
           "masjid",
-          "timings"
+          "timings",
+          "rev"
+        ]
+      },
+      "TimingsSaved": {
+        "type": "object",
+        "properties": {
+          "rev": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2000000000
+          },
+          "item": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "publicId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "publicId"
+            ]
+          }
+        },
+        "required": [
+          "rev",
+          "item"
+        ]
+      },
+      "TimingsSave": {
+        "type": "object",
+        "properties": {
+          "prayers": {
+            "type": "object",
+            "properties": {
+              "fajr": {
+                "type": "object",
+                "properties": {
+                  "adhanMode": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "manual"
+                    ]
+                  },
+                  "adhanTime": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "adhanAdjustMin": {
+                    "type": "integer",
+                    "minimum": -15,
+                    "maximum": 15
+                  },
+                  "jamaatMode": {
+                    "type": "string",
+                    "enum": [
+                      "fixed",
+                      "offset",
+                      "none"
+                    ]
+                  },
+                  "jamaatTime": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "jamaatOffsetMin": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 60
+                  }
+                },
+                "required": [
+                  "adhanMode",
+                  "adhanAdjustMin",
+                  "jamaatMode"
+                ]
+              },
+              "dhuhr": {
+                "type": "object",
+                "properties": {
+                  "adhanMode": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "manual"
+                    ]
+                  },
+                  "adhanTime": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "adhanAdjustMin": {
+                    "type": "integer",
+                    "minimum": -15,
+                    "maximum": 15
+                  },
+                  "jamaatMode": {
+                    "type": "string",
+                    "enum": [
+                      "fixed",
+                      "offset",
+                      "none"
+                    ]
+                  },
+                  "jamaatTime": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "jamaatOffsetMin": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 60
+                  }
+                },
+                "required": [
+                  "adhanMode",
+                  "adhanAdjustMin",
+                  "jamaatMode"
+                ]
+              },
+              "asr": {
+                "type": "object",
+                "properties": {
+                  "adhanMode": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "manual"
+                    ]
+                  },
+                  "adhanTime": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "adhanAdjustMin": {
+                    "type": "integer",
+                    "minimum": -15,
+                    "maximum": 15
+                  },
+                  "jamaatMode": {
+                    "type": "string",
+                    "enum": [
+                      "fixed",
+                      "offset",
+                      "none"
+                    ]
+                  },
+                  "jamaatTime": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "jamaatOffsetMin": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 60
+                  }
+                },
+                "required": [
+                  "adhanMode",
+                  "adhanAdjustMin",
+                  "jamaatMode"
+                ]
+              },
+              "maghrib": {
+                "type": "object",
+                "properties": {
+                  "adhanMode": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "manual"
+                    ]
+                  },
+                  "adhanTime": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "adhanAdjustMin": {
+                    "type": "integer",
+                    "minimum": -15,
+                    "maximum": 15
+                  },
+                  "jamaatMode": {
+                    "type": "string",
+                    "enum": [
+                      "fixed",
+                      "offset",
+                      "none"
+                    ]
+                  },
+                  "jamaatTime": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "jamaatOffsetMin": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 60
+                  }
+                },
+                "required": [
+                  "adhanMode",
+                  "adhanAdjustMin",
+                  "jamaatMode"
+                ]
+              },
+              "isha": {
+                "type": "object",
+                "properties": {
+                  "adhanMode": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "manual"
+                    ]
+                  },
+                  "adhanTime": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "adhanAdjustMin": {
+                    "type": "integer",
+                    "minimum": -15,
+                    "maximum": 15
+                  },
+                  "jamaatMode": {
+                    "type": "string",
+                    "enum": [
+                      "fixed",
+                      "offset",
+                      "none"
+                    ]
+                  },
+                  "jamaatTime": {
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "jamaatOffsetMin": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 60
+                  }
+                },
+                "required": [
+                  "adhanMode",
+                  "adhanAdjustMin",
+                  "jamaatMode"
+                ]
+              }
+            },
+            "required": [
+              "fajr",
+              "dhuhr",
+              "asr",
+              "maghrib",
+              "isha"
+            ]
+          },
+          "jumuah": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "seq": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 3
+                },
+                "khutbahTime": {
+                  "type": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                "jamaatTime": {
+                  "type": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                }
+              },
+              "required": [
+                "seq",
+                "jamaatTime"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 3
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "prayers",
+          "jumuah",
+          "notify"
+        ]
+      },
+      "TimingsPreview": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "sunrise": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+          },
+          "prayers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "prayer": {
+                  "type": "string",
+                  "enum": [
+                    "fajr",
+                    "dhuhr",
+                    "asr",
+                    "maghrib",
+                    "isha"
+                  ]
+                },
+                "adhan": {
+                  "type": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                "calculated": {
+                  "type": "boolean"
+                },
+                "jamaat": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                }
+              },
+              "required": [
+                "prayer",
+                "adhan",
+                "calculated",
+                "jamaat"
+              ]
+            }
+          },
+          "jumuah": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "seq": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 3
+                },
+                "khutbahTime": {
+                  "type": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                "jamaatTime": {
+                  "type": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                }
+              },
+              "required": [
+                "seq",
+                "jamaatTime"
+              ]
+            }
+          }
+        },
+        "required": [
+          "date",
+          "sunrise",
+          "prayers",
+          "jumuah"
         ]
       },
       "AdminLibraryList": {
@@ -5617,6 +6000,85 @@
             }
           }
         }
+      },
+      "put": {
+        "summary": "Save the five prayers and Jumu’ah at once (If-Match: \"<rev>\"; 412 when someone saved in between)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TimingsSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimingsSaved"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/timings/preview": {
+      "get": {
+        "summary": "The saved timings resolved for one IST day, as musallis see them",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": true,
+            "name": "date",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimingsPreview"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/admin/masjids/{masjidId}/library": {
@@ -6243,7 +6705,7 @@
     },
     "/api/super/masjids/{id}/activate": {
       "post": {
-        "summary": "Activate (needs an active admin who accepted the undertaking)",
+        "summary": "Activate (needs an active admin who accepted the undertaking, and all five jamaat times)",
         "tags": [
           "super"
         ],

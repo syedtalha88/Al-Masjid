@@ -99,6 +99,7 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'template.create': [],
   'template.update': ['fields', 'status'],
   'template.add_starters': ['added'],
+  'timings.update': ['rev', 'notify'],
 };
 const META_LIMIT_BYTES = 4096;
 

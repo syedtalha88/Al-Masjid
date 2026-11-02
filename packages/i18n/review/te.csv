@@ -323,6 +323,10 @@ errors,LIBRARY_DUPLICATE,An entry with this kind and reference is already in the
 errors,TEMPLATE_NOT_FOUND,This template no longer exists.,ఈ టెంప్లేట్ ఇప్పుడు లేదు.,no
 errors,TEMPLATE_EXISTS,A template with this key already exists.,ఈ కీతో టెంప్లేట్ ఇప్పటికే ఉంది.,no
 errors,TEMPLATE_REVIEW_REQUIRED,Review all four translations and tick “Translations reviewed” first.,ముందుగా నాలుగు అనువాదాలను తనిఖీ చేసి “అనువాదాలు తనిఖీ చేశాం”ని టిక్ చేయండి.,no
+errors,PRECONDITION_FAILED,Someone else changed this just now. Please look at the latest version and try again.,ఇప్పుడే వేరొకరు దీన్ని మార్చారు. దయచేసి తాజా వెర్షన్ చూసి మళ్లీ ప్రయత్నించండి.,no
+errors,TIMINGS_INVALID,Some times don’t fit together. Please check the times marked in red.,కొన్ని సమయాలు సరిపోలడం లేదు. ఎరుపు రంగులో చూపిన సమయాలను తనిఖీ చేయండి.,no
+errors,NOTIFY_QUOTA_EXCEEDED,Today’s notifications are used up. You can still save without notifying followers.,ఈరోజు నోటిఫికేషన్లు అయిపోయాయి. ఫాలోవర్లకు తెలియజేయకుండానే సేవ్ చేయవచ్చు.,no
+errors,ACTIVATION_TIMINGS_REQUIRED,This masjid can be activated once all five jamaat times are set.,ఐదు జమాత్ సమయాలు సెట్ చేశాకే ఈ మస్జిద్‌ను యాక్టివేట్ చేయవచ్చు.,no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no

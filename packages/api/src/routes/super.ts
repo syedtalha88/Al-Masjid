@@ -306,7 +306,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
           'super',
           'post',
           '/masjids/:id/activate',
-          'Activate (needs an active admin who accepted the undertaking)',
+          'Activate (needs an active admin who accepted the undertaking, and all five jamaat times)',
         ],
         ['suspend', 'super_step_up', 'post', '/masjids/:id/suspend', '★ Suspend with a reason'],
         ['unsuspend', 'super_step_up', 'post', '/masjids/:id/unsuspend', '★ Unsuspend with a reason'],

@@ -34,8 +34,8 @@ const SPEC: Readonly<Partial<Record<Namespace, Partial<Record<Column, string>>>>
   devices: { public: 'I', device: 'SUD' },
   device_follows: { device: 'SIUD' },
   admin_push_subscriptions: { admin: 'SID', super: 'SID' },
-  notification_jobs: { admin: 'S', super: 'S' },
-  push_quota_usage: { admin: 'S', super: 'S' },
+  notification_jobs: { admin: 'SI', super: 'S' }, // DECISIONS #115: the publish transaction writes the outbox
+  push_quota_usage: { admin: 'SIU', super: 'S' }, // #115: and counts the notification
   reports: { device: 'I', admin: 'S', super: 'SU' },
   grievances: { public: 'I', super: 'SU' },
   grievance_seq: { public: 'SIU', super: 'SU' },
@@ -95,8 +95,10 @@ function docFor(namespace: Namespace, scope: Scope, contentId: UUID): Record<str
           ? scope.deviceId
           : new UUID(),
     actor_type: scope.kind === 'super' ? 'super_admin' : scope.kind,
-    status: 'verified',
+    status: namespace === 'notification_jobs' ? 'pending' : 'verified',
     system: false,
+    // An outbox job starts pending with nothing sent (policy check — DECISIONS #115).
+    ...(namespace === 'notification_jobs' ? { sent: 0, failed: 0, bypass_quota: false } : {}),
   };
 }
 

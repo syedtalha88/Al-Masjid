@@ -323,6 +323,10 @@ errors,LIBRARY_DUPLICATE,An entry with this kind and reference is already in the
 errors,TEMPLATE_NOT_FOUND,This template no longer exists.,यह टेम्पलेट अब मौजूद नहीं है।,no
 errors,TEMPLATE_EXISTS,A template with this key already exists.,इस की वाला टेम्पलेट पहले से मौजूद है।,no
 errors,TEMPLATE_REVIEW_REQUIRED,Review all four translations and tick “Translations reviewed” first.,पहले चारों अनुवाद जाँचें और “अनुवाद जाँचे गए” पर टिक करें।,no
+errors,PRECONDITION_FAILED,Someone else changed this just now. Please look at the latest version and try again.,अभी-अभी किसी और ने इसे बदला है। कृपया नया रूप देखें और फिर से कोशिश करें।,no
+errors,TIMINGS_INVALID,Some times don’t fit together. Please check the times marked in red.,कुछ समय आपस में मेल नहीं खाते। कृपया लाल रंग में दिखे समय जाँचें।,no
+errors,NOTIFY_QUOTA_EXCEEDED,Today’s notifications are used up. You can still save without notifying followers.,आज की सूचनाएँ ख़त्म हो गई हैं। आप फ़ॉलोअर्स को बताए बिना सेव कर सकते हैं।,no
+errors,ACTIVATION_TIMINGS_REQUIRED,This masjid can be activated once all five jamaat times are set.,पाँचों जमात के समय सेट होने के बाद ही यह मस्जिद सक्रिय की जा सकती है।,no
 follow,scan.title,Scan masjid QR,मस्जिद का QR स्कैन करें,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,अपना कैमरा मस्जिद के पोस्टर पर लगे QR कोड की ओर करें।,no
 follow,scan.torch,Flashlight,टॉर्च,no

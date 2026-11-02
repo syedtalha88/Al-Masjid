@@ -49,6 +49,11 @@ export const API_ERRORS = {
   TEMPLATE_NOT_FOUND: 404,
   TEMPLATE_EXISTS: 409,
   TEMPLATE_REVIEW_REQUIRED: 409,
+  // Masjid admin content (03 §4, Phase 3)
+  PRECONDITION_FAILED: 412, // If-Match: someone else saved in between
+  TIMINGS_INVALID: 400,
+  NOTIFY_QUOTA_EXCEEDED: 409,
+  ACTIVATION_TIMINGS_REQUIRED: 409,
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

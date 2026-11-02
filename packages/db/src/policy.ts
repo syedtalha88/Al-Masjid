@@ -157,6 +157,11 @@ const itemCheck = (fields: Readonly<Record<string, unknown>>): string | undefine
   const guarded = ITEM_MODERATION_FIELDS.find((field) => field in fields);
   return guarded ? `${guarded} is set by moderation / retention only` : undefined;
 };
+/** An outbox job starts pending with nothing sent (the worker moves it on — Phase 4). */
+const pendingJob = (fields: Readonly<Record<string, unknown>>): string | undefined =>
+  fields['status'] === 'pending' && fields['sent'] === 0 && fields['failed'] === 0 && fields['bypass_quota'] === false
+    ? undefined
+    : 'a new notification job is pending, with nothing sent and no quota bypass';
 /** Generic item updates never touch a removed item (no un-removing). */
 const notRemoved = { status: { $ne: 'removed' } };
 
@@ -322,8 +327,20 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
       delete: { filter: selfAdmin('admin_id') },
     },
   },
-  notification_jobs: { admin: { find: { filter: own('masjid_id') } }, super: { find: S } },
-  push_quota_usage: { admin: { find: { filter: own('masjid_id') } }, super: { find: S } },
+  // The publish transaction runs as the admin: it counts the notification and writes the pending outbox job (DECISIONS #9,
+  // #115). Jobs are insert-only and start pending; only the quota's `count` ever changes.
+  notification_jobs: {
+    admin: { find: { filter: own('masjid_id') }, insert: { filter: own('masjid_id'), check: pendingJob } },
+    super: { find: S },
+  },
+  push_quota_usage: {
+    admin: {
+      find: { filter: own('masjid_id') },
+      insert: { filter: own('masjid_id') },
+      update: { filter: own('masjid_id'), writable: ['count'] },
+    },
+    super: { find: S },
+  },
   reports: {
     device: { insert: { filter: selfDevice('device_id') } },
     admin: { find: { filter: own('masjid_id'), hidden: ['device_id'] } },

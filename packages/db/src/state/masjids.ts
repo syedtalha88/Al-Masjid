@@ -5,6 +5,7 @@ import { Long, type UUID } from 'mongodb';
 
 import { type DbHandle, type TxContext, withTransaction } from '../client.ts';
 import { bumpMasjidVersion, StateError, withFollowCode, writeAudit } from '../effects.ts';
+import { PRAYER } from '../schema/enums.ts';
 import type { Scope } from '../scope.ts';
 import { newId } from '../values.ts';
 import { requireSuper } from './guards.ts';
@@ -188,4 +189,13 @@ async function assertActivatable(ctx: TxContext, masjidId: UUID): Promise<void> 
       session,
     );
   if (ready === 0) throw new StateError('ACTIVATION_REQUIREMENTS');
+  // PHASE_03 T3.2: followers must see a jamaat time for every prayer from day one.
+  const timings = await ctx.db
+    .collection<{ _id: UUID; prayers?: Record<string, { jamaat_mode?: string } | undefined> }>('masjid_timings')
+    .findOne({ _id: masjidId }, session);
+  const set = PRAYER.every((name) => {
+    const mode = timings?.prayers?.[name]?.jamaat_mode;
+    return mode === 'fixed' || mode === 'offset';
+  });
+  if (!set) throw new StateError('ACTIVATION_TIMINGS_REQUIRED');
 }

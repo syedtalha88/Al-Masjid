@@ -9,7 +9,13 @@ import { MIGRATIONS } from '@mc/db/migrations';
 import { registerCredential } from '@mc/db/state';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '@mc/db/testing';
 import { ManualClock } from '@mc/shared/clock';
-import { adminMasjidStatsSchema, adminScheduleSchema, pushQuotaSchema } from '@mc/shared/contracts';
+import {
+  adminMasjidStatsSchema,
+  adminScheduleSchema,
+  pushQuotaSchema,
+  timingsPreviewSchema,
+  timingsSavedSchema,
+} from '@mc/shared/contracts';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -104,6 +110,10 @@ beforeAll(async () => {
   other = await masjid('Test Masjid Other');
   const admin = await asSuper('/admins', { displayName: 'Test Admin', uiLocale: 'en', masjidId: own, role: 'owner' });
   adminCookie = await register((admin.body as { inviteUrl: string }).inviteUrl);
+  // Writes need the accepted undertaking (B2); the reads above are exempt.
+  const settings = await request(app()).get('/api/super/settings').set('Cookie', superCookie);
+  const version = (settings.body as { undertakingVersion: string }).undertakingVersion;
+  await request(app()).post('/api/admin/auth/undertaking').set(CSRF).set('Cookie', adminCookie).send({ version });
 });
 
 afterAll(async () => {
@@ -152,5 +162,85 @@ describe('masjid-scoped Admin Home reads (T3.1)', () => {
   it('without a session: 401', async () => {
     const response = await request(app()).get(`/api/admin/masjids/${own}/stats`);
     expect(response.status).toBe(401);
+  });
+});
+
+describe('timings editor API (T3.2)', () => {
+  const offset = (jamaatOffsetMin: number) => ({
+    adhanMode: 'auto',
+    adhanAdjustMin: 0,
+    jamaatMode: 'offset',
+    jamaatOffsetMin,
+  });
+  const BODY = {
+    prayers: { fajr: offset(20), dhuhr: offset(15), asr: offset(15), maghrib: offset(5), isha: offset(15) },
+    jumuah: [{ seq: 1, khutbahTime: '13:00', jamaatTime: '13:30' }],
+    notify: false,
+  };
+  const put = (body: object, ifMatch?: string, path = own, cookie = adminCookie) => {
+    const call = request(app()).put(`/api/admin/masjids/${path}/timings`).set('Cookie', cookie).set(CSRF);
+    return (ifMatch === undefined ? call : call.set('If-Match', ifMatch)).send(body);
+  };
+
+  it('the first save needs If-Match "0"; then the rev moves on and a stale one gets 412', async () => {
+    expect((await put(BODY)).status).toBe(400); // no If-Match
+    expect((await put(BODY, 'W/"abc"')).status).toBe(400);
+    const first = await put(BODY, '"0"');
+    expect(first.status).toBe(200);
+    expect(timingsSavedSchema.parse(first.body)).toEqual({ rev: 1, item: null });
+    const schedule = adminScheduleSchema.parse((await get(`/${own}/timings`)).body);
+    expect(schedule.rev).toBe(1);
+    expect(schedule.timings?.prayers.maghrib).toEqual(BODY.prayers.maghrib);
+    const stale = await put(BODY, '"0"');
+    expect({ status: stale.status, code: (stale.body as { code?: string }).code }).toEqual({
+      status: 412,
+      code: 'PRECONDITION_FAILED',
+    });
+    expect((await put(BODY, '1')).status).toBe(200); // quotes are optional
+  });
+
+  it('mode rules and the 00 §4.2 rules are refused with problem+json', async () => {
+    const rev = adminScheduleSchema.parse((await get(`/${own}/timings`)).body).rev;
+    // fixed jamaat without its time
+    const missing = await put(
+      { ...BODY, prayers: { ...BODY.prayers, asr: { adhanMode: 'auto', adhanAdjustMin: 0, jamaatMode: 'fixed' } } },
+      String(rev),
+    );
+    expect(missing.status).toBe(400);
+    expect((missing.body as { code?: string }).code).toBe('VALIDATION_FAILED');
+    // Isha before Maghrib
+    const isha = {
+      adhanMode: 'manual',
+      adhanTime: '17:00',
+      adhanAdjustMin: 0,
+      jamaatMode: 'fixed',
+      jamaatTime: '17:05',
+    };
+    const broken = await put({ ...BODY, prayers: { ...BODY.prayers, isha } }, String(rev));
+    expect({ status: broken.status, code: (broken.body as { code?: string }).code }).toEqual({
+      status: 400,
+      code: 'TIMINGS_INVALID',
+    });
+    // another masjid
+    expect((await put(BODY, String(rev), other)).status).toBe(404);
+  });
+
+  it('notify publishes a timing update and counts against today’s quota', async () => {
+    const rev = adminScheduleSchema.parse((await get(`/${own}/timings`)).body).rev;
+    const saved = await put({ ...BODY, notify: true }, String(rev));
+    expect(saved.status).toBe(200);
+    expect(timingsSavedSchema.parse(saved.body).item?.publicId).toMatch(/^[A-Za-z0-9_-]{12}$/);
+    expect(pushQuotaSchema.parse((await get(`/${own}/notifications/quota`)).body).used).toBe(1);
+  });
+
+  it('preview: the saved timings resolved for a day', async () => {
+    const preview = await get(`/${own}/timings/preview?date=2026-10-17`);
+    expect(preview.status).toBe(200);
+    const day = timingsPreviewSchema.parse(preview.body);
+    expect(day.date).toBe('2026-10-17');
+    expect(day.prayers.map((p) => p.prayer)).toEqual(['fajr', 'dhuhr', 'asr', 'maghrib', 'isha']);
+    expect(day.prayers.every((p) => p.calculated && p.jamaat !== null && p.jamaat >= p.adhan)).toBe(true);
+    expect((await get(`/${own}/timings/preview?date=17-10-2026`)).status).toBe(400);
+    expect((await get(`/${other}/timings/preview?date=2026-10-17`)).status).toBe(404);
   });
 });

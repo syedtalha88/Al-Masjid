@@ -16,6 +16,7 @@ const none = { adhanMode: 'auto' as const, adhanAdjustMin: 0, jamaatMode: 'none'
 const schedule = (timings: AdminSchedule['timings']): AdminSchedule => ({
   masjid: { name: 'Test Masjid Alpha', lat: 17.385, lng: 78.4867, calcMethod: 'karachi', asrMadhab: 'hanafi' },
   timings,
+  rev: timings ? 1 : 0,
 });
 
 const ALL_FIXED = schedule({
