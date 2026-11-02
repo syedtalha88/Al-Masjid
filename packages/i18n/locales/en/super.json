@@ -70,7 +70,7 @@
     "followers": "{count, plural, one {# follower} other {# followers}}",
     "followCode": "Follow code",
     "activate": "Activate",
-    "activateHint": "Needs at least one admin who has logged in and accepted the undertaking.",
+    "activateHint": "Needs at least one admin who has logged in and accepted the undertaking, and all five jamaat times set.",
     "suspend": "Suspend",
     "unsuspend": "Unsuspend",
     "delete": "Delete masjid",

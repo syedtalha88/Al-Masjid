@@ -73,16 +73,37 @@ test.describe('masjid onboarding (T1.11)', () => {
       await expect(adminPage.getByText(masjidName).first()).toBeVisible();
       const body = (await (await me(adminPage)).json()) as {
         undertakingRequired: boolean;
-        masjids: { name: string }[];
+        masjids: { id: string; name: string }[];
       };
       expect(body.undertakingRequired).toBe(false);
       expect(body.masjids.map((m) => m.name)).toEqual([masjidName]);
+
+      // Back on the Super Admin's screen: not yet — the five jamaat times are missing (PHASE_03 T3.2).
+      await page.reload();
+      await page.getByRole('button', { name: 'Activate' }).click();
+      const confirm = page.getByRole('dialog', { name: 'Confirm it’s you' });
+      if (await confirm.isVisible().catch(() => false)) await confirm.getByRole('button', { name: 'Confirm' }).click();
+      await expect(page.getByRole('alert')).toHaveText(
+        'This masjid can be activated once all five jamaat times are set.',
+      );
+
+      // The admin saves the timings (the editor's own journey is e2e/admin/timings.spec.ts).
+      const masjidId = body.masjids[0]?.id ?? '';
+      const offset = { adhanMode: 'auto', adhanAdjustMin: 0, jamaatMode: 'offset', jamaatOffsetMin: 10 };
+      const saved = await adminPage.request.put(`${ADMIN_URL}/api/admin/masjids/${masjidId}/timings`, {
+        headers: { 'X-MC-CSRF': '1', Origin: ADMIN_URL, 'If-Match': '"0"' },
+        data: {
+          prayers: { fajr: offset, dhuhr: offset, asr: offset, maghrib: offset, isha: offset },
+          jumuah: [{ seq: 1, jamaatTime: '13:30' }],
+          notify: false,
+        },
+      });
+      expect(saved.status()).toBe(200);
     } finally {
       await phone.close();
     }
 
-    // Back on the Super Admin's screen: the masjid can now be activated.
-    await page.reload();
+    // Now the masjid can be activated.
     await page.getByRole('button', { name: 'Activate' }).click();
     const confirm = page.getByRole('dialog', { name: 'Confirm it’s you' });
     if (await confirm.isVisible().catch(() => false)) await confirm.getByRole('button', { name: 'Confirm' }).click();
