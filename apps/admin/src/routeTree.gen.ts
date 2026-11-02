@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
+import { Route as TimingsRouteImport } from './routes/timings'
 import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase'
 import { Route as SoonTileRouteImport } from './routes/soon.$tile'
 import { Route as SuperIndexRouteImport } from './routes/super.index'
@@ -35,6 +36,11 @@ const IndexRoute = IndexRouteImport.update({
 const AccountRoute = AccountRouteImport.update({
   id: '/account',
   path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TimingsRoute = TimingsRouteImport.update({
+  id: '/timings',
+  path: '/timings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DevShowcaseRoute = DevShowcaseRouteImport.update({
@@ -116,6 +122,7 @@ const SuperMasjidsIdEditRoute = SuperMasjidsIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/soon/$tile': typeof SoonTileRoute
   '/super/audit': typeof SuperAuditRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/soon/$tile': typeof SoonTileRoute
   '/super/audit': typeof SuperAuditRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/soon/$tile': typeof SoonTileRoute
   '/super/audit': typeof SuperAuditRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/account'
+    | '/timings'
     | '/_dev/showcase'
     | '/soon/$tile'
     | '/super/audit'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/account'
+    | '/timings'
     | '/_dev/showcase'
     | '/soon/$tile'
     | '/super/audit'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/account'
+    | '/timings'
     | '/_dev/showcase'
     | '/soon/$tile'
     | '/super/audit'
@@ -234,6 +246,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRoute
+  TimingsRoute: typeof TimingsRoute
   DevShowcaseRoute: typeof DevShowcaseRoute
   SoonTileRoute: typeof SoonTileRoute
   SuperAuditRoute: typeof SuperAuditRoute
@@ -264,6 +277,13 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/account'
       preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/timings': {
+      id: '/timings'
+      path: '/timings'
+      fullPath: '/timings'
+      preLoaderRoute: typeof TimingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_dev/showcase': {
@@ -389,6 +409,7 @@ const SuperMasjidsIdRouteWithChildren = SuperMasjidsIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
+  TimingsRoute: TimingsRoute,
   DevShowcaseRoute: DevShowcaseRoute,
   SoonTileRoute: SoonTileRoute,
   SuperAuditRoute: SuperAuditRoute,

@@ -82,6 +82,70 @@ admin,account.linkCopied,Link copied,లింక్ కాపీ అయిం�
 admin,account.shareWhatsApp,Send on WhatsApp,వాట్సాప్‌లో పంపండి,no
 admin,account.whatsAppMessage,My Masjid Connect admin login link: {url},నా మస్జిద్ కనెక్ట్ అడ్మిన్ లాగిన్ లింక్: {url},no
 admin,account.undertaking,Admin undertaking,అడ్మిన్ హామీ పత్రం,no
+admin,timings.prevDay,Previous day,ముందు రోజు,no
+admin,timings.nextDay,Next day,తర్వాతి రోజు,no
+admin,timings.pickDay,Choose a day,రోజు ఎంచుకోండి,no
+admin,timings.title,Prayer Times,నమాజ్ సమయాలు,no
+admin,timings.adhan,Adhan,అజాన్,no
+admin,timings.jamaat,Jamaat,జమాత్,no
+admin,timings.calculated,Calculated,లెక్కించినది,no
+admin,timings.setByYou,Set by you,మీరు సెట్ చేశారు,no
+admin,timings.notSet,Not set,సెట్ చేయలేదు,no
+admin,timings.minutesAfter,{minutes} min after adhan,అజాన్ తర్వాత {minutes} నిమి,no
+admin,timings.adhanSheet,{prayer} adhan,{prayer} అజాన్,no
+admin,timings.jamaatSheet,{prayer} jamaat,{prayer} జమాత్,no
+admin,timings.modeAuto,Calculated,లెక్కించినది,no
+admin,timings.modeManual,Set time,సమయం ఎంచుకోండి,no
+admin,timings.modeFixed,Fixed time,నిర్ణీత సమయం,no
+admin,timings.modeOffset,After adhan,అజాన్ తర్వాత,no
+admin,timings.modeLabel,How it is set,ఎలా సెట్ చేయాలి,no
+admin,timings.adjust,Adjust the calculated time,లెక్కించిన సమయాన్ని మార్చండి,no
+admin,timings.asCalculated,As calculated,లెక్కించినట్లే,no
+admin,timings.later,{minutes} min later,{minutes} నిమి ఆలస్యంగా,no
+admin,timings.earlier,{minutes} min earlier,{minutes} నిమి ముందుగా,no
+admin,timings.oneEarlier,1 minute earlier,1 నిమిషం ముందు,no
+admin,timings.oneLater,1 minute later,1 నిమిషం తర్వాత,no
+admin,timings.oneLess,1 minute less,1 నిమిషం తక్కువ,no
+admin,timings.oneMore,1 minute more,1 నిమిషం ఎక్కువ,no
+admin,timings.offsetValue,{minutes} minutes after adhan,అజాన్ తర్వాత {minutes} నిమిషాలు,no
+admin,timings.today,Today: {time},ఈరోజు: {time},no
+admin,timings.done,Done,పూర్తయింది,no
+admin,timings.jumuah,Jumu’ah,జుమా,no
+admin,timings.jumuahN,Jamaat {n},జమాత్ {n},no
+admin,timings.khutbah,Khutbah,ఖుత్బా,no
+admin,timings.khutbahSheet,Khutbah before jamaat {n},జమాత్ {n} ముందు ఖుత్బా,no
+admin,timings.jumuahSheet,Jumu’ah jamaat {n},జుమా జమాత్ {n},no
+admin,timings.noKhutbah,No khutbah time,ఖుత్బా సమయం లేదు,no
+admin,timings.addJumuah,Add a Jumu’ah jamaat,జుమా జమాత్ జోడించండి,no
+admin,timings.removeJumuah,Remove jamaat {n},జమాత్ {n} తొలగించండి,no
+admin,timings.issue.jamaat_before_adhan,Jamaat is before adhan,జమాత్ అజాన్ కంటే ముందు ఉంది,no
+admin,timings.issue.isha_before_maghrib,Isha is before Maghrib,ఇషా మగ్రిబ్ కంటే ముందు ఉంది,no
+admin,timings.issue.fajr_jamaat_after_sunrise,Fajr jamaat is after sunrise,ఫజ్ర్ జమాత్ సూర్యోదయం తర్వాత ఉంది,no
+admin,timings.issue.jumuah_before_khutbah,Jamaat is before the khutbah,జమాత్ ఖుత్బా కంటే ముందు ఉంది,no
+admin,timings.issueFrom,{issue} (from {date}),{issue} ({date} నుండి),no
+admin,timings.needAll,Set all five jamaat times so your masjid can go live.,మీ మస్జిద్ ప్రారంభం కావడానికి ఐదు జమాత్ సమయాలు సెట్ చేయండి.,no
+admin,timings.preview,Preview,ప్రివ్యూ,no
+admin,timings.previewTitle,How followers will see it,ఫాలోవర్లకు ఇలా కనిపిస్తుంది,no
+admin,timings.showIn,Show in,ఇందులో చూపించు,no
+admin,timings.notify,Notify followers,ఫాలోవర్లకు తెలియజేయండి,no
+admin,timings.quota,{left} of {limit} left today,ఈరోజు {limit}లో {left} మిగిలాయి,no
+admin,timings.save,Save timings,సమయాలు సేవ్ చేయండి,no
+admin,timings.confirmTitle,Save these timings?,ఈ సమయాలు సేవ్ చేయాలా?,no
+admin,timings.confirmToday,What changes today,ఈరోజు ఏం మారుతుంది,no
+admin,timings.noChangeToday,Nothing changes today. The new times start on later days.,ఈరోజు ఏమీ మారదు. కొత్త సమయాలు తర్వాతి రోజుల నుండి అమలవుతాయి.,no
+admin,timings.willNotify,Followers will be notified.,ఫాలోవర్లకు తెలియజేయబడుతుంది.,no
+admin,timings.willNotNotify,Followers will not be notified.,ఫాలోవర్లకు తెలియజేయబడదు.,no
+admin,timings.confirmSave,Save,సేవ్ చేయండి,no
+admin,timings.changeLine,{name} {part}: {from} → {to},{name} {part}: {from} → {to},no
+admin,timings.conflictTitle,Someone else changed the timings,వేరొకరు సమయాలు మార్చారు,no
+admin,timings.conflictBody,Another admin saved new timings while you were editing. Load the latest timings and make your change again.,మీరు మార్చుతున్నప్పుడు మరో అడ్మిన్ కొత్త సమయాలు సేవ్ చేశారు. తాజా సమయాలు లోడ్ చేసి మీ మార్పు మళ్లీ చేయండి.,no
+admin,timings.loadLatest,Load the latest,తాజా సమయాలు లోడ్ చేయండి,no
+admin,timings.quotaTitle,No notifications left today,ఈరోజు నోటిఫికేషన్లు అయిపోయాయి,no
+admin,timings.quotaBody,You can still save. Followers will see the new times when they open the app.,మీరు ఇంకా సేవ్ చేయవచ్చు. ఫాలోవర్లు యాప్ తెరిచినప్పుడు కొత్త సమయాలు చూస్తారు.,no
+admin,timings.saveWithout,Save without notifying,తెలియజేయకుండా సేవ్ చేయండి,no
+admin,timings.saved,Saved,సేవ్ అయింది,no
+admin,timings.savedNotified,Your followers will be notified.,మీ ఫాలోవర్లకు తెలియజేయబడుతుంది.,no
+admin,timings.savedQuiet,Followers will see the new times.,ఫాలోవర్లు కొత్త సమయాలు చూస్తారు.,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no

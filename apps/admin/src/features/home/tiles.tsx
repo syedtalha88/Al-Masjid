@@ -21,7 +21,7 @@ import type { ReactNode } from 'react';
  * (`null` → "Coming soon" for now).
  */
 const TILE_LIST = [
-  { key: 'prayerTimes', icon: <ClockIcon size={28} />, tone: 'primary', phase: 3, route: null },
+  { key: 'prayerTimes', icon: <ClockIcon size={28} />, tone: 'primary', phase: 3, route: '/timings' },
   { key: 'notice', icon: <MegaphoneIcon size={28} />, tone: 'danger', phase: 3, route: null },
   { key: 'hadithAyah', icon: <BookOpenIcon size={28} />, tone: 'info', phase: 3, route: null },
   { key: 'dua', icon: <HandsPrayingIcon size={28} />, tone: 'rose', phase: 3, route: null },

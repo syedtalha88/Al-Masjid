@@ -82,6 +82,70 @@ admin,account.linkCopied,Link copied,लिंक कॉपी हो गया,
 admin,account.shareWhatsApp,Send on WhatsApp,व्हाट्सऐप पर भेजें,no
 admin,account.whatsAppMessage,My Masjid Connect admin login link: {url},मेरा मस्जिद कनेक्ट एडमिन लॉग इन लिंक: {url},no
 admin,account.undertaking,Admin undertaking,एडमिन वचन-पत्र,no
+admin,timings.prevDay,Previous day,पिछला दिन,no
+admin,timings.nextDay,Next day,अगला दिन,no
+admin,timings.pickDay,Choose a day,दिन चुनें,no
+admin,timings.title,Prayer Times,नमाज़ के समय,no
+admin,timings.adhan,Adhan,अज़ान,no
+admin,timings.jamaat,Jamaat,जमात,no
+admin,timings.calculated,Calculated,गणना से,no
+admin,timings.setByYou,Set by you,आपने सेट किया,no
+admin,timings.notSet,Not set,सेट नहीं,no
+admin,timings.minutesAfter,{minutes} min after adhan,अज़ान के {minutes} मिनट बाद,no
+admin,timings.adhanSheet,{prayer} adhan,{prayer} की अज़ान,no
+admin,timings.jamaatSheet,{prayer} jamaat,{prayer} की जमात,no
+admin,timings.modeAuto,Calculated,गणना से,no
+admin,timings.modeManual,Set time,समय चुनें,no
+admin,timings.modeFixed,Fixed time,तय समय,no
+admin,timings.modeOffset,After adhan,अज़ान के बाद,no
+admin,timings.modeLabel,How it is set,कैसे सेट करें,no
+admin,timings.adjust,Adjust the calculated time,गणना वाला समय बदलें,no
+admin,timings.asCalculated,As calculated,जैसा गणना में है,no
+admin,timings.later,{minutes} min later,{minutes} मिनट बाद,no
+admin,timings.earlier,{minutes} min earlier,{minutes} मिनट पहले,no
+admin,timings.oneEarlier,1 minute earlier,1 मिनट पहले,no
+admin,timings.oneLater,1 minute later,1 मिनट बाद,no
+admin,timings.oneLess,1 minute less,1 मिनट कम,no
+admin,timings.oneMore,1 minute more,1 मिनट ज़्यादा,no
+admin,timings.offsetValue,{minutes} minutes after adhan,अज़ान के {minutes} मिनट बाद,no
+admin,timings.today,Today: {time},आज: {time},no
+admin,timings.done,Done,हो गया,no
+admin,timings.jumuah,Jumu’ah,जुमा,no
+admin,timings.jumuahN,Jamaat {n},जमात {n},no
+admin,timings.khutbah,Khutbah,ख़ुत्बा,no
+admin,timings.khutbahSheet,Khutbah before jamaat {n},जमात {n} से पहले ख़ुत्बा,no
+admin,timings.jumuahSheet,Jumu’ah jamaat {n},जुमा की जमात {n},no
+admin,timings.noKhutbah,No khutbah time,ख़ुत्बे का समय नहीं,no
+admin,timings.addJumuah,Add a Jumu’ah jamaat,जुमा की जमात जोड़ें,no
+admin,timings.removeJumuah,Remove jamaat {n},जमात {n} हटाएँ,no
+admin,timings.issue.jamaat_before_adhan,Jamaat is before adhan,जमात अज़ान से पहले है,no
+admin,timings.issue.isha_before_maghrib,Isha is before Maghrib,इशा मग़रिब से पहले है,no
+admin,timings.issue.fajr_jamaat_after_sunrise,Fajr jamaat is after sunrise,फ़ज्र की जमात सूर्योदय के बाद है,no
+admin,timings.issue.jumuah_before_khutbah,Jamaat is before the khutbah,जमात ख़ुत्बे से पहले है,no
+admin,timings.issueFrom,{issue} (from {date}),{issue} ({date} से),no
+admin,timings.needAll,Set all five jamaat times so your masjid can go live.,पाँचों जमात के समय सेट करें ताकि आपकी मस्जिद शुरू हो सके।,no
+admin,timings.preview,Preview,झलक,no
+admin,timings.previewTitle,How followers will see it,फ़ॉलोअर्स को ऐसा दिखेगा,no
+admin,timings.showIn,Show in,इसमें दिखाएँ,no
+admin,timings.notify,Notify followers,फ़ॉलोअर्स को सूचना दें,no
+admin,timings.quota,{left} of {limit} left today,आज {limit} में से {left} बाक़ी,no
+admin,timings.save,Save timings,समय सेव करें,no
+admin,timings.confirmTitle,Save these timings?,ये समय सेव करें?,no
+admin,timings.confirmToday,What changes today,आज क्या बदलेगा,no
+admin,timings.noChangeToday,Nothing changes today. The new times start on later days.,आज कुछ नहीं बदलेगा। नए समय आगे के दिनों से लागू होंगे।,no
+admin,timings.willNotify,Followers will be notified.,फ़ॉलोअर्स को सूचना मिलेगी।,no
+admin,timings.willNotNotify,Followers will not be notified.,फ़ॉलोअर्स को सूचना नहीं मिलेगी।,no
+admin,timings.confirmSave,Save,सेव करें,no
+admin,timings.changeLine,{name} {part}: {from} → {to},{name} {part}: {from} → {to},no
+admin,timings.conflictTitle,Someone else changed the timings,किसी और ने समय बदल दिए,no
+admin,timings.conflictBody,Another admin saved new timings while you were editing. Load the latest timings and make your change again.,आपके बदलाव के दौरान किसी दूसरे एडमिन ने नए समय सेव किए। नए समय लोड करें और अपना बदलाव फिर से करें।,no
+admin,timings.loadLatest,Load the latest,नए समय लोड करें,no
+admin,timings.quotaTitle,No notifications left today,आज की सूचनाएँ ख़त्म,no
+admin,timings.quotaBody,You can still save. Followers will see the new times when they open the app.,आप फिर भी सेव कर सकते हैं। फ़ॉलोअर्स ऐप खोलने पर नए समय देखेंगे।,no
+admin,timings.saveWithout,Save without notifying,सूचना के बिना सेव करें,no
+admin,timings.saved,Saved,सेव हो गया,no
+admin,timings.savedNotified,Your followers will be notified.,आपके फ़ॉलोअर्स को सूचना मिलेगी।,no
+admin,timings.savedQuiet,Followers will see the new times.,फ़ॉलोअर्स नए समय देखेंगे।,no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no
