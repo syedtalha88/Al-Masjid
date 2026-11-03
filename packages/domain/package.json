@@ -16,6 +16,7 @@
     "./prayer": "./src/prayer.ts",
     "./rotation": "./src/rotation.ts",
     "./search": "./src/search.ts",
+    "./special": "./src/special.ts",
     "./thumbhash": "./src/thumbhash.ts",
     "./time": "./src/time.ts",
     "./timings": "./src/timings.ts"
