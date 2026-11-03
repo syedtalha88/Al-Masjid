@@ -5,20 +5,18 @@ import { effectiveHijriOffset, toHijri } from '@mc/domain/hijri';
 import { nextJamaat, resolveSchedule } from '@mc/domain/prayer';
 import { addDays, calendarDateInZone, compareCalendarDates } from '@mc/domain/time';
 import { directionOf } from '@mc/i18n/locales';
-import { Bdi, useHijriLabel, useLocale, useTranslation } from '@mc/i18n/react';
+import { useHijriLabel, useLocale, useTranslation } from '@mc/i18n/react';
 import type { ActiveMasjidBundle } from '@mc/shared/contracts/public';
 import {
   DatePickerSheet,
   DateStepper,
-  IconCircle,
   InfoNote,
   JumuahCard,
   TabPanels,
   UnderlineTabs,
   usePrayerName,
 } from '@mc/ui/components';
-import { DayTimings } from '@mc/ui/content';
-import { CrescentIcon } from '@mc/ui/icons';
+import { DayTimings, SpecialDateCard } from '@mc/ui/content';
 import { crossfadeIn, slideIn, useMotionPrefs } from '@mc/ui/motion';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -128,31 +126,7 @@ export function TimingsContent({ bundle, now }: { readonly bundle: ActiveMasjidB
                 <li key={group.date} className="flex flex-col gap-2">
                   <h3 className="type-subhead-strong text-text-secondary">{format.calendarDate(group.date, 'long')}</h3>
                   {group.items.map((special) => (
-                    <div key={special.id} className="flex items-start gap-3 rounded-lg bg-surface p-3 shadow-e1">
-                      <IconCircle tone="primary" size={44}>
-                        <CrescentIcon />
-                      </IconCircle>
-                      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                        <p className="type-headline text-text">
-                          {t(`special.${special.type}`)}
-                          {special.label ? (
-                            <span className="type-callout text-text-secondary"> · {special.label}</span>
-                          ) : null}
-                        </p>
-                        <p className="flex flex-wrap gap-1.5">
-                          {special.times.map((entry) => (
-                            <span
-                              key={`${entry.time}-${entry.label ?? ''}`}
-                              className="rounded-full bg-mint-50 px-3 py-1 type-caption text-primary-800"
-                            >
-                              <Bdi>{format.time(entry.time).text}</Bdi>
-                              {entry.label ? ` · ${entry.label}` : ''}
-                            </span>
-                          ))}
-                        </p>
-                        {special.note ? <p className="type-footnote text-text-secondary">{special.note}</p> : null}
-                      </div>
-                    </div>
+                    <SpecialDateCard key={special.id} special={special} />
                   ))}
                 </li>
               ))}
