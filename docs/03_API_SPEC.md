@@ -92,8 +92,8 @@ Non-API routes on the app origin: `/m/:code` (SPA route — landing/follow), `/p
 |---|---|
 | Profile | `GET /` · `PATCH /` (allowed fields only) · `POST /photo` (multipart ≤ 10 MB → re-encode) |
 | Timings | `GET /timings` · `PUT /timings` (all five + jumu'ah atomically in one document, `If-Match: <rev>` → 412 on conflict, `notify` flag) · `GET /timings/preview?date=` (resolved times for a date) |
-| Special dates | `GET /special` · `POST /special` · `PATCH /special/:id` · `DELETE /special/:id` |
-| Ramadan | `PUT /ramadan` `{start, end, sehriPrecaution, iftarPrecaution}` |
+| Special dates | `GET /special` (from 30 days ago, by date) · `POST /special` · `PATCH /special/:id` (the whole entry; a label/note left out is removed) · `DELETE /special/:id` (soft) — body `{type, date, label?, times[1..5]{time, label?}, note?, notify}` (#117) |
+| Ramadan | `GET /ramadan` · `PUT /ramadan` `{start, end, sehriPrecaution, iftarPrecaution}` (start/end both `null` = off; ≤ 30 days — #117) |
 | Items | `GET /items?type=&status=&cursor=` · `POST /items/announcement` · `POST /items/daily-content` · `POST /items/dua` · `PATCH /items/:id` (If-Match `updated_at`; ≤ 24h after publish) · `DELETE /items/:id` |
 | Campaigns | `POST /campaigns` · `PATCH /campaigns/:id` · `POST /campaigns/:id/received` `{receivedPaise}` · `POST /campaigns/:id/complete` |
 | Chanda | `GET /chanda` · `PUT /chanda/:weekStart` `{amountPaise, note?, notify}` · `PATCH /chanda/settings` `{show, weekStart}` |

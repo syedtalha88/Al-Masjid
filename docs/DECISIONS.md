@@ -1526,4 +1526,45 @@ counted with a conditional update and a race ends in `NOTIFY_QUOTA_EXCEEDED`, ro
 already-sent, quota-bypassing or other-masjid job, nor change a job or a quota day. Enqueueing to BullMQ after commit
 and the outbox sweeper stay Phase 4 (pending jobs simply wait).
 
+### #116 — Budgets are soft: T3.0 accepted with a recorded tolerance (PHASE_03 T3.0) — ACCEPTED (owner, 3 Nov 2026)
+**Context:** after #105, #109, #110 and #114 the real-screen perf spec (`e2e/app/screens.perf.spec.ts`) was borderline
+in CI: green on `1b12d73`, `1165371`, `cb1649a` and `b72a5c5`, red on `74b1749` (sheet open 51.6 / 61.5 ms, fixed by
+#114) and `58e9391` (push/pop long tasks 52–63 ms, ≈ 50 ms of React work; tab switches 7 % dropped frames) against
+08 §8's 50 ms / 5 %. The owner had said the same about size budgets on 24 Oct 2026 (O24).
+**Decision (owner, 3 Nov 2026):** "I accept the T3.0 with a small tolerance. It's okay if it is lagging by some ms. We
+don't want to compromise on quality … a few KBs or a few ms are manageable and acceptable." The real-screen spec fails
+only beyond **65 ms** long tasks / **8 %** dropped frames (constant `TOLERANCE` in the spec, with this entry's number).
+Forced layouts inside animation frames stay a hard failure; the navigator (T0.9) and Updates-fling (T2.10) specs keep
+the strict 08 §8 numbers. Bundle budgets work the same way: a raise of a few kB is recorded in `.size-limit.js` and
+here, not optimised away at the cost of quality.
+**Consequences:** T3.0 is done. A measurement between the strict number and the tolerance is not a task; one beyond
+it is. The real low-end check stays the owner's (O16, "looks good" 27 Oct 2026).
+
+### #117 — Special dates & Ramadan: rules, API shape, notify, and stale-while-loading bundles (PHASE_03 T3.3) — ACCEPTED (Claude Code, 3 Nov 2026)
+**Context:** 00 §4.2 and 07 B11 give the fields; 03 §4 lists `GET/POST/PATCH/DELETE /special` and `PUT /ramadan`
+without the read of Ramadan settings, the PATCH semantics, the length limits of Ramadan mode or what "Save (+ notify)"
+publishes. The acceptance journey also found that every version bump blanked the musalli screens for a moment.
+**Decision:**
+- Rules in `@mc/domain/special` (screen live checks = data layer): 1–5 times per day, no time twice; the date within
+  ±400 days of today (IST); Ramadan mode start ≤ end, at most **30 days** (start and end included), both within the
+  same window, start/end set together (both `null` = off; the precautions stay). Codes `SPECIAL_DATE_INVALID`,
+  `SPECIAL_DATE_NOT_FOUND`, `RAMADAN_INVALID`.
+- `PATCH /special/:id` takes the **whole entry** (the B11 form always has it): a label or note left out is removed.
+  Delete is soft (`deleted_at`; the public view hides it). The admin list starts 30 days back (recent days stay
+  editable, under "Past"). Added `GET /ramadan` (`{start, end, sehriPrecaution, iftarPrecaution}`, the `PUT` body's
+  shape) — the screen needs the saved state; 03 §4 updated.
+- "Notify followers" on a special date publishes a `timing_update` item with the new **system** template
+  `special_timings` (param `date`, 17th starter, texts in 4 locales for review) and its pending outbox job — the
+  shared `publishTimingUpdate` (also used by `saveTimings`). It starts **on** for today or tomorrow, off otherwise —
+  00 §4.2's rule for timing changes. Saving Ramadan mode never notifies (not asked for; the Ramadan card appears by
+  itself).
+- The musalli special-date card moved to `@mc/ui/content` (`SpecialDateCard`) so B11's preview is the real card (#113).
+- **Bug fixed (musalli):** `useQueries` gives a changed key (`['bundle', id, v]`) a new observer, so after every
+  version bump the screens saw "loading" until the new bundle arrived — Home's card blanked and the A6 tab jumped back
+  to Daily. The placeholder is now the newest cached older bundle of the same masjid (`previousBundle`), and pruning
+  keeps an old bundle until the new version has loaded (Home prunes again once it has).
+**Consequences:** db 13 / api 4 integration tests, domain 8, admin 9, app +2 unit tests; e2e B11 journey (musalli
+sees the entry and the Eid card after one poll, delete, Ramadan card) and B11 × 4 locales screenshots + axe. A
+special date's label/note in the musalli card has no `dir="auto"` yet — part of F49 (next baseline refresh).
+
 _None — every decision is ACCEPTED (23 Oct 2026)._
