@@ -26,8 +26,14 @@ staging = `cdd39fa` — nothing deployed. Done today: **T3.0** (owner accepted w
 
 **Do first:**
 1. **Check CI of the newest `ci/phase-03` push** (T3.3 + the T3.0 tolerance). Red → read the annotations.
-2. **Next task: T3.6** notice creator (B5) + image pipeline (Cloudinary keys local in `.env.local.api-admin`; staging
-   keys to the VPS env files at this task — ask the owner). Then T3.7–T3.10, T3.13–T3.17, T3.12.
+2. **Continue T3.6** (part 1 done — #119): next `POST /items/announcement` (data layer `publishAnnouncement` with
+   `insertPublishedItem` + `enqueueNotification`; audit action `item.publish`; validate template params by type and that
+   `imageKey` starts with `m/<own masjid>/`), then the B5 3-step screen (template grid → pickers → `PreviewFrame` +
+   `PublishBar` + `PublishSuccess`; photo via `POST /images` with the ownership tick), journey 7. Then T3.7–T3.10,
+   T3.13–T3.17, T3.12.
+3. **Owner settings (3 Nov 2026):** the owner asked for no permission prompts for terminal/commit/push. Claude Code may
+   not change its own permissions — the owner edits `.claude/settings.json` (drop the `git push` / `pnpm add` /
+   `npm install` "ask" rules) and `.claude/settings.local.json` (allow `Bash`, `Edit`, `Write`). Check whether done.
 
 **Owner, 3 Nov 2026:** keep `owner/MY_PENDING_TASKS.md` complete (O25–O34 added) — when asked "anything pending from my side?", answer from that list. Qibla is a simple page (#118); Chanda stays as planned.
 
@@ -316,7 +322,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [x] T3.3 — Special dates & Ramadan (B11) — **done 3 Nov 2026 (DECISIONS #117), green locally, CI on the pushed branch to confirm:** `@mc/domain/special` (1–5 distinct times, ±400 days, Ramadan ≤ 30 days), `saveSpecialDate` / `deleteSpecialDate` (soft) / `saveRamadan` (version bump, audit, notify → `timing_update` with the new system template `special_timings`), API `GET/POST/PATCH/DELETE /special`, `GET/PUT /ramadan`; B11 list (Ramadan card with switch, first/last day, precaution steppers, live Sehri/Iftar for today; upcoming + past entries) and editor (type cards, date, up to 5 times with names, title, note, notify, preview with the musalli `SpecialDateCard`, delete); Home tile live. **Acceptance:** integration tests for validation (db `special.int.test.ts` 13, api 4 incl. contract + domain refusals); musalli Special Dates tab shows a new entry after one poll (`e2e/admin/special.spec.ts`, also the Eid card, delete, Ramadan card); B11 ×4 locales screenshots + axe. **Bug fixed (musalli):** a version bump blanked Home and reset the A6 tab (stale-while-loading bundles, #117).
 - [x] T3.4 — Content Library (C8 + admin browse) — **done 1 Nov 2026 (DECISIONS #106–#108):** search normalisation (`@mc/domain/search`, harakat-free Arabic, Indic vowel signs kept); single-file uploads after auth (`@fastify/busboy`); import contract + generated `scripts/library.schema.json`; state functions import (★, all or nothing, draft) / edit (text edit → back to draft) / verify / retire, audited; Super Admin API + C8 screens (list, import report, review in Amiri, verify, retire — screenshots + axe ×4 locales); admin browse/search + daily suggestion (no repeat within 60 days). Acceptance: rows without source/license/reference refused (contract + JSON Schema tests); admins see verified entries only (DB test through the admin policy cell + API test as `mc_admin`); search normalisation tests. Owner guide: `docs/content-library-format.md`. Not built: a Super Admin edit form (the PATCH API exists; tags/text fixes by re-import or later UI).
 - [x] T3.5 — Notice templates (C9) + ICU rendering — **done 2 Nov 2026** (built 1 Nov 2026, DECISIONS #111, #112; CI run 41297459005 green): 16 starters (texts in `locales/*/templates.json`, review CSV), shared `@mc/i18n/template-args` + rendering tests for every starter × 4 locales (acceptance), status `draft` (migration 0010; unreviewed templates cannot be activated — DB + API tests, acceptance), retired templates still render, ICU checks in the API and live in C9, C9 list/editor/new with preview, eight new template icons. C9 screenshots + axe ×4 locales pass (`e2e/admin/screens.spec.ts`).
-- [ ] T3.6 — Notice creator (B5) + image pipeline
+- [ ] T3.6 — Notice creator (B5) + image pipeline — **in progress (3 Nov 2026), part 1 done (DECISIONS #119):** image pipeline (`packages/api/src/media/image.ts`: magic bytes, 40 MP header check, sharp re-encode, no metadata, ThumbHash; HEIC refused), storage adapters (`media/store.ts`: file + Cloudinary signed REST), `POST /masjids/:id/images` (rights tick audited, 30/h per masjid), `MEDIA_STORE`/`MEDIA_DIR` env, Caddy media site + local stack volume (served and checked by hand). Tests: api `media.test.ts` 13 (EXIF/GPS removed via exif-reader, polyglot, truncated, decompression bomb, stores), upload route int 2. **Next:** `POST /items/announcement` (template or free text, image key of own masjid, notify → outbox, `{targeted, quotaLeft}` via `v_admin_follow_audience`), B5 3-step UI, journey 7 (Telugu musalli sees Telugu), success moment.
 - [ ] T3.7 — Hadith/Ayah publisher (B6)
 - [ ] T3.8 — Dua request creator (B7)
 - [ ] T3.9 — My Posts (B12) & edits
@@ -380,6 +386,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-03 (late) | 03 / T3.6 | Simple Qibla (#118), owner pending list O25–O34. T3.6 part 1: image pipeline (sharp), media stores, `POST /images`, `MEDIA_STORE`, Caddy media site (#119). Stopped at the owner's request (usage limit). |
 | 2026-11-03 | 03 / T3.0, T3.2, T3.3 | CI `b72a5c5` green (journey 6 locator fixed) → T3.2 ticked; owner accepted T3.0 with a tolerance (#116: 65 ms / 8 % on the real-screen spec). T3.3 built end to end (#117): domain rules, data layer, API, B11 screens, `SpecialDateCard` shared, journey + 4-locale screens; musalli stale-while-loading bundle fix. |
 | 2026-11-02 (late) | 03 / T3.0, T3.2 | Sheet opens across three tasks (#114). T3.2 built end to end: data layer + outbox policy cells (#115), API, B4 editor, journey 6 / conflict / invalid-times e2e, B4 ×4 locales; Urdu time isolation fixed in the editor. CI `58e9391` red on push/pop and tab-switch perf — T3.0 stays open. |
 | 2026-11-02 | 03 / T3.0, T3.5, T3.11 | CI run 41297459005 green → T3.5 ticked, F46 fixed; T3.0 waits for a third green run (`ci/phase-03`). T3.11: `@mc/ui/content`, `LocaleScope`, `.mc-preview`, PreviewFrame/PublishBar/StepHeader/PublishSuccess, DOM parity 21/21 (#113); F49 logged. |

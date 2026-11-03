@@ -1579,4 +1579,25 @@ goes), the city dataset, declination, accuracy/calibration, Wake Lock.
 **Consequences:** `PHASE_07_QIBLA.md`, 00 §4.5, 07 A14 and 08 §5.9 updated; Phase 07 needs nothing from the owner but
 the final mihrab comparison on two phones.
 
+### #119 — Image pipeline: sharp, explicit media store, Caddy media site (PHASE_03 T3.6, part 1) — ACCEPTED (Claude Code, 3 Nov 2026)
+**Context:** 01 §5.5 / #40 describe the pipeline; no code existed. sharp's prebuilt libvips decodes AVIF but has no
+HEVC, so HEIC cannot be decoded. The owner's local api-admin env holds real Cloudinary keys.
+**Decision:**
+- **sharp 0.35.5** (`@mc/api` + `@mc/server` dependency, external in the bundle, prebuilt binaries — no build
+  script). Accepted by magic bytes: JPEG, PNG, WebP, AVIF; **HEIC refused** with `IMAGE_INVALID` (iPhone Safari uploads
+  JPEG from an `image/*` picker). Pixel count read from the header first (> 40 MP refused before decoding), decoder
+  format must equal the magic bytes, then one JPEG master ≤ 1440 px, EXIF orientation applied, **no metadata**, plus
+  a ThumbHash. Test-only `exif-reader` 2.0.3 proves EXIF/GPS are gone.
+- `POST /masjids/:id/images?purpose=…&rightsConfirmed=true` (multipart `file`, ≤ 10 MB, 30/h per masjid + the session's
+  write budget) → `{imageKey, thumbhash, width, height, urls}`; key `m/<masjid>/<uuid>`; audit `image.upload` with
+  `rights_confirmed` (target id = the image id; `audit_log.target_id` ≤ 64).
+- **`MEDIA_STORE`** = `cloudinary` (required outside local) | `files` (local default, `MEDIA_DIR`): local work never
+  uploads to the real account even with keys present. Cloudinary: signed REST upload/destroy (SHA-256), no SDK.
+- **Caddy media site** `https://{$MEDIA_HOST}` (+ local-only `http://localhost:8790` from `infra/caddy/local/`): only
+  `/i/<480|960|1440>/<avif|webp>/m/<uuid>/<uuid>`, immutable, `nosniff`, CORP cross-origin; `MEDIA_BACKEND`
+  `cloudinary` (rewrite to named transformation `t_mc_<w>_<fmt>`) or `files` (shared tmpfs volume in the stack).
+  `make-env.sh` writes `MEDIA_HOST`, `MEDIA_BACKEND`, `CLOUDINARY_CLOUD_NAME` into web.env (owner O25).
+**Consequences:** Cloudinary named transformations must be called `mc_480_avif` … `mc_1440_webp` (O25 steps). Staging
+uploads fail until O25 (placeholder keys).
+
 _None — every decision is ACCEPTED (23 Oct 2026)._
