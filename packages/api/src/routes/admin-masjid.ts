@@ -2,13 +2,19 @@
 // repositories re-resolve the id under the session's scope (02 §4.1), so another masjid — or a malformed id — answers
 // exactly like an unknown one (404 `MASJID_NOT_FOUND`).
 import { type DbHandle, parseId } from '@mc/db';
-import { getAdminSchedule, getMasjidStats, getPushQuota } from '@mc/db/repos';
-import { saveTimings } from '@mc/db/state';
+import { getAdminSchedule, getMasjidStats, getPushQuota, getRamadan, listSpecialDates } from '@mc/db/repos';
+import { deleteSpecialDate, saveRamadan, saveSpecialDate, saveTimings } from '@mc/db/state';
 import { resolveSchedule } from '@mc/domain/prayer';
+import { addDays, calendarDateInZone } from '@mc/domain/time';
 import {
   adminMasjidStatsSchema,
   adminScheduleSchema,
+  adminSpecialDatesSchema,
   pushQuotaSchema,
+  ramadanSaveSchema,
+  ramadanSchema,
+  specialDateSavedSchema,
+  specialDateSaveSchema,
   timingsPreviewSchema,
   timingsSavedSchema,
   timingsSaveSchema,
@@ -32,8 +38,19 @@ function masjidIdOf(text: string) {
 }
 
 const PreviewQuery = z.object({ date: z.iso.date() });
+const SpecialParams = z.object({ masjidId: z.string().max(64), id: z.string().max(64) });
+const Empty = z.object({});
+/** The B11 list starts this many days back (recent entries stay editable). */
+const SPECIAL_LIST_PAST_DAYS = 30;
 
-/** PHASE_03 T3.1: the Admin Home's reads; T3.2: saving timings and the preview of a day. */
+/** A special date's id from the path; a malformed one answers like an unknown entry. */
+function specialIdOf(text: string) {
+  const id = parseId(text);
+  if (!id) throw new ApiProblem(404, 'SPECIAL_DATE_NOT_FOUND');
+  return id;
+}
+
+/** PHASE_03 T3.1: the Admin Home's reads; T3.2: saving timings and the preview of a day; T3.3: special dates, Ramadan. */
 export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[] {
   const { db } = deps;
   const writes = [{ bucket: 'adminWrites', key: 'session' }] as const;
@@ -127,6 +144,118 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
           })),
           jumuah: schedule.timings.jumuah,
         });
+      },
+    }),
+    defineRoute({
+      method: 'get',
+      path: '/masjids/:masjidId/special',
+      summary: 'Special dates from 30 days ago onwards, by date (B11)',
+      tags: ['masjid'],
+      auth: 'session',
+      request: { params: Params },
+      responses: { 200: adminSpecialDatesSchema },
+      handler: async ({ auth, params, clock, reply }) => {
+        const from = addDays(calendarDateInZone(clock.now()), -SPECIAL_LIST_PAST_DAYS);
+        const specialDates = await listSpecialDates(db, auth.scope, masjidIdOf(params.masjidId), from);
+        return reply(200, { specialDates });
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/masjids/:masjidId/special',
+      summary: 'Add a special date (1–5 times, within 400 days; optionally notify followers)',
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: writes,
+      request: { params: Params, body: specialDateSaveSchema },
+      responses: { 201: specialDateSavedSchema },
+      handler: async ({ auth, params, body, clock, requestId, reply }) => {
+        const { notify, ...entry } = body;
+        const saved = await saveSpecialDate(db, auth.scope, {
+          masjidId: masjidIdOf(params.masjidId),
+          entry,
+          notify,
+          now: clock.now(),
+          requestId,
+        });
+        return reply(201, saved);
+      },
+    }),
+    defineRoute({
+      method: 'patch',
+      path: '/masjids/:masjidId/special/:id',
+      summary: 'Replace a special date (a label or note left out is removed)',
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: writes,
+      request: { params: SpecialParams, body: specialDateSaveSchema },
+      responses: { 200: specialDateSavedSchema },
+      handler: async ({ auth, params, body, clock, requestId, reply }) => {
+        const { notify, ...entry } = body;
+        const saved = await saveSpecialDate(db, auth.scope, {
+          masjidId: masjidIdOf(params.masjidId),
+          id: specialIdOf(params.id),
+          entry,
+          notify,
+          now: clock.now(),
+          requestId,
+        });
+        return reply(200, saved);
+      },
+    }),
+    defineRoute({
+      method: 'delete',
+      path: '/masjids/:masjidId/special/:id',
+      summary: 'Delete a special date (followers stop seeing it after their next version poll)',
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: writes,
+      request: { params: SpecialParams },
+      responses: { 204: Empty },
+      handler: async ({ auth, params, clock, requestId, reply }) => {
+        await deleteSpecialDate(db, auth.scope, {
+          masjidId: masjidIdOf(params.masjidId),
+          id: specialIdOf(params.id),
+          now: clock.now(),
+          requestId,
+        });
+        return reply(204, {});
+      },
+    }),
+    defineRoute({
+      method: 'get',
+      path: '/masjids/:masjidId/ramadan',
+      summary: 'Ramadan mode (start/end, null when off) and the Sehri / Iftar precautions',
+      tags: ['masjid'],
+      auth: 'session',
+      request: { params: Params },
+      responses: { 200: ramadanSchema },
+      handler: async ({ auth, params, reply }) =>
+        reply(200, await getRamadan(db, auth.scope, masjidIdOf(params.masjidId))),
+    }),
+    defineRoute({
+      method: 'put',
+      path: '/masjids/:masjidId/ramadan',
+      summary: 'Save Ramadan mode (start ≤ end, at most 30 days; both null = off) and the precautions',
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: writes,
+      request: { params: Params, body: ramadanSaveSchema },
+      responses: { 200: ramadanSchema },
+      handler: async ({ auth, params, body, clock, requestId, reply }) => {
+        const masjidId = masjidIdOf(params.masjidId);
+        await saveRamadan(db, auth.scope, {
+          masjidId,
+          ramadan: {
+            start: body.start,
+            end: body.end,
+            sehriPrecautionMin: body.sehriPrecaution,
+            iftarPrecautionMin: body.iftarPrecaution,
+          },
+          now: clock.now(),
+          requestId,
+        });
+        return reply(200, await getRamadan(db, auth.scope, masjidId));
       },
     }),
   ];

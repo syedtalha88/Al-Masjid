@@ -1,6 +1,6 @@
 // PHASE_03 T3.1 (API) against a migrated MongoDB as the real mc_admin user: the masjid-scoped Admin Home reads —
 // stats, push quota, schedule — for the admin's own masjid; another masjid, a malformed id and the Super Admin (not a
-// member) all get the uniform 404; no session → 401.
+// member) all get the uniform 404; no session → 401. T3.2: the timings editor; T3.3: special dates and Ramadan.
 import { randomBytes } from 'node:crypto';
 
 import { type DbHandle, publicScope } from '@mc/db';
@@ -12,7 +12,10 @@ import { ManualClock } from '@mc/shared/clock';
 import {
   adminMasjidStatsSchema,
   adminScheduleSchema,
+  adminSpecialDatesSchema,
   pushQuotaSchema,
+  ramadanSchema,
+  specialDateSavedSchema,
   timingsPreviewSchema,
   timingsSavedSchema,
 } from '@mc/shared/contracts';
@@ -242,5 +245,133 @@ describe('timings editor API (T3.2)', () => {
     expect(day.prayers.every((p) => p.calculated && p.jamaat !== null && p.jamaat >= p.adhan)).toBe(true);
     expect((await get(`/${own}/timings/preview?date=17-10-2026`)).status).toBe(400);
     expect((await get(`/${other}/timings/preview?date=2026-10-17`)).status).toBe(404);
+  });
+});
+
+describe('special dates & Ramadan API (T3.3)', () => {
+  const ENTRY = {
+    type: 'eid_ul_fitr',
+    date: '2026-10-20',
+    label: 'Test label',
+    times: [{ time: '07:30', label: 'Test slot one' }, { time: '08:30' }],
+    note: 'Test note',
+    notify: false,
+  };
+  const send = (method: 'post' | 'patch' | 'put' | 'delete', path: string, body?: object, cookie = adminCookie) => {
+    const call = request(app())[method](`/api/admin/masjids${path}`).set('Cookie', cookie).set(CSRF);
+    return body === undefined ? call : call.send(body);
+  };
+  const status = (response: request.Response) => ({
+    status: response.status,
+    code: (response.body as { code?: string }).code,
+  });
+
+  it('add → list → replace → delete; the list starts 30 days back and leaves deleted entries out', async () => {
+    const created = await send('post', `/${own}/special`, ENTRY);
+    expect(created.status).toBe(201);
+    const { id, item } = specialDateSavedSchema.parse(created.body);
+    expect(item).toBeNull();
+    const old = specialDateSavedSchema.parse(
+      (await send('post', `/${own}/special`, { ...ENTRY, date: '2026-09-15' })).body, // 31 days back
+    ).id;
+
+    const list = adminSpecialDatesSchema.parse((await get(`/${own}/special`)).body).specialDates;
+    const { notify: _notify, ...stored } = ENTRY;
+    expect(list.find((entry) => entry.id === id)).toEqual({ id, ...stored });
+    expect(list.some((entry) => entry.id === old)).toBe(false);
+
+    const replaced = await send('patch', `/${own}/special/${id}`, {
+      type: 'taraweeh',
+      date: '2026-10-21',
+      times: [{ time: '21:30' }],
+      notify: false,
+    });
+    expect(replaced.status).toBe(200);
+    const after = adminSpecialDatesSchema.parse((await get(`/${own}/special`)).body).specialDates;
+    expect(after.find((entry) => entry.id === id)).toEqual({
+      id,
+      type: 'taraweeh',
+      date: '2026-10-21',
+      times: [{ time: '21:30' }],
+    });
+
+    expect((await send('delete', `/${own}/special/${id}`)).status).toBe(204);
+    const gone = adminSpecialDatesSchema.parse((await get(`/${own}/special`)).body).specialDates;
+    expect(gone.some((entry) => entry.id === id)).toBe(false);
+    expect(status(await send('delete', `/${own}/special/${id}`))).toEqual({
+      status: 404,
+      code: 'SPECIAL_DATE_NOT_FOUND',
+    });
+  });
+
+  it('refuses bad input: contract rules (400 VALIDATION_FAILED) and the domain rules (400 SPECIAL_DATE_INVALID)', async () => {
+    for (const body of [
+      { ...ENTRY, times: [] },
+      { ...ENTRY, times: Array.from({ length: 6 }, (_, i) => ({ time: `0${String(i + 1)}:00` })) },
+      { ...ENTRY, type: 'birthday' },
+      { ...ENTRY, times: [{ time: '25:00' }] },
+      { ...ENTRY, label: 'x'.repeat(81) },
+      { ...ENTRY, times: [{ time: '07:30', label: 'x'.repeat(41) }] },
+      { ...ENTRY, note: 'x'.repeat(301) },
+      { ...ENTRY, label: `Test${String.fromCodePoint(0x202e)}label` }, // bidi override (04 §6)
+      { ...ENTRY, extra: true }, // strict
+    ]) {
+      expect(status(await send('post', `/${own}/special`, body))).toEqual({ status: 400, code: 'VALIDATION_FAILED' });
+    }
+    for (const body of [
+      { ...ENTRY, times: [{ time: '07:30' }, { time: '07:30' }] },
+      { ...ENTRY, date: '2027-11-21' }, // 2026-10-16 + 401
+    ]) {
+      expect(status(await send('post', `/${own}/special`, body))).toEqual({
+        status: 400,
+        code: 'SPECIAL_DATE_INVALID',
+      });
+    }
+  });
+
+  it('another masjid, a malformed id and a non-member get 404; notify publishes a timing update', async () => {
+    expect(status(await send('post', `/${other}/special`, ENTRY))).toEqual({ status: 404, code: 'MASJID_NOT_FOUND' });
+    expect(status(await get(`/${other}/special`))).toEqual({ status: 404, code: 'MASJID_NOT_FOUND' });
+    expect(status(await get(`/${own}/special`, superCookie))).toEqual({ status: 404, code: 'MASJID_NOT_FOUND' });
+    expect(status(await send('patch', `/${own}/special/not-a-uuid`, ENTRY))).toEqual({
+      status: 404,
+      code: 'SPECIAL_DATE_NOT_FOUND',
+    });
+    const used = pushQuotaSchema.parse((await get(`/${own}/notifications/quota`)).body).used;
+    const notified = await send('post', `/${own}/special`, { ...ENTRY, notify: true });
+    expect(specialDateSavedSchema.parse(notified.body).item?.publicId).toMatch(/^[A-Za-z0-9_-]{12}$/);
+    expect(pushQuotaSchema.parse((await get(`/${own}/notifications/quota`)).body).used).toBe(used + 1);
+  });
+
+  it('Ramadan: off by default; on with precautions; off again keeps them; bad ranges refused', async () => {
+    expect(ramadanSchema.parse((await get(`/${own}/ramadan`)).body)).toEqual({
+      start: null,
+      end: null,
+      sehriPrecaution: 0,
+      iftarPrecaution: 0,
+    });
+    const on = { start: '2027-02-08', end: '2027-03-09', sehriPrecaution: 10, iftarPrecaution: 3 };
+    const saved = await send('put', `/${own}/ramadan`, on);
+    expect(saved.status).toBe(200);
+    expect(ramadanSchema.parse(saved.body)).toEqual(on);
+    expect(ramadanSchema.parse((await get(`/${own}/ramadan`)).body)).toEqual(on);
+    const off = await send('put', `/${own}/ramadan`, { ...on, start: null, end: null });
+    expect(ramadanSchema.parse(off.body)).toEqual({ ...on, start: null, end: null });
+
+    for (const body of [
+      { ...on, end: null },
+      { ...on, sehriPrecaution: 16 },
+      { ...on, iftarPrecaution: 11 },
+      { ...on, iftarPrecaution: 1.5 },
+    ]) {
+      expect(status(await send('put', `/${own}/ramadan`, body))).toEqual({ status: 400, code: 'VALIDATION_FAILED' });
+    }
+    for (const body of [
+      { ...on, start: '2027-03-09', end: '2027-02-08' },
+      { ...on, end: '2027-03-10' }, // 31 days
+    ]) {
+      expect(status(await send('put', `/${own}/ramadan`, body))).toEqual({ status: 400, code: 'RAMADAN_INVALID' });
+    }
+    expect(status(await send('put', `/${other}/ramadan`, on))).toEqual({ status: 404, code: 'MASJID_NOT_FOUND' });
   });
 });

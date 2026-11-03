@@ -1198,6 +1198,230 @@
           "jumuah"
         ]
       },
+      "AdminSpecialDates": {
+        "type": "object",
+        "properties": {
+          "specialDates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "eid_ul_fitr",
+                    "eid_ul_adha",
+                    "taraweeh",
+                    "shab_e_barat",
+                    "shab_e_qadr",
+                    "other"
+                  ]
+                },
+                "date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "times": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "time": {
+                        "type": "string",
+                        "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                      },
+                      "label": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "time"
+                    ]
+                  }
+                },
+                "note": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "date",
+                "times"
+              ]
+            }
+          }
+        },
+        "required": [
+          "specialDates"
+        ]
+      },
+      "SpecialDateSaved": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "item": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "publicId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "publicId"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "item"
+        ]
+      },
+      "SpecialDateSave": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "eid_ul_fitr",
+              "eid_ul_adha",
+              "taraweeh",
+              "shab_e_barat",
+              "shab_e_qadr",
+              "other"
+            ]
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "times": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "type": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                }
+              },
+              "required": [
+                "time"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "type",
+          "date",
+          "times",
+          "notify"
+        ],
+        "additionalProperties": false
+      },
+      "Ramadan": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "end": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "sehriPrecaution": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 15
+          },
+          "iftarPrecaution": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "sehriPrecaution",
+          "iftarPrecaution"
+        ]
+      },
+      "RamadanSave": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "end": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "sehriPrecaution": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 15
+          },
+          "iftarPrecaution": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "sehriPrecaution",
+          "iftarPrecaution"
+        ],
+        "additionalProperties": false
+      },
       "AdminLibraryList": {
         "type": "object",
         "properties": {
@@ -6074,6 +6298,227 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TimingsPreview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/special": {
+      "get": {
+        "summary": "Special dates from 30 days ago onwards, by date (B11)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSpecialDates"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a special date (1–5 times, within 400 days; optionally notify followers)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpecialDateSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpecialDateSaved"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/special/{id}": {
+      "patch": {
+        "summary": "Replace a special date (a label or note left out is removed)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpecialDateSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpecialDateSaved"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a special date (followers stop seeing it after their next version poll)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/ramadan": {
+      "get": {
+        "summary": "Ramadan mode (start/end, null when off) and the Sehri / Iftar precautions",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ramadan"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Save Ramadan mode (start ≤ end, at most 30 days; both null = off) and the precautions",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RamadanSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ramadan"
                 }
               }
             }

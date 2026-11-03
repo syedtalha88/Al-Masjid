@@ -8,6 +8,7 @@ import {
   LIBRARY_KIND,
   LIBRARY_STATUS,
   MASJID_STATUS,
+  SPECIAL_TYPE,
   TEMPLATE_PARAM_TYPE,
   TEMPLATE_STATUS,
 } from '@mc/db/schema';
@@ -20,6 +21,7 @@ import {
   LIBRARY_KINDS,
   LIBRARY_STATUSES,
   MASJID_STATUSES,
+  SPECIAL_TYPES,
   TEMPLATE_CATEGORIES,
   TEMPLATE_PARAM_TYPES,
   TEMPLATE_STATUSES,
@@ -46,5 +48,9 @@ describe('shared contracts mirror the database schema', () => {
     expect(TEMPLATE_CATEGORIES).toEqual(ANNOUNCEMENT_CATEGORY);
     expect(TEMPLATE_STATUSES).toEqual(TEMPLATE_STATUS);
     expect(TEMPLATE_PARAM_TYPES).toEqual(TEMPLATE_PARAM_TYPE);
+  });
+
+  it('special date types are identical (T3.3)', () => {
+    expect(SPECIAL_TYPES).toEqual(SPECIAL_TYPE);
   });
 });
