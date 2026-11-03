@@ -94,7 +94,7 @@ test.describe('B4 prayer timings editor (T3.2)', () => {
       await admin.getByRole('button', { name: 'Continue' }).click();
 
       // B3 → B4 through the tile. A new masjid starts with Maghrib 5 minutes after adhan; the rest is unset.
-      await admin.getByRole('button', { name: 'Prayer Times' }).click();
+      await admin.getByRole('button', { name: 'Prayer Times', exact: true }).click();
       await expect(admin).toHaveURL(/\/timings$/);
       await expect(admin.getByText('Set all five jamaat times so your masjid can go live.')).toBeVisible();
       for (const prayer of ['fajr', 'dhuhr', 'asr', 'isha']) {
@@ -131,7 +131,7 @@ test.describe('B4 prayer timings editor (T3.2)', () => {
       await expect(isha).toContainText(shown(await ishaJamaat(admin, masjidId)));
 
       // The admin moves Isha's jamaat 5 minutes later.
-      await admin.getByRole('button', { name: 'Prayer Times' }).click();
+      await admin.getByRole('button', { name: 'Prayer Times', exact: true }).click();
       await card(admin, 'isha')
         .getByRole('button', { name: /^Jamaat/ })
         .click();
@@ -150,7 +150,7 @@ test.describe('B4 prayer timings editor (T3.2)', () => {
       await expect(isha).toContainText(shown(later));
 
       // Someone else saves while this admin is editing → "changed by someone else", then the latest loads.
-      await admin.getByRole('button', { name: 'Prayer Times' }).click();
+      await admin.getByRole('button', { name: 'Prayer Times', exact: true }).click();
       await card(admin, 'asr')
         .getByRole('button', { name: /^Jamaat/ })
         .click();
