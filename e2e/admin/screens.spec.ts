@@ -38,6 +38,10 @@ const LIBRARY_ROW = {
 const libraryFile = (entries: readonly object[]) =>
   Buffer.from(JSON.stringify({ format: 'masjid-connect-library', version: 1, entries }));
 
+/** A day in India ("YYYY-MM-DD"), `offset` days from today. */
+const istDay = (offset: number) =>
+  new Date(Date.now() + 5.5 * 60 * 60 * 1000 + offset * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
 async function settled(page: Page, path: string): Promise<void> {
   await page.goto(`${ADMIN_URL}${path}`);
   await page.waitForLoadState('networkidle');
@@ -183,6 +187,46 @@ for (const locale of LOCALES) {
         await adminPage.waitForTimeout(600);
         await adminShot('b4-preview');
         await adminPage.keyboard.press('Escape');
+        // T3.3 B11: the empty list under the Ramadan card; then an entry (API) with Ramadan mode on, the entry, its
+        // musalli preview, and a new entry's form.
+        await adminPage.goto(`${ADMIN_URL}/special`);
+        await expect(adminPage.getByText(label(locale, 'admin', 'special.emptyTitle'))).toBeVisible();
+        await adminShot('b11-special-empty');
+        const masjidApi = `${ADMIN_URL}/api/admin/masjids/${masjidId}`;
+        const special = await adminPage.request.post(`${masjidApi}/special`, {
+          headers: CSRF,
+          data: {
+            type: 'eid_ul_fitr',
+            date: istDay(1),
+            label: 'Test label',
+            times: [{ time: '07:30', label: 'Test slot one' }, { time: '08:30' }],
+            notify: false,
+          },
+        });
+        expect(special.status()).toBe(201);
+        const ramadan = await adminPage.request.put(`${masjidApi}/ramadan`, {
+          headers: CSRF,
+          data: { start: istDay(0), end: istDay(29), sehriPrecaution: 5, iftarPrecaution: 2 },
+        });
+        expect(ramadan.status()).toBe(200);
+        await adminPage.reload();
+        await expect(adminPage.locator('[data-special]')).toHaveCount(1);
+        await adminPage.waitForLoadState('networkidle');
+        await adminShot('b11-special');
+        await adminPage.locator('[data-special]').click();
+        await expect(adminPage).toHaveURL(/\/special\/[0-9a-f-]{36}$/);
+        await adminPage.waitForLoadState('networkidle');
+        await adminShot('b11-special-edit');
+        await adminPage.getByRole('button', { name: label(locale, 'admin', 'special.preview') }).click();
+        await expect(adminPage.locator('[data-preview-locale]')).toBeVisible();
+        await adminPage.waitForTimeout(600); // the sheet's spring settles before the shot
+        await adminShot('b11-special-preview');
+        await adminPage.keyboard.press('Escape');
+        await adminPage.goto(`${ADMIN_URL}/special/new`);
+        await expect(
+          adminPage.getByRole('heading', { name: label(locale, 'admin', 'special.newTitle') }),
+        ).toBeVisible();
+        await adminShot('b11-special-new');
         await adminPage.goto(`${ADMIN_URL}/account`);
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b13-account-admin');
