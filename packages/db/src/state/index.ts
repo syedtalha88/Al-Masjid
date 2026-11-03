@@ -73,7 +73,21 @@ export {
   mirrorVisibility,
   type NewMasjid,
 } from './masjids.ts';
-export { enqueueNotification, insertPublishedItem, type ItemAudience, type PublishedItemInput } from './publish.ts';
+export {
+  enqueueNotification,
+  insertPublishedItem,
+  type ItemAudience,
+  type PublishedItemInput,
+  publishTimingUpdate,
+} from './publish.ts';
+export {
+  deleteSpecialDate,
+  type RamadanInput,
+  saveRamadan,
+  saveSpecialDate,
+  SPECIAL_TIMINGS_TEMPLATE,
+  type SpecialDateInput,
+} from './special.ts';
 export {
   acceptUndertaking,
   type MasjidPatch,

@@ -6,11 +6,11 @@ import type { UUID } from 'mongodb';
 
 import type { DbHandle } from '../client.ts';
 import { StateError } from '../effects.ts';
-import { ASR_MADHAB, CALC_METHOD } from '../schema/enums.ts';
+import { ASR_MADHAB, CALC_METHOD, SPECIAL_TYPE } from '../schema/enums.ts';
 import { type Scope, scopeMasjidIds } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
-import { compact, need, numberOf, oneOf, timingsOf } from './read.ts';
+import { arrayOf, compact, idOf, need, numberOf, oneOf, text, timingsOf } from './read.ts';
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -103,5 +103,54 @@ export async function getAdminSchedule(handle: DbHandle, scope: Scope, masjidId:
     timings: timings ? timingsOf(timings) : null,
     /** Sent back in `If-Match` when saving (0 = no timings yet — PHASE_03 T3.2). */
     rev: timings ? (numberOf(timings, 'rev') ?? 0) : 0,
+  };
+}
+
+const SPECIAL_DATES_MAX = 200;
+
+/**
+ * The masjid's special dates from `fromDate` on, by date (07 B11 list; deleted ones left out).
+ *
+ * @param fromDate - "YYYY-MM-DD" (the screen asks from 30 days ago).
+ * @throws StateError `MASJID_NOT_FOUND` for a masjid outside the admin's scope.
+ */
+export async function listSpecialDates(handle: DbHandle, scope: Scope, masjidId: UUID, fromDate: string) {
+  requireOwnMasjid(scope, masjidId);
+  const db = await handle.db();
+  const docs = await scoped({ scope, db }, 'special_timings').find(
+    { masjid_id: masjidId, date: { $gte: fromDate }, deleted_at: { $exists: false } },
+    { sort: { date: 1, created_at: 1 }, limit: SPECIAL_DATES_MAX },
+  );
+  return docs.map((doc) =>
+    compact({
+      id: idOf(doc),
+      type: oneOf(doc, 'type', SPECIAL_TYPE),
+      date: need(doc, 'date'),
+      label: text(doc, 'label'),
+      times: arrayOf(doc, 'times').map((slot) => compact({ time: need(slot, 'time'), label: text(slot, 'label') })),
+      note: text(doc, 'note'),
+    }),
+  );
+}
+
+/**
+ * Ramadan mode and the Sehri / Iftar precautions (03 §4 `GET /ramadan`).
+ *
+ * @returns `start`/`end` `null` while Ramadan mode is off.
+ * @throws StateError `MASJID_NOT_FOUND` for a masjid outside the admin's scope.
+ */
+export async function getRamadan(handle: DbHandle, scope: Scope, masjidId: UUID) {
+  requireOwnMasjid(scope, masjidId);
+  const db = await handle.db();
+  const masjid = await scoped({ scope, db }, 'masjids').findOne({ _id: masjidId });
+  if (!masjid) throw new StateError('MASJID_NOT_FOUND');
+  const start = text(masjid, 'ramadan_start');
+  const end = text(masjid, 'ramadan_end');
+  const on = start !== undefined && end !== undefined;
+  return {
+    start: on ? start : null,
+    end: on ? end : null,
+    sehriPrecaution: numberOf(masjid, 'sehri_precaution_min') ?? 0,
+    iftarPrecaution: numberOf(masjid, 'iftar_precaution_min') ?? 0,
   };
 }

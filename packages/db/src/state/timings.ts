@@ -13,7 +13,7 @@ import { numberOf, oneOf } from '../repos/read.ts';
 import { ASR_MADHAB, CALC_METHOD, PRAYER } from '../schema/enums.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
-import { enqueueNotification, insertPublishedItem } from './publish.ts';
+import { publishTimingUpdate } from './publish.ts';
 
 export const PRAYER_KEYS = PRAYER;
 export type PrayerKey = (typeof PRAYER_KEYS)[number];
@@ -129,31 +129,19 @@ export async function saveTimings(
         if (matched !== 1) throw new StateError('PRECONDITION_FAILED');
       }
       if (!input.notify) return null;
-      return insertPublishedItem(
+      return publishTimingUpdate(
         content,
         {
-          type: 'timing_update',
-          audience: 'everyone',
-          isImportant: false,
-          notify: true,
           templateKey: TIMINGS_UPDATED_TEMPLATE,
           templateParams: {},
-          detail: { announcement: { category: 'timing' } },
           createdBy: adminId,
           masjidVisible: visible,
           version,
+          limit: numberOf(masjid, 'push_daily_quota') ?? 0,
         },
         now,
       );
     });
-    if (item) {
-      const limit = numberOf(masjid, 'push_daily_quota') ?? 0;
-      await enqueueNotification(
-        ctx,
-        { masjidId: input.masjidId, itemId: item.itemId, audience: 'everyone', limit },
-        now,
-      );
-    }
     await writeAudit(ctx, {
       action: 'timings.update',
       masjidId: input.masjidId,
@@ -162,6 +150,6 @@ export async function saveTimings(
       meta: { rev, notify: input.notify },
       ...(input.requestId ? { requestId: input.requestId } : {}),
     });
-    return { rev, item: item ? { publicId: item.publicId } : null };
+    return { rev, item };
   });
 }

@@ -112,3 +112,48 @@ export async function enqueueNotification(
   });
   return jobId;
 }
+
+/**
+ * Publishes a `timing_update` item (a system template, shown to everyone) and its pending outbox job, inside the
+ * caller's `contentWrite()` — the "Notify followers" step of saving timings (T3.2) and special dates (T3.3).
+ *
+ * @param input.version - the masjid's `content_version` after this transaction's bump.
+ * @param input.limit - the masjid's `push_daily_quota`.
+ * @returns the item's public id.
+ * @throws StateError NOTIFY_QUOTA_EXCEEDED (the whole save rolls back).
+ */
+export async function publishTimingUpdate(
+  content: ContentContext,
+  input: {
+    readonly templateKey: string;
+    readonly templateParams: Readonly<Record<string, unknown>>;
+    readonly createdBy: UUID;
+    readonly masjidVisible: boolean;
+    readonly version: number;
+    readonly limit: number;
+  },
+  now: Date,
+): Promise<{ publicId: string }> {
+  const item = await insertPublishedItem(
+    content,
+    {
+      type: 'timing_update',
+      audience: 'everyone',
+      isImportant: false,
+      notify: true,
+      templateKey: input.templateKey,
+      templateParams: input.templateParams,
+      detail: { announcement: { category: 'timing' } },
+      createdBy: input.createdBy,
+      masjidVisible: input.masjidVisible,
+      version: input.version,
+    },
+    now,
+  );
+  await enqueueNotification(
+    content,
+    { masjidId: content.contentMasjidId, itemId: item.itemId, audience: 'everyone', limit: input.limit },
+    now,
+  );
+  return { publicId: item.publicId };
+}
