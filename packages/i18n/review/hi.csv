@@ -146,6 +146,73 @@ admin,timings.saveWithout,Save without notifying,सूचना के बि�
 admin,timings.saved,Saved,सेव हो गया,no
 admin,timings.savedNotified,Your followers will be notified.,आपके फ़ॉलोअर्स को सूचना मिलेगी।,no
 admin,timings.savedQuiet,Followers will see the new times.,फ़ॉलोअर्स नए समय देखेंगे।,no
+admin,special.title,Special Dates & Ramadan,ख़ास तारीख़ें और रमज़ान,no
+admin,special.ramadan,Ramadan,रमज़ान,no
+admin,special.ramadanMode,Ramadan mode,रमज़ान मोड,no
+admin,special.ramadanHint,During these days followers see Sehri and Iftar times on their Home screen.,इन दिनों में फ़ॉलोअर्स को होम स्क्रीन पर सहरी और इफ़्तार के समय दिखेंगे।,no
+admin,special.firstDay,First day,पहला दिन,no
+admin,special.lastDay,Last day,आख़िरी दिन,no
+admin,special.pickFirst,First day of Ramadan,रमज़ान का पहला दिन,no
+admin,special.pickLast,Last day of Ramadan,रमज़ान का आख़िरी दिन,no
+admin,special.sehriEarlier,Sehri ends earlier by,सहरी इतनी पहले ख़त्म,no
+admin,special.iftarLater,Iftar later by,इफ़्तार इतनी देर बाद,no
+admin,special.minutes,"{minutes, plural, =0 {No change} one {# minute} other {# minutes}}","{minutes, plural, =0 {कोई बदलाव नहीं} one {# मिनट} other {# मिनट}}",no
+admin,special.previewToday,With these settings today: Sehri ends {sehri} · Iftar {iftar},इन सेटिंग्स से आज: सहरी ख़त्म {sehri} · इफ़्तार {iftar},no
+admin,special.disclaimer,Followers are told to follow your masjid’s announcement if it differs.,फ़ॉलोअर्स से कहा जाता है कि फ़र्क़ हो तो आपकी मस्जिद के ऐलान को मानें।,no
+admin,special.saveRamadan,Save Ramadan settings,रमज़ान सेटिंग्स सेव करें,no
+admin,special.ramadanSaved,Ramadan settings saved,रमज़ान सेटिंग्स सेव हो गईं,no
+admin,special.ramadanIssue.end_before_start,The last day is before the first day.,आख़िरी दिन पहले दिन से पहले है।,no
+admin,special.ramadanIssue.too_long,Ramadan mode can be on for at most 30 days.,रमज़ान मोड ज़्यादा से ज़्यादा 30 दिन चालू रह सकता है।,no
+admin,special.ramadanIssue.date_out_of_range,Choose dates within a year from today.,आज से एक साल के अंदर की तारीख़ें चुनें।,no
+admin,special.dates,Special dates,ख़ास तारीख़ें,no
+admin,special.add,Add special date,ख़ास तारीख़ जोड़ें,no
+admin,special.emptyTitle,No special dates yet,अभी कोई ख़ास तारीख़ नहीं,no
+admin,special.emptyBody,"Add Eid, Taraweeh or another day with special times.","ईद, तरावीह या ख़ास समय वाला कोई और दिन जोड़ें।",no
+admin,special.newTitle,New special date,नई ख़ास तारीख़,no
+admin,special.editTitle,Special date,ख़ास तारीख़,no
+admin,special.typeLegend,What is the day?,कौन-सा दिन है?,no
+admin,special.type.eid_ul_fitr,Eid ul-Fitr,ईद-उल-फ़ित्र,no
+admin,special.type.eid_ul_adha,Eid ul-Adha,ईद-उल-अज़हा,no
+admin,special.type.taraweeh,Taraweeh,तरावीह,no
+admin,special.type.shab_e_barat,Shab-e-Barat,शब-ए-बरात,no
+admin,special.type.shab_e_qadr,Shab-e-Qadr,शब-ए-क़द्र,no
+admin,special.type.other,Other day,कोई और दिन,no
+admin,special.date,Date,तारीख़,no
+admin,special.pickDate,Choose the date,तारीख़ चुनें,no
+admin,special.times,Times,समय,no
+admin,special.timeN,Time {n},समय {n},no
+admin,special.timeSheet,Time {n},समय {n},no
+admin,special.addTime,Add a time,समय जोड़ें,no
+admin,special.removeTime,Remove time {n},समय {n} हटाएँ,no
+admin,special.timeLabel,Name for time {n},समय {n} का नाम,no
+admin,special.timeLabelHint,For example: 1st Jamaat,जैसे: पहली जमात,no
+admin,special.label,Short title,छोटा शीर्षक,no
+admin,special.labelHint,Shown after the day’s name,दिन के नाम के बाद दिखेगा,no
+admin,special.note,Note,नोट,no
+admin,special.issue.duplicate_time,Two times are the same.,दो समय एक जैसे हैं।,no
+admin,special.issue.date_out_of_range,Choose a date within a year from today.,आज से एक साल के अंदर की तारीख़ चुनें।,no
+admin,special.notify,Notify followers,फ़ॉलोअर्स को सूचना दें,no
+admin,special.quota,{left} of {limit} left today,आज {limit} में से {left} बाक़ी,no
+admin,special.save,Save,सेव करें,no
+admin,special.saved,Saved,सेव हो गया,no
+admin,special.savedNotified,Your followers will be notified.,आपके फ़ॉलोअर्स को सूचना दी जाएगी।,no
+admin,special.savedQuiet,Followers will see it in Special Dates.,फ़ॉलोअर्स इसे ख़ास दिन में देखेंगे।,no
+admin,special.done,Done,हो गया,no
+admin,special.delete,Delete,हटाएँ,no
+admin,special.deleteTitle,Delete this special date?,यह ख़ास तारीख़ हटाएँ?,no
+admin,special.deleteBody,Followers will no longer see it.,फ़ॉलोअर्स को यह अब नहीं दिखेगी।,no
+admin,special.deleted,Special date deleted,ख़ास तारीख़ हटा दी गई,no
+admin,special.preview,Preview,झलक,no
+admin,special.previewTitle,How followers will see it,फ़ॉलोअर्स को ऐसा दिखेगा,no
+admin,special.showIn,Show in,इसमें दिखाएँ,no
+admin,special.quotaTitle,No notifications left today,आज कोई सूचना बाक़ी नहीं,no
+admin,special.quotaBody,You can still save. Followers will see it when they open the app.,आप फिर भी सेव कर सकते हैं। फ़ॉलोअर्स ऐप खोलने पर इसे देखेंगे।,no
+admin,special.saveWithout,Save without notifying,सूचना दिए बिना सेव करें,no
+admin,special.sehriLess,Sehri: 1 minute less,सहरी: 1 मिनट कम,no
+admin,special.sehriMore,Sehri: 1 minute more,सहरी: 1 मिनट ज़्यादा,no
+admin,special.iftarLess,Iftar: 1 minute less,इफ़्तार: 1 मिनट कम,no
+admin,special.iftarMore,Iftar: 1 minute more,इफ़्तार: 1 मिनट ज़्यादा,no
+admin,special.past,Past,बीते दिन,no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no

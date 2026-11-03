@@ -14,6 +14,8 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as TimingsRouteImport } from './routes/timings'
 import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase'
 import { Route as SoonTileRouteImport } from './routes/soon.$tile'
+import { Route as SpecialIndexRouteImport } from './routes/special.index'
+import { Route as SpecialIdRouteImport } from './routes/special.$id'
 import { Route as SuperIndexRouteImport } from './routes/super.index'
 import { Route as SuperAuditRouteImport } from './routes/super.audit'
 import { Route as SuperSettingsRouteImport } from './routes/super.settings'
@@ -51,6 +53,16 @@ const DevShowcaseRoute = DevShowcaseRouteImport.update({
 const SoonTileRoute = SoonTileRouteImport.update({
   id: '/soon/$tile',
   path: '/soon/$tile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpecialIndexRoute = SpecialIndexRouteImport.update({
+  id: '/special/',
+  path: '/special/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpecialIdRoute = SpecialIdRouteImport.update({
+  id: '/special/$id',
+  path: '/special/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SuperIndexRoute = SuperIndexRouteImport.update({
@@ -125,8 +137,10 @@ export interface FileRoutesByFullPath {
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/soon/$tile': typeof SoonTileRoute
+  '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/special/': typeof SpecialIndexRoute
   '/super/': typeof SuperIndexRoute
   '/super/library/$id': typeof SuperLibraryIdRoute
   '/super/library/import': typeof SuperLibraryImportRoute
@@ -145,8 +159,10 @@ export interface FileRoutesByTo {
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/soon/$tile': typeof SoonTileRoute
+  '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/special': typeof SpecialIndexRoute
   '/super': typeof SuperIndexRoute
   '/super/library/$id': typeof SuperLibraryIdRoute
   '/super/library/import': typeof SuperLibraryImportRoute
@@ -166,8 +182,10 @@ export interface FileRoutesById {
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/soon/$tile': typeof SoonTileRoute
+  '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/special/': typeof SpecialIndexRoute
   '/super/': typeof SuperIndexRoute
   '/super/library/$id': typeof SuperLibraryIdRoute
   '/super/library/import': typeof SuperLibraryImportRoute
@@ -188,8 +206,10 @@ export interface FileRouteTypes {
     | '/timings'
     | '/_dev/showcase'
     | '/soon/$tile'
+    | '/special/$id'
     | '/super/audit'
     | '/super/settings'
+    | '/special/'
     | '/super/'
     | '/super/library/$id'
     | '/super/library/import'
@@ -208,8 +228,10 @@ export interface FileRouteTypes {
     | '/timings'
     | '/_dev/showcase'
     | '/soon/$tile'
+    | '/special/$id'
     | '/super/audit'
     | '/super/settings'
+    | '/special'
     | '/super'
     | '/super/library/$id'
     | '/super/library/import'
@@ -228,8 +250,10 @@ export interface FileRouteTypes {
     | '/timings'
     | '/_dev/showcase'
     | '/soon/$tile'
+    | '/special/$id'
     | '/super/audit'
     | '/super/settings'
+    | '/special/'
     | '/super/'
     | '/super/library/$id'
     | '/super/library/import'
@@ -249,8 +273,10 @@ export interface RootRouteChildren {
   TimingsRoute: typeof TimingsRoute
   DevShowcaseRoute: typeof DevShowcaseRoute
   SoonTileRoute: typeof SoonTileRoute
+  SpecialIdRoute: typeof SpecialIdRoute
   SuperAuditRoute: typeof SuperAuditRoute
   SuperSettingsRoute: typeof SuperSettingsRoute
+  SpecialIndexRoute: typeof SpecialIndexRoute
   SuperIndexRoute: typeof SuperIndexRoute
   SuperLibraryIdRoute: typeof SuperLibraryIdRoute
   SuperLibraryImportRoute: typeof SuperLibraryImportRoute
@@ -298,6 +324,20 @@ declare module '@tanstack/react-router' {
       path: '/soon/$tile'
       fullPath: '/soon/$tile'
       preLoaderRoute: typeof SoonTileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/special/': {
+      id: '/special/'
+      path: '/special'
+      fullPath: '/special/'
+      preLoaderRoute: typeof SpecialIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/special/$id': {
+      id: '/special/$id'
+      path: '/special/$id'
+      fullPath: '/special/$id'
+      preLoaderRoute: typeof SpecialIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/super/': {
@@ -412,8 +452,10 @@ const rootRouteChildren: RootRouteChildren = {
   TimingsRoute: TimingsRoute,
   DevShowcaseRoute: DevShowcaseRoute,
   SoonTileRoute: SoonTileRoute,
+  SpecialIdRoute: SpecialIdRoute,
   SuperAuditRoute: SuperAuditRoute,
   SuperSettingsRoute: SuperSettingsRoute,
+  SpecialIndexRoute: SpecialIndexRoute,
   SuperIndexRoute: SuperIndexRoute,
   SuperLibraryIdRoute: SuperLibraryIdRoute,
   SuperLibraryImportRoute: SuperLibraryImportRoute,

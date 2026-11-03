@@ -13,7 +13,7 @@ const clamp = (value: number, range: { readonly min: number; readonly max: numbe
   Math.min(Math.max(value, range.min), range.max);
 
 /** A ±1 stepper with 56px buttons (admin targets) and the value read out between them. */
-function Stepper({
+export function Stepper({
   value,
   text,
   onChange,

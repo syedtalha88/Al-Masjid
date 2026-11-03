@@ -40,7 +40,7 @@ admin,home.tiles.dua,Dua Request,దువా అభ్యర్థన,no
 admin,home.tiles.donation,Donation Drive,విరాళ సేకరణ,no
 admin,home.tiles.chanda,Chanda,చందా,no
 admin,home.tiles.video,Bayan Video,బయాన్ వీడియో,no
-admin,home.tiles.specialDates,Special Dates & Ramadan,ప్రత్యేక తేదీలు & రమజాన్,no
+admin,home.tiles.specialDates,Special Dates & Ramadan,ప్రత్యేక రోజులు & రంజాన్,no
 admin,home.tiles.myPosts,My Posts,నా పోస్ట్‌లు,no
 admin,home.tiles.profile,Masjid Profile,మస్జిద్ ప్రొఫైల్,no
 admin,home.tiles.ruqyah,Ruqyah,రుఖ్యా,no
@@ -146,6 +146,73 @@ admin,timings.saveWithout,Save without notifying,తెలియజేయకు�
 admin,timings.saved,Saved,సేవ్ అయింది,no
 admin,timings.savedNotified,Your followers will be notified.,మీ ఫాలోవర్లకు తెలియజేయబడుతుంది.,no
 admin,timings.savedQuiet,Followers will see the new times.,ఫాలోవర్లు కొత్త సమయాలు చూస్తారు.,no
+admin,special.title,Special Dates & Ramadan,ప్రత్యేక రోజులు & రంజాన్,no
+admin,special.ramadan,Ramadan,రంజాన్,no
+admin,special.ramadanMode,Ramadan mode,రంజాన్ మోడ్,no
+admin,special.ramadanHint,During these days followers see Sehri and Iftar times on their Home screen.,"ఈ రోజుల్లో ఫాలోవర్లకు హోమ్ స్క్రీన్‌పై సహరీ, ఇఫ్తార్ సమయాలు కనిపిస్తాయి.",no
+admin,special.firstDay,First day,మొదటి రోజు,no
+admin,special.lastDay,Last day,చివరి రోజు,no
+admin,special.pickFirst,First day of Ramadan,రంజాన్ మొదటి రోజు,no
+admin,special.pickLast,Last day of Ramadan,రంజాన్ చివరి రోజు,no
+admin,special.sehriEarlier,Sehri ends earlier by,సహరీ ఇంత ముందుగా ముగుస్తుంది,no
+admin,special.iftarLater,Iftar later by,ఇఫ్తార్ ఇంత ఆలస్యంగా,no
+admin,special.minutes,"{minutes, plural, =0 {No change} one {# minute} other {# minutes}}","{minutes, plural, =0 {మార్పు లేదు} one {# నిమిషం} other {# నిమిషాలు}}",no
+admin,special.previewToday,With these settings today: Sehri ends {sehri} · Iftar {iftar},ఈ సెట్టింగ్‌లతో ఈరోజు: సహరీ ముగింపు {sehri} · ఇఫ్తార్ {iftar},no
+admin,special.disclaimer,Followers are told to follow your masjid’s announcement if it differs.,తేడా ఉంటే మీ మస్జిద్ ప్రకటనను పాటించమని ఫాలోవర్లకు చెప్పబడుతుంది.,no
+admin,special.saveRamadan,Save Ramadan settings,రంజాన్ సెట్టింగ్‌లు సేవ్ చేయండి,no
+admin,special.ramadanSaved,Ramadan settings saved,రంజాన్ సెట్టింగ్‌లు సేవ్ అయ్యాయి,no
+admin,special.ramadanIssue.end_before_start,The last day is before the first day.,చివరి రోజు మొదటి రోజు కంటే ముందు ఉంది.,no
+admin,special.ramadanIssue.too_long,Ramadan mode can be on for at most 30 days.,రంజాన్ మోడ్ గరిష్టంగా 30 రోజులు ఉండవచ్చు.,no
+admin,special.ramadanIssue.date_out_of_range,Choose dates within a year from today.,ఈరోజు నుండి ఒక సంవత్సరంలోపు తేదీలను ఎంచుకోండి.,no
+admin,special.dates,Special dates,ప్రత్యేక రోజులు,no
+admin,special.add,Add special date,ప్రత్యేక రోజు జోడించండి,no
+admin,special.emptyTitle,No special dates yet,ఇంకా ప్రత్యేక రోజులు లేవు,no
+admin,special.emptyBody,"Add Eid, Taraweeh or another day with special times.","ఈద్, తరావీహ్ లేదా ప్రత్యేక సమయాలున్న మరో రోజును జోడించండి.",no
+admin,special.newTitle,New special date,కొత్త ప్రత్యేక రోజు,no
+admin,special.editTitle,Special date,ప్రత్యేక రోజు,no
+admin,special.typeLegend,What is the day?,ఏ రోజు?,no
+admin,special.type.eid_ul_fitr,Eid ul-Fitr,ఈదుల్ ఫిత్ర్,no
+admin,special.type.eid_ul_adha,Eid ul-Adha,ఈదుల్ అజ్‌హా,no
+admin,special.type.taraweeh,Taraweeh,తరావీహ్,no
+admin,special.type.shab_e_barat,Shab-e-Barat,షబ్-ఎ-బరాత్,no
+admin,special.type.shab_e_qadr,Shab-e-Qadr,షబ్-ఎ-ఖద్ర్,no
+admin,special.type.other,Other day,మరో రోజు,no
+admin,special.date,Date,తేదీ,no
+admin,special.pickDate,Choose the date,తేదీని ఎంచుకోండి,no
+admin,special.times,Times,సమయాలు,no
+admin,special.timeN,Time {n},సమయం {n},no
+admin,special.timeSheet,Time {n},సమయం {n},no
+admin,special.addTime,Add a time,సమయం జోడించండి,no
+admin,special.removeTime,Remove time {n},సమయం {n} తొలగించండి,no
+admin,special.timeLabel,Name for time {n},సమయం {n} పేరు,no
+admin,special.timeLabelHint,For example: 1st Jamaat,ఉదాహరణకు: మొదటి జమాత్,no
+admin,special.label,Short title,చిన్న శీర్షిక,no
+admin,special.labelHint,Shown after the day’s name,రోజు పేరు తర్వాత కనిపిస్తుంది,no
+admin,special.note,Note,గమనిక,no
+admin,special.issue.duplicate_time,Two times are the same.,రెండు సమయాలు ఒకటే.,no
+admin,special.issue.date_out_of_range,Choose a date within a year from today.,ఈరోజు నుండి ఒక సంవత్సరంలోపు తేదీని ఎంచుకోండి.,no
+admin,special.notify,Notify followers,ఫాలోవర్లకు తెలియజేయండి,no
+admin,special.quota,{left} of {limit} left today,ఈరోజు {limit}లో {left} మిగిలాయి,no
+admin,special.save,Save,సేవ్ చేయండి,no
+admin,special.saved,Saved,సేవ్ అయింది,no
+admin,special.savedNotified,Your followers will be notified.,మీ ఫాలోవర్లకు తెలియజేయబడుతుంది.,no
+admin,special.savedQuiet,Followers will see it in Special Dates.,ఫాలోవర్లు దీన్ని ప్రత్యేక రోజులలో చూస్తారు.,no
+admin,special.done,Done,పూర్తయింది,no
+admin,special.delete,Delete,తొలగించండి,no
+admin,special.deleteTitle,Delete this special date?,ఈ ప్రత్యేక రోజును తొలగించాలా?,no
+admin,special.deleteBody,Followers will no longer see it.,ఫాలోవర్లకు ఇది ఇక కనిపించదు.,no
+admin,special.deleted,Special date deleted,ప్రత్యేక రోజు తొలగించబడింది,no
+admin,special.preview,Preview,ప్రివ్యూ,no
+admin,special.previewTitle,How followers will see it,ఫాలోవర్లకు ఇలా కనిపిస్తుంది,no
+admin,special.showIn,Show in,ఇందులో చూపించు,no
+admin,special.quotaTitle,No notifications left today,ఈరోజు నోటిఫికేషన్లు మిగలలేదు,no
+admin,special.quotaBody,You can still save. Followers will see it when they open the app.,మీరు ఇంకా సేవ్ చేయవచ్చు. ఫాలోవర్లు యాప్ తెరిచినప్పుడు దీన్ని చూస్తారు.,no
+admin,special.saveWithout,Save without notifying,తెలియజేయకుండా సేవ్ చేయండి,no
+admin,special.sehriLess,Sehri: 1 minute less,సహరీ: 1 నిమిషం తక్కువ,no
+admin,special.sehriMore,Sehri: 1 minute more,సహరీ: 1 నిమిషం ఎక్కువ,no
+admin,special.iftarLess,Iftar: 1 minute less,ఇఫ్తార్: 1 నిమిషం తక్కువ,no
+admin,special.iftarMore,Iftar: 1 minute more,ఇఫ్తార్: 1 నిమిషం ఎక్కువ,no
+admin,special.past,Past,గత రోజులు,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -391,7 +458,7 @@ errors,PRECONDITION_FAILED,Someone else changed this just now. Please look at th
 errors,TIMINGS_INVALID,Some times don’t fit together. Please check the times marked in red.,కొన్ని సమయాలు సరిపోలడం లేదు. ఎరుపు రంగులో చూపిన సమయాలను తనిఖీ చేయండి.,no
 errors,NOTIFY_QUOTA_EXCEEDED,Today’s notifications are used up. You can still save without notifying followers.,ఈరోజు నోటిఫికేషన్లు అయిపోయాయి. ఫాలోవర్లకు తెలియజేయకుండానే సేవ్ చేయవచ్చు.,no
 errors,ACTIVATION_TIMINGS_REQUIRED,This masjid can be activated once all five jamaat times are set.,ఐదు జమాత్ సమయాలు సెట్ చేశాకే ఈ మస్జిద్‌ను యాక్టివేట్ చేయవచ్చు.,no
-errors,SPECIAL_DATE_NOT_FOUND,This special date was removed. Please go back to the list.,ఈ ప్రత్యేక తేదీ తొలగించబడింది. దయచేసి జాబితాకు తిరిగి వెళ్లండి.,no
+errors,SPECIAL_DATE_NOT_FOUND,This special date was removed. Please go back to the list.,ఈ ప్రత్యేక రోజు తొలగించబడింది. దయచేసి జాబితాకు తిరిగి వెళ్లండి.,no
 errors,SPECIAL_DATE_INVALID,"Please check the date and times: up to 5 different times, on a date within about a year.","దయచేసి తేదీ మరియు సమయాలను తనిఖీ చేయండి: గరిష్టంగా 5 వేర్వేరు సమయాలు, సుమారు ఒక సంవత్సరంలోపు తేదీ.",no
 errors,RAMADAN_INVALID,"Please check the Ramadan dates: the last day comes after the first, at most 30 days.","దయచేసి రంజాన్ తేదీలను తనిఖీ చేయండి: చివరి రోజు మొదటి రోజు తర్వాత ఉండాలి, గరిష్టంగా 30 రోజులు.",no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no

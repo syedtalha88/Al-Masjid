@@ -22,7 +22,7 @@ function useTime(): (hhmm: string) => string {
 }
 
 /** A 56px row button: label on top, the value large, a hint under it. */
-function SlotButton({
+export function SlotButton({
   label,
   value,
   hint,
