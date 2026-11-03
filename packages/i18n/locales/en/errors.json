@@ -41,5 +41,8 @@
   "PRECONDITION_FAILED": "Someone else changed this just now. Please look at the latest version and try again.",
   "TIMINGS_INVALID": "Some times don’t fit together. Please check the times marked in red.",
   "NOTIFY_QUOTA_EXCEEDED": "Today’s notifications are used up. You can still save without notifying followers.",
-  "ACTIVATION_TIMINGS_REQUIRED": "This masjid can be activated once all five jamaat times are set."
+  "ACTIVATION_TIMINGS_REQUIRED": "This masjid can be activated once all five jamaat times are set.",
+  "SPECIAL_DATE_NOT_FOUND": "This special date was removed. Please go back to the list.",
+  "SPECIAL_DATE_INVALID": "Please check the date and times: up to 5 different times, on a date within about a year.",
+  "RAMADAN_INVALID": "Please check the Ramadan dates: the last day comes after the first, at most 30 days."
 }

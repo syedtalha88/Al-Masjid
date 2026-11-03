@@ -391,6 +391,9 @@ errors,PRECONDITION_FAILED,Someone else changed this just now. Please look at th
 errors,TIMINGS_INVALID,Some times don’t fit together. Please check the times marked in red.,कुछ समय आपस में मेल नहीं खाते। कृपया लाल रंग में दिखे समय जाँचें।,no
 errors,NOTIFY_QUOTA_EXCEEDED,Today’s notifications are used up. You can still save without notifying followers.,आज की सूचनाएँ ख़त्म हो गई हैं। आप फ़ॉलोअर्स को बताए बिना सेव कर सकते हैं।,no
 errors,ACTIVATION_TIMINGS_REQUIRED,This masjid can be activated once all five jamaat times are set.,पाँचों जमात के समय सेट होने के बाद ही यह मस्जिद सक्रिय की जा सकती है।,no
+errors,SPECIAL_DATE_NOT_FOUND,This special date was removed. Please go back to the list.,यह ख़ास तारीख़ हटा दी गई है। कृपया सूची पर वापस जाएँ।,no
+errors,SPECIAL_DATE_INVALID,"Please check the date and times: up to 5 different times, on a date within about a year.","कृपया तारीख़ और समय जाँचें: ज़्यादा से ज़्यादा 5 अलग-अलग समय, लगभग एक साल के अंदर की तारीख़।",no
+errors,RAMADAN_INVALID,"Please check the Ramadan dates: the last day comes after the first, at most 30 days.","कृपया रमज़ान की तारीख़ें जाँचें: आख़िरी दिन पहले दिन के बाद हो, ज़्यादा से ज़्यादा 30 दिन।",no
 follow,scan.title,Scan masjid QR,मस्जिद का QR स्कैन करें,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,अपना कैमरा मस्जिद के पोस्टर पर लगे QR कोड की ओर करें।,no
 follow,scan.torch,Flashlight,टॉर्च,no
@@ -847,3 +850,5 @@ templates,blood_donation_camp.title,Blood donation camp,रक्तदान �
 templates,blood_donation_camp.body,"Blood donation camp on {date}, {hours_start} to {hours_end}, at {place}. To register, contact {contact}.",{date} को {hours_start} से {hours_end} तक {place} में रक्तदान शिविर। नाम लिखवाने के लिए {contact} पर संपर्क करें।,no
 templates,timings_updated.title,Prayer timings updated,नमाज़ के समय बदले,no
 templates,timings_updated.body,The prayer timings of this masjid have been updated. Please check the new times.,इस मस्जिद की नमाज़ के समय अपडेट किए गए हैं। कृपया नए समय देख लें।,no
+templates,special_timings.title,Special timings,ख़ास समय,no
+templates,special_timings.body,This masjid has special timings for {date}. Please see Special Dates for the times.,इस मस्जिद में {date} के लिए ख़ास समय हैं। समय देखने के लिए कृपया ख़ास तारीख़ें देखें।,no

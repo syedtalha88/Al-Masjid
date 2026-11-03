@@ -146,6 +146,15 @@ const STRUCTURE: readonly Omit<StarterTemplate, 'title' | 'body'>[] = [
   },
   // Sent by the app when a masjid saves new timings (T3.2).
   { key: 'timings_updated', category: 'timing', icon: 'clock', important: false, system: true, params: [] },
+  // Sent by the app when a masjid saves a special date with "Notify followers" (T3.3).
+  {
+    key: 'special_timings',
+    category: 'timing',
+    icon: 'calendar',
+    important: false,
+    system: true,
+    params: [p('date', 'date')],
+  },
 ];
 
 type LocaleFile = Readonly<Record<string, { readonly title: string; readonly body: string }>>;
@@ -159,7 +168,10 @@ const texts = (key: string, part: 'title' | 'body'): Texts => {
   return { en: read('en'), hi: read('hi'), ur: read('ur'), te: read('te') };
 };
 
-/** The starter notice templates (00 §4.3 + #104 blood camp + the system "timings updated"), texts in all 4 locales. */
+/**
+ * The starter notice templates (00 §4.3 + #104 blood camp + the system "timings updated" and "special timings"), texts
+ * in all 4 locales.
+ */
 export const STARTER_TEMPLATES: readonly StarterTemplate[] = STRUCTURE.map((template) => ({
   ...template,
   title: texts(template.key, 'title'),

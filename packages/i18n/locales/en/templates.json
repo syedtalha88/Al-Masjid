@@ -62,5 +62,9 @@
   "timings_updated": {
     "title": "Prayer timings updated",
     "body": "The prayer timings of this masjid have been updated. Please check the new times."
+  },
+  "special_timings": {
+    "title": "Special timings",
+    "body": "This masjid has special timings for {date}. Please see Special Dates for the times."
   }
 }

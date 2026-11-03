@@ -391,6 +391,9 @@ errors,PRECONDITION_FAILED,Someone else changed this just now. Please look at th
 errors,TIMINGS_INVALID,Some times don’t fit together. Please check the times marked in red.,కొన్ని సమయాలు సరిపోలడం లేదు. ఎరుపు రంగులో చూపిన సమయాలను తనిఖీ చేయండి.,no
 errors,NOTIFY_QUOTA_EXCEEDED,Today’s notifications are used up. You can still save without notifying followers.,ఈరోజు నోటిఫికేషన్లు అయిపోయాయి. ఫాలోవర్లకు తెలియజేయకుండానే సేవ్ చేయవచ్చు.,no
 errors,ACTIVATION_TIMINGS_REQUIRED,This masjid can be activated once all five jamaat times are set.,ఐదు జమాత్ సమయాలు సెట్ చేశాకే ఈ మస్జిద్‌ను యాక్టివేట్ చేయవచ్చు.,no
+errors,SPECIAL_DATE_NOT_FOUND,This special date was removed. Please go back to the list.,ఈ ప్రత్యేక తేదీ తొలగించబడింది. దయచేసి జాబితాకు తిరిగి వెళ్లండి.,no
+errors,SPECIAL_DATE_INVALID,"Please check the date and times: up to 5 different times, on a date within about a year.","దయచేసి తేదీ మరియు సమయాలను తనిఖీ చేయండి: గరిష్టంగా 5 వేర్వేరు సమయాలు, సుమారు ఒక సంవత్సరంలోపు తేదీ.",no
+errors,RAMADAN_INVALID,"Please check the Ramadan dates: the last day comes after the first, at most 30 days.","దయచేసి రంజాన్ తేదీలను తనిఖీ చేయండి: చివరి రోజు మొదటి రోజు తర్వాత ఉండాలి, గరిష్టంగా 30 రోజులు.",no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no
@@ -847,3 +850,5 @@ templates,blood_donation_camp.title,Blood donation camp,రక్తదాన �
 templates,blood_donation_camp.body,"Blood donation camp on {date}, {hours_start} to {hours_end}, at {place}. To register, contact {contact}.",{date}న {hours_start} నుండి {hours_end} వరకు {place}లో రక్తదాన శిబిరం. నమోదు కోసం {contact}ని సంప్రదించండి.,no
 templates,timings_updated.title,Prayer timings updated,నమాజ్ సమయాలు మారాయి,no
 templates,timings_updated.body,The prayer timings of this masjid have been updated. Please check the new times.,ఈ మస్జిద్ నమాజ్ సమయాలు నవీకరించబడ్డాయి. దయచేసి కొత్త సమయాలు చూడండి.,no
+templates,special_timings.title,Special timings,ప్రత్యేక సమయాలు,no
+templates,special_timings.body,This masjid has special timings for {date}. Please see Special Dates for the times.,ఈ మస్జిద్‌లో {date} కోసం ప్రత్యేక సమయాలు ఉన్నాయి. సమయాల కోసం దయచేసి ప్రత్యేక రోజులు చూడండి.,no

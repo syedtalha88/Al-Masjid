@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { safeText } from './text.ts';
+
 // api-admin masjid-scoped contracts (03 §4 "Masjid-scoped", PHASE_03) — the server validates its responses with these,
 // the admin PWA parses them. Classic Zod like the other admin contracts (the public ones are Zod Mini — DECISIONS #92).
 
@@ -125,3 +127,79 @@ export const timingsPreviewSchema = z
   })
   .meta({ id: 'TimingsPreview' });
 export type TimingsPreview = z.infer<typeof timingsPreviewSchema>;
+
+// --- Special dates & Ramadan (07 B11, PHASE_03 T3.3) ----------------------------------------------------------------
+
+/** 00 §4.2 special date types (= `@mc/db/schema` SPECIAL_TYPE). */
+export const SPECIAL_TYPES = [
+  'eid_ul_fitr',
+  'eid_ul_adha',
+  'taraweeh',
+  'shab_e_barat',
+  'shab_e_qadr',
+  'other',
+] as const;
+export type SpecialType = (typeof SPECIAL_TYPES)[number];
+
+/**
+ * Body of `POST /special` and `PATCH /special/:id` — the whole entry (a PATCH replaces it; a label or note left out is
+ * removed). The ±400-day window and duplicate times are `@mc/domain/special` rules, checked by the data layer.
+ */
+export const specialDateSaveSchema = z
+  .strictObject({
+    type: z.enum(SPECIAL_TYPES),
+    date: z.iso.date(),
+    label: safeText(80, { min: 1 }).optional(),
+    times: z
+      .array(z.strictObject({ time: wallClock, label: safeText(40, { min: 1 }).optional() }))
+      .min(1)
+      .max(5),
+    note: safeText(300, { min: 1, multiline: true }).optional(),
+    /** "Notify followers": publishes a timing update for the date (counts against today's quota). */
+    notify: z.boolean(),
+  })
+  .meta({ id: 'SpecialDateSave' });
+export type SpecialDateSave = z.infer<typeof specialDateSaveSchema>;
+
+/** One special date as the admin screens read it (responses carry plain strings — see super.ts). */
+export const adminSpecialDateSchema = z.object({
+  id: z.string(),
+  type: z.enum(SPECIAL_TYPES),
+  date: z.iso.date(),
+  label: z.string().optional(),
+  times: z.array(z.object({ time: wallClock, label: z.string().optional() })),
+  note: z.string().optional(),
+});
+export type AdminSpecialDate = z.infer<typeof adminSpecialDateSchema>;
+
+/** `GET /special` — from 30 days ago onwards, by date. */
+export const adminSpecialDatesSchema = z
+  .object({ specialDates: z.array(adminSpecialDateSchema) })
+  .meta({ id: 'AdminSpecialDates' });
+export type AdminSpecialDates = z.infer<typeof adminSpecialDatesSchema>;
+
+export const specialDateSavedSchema = z
+  .object({ id: z.string(), item: z.object({ publicId: z.string() }).nullable() })
+  .meta({ id: 'SpecialDateSaved' });
+export type SpecialDateSaved = z.infer<typeof specialDateSavedSchema>;
+
+/**
+ * `GET /ramadan` and the body of `PUT /ramadan` (03 §4): Ramadan mode is on from `start` to `end` (both `null` = off);
+ * the precautions stay when it is off. Start ≤ end and the 30-day limit are `@mc/domain/special` rules.
+ */
+const ramadanFields = {
+  start: z.iso.date().nullable(),
+  end: z.iso.date().nullable(),
+  sehriPrecaution: intIn(0, 15),
+  iftarPrecaution: intIn(0, 10),
+};
+export const ramadanSchema = z.object(ramadanFields).meta({ id: 'Ramadan' });
+export type Ramadan = z.infer<typeof ramadanSchema>;
+export const ramadanSaveSchema = z
+  .strictObject(ramadanFields)
+  .refine((value) => (value.start === null) === (value.end === null), {
+    message: 'start and end are set together',
+    path: ['end'],
+  })
+  .meta({ id: 'RamadanSave' });
+export type RamadanSave = z.infer<typeof ramadanSaveSchema>;

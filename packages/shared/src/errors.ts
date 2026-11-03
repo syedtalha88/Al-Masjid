@@ -54,6 +54,9 @@ export const API_ERRORS = {
   TIMINGS_INVALID: 400,
   NOTIFY_QUOTA_EXCEEDED: 409,
   ACTIVATION_TIMINGS_REQUIRED: 409,
+  SPECIAL_DATE_NOT_FOUND: 404,
+  SPECIAL_DATE_INVALID: 400,
+  RAMADAN_INVALID: 400,
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;
