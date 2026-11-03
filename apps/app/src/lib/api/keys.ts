@@ -8,7 +8,9 @@ export const queryKeys = {
   config: () => ['config'] as const,
   templates: () => ['templates'] as const,
   versions: (masjidIds: readonly string[]) => ['versions', sortedIds(masjidIds)] as const,
-  bundle: (masjidId: string, v: number) => ['bundle', masjidId, v] as const,
+  /** Without `v`: every cached version of the masjid's bundle (a prefix for cache lookups). */
+  bundle: (masjidId: string, v?: number) =>
+    v === undefined ? (['bundle', masjidId] as const) : (['bundle', masjidId, v] as const),
   /** All bundle queries of a masjid (any version). */
   bundles: (masjidId: string) => ['bundle', masjidId] as const,
   feed: (masjidId: string, v: number, aud: 'brothers' | 'sisters', type?: ItemType) =>

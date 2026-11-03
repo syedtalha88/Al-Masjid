@@ -3,9 +3,15 @@
 // versions; changed masjids load their new bundle/feed by key.
 import type { ActiveMasjidBundle, FeedItem, FeedPage, MasjidBundle } from '@mc/shared/contracts/public';
 import { type FetchStatus, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
-import { bundleQuery, feedQuery, templatesQuery } from '../../../lib/api/queries.ts';
+import {
+  bundleQuery,
+  feedQuery,
+  previousBundle,
+  pruneStaleVersions,
+  templatesQuery,
+} from '../../../lib/api/queries.ts';
 import { useAppData, useDeviceSelector, useFollowedIds } from '../../../lib/data.tsx';
 import { useMasjidVersions } from '../../../lib/versions.ts';
 import { mergeRecent } from '../lib/home-view.ts';
@@ -55,10 +61,18 @@ export function useHomeData(): HomeData {
   const bundles = useQueries({
     queries: ids.map((id) => {
       const v = versions?.[id]?.v;
-      return { ...bundleQuery(api, id, v ?? 0), enabled: v !== undefined };
+      return {
+        ...bundleQuery(api, id, v ?? 0),
+        enabled: v !== undefined,
+        placeholderData: () => previousBundle(queryClient, id, v ?? 0),
+      };
     }),
     combine: pickBundles,
   });
+  // The old versions kept as placeholders go once the new bundles are in.
+  useEffect(() => {
+    if (versions) pruneStaleVersions(queryClient, versions);
+  }, [bundles, versions, queryClient]);
   const feeds = useQueries({
     queries: ids.map((id) => {
       const entry = versions?.[id];
