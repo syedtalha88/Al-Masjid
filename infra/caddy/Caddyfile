@@ -6,6 +6,10 @@
 #                                      (Caddy rejects TLS without Cloudflare's client certificate — 04 §12.2)
 #   API_PUBLIC_UPSTREAM, API_ADMIN_UPSTREAM   e.g. api-public:8787, api-admin:8788
 #   APP_ROBOTS                X-Robots-Tag of the app origin: "noindex, nofollow" on staging, default "all"
+#   MEDIA_HOST                the image host, e.g. media-staging.<domain> (T3.6, DECISIONS #40)
+#   MEDIA_BACKEND             cloudinary → proxied to Cloudinary's named transformations (staging/production)
+#                             files      → served from /srv/media, written by api-admin (local stack)
+#   CLOUDINARY_CLOUD_NAME     the Cloudinary cloud (not a secret)
 # Security headers for static files (exact 04 §7 set incl. CSP) are completed in T0.5.
 
 {
@@ -218,3 +222,58 @@ https://{$ADMIN_HOST} {
 		import spa /srv/admin
 	}
 }
+
+# Images (01 §5.5, DECISIONS #40, PHASE_03 T3.6): only /i/<480|960|1440>/<avif|webp>/m/<masjid id>/<image id> exists;
+# anything else is a plain 404 (no listing, no other Cloudinary path, no ad-hoc transformation). Responses are
+# immutable — a changed photo gets a new key.
+(media-files) {
+	root * /srv/media
+	rewrite * /i/{re.media.1}/{re.media.2}/m/{re.media.3}/{re.media.4}.{re.media.2}
+	file_server
+}
+(media-cloudinary) {
+	rewrite * /{$CLOUDINARY_CLOUD_NAME:not-configured}/image/upload/t_mc_{re.media.1}_{re.media.2}/m/{re.media.3}/{re.media.4}
+	reverse_proxy https://res.cloudinary.com {
+		header_up Host res.cloudinary.com
+		header_up -Cookie
+		header_up -Authorization
+		# Cloudinary's own cookies, timing and server headers never reach the browser.
+		header_down -Set-Cookie
+		header_down -Server
+		header_down -Server-Timing
+		header_down -Via
+		header_down -X-Request-Id
+	}
+}
+(media-site) {
+	header {
+		-Server
+		X-Content-Type-Options "nosniff"
+		# Loaded as <img> by the app and admin origins (another site than media.*, for the CORP check).
+		Cross-Origin-Resource-Policy "cross-origin"
+		Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
+		Referrer-Policy "no-referrer"
+		X-Robots-Tag "noindex"
+	}
+	@image {
+		method GET HEAD
+		path_regexp media ^/i/(480|960|1440)/(avif|webp)/m/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$
+	}
+	handle @image {
+		header Cache-Control "public, max-age=31536000, immutable"
+		import media-{$MEDIA_BACKEND:cloudinary}
+	}
+	handle {
+		header Cache-Control "no-store"
+		respond 404
+	}
+}
+
+https://{$MEDIA_HOST:media.invalid} {
+	import common
+	import media-site
+}
+
+# Local stack only: extra sites mounted into /etc/caddy/local (the image host on http://localhost:8790, which local
+# app builds use). Nothing is mounted there on the VPS, so nothing is imported.
+import /etc/caddy/local/*.caddy

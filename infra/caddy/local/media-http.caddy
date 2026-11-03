@@ -1,0 +1,5 @@
+# Local stack only (docker-compose.stack.yml mounts this folder): the image host local app builds point at
+# (VITE_PUBLIC_MEDIA_ORIGIN=http://localhost:8790 from scripts/setup-local.mjs). Same routes as https://{$MEDIA_HOST}.
+http://localhost:8790 {
+	import media-site
+}
