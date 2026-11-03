@@ -190,10 +190,9 @@ Use Android B as admin and Android A / iPhone as musalli.
 | 7.1 | Permissions | Home → compass icon → allow location (iPhone: also allow motion) | Clear explanation screens before each permission |
 | 7.2 | Accuracy | Stand in a masjid, hold phone flat, compare the arrow with the mihrab/qibla direction | Matches within a few degrees |
 | 7.3 | Alignment | Turn slowly until aligned | Turns green, gentle pulse, phone vibrates once (Android) |
-| 7.4 | Calibration | Wave phone near a speaker/magnet, then move in figure-8 | Shows calibration message, then recovers |
 | 7.5 | Smoothness | Rotate slowly and quickly on Android A | Dial moves smoothly, no jitter or jumps at North |
-| 7.6 | No GPS | Deny location → choose a city | Works with the chosen city |
-| 7.7 | Laptop | Open Qibla on the laptop | Map mode with a line towards Makkah |
+| 7.6 | No GPS | Deny location | Uses your first followed masjid's location ("Using: …") |
+| 7.7 | Laptop | Open Qibla on the laptop (no compass) | The dial stays North-up and shows the Qibla degrees from North with a short hint |
 | 7.8 | Urdu | Switch to Urdu | Compass letters N/E/S/W are not mirrored |
 
 ---

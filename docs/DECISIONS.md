@@ -1567,4 +1567,16 @@ publishes. The acceptance journey also found that every version bump blanked the
 sees the entry and the Eid card after one poll, delete, Ramadan card) and B11 × 4 locales screenshots + axe. A
 special date's label/note in the musalli card has no `dir="auto"` yet — part of F49 (next baseline refresh).
 
+### #118 — A simple Qibla page (PHASE_07) — ACCEPTED (owner, 3 Nov 2026)
+**Context:** Phase 07 planned a full compass module: a bundled list of ~500 cities in 4 scripts, magnetic declination,
+accuracy and calibration detection, Wake Lock, and a map fallback with a tile-provider decision.
+**Decision (owner, 3 Nov 2026):** "We don't want to work that much on the Qibla module … just a simple Qibla direction
+page. Just make sure the design is good. For functionality … simple logic would be fine." Kept: the bearing and
+distance math (tested), the arrow turning with the phone's heading where there is a compass, the ±3° aligned state, the
+4-locale design, location on the device only. Location falls back to the first followed masjid's coordinates (no city
+list). No compass → North-up dial with the bearing in degrees. Dropped: map mode and tiles (the owner prerequisite
+goes), the city dataset, declination, accuracy/calibration, Wake Lock.
+**Consequences:** `PHASE_07_QIBLA.md`, 00 §4.5, 07 A14 and 08 §5.9 updated; Phase 07 needs nothing from the owner but
+the final mihrab comparison on two phones.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._

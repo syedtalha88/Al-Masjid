@@ -29,6 +29,8 @@ staging = `cdd39fa` — nothing deployed. Done today: **T3.0** (owner accepted w
 2. **Next task: T3.6** notice creator (B5) + image pipeline (Cloudinary keys local in `.env.local.api-admin`; staging
    keys to the VPS env files at this task — ask the owner). Then T3.7–T3.10, T3.13–T3.17, T3.12.
 
+**Owner, 3 Nov 2026:** keep `owner/MY_PENDING_TASKS.md` complete (O25–O34 added) — when asked "anything pending from my side?", answer from that list. Qibla is a simple page (#118); Chanda stays as planned.
+
 **Owner rule (3 Nov 2026, #116):** a few ms over a motion budget or a few kB over a size budget is fine — record a
 tolerance, don't spend sessions optimising.
 
@@ -243,6 +245,16 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O23 | **Cloudflare Cache Rule "App API (origin)"** (infra/cloudflare/README.md §4 rule 1) — check it exists and is enabled | T2.2 acceptance: staging versioned bundle/feed answer `cf-cache-status: DYNAMIC` (23 Oct 2026, origin sends `public, max-age=31536000, immutable`) — Cloudflare is not caching `/api/v1/*`; until fixed, every read reaches the VPS | 5 min | **owner, 25 Oct 2026: enabled** — re-check the same day still `DYNAMIC` (never HIT) with correct origin headers → the rule does not match yet; compare it with README §4 rule 1 (see the handoff above) |
 | O24 | **Confirm the bundle-size raises** — musalli initial JS limit 170 → 175 (T2.3) → 176 (T2.4) → 180 (T2.5) → 184 (T2.6) → 182 (T2.7) → 181 kB (T2.9, after F43 parts 1–2) → 184 kB (T2.11; owner 24 Oct 2026: "10–20 kB is fine, focus on quality") → **186 kB** (T2.12) under the owner rule "quality over bundle size" | DECISIONS #92–#94; the alternative is deeper chunk tuning (Motion split) | 1 answer | **answered 24 Oct 2026:** "I can manage a few kB if it's increasing" — raises of a few kB are fine; keep recording each in DECISIONS / `.size-limit.js` |
 | O22 | ~~Host-layer update on the VPS~~ | F36, F37, F40, L-5, #86 L5 | – | **done 22 Oct 2026** — `provision.sh host aa2d1ac` (checksum confirmed), `make-env.sh staging --force`, Redis restarted; `--verify-roles` 17/17, `check.sh` 114 PASS · 0 FAIL · 2 WARN (evidence `docs/reports/evidence/PHASE_01_T1.1_verify-roles_2026-10-22.txt`, `PHASE_01_T1.12_check-sh_2026-10-22.txt`) |
+| O25 | **Cloudinary for staging** (strict transformations, 6 image + 1 audio named transformations, 2 API keys into the VPS env files, `media-staging` DNS) — steps at T3.6 | Phase 03 staging deploy (images, voice notes) | 20 min | open — not blocking local work |
+| O26 | **Usability check T3.12** with a real masjid person (5-task script) | T3.12 / Phase 03 exit | 30 min | end of Phase 03 |
+| O27 | **Phase 03 checks on staging** (`owner/PHASE_TESTING_GUIDE.md` → Phase 03) | Phase 03 DONE | 45 min | end of Phase 03 |
+| O28 | **UPI ID for a ₹1 test** | Phase 05 exit | 5 min | Phase 05 |
+| O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | Phase 07 (map-tile decision dropped — #118) |
+| O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
+| O31 | **Translation review** of `packages/i18n/review/{hi,ur,te}.csv` (≈ 920 draft strings each) | pilot | translators | before pilot |
+| O32 | **Verified Content Library file** (`docs/content-library-format.md`) | pilot | — | before pilot |
+| O33 | **Grievance Officer details** in Super Admin → Settings | launch (#101) | 5 min | before launch |
+| O34 | **Legal checklist** `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md` | pilot | — | before pilot |
 
 ## Current phase task checklist
 
