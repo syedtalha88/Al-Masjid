@@ -1,15 +1,24 @@
 // Masjid-scoped admin API (03 §4 "Masjid-scoped", PHASE_03): `/masjids/:masjidId/...` for the masjid's own admins. The
 // repositories re-resolve the id under the session's scope (02 §4.1), so another masjid — or a malformed id — answers
 // exactly like an unknown one (404 `MASJID_NOT_FOUND`).
-import { type DbHandle, parseId } from '@mc/db';
-import { getAdminSchedule, getMasjidStats, getPushQuota, getRamadan, listSpecialDates } from '@mc/db/repos';
-import { deleteSpecialDate, saveRamadan, saveSpecialDate, saveTimings } from '@mc/db/state';
+import { type DbHandle, idText, parseId } from '@mc/db';
+import {
+  getAdminSchedule,
+  getMasjidStats,
+  getPushQuota,
+  getRamadan,
+  listSpecialDates,
+  requireOwnMasjid,
+} from '@mc/db/repos';
+import { deleteSpecialDate, recordImageUpload, saveRamadan, saveSpecialDate, saveTimings } from '@mc/db/state';
 import { resolveSchedule } from '@mc/domain/prayer';
 import { addDays, calendarDateInZone } from '@mc/domain/time';
 import {
   adminMasjidStatsSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
+  imageUploadedSchema,
+  imageUploadQuerySchema,
   pushQuotaSchema,
   ramadanSaveSchema,
   ramadanSchema,
@@ -19,13 +28,18 @@ import {
   timingsSavedSchema,
   timingsSaveSchema,
 } from '@mc/shared/contracts';
+import type { Request } from 'express';
 import { z } from 'zod';
 
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
 import { ApiProblem } from '../http/problem.ts';
+import { IMAGE_MAX_BYTES, ImageRejected, sanitizeImage } from '../media/image.ts';
+import { type MediaStore, newImageKey } from '../media/store.ts';
 
 export interface AdminMasjidRouteDeps {
   readonly db: DbHandle;
+  /** Photo storage and the origin its delivery URLs are on (T3.6); absent → `POST /images` answers 503. */
+  readonly media?: { readonly store: MediaStore; readonly origin: string } | undefined;
 }
 
 const Params = z.object({ masjidId: z.string().max(64) });
@@ -50,10 +64,18 @@ function specialIdOf(text: string) {
   return id;
 }
 
-/** PHASE_03 T3.1: the Admin Home's reads; T3.2: saving timings and the preview of a day; T3.3: special dates, Ramadan. */
+/**
+ * PHASE_03 T3.1: the Admin Home's reads; T3.2: saving timings and the preview of a day; T3.3: special dates, Ramadan;
+ * T3.6: photos.
+ */
 export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[] {
-  const { db } = deps;
+  const { db, media } = deps;
   const writes = [{ bucket: 'adminWrites', key: 'session' }] as const;
+  // 03 §2: 30 uploads per hour per masjid (whichever admin uploads), and the session's write budget.
+  const uploads = [
+    { bucket: 'adminUploads', key: (req: Request) => req.params['masjidId']?.toString() },
+    ...writes,
+  ] as const;
   return [
     defineRoute({
       method: 'get',
@@ -220,6 +242,41 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
           requestId,
         });
         return reply(204, {});
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/masjids/:masjidId/images',
+      summary: 'Upload a photo (≤ 10 MB; JPEG, PNG, WebP or AVIF by content): sanitized, re-encoded, then stored',
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: uploads,
+      upload: { maxBytes: IMAGE_MAX_BYTES },
+      request: { params: Params, query: imageUploadQuerySchema },
+      responses: { 201: imageUploadedSchema },
+      handler: async ({ auth, params, query, file, requestId, reply }) => {
+        const masjidId = masjidIdOf(params.masjidId);
+        requireOwnMasjid(auth.scope, masjidId);
+        if (!media || !file) throw new ApiProblem(503, 'SERVICE_UNAVAILABLE');
+        let image: Awaited<ReturnType<typeof sanitizeImage>>;
+        try {
+          image = await sanitizeImage(file.bytes);
+        } catch (error) {
+          if (error instanceof ImageRejected) throw new ApiProblem(422, 'IMAGE_INVALID');
+          throw error;
+        }
+        const key = newImageKey(idText(masjidId));
+        await media.store.putImage(key, image.master);
+        await recordImageUpload(db, auth.scope, { masjidId, key, purpose: query.purpose, requestId });
+        const origin = media.origin.endsWith('/') ? media.origin.slice(0, -1) : media.origin;
+        const url = (width: number) => `${origin}/i/${String(width)}/webp/${key}`;
+        return reply(201, {
+          imageKey: key,
+          thumbhash: image.thumbhash,
+          width: image.width,
+          height: image.height,
+          urls: { w480: url(480), w960: url(960), w1440: url(1440) },
+        });
       },
     }),
     defineRoute({

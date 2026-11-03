@@ -1351,6 +1351,51 @@
         ],
         "additionalProperties": false
       },
+      "ImageUploaded": {
+        "type": "object",
+        "properties": {
+          "imageKey": {
+            "type": "string"
+          },
+          "thumbhash": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "height": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "urls": {
+            "type": "object",
+            "properties": {
+              "w480": {
+                "type": "string"
+              },
+              "w960": {
+                "type": "string"
+              },
+              "w1440": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "w480",
+              "w960",
+              "w1440"
+            ]
+          }
+        },
+        "required": [
+          "imageKey",
+          "thumbhash",
+          "width",
+          "height",
+          "urls"
+        ]
+      },
       "Ramadan": {
         "type": "object",
         "properties": {
@@ -6452,6 +6497,79 @@
         "responses": {
           "204": {
             "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/images": {
+      "post": {
+        "summary": "Upload a photo (≤ 10 MB; JPEG, PNG, WebP or AVIF by content): sanitized, re-encoded, then stored",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "announcement",
+                "campaign"
+              ]
+            },
+            "required": true,
+            "name": "purpose",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true"
+              ]
+            },
+            "required": true,
+            "name": "rightsConfirmed",
+            "in": "query"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageUploaded"
+                }
+              }
+            }
           }
         }
       }

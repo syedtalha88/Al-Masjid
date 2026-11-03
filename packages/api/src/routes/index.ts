@@ -3,7 +3,7 @@
 import type { RouteDefinition } from '../http/define-route.ts';
 import { type AdminAuthDeps, adminSessionRoutes } from './admin-auth.ts';
 import { adminLibraryRoutes } from './admin-library.ts';
-import { adminMasjidRoutes } from './admin-masjid.ts';
+import { type AdminMasjidRouteDeps, adminMasjidRoutes } from './admin-masjid.ts';
 import { type AdminPasskeyDeps, adminPasskeyRoutes } from './admin-passkeys.ts';
 import { linkPreviewRoutes } from './link-preview.ts';
 import { type PublicRouteDeps, publicRoutes } from './public.ts';
@@ -11,7 +11,7 @@ import { type SuperRouteDeps, superRoutes } from './super.ts';
 import { superLibraryRoutes } from './super-library.ts';
 import { superTemplateRoutes } from './super-templates.ts';
 
-export type AdminRouteDeps = AdminAuthDeps & AdminPasskeyDeps & SuperRouteDeps;
+export type AdminRouteDeps = AdminAuthDeps & AdminPasskeyDeps & SuperRouteDeps & Pick<AdminMasjidRouteDeps, 'media'>;
 export type { PublicRouteDeps };
 
 /** api-public feature routes (03 §3, PHASE_02 T2.2). */

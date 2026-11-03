@@ -104,6 +104,7 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'special.update': ['type', 'notify'],
   'special.delete': [],
   'ramadan.update': ['on'],
+  'image.upload': ['purpose', 'rights_confirmed'],
 };
 const META_LIMIT_BYTES = 4096;
 

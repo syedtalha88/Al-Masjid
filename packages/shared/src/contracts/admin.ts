@@ -203,3 +203,26 @@ export const ramadanSaveSchema = z
   })
   .meta({ id: 'RamadanSave' });
 export type RamadanSave = z.infer<typeof ramadanSaveSchema>;
+
+// --- Photos (01 §5.5, 03 §4 `POST /images`, PHASE_03 T3.6) ----------------------------------------------------------
+
+/**
+ * Query of `POST /masjids/:masjidId/images` (the body is the photo, multipart field `file`): what it is for, and the
+ * admin's confirmation that the masjid may publish it (B5 ownership checkbox — recorded in the audit log).
+ */
+export const imageUploadQuerySchema = z.strictObject({
+  purpose: z.enum(['announcement', 'campaign']),
+  rightsConfirmed: z.literal('true'),
+});
+
+/** The stored photo: its key (sent with the post), ThumbHash placeholder, size, and the delivery URLs (WebP). */
+export const imageUploadedSchema = z
+  .object({
+    imageKey: z.string(),
+    thumbhash: z.string(),
+    width: z.number().int().positive(),
+    height: z.number().int().positive(),
+    urls: z.object({ w480: z.string(), w960: z.string(), w1440: z.string() }),
+  })
+  .meta({ id: 'ImageUploaded' });
+export type ImageUploaded = z.infer<typeof imageUploadedSchema>;

@@ -73,6 +73,7 @@ export {
   mirrorVisibility,
   type NewMasjid,
 } from './masjids.ts';
+export { type ImagePurpose, recordImageUpload } from './media.ts';
 export {
   enqueueNotification,
   insertPublishedItem,

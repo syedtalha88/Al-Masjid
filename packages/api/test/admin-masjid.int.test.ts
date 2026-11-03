@@ -2,6 +2,9 @@
 // stats, push quota, schedule — for the admin's own masjid; another masjid, a malformed id and the Super Admin (not a
 // member) all get the uniform 404; no session → 401. T3.2: the timings editor; T3.3: special dates and Ramadan.
 import { randomBytes } from 'node:crypto';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import { type DbHandle, publicScope } from '@mc/db';
 import { runMigrations } from '@mc/db/migrate';
@@ -13,12 +16,14 @@ import {
   adminMasjidStatsSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
+  imageUploadedSchema,
   pushQuotaSchema,
   ramadanSchema,
   specialDateSavedSchema,
   timingsPreviewSchema,
   timingsSavedSchema,
 } from '@mc/shared/contracts';
+import sharp from 'sharp';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -27,6 +32,7 @@ import { sessionAuthenticator } from '../src/auth/session.ts';
 import { type FieldKeyRing, hashToken, newToken } from '../src/crypto/field.ts';
 import { memoryRateLimiter } from '../src/http/rate-limit.ts';
 import { bootstrapSuperAdminInvite } from '../src/jobs/bootstrap-super-admin.ts';
+import { fileMediaStore } from '../src/media/store.ts';
 import { adminRoutes } from '../src/routes/index.ts';
 import { passkeyDeps, silentLogger } from './helpers.ts';
 
@@ -37,6 +43,7 @@ const keyRing: FieldKeyRing = { currentId: 'k1', keys: new Map([['k1', randomByt
 const clock = new ManualClock(new Date('2026-10-16T08:00:00Z')); // 13:30 IST
 
 let test: TestDatabase | undefined;
+let mediaDir = '';
 let asAdmin: Awaited<ReturnType<typeof processUserHandle>> | undefined;
 const h = (): DbHandle => {
   if (!asAdmin) throw new Error('no handle');
@@ -52,7 +59,14 @@ const app = () =>
     clock,
     rateLimiter: memoryRateLimiter(),
     authenticate: sessionAuthenticator({ db: h(), pepper, clock }),
-    ...adminRoutes({ db: h(), pepper, adminOrigin: ORIGIN, keyRing, ...passkeyDeps(ORIGIN, clock) }),
+    ...adminRoutes({
+      db: h(),
+      pepper,
+      adminOrigin: ORIGIN,
+      keyRing,
+      ...passkeyDeps(ORIGIN, clock),
+      media: { store: fileMediaStore(mediaDir), origin: 'https://media.test' },
+    }),
   }).app;
 
 async function register(inviteUrlText: string): Promise<string> {
@@ -81,6 +95,7 @@ let own = '';
 let other = '';
 
 beforeAll(async () => {
+  mediaDir = await mkdtemp(join(tmpdir(), 'mc-media-int-'));
   test = await createTestDatabase('admin_masjid_routes');
   await runMigrations(test.db, MIGRATIONS);
   asAdmin = await processUserHandle(test, 'mc_admin');
@@ -120,6 +135,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await rm(mediaDir, { recursive: true, force: true });
   await asAdmin?.dispose();
   await test?.dispose();
 });
@@ -373,5 +389,66 @@ describe('special dates & Ramadan API (T3.3)', () => {
       expect(status(await send('put', `/${own}/ramadan`, body))).toEqual({ status: 400, code: 'RAMADAN_INVALID' });
     }
     expect(status(await send('put', `/${other}/ramadan`, on))).toEqual({ status: 404, code: 'MASJID_NOT_FOUND' });
+  });
+});
+
+describe('photo upload (T3.6)', () => {
+  const upload = (
+    bytes: Buffer,
+    query = '?purpose=announcement&rightsConfirmed=true',
+    path = own,
+    name = 'photo.jpg',
+  ) =>
+    request(app())
+      .post(`/api/admin/masjids/${path}/images${query}`)
+      .set('Cookie', adminCookie)
+      .set(CSRF)
+      .attach('file', bytes, name);
+  const photo = () =>
+    sharp({ create: { width: 2000, height: 1000, channels: 3, background: { r: 10, g: 90, b: 60 } } })
+      .jpeg()
+      .withExif({ IFD3: { GPSLatitudeRef: 'N', GPSLatitude: '17/1 23/1 0/1' } })
+      .toBuffer();
+
+  it('stores a sanitized master + variants and answers its key, ThumbHash and delivery URLs; audited with the rights tick', async () => {
+    const response = await upload(await photo());
+    expect(response.status).toBe(201);
+    const body = imageUploadedSchema.parse(response.body);
+    expect(body.imageKey).toMatch(new RegExp(`^m/${own}/[0-9a-f-]{36}$`));
+    expect({ width: body.width, height: body.height }).toEqual({ width: 1440, height: 720 });
+    expect(body.urls.w960).toBe(`https://media.test/i/960/webp/${body.imageKey}`);
+    const master = await readFile(join(mediaDir, 'masters', `${body.imageKey}.jpg`));
+    expect((await sharp(master).metadata()).exif).toBeUndefined();
+    const audit = await test?.db.collection('audit_log').findOne({
+      action: 'image.upload',
+      target_id: body.imageKey.split('/').at(-1),
+    });
+    expect(audit).toMatchObject({ meta: { purpose: 'announcement', rights_confirmed: true } });
+  });
+
+  it('refuses: no rights tick or bad purpose (400), not a photo / HEIC (422), over 10 MB (413), another masjid (404)', async () => {
+    const jpeg = await photo();
+    for (const query of [
+      '?purpose=announcement',
+      '?purpose=announcement&rightsConfirmed=false',
+      '?purpose=avatar&rightsConfirmed=true',
+    ]) {
+      expect((await upload(jpeg, query)).status).toBe(400);
+    }
+    const html = Buffer.from('<html><script>alert(1)</script></html>');
+    expect((await upload(html, undefined, own, 'photo.jpg')).body).toMatchObject({
+      status: 422,
+      code: 'IMAGE_INVALID',
+    });
+    const heic = Buffer.concat([Buffer.from([0, 0, 0, 24]), Buffer.from('ftypheic'), Buffer.alloc(64)]);
+    expect((await upload(heic)).body).toMatchObject({ code: 'IMAGE_INVALID' });
+    expect((await upload(Buffer.alloc(10 * 1024 * 1024 + 1, 0xff))).status).toBe(413);
+    expect((await upload(jpeg, undefined, other)).body).toMatchObject({ status: 404, code: 'MASJID_NOT_FOUND' });
+    const json = await request(app())
+      .post(`/api/admin/masjids/${own}/images?purpose=announcement&rightsConfirmed=true`)
+      .set('Cookie', adminCookie)
+      .set(CSRF)
+      .send({ file: 'x' });
+    expect(json.status).toBe(415);
   });
 });

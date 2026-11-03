@@ -5,6 +5,7 @@ import {
   createAdminApp,
   createLogger,
   keyRingFromEnv,
+  mediaStoreFromEnv,
   redisChallengeStore,
   sessionAuthenticator,
   startHttpServer,
@@ -54,6 +55,8 @@ const { app } = createAdminApp({
     rp: { id: env.RP_ID, name: BRAND.adminName, origin: env.ADMIN_ORIGIN },
     challenges: redisChallengeStore(connections.redis),
     logger,
+    // T3.6: Cloudinary on staging/production, a local directory locally (MEDIA_STORE).
+    media: { store: mediaStoreFromEnv(env), origin: env.MEDIA_ORIGIN },
   }),
   rateLimiter: connections.rateLimiter,
   health: connections.health,

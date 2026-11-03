@@ -57,6 +57,7 @@ export const API_ERRORS = {
   SPECIAL_DATE_NOT_FOUND: 404,
   SPECIAL_DATE_INVALID: 400,
   RAMADAN_INVALID: 400,
+  IMAGE_INVALID: 422, // not an accepted photo, HEIC, over 40 MP, corrupt (T3.6)
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

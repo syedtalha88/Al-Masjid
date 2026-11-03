@@ -461,6 +461,7 @@ errors,ACTIVATION_TIMINGS_REQUIRED,This masjid can be activated once all five ja
 errors,SPECIAL_DATE_NOT_FOUND,This special date was removed. Please go back to the list.,यह ख़ास तारीख़ हटा दी गई है। कृपया सूची पर वापस जाएँ।,no
 errors,SPECIAL_DATE_INVALID,"Please check the date and times: up to 5 different times, on a date within about a year.","कृपया तारीख़ और समय जाँचें: ज़्यादा से ज़्यादा 5 अलग-अलग समय, लगभग एक साल के अंदर की तारीख़।",no
 errors,RAMADAN_INVALID,"Please check the Ramadan dates: the last day comes after the first, at most 30 days.","कृपया रमज़ान की तारीख़ें जाँचें: आख़िरी दिन पहले दिन के बाद हो, ज़्यादा से ज़्यादा 30 दिन।",no
+errors,IMAGE_INVALID,"This photo can't be used. Please choose a JPEG, PNG or WebP photo (iPhone: pick it from Photos).","यह फ़ोटो इस्तेमाल नहीं हो सकती। कृपया JPEG, PNG या WebP फ़ोटो चुनें (iPhone: Photos से चुनें)।",no
 follow,scan.title,Scan masjid QR,मस्जिद का QR स्कैन करें,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,अपना कैमरा मस्जिद के पोस्टर पर लगे QR कोड की ओर करें।,no
 follow,scan.torch,Flashlight,टॉर्च,no

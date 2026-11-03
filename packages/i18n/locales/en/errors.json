@@ -44,5 +44,6 @@
   "ACTIVATION_TIMINGS_REQUIRED": "This masjid can be activated once all five jamaat times are set.",
   "SPECIAL_DATE_NOT_FOUND": "This special date was removed. Please go back to the list.",
   "SPECIAL_DATE_INVALID": "Please check the date and times: up to 5 different times, on a date within about a year.",
-  "RAMADAN_INVALID": "Please check the Ramadan dates: the last day comes after the first, at most 30 days."
+  "RAMADAN_INVALID": "Please check the Ramadan dates: the last day comes after the first, at most 30 days.",
+  "IMAGE_INVALID": "This photo can't be used. Please choose a JPEG, PNG or WebP photo (iPhone: pick it from Photos)."
 }
