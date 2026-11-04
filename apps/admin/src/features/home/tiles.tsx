@@ -22,7 +22,7 @@ import type { ReactNode } from 'react';
  */
 const TILE_LIST = [
   { key: 'prayerTimes', icon: <ClockIcon size={28} />, tone: 'primary', phase: 3, route: '/timings' },
-  { key: 'notice', icon: <MegaphoneIcon size={28} />, tone: 'danger', phase: 3, route: null },
+  { key: 'notice', icon: <MegaphoneIcon size={28} />, tone: 'danger', phase: 3, route: '/notice' },
   { key: 'hadithAyah', icon: <BookOpenIcon size={28} />, tone: 'info', phase: 3, route: null },
   { key: 'dua', icon: <HandsPrayingIcon size={28} />, tone: 'rose', phase: 3, route: null },
   { key: 'donation', icon: <HeartIcon size={28} filled />, tone: 'heart', phase: 5, route: null },

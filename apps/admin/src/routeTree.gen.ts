@@ -13,6 +13,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as TimingsRouteImport } from './routes/timings'
 import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase'
+import { Route as NoticeIndexRouteImport } from './routes/notice.index'
+import { Route as NoticeFillRouteImport } from './routes/notice.fill'
+import { Route as NoticePreviewRouteImport } from './routes/notice.preview'
 import { Route as SoonTileRouteImport } from './routes/soon.$tile'
 import { Route as SpecialIndexRouteImport } from './routes/special.index'
 import { Route as SpecialIdRouteImport } from './routes/special.$id'
@@ -48,6 +51,21 @@ const TimingsRoute = TimingsRouteImport.update({
 const DevShowcaseRoute = DevShowcaseRouteImport.update({
   id: '/_dev/showcase',
   path: '/_dev/showcase',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NoticeIndexRoute = NoticeIndexRouteImport.update({
+  id: '/notice/',
+  path: '/notice/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NoticeFillRoute = NoticeFillRouteImport.update({
+  id: '/notice/fill',
+  path: '/notice/fill',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NoticePreviewRoute = NoticePreviewRouteImport.update({
+  id: '/notice/preview',
+  path: '/notice/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SoonTileRoute = SoonTileRouteImport.update({
@@ -136,10 +154,13 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
+  '/notice/fill': typeof NoticeFillRoute
+  '/notice/preview': typeof NoticePreviewRoute
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/notice/': typeof NoticeIndexRoute
   '/special/': typeof SpecialIndexRoute
   '/super/': typeof SuperIndexRoute
   '/super/library/$id': typeof SuperLibraryIdRoute
@@ -158,10 +179,13 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
+  '/notice/fill': typeof NoticeFillRoute
+  '/notice/preview': typeof NoticePreviewRoute
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/notice': typeof NoticeIndexRoute
   '/special': typeof SpecialIndexRoute
   '/super': typeof SuperIndexRoute
   '/super/library/$id': typeof SuperLibraryIdRoute
@@ -181,10 +205,13 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
+  '/notice/fill': typeof NoticeFillRoute
+  '/notice/preview': typeof NoticePreviewRoute
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/notice/': typeof NoticeIndexRoute
   '/special/': typeof SpecialIndexRoute
   '/super/': typeof SuperIndexRoute
   '/super/library/$id': typeof SuperLibraryIdRoute
@@ -205,10 +232,13 @@ export interface FileRouteTypes {
     | '/account'
     | '/timings'
     | '/_dev/showcase'
+    | '/notice/fill'
+    | '/notice/preview'
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
     | '/super/settings'
+    | '/notice/'
     | '/special/'
     | '/super/'
     | '/super/library/$id'
@@ -227,10 +257,13 @@ export interface FileRouteTypes {
     | '/account'
     | '/timings'
     | '/_dev/showcase'
+    | '/notice/fill'
+    | '/notice/preview'
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
     | '/super/settings'
+    | '/notice'
     | '/special'
     | '/super'
     | '/super/library/$id'
@@ -249,10 +282,13 @@ export interface FileRouteTypes {
     | '/account'
     | '/timings'
     | '/_dev/showcase'
+    | '/notice/fill'
+    | '/notice/preview'
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
     | '/super/settings'
+    | '/notice/'
     | '/special/'
     | '/super/'
     | '/super/library/$id'
@@ -272,10 +308,13 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   TimingsRoute: typeof TimingsRoute
   DevShowcaseRoute: typeof DevShowcaseRoute
+  NoticeFillRoute: typeof NoticeFillRoute
+  NoticePreviewRoute: typeof NoticePreviewRoute
   SoonTileRoute: typeof SoonTileRoute
   SpecialIdRoute: typeof SpecialIdRoute
   SuperAuditRoute: typeof SuperAuditRoute
   SuperSettingsRoute: typeof SuperSettingsRoute
+  NoticeIndexRoute: typeof NoticeIndexRoute
   SpecialIndexRoute: typeof SpecialIndexRoute
   SuperIndexRoute: typeof SuperIndexRoute
   SuperLibraryIdRoute: typeof SuperLibraryIdRoute
@@ -317,6 +356,27 @@ declare module '@tanstack/react-router' {
       path: '/_dev/showcase'
       fullPath: '/_dev/showcase'
       preLoaderRoute: typeof DevShowcaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notice/': {
+      id: '/notice/'
+      path: '/notice'
+      fullPath: '/notice/'
+      preLoaderRoute: typeof NoticeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notice/fill': {
+      id: '/notice/fill'
+      path: '/notice/fill'
+      fullPath: '/notice/fill'
+      preLoaderRoute: typeof NoticeFillRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notice/preview': {
+      id: '/notice/preview'
+      path: '/notice/preview'
+      fullPath: '/notice/preview'
+      preLoaderRoute: typeof NoticePreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/soon/$tile': {
@@ -451,10 +511,13 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   TimingsRoute: TimingsRoute,
   DevShowcaseRoute: DevShowcaseRoute,
+  NoticeFillRoute: NoticeFillRoute,
+  NoticePreviewRoute: NoticePreviewRoute,
   SoonTileRoute: SoonTileRoute,
   SpecialIdRoute: SpecialIdRoute,
   SuperAuditRoute: SuperAuditRoute,
   SuperSettingsRoute: SuperSettingsRoute,
+  NoticeIndexRoute: NoticeIndexRoute,
   SpecialIndexRoute: SpecialIndexRoute,
   SuperIndexRoute: SuperIndexRoute,
   SuperLibraryIdRoute: SuperLibraryIdRoute,

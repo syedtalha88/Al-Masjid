@@ -3,12 +3,16 @@ import {
   adminMasjidStatsSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
+  type AnnouncementPublish,
+  imageUploadedSchema,
+  itemPublishedSchema,
   noContentSchema,
   pushQuotaSchema,
   type RamadanSave,
   ramadanSchema,
   type SpecialDateSave,
   specialDateSavedSchema,
+  templateListSchema,
   type TimingsSave,
   timingsSavedSchema,
 } from '@mc/shared/contracts';
@@ -46,6 +50,20 @@ export const masjidApi = {
     call(`${base(masjidId)}/ramadan`, ramadanSchema, withSignal(signal)),
   saveRamadan: (masjidId: string, body: RamadanSave) =>
     call(`${base(masjidId)}/ramadan`, ramadanSchema, { method: 'PUT', body }),
+  /** B5 (T3.6): the templates this masjid may pick, in all four languages. */
+  templates: (masjidId: string, signal?: AbortSignal) =>
+    call(`${base(masjidId)}/templates`, templateListSchema, withSignal(signal)),
+  /** A notice photo (multipart `file`); the caller has the ownership tick (it is sent as `rightsConfirmed`). */
+  uploadImage: (masjidId: string, file: Blob) => {
+    const form = new FormData();
+    form.append('file', file);
+    return call(`${base(masjidId)}/images?purpose=announcement&rightsConfirmed=true`, imageUploadedSchema, {
+      method: 'POST',
+      form,
+    });
+  },
+  publishAnnouncement: (masjidId: string, body: AnnouncementPublish) =>
+    call(`${base(masjidId)}/items/announcement`, itemPublishedSchema, { method: 'POST', body }),
 };
 
 /** Query keys per masjid (the Home invalidates them after a publish / timings save). */
@@ -56,4 +74,5 @@ export const masjidKeys = {
   schedule: (masjidId: string) => ['masjid', masjidId, 'schedule'] as const,
   special: (masjidId: string) => ['masjid', masjidId, 'special'] as const,
   ramadan: (masjidId: string) => ['masjid', masjidId, 'ramadan'] as const,
+  templates: (masjidId: string) => ['masjid', masjidId, 'templates'] as const,
 };

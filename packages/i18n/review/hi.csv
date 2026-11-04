@@ -213,6 +213,84 @@ admin,special.sehriMore,Sehri: 1 minute more,सहरी: 1 मिनट ज़
 admin,special.iftarLess,Iftar: 1 minute less,इफ़्तार: 1 मिनट कम,no
 admin,special.iftarMore,Iftar: 1 minute more,इफ़्तार: 1 मिनट ज़्यादा,no
 admin,special.past,Past,बीते दिन,no
+admin,notice.title,Notice,सूचना,no
+admin,notice.step,Step {n} of {total},{total} में से चरण {n},no
+admin,notice.chooseTitle,Choose a notice,सूचना चुनें,no
+admin,notice.fillTitle,Fill the details,जानकारी भरें,no
+admin,notice.previewTitle,Preview & publish,झलक देखें और प्रकाशित करें,no
+admin,notice.templates,Notices,सूचनाएँ,no
+admin,notice.writeOwn,Write your own,ख़ुद लिखें,no
+admin,notice.noTemplatesTitle,No ready notices yet,अभी कोई तैयार सूचना नहीं,no
+admin,notice.noTemplatesBody,You can still write your own notice.,आप फिर भी अपनी सूचना ख़ुद लिख सकते हैं।,no
+admin,notice.next,Next: Preview,आगे: झलक,no
+admin,notice.notSet,Tap to set,सेट करने के लिए छुएँ,no
+admin,notice.from,From,से,no
+admin,notice.to,To,तक,no
+admin,notice.param.hours,Hours,समय,no
+admin,notice.param.days,Days,दिन,no
+admin,notice.param.prayer,Prayer,नमाज़,no
+admin,notice.param.time,Time,समय,no
+admin,notice.param.from,From which day,किस दिन से,no
+admin,notice.param.date,Date,तारीख़,no
+admin,notice.param.speaker,Speaker,बयान करने वाले,no
+admin,notice.param.item,What was found or lost,क्या मिला या खोया,no
+admin,notice.param.place,Place,जगह,no
+admin,notice.param.contact,Contact number,संपर्क नंबर,no
+admin,notice.paramType.time,Time,समय,no
+admin,notice.paramType.date,Date,तारीख़,no
+admin,notice.paramType.time_range,Time,समय,no
+admin,notice.paramType.date_range,Days,दिन,no
+admin,notice.paramType.prayer,Prayer,नमाज़,no
+admin,notice.paramType.number,Number,संख्या,no
+admin,notice.paramType.short_text,Text,लिखें,no
+admin,notice.paramType.phone,Phone number,फ़ोन नंबर,no
+admin,notice.pickTime,Choose the time,समय चुनें,no
+admin,notice.pickDate,Choose the date,तारीख़ चुनें,no
+admin,notice.pickPrayer,Choose the prayer,नमाज़ चुनें,no
+admin,notice.phoneHint,"Mobile number, for example 98765 43210","मोबाइल नंबर, जैसे 98765 43210",no
+admin,notice.ownTitle,Title,शीर्षक,no
+admin,notice.ownBody,Message,संदेश,no
+admin,notice.language,Language of the text,लिखी हुई भाषा,no
+admin,notice.category,Type of notice,सूचना का प्रकार,no
+admin,notice.categories.general,General,आम,no
+admin,notice.categories.event,Event,कार्यक्रम,no
+admin,notice.categories.facilities,Facilities,सुविधाएँ,no
+admin,notice.categories.timing,Timing,समय,no
+admin,notice.important,Important,ज़रूरी,no
+admin,notice.importantHint,Shows a red “Important” tag.,लाल “ज़रूरी” टैग दिखाता है।,no
+admin,notice.event,Event date and time,कार्यक्रम की तारीख़ और समय,no
+admin,notice.eventDate,Date,तारीख़,no
+admin,notice.eventTime,Time,समय,no
+admin,notice.eventClear,Remove the date,तारीख़ हटाएँ,no
+admin,notice.photo,Photo,फ़ोटो,no
+admin,notice.photoOptional,A photo is optional.,फ़ोटो लगाना ज़रूरी नहीं।,no
+admin,notice.addPhoto,Add a photo,फ़ोटो लगाएँ,no
+admin,notice.removePhoto,Remove photo,फ़ोटो हटाएँ,no
+admin,notice.rights,This masjid owns this photo or may share it,यह फ़ोटो इस मस्जिद की है या मस्जिद इसे शेयर कर सकती है,no
+admin,notice.rightsHint,Photos of people only with their permission.,लोगों की फ़ोटो सिर्फ़ उनकी इजाज़त से।,no
+admin,notice.uploading,Uploading the photo…,फ़ोटो अपलोड हो रही है…,no
+admin,notice.photoAlt,The notice photo,सूचना की फ़ोटो,no
+admin,notice.issue.param,Please set: {name},कृपया सेट करें: {name},no
+admin,notice.issue.title,Please write a title (up to 80 letters).,कृपया शीर्षक लिखें (80 अक्षरों तक)।,no
+admin,notice.issue.body,"Please write the message (up to 1,000 letters).","कृपया संदेश लिखें (1,000 अक्षरों तक)।",no
+admin,notice.issue.event,Please set both the date and the time of the event.,कृपया कार्यक्रम की तारीख़ और समय दोनों सेट करें।,no
+admin,notice.issue.template,This notice is no longer available. Please choose another one.,यह सूचना अब उपलब्ध नहीं है। कृपया दूसरी चुनें।,no
+admin,notice.preview,Preview,झलक,no
+admin,notice.showIn,Show in,इसमें दिखाएँ,no
+admin,notice.previewNote,Followers see the photo when they open the notice.,फ़ॉलोअर्स सूचना खोलने पर फ़ोटो देखते हैं।,no
+admin,notice.notify,Notify followers,फ़ॉलोअर्स को सूचना दें,no
+admin,notice.quota,{left} of {limit} left today,आज {limit} में से {left} बाक़ी,no
+admin,notice.publish,Publish,प्रकाशित करें,no
+admin,notice.published,Published,प्रकाशित हो गया,no
+admin,notice.publishedNotified,"{count, plural, one {# person will be notified.} other {# people will be notified.}}","{count, plural, one {# व्यक्ति को सूचना मिलेगी।} other {# लोगों को सूचना मिलेगी।}}",no
+admin,notice.publishedQuiet,Followers will see it in the app.,फ़ॉलोअर्स इसे ऐप में देखेंगे।,no
+admin,notice.done,Done,हो गया,no
+admin,notice.quotaTitle,No notifications left today,आज कोई सूचना बाक़ी नहीं,no
+admin,notice.quotaBody,You can still publish. Followers will see it when they open the app.,आप फिर भी प्रकाशित कर सकते हैं। फ़ॉलोअर्स ऐप खोलने पर इसे देखेंगे।,no
+admin,notice.publishWithout,Publish without notifying,बिना सूचना दिए प्रकाशित करें,no
+admin,notice.lostTitle,This notice was not kept,यह सूचना रखी नहीं गई,no
+admin,notice.lostBody,Please choose the notice again.,कृपया सूचना फिर से चुनें।,no
+admin,notice.startAgain,Choose a notice,सूचना चुनें,no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no

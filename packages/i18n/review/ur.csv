@@ -213,6 +213,84 @@ admin,special.sehriMore,Sehri: 1 minute more,سحری: 1 منٹ زیادہ,no
 admin,special.iftarLess,Iftar: 1 minute less,افطار: 1 منٹ کم,no
 admin,special.iftarMore,Iftar: 1 minute more,افطار: 1 منٹ زیادہ,no
 admin,special.past,Past,گزرے دن,no
+admin,notice.title,Notice,اعلان,no
+admin,notice.step,Step {n} of {total},مرحلہ {n} از {total},no
+admin,notice.chooseTitle,Choose a notice,اعلان چنیں,no
+admin,notice.fillTitle,Fill the details,تفصیلات بھریں,no
+admin,notice.previewTitle,Preview & publish,جھلک دیکھیں اور شائع کریں,no
+admin,notice.templates,Notices,اعلانات,no
+admin,notice.writeOwn,Write your own,خود لکھیں,no
+admin,notice.noTemplatesTitle,No ready notices yet,ابھی کوئی تیار اعلان نہیں,no
+admin,notice.noTemplatesBody,You can still write your own notice.,آپ پھر بھی اپنا اعلان خود لکھ سکتے ہیں۔,no
+admin,notice.next,Next: Preview,آگے: جھلک,no
+admin,notice.notSet,Tap to set,طے کرنے کے لیے چھوئیں,no
+admin,notice.from,From,سے,no
+admin,notice.to,To,تک,no
+admin,notice.param.hours,Hours,وقت,no
+admin,notice.param.days,Days,دن,no
+admin,notice.param.prayer,Prayer,نماز,no
+admin,notice.param.time,Time,وقت,no
+admin,notice.param.from,From which day,کس دن سے,no
+admin,notice.param.date,Date,تاریخ,no
+admin,notice.param.speaker,Speaker,بیان کرنے والے,no
+admin,notice.param.item,What was found or lost,کیا ملا یا کھویا,no
+admin,notice.param.place,Place,جگہ,no
+admin,notice.param.contact,Contact number,رابطہ نمبر,no
+admin,notice.paramType.time,Time,وقت,no
+admin,notice.paramType.date,Date,تاریخ,no
+admin,notice.paramType.time_range,Time,وقت,no
+admin,notice.paramType.date_range,Days,دن,no
+admin,notice.paramType.prayer,Prayer,نماز,no
+admin,notice.paramType.number,Number,عدد,no
+admin,notice.paramType.short_text,Text,لکھیں,no
+admin,notice.paramType.phone,Phone number,فون نمبر,no
+admin,notice.pickTime,Choose the time,وقت چنیں,no
+admin,notice.pickDate,Choose the date,تاریخ چنیں,no
+admin,notice.pickPrayer,Choose the prayer,نماز چنیں,no
+admin,notice.phoneHint,"Mobile number, for example 98765 43210",موبائل نمبر، مثلاً 98765 43210,no
+admin,notice.ownTitle,Title,عنوان,no
+admin,notice.ownBody,Message,پیغام,no
+admin,notice.language,Language of the text,تحریر کی زبان,no
+admin,notice.category,Type of notice,اعلان کی قسم,no
+admin,notice.categories.general,General,عام,no
+admin,notice.categories.event,Event,پروگرام,no
+admin,notice.categories.facilities,Facilities,سہولیات,no
+admin,notice.categories.timing,Timing,اوقات,no
+admin,notice.important,Important,اہم,no
+admin,notice.importantHint,Shows a red “Important” tag.,سرخ «اہم» ٹیگ دکھاتا ہے۔,no
+admin,notice.event,Event date and time,پروگرام کی تاریخ اور وقت,no
+admin,notice.eventDate,Date,تاریخ,no
+admin,notice.eventTime,Time,وقت,no
+admin,notice.eventClear,Remove the date,تاریخ ہٹائیں,no
+admin,notice.photo,Photo,تصویر,no
+admin,notice.photoOptional,A photo is optional.,تصویر لگانا ضروری نہیں۔,no
+admin,notice.addPhoto,Add a photo,تصویر لگائیں,no
+admin,notice.removePhoto,Remove photo,تصویر ہٹائیں,no
+admin,notice.rights,This masjid owns this photo or may share it,یہ تصویر اس مسجد کی ہے یا مسجد اسے شیئر کر سکتی ہے,no
+admin,notice.rightsHint,Photos of people only with their permission.,لوگوں کی تصویر صرف ان کی اجازت سے۔,no
+admin,notice.uploading,Uploading the photo…,تصویر اپ لوڈ ہو رہی ہے…,no
+admin,notice.photoAlt,The notice photo,اعلان کی تصویر,no
+admin,notice.issue.param,Please set: {name},براہِ کرم طے کریں: {name},no
+admin,notice.issue.title,Please write a title (up to 80 letters).,براہِ کرم عنوان لکھیں (80 حروف تک)۔,no
+admin,notice.issue.body,"Please write the message (up to 1,000 letters).","براہِ کرم پیغام لکھیں (1,000 حروف تک)۔",no
+admin,notice.issue.event,Please set both the date and the time of the event.,براہِ کرم پروگرام کی تاریخ اور وقت دونوں طے کریں۔,no
+admin,notice.issue.template,This notice is no longer available. Please choose another one.,یہ اعلان اب دستیاب نہیں۔ براہِ کرم کوئی اور چنیں۔,no
+admin,notice.preview,Preview,جھلک,no
+admin,notice.showIn,Show in,اس میں دکھائیں,no
+admin,notice.previewNote,Followers see the photo when they open the notice.,فالوورز اعلان کھولنے پر تصویر دیکھتے ہیں۔,no
+admin,notice.notify,Notify followers,فالوورز کو اطلاع دیں,no
+admin,notice.quota,{left} of {limit} left today,آج {limit} میں سے {left} باقی,no
+admin,notice.publish,Publish,شائع کریں,no
+admin,notice.published,Published,شائع ہو گیا,no
+admin,notice.publishedNotified,"{count, plural, one {# person will be notified.} other {# people will be notified.}}","{count, plural, one {# شخص کو اطلاع ملے گی۔} other {# لوگوں کو اطلاع ملے گی۔}}",no
+admin,notice.publishedQuiet,Followers will see it in the app.,فالوورز اسے ایپ میں دیکھیں گے۔,no
+admin,notice.done,Done,ہو گیا,no
+admin,notice.quotaTitle,No notifications left today,آج کوئی اطلاع باقی نہیں,no
+admin,notice.quotaBody,You can still publish. Followers will see it when they open the app.,آپ پھر بھی شائع کر سکتے ہیں۔ فالوورز ایپ کھولنے پر اسے دیکھیں گے۔,no
+admin,notice.publishWithout,Publish without notifying,اطلاع دیے بغیر شائع کریں,no
+admin,notice.lostTitle,This notice was not kept,یہ اعلان محفوظ نہیں رہا,no
+admin,notice.lostBody,Please choose the notice again.,براہِ کرم اعلان دوبارہ چنیں۔,no
+admin,notice.startAgain,Choose a notice,اعلان چنیں,no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no

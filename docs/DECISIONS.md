@@ -1625,4 +1625,28 @@ params are "validated against the template's param schema" without saying where.
   (public `NoticeTemplate` shape, shared mapper `noticeTemplateOf`).
 **Consequences:** db 10 / api 6 integration tests, i18n +4 unit tests. The same body grows `voice` in T3.13.
 
+### #121 — B5 notice creator: three pushed screens, one draft, pickers per param type (PHASE_03 T3.6, part 3) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 07 B5 asks for a 3-step flow (Choose → Fill → Preview & Publish) with pickers instead of typing; 08 §5.12
+says steps slide horizontally. 06 §6 lists `NumberPad` (an amount pad in paise) and `UploadProgress`.
+**Decision:**
+- The steps are **three routes** (`/notice`, `/notice/fill`, `/notice/preview`) pushed on the admin stack — the
+  navigator's slide is the step motion and the phone's back button goes back one step. The draft lives in a small
+  in-memory store (`features/notice/lib/draft-store.ts`, `useSyncExternalStore`); a reload loses it and Fill / Preview
+  then offer "Choose a notice" again. Done after publishing pops to Home and clears it.
+- Pickers by param type: time → `TimeSheet`; date → `DatePickerSheet` (today … 399 days); ranges → two slots ("From" /
+  "To"); prayer → a 2-column grid of 56 px radio buttons (five prayers + Jumu'ah); short text and phone → text fields
+  (a 10-digit Indian mobile number gets +91; E.164 checked like the server); number → a numeric text field (no starter
+  uses `number`; `NumberPad` is the rupee pad). Param labels: by name for the starter params, else by type.
+- The checks are the server's (`templateValueProblems`); "Next: Preview" stays pressable and, with something missing,
+  lists it in plain words and scrolls the list into view (found while looking at the screenshots: it was off screen).
+- Category (4 radio cards) and Important are preset by the template; an event gets an optional date + time (both or
+  neither). Photo: the ownership tick comes first — the picker is disabled until it is ticked; JPEG / PNG / WebP / AVIF
+  (`accept` makes an iPhone convert HEIC); a spinner while uploading.
+- Preview: `PreviewFrame` + the musalli `FeedItemCard` (the A7 card shows no photo — a note says followers see it in
+  the notice). Notify starts on while notifications are left; quota refusal → "Publish without notifying".
+**Consequences:** journey 7 (`e2e/admin/notice.spec.ts`) and B5 × 4 locales + axe (`e2e/admin/screens.spec.ts`);
+admin unit +18. New glyph `PencilIcon` ("Write your own"). Not built yet (F50): the `UploadProgress` ring (fetch reports
+no upload progress), the Home tile's mint pulse after a publish (08 §5.12), the success screen's "View" (needs My Posts,
+T3.9).
+
 _None — every decision is ACCEPTED (23 Oct 2026)._

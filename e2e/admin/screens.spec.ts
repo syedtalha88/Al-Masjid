@@ -227,6 +227,38 @@ for (const locale of LOCALES) {
           adminPage.getByRole('heading', { name: label(locale, 'admin', 'special.newTitle') }),
         ).toBeVisible();
         await adminShot('b11-special-new');
+        // T3.6 B5: the template grid; a template's Fill step with what is missing named; the filled hours; the
+        // preview with the musalli card; the "Write your own" form.
+        await adminPage.goto(`${ADMIN_URL}/notice`);
+        const noWater = adminPage.locator('[data-template="no_water_time_range"]');
+        await expect(noWater).toBeVisible();
+        await adminPage.waitForLoadState('networkidle');
+        await adminShot('b5-choose');
+        await noWater.click();
+        await expect(adminPage).toHaveURL(`${ADMIN_URL}/notice/fill`);
+        const next = adminPage.getByRole('button', { name: label(locale, 'admin', 'notice.next') });
+        await next.click();
+        await expect(adminPage.locator('[data-notice-issues]')).toBeVisible();
+        await adminShot('b5-fill-missing');
+        for (const slot of [0, 1]) {
+          await adminPage.locator('[data-param="hours"]').getByRole('button').nth(slot).click();
+          await adminPage
+            .getByRole('dialog')
+            .getByRole('button', { name: label(locale, 'admin', 'timings.done') })
+            .click();
+          await expect(adminPage.getByRole('dialog')).toHaveCount(0);
+        }
+        await adminShot('b5-fill');
+        await next.click();
+        await expect(adminPage).toHaveURL(`${ADMIN_URL}/notice/preview`);
+        await expect(adminPage.locator('[data-preview-locale]')).toBeVisible();
+        await adminPage.waitForLoadState('networkidle');
+        await adminShot('b5-preview');
+        await adminPage.goto(`${ADMIN_URL}/notice`);
+        await adminPage.locator('[data-template="own"]').click();
+        await expect(adminPage).toHaveURL(`${ADMIN_URL}/notice/fill`);
+        await expect(adminPage.getByRole('textbox', { name: label(locale, 'admin', 'notice.ownTitle') })).toBeVisible();
+        await adminShot('b5-fill-own');
         await adminPage.goto(`${ADMIN_URL}/account`);
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b13-account-admin');

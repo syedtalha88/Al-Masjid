@@ -42,6 +42,7 @@ export { MegaphoneIcon } from './glyph/MegaphoneIcon.tsx';
 export { MinusIcon } from './glyph/MinusIcon.tsx';
 export { MoonStarsIcon } from './glyph/MoonStarsIcon.tsx';
 export { MosqueIcon } from './glyph/MosqueIcon.tsx';
+export { PencilIcon } from './glyph/PencilIcon.tsx';
 export { PlayCircleIcon } from './glyph/PlayCircleIcon.tsx';
 export { PlusIcon } from './glyph/PlusIcon.tsx';
 export { PlusSquareIcon } from './glyph/PlusSquareIcon.tsx';

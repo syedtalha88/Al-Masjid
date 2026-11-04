@@ -213,6 +213,84 @@ admin,special.sehriMore,Sehri: 1 minute more,సహరీ: 1 నిమిషం 
 admin,special.iftarLess,Iftar: 1 minute less,ఇఫ్తార్: 1 నిమిషం తక్కువ,no
 admin,special.iftarMore,Iftar: 1 minute more,ఇఫ్తార్: 1 నిమిషం ఎక్కువ,no
 admin,special.past,Past,గత రోజులు,no
+admin,notice.title,Notice,ప్రకటన,no
+admin,notice.step,Step {n} of {total},{total}లో దశ {n},no
+admin,notice.chooseTitle,Choose a notice,ప్రకటనను ఎంచుకోండి,no
+admin,notice.fillTitle,Fill the details,వివరాలు నింపండి,no
+admin,notice.previewTitle,Preview & publish,ప్రివ్యూ చూసి ప్రచురించండి,no
+admin,notice.templates,Notices,ప్రకటనలు,no
+admin,notice.writeOwn,Write your own,మీరే రాయండి,no
+admin,notice.noTemplatesTitle,No ready notices yet,ఇంకా సిద్ధమైన ప్రకటనలు లేవు,no
+admin,notice.noTemplatesBody,You can still write your own notice.,మీరు ఇప్పటికీ మీ ప్రకటనను మీరే రాయవచ్చు.,no
+admin,notice.next,Next: Preview,తర్వాత: ప్రివ్యూ,no
+admin,notice.notSet,Tap to set,సెట్ చేయడానికి నొక్కండి,no
+admin,notice.from,From,నుండి,no
+admin,notice.to,To,వరకు,no
+admin,notice.param.hours,Hours,సమయం,no
+admin,notice.param.days,Days,రోజులు,no
+admin,notice.param.prayer,Prayer,నమాజ్,no
+admin,notice.param.time,Time,సమయం,no
+admin,notice.param.from,From which day,ఏ రోజు నుండి,no
+admin,notice.param.date,Date,తేదీ,no
+admin,notice.param.speaker,Speaker,బయాన్ చేసేవారు,no
+admin,notice.param.item,What was found or lost,ఏమి దొరికింది లేదా పోయింది,no
+admin,notice.param.place,Place,స్థలం,no
+admin,notice.param.contact,Contact number,సంప్రదింపు నంబర్,no
+admin,notice.paramType.time,Time,సమయం,no
+admin,notice.paramType.date,Date,తేదీ,no
+admin,notice.paramType.time_range,Time,సమయం,no
+admin,notice.paramType.date_range,Days,రోజులు,no
+admin,notice.paramType.prayer,Prayer,నమాజ్,no
+admin,notice.paramType.number,Number,సంఖ్య,no
+admin,notice.paramType.short_text,Text,రాయండి,no
+admin,notice.paramType.phone,Phone number,ఫోన్ నంబర్,no
+admin,notice.pickTime,Choose the time,సమయాన్ని ఎంచుకోండి,no
+admin,notice.pickDate,Choose the date,తేదీని ఎంచుకోండి,no
+admin,notice.pickPrayer,Choose the prayer,నమాజ్‌ను ఎంచుకోండి,no
+admin,notice.phoneHint,"Mobile number, for example 98765 43210","మొబైల్ నంబర్, ఉదాహరణకు 98765 43210",no
+admin,notice.ownTitle,Title,శీర్షిక,no
+admin,notice.ownBody,Message,సందేశం,no
+admin,notice.language,Language of the text,రాసిన భాష,no
+admin,notice.category,Type of notice,ప్రకటన రకం,no
+admin,notice.categories.general,General,సాధారణం,no
+admin,notice.categories.event,Event,కార్యక్రమం,no
+admin,notice.categories.facilities,Facilities,సౌకర్యాలు,no
+admin,notice.categories.timing,Timing,సమయాలు,no
+admin,notice.important,Important,ముఖ్యం,no
+admin,notice.importantHint,Shows a red “Important” tag.,ఎరుపు “ముఖ్యం” ట్యాగ్ చూపిస్తుంది.,no
+admin,notice.event,Event date and time,కార్యక్రమం తేదీ మరియు సమయం,no
+admin,notice.eventDate,Date,తేదీ,no
+admin,notice.eventTime,Time,సమయం,no
+admin,notice.eventClear,Remove the date,తేదీని తీసివేయండి,no
+admin,notice.photo,Photo,ఫోటో,no
+admin,notice.photoOptional,A photo is optional.,ఫోటో తప్పనిసరి కాదు.,no
+admin,notice.addPhoto,Add a photo,ఫోటో జోడించండి,no
+admin,notice.removePhoto,Remove photo,ఫోటో తీసివేయండి,no
+admin,notice.rights,This masjid owns this photo or may share it,ఈ ఫోటో ఈ మస్జిద్‌ది లేదా మస్జిద్ దీన్ని షేర్ చేయవచ్చు,no
+admin,notice.rightsHint,Photos of people only with their permission.,వ్యక్తుల ఫోటోలు వారి అనుమతితో మాత్రమే.,no
+admin,notice.uploading,Uploading the photo…,ఫోటో అప్‌లోడ్ అవుతోంది…,no
+admin,notice.photoAlt,The notice photo,ప్రకటన ఫోటో,no
+admin,notice.issue.param,Please set: {name},దయచేసి సెట్ చేయండి: {name},no
+admin,notice.issue.title,Please write a title (up to 80 letters).,దయచేసి శీర్షిక రాయండి (80 అక్షరాల వరకు).,no
+admin,notice.issue.body,"Please write the message (up to 1,000 letters).","దయచేసి సందేశం రాయండి (1,000 అక్షరాల వరకు).",no
+admin,notice.issue.event,Please set both the date and the time of the event.,దయచేసి కార్యక్రమం తేదీ మరియు సమయం రెండూ సెట్ చేయండి.,no
+admin,notice.issue.template,This notice is no longer available. Please choose another one.,ఈ ప్రకటన ఇప్పుడు అందుబాటులో లేదు. దయచేసి మరొకటి ఎంచుకోండి.,no
+admin,notice.preview,Preview,ప్రివ్యూ,no
+admin,notice.showIn,Show in,ఇందులో చూపించు,no
+admin,notice.previewNote,Followers see the photo when they open the notice.,ఫాలోవర్లు ప్రకటనను తెరిచినప్పుడు ఫోటోను చూస్తారు.,no
+admin,notice.notify,Notify followers,ఫాలోవర్లకు తెలియజేయండి,no
+admin,notice.quota,{left} of {limit} left today,ఈరోజు {limit}లో {left} మిగిలాయి,no
+admin,notice.publish,Publish,ప్రచురించండి,no
+admin,notice.published,Published,ప్రచురించబడింది,no
+admin,notice.publishedNotified,"{count, plural, one {# person will be notified.} other {# people will be notified.}}","{count, plural, one {# వ్యక్తికి తెలియజేయబడుతుంది.} other {# మందికి తెలియజేయబడుతుంది.}}",no
+admin,notice.publishedQuiet,Followers will see it in the app.,ఫాలోవర్లు దీన్ని యాప్‌లో చూస్తారు.,no
+admin,notice.done,Done,పూర్తయింది,no
+admin,notice.quotaTitle,No notifications left today,ఈరోజు నోటిఫికేషన్లు మిగలలేదు,no
+admin,notice.quotaBody,You can still publish. Followers will see it when they open the app.,మీరు ఇంకా ప్రచురించవచ్చు. ఫాలోవర్లు యాప్ తెరిచినప్పుడు దీన్ని చూస్తారు.,no
+admin,notice.publishWithout,Publish without notifying,తెలియజేయకుండా ప్రచురించండి,no
+admin,notice.lostTitle,This notice was not kept,ఈ ప్రకటన ఉంచబడలేదు,no
+admin,notice.lostBody,Please choose the notice again.,దయచేసి ప్రకటనను మళ్ళీ ఎంచుకోండి.,no
+admin,notice.startAgain,Choose a notice,ప్రకటనను ఎంచుకోండి,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
