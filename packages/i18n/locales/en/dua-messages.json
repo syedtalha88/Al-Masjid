@@ -1,0 +1,17 @@
+{
+  "illness": {
+    "unwell": "A member of our community is unwell. Please remember them in your duas.",
+    "hospital": "A member of our community is in hospital. Please make dua for their recovery.",
+    "surgery": "A member of our community is having an operation. Please make dua that it goes well."
+  },
+  "inteqal": {
+    "passed": "A member of our community has passed away. Please make dua for them and for their family.",
+    "family": "Please keep the family of the deceased in your duas and give them your support.",
+    "janaza": "A member of our community has passed away. Please join the janaza if you can."
+  },
+  "other": {
+    "difficulty": "A member of our community is going through a difficult time. Please remember them in your duas.",
+    "exams": "Our students have their exams. Please make dua for their success.",
+    "travel": "Members of our community are travelling for Hajj or Umrah. Please remember them in your duas."
+  }
+}

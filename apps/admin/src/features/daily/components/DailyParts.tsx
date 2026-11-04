@@ -23,7 +23,7 @@ import { BookOpenIcon, WarningIcon } from '@mc/ui/icons';
 import { Screen, useNavigator } from '@mc/ui/navigation';
 import { useDeferredValue, useState } from 'react';
 
-import { useLibrarySearch } from '../hooks/use-daily.ts';
+import { useLibrarySearch } from '../../library/hooks/use-library-search.ts';
 import { type DailyKind, topicChips } from '../lib/daily.ts';
 
 /** The entry's text in a mint box and its reference under it. */

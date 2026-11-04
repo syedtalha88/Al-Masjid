@@ -522,6 +522,15 @@ content,license,Licence: {license},لائسنس: {license},no
 content,gone,This post is no longer available,یہ پوسٹ اب دستیاب نہیں,no
 content,goneBody,The masjid may have removed it.,ممکن ہے مسجد نے اسے ہٹا دیا ہو۔,no
 content,back,Go back,واپس جائیں,no
+dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,ہماری برادری کے ایک رکن بیمار ہیں۔ براہِ کرم انہیں اپنی دعاؤں میں یاد رکھیں۔,no
+dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,ہماری برادری کے ایک رکن اسپتال میں ہیں۔ براہِ کرم ان کی صحت یابی کے لیے دعا کریں۔,no
+dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,ہماری برادری کے ایک رکن کا آپریشن ہے۔ براہِ کرم دعا کریں کہ سب خیریت سے ہو۔,no
+dua-messages,inteqal.passed,A member of our community has passed away. Please make dua for them and for their family.,ہماری برادری کے ایک رکن کا انتقال ہو گیا ہے۔ براہِ کرم ان کے اور ان کے گھر والوں کے لیے دعا کریں۔,no
+dua-messages,inteqal.family,Please keep the family of the deceased in your duas and give them your support.,براہِ کرم مرحوم کے گھر والوں کو اپنی دعاؤں میں یاد رکھیں اور ان کا ساتھ دیں۔,no
+dua-messages,inteqal.janaza,A member of our community has passed away. Please join the janaza if you can.,ہماری برادری کے ایک رکن کا انتقال ہو گیا ہے۔ ہو سکے تو جنازے میں شریک ہوں۔,no
+dua-messages,other.difficulty,A member of our community is going through a difficult time. Please remember them in your duas.,ہماری برادری کے ایک رکن مشکل وقت سے گزر رہے ہیں۔ براہِ کرم انہیں اپنی دعاؤں میں یاد رکھیں۔,no
+dua-messages,other.exams,Our students have their exams. Please make dua for their success.,ہمارے طلبہ کے امتحانات ہیں۔ براہِ کرم ان کی کامیابی کے لیے دعا کریں۔,no
+dua-messages,other.travel,Members of our community are travelling for Hajj or Umrah. Please remember them in your duas.,ہماری برادری کے کچھ افراد حج یا عمرہ کے سفر پر ہیں۔ براہِ کرم انہیں اپنی دعاؤں میں یاد رکھیں۔,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,یہ نہیں ملا۔ ہو سکتا ہے اسے ہٹا دیا گیا ہو۔,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,یہ کام یہاں دستیاب نہیں ہے۔,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,کچھ معلومات غلط لگ رہی ہیں۔ براہِ کرم جانچ کر دوبارہ کوشش کریں۔,no
@@ -570,6 +579,7 @@ errors,SPECIAL_DATE_INVALID,"Please check the date and times: up to 5 different 
 errors,RAMADAN_INVALID,"Please check the Ramadan dates: the last day comes after the first, at most 30 days.",براہِ کرم رمضان کی تاریخیں دیکھیں: آخری دن پہلے دن کے بعد ہو، زیادہ سے زیادہ 30 دن۔,no
 errors,IMAGE_INVALID,"This photo can't be used. Please choose a JPEG, PNG or WebP photo (iPhone: pick it from Photos).",یہ تصویر استعمال نہیں ہو سکتی۔ براہِ کرم JPEG، PNG یا WebP تصویر چنیں (iPhone: Photos سے چنیں)۔,no
 errors,ANNOUNCEMENT_INVALID,Something in this notice is not right. Please check the details and try again.,اس اعلان میں کچھ درست نہیں ہے۔ براہِ کرم تفصیلات دیکھیں اور دوبارہ کوشش کریں۔,no
+errors,DUA_INVALID,Something in this dua request is not right. Please check the janaza time and try again.,اس دعا کی درخواست میں کچھ درست نہیں ہے۔ براہِ کرم جنازے کا وقت دیکھیں اور دوبارہ کوشش کریں۔,no
 follow,scan.title,Scan masjid QR,مسجد کا QR اسکین کریں,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,اپنا کیمرا مسجد کے پوسٹر پر لگے QR کوڈ کی طرف کریں۔,no
 follow,scan.torch,Flashlight,ٹارچ,no

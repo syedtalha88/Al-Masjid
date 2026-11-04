@@ -75,6 +75,7 @@ export const masjidApi = {
     const query = new URLSearchParams({ kind: filter.kind });
     if (filter.q) query.set('q', filter.q);
     if (filter.tag) query.set('tag', filter.tag);
+    if (filter.category) query.set('category', filter.category);
     if (filter.cursor) query.set('cursor', filter.cursor);
     return call(`${base(masjidId)}/library?${query.toString()}`, adminLibraryListSchema, withSignal(signal));
   },
@@ -86,6 +87,8 @@ export interface LibraryFilter {
   readonly kind: 'hadith' | 'ayah' | 'dua';
   readonly q?: string | undefined;
   readonly tag?: string | undefined;
+  /** Duas only: illness, inteqal or other (07 B7). */
+  readonly category?: 'illness' | 'inteqal' | 'other' | undefined;
   readonly cursor?: string | undefined;
 }
 
@@ -99,6 +102,6 @@ export const masjidKeys = {
   ramadan: (masjidId: string) => ['masjid', masjidId, 'ramadan'] as const,
   templates: (masjidId: string) => ['masjid', masjidId, 'templates'] as const,
   suggestion: (masjidId: string, kind: 'hadith' | 'ayah') => ['masjid', masjidId, 'suggestion', kind] as const,
-  library: (masjidId: string, kind: string, q: string, tag: string) =>
-    ['masjid', masjidId, 'library', kind, q, tag] as const,
+  library: (masjidId: string, kind: string, q: string, tag: string, category: string) =>
+    ['masjid', masjidId, 'library', kind, q, tag, category] as const,
 };

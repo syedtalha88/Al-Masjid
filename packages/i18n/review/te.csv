@@ -522,6 +522,15 @@ content,license,Licence: {license},లైసెన్స్: {license},no
 content,gone,This post is no longer available,ఈ పోస్ట్ ఇక అందుబాటులో లేదు,no
 content,goneBody,The masjid may have removed it.,మస్జిద్ దీన్ని తీసేసి ఉండవచ్చు.,no
 content,back,Go back,వెనక్కి వెళ్ళండి,no
+dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,మన సమాజంలోని ఒకరు అనారోగ్యంతో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
+dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,మన సమాజంలోని ఒకరు ఆసుపత్రిలో ఉన్నారు. దయచేసి వారు కోలుకోవాలని దువా చేయండి.,no
+dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,మన సమాజంలోని ఒకరికి ఆపరేషన్ జరుగుతోంది. అంతా బాగా జరగాలని దయచేసి దువా చేయండి.,no
+dua-messages,inteqal.passed,A member of our community has passed away. Please make dua for them and for their family.,"మన సమాజంలోని ఒకరు మరణించారు. దయచేసి వారి కోసం, వారి కుటుంబం కోసం దువా చేయండి.",no
+dua-messages,inteqal.family,Please keep the family of the deceased in your duas and give them your support.,"దయచేసి మరణించినవారి కుటుంబాన్ని మీ దువాలలో గుర్తుంచుకోండి, వారికి తోడుగా ఉండండి.",no
+dua-messages,inteqal.janaza,A member of our community has passed away. Please join the janaza if you can.,మన సమాజంలోని ఒకరు మరణించారు. వీలైతే జనాజాలో పాల్గొనండి.,no
+dua-messages,other.difficulty,A member of our community is going through a difficult time. Please remember them in your duas.,మన సమాజంలోని ఒకరు కష్టకాలంలో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
+dua-messages,other.exams,Our students have their exams. Please make dua for their success.,మన విద్యార్థులకు పరీక్షలు ఉన్నాయి. వారి విజయం కోసం దయచేసి దువా చేయండి.,no
+dua-messages,other.travel,Members of our community are travelling for Hajj or Umrah. Please remember them in your duas.,మన సమాజంలోని కొందరు హజ్ లేదా ఉమ్రా ప్రయాణంలో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,ఇది కనిపించలేదు. ఇది తొలగించబడి ఉండవచ్చు.,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,కొన్ని వివరాలు సరిగా లేవు. దయచేసి చూసి మళ్లీ ప్రయత్నించండి.,no
@@ -570,6 +579,7 @@ errors,SPECIAL_DATE_INVALID,"Please check the date and times: up to 5 different 
 errors,RAMADAN_INVALID,"Please check the Ramadan dates: the last day comes after the first, at most 30 days.","దయచేసి రంజాన్ తేదీలను తనిఖీ చేయండి: చివరి రోజు మొదటి రోజు తర్వాత ఉండాలి, గరిష్టంగా 30 రోజులు.",no
 errors,IMAGE_INVALID,"This photo can't be used. Please choose a JPEG, PNG or WebP photo (iPhone: pick it from Photos).","ఈ ఫోటోను ఉపయోగించలేము. దయచేసి JPEG, PNG లేదా WebP ఫోటోను ఎంచుకోండి (iPhone: Photos నుండి ఎంచుకోండి).",no
 errors,ANNOUNCEMENT_INVALID,Something in this notice is not right. Please check the details and try again.,ఈ ప్రకటనలో ఏదో సరిగ్గా లేదు. దయచేసి వివరాలను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.,no
+errors,DUA_INVALID,Something in this dua request is not right. Please check the janaza time and try again.,ఈ దువా విన్నపంలో ఏదో సరిగ్గా లేదు. దయచేసి జనాజా సమయాన్ని తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.,no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no
