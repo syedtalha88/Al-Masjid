@@ -1678,4 +1678,28 @@ note ≤ 200; PHASE_03 T3.7 asks for one daily_content of each kind per masjid p
 then types into nothing, so specs tap a field before filling it. Tag labels per language would need a library-format
 change (F51, only if the owner wants it).
 
+### #123 — Dua requests: template-assisted text in a chosen language, a verified dua, janaza for inteqal only (PHASE_03 T3.8, part 1) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 00 §4.3 says the message is "template-assisted, ≤ 500 chars", the title comes from the category and the
+name is optional with "Keep name private" on by default; PHASE_03 T3.8 asks for message templates per category in four
+languages (draft-flagged) and an integration test that a private name never reaches musallis.
+**Decision:**
+- Ready-made messages are plain community requests (never a dua, ayah or hadith — CLAUDE.md §2.3), three per category,
+  in `packages/i18n/locales/<locale>/dua-messages.json` (`@mc/i18n/dua-messages`), reviewed with every other string
+  (review CSVs = the draft flag). B7 fills the message box with one in the language the admin picks; editing makes it
+  the admin's own text. The item stores `body` + `content_locale` — what the musalli card already shows — so no
+  `template_key` (that field references `notice_templates`).
+- `POST /masjids/:id/items/dua` `{category, message (1–500), locale, personName? (≤ 80), namePrivate, libraryId,
+  janazaAt?, janazaPlace? (≤ 120), notify}` → 201 `{item, notification}`. The library entry must be a verified `dua`
+  (else `404 LIBRARY_ENTRY_NOT_FOUND`); the UI filters by category, the server does not insist on it. A janaza goes with
+  inteqal only (contract 400) and within a day ago … 30 days ahead (`400 DUA_INVALID`). Audit meta never holds the name.
+- A private name is stored for the masjid's own record and removed by `v_pub_items` (02 §4.2). Proved at both layers:
+  db `duas.int.test.ts` (view as `mc_public`, item, feed) and api `library-routes.int.test.ts` (api-public's item and
+  feed responses as the real `mc_public` user never contain it).
+- B7 (part 2, not built yet): four pushed steps — category (3 big cards; a tap goes on) → details (language, ready-made
+  messages as radio cards + the editable text, name + "Keep name private" + consent hint, inteqal janaza date/time/place)
+  → attach dua (verified duas of the category; a tap picks and goes on) → preview (`FeedItemCard`) + `PublishStep`.
+  That keeps "illness request with private name" at 5 taps (T3.12). The logic is done (`features/dua/lib/dua.ts`).
+**Consequences:** db +7, api int +1, i18n +2, admin unit +7. The library search hook moved to `features/library` with an
+optional dua category (B6 and B7 share it).
+
 _None — every decision is ACCEPTED (23 Oct 2026)._

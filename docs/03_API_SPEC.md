@@ -117,6 +117,8 @@ Publishing endpoints accept `notify: boolean` and return `{item, notification: {
 
 `POST /items/daily-content` (T3.7, DECISIONS #122): `{libraryId, note? (1–200), notify}` → 201 `{item, notification}`. The kind (hadith / ayah) is the library entry's own; free text, a `kind` or a `title` in the body is a 400. A draft, retired, dua, dhikr or unknown entry is `404 LIBRARY_ENTRY_NOT_FOUND`; no notifications left is `409 NOTIFY_QUOTA_EXCEEDED`. A second one of the same kind on a day is allowed: `GET /library/suggestion?kind=` answers `{entry, publishedToday}` so B6 can warn first.
 
+`POST /items/dua` (T3.8, DECISIONS #123): `{category, message (1–500), locale, personName? (≤80), namePrivate, libraryId, janazaAt?, janazaPlace? (≤120), notify}` → 201 `{item, notification}`. The entry must be a verified dua (`404 LIBRARY_ENTRY_NOT_FOUND`); `janazaAt` / `janazaPlace` only with `inteqal` (400), the janaza from a day ago to 30 days ahead (`400 DUA_INVALID`). The title is the category's ("Request for Dua"), never sent. A private name is never in api-public's responses (`v_pub_items` removes it).
+
 ## 5. Super Admin API — `admin.<domain>/api/super` (role super_admin; ★ = step-up required)
 | Area | Endpoints |
 |---|---|
