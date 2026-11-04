@@ -14,7 +14,9 @@ import { NoticePreview } from '../features/notice/components/NoticeParts.tsx';
 import { useNoticeTemplates } from '../features/notice/hooks/use-notice.ts';
 import { setNoticeDraft, useNoticeDraft } from '../features/notice/lib/draft-store.ts';
 import { type NoticeDraft, previewItem, publishBody, templateOf } from '../features/notice/lib/notice.ts';
-import { PublishedMoment, PublishStep } from '../features/publish/PublishStep.tsx';
+import { useOpenPosts } from '../features/posts/hooks/use-open-posts.ts';
+import { noticeEditBody } from '../features/posts/lib/posts.ts';
+import { PublishedMoment, PublishStep, SavedMoment, SaveStep } from '../features/publish/PublishStep.tsx';
 
 export const Route = createFileRoute('/notice/preview')({
   component: PreviewNoticeScreen,
@@ -29,19 +31,26 @@ function PreviewNoticeScreen() {
   const { t } = useTranslation('admin');
   const navigator = useNavigator();
   const draft = useNoticeDraft();
+  const openPosts = useOpenPosts();
   const [published, setPublished] = useState<ItemPublished | null>(null);
+  const [saved, setSaved] = useState(false);
+  const leaveTo = (next: () => void) => () => {
+    setNoticeDraft(null);
+    next();
+  };
 
   if (published) {
     return (
       <PublishedMoment
         published={published}
-        onDone={() => {
-          setNoticeDraft(null);
+        onDone={leaveTo(() => {
           navigator.selectTab('home');
-        }}
+        })}
+        onView={leaveTo(openPosts)}
       />
     );
   }
+  if (saved) return <SavedMoment onDone={leaveTo(openPosts)} />;
   if (!draft) {
     return (
       <Screen title={t('notice.title')}>
@@ -63,15 +72,28 @@ function PreviewNoticeScreen() {
       </Screen>
     );
   }
-  return <PreviewForm draft={draft} onPublished={setPublished} />;
+  return (
+    <PreviewForm
+      draft={draft}
+      onPublished={setPublished}
+      onSaved={() => {
+        setSaved(true);
+      }}
+      onStale={leaveTo(openPosts)}
+    />
+  );
 }
 
 function PreviewForm({
   draft,
   onPublished,
+  onSaved,
+  onStale,
 }: {
   readonly draft: NoticeDraft;
   readonly onPublished: (published: ItemPublished) => void;
+  readonly onSaved: () => void;
+  readonly onStale: () => void;
 }) {
   const { t } = useTranslation('admin');
   const me = useSignedInAdmin();
@@ -90,12 +112,22 @@ function PreviewForm({
           now={now}
           hasPhoto={draft.photo !== null}
         />
-        <PublishStep
-          masjidId={masjid?.id}
-          bodyFor={(notify) => publishBody(draft, template, notify)}
-          send={masjidApi.publishAnnouncement}
-          onPublished={onPublished}
-        />
+        {draft.editing ? (
+          <SaveStep
+            masjidId={masjid?.id}
+            editing={draft.editing}
+            body={noticeEditBody(draft, template)}
+            onSaved={onSaved}
+            onStale={onStale}
+          />
+        ) : (
+          <PublishStep
+            masjidId={masjid?.id}
+            bodyFor={(notify) => publishBody(draft, template, notify)}
+            send={masjidApi.publishAnnouncement}
+            onPublished={onPublished}
+          />
+        )}
       </div>
     </Screen>
   );

@@ -352,6 +352,37 @@ admin,dua.noDuasBody,The Masjid Connect team adds checked duas. Please look agai
 admin,dua.lostTitle,This request was not kept,یہ درخواست محفوظ نہیں رہی,no
 admin,dua.lostBody,Please choose who the dua is for again.,براہِ کرم دوبارہ چنیں کہ دعا کس کے لیے ہے۔,no
 admin,dua.startAgain,Choose again,دوبارہ چنیں,no
+admin,posts.title,My Posts,میری پوسٹس,no
+admin,posts.filter,Type of post,پوسٹ کی قسم,no
+admin,posts.types.all,All,سب,no
+admin,posts.types.announcement,Notices,اعلانات,no
+admin,posts.types.daily_content,Hadith / Ayah,حدیث / آیت,no
+admin,posts.types.dua_request,Dua requests,دعا کی درخواستیں,no
+admin,posts.types.timing_update,Timing updates,اوقات میں تبدیلی,no
+admin,posts.status.published,Published,شائع شدہ,no
+admin,posts.status.deleted,Deleted,ہٹائی گئی,no
+admin,posts.status.removed,Removed by moderation,موڈریشن نے ہٹائی,no
+admin,posts.removedReason,Reason: {reason},وجہ: {reason},no
+admin,posts.removedHint,Posts that break the content policy are removed. Followers no longer see them.,جو پوسٹس مواد کی پالیسی کے خلاف ہوں، ہٹا دی جاتی ہیں۔ فالوورز انہیں اب نہیں دیکھتے۔,no
+admin,posts.editUntil,You can change it until {time},آپ اسے {time} تک بدل سکتے ہیں,no
+admin,posts.view,View,دیکھیں,no
+admin,posts.edit,Edit,بدلیں,no
+admin,posts.delete,Delete,ہٹائیں,no
+admin,posts.deleteTitle,Delete this post?,یہ پوسٹ ہٹائیں؟,no
+admin,posts.deleteBody,Followers will no longer see it.,فالوورز اسے اب نہیں دیکھیں گے۔,no
+admin,posts.deleted,Post deleted,پوسٹ ہٹا دی گئی,no
+admin,posts.emptyTitle,No posts yet,ابھی کوئی پوسٹ نہیں,no
+admin,posts.emptyBody,"Notices, hadith and dua requests you publish appear here.",آپ کے شائع کردہ اعلانات، احادیث اور دعا کی درخواستیں یہاں دکھائی دیں گی۔,no
+admin,posts.newNotice,Publish a notice,اعلان شائع کریں,no
+admin,posts.showMore,Show more,مزید دکھائیں,no
+admin,posts.save,Save changes,تبدیلیاں محفوظ کریں,no
+admin,posts.saved,Saved,محفوظ ہو گیا,no
+admin,posts.savedBody,"Followers see the change in the app, marked “edited”.",فالوورز ایپ میں تبدیلی دیکھیں گے، “ترمیم شدہ” کے نشان کے ساتھ۔,no
+admin,posts.staleTitle,This post was changed meanwhile,اس دوران یہ پوسٹ بدل دی گئی,no
+admin,posts.staleBody,Someone saved it after you opened it. Please open it again from My Posts.,آپ کے کھولنے کے بعد کسی نے اسے محفوظ کیا۔ براہِ کرم اسے میری پوسٹس سے دوبارہ کھولیں۔,no
+admin,posts.openPosts,Open My Posts,میری پوسٹس کھولیں,no
+admin,posts.viewPosts,View in My Posts,میری پوسٹس میں دیکھیں,no
+admin,posts.editTitle,Edit post,پوسٹ بدلیں,no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no
@@ -612,6 +643,8 @@ errors,RAMADAN_INVALID,"Please check the Ramadan dates: the last day comes after
 errors,IMAGE_INVALID,"This photo can't be used. Please choose a JPEG, PNG or WebP photo (iPhone: pick it from Photos).",یہ تصویر استعمال نہیں ہو سکتی۔ براہِ کرم JPEG، PNG یا WebP تصویر چنیں (iPhone: Photos سے چنیں)۔,no
 errors,ANNOUNCEMENT_INVALID,Something in this notice is not right. Please check the details and try again.,اس اعلان میں کچھ درست نہیں ہے۔ براہِ کرم تفصیلات دیکھیں اور دوبارہ کوشش کریں۔,no
 errors,DUA_INVALID,Something in this dua request is not right. Please check the janaza time and try again.,اس دعا کی درخواست میں کچھ درست نہیں ہے۔ براہِ کرم جنازے کا وقت دیکھیں اور دوبارہ کوشش کریں۔,no
+errors,EDIT_WINDOW_CLOSED,Posts can be changed for 24 hours after publishing. You can still delete this post.,پوسٹ شائع ہونے کے 24 گھنٹے تک ہی بدلی جا سکتی ہے۔ آپ اسے اب بھی ہٹا سکتے ہیں۔,no
+errors,ITEM_NOT_EDITABLE,This kind of post cannot be changed here.,اس طرح کی پوسٹ یہاں بدلی نہیں جا سکتی۔,no
 follow,scan.title,Scan masjid QR,مسجد کا QR اسکین کریں,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,اپنا کیمرا مسجد کے پوسٹر پر لگے QR کوڈ کی طرف کریں۔,no
 follow,scan.torch,Flashlight,ٹارچ,no

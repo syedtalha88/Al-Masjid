@@ -7,6 +7,8 @@ import { type TemplateValue, templateValueProblems } from '@mc/i18n/template-arg
 import { type AnnouncementPublish, NOTICE_BODY_MAX, NOTICE_TITLE_MAX } from '@mc/shared/contracts';
 import type { FeedItem, NoticeTemplate } from '@mc/shared/contracts/public';
 
+import type { ItemEditing } from '../../publish/use-publish.ts';
+
 export type NoticeCategory = 'general' | 'event' | 'facilities' | 'timing';
 export const NOTICE_CATEGORIES: readonly NoticeCategory[] = ['general', 'event', 'facilities', 'timing'];
 
@@ -14,8 +16,8 @@ export const NOTICE_CATEGORIES: readonly NoticeCategory[] = ['general', 'event',
 export interface NoticePhoto {
   readonly key: string;
   readonly thumbhash: string;
-  /** Small delivery URL for the thumbnail on the Fill step. */
-  readonly url: string;
+  /** Small delivery URL for the thumbnail on the Fill step; `null` for the photo of a notice being edited (ThumbHash). */
+  readonly url: string | null;
 }
 
 export type NoticeContent =
@@ -34,6 +36,8 @@ export interface NoticeDraft {
   readonly eventDate: string | null;
   readonly eventTime: string | null;
   readonly photo: NoticePhoto | null;
+  /** Set when the draft edits a published notice (B12, T3.9): the last step saves instead of publishing. */
+  readonly editing?: ItemEditing;
 }
 
 /** A new draft from a template: its category and Important preset (editable), no values yet. */

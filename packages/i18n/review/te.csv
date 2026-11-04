@@ -352,6 +352,37 @@ admin,dua.noDuasBody,The Masjid Connect team adds checked duas. Please look agai
 admin,dua.lostTitle,This request was not kept,ఈ విన్నపం ఉంచబడలేదు,no
 admin,dua.lostBody,Please choose who the dua is for again.,దువా ఎవరి కోసమో దయచేసి మళ్ళీ ఎంచుకోండి.,no
 admin,dua.startAgain,Choose again,మళ్ళీ ఎంచుకోండి,no
+admin,posts.title,My Posts,నా పోస్ట్‌లు,no
+admin,posts.filter,Type of post,పోస్ట్ రకం,no
+admin,posts.types.all,All,అన్నీ,no
+admin,posts.types.announcement,Notices,ప్రకటనలు,no
+admin,posts.types.daily_content,Hadith / Ayah,హదీస్ / ఆయత్,no
+admin,posts.types.dua_request,Dua requests,దువా విన్నపాలు,no
+admin,posts.types.timing_update,Timing updates,సమయ మార్పులు,no
+admin,posts.status.published,Published,ప్రచురించబడింది,no
+admin,posts.status.deleted,Deleted,తొలగించబడింది,no
+admin,posts.status.removed,Removed by moderation,మోడరేషన్ తొలగించింది,no
+admin,posts.removedReason,Reason: {reason},కారణం: {reason},no
+admin,posts.removedHint,Posts that break the content policy are removed. Followers no longer see them.,కంటెంట్ విధానానికి విరుద్ధమైన పోస్ట్‌లు తొలగించబడతాయి. ఫాలోవర్లు వాటిని ఇక చూడరు.,no
+admin,posts.editUntil,You can change it until {time},మీరు దీన్ని {time} వరకు మార్చవచ్చు,no
+admin,posts.view,View,చూడండి,no
+admin,posts.edit,Edit,మార్చండి,no
+admin,posts.delete,Delete,తొలగించండి,no
+admin,posts.deleteTitle,Delete this post?,ఈ పోస్ట్‌ను తొలగించాలా?,no
+admin,posts.deleteBody,Followers will no longer see it.,ఫాలోవర్లు దీన్ని ఇక చూడరు.,no
+admin,posts.deleted,Post deleted,పోస్ట్ తొలగించబడింది,no
+admin,posts.emptyTitle,No posts yet,ఇంకా పోస్ట్‌లు లేవు,no
+admin,posts.emptyBody,"Notices, hadith and dua requests you publish appear here.","మీరు ప్రచురించే ప్రకటనలు, హదీసులు, దువా విన్నపాలు ఇక్కడ కనిపిస్తాయి.",no
+admin,posts.newNotice,Publish a notice,ప్రకటనను ప్రచురించండి,no
+admin,posts.showMore,Show more,మరిన్ని చూపించు,no
+admin,posts.save,Save changes,మార్పులను సేవ్ చేయండి,no
+admin,posts.saved,Saved,సేవ్ అయింది,no
+admin,posts.savedBody,"Followers see the change in the app, marked “edited”.",ఫాలోవర్లు యాప్‌లో మార్పును “మార్చబడింది” గుర్తుతో చూస్తారు.,no
+admin,posts.staleTitle,This post was changed meanwhile,ఈ మధ్యలో ఈ పోస్ట్ మారింది,no
+admin,posts.staleBody,Someone saved it after you opened it. Please open it again from My Posts.,మీరు తెరిచిన తర్వాత ఎవరో దీన్ని సేవ్ చేశారు. దయచేసి నా పోస్ట్‌ల నుండి మళ్ళీ తెరవండి.,no
+admin,posts.openPosts,Open My Posts,నా పోస్ట్‌లు తెరవండి,no
+admin,posts.viewPosts,View in My Posts,నా పోస్ట్‌లలో చూడండి,no
+admin,posts.editTitle,Edit post,పోస్ట్‌ను మార్చండి,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -612,6 +643,8 @@ errors,RAMADAN_INVALID,"Please check the Ramadan dates: the last day comes after
 errors,IMAGE_INVALID,"This photo can't be used. Please choose a JPEG, PNG or WebP photo (iPhone: pick it from Photos).","ఈ ఫోటోను ఉపయోగించలేము. దయచేసి JPEG, PNG లేదా WebP ఫోటోను ఎంచుకోండి (iPhone: Photos నుండి ఎంచుకోండి).",no
 errors,ANNOUNCEMENT_INVALID,Something in this notice is not right. Please check the details and try again.,ఈ ప్రకటనలో ఏదో సరిగ్గా లేదు. దయచేసి వివరాలను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.,no
 errors,DUA_INVALID,Something in this dua request is not right. Please check the janaza time and try again.,ఈ దువా విన్నపంలో ఏదో సరిగ్గా లేదు. దయచేసి జనాజా సమయాన్ని తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.,no
+errors,EDIT_WINDOW_CLOSED,Posts can be changed for 24 hours after publishing. You can still delete this post.,పోస్ట్‌ను ప్రచురించిన 24 గంటల వరకే మార్చగలరు. మీరు దీన్ని ఇంకా తొలగించవచ్చు.,no
+errors,ITEM_NOT_EDITABLE,This kind of post cannot be changed here.,ఈ రకమైన పోస్ట్‌ను ఇక్కడ మార్చలేరు.,no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no

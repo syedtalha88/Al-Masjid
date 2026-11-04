@@ -13,6 +13,8 @@ import {
 } from '@mc/shared/contracts';
 import type { FeedItem } from '@mc/shared/contracts/public';
 
+import type { ItemEditing } from '../../publish/use-publish.ts';
+
 export type { DuaCategory };
 
 export interface DuaDraft {
@@ -28,6 +30,8 @@ export interface DuaDraft {
   readonly janazaTime: string | null;
   readonly janazaPlace: string;
   readonly entry: AdminLibraryEntry | null;
+  /** Set when the draft edits a published post (B12, T3.9): the last step saves instead of publishing. */
+  readonly editing?: ItemEditing;
 }
 
 /** What still blocks the next step, in the order the screen shows the fields. */

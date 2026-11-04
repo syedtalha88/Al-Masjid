@@ -347,7 +347,10 @@ function Reader({ item, masjid }: DetailProps) {
               <span aria-hidden>A+</span>
             </Button>
           </div>
-          <span className="type-caption text-text-tertiary">{format.date(new Date(item.publishedAt), 'medium')}</span>
+          <span className="type-caption text-text-tertiary">
+            {format.date(new Date(item.publishedAt), 'medium')}
+            {item.editedAt ? ` · ${t('edited')}` : ''}
+          </span>
         </div>
         <Card className="flex flex-col gap-4 text-center">
           <ArabicText variant="hero" scale={scale}>
@@ -443,6 +446,7 @@ function DuaDetail({ item, masjid }: DetailProps) {
               <Tag tone={DUA_TONE[dua.category]}>{t(`tag.${dua.category}`)}</Tag>
               <span className="type-caption text-text-tertiary">
                 {format.relative(new Date(item.publishedAt), now)}
+                {item.editedAt ? ` · ${t('edited')}` : ''}
               </span>
             </span>
             <h2 className="type-title2 text-text">{t('requestForDua')}</h2>

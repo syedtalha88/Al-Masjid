@@ -403,5 +403,42 @@
     "lostTitle": "This request was not kept",
     "lostBody": "Please choose who the dua is for again.",
     "startAgain": "Choose again"
+  },
+  "posts": {
+    "title": "My Posts",
+    "filter": "Type of post",
+    "types": {
+      "all": "All",
+      "announcement": "Notices",
+      "daily_content": "Hadith / Ayah",
+      "dua_request": "Dua requests",
+      "timing_update": "Timing updates"
+    },
+    "status": {
+      "published": "Published",
+      "deleted": "Deleted",
+      "removed": "Removed by moderation"
+    },
+    "removedReason": "Reason: {reason}",
+    "removedHint": "Posts that break the content policy are removed. Followers no longer see them.",
+    "editUntil": "You can change it until {time}",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteTitle": "Delete this post?",
+    "deleteBody": "Followers will no longer see it.",
+    "deleted": "Post deleted",
+    "emptyTitle": "No posts yet",
+    "emptyBody": "Notices, hadith and dua requests you publish appear here.",
+    "newNotice": "Publish a notice",
+    "showMore": "Show more",
+    "save": "Save changes",
+    "saved": "Saved",
+    "savedBody": "Followers see the change in the app, marked “edited”.",
+    "staleTitle": "This post was changed meanwhile",
+    "staleBody": "Someone saved it after you opened it. Please open it again from My Posts.",
+    "openPosts": "Open My Posts",
+    "viewPosts": "View in My Posts",
+    "editTitle": "Edit post"
   }
 }

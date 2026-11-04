@@ -32,7 +32,7 @@ const TILE_LIST = [
   { key: 'ruqyah', icon: <ShieldCheckIcon size={28} />, tone: 'info', phase: 3, route: null },
   { key: 'bloodCamp', icon: <HeartIcon size={28} />, tone: 'danger', phase: 3, route: null },
   { key: 'needy', icon: <HandsPrayingIcon size={28} />, tone: 'heart', phase: 5, route: null },
-  { key: 'myPosts', icon: <ListBulletsIcon size={28} />, tone: 'neutral', phase: 3, route: null },
+  { key: 'myPosts', icon: <ListBulletsIcon size={28} />, tone: 'neutral', phase: 3, route: '/posts' },
   { key: 'profile', icon: <GearIcon size={28} />, tone: 'slate', phase: 3, route: null },
 ] as const satisfies readonly {
   key: string;

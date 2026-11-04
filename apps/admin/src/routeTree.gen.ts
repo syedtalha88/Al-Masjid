@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
+import { Route as PostsRouteImport } from './routes/posts'
 import { Route as TimingsRouteImport } from './routes/timings'
 import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase'
 import { Route as DailyIndexRouteImport } from './routes/daily.index'
@@ -48,6 +49,11 @@ const IndexRoute = IndexRouteImport.update({
 const AccountRoute = AccountRouteImport.update({
   id: '/account',
   path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostsRoute = PostsRouteImport.update({
+  id: '/posts',
+  path: '/posts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TimingsRoute = TimingsRouteImport.update({
@@ -194,6 +200,7 @@ const SuperMasjidsIdEditRoute = SuperMasjidsIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/posts': typeof PostsRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/daily/note': typeof DailyNoteRoute
@@ -226,6 +233,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/posts': typeof PostsRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/daily/note': typeof DailyNoteRoute
@@ -259,6 +267,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/posts': typeof PostsRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/daily/note': typeof DailyNoteRoute
@@ -293,6 +302,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/account'
+    | '/posts'
     | '/timings'
     | '/_dev/showcase'
     | '/daily/note'
@@ -325,6 +335,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/account'
+    | '/posts'
     | '/timings'
     | '/_dev/showcase'
     | '/daily/note'
@@ -357,6 +368,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/account'
+    | '/posts'
     | '/timings'
     | '/_dev/showcase'
     | '/daily/note'
@@ -390,6 +402,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRoute
+  PostsRoute: typeof PostsRoute
   TimingsRoute: typeof TimingsRoute
   DevShowcaseRoute: typeof DevShowcaseRoute
   DailyNoteRoute: typeof DailyNoteRoute
@@ -433,6 +446,13 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/account'
       preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts': {
+      id: '/posts'
+      path: '/posts'
+      fullPath: '/posts'
+      preLoaderRoute: typeof PostsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/timings': {
@@ -649,6 +669,7 @@ const SuperMasjidsIdRouteWithChildren = SuperMasjidsIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
+  PostsRoute: PostsRoute,
   TimingsRoute: TimingsRoute,
   DevShowcaseRoute: DevShowcaseRoute,
   DailyNoteRoute: DailyNoteRoute,

@@ -301,6 +301,33 @@ for (const locale of LOCALES) {
         await expect(adminPage.locator('[data-preview-locale]')).toBeVisible();
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b7-preview');
+        // T3.9 B12: My Posts with a notice (API); its View sheet; the delete confirmation.
+        const posted = await adminPage.request.post(`${ADMIN_URL}/api/admin/masjids/${masjidId}/items/announcement`, {
+          headers: CSRF,
+          data: {
+            content: { kind: 'text', title: 'Test post title', body: 'Test post body', locale },
+            category: 'general',
+            isImportant: false,
+            notify: false,
+          },
+        });
+        expect(posted.status()).toBe(201);
+        await adminPage.goto(`${ADMIN_URL}/posts`);
+        const postCard = adminPage.locator('[data-post]').filter({ hasText: 'Test post title' });
+        await expect(postCard).toBeVisible();
+        await adminPage.waitForLoadState('networkidle');
+        await adminShot('b12-posts');
+        await postCard.getByRole('button', { name: label(locale, 'admin', 'posts.view') }).click();
+        await expect(adminPage.getByRole('dialog')).toBeVisible();
+        await adminPage.waitForTimeout(600); // the sheet's spring settles before the shot
+        await adminShot('b12-view');
+        await adminPage.keyboard.press('Escape');
+        await expect(adminPage.getByRole('dialog')).toHaveCount(0);
+        await postCard.getByRole('button', { name: label(locale, 'admin', 'posts.delete') }).click();
+        await expect(adminPage.getByRole('alertdialog')).toBeVisible();
+        await adminPage.waitForTimeout(400);
+        await adminShot('b12-delete');
+        await adminPage.keyboard.press('Escape');
         await adminPage.goto(`${ADMIN_URL}/account`);
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b13-account-admin');

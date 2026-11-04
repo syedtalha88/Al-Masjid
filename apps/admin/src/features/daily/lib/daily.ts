@@ -4,6 +4,8 @@
 import { type AdminLibraryEntry, DAILY_NOTE_MAX, type DailyContentPublish } from '@mc/shared/contracts';
 import type { FeedItem } from '@mc/shared/contracts/public';
 
+import type { ItemEditing } from '../../publish/use-publish.ts';
+
 export type DailyKind = 'hadith' | 'ayah';
 export const DAILY_KINDS: readonly DailyKind[] = ['hadith', 'ayah'];
 
@@ -14,6 +16,8 @@ export interface DailyDraft {
   readonly note: string;
   /** The masjid already published one of this kind today — the preview repeats the warning. */
   readonly publishedToday: boolean;
+  /** Set when the draft edits a published post (B12, T3.9): the last step saves instead of publishing. */
+  readonly editing?: ItemEditing;
 }
 
 /** A new draft for the chosen entry. */
