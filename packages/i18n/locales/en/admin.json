@@ -359,5 +359,49 @@
     "lostTitle": "This post was not kept",
     "lostBody": "Please choose the hadith or ayah again.",
     "startAgain": "Choose again"
+  },
+  "dua": {
+    "title": "Dua Request",
+    "categoryTitle": "Who is the dua for?",
+    "categories": {
+      "illness": {
+        "title": "Illness",
+        "body": "Someone who is unwell"
+      },
+      "inteqal": {
+        "title": "Inteqal (passed away)",
+        "body": "Someone who has passed away"
+      },
+      "other": {
+        "title": "Other",
+        "body": "Any other dua request"
+      }
+    },
+    "detailsTitle": "Write the request",
+    "messages": "Ready messages",
+    "message": "Message",
+    "name": "Name",
+    "nameHint": "Share a name only if the family agrees.",
+    "private": "Keep name private",
+    "privateHint": "Followers see “a brother or sister from our community”.",
+    "janaza": "Janaza",
+    "janazaOptional": "Optional — the time and place of the janaza.",
+    "janazaDate": "Date",
+    "janazaTime": "Time",
+    "janazaPlace": "Place",
+    "janazaClear": "Remove the janaza time",
+    "next": "Next: Choose the dua",
+    "issue": {
+      "message": "Please write the message (up to 500 characters).",
+      "name": "The name is too long (up to 80 characters).",
+      "janaza": "Please set both the janaza date and time, or neither."
+    },
+    "attachTitle": "Choose the dua",
+    "attachHint": "Followers see this dua under your request.",
+    "noDuas": "No dua for this in the library yet",
+    "noDuasBody": "The Masjid Connect team adds checked duas. Please look again later.",
+    "lostTitle": "This request was not kept",
+    "lostBody": "Please choose who the dua is for again.",
+    "startAgain": "Choose again"
   }
 }

@@ -16,6 +16,10 @@ import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase'
 import { Route as DailyIndexRouteImport } from './routes/daily.index'
 import { Route as DailyNoteRouteImport } from './routes/daily.note'
 import { Route as DailyPreviewRouteImport } from './routes/daily.preview'
+import { Route as DuaIndexRouteImport } from './routes/dua.index'
+import { Route as DuaAttachRouteImport } from './routes/dua.attach'
+import { Route as DuaDetailsRouteImport } from './routes/dua.details'
+import { Route as DuaPreviewRouteImport } from './routes/dua.preview'
 import { Route as NoticeIndexRouteImport } from './routes/notice.index'
 import { Route as NoticeFillRouteImport } from './routes/notice.fill'
 import { Route as NoticePreviewRouteImport } from './routes/notice.preview'
@@ -69,6 +73,26 @@ const DailyNoteRoute = DailyNoteRouteImport.update({
 const DailyPreviewRoute = DailyPreviewRouteImport.update({
   id: '/daily/preview',
   path: '/daily/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DuaIndexRoute = DuaIndexRouteImport.update({
+  id: '/dua/',
+  path: '/dua/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DuaAttachRoute = DuaAttachRouteImport.update({
+  id: '/dua/attach',
+  path: '/dua/attach',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DuaDetailsRoute = DuaDetailsRouteImport.update({
+  id: '/dua/details',
+  path: '/dua/details',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DuaPreviewRoute = DuaPreviewRouteImport.update({
+  id: '/dua/preview',
+  path: '/dua/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NoticeIndexRoute = NoticeIndexRouteImport.update({
@@ -174,6 +198,9 @@ export interface FileRoutesByFullPath {
   '/_dev/showcase': typeof DevShowcaseRoute
   '/daily/note': typeof DailyNoteRoute
   '/daily/preview': typeof DailyPreviewRoute
+  '/dua/attach': typeof DuaAttachRoute
+  '/dua/details': typeof DuaDetailsRoute
+  '/dua/preview': typeof DuaPreviewRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
   '/soon/$tile': typeof SoonTileRoute
@@ -181,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/super/audit': typeof SuperAuditRoute
   '/super/settings': typeof SuperSettingsRoute
   '/daily/': typeof DailyIndexRoute
+  '/dua/': typeof DuaIndexRoute
   '/notice/': typeof NoticeIndexRoute
   '/special/': typeof SpecialIndexRoute
   '/super/': typeof SuperIndexRoute
@@ -202,6 +230,9 @@ export interface FileRoutesByTo {
   '/_dev/showcase': typeof DevShowcaseRoute
   '/daily/note': typeof DailyNoteRoute
   '/daily/preview': typeof DailyPreviewRoute
+  '/dua/attach': typeof DuaAttachRoute
+  '/dua/details': typeof DuaDetailsRoute
+  '/dua/preview': typeof DuaPreviewRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
   '/soon/$tile': typeof SoonTileRoute
@@ -209,6 +240,7 @@ export interface FileRoutesByTo {
   '/super/audit': typeof SuperAuditRoute
   '/super/settings': typeof SuperSettingsRoute
   '/daily': typeof DailyIndexRoute
+  '/dua': typeof DuaIndexRoute
   '/notice': typeof NoticeIndexRoute
   '/special': typeof SpecialIndexRoute
   '/super': typeof SuperIndexRoute
@@ -231,6 +263,9 @@ export interface FileRoutesById {
   '/_dev/showcase': typeof DevShowcaseRoute
   '/daily/note': typeof DailyNoteRoute
   '/daily/preview': typeof DailyPreviewRoute
+  '/dua/attach': typeof DuaAttachRoute
+  '/dua/details': typeof DuaDetailsRoute
+  '/dua/preview': typeof DuaPreviewRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
   '/soon/$tile': typeof SoonTileRoute
@@ -238,6 +273,7 @@ export interface FileRoutesById {
   '/super/audit': typeof SuperAuditRoute
   '/super/settings': typeof SuperSettingsRoute
   '/daily/': typeof DailyIndexRoute
+  '/dua/': typeof DuaIndexRoute
   '/notice/': typeof NoticeIndexRoute
   '/special/': typeof SpecialIndexRoute
   '/super/': typeof SuperIndexRoute
@@ -261,6 +297,9 @@ export interface FileRouteTypes {
     | '/_dev/showcase'
     | '/daily/note'
     | '/daily/preview'
+    | '/dua/attach'
+    | '/dua/details'
+    | '/dua/preview'
     | '/notice/fill'
     | '/notice/preview'
     | '/soon/$tile'
@@ -268,6 +307,7 @@ export interface FileRouteTypes {
     | '/super/audit'
     | '/super/settings'
     | '/daily/'
+    | '/dua/'
     | '/notice/'
     | '/special/'
     | '/super/'
@@ -289,6 +329,9 @@ export interface FileRouteTypes {
     | '/_dev/showcase'
     | '/daily/note'
     | '/daily/preview'
+    | '/dua/attach'
+    | '/dua/details'
+    | '/dua/preview'
     | '/notice/fill'
     | '/notice/preview'
     | '/soon/$tile'
@@ -296,6 +339,7 @@ export interface FileRouteTypes {
     | '/super/audit'
     | '/super/settings'
     | '/daily'
+    | '/dua'
     | '/notice'
     | '/special'
     | '/super'
@@ -317,6 +361,9 @@ export interface FileRouteTypes {
     | '/_dev/showcase'
     | '/daily/note'
     | '/daily/preview'
+    | '/dua/attach'
+    | '/dua/details'
+    | '/dua/preview'
     | '/notice/fill'
     | '/notice/preview'
     | '/soon/$tile'
@@ -324,6 +371,7 @@ export interface FileRouteTypes {
     | '/super/audit'
     | '/super/settings'
     | '/daily/'
+    | '/dua/'
     | '/notice/'
     | '/special/'
     | '/super/'
@@ -346,6 +394,9 @@ export interface RootRouteChildren {
   DevShowcaseRoute: typeof DevShowcaseRoute
   DailyNoteRoute: typeof DailyNoteRoute
   DailyPreviewRoute: typeof DailyPreviewRoute
+  DuaAttachRoute: typeof DuaAttachRoute
+  DuaDetailsRoute: typeof DuaDetailsRoute
+  DuaPreviewRoute: typeof DuaPreviewRoute
   NoticeFillRoute: typeof NoticeFillRoute
   NoticePreviewRoute: typeof NoticePreviewRoute
   SoonTileRoute: typeof SoonTileRoute
@@ -353,6 +404,7 @@ export interface RootRouteChildren {
   SuperAuditRoute: typeof SuperAuditRoute
   SuperSettingsRoute: typeof SuperSettingsRoute
   DailyIndexRoute: typeof DailyIndexRoute
+  DuaIndexRoute: typeof DuaIndexRoute
   NoticeIndexRoute: typeof NoticeIndexRoute
   SpecialIndexRoute: typeof SpecialIndexRoute
   SuperIndexRoute: typeof SuperIndexRoute
@@ -416,6 +468,34 @@ declare module '@tanstack/react-router' {
       path: '/daily/preview'
       fullPath: '/daily/preview'
       preLoaderRoute: typeof DailyPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dua/': {
+      id: '/dua/'
+      path: '/dua'
+      fullPath: '/dua/'
+      preLoaderRoute: typeof DuaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dua/attach': {
+      id: '/dua/attach'
+      path: '/dua/attach'
+      fullPath: '/dua/attach'
+      preLoaderRoute: typeof DuaAttachRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dua/details': {
+      id: '/dua/details'
+      path: '/dua/details'
+      fullPath: '/dua/details'
+      preLoaderRoute: typeof DuaDetailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dua/preview': {
+      id: '/dua/preview'
+      path: '/dua/preview'
+      fullPath: '/dua/preview'
+      preLoaderRoute: typeof DuaPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notice/': {
@@ -573,6 +653,9 @@ const rootRouteChildren: RootRouteChildren = {
   DevShowcaseRoute: DevShowcaseRoute,
   DailyNoteRoute: DailyNoteRoute,
   DailyPreviewRoute: DailyPreviewRoute,
+  DuaAttachRoute: DuaAttachRoute,
+  DuaDetailsRoute: DuaDetailsRoute,
+  DuaPreviewRoute: DuaPreviewRoute,
   NoticeFillRoute: NoticeFillRoute,
   NoticePreviewRoute: NoticePreviewRoute,
   SoonTileRoute: SoonTileRoute,
@@ -580,6 +663,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuperAuditRoute: SuperAuditRoute,
   SuperSettingsRoute: SuperSettingsRoute,
   DailyIndexRoute: DailyIndexRoute,
+  DuaIndexRoute: DuaIndexRoute,
   NoticeIndexRoute: NoticeIndexRoute,
   SpecialIndexRoute: SpecialIndexRoute,
   SuperIndexRoute: SuperIndexRoute,

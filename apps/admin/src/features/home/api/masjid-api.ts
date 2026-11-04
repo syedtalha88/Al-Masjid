@@ -6,6 +6,7 @@ import {
   adminSpecialDatesSchema,
   type AnnouncementPublish,
   type DailyContentPublish,
+  type DuaPublish,
   imageUploadedSchema,
   itemPublishedSchema,
   librarySuggestionSchema,
@@ -81,6 +82,9 @@ export const masjidApi = {
   },
   publishDaily: (masjidId: string, body: DailyContentPublish) =>
     call(`${base(masjidId)}/items/daily-content`, itemPublishedSchema, { method: 'POST', body }),
+  /** B7 (T3.8): a dua request. */
+  publishDua: (masjidId: string, body: DuaPublish) =>
+    call(`${base(masjidId)}/items/dua`, itemPublishedSchema, { method: 'POST', body }),
 };
 
 export interface LibraryFilter {

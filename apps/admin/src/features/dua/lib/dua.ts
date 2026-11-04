@@ -31,7 +31,7 @@ export interface DuaDraft {
 }
 
 /** What still blocks the next step, in the order the screen shows the fields. */
-export type DuaIssue = 'message' | 'name' | 'janaza' | 'dua';
+export type DuaIssue = 'message' | 'name' | 'janaza';
 
 /** A new draft for `category`: its first ready-made message in `locale`, the name private, no dua yet. */
 export function draftForCategory(category: DuaCategory, locale: Locale): DuaDraft {

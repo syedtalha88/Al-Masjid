@@ -320,6 +320,38 @@ admin,daily.noteHint,Optional. A few words for your followers.,ज़रूर�
 admin,daily.lostTitle,This post was not kept,यह पोस्ट रखी नहीं गई,no
 admin,daily.lostBody,Please choose the hadith or ayah again.,कृपया हदीस या आयत फिर से चुनें।,no
 admin,daily.startAgain,Choose again,फिर से चुनें,no
+admin,dua.title,Dua Request,दुआ की गुज़ारिश,no
+admin,dua.categoryTitle,Who is the dua for?,दुआ किसके लिए है?,no
+admin,dua.categories.illness.title,Illness,बीमारी,no
+admin,dua.categories.illness.body,Someone who is unwell,कोई जो बीमार है,no
+admin,dua.categories.inteqal.title,Inteqal (passed away),इंतक़ाल,no
+admin,dua.categories.inteqal.body,Someone who has passed away,कोई जिनका इंतक़ाल हो गया है,no
+admin,dua.categories.other.title,Other,अन्य,no
+admin,dua.categories.other.body,Any other dua request,दुआ की कोई और गुज़ारिश,no
+admin,dua.detailsTitle,Write the request,गुज़ारिश लिखें,no
+admin,dua.messages,Ready messages,तैयार संदेश,no
+admin,dua.message,Message,संदेश,no
+admin,dua.name,Name,नाम,no
+admin,dua.nameHint,Share a name only if the family agrees.,नाम तभी बताएँ जब घरवाले राज़ी हों।,no
+admin,dua.private,Keep name private,नाम छुपा रखें,no
+admin,dua.privateHint,Followers see “a brother or sister from our community”.,फ़ॉलोअर्स को “हमारी बिरादरी के एक भाई या बहन” दिखेगा।,no
+admin,dua.janaza,Janaza,जनाज़ा,no
+admin,dua.janazaOptional,Optional — the time and place of the janaza.,ज़रूरी नहीं — जनाज़े का समय और जगह।,no
+admin,dua.janazaDate,Date,तारीख़,no
+admin,dua.janazaTime,Time,समय,no
+admin,dua.janazaPlace,Place,जगह,no
+admin,dua.janazaClear,Remove the janaza time,जनाज़े का समय हटाएँ,no
+admin,dua.next,Next: Choose the dua,आगे: दुआ चुनें,no
+admin,dua.issue.message,Please write the message (up to 500 characters).,कृपया संदेश लिखें (500 अक्षरों तक)।,no
+admin,dua.issue.name,The name is too long (up to 80 characters).,नाम बहुत लंबा है (80 अक्षरों तक)।,no
+admin,dua.issue.janaza,"Please set both the janaza date and time, or neither.","कृपया जनाज़े की तारीख़ और समय दोनों लगाएँ, या कोई नहीं।",no
+admin,dua.attachTitle,Choose the dua,दुआ चुनें,no
+admin,dua.attachHint,Followers see this dua under your request.,फ़ॉलोअर्स यह दुआ आपकी गुज़ारिश के नीचे देखेंगे।,no
+admin,dua.noDuas,No dua for this in the library yet,लाइब्रेरी में अभी इसके लिए कोई दुआ नहीं है,no
+admin,dua.noDuasBody,The Masjid Connect team adds checked duas. Please look again later.,Masjid Connect टीम जाँची हुई दुआएँ जोड़ती है। कृपया बाद में फिर देखें।,no
+admin,dua.lostTitle,This request was not kept,यह गुज़ारिश रखी नहीं गई,no
+admin,dua.lostBody,Please choose who the dua is for again.,कृपया फिर से चुनें कि दुआ किसके लिए है।,no
+admin,dua.startAgain,Choose again,फिर से चुनें,no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no

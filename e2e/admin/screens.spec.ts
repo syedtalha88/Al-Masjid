@@ -282,6 +282,25 @@ for (const locale of LOCALES) {
         await expect(adminPage.locator('[data-preview-locale]')).toBeVisible();
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b6-preview');
+        // T3.8 B7: the three category cards; an inteqal's details (janaza fields); the duas to attach; the preview.
+        await adminPage.goto(`${ADMIN_URL}/dua`);
+        await expect(adminPage.locator('[data-category]')).toHaveCount(3);
+        await adminShot('b7-category');
+        await adminPage.locator('[data-category="inteqal"]').click();
+        await expect(adminPage).toHaveURL(`${ADMIN_URL}/dua/details`);
+        await expect(adminPage.locator('[data-janaza]')).toBeVisible();
+        await adminPage.waitForLoadState('networkidle');
+        await adminShot('b7-details');
+        await adminPage.getByRole('button', { name: label(locale, 'admin', 'dua.next') }).click();
+        await expect(adminPage).toHaveURL(`${ADMIN_URL}/dua/attach`);
+        const duaEntry = adminPage.locator('section[data-screen]:not([inert]) [data-entry]').first();
+        await expect(duaEntry).toBeVisible();
+        await adminShot('b7-attach');
+        await duaEntry.click();
+        await expect(adminPage).toHaveURL(`${ADMIN_URL}/dua/preview`);
+        await expect(adminPage.locator('[data-preview-locale]')).toBeVisible();
+        await adminPage.waitForLoadState('networkidle');
+        await adminShot('b7-preview');
         await adminPage.goto(`${ADMIN_URL}/account`);
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b13-account-admin');

@@ -320,6 +320,38 @@ admin,daily.noteHint,Optional. A few words for your followers.,తప్పన�
 admin,daily.lostTitle,This post was not kept,ఈ పోస్ట్ ఉంచబడలేదు,no
 admin,daily.lostBody,Please choose the hadith or ayah again.,దయచేసి హదీస్ లేదా ఆయత్‌ను మళ్ళీ ఎంచుకోండి.,no
 admin,daily.startAgain,Choose again,మళ్ళీ ఎంచుకోండి,no
+admin,dua.title,Dua Request,దువా విన్నపం,no
+admin,dua.categoryTitle,Who is the dua for?,దువా ఎవరి కోసం?,no
+admin,dua.categories.illness.title,Illness,అనారోగ్యం,no
+admin,dua.categories.illness.body,Someone who is unwell,అనారోగ్యంతో ఉన్న ఒకరు,no
+admin,dua.categories.inteqal.title,Inteqal (passed away),ఇంతెకాల్,no
+admin,dua.categories.inteqal.body,Someone who has passed away,మరణించిన ఒకరు,no
+admin,dua.categories.other.title,Other,ఇతర,no
+admin,dua.categories.other.body,Any other dua request,ఇంకేదైనా దువా విన్నపం,no
+admin,dua.detailsTitle,Write the request,విన్నపం రాయండి,no
+admin,dua.messages,Ready messages,సిద్ధంగా ఉన్న సందేశాలు,no
+admin,dua.message,Message,సందేశం,no
+admin,dua.name,Name,పేరు,no
+admin,dua.nameHint,Share a name only if the family agrees.,కుటుంబం ఒప్పుకుంటేనే పేరు చెప్పండి.,no
+admin,dua.private,Keep name private,పేరు గోప్యంగా ఉంచండి,no
+admin,dua.privateHint,Followers see “a brother or sister from our community”.,ఫాలోవర్లకు “మన సమాజంలోని ఒక సోదరుడు లేదా సోదరి” అని కనిపిస్తుంది.,no
+admin,dua.janaza,Janaza,జనాజా,no
+admin,dua.janazaOptional,Optional — the time and place of the janaza.,"తప్పనిసరి కాదు — జనాజా సమయం, స్థలం.",no
+admin,dua.janazaDate,Date,తేదీ,no
+admin,dua.janazaTime,Time,సమయం,no
+admin,dua.janazaPlace,Place,స్థలం,no
+admin,dua.janazaClear,Remove the janaza time,జనాజా సమయాన్ని తీసివేయండి,no
+admin,dua.next,Next: Choose the dua,తర్వాత: దువాను ఎంచుకోండి,no
+admin,dua.issue.message,Please write the message (up to 500 characters).,దయచేసి సందేశం రాయండి (500 అక్షరాల వరకు).,no
+admin,dua.issue.name,The name is too long (up to 80 characters).,పేరు చాలా పొడవుగా ఉంది (80 అక్షరాల వరకు).,no
+admin,dua.issue.janaza,"Please set both the janaza date and time, or neither.","దయచేసి జనాజా తేదీ, సమయం రెండూ పెట్టండి, లేదా ఏదీ వద్దు.",no
+admin,dua.attachTitle,Choose the dua,దువాను ఎంచుకోండి,no
+admin,dua.attachHint,Followers see this dua under your request.,ఫాలోవర్లు ఈ దువాను మీ విన్నపం కింద చూస్తారు.,no
+admin,dua.noDuas,No dua for this in the library yet,లైబ్రరీలో ఇంకా దీనికి దువా లేదు,no
+admin,dua.noDuasBody,The Masjid Connect team adds checked duas. Please look again later.,Masjid Connect బృందం సరిచూసిన దువాలు చేరుస్తుంది. దయచేసి తర్వాత మళ్ళీ చూడండి.,no
+admin,dua.lostTitle,This request was not kept,ఈ విన్నపం ఉంచబడలేదు,no
+admin,dua.lostBody,Please choose who the dua is for again.,దువా ఎవరి కోసమో దయచేసి మళ్ళీ ఎంచుకోండి.,no
+admin,dua.startAgain,Choose again,మళ్ళీ ఎంచుకోండి,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
