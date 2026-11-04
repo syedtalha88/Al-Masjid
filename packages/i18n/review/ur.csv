@@ -291,6 +291,35 @@ admin,notice.publishWithout,Publish without notifying,اطلاع دیے بغیر
 admin,notice.lostTitle,This notice was not kept,یہ اعلان محفوظ نہیں رہا,no
 admin,notice.lostBody,Please choose the notice again.,براہِ کرم اعلان دوبارہ چنیں۔,no
 admin,notice.startAgain,Choose a notice,اعلان چنیں,no
+admin,daily.title,Hadith / Ayah,حدیث / آیت,no
+admin,daily.chooseTitle,Choose what to share today,آج کیا شیئر کریں، چنیں,no
+admin,daily.kinds,Hadith or Ayah,حدیث یا آیت,no
+admin,daily.hadith,Hadith,حدیث,no
+admin,daily.ayah,Ayah,آیت,no
+admin,daily.suggestion,Today’s suggestion,آج کی تجویز,no
+admin,daily.useThis,Use this,یہی چنیں,no
+admin,daily.chooseAnother,Choose another,دوسری چنیں,no
+admin,daily.todayHadith,"You already shared a hadith today. If you publish another, followers will see both.",آپ آج ایک حدیث شیئر کر چکے ہیں۔ دوسری شائع کریں گے تو فالوورز دونوں دیکھیں گے۔,no
+admin,daily.todayAyah,"You already shared an ayah today. If you publish another, followers will see both.",آپ آج ایک آیت شیئر کر چکے ہیں۔ دوسری شائع کریں گے تو فالوورز دونوں دیکھیں گے۔,no
+admin,daily.noneHadith,No hadith in the library yet,لائبریری میں ابھی کوئی حدیث نہیں,no
+admin,daily.noneAyah,No ayah in the library yet,لائبریری میں ابھی کوئی آیت نہیں,no
+admin,daily.noneBody,The Masjid Connect team adds checked hadith and ayat. Please look again later.,Masjid Connect ٹیم جانچی ہوئی احادیث اور آیات شامل کرتی ہے۔ براہِ کرم بعد میں دوبارہ دیکھیں۔,no
+admin,daily.searchHadith,Choose a hadith,حدیث چنیں,no
+admin,daily.searchAyah,Choose an ayah,آیت چنیں,no
+admin,daily.search,Search,تلاش کریں,no
+admin,daily.topics,Topics,موضوعات,no
+admin,daily.allTopics,All,سب,no
+admin,daily.noResults,Nothing found,کچھ نہیں ملا,no
+admin,daily.noResultsBody,Try other words or another topic.,دوسرے الفاظ یا دوسرا موضوع آزمائیں۔,no
+admin,daily.showMore,Show more,مزید دکھائیں,no
+admin,daily.english,English,انگریزی,no
+admin,daily.noteTitle,Add a note,نوٹ شامل کریں,no
+admin,daily.chosen,You chose,آپ نے چنا,no
+admin,daily.note,Note from the masjid,مسجد کی طرف سے نوٹ,no
+admin,daily.noteHint,Optional. A few words for your followers.,ضروری نہیں۔ فالوورز کے لیے چند الفاظ۔,no
+admin,daily.lostTitle,This post was not kept,یہ پوسٹ محفوظ نہیں رہی,no
+admin,daily.lostBody,Please choose the hadith or ayah again.,براہِ کرم حدیث یا آیت دوبارہ چنیں۔,no
+admin,daily.startAgain,Choose again,دوبارہ چنیں,no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no

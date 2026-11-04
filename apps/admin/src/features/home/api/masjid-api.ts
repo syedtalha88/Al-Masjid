@@ -1,11 +1,14 @@
 // Masjid-scoped admin API (03 §4, PHASE_03): responses are parsed with the shared contracts.
 import {
+  adminLibraryListSchema,
   adminMasjidStatsSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
   type AnnouncementPublish,
+  type DailyContentPublish,
   imageUploadedSchema,
   itemPublishedSchema,
+  librarySuggestionSchema,
   noContentSchema,
   pushQuotaSchema,
   type RamadanSave,
@@ -64,7 +67,27 @@ export const masjidApi = {
   },
   publishAnnouncement: (masjidId: string, body: AnnouncementPublish) =>
     call(`${base(masjidId)}/items/announcement`, itemPublishedSchema, { method: 'POST', body }),
+  /** B6 (T3.7): today's hadith / ayah suggestion and whether one of the kind went out today. */
+  suggestion: (masjidId: string, kind: 'hadith' | 'ayah', signal?: AbortSignal) =>
+    call(`${base(masjidId)}/library/suggestion?kind=${kind}`, librarySuggestionSchema, withSignal(signal)),
+  /** Verified library entries of a kind: search words, a topic tag, the next page. */
+  library: (masjidId: string, filter: LibraryFilter, signal?: AbortSignal) => {
+    const query = new URLSearchParams({ kind: filter.kind });
+    if (filter.q) query.set('q', filter.q);
+    if (filter.tag) query.set('tag', filter.tag);
+    if (filter.cursor) query.set('cursor', filter.cursor);
+    return call(`${base(masjidId)}/library?${query.toString()}`, adminLibraryListSchema, withSignal(signal));
+  },
+  publishDaily: (masjidId: string, body: DailyContentPublish) =>
+    call(`${base(masjidId)}/items/daily-content`, itemPublishedSchema, { method: 'POST', body }),
 };
+
+export interface LibraryFilter {
+  readonly kind: 'hadith' | 'ayah' | 'dua';
+  readonly q?: string | undefined;
+  readonly tag?: string | undefined;
+  readonly cursor?: string | undefined;
+}
 
 /** Query keys per masjid (the Home invalidates them after a publish / timings save). */
 export const masjidKeys = {
@@ -75,4 +98,7 @@ export const masjidKeys = {
   special: (masjidId: string) => ['masjid', masjidId, 'special'] as const,
   ramadan: (masjidId: string) => ['masjid', masjidId, 'ramadan'] as const,
   templates: (masjidId: string) => ['masjid', masjidId, 'templates'] as const,
+  suggestion: (masjidId: string, kind: 'hadith' | 'ayah') => ['masjid', masjidId, 'suggestion', kind] as const,
+  library: (masjidId: string, kind: string, q: string, tag: string) =>
+    ['masjid', masjidId, 'library', kind, q, tag] as const,
 };

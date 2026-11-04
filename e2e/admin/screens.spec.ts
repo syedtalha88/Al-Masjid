@@ -259,6 +259,29 @@ for (const locale of LOCALES) {
         await expect(adminPage).toHaveURL(`${ADMIN_URL}/notice/fill`);
         await expect(adminPage.getByRole('textbox', { name: label(locale, 'admin', 'notice.ownTitle') })).toBeVisible();
         await adminShot('b5-fill-own');
+        // T3.7 B6: today's suggestion; the "Choose another" sheet; the note step; the preview (Today's hero).
+        await adminPage.goto(`${ADMIN_URL}/daily`);
+        await expect(adminPage.locator('[data-suggestion]')).toBeVisible();
+        await adminPage.waitForLoadState('networkidle');
+        await adminShot('b6-choose');
+        await adminPage.getByRole('button', { name: label(locale, 'admin', 'daily.chooseAnother') }).click();
+        const sheet = adminPage.getByRole('dialog');
+        await expect(sheet.locator('[data-entry]').first()).toBeVisible();
+        await adminPage.waitForTimeout(600); // the sheet's spring settles before the shot
+        await adminShot('b6-search');
+        await sheet.locator('[data-entry]').first().click();
+        await expect(adminPage).toHaveURL(`${ADMIN_URL}/daily/note`);
+        const dailyNote = adminPage.getByRole('textbox', {
+          name: new RegExp(`^${label(locale, 'admin', 'daily.note')}`),
+        });
+        await dailyNote.click(); // waits for the closing sheet to release the stack (inert meanwhile)
+        await dailyNote.fill('Test note from the masjid.');
+        await adminShot('b6-note');
+        await adminPage.getByRole('button', { name: label(locale, 'admin', 'notice.next') }).click();
+        await expect(adminPage).toHaveURL(`${ADMIN_URL}/daily/preview`);
+        await expect(adminPage.locator('[data-preview-locale]')).toBeVisible();
+        await adminPage.waitForLoadState('networkidle');
+        await adminShot('b6-preview');
         await adminPage.goto(`${ADMIN_URL}/account`);
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b13-account-admin');

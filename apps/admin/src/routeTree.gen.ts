@@ -13,6 +13,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as TimingsRouteImport } from './routes/timings'
 import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase'
+import { Route as DailyIndexRouteImport } from './routes/daily.index'
+import { Route as DailyNoteRouteImport } from './routes/daily.note'
+import { Route as DailyPreviewRouteImport } from './routes/daily.preview'
 import { Route as NoticeIndexRouteImport } from './routes/notice.index'
 import { Route as NoticeFillRouteImport } from './routes/notice.fill'
 import { Route as NoticePreviewRouteImport } from './routes/notice.preview'
@@ -51,6 +54,21 @@ const TimingsRoute = TimingsRouteImport.update({
 const DevShowcaseRoute = DevShowcaseRouteImport.update({
   id: '/_dev/showcase',
   path: '/_dev/showcase',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DailyIndexRoute = DailyIndexRouteImport.update({
+  id: '/daily/',
+  path: '/daily/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DailyNoteRoute = DailyNoteRouteImport.update({
+  id: '/daily/note',
+  path: '/daily/note',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DailyPreviewRoute = DailyPreviewRouteImport.update({
+  id: '/daily/preview',
+  path: '/daily/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NoticeIndexRoute = NoticeIndexRouteImport.update({
@@ -154,12 +172,15 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
+  '/daily/note': typeof DailyNoteRoute
+  '/daily/preview': typeof DailyPreviewRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/daily/': typeof DailyIndexRoute
   '/notice/': typeof NoticeIndexRoute
   '/special/': typeof SpecialIndexRoute
   '/super/': typeof SuperIndexRoute
@@ -179,12 +200,15 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
+  '/daily/note': typeof DailyNoteRoute
+  '/daily/preview': typeof DailyPreviewRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/daily': typeof DailyIndexRoute
   '/notice': typeof NoticeIndexRoute
   '/special': typeof SpecialIndexRoute
   '/super': typeof SuperIndexRoute
@@ -205,12 +229,15 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
+  '/daily/note': typeof DailyNoteRoute
+  '/daily/preview': typeof DailyPreviewRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/daily/': typeof DailyIndexRoute
   '/notice/': typeof NoticeIndexRoute
   '/special/': typeof SpecialIndexRoute
   '/super/': typeof SuperIndexRoute
@@ -232,12 +259,15 @@ export interface FileRouteTypes {
     | '/account'
     | '/timings'
     | '/_dev/showcase'
+    | '/daily/note'
+    | '/daily/preview'
     | '/notice/fill'
     | '/notice/preview'
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
     | '/super/settings'
+    | '/daily/'
     | '/notice/'
     | '/special/'
     | '/super/'
@@ -257,12 +287,15 @@ export interface FileRouteTypes {
     | '/account'
     | '/timings'
     | '/_dev/showcase'
+    | '/daily/note'
+    | '/daily/preview'
     | '/notice/fill'
     | '/notice/preview'
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
     | '/super/settings'
+    | '/daily'
     | '/notice'
     | '/special'
     | '/super'
@@ -282,12 +315,15 @@ export interface FileRouteTypes {
     | '/account'
     | '/timings'
     | '/_dev/showcase'
+    | '/daily/note'
+    | '/daily/preview'
     | '/notice/fill'
     | '/notice/preview'
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
     | '/super/settings'
+    | '/daily/'
     | '/notice/'
     | '/special/'
     | '/super/'
@@ -308,12 +344,15 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   TimingsRoute: typeof TimingsRoute
   DevShowcaseRoute: typeof DevShowcaseRoute
+  DailyNoteRoute: typeof DailyNoteRoute
+  DailyPreviewRoute: typeof DailyPreviewRoute
   NoticeFillRoute: typeof NoticeFillRoute
   NoticePreviewRoute: typeof NoticePreviewRoute
   SoonTileRoute: typeof SoonTileRoute
   SpecialIdRoute: typeof SpecialIdRoute
   SuperAuditRoute: typeof SuperAuditRoute
   SuperSettingsRoute: typeof SuperSettingsRoute
+  DailyIndexRoute: typeof DailyIndexRoute
   NoticeIndexRoute: typeof NoticeIndexRoute
   SpecialIndexRoute: typeof SpecialIndexRoute
   SuperIndexRoute: typeof SuperIndexRoute
@@ -356,6 +395,27 @@ declare module '@tanstack/react-router' {
       path: '/_dev/showcase'
       fullPath: '/_dev/showcase'
       preLoaderRoute: typeof DevShowcaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/daily/': {
+      id: '/daily/'
+      path: '/daily'
+      fullPath: '/daily/'
+      preLoaderRoute: typeof DailyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/daily/note': {
+      id: '/daily/note'
+      path: '/daily/note'
+      fullPath: '/daily/note'
+      preLoaderRoute: typeof DailyNoteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/daily/preview': {
+      id: '/daily/preview'
+      path: '/daily/preview'
+      fullPath: '/daily/preview'
+      preLoaderRoute: typeof DailyPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notice/': {
@@ -511,12 +571,15 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   TimingsRoute: TimingsRoute,
   DevShowcaseRoute: DevShowcaseRoute,
+  DailyNoteRoute: DailyNoteRoute,
+  DailyPreviewRoute: DailyPreviewRoute,
   NoticeFillRoute: NoticeFillRoute,
   NoticePreviewRoute: NoticePreviewRoute,
   SoonTileRoute: SoonTileRoute,
   SpecialIdRoute: SpecialIdRoute,
   SuperAuditRoute: SuperAuditRoute,
   SuperSettingsRoute: SuperSettingsRoute,
+  DailyIndexRoute: DailyIndexRoute,
   NoticeIndexRoute: NoticeIndexRoute,
   SpecialIndexRoute: SpecialIndexRoute,
   SuperIndexRoute: SuperIndexRoute,

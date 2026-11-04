@@ -1,19 +1,20 @@
 import { useTranslation } from '@mc/i18n/react';
 import type { ItemPublished } from '@mc/shared/contracts';
-import { ProblemError } from '@mc/shared/http';
-import { PublishBar, PublishSuccess, StepHeader } from '@mc/ui/admin';
-import { Button, Dialog, EmptyState, useToast } from '@mc/ui/components';
+import { StepHeader } from '@mc/ui/admin';
+import { Button, EmptyState } from '@mc/ui/components';
 import { Screen, useNavigator } from '@mc/ui/navigation';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 
-import { useErrorText, useSignedInAdmin } from '../features/auth/hooks/use-session.ts';
+import { useSignedInAdmin } from '../features/auth/hooks/use-session.ts';
+import { masjidApi } from '../features/home/api/masjid-api.ts';
 import { useMinute } from '../features/home/hooks/use-minute.ts';
 import { useSelectedMasjid } from '../features/home/hooks/use-selected-masjid.ts';
 import { NoticePreview } from '../features/notice/components/NoticeParts.tsx';
-import { useNoticeTemplates, usePublishNotice, useQuota } from '../features/notice/hooks/use-notice.ts';
+import { useNoticeTemplates } from '../features/notice/hooks/use-notice.ts';
 import { setNoticeDraft, useNoticeDraft } from '../features/notice/lib/draft-store.ts';
 import { type NoticeDraft, previewItem, publishBody, templateOf } from '../features/notice/lib/notice.ts';
+import { PublishedMoment, PublishStep } from '../features/publish/PublishStep.tsx';
 
 export const Route = createFileRoute('/notice/preview')({
   component: PreviewNoticeScreen,
@@ -31,14 +32,9 @@ function PreviewNoticeScreen() {
   const [published, setPublished] = useState<ItemPublished | null>(null);
 
   if (published) {
-    const { notification } = published;
     return (
-      <PublishSuccess
-        title={t('notice.published')}
-        message={
-          notification ? t('notice.publishedNotified', { count: notification.targeted }) : t('notice.publishedQuiet')
-        }
-        doneLabel={t('notice.done')}
+      <PublishedMoment
+        published={published}
         onDone={() => {
           setNoticeDraft(null);
           navigator.selectTab('home');
@@ -78,33 +74,11 @@ function PreviewForm({
   readonly onPublished: (published: ItemPublished) => void;
 }) {
   const { t } = useTranslation('admin');
-  const toast = useToast();
-  const errorText = useErrorText();
   const me = useSignedInAdmin();
   const { masjid } = useSelectedMasjid(me.masjids);
   const templates = useNoticeTemplates(masjid?.id);
-  const quota = useQuota(masjid?.id);
-  const { publish, quotaExceeded } = usePublishNotice(masjid?.id);
   const now = useMinute();
-  const [notifyChoice, setNotifyChoice] = useState(true);
-
   const template = templateOf(draft, templates.data?.templates);
-  const left = quota.data ? Math.max(quota.data.limit - quota.data.used, 0) : null;
-  const notify = left === 0 ? false : notifyChoice;
-  const ready = publishBody(draft, template, notify) !== null;
-
-  const submit = (withNotify: boolean) => {
-    const body = publishBody(draft, template, withNotify);
-    if (!body) return;
-    publish.mutate(body, {
-      onSuccess: onPublished,
-      onError: (error) => {
-        if (!(error instanceof ProblemError && error.problem.code === 'NOTIFY_QUOTA_EXCEEDED')) {
-          toast.show({ message: errorText(error), tone: 'error' });
-        }
-      },
-    });
-  };
 
   return (
     <Screen title={t('notice.title')}>
@@ -116,35 +90,13 @@ function PreviewForm({
           now={now}
           hasPhoto={draft.photo !== null}
         />
-        <PublishBar
-          notify={{
-            checked: notify,
-            onChange: setNotifyChoice,
-            label: t('notice.notify'),
-            quota: quota.data && left !== null ? t('notice.quota', { left, limit: quota.data.limit }) : undefined,
-            disabled: left === 0,
-          }}
-          actionLabel={t('notice.publish')}
-          disabled={!ready}
-          busy={publish.isPending}
-          onAction={() => {
-            submit(notify);
-          }}
+        <PublishStep
+          masjidId={masjid?.id}
+          bodyFor={(notify) => publishBody(draft, template, notify)}
+          send={masjidApi.publishAnnouncement}
+          onPublished={onPublished}
         />
       </div>
-      <Dialog
-        open={quotaExceeded}
-        onClose={() => {
-          publish.reset();
-        }}
-        title={t('notice.quotaTitle')}
-        body={t('notice.quotaBody')}
-        confirmLabel={t('notice.publishWithout')}
-        onConfirm={() => {
-          publish.reset();
-          submit(false);
-        }}
-      />
     </Screen>
   );
 }

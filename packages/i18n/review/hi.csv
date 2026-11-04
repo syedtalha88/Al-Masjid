@@ -291,6 +291,35 @@ admin,notice.publishWithout,Publish without notifying,बिना सूचन�
 admin,notice.lostTitle,This notice was not kept,यह सूचना रखी नहीं गई,no
 admin,notice.lostBody,Please choose the notice again.,कृपया सूचना फिर से चुनें।,no
 admin,notice.startAgain,Choose a notice,सूचना चुनें,no
+admin,daily.title,Hadith / Ayah,हदीस / आयत,no
+admin,daily.chooseTitle,Choose what to share today,"आज क्या साझा करें, चुनें",no
+admin,daily.kinds,Hadith or Ayah,हदीस या आयत,no
+admin,daily.hadith,Hadith,हदीस,no
+admin,daily.ayah,Ayah,आयत,no
+admin,daily.suggestion,Today’s suggestion,आज का सुझाव,no
+admin,daily.useThis,Use this,यही चुनें,no
+admin,daily.chooseAnother,Choose another,दूसरी चुनें,no
+admin,daily.todayHadith,"You already shared a hadith today. If you publish another, followers will see both.",आज आप एक हदीस साझा कर चुके हैं। दूसरी प्रकाशित करेंगे तो फ़ॉलोअर्स दोनों देखेंगे।,no
+admin,daily.todayAyah,"You already shared an ayah today. If you publish another, followers will see both.",आज आप एक आयत साझा कर चुके हैं। दूसरी प्रकाशित करेंगे तो फ़ॉलोअर्स दोनों देखेंगे।,no
+admin,daily.noneHadith,No hadith in the library yet,लाइब्रेरी में अभी कोई हदीस नहीं है,no
+admin,daily.noneAyah,No ayah in the library yet,लाइब्रेरी में अभी कोई आयत नहीं है,no
+admin,daily.noneBody,The Masjid Connect team adds checked hadith and ayat. Please look again later.,Masjid Connect टीम जाँची हुई हदीसें और आयतें जोड़ती है। कृपया बाद में फिर देखें।,no
+admin,daily.searchHadith,Choose a hadith,हदीस चुनें,no
+admin,daily.searchAyah,Choose an ayah,आयत चुनें,no
+admin,daily.search,Search,खोजें,no
+admin,daily.topics,Topics,विषय,no
+admin,daily.allTopics,All,सभी,no
+admin,daily.noResults,Nothing found,कुछ नहीं मिला,no
+admin,daily.noResultsBody,Try other words or another topic.,दूसरे शब्द या दूसरा विषय आज़माएँ।,no
+admin,daily.showMore,Show more,और दिखाएँ,no
+admin,daily.english,English,अंग्रेज़ी,no
+admin,daily.noteTitle,Add a note,नोट जोड़ें,no
+admin,daily.chosen,You chose,आपने चुना,no
+admin,daily.note,Note from the masjid,मस्जिद की ओर से नोट,no
+admin,daily.noteHint,Optional. A few words for your followers.,ज़रूरी नहीं। फ़ॉलोअर्स के लिए कुछ शब्द।,no
+admin,daily.lostTitle,This post was not kept,यह पोस्ट रखी नहीं गई,no
+admin,daily.lostBody,Please choose the hadith or ayah again.,कृपया हदीस या आयत फिर से चुनें।,no
+admin,daily.startAgain,Choose again,फिर से चुनें,no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no

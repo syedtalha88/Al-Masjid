@@ -291,6 +291,35 @@ admin,notice.publishWithout,Publish without notifying,తెలియజేయ�
 admin,notice.lostTitle,This notice was not kept,ఈ ప్రకటన ఉంచబడలేదు,no
 admin,notice.lostBody,Please choose the notice again.,దయచేసి ప్రకటనను మళ్ళీ ఎంచుకోండి.,no
 admin,notice.startAgain,Choose a notice,ప్రకటనను ఎంచుకోండి,no
+admin,daily.title,Hadith / Ayah,హదీస్ / ఆయత్,no
+admin,daily.chooseTitle,Choose what to share today,ఈ రోజు ఏమి పంచుకోవాలో ఎంచుకోండి,no
+admin,daily.kinds,Hadith or Ayah,హదీస్ లేదా ఆయత్,no
+admin,daily.hadith,Hadith,హదీస్,no
+admin,daily.ayah,Ayah,ఆయత్,no
+admin,daily.suggestion,Today’s suggestion,నేటి సూచన,no
+admin,daily.useThis,Use this,ఇదే ఎంచుకోండి,no
+admin,daily.chooseAnother,Choose another,మరొకటి ఎంచుకోండి,no
+admin,daily.todayHadith,"You already shared a hadith today. If you publish another, followers will see both.",మీరు ఈ రోజు ఇప్పటికే ఒక హదీస్ పంచుకున్నారు. మరొకటి ప్రచురిస్తే ఫాలోవర్లు రెండూ చూస్తారు.,no
+admin,daily.todayAyah,"You already shared an ayah today. If you publish another, followers will see both.",మీరు ఈ రోజు ఇప్పటికే ఒక ఆయత్ పంచుకున్నారు. మరొకటి ప్రచురిస్తే ఫాలోవర్లు రెండూ చూస్తారు.,no
+admin,daily.noneHadith,No hadith in the library yet,లైబ్రరీలో ఇంకా హదీస్ లేదు,no
+admin,daily.noneAyah,No ayah in the library yet,లైబ్రరీలో ఇంకా ఆయత్ లేదు,no
+admin,daily.noneBody,The Masjid Connect team adds checked hadith and ayat. Please look again later.,"Masjid Connect బృందం సరిచూసిన హదీసులు, ఆయతులు చేరుస్తుంది. దయచేసి తర్వాత మళ్ళీ చూడండి.",no
+admin,daily.searchHadith,Choose a hadith,హదీస్ ఎంచుకోండి,no
+admin,daily.searchAyah,Choose an ayah,ఆయత్ ఎంచుకోండి,no
+admin,daily.search,Search,వెతకండి,no
+admin,daily.topics,Topics,అంశాలు,no
+admin,daily.allTopics,All,అన్నీ,no
+admin,daily.noResults,Nothing found,ఏమీ దొరకలేదు,no
+admin,daily.noResultsBody,Try other words or another topic.,వేరే పదాలు లేదా వేరే అంశం ప్రయత్నించండి.,no
+admin,daily.showMore,Show more,మరిన్ని చూపించు,no
+admin,daily.english,English,ఇంగ్లీష్,no
+admin,daily.noteTitle,Add a note,గమనిక జోడించండి,no
+admin,daily.chosen,You chose,మీరు ఎంచుకున్నది,no
+admin,daily.note,Note from the masjid,మస్జిద్ నుండి గమనిక,no
+admin,daily.noteHint,Optional. A few words for your followers.,తప్పనిసరి కాదు. ఫాలోవర్ల కోసం కొన్ని మాటలు.,no
+admin,daily.lostTitle,This post was not kept,ఈ పోస్ట్ ఉంచబడలేదు,no
+admin,daily.lostBody,Please choose the hadith or ayah again.,దయచేసి హదీస్ లేదా ఆయత్‌ను మళ్ళీ ఎంచుకోండి.,no
+admin,daily.startAgain,Choose again,మళ్ళీ ఎంచుకోండి,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
