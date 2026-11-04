@@ -1396,6 +1396,208 @@
           "urls"
         ]
       },
+      "ItemPublished": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "publicId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "publicId"
+            ]
+          },
+          "notification": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "queued": {
+                "type": "boolean"
+              },
+              "targeted": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "quotaLeft": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "queued",
+              "targeted",
+              "quotaLeft"
+            ]
+          }
+        },
+        "required": [
+          "item",
+          "notification"
+        ]
+      },
+      "AnnouncementPublish": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "template"
+                    ]
+                  },
+                  "key": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]{2,63}$"
+                  },
+                  "params": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 1000000
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "start": {
+                              "type": "string",
+                              "maxLength": 10
+                            },
+                            "end": {
+                              "type": "string",
+                              "maxLength": 10
+                            }
+                          },
+                          "required": [
+                            "start",
+                            "end"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "key",
+                  "params"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "text"
+                    ]
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "body": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "title",
+                  "body",
+                  "locale"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "general",
+              "event",
+              "facilities",
+              "timing"
+            ]
+          },
+          "isImportant": {
+            "type": "boolean"
+          },
+          "eventAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "image": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^m\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              "thumbhash": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+              },
+              "rightsConfirmed": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              }
+            },
+            "required": [
+              "key",
+              "thumbhash",
+              "rightsConfirmed"
+            ],
+            "additionalProperties": false
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "content",
+          "category",
+          "isImportant",
+          "notify"
+        ],
+        "additionalProperties": false
+      },
       "Ramadan": {
         "type": "object",
         "properties": {
@@ -6567,6 +6769,205 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ImageUploaded"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/templates": {
+      "get": {
+        "summary": "Notice templates an admin may pick (active, not system) in all four languages (B5)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "templates": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "category": {
+                            "type": "string",
+                            "enum": [
+                              "general",
+                              "event",
+                              "facilities",
+                              "timing"
+                            ]
+                          },
+                          "icon": {
+                            "type": "string"
+                          },
+                          "isImportantDefault": {
+                            "type": "boolean"
+                          },
+                          "title": {
+                            "type": "object",
+                            "properties": {
+                              "en": {
+                                "type": "string"
+                              },
+                              "hi": {
+                                "type": "string"
+                              },
+                              "ur": {
+                                "type": "string"
+                              },
+                              "te": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "en",
+                              "hi",
+                              "ur",
+                              "te"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "body": {
+                            "type": "object",
+                            "properties": {
+                              "en": {
+                                "type": "string"
+                              },
+                              "hi": {
+                                "type": "string"
+                              },
+                              "ur": {
+                                "type": "string"
+                              },
+                              "te": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "en",
+                              "hi",
+                              "ur",
+                              "te"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "params": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "time",
+                                    "date",
+                                    "date_range",
+                                    "time_range",
+                                    "prayer",
+                                    "number",
+                                    "short_text",
+                                    "phone"
+                                  ]
+                                },
+                                "required": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "type",
+                                "required"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "system": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "category",
+                          "icon",
+                          "isImportantDefault",
+                          "title",
+                          "body",
+                          "params",
+                          "system"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "templates"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/items/announcement": {
+      "post": {
+        "summary": "Publish a notice — a template with its params or own text; optionally notify followers (B5)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnouncementPublish"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemPublished"
                 }
               }
             }

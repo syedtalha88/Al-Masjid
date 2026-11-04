@@ -10,6 +10,7 @@ export {
   MAX_ADMINS_PER_MASJID,
   removeAdminFromMasjid,
 } from './admins.ts';
+export { type AnnouncementInput, type AnnouncementPublished, publishAnnouncement } from './announcements.ts';
 export {
   type AdminRole,
   completeAssertion,

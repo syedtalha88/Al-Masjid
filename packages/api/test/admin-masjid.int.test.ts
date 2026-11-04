@@ -1,6 +1,7 @@
 // PHASE_03 T3.1 (API) against a migrated MongoDB as the real mc_admin user: the masjid-scoped Admin Home reads —
 // stats, push quota, schedule — for the admin's own masjid; another masjid, a malformed id and the Super Admin (not a
-// member) all get the uniform 404; no session → 401. T3.2: the timings editor; T3.3: special dates and Ramadan.
+// member) all get the uniform 404; no session → 401. T3.2: the timings editor; T3.3: special dates and Ramadan; T3.6:
+// photos, the template list and publishing a notice.
 import { randomBytes } from 'node:crypto';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -17,9 +18,11 @@ import {
   adminScheduleSchema,
   adminSpecialDatesSchema,
   imageUploadedSchema,
+  itemPublishedSchema,
   pushQuotaSchema,
   ramadanSchema,
   specialDateSavedSchema,
+  templateListSchema,
   timingsPreviewSchema,
   timingsSavedSchema,
 } from '@mc/shared/contracts';
@@ -450,5 +453,122 @@ describe('photo upload (T3.6)', () => {
       .set(CSRF)
       .send({ file: 'x' });
     expect(json.status).toBe(415);
+  });
+});
+
+describe('notices (T3.6)', () => {
+  const publish = (body: object, path = own) =>
+    request(app())
+      .post(`/api/admin/masjids/${path}/items/announcement`)
+      .set('Cookie', adminCookie)
+      .set(CSRF)
+      .send(body);
+  const NOTICE = {
+    content: { kind: 'template', key: 'no_water_time_range', params: { hours: { start: '10:00', end: '14:00' } } },
+    category: 'facilities',
+    isImportant: true,
+    notify: false,
+  };
+
+  beforeAll(async () => {
+    // A fresh database has no templates: add the starters (draft) and activate the one used here, as the Super Admin.
+    const asSuper = (method: 'post' | 'patch', path: string, body?: object) => {
+      const call = request(app())[method](`/api/super${path}`).set('Cookie', superCookie).set(CSRF);
+      return body === undefined ? call : call.send(body);
+    };
+    expect((await asSuper('post', '/templates/starters')).status).toBe(200);
+    const activate = await asSuper('patch', '/templates/no_water_time_range', {
+      translationReviewed: true,
+      status: 'active',
+    });
+    expect(activate.status).toBe(200);
+  });
+
+  it('lists the templates an admin may pick: active ones only, no system ones', async () => {
+    const response = await get(`/${own}/templates`);
+    expect(response.status).toBe(200);
+    const keys = templateListSchema.parse(response.body).templates.map((entry) => entry.key);
+    expect(keys).toEqual(['no_water_time_range']);
+    expect((await get(`/${other}/templates`)).status).toBe(404);
+  });
+
+  it('publishes a template notice (201) without notifying: item ids, no notification', async () => {
+    const response = await publish(NOTICE);
+    expect(response.status).toBe(201);
+    const body = itemPublishedSchema.parse(response.body);
+    expect(body.notification).toBeNull();
+    expect(body.item.publicId).toMatch(/^[A-Za-z0-9_-]+$/);
+  });
+
+  it('notify: queued, followers targeted, quota left — and the quota pill moves', async () => {
+    const before = pushQuotaSchema.parse((await get(`/${own}/notifications/quota`)).body);
+    const response = await publish({ ...NOTICE, notify: true });
+    expect(response.status).toBe(201);
+    expect(itemPublishedSchema.parse(response.body).notification).toEqual({
+      queued: true,
+      targeted: 0,
+      quotaLeft: before.limit - before.used - 1,
+    });
+    const after = pushQuotaSchema.parse((await get(`/${own}/notifications/quota`)).body);
+    expect(after.used).toBe(before.used + 1);
+  });
+
+  it('own text: limits enforced by the contract; content_locale stored', async () => {
+    const text = (title: string, body: string, extra: object = {}) =>
+      publish({ ...NOTICE, content: { kind: 'text', title, body, locale: 'te', ...extra } });
+    const ok = await text('Test title', 'Test body');
+    expect(ok.status).toBe(201);
+    const { item } = itemPublishedSchema.parse(ok.body);
+    expect(await test?.db.collection('items').findOne({ public_id: item.publicId })).toMatchObject({
+      title: 'Test title',
+      body: 'Test body',
+      content_locale: 'te',
+    });
+    for (const response of [
+      await text('x'.repeat(81), 'Test body'),
+      await text('Test title', 'x'.repeat(1001)),
+      await text('', 'Test body'),
+      await text('Test title', 'Test body', { locale: 'fr' }),
+      await text('Test‮title', 'Test body'),
+    ]) {
+      expect(response.body).toMatchObject({ status: 400, code: 'VALIDATION_FAILED' });
+    }
+    expect((await text('x'.repeat(80), 'x'.repeat(1000))).status).toBe(201);
+  });
+
+  it('refuses: bad params (ANNOUNCEMENT_INVALID), unknown or draft templates (404), photos of another masjid or without the tick, an event time off an event', async () => {
+    const withParams = (params: object) => publish({ ...NOTICE, content: { ...NOTICE.content, params } });
+    expect((await withParams({})).body).toMatchObject({ status: 400, code: 'ANNOUNCEMENT_INVALID' });
+    expect((await withParams({ hours: { start: '10:00', end: '10:00' } })).body).toMatchObject({
+      code: 'ANNOUNCEMENT_INVALID',
+    });
+    for (const key of ['general_thanks', 'timings_updated', 'no_such_template']) {
+      expect((await publish({ ...NOTICE, content: { kind: 'template', key, params: {} } })).body).toMatchObject({
+        status: 404,
+        code: 'TEMPLATE_NOT_FOUND',
+      });
+    }
+    const photo = (masjid: string, extra: object = { rightsConfirmed: true }) => ({
+      key: `m/${masjid}/0b7f6c2e-1d4a-4f3b-9c8e-2a1b3c4d5e6f`,
+      thumbhash: 'AAAA',
+      ...extra,
+    });
+    expect((await publish({ ...NOTICE, image: photo(other) })).body).toMatchObject({ code: 'ANNOUNCEMENT_INVALID' });
+    expect((await publish({ ...NOTICE, image: photo(own, {}) })).body).toMatchObject({ code: 'VALIDATION_FAILED' });
+    expect((await publish({ ...NOTICE, image: { ...photo(own), key: 'seed/x' } })).body).toMatchObject({
+      code: 'VALIDATION_FAILED',
+    });
+    expect((await publish({ ...NOTICE, image: photo(own) })).status).toBe(201);
+    expect((await publish({ ...NOTICE, eventAt: '2026-10-20T10:00:00Z' })).body).toMatchObject({
+      code: 'VALIDATION_FAILED',
+    });
+    expect((await publish({ ...NOTICE, category: 'event', eventAt: '2026-10-20T10:00:00Z' })).status).toBe(201);
+  });
+
+  it('another masjid and a malformed id: 404; no session: 401', async () => {
+    expect((await publish(NOTICE, other)).body).toMatchObject({ status: 404, code: 'MASJID_NOT_FOUND' });
+    expect((await publish(NOTICE, 'not-an-id')).body).toMatchObject({ status: 404, code: 'MASJID_NOT_FOUND' });
+    const anonymous = await request(app()).post(`/api/admin/masjids/${own}/items/announcement`).set(CSRF).send(NOTICE);
+    expect(anonymous.status).toBe(401);
   });
 });

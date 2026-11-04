@@ -1,12 +1,14 @@
 // Notice templates for the Super Admin (07 C9, PHASE_03 T3.5): every status, every field. Reads go through the policy
 // gateway with the Super Admin's scope.
-import type { Document } from 'mongodb';
+import type { Document, UUID } from 'mongodb';
 
 import type { DbHandle } from '../client.ts';
 import { StateError } from '../effects.ts';
 import { ANNOUNCEMENT_CATEGORY, TEMPLATE_PARAM_TYPE, TEMPLATE_STATUS } from '../schema/enums.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
+import { requireOwnMasjid } from './admin.ts';
+import { noticeTemplateOf } from './public.ts';
 import { arrayOf, iso, need, objectOf, oneOf } from './read.ts';
 
 const four = (doc: Document | undefined) => {
@@ -67,4 +69,16 @@ export async function getTemplateForSuper(
   requireSuperScope(scope);
   const doc = await scoped({ scope, db: await handle.db() }, 'notice_templates').findOne({ _id: key });
   return doc ? rowOf(doc) : null;
+}
+
+/**
+ * B5 template grid: the templates a masjid admin may pick — active and not system (the admin policy cell's filter), by
+ * category and key.
+ *
+ * @throws StateError MASJID_NOT_FOUND for a masjid outside the admin's scope.
+ */
+export async function listTemplatesForAdmin(handle: DbHandle, scope: Scope, masjidId: UUID) {
+  requireOwnMasjid(scope, masjidId);
+  const docs = await scoped({ scope, db: await handle.db() }, 'notice_templates').find({}, { limit: 500 });
+  return docs.map(noticeTemplateOf).sort((a, b) => a.category.localeCompare(b.category) || a.key.localeCompare(b.key));
 }

@@ -41,6 +41,7 @@ const STATE_CODES: Readonly<Record<string, ApiErrorCode>> = {
   SPECIAL_DATE_INVALID: 'SPECIAL_DATE_INVALID',
   RAMADAN_INVALID: 'RAMADAN_INVALID',
   IMAGE_INVALID: 'IMAGE_INVALID',
+  ANNOUNCEMENT_INVALID: 'ANNOUNCEMENT_INVALID',
   // The authenticated device was deleted meanwhile (Clear all data on another tab): the app registers again.
   DEVICE_NOT_FOUND: 'DEVICE_AUTH_REQUIRED',
 };

@@ -154,3 +154,26 @@ export async function getRamadan(handle: DbHandle, scope: Scope, masjidId: UUID)
     iftarPrecaution: numberOf(masjid, 'iftar_precaution_min') ?? 0,
   };
 }
+
+/**
+ * How many followers a notification for `audience` reaches now (03 §4 publish answer `targeted`, B5 success): follows
+ * of the masjid with notifications on and not muted, whose Brother/Sister choice the audience includes — counted through
+ * `v_admin_follow_audience` (no device ids).
+ *
+ * @throws StateError MASJID_NOT_FOUND for a masjid outside the admin's scope.
+ */
+export async function countNotifyAudience(
+  handle: DbHandle,
+  scope: Scope,
+  masjidId: UUID,
+  audience: 'everyone' | 'brothers' | 'sisters',
+): Promise<number> {
+  requireOwnMasjid(scope, masjidId);
+  const db = await handle.db();
+  return scoped({ scope, db }, 'v_admin_follow_audience').count({
+    masjid_id: masjidId,
+    muted: false,
+    push_active: true,
+    audience_pref: { $in: audience === 'everyone' ? ['brothers', 'sisters'] : [audience] },
+  });
+}

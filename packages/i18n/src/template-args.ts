@@ -89,6 +89,60 @@ export function templateArguments(
   return result;
 }
 
+/** A `short_text` value's length limit (a speaker, a lost item, a place — 00 §4.3). */
+export const SHORT_TEXT_MAX = 80;
+/** A `number` value is a whole number from 0 to this. */
+export const NUMBER_PARAM_MAX = 1_000_000;
+
+/**
+ * Is `value` a value of a param of `type`? Times "HH:mm", dates "YYYY-MM-DD"; a time range's ends differ (it may run
+ * past midnight), a date range ends on or after its start; numbers are whole, 0 to {@link NUMBER_PARAM_MAX}; short
+ * texts have 1 to {@link SHORT_TEXT_MAX} characters after trimming; phones are E.164.
+ */
+export function isTemplateValue(type: TemplateParamType, value: unknown): boolean {
+  switch (type) {
+    case 'time':
+      return isWallClock(value);
+    case 'date':
+      return isCalendarDate(value);
+    case 'time_range':
+    case 'date_range': {
+      if (typeof value !== 'object' || value === null) return false;
+      const { start, end } = value as { start?: unknown; end?: unknown }; // fields checked just below
+      if (type === 'time_range') return isWallClock(start) && isWallClock(end) && start !== end;
+      return isCalendarDate(start) && isCalendarDate(end) && start <= end;
+    }
+    case 'prayer':
+      return isPrayerKey(value);
+    case 'number':
+      return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= NUMBER_PARAM_MAX;
+    case 'short_text':
+      return typeof value === 'string' && value.trim().length > 0 && value.trim().length <= SHORT_TEXT_MAX;
+    case 'phone':
+      return isE164(value);
+  }
+}
+
+/**
+ * Checks the values an admin filled in for a template (B5, `POST /items/announcement`).
+ *
+ * @returns the names that are wrong — a required param missing, a value of the wrong form, or a name the template does
+ *   not declare; empty when the values can be published.
+ */
+export function templateValueProblems(
+  values: Readonly<Record<string, unknown>>,
+  params: readonly Pick<TemplateParam, 'name' | 'type' | 'required'>[],
+): string[] {
+  const problems: string[] = [];
+  for (const param of params) {
+    const value = values[param.name];
+    if (value === undefined ? param.required : !isTemplateValue(param.type, value)) problems.push(param.name);
+  }
+  const declared = new Set(params.map((param) => param.name));
+  for (const name of Object.keys(values)) if (!declared.has(name)) problems.push(name);
+  return problems;
+}
+
 /**
  * The ICU argument names a param provides (`hours` of type time_range → `hours_start`, `hours_end`) — what a template
  * text may use (C9 editor check).

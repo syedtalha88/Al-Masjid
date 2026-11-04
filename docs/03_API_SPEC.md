@@ -113,6 +113,8 @@ The blood donation camp (#104) is an announcement from the masjid-pickable templ
 
 Publishing endpoints accept `notify: boolean` and return `{item, notification: {queued, targeted, quotaLeft} | null}`.
 
+`POST /items/announcement` (T3.6, DECISIONS #120): `{content: {kind: 'template', key, params} | {kind: 'text', title ≤80, body ≤1000, locale}, category, isImportant, eventAt? (category event only; from a day ago to 400 days ahead), image? {key (m/<own masjid>/…), thumbhash, rightsConfirmed: true}, notify}` → 201 `{item: {id, publicId}, notification}`. Params are checked against the template's declared params; an unknown, draft, retired or system template is `404 TEMPLATE_NOT_FOUND`; params that do not fit, another masjid's photo or an event time out of range are `400 ANNOUNCEMENT_INVALID`; no notifications left is `409 NOTIFY_QUOTA_EXCEEDED` (nothing published). `GET /templates` lists the active, non-system templates in all four languages (the public `NoticeTemplate` shape).
+
 ## 5. Super Admin API — `admin.<domain>/api/super` (role super_admin; ★ = step-up required)
 | Area | Endpoints |
 |---|---|

@@ -5,11 +5,11 @@ import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve, sep } from 'node:path';
 
+import { IMAGE_KEY } from '@mc/shared/contracts';
+
 import { IMAGE_FORMATS, IMAGE_WIDTHS, renderVariant } from './image.ts';
 
-/** `m/<masjidId>/<random uuid>` (01 §5.5) — the only key shape Caddy's media route lets through. */
-export const IMAGE_KEY =
-  /^m\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+export { IMAGE_KEY };
 
 /** A new random key for one of `masjidId`'s images. */
 export const newImageKey = (masjidId: string): string => `m/${masjidId}/${randomUUID()}`;

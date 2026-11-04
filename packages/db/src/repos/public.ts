@@ -243,29 +243,33 @@ async function libraryMap(handle: DbHandle, ids: readonly UUID[]): Promise<Map<s
   return new Map(docs.map((doc) => [idOf(doc), libraryOf(doc)]));
 }
 
+const all4 = (value: Document | undefined) => ({
+  en: value ? need(value, 'en') : '',
+  hi: value ? need(value, 'hi') : '',
+  ur: value ? need(value, 'ur') : '',
+  te: value ? need(value, 'te') : '',
+});
+
+/** A `notice_templates` document as the clients read it (`noticeTemplateSchema`) — public and admin lists alike. */
+export const noticeTemplateOf = (doc: Document) => ({
+  key: need(doc, '_id'),
+  category: oneOf(doc, 'category', ANNOUNCEMENT_CATEGORY),
+  icon: need(doc, 'icon'),
+  isImportantDefault: doc['is_important_default'] === true,
+  title: all4(objectOf(doc, 'title')),
+  body: all4(objectOf(doc, 'body')),
+  params: arrayOf(doc, 'params').map((param) => ({
+    name: need(param, 'name'),
+    type: oneOf(param, 'type', TEMPLATE_PARAM_TYPE),
+    required: param['required'] === true,
+  })),
+  system: doc['system'] === true,
+});
+
 /** `GET /templates`: active notice templates in all four languages (system ones included — 02 §4.2). */
 export async function listTemplates(handle: DbHandle) {
   const docs = await (await view(handle, 'v_pub_templates')).find({}, { sort: { _id: 1 } });
-  const all4 = (value: Document | undefined) => ({
-    en: value ? need(value, 'en') : '',
-    hi: value ? need(value, 'hi') : '',
-    ur: value ? need(value, 'ur') : '',
-    te: value ? need(value, 'te') : '',
-  });
-  return docs.map((doc) => ({
-    key: need(doc, '_id'),
-    category: oneOf(doc, 'category', ANNOUNCEMENT_CATEGORY),
-    icon: need(doc, 'icon'),
-    isImportantDefault: doc['is_important_default'] === true,
-    title: all4(objectOf(doc, 'title')),
-    body: all4(objectOf(doc, 'body')),
-    params: arrayOf(doc, 'params').map((param) => ({
-      name: need(param, 'name'),
-      type: oneOf(param, 'type', TEMPLATE_PARAM_TYPE),
-      required: param['required'] === true,
-    })),
-    system: doc['system'] === true,
-  }));
+  return docs.map(noticeTemplateOf);
 }
 
 // --- items -------------------------------------------------------------------------------------------------------------

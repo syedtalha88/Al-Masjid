@@ -1,5 +1,6 @@
 // `@mc/db/repos` — typed, policy-enforced read repositories per aggregate (T1.4/T1.11).
 export {
+  countNotifyAudience,
   getAdminSchedule,
   getMasjidStats,
   getPushQuota,
@@ -47,4 +48,9 @@ export {
   listMasjids,
   type MasjidRow,
 } from './super.ts';
-export { getTemplateForSuper, listTemplatesForSuper, type SuperTemplateRow } from './templates.ts';
+export {
+  getTemplateForSuper,
+  listTemplatesForAdmin,
+  listTemplatesForSuper,
+  type SuperTemplateRow,
+} from './templates.ts';

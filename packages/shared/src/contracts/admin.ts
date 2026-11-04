@@ -226,3 +226,83 @@ export const imageUploadedSchema = z
   })
   .meta({ id: 'ImageUploaded' });
 export type ImageUploaded = z.infer<typeof imageUploadedSchema>;
+
+// --- Notices (07 B5, 00 §4.3 Announcements, PHASE_03 T3.6) ---------------------------------------------------------
+
+/** `m/<masjidId>/<random uuid>` (01 §5.5): the key `POST /images` returns — the only shape Caddy's media route serves. */
+export const IMAGE_KEY =
+  /^m\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+/** 00 §4.3: a free-text notice's title and body. */
+export const NOTICE_TITLE_MAX = 80;
+export const NOTICE_BODY_MAX = 1000;
+
+/**
+ * A template param's value as the admin filled it in (02 items.template_params): text (times, dates, prayers, short
+ * texts, phones), a whole number, or a range. Whether it fits the param's declared type is checked against the template
+ * by the data layer (`@mc/i18n/template-args` `templateValueProblems`).
+ */
+const templateValueSchema = z.union([
+  safeText(80, { min: 1 }),
+  z.number().int().min(0).max(1_000_000),
+  z.strictObject({ start: z.string().max(10), end: z.string().max(10) }),
+]);
+
+/**
+ * Body of `POST /masjids/:masjidId/items/announcement` (07 B5): a template with its params, or the admin's own title +
+ * body in a stated language; category and Important (preset from the template, editable); an event time (category
+ * `event` only); an optional photo from `POST /images` (with the ownership tick again); "Notify followers".
+ */
+export const announcementPublishSchema = z
+  .strictObject({
+    content: z.discriminatedUnion('kind', [
+      z.strictObject({
+        kind: z.literal('template'),
+        key: z.string().regex(/^[a-z][a-z0-9_]{2,63}$/),
+        params: z.record(z.string().regex(/^[a-z][a-zA-Z0-9]{0,39}$/), templateValueSchema),
+      }),
+      z.strictObject({
+        kind: z.literal('text'),
+        title: safeText(NOTICE_TITLE_MAX, { min: 1 }),
+        body: safeText(NOTICE_BODY_MAX, { min: 1, multiline: true }),
+        locale: z.enum(['en', 'hi', 'ur', 'te']),
+      }),
+    ]),
+    category: z.enum(['general', 'event', 'facilities', 'timing']),
+    isImportant: z.boolean(),
+    eventAt: z.iso.datetime().optional(),
+    image: z
+      .strictObject({
+        key: z.string().regex(IMAGE_KEY),
+        thumbhash: z
+          .string()
+          .max(64)
+          .regex(/^[A-Za-z0-9+/]+={0,2}$/),
+        /** The B5 ownership checkbox: the masjid may publish this photo (05 §9). */
+        rightsConfirmed: z.literal(true),
+      })
+      .optional(),
+    notify: z.boolean(),
+  })
+  .refine((value) => value.eventAt === undefined || value.category === 'event', {
+    message: 'eventAt goes with an event only',
+    path: ['eventAt'],
+  })
+  .refine((value) => value.content.kind === 'text' || Object.keys(value.content.params).length <= 4, {
+    message: 'at most four params',
+    path: ['content', 'params'],
+  })
+  .meta({ id: 'AnnouncementPublish' });
+export type AnnouncementPublish = z.infer<typeof announcementPublishSchema>;
+
+/**
+ * Every publish answers with the item and, when it notifies, the notification about to go out (03 §4): `targeted` =
+ * followers with notifications on for the item's audience, `quotaLeft` = notifications left today. Sending is Phase 4.
+ */
+export const itemPublishedSchema = z
+  .object({
+    item: z.object({ id: z.string(), publicId: z.string() }),
+    notification: z.object({ queued: z.boolean(), targeted: count, quotaLeft: count }).nullable(),
+  })
+  .meta({ id: 'ItemPublished' });
+export type ItemPublished = z.infer<typeof itemPublishedSchema>;

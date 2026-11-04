@@ -462,6 +462,7 @@ errors,SPECIAL_DATE_NOT_FOUND,This special date was removed. Please go back to t
 errors,SPECIAL_DATE_INVALID,"Please check the date and times: up to 5 different times, on a date within about a year.","దయచేసి తేదీ మరియు సమయాలను తనిఖీ చేయండి: గరిష్టంగా 5 వేర్వేరు సమయాలు, సుమారు ఒక సంవత్సరంలోపు తేదీ.",no
 errors,RAMADAN_INVALID,"Please check the Ramadan dates: the last day comes after the first, at most 30 days.","దయచేసి రంజాన్ తేదీలను తనిఖీ చేయండి: చివరి రోజు మొదటి రోజు తర్వాత ఉండాలి, గరిష్టంగా 30 రోజులు.",no
 errors,IMAGE_INVALID,"This photo can't be used. Please choose a JPEG, PNG or WebP photo (iPhone: pick it from Photos).","ఈ ఫోటోను ఉపయోగించలేము. దయచేసి JPEG, PNG లేదా WebP ఫోటోను ఎంచుకోండి (iPhone: Photos నుండి ఎంచుకోండి).",no
+errors,ANNOUNCEMENT_INVALID,Something in this notice is not right. Please check the details and try again.,ఈ ప్రకటనలో ఏదో సరిగ్గా లేదు. దయచేసి వివరాలను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.,no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no

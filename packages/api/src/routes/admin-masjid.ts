@@ -3,27 +3,39 @@
 // exactly like an unknown one (404 `MASJID_NOT_FOUND`).
 import { type DbHandle, idText, parseId } from '@mc/db';
 import {
+  countNotifyAudience,
   getAdminSchedule,
   getMasjidStats,
   getPushQuota,
   getRamadan,
   listSpecialDates,
+  listTemplatesForAdmin,
   requireOwnMasjid,
 } from '@mc/db/repos';
-import { deleteSpecialDate, recordImageUpload, saveRamadan, saveSpecialDate, saveTimings } from '@mc/db/state';
+import {
+  deleteSpecialDate,
+  publishAnnouncement,
+  recordImageUpload,
+  saveRamadan,
+  saveSpecialDate,
+  saveTimings,
+} from '@mc/db/state';
 import { resolveSchedule } from '@mc/domain/prayer';
 import { addDays, calendarDateInZone } from '@mc/domain/time';
 import {
   adminMasjidStatsSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
+  announcementPublishSchema,
   imageUploadedSchema,
   imageUploadQuerySchema,
+  itemPublishedSchema,
   pushQuotaSchema,
   ramadanSaveSchema,
   ramadanSchema,
   specialDateSavedSchema,
   specialDateSaveSchema,
+  templateListSchema,
   timingsPreviewSchema,
   timingsSavedSchema,
   timingsSaveSchema,
@@ -66,7 +78,7 @@ function specialIdOf(text: string) {
 
 /**
  * PHASE_03 T3.1: the Admin Home's reads; T3.2: saving timings and the preview of a day; T3.3: special dates, Ramadan;
- * T3.6: photos.
+ * T3.6: photos, the template list and publishing a notice.
  */
 export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[] {
   const { db, media } = deps;
@@ -277,6 +289,50 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
           height: image.height,
           urls: { w480: url(480), w960: url(960), w1440: url(1440) },
         });
+      },
+    }),
+    defineRoute({
+      method: 'get',
+      path: '/masjids/:masjidId/templates',
+      summary: 'Notice templates an admin may pick (active, not system) in all four languages (B5)',
+      tags: ['masjid'],
+      auth: 'session',
+      request: { params: Params },
+      responses: { 200: templateListSchema },
+      handler: async ({ auth, params, reply }) =>
+        reply(200, { templates: await listTemplatesForAdmin(db, auth.scope, masjidIdOf(params.masjidId)) }),
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/masjids/:masjidId/items/announcement',
+      summary: 'Publish a notice — a template with its params or own text; optionally notify followers (B5)',
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: writes,
+      request: { params: Params, body: announcementPublishSchema },
+      responses: { 201: itemPublishedSchema },
+      handler: async ({ auth, params, body, clock, requestId, reply }) => {
+        const masjidId = masjidIdOf(params.masjidId);
+        const { eventAt, image, ...rest } = body;
+        const published = await publishAnnouncement(db, auth.scope, {
+          masjidId,
+          announcement: {
+            ...rest,
+            ...(eventAt === undefined ? {} : { eventAt: new Date(eventAt) }),
+            ...(image === undefined ? {} : { image }),
+          },
+          now: clock.now(),
+          requestId,
+        });
+        const notification =
+          published.quotaLeft === null
+            ? null
+            : {
+                queued: true,
+                targeted: await countNotifyAudience(db, auth.scope, masjidId, 'everyone'),
+                quotaLeft: published.quotaLeft,
+              };
+        return reply(201, { item: published.item, notification });
       },
     }),
     defineRoute({

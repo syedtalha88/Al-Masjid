@@ -24,6 +24,8 @@ export interface PublishedItemInput {
   readonly contentLocale?: 'en' | 'hi' | 'ur' | 'te';
   readonly templateKey?: string;
   readonly templateParams?: Readonly<Record<string, unknown>>;
+  /** A photo from `POST /images` and the admin's ownership tick (05 §9). */
+  readonly image?: { readonly key: string; readonly thumbhash: string; readonly rightsConfirmed: boolean };
   readonly detail:
     | { readonly announcement: Readonly<Record<string, unknown>> }
     | { readonly daily: Readonly<Record<string, unknown>> }
@@ -56,6 +58,13 @@ export async function insertPublishedItem(
     ...(input.templateKey === undefined ? {} : { template_key: input.templateKey }),
     ...(input.templateParams === undefined ? {} : { template_params: { ...input.templateParams } }),
     is_important: input.isImportant,
+    ...(input.image === undefined
+      ? {}
+      : {
+          image_key: input.image.key,
+          image_thumbhash: input.image.thumbhash,
+          rights_confirmed: input.image.rightsConfirmed,
+        }),
     notify: input.notify,
     masjid_visible: input.masjidVisible,
     published_at: now,
@@ -72,7 +81,7 @@ export async function insertPublishedItem(
  * Counts one notification against today's quota (IST day) and writes the pending outbox job for `itemId`.
  *
  * @param limit - the masjid's `push_daily_quota`.
- * @returns the job's `_id`.
+ * @returns the job's `_id` and today's count including this notification.
  * @throws StateError NOTIFY_QUOTA_EXCEEDED when today's notifications are used up (nothing is written; the admin may
  *   publish without notifying — Phase 4 asks first).
  */
@@ -80,7 +89,7 @@ export async function enqueueNotification(
   ctx: TxContext,
   input: { readonly masjidId: UUID; readonly itemId: UUID; readonly audience: ItemAudience; readonly limit: number },
   now: Date,
-): Promise<UUID> {
+): Promise<{ jobId: UUID; used: number }> {
   const day = calendarDateInZone(now);
   const id = quotaUsageId(input.masjidId, day);
   const usage = scoped(ctx, 'push_quota_usage');
@@ -110,7 +119,7 @@ export async function enqueueNotification(
     bypass_quota: false,
     created_at: now,
   });
-  return jobId;
+  return { jobId, used: used + 1 };
 }
 
 /**

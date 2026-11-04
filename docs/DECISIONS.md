@@ -1600,4 +1600,29 @@ HEVC, so HEIC cannot be decoded. The owner's local api-admin env holds real Clou
 **Consequences:** Cloudinary named transformations must be called `mc_480_avif` … `mc_1440_webp` (O25 steps). Staging
 uploads fail until O25 (placeholder keys).
 
+### #120 — Publishing a notice: one body for both paths, params checked against the template (PHASE_03 T3.6, part 2) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 03 §4 names `POST /items/announcement` but not its body; 00 §4.3 gives the free-text limits (title ≤ 80,
+body ≤ 1,000 — the validator's 120 / 1,500 stay as the outer bound) and template params "with pickers"; 02 says the
+params are "validated against the template's param schema" without saying where.
+**Decision:**
+- Body `content` is a discriminated union — `{kind: 'template', key, params}` or `{kind: 'text', title, body, locale}`
+  — plus `category`, `isImportant` (preset from the template on the screen, editable), `eventAt` (category `event` only;
+  a day ago … 400 days ahead), `image {key, thumbhash, rightsConfirmed: true}`, `notify`. The audience of a notice is
+  always `everyone` (only videos choose brothers/sisters — 00 §1). Admin notices are type `announcement` even with a
+  `timing` template; `timing_update` stays for the system templates.
+- Param values: the contract checks the shape (safe text ≤ 80, whole number 0–10⁶, or `{start, end}`); the data layer
+  reads the template **inside the transaction through the admin policy cell** (active, not system — so drafts, retired
+  and system templates are `TEMPLATE_NOT_FOUND`) and runs `templateValueProblems` (`@mc/i18n/template-args`, also used
+  by B5): required present, each value of its declared type (time range ends differ — may cross midnight; date range
+  end ≥ start), no undeclared names. Refusals → new code `ANNOUNCEMENT_INVALID` (400, 4 locales).
+- The photo key must be `m/<this masjid>/…` (the `IMAGE_KEY` pattern moved to `@mc/shared/contracts`); the item stores
+  `image_key`, `image_thumbhash` and `rights_confirmed`. The ThumbHash comes back from the client (it is a placeholder,
+  not a security property).
+- `targeted` is counted **after** the commit through `v_admin_follow_audience` (follows not muted, push active, in the
+  audience) — views are not read inside the transaction; it is an estimate for the success screen. `quotaLeft` comes
+  from the transaction's own count (`enqueueNotification` now returns `{jobId, used}`).
+- Audit `item.publish` with `{type, template, notify, image}`. Admin template list: `GET /masjids/:id/templates`
+  (public `NoticeTemplate` shape, shared mapper `noticeTemplateOf`).
+**Consequences:** db 10 / api 6 integration tests, i18n +4 unit tests. The same body grows `voice` in T3.13.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._
