@@ -295,6 +295,24 @@ export const announcementPublishSchema = z
   .meta({ id: 'AnnouncementPublish' });
 export type AnnouncementPublish = z.infer<typeof announcementPublishSchema>;
 
+// --- Daily hadith / ayah (07 B6, 00 §4.3 Daily, PHASE_03 T3.7) ------------------------------------------------------
+
+/** 00 §4.3: the masjid's optional short note under today's hadith / ayah. */
+export const DAILY_NOTE_MAX = 200;
+
+/**
+ * Body of `POST /masjids/:masjidId/items/daily-content` (07 B6): a verified hadith or ayah of the Content Library — the
+ * kind is the entry's own; free-form hadith/ayah text is not allowed (00 §4.3) — the optional note, "Notify followers".
+ */
+export const dailyContentPublishSchema = z
+  .strictObject({
+    libraryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/),
+    note: safeText(DAILY_NOTE_MAX, { min: 1, multiline: true }).optional(),
+    notify: z.boolean(),
+  })
+  .meta({ id: 'DailyContentPublish' });
+export type DailyContentPublish = z.infer<typeof dailyContentPublishSchema>;
+
 /**
  * Every publish answers with the item and, when it notifies, the notification about to go out (03 §4): `targeted` =
  * followers with notifications on for the item's audience, `quotaLeft` = notifications left today. Sending is Phase 4.

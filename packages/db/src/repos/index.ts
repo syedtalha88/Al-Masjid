@@ -11,6 +11,7 @@ export {
 } from './admin.ts';
 export {
   type AdminLibraryRow,
+  dailyPublishedToday,
   getLibraryEntryForSuper,
   type LibraryFilter,
   listLibraryForAdmin,

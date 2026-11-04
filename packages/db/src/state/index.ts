@@ -35,6 +35,7 @@ export {
   SESSION_LIFETIMES,
 } from './auth.ts';
 export { bootstrapSuperAdmin } from './bootstrap.ts';
+export { type DailyContentInput, type DailyContentPublished, publishDailyContent } from './daily.ts';
 export {
   type AudiencePref,
   deleteDevice,

@@ -1598,6 +1598,28 @@
         ],
         "additionalProperties": false
       },
+      "DailyContentPublish": {
+        "type": "object",
+        "properties": {
+          "libraryId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "libraryId",
+          "notify"
+        ],
+        "additionalProperties": false
+      },
       "Ramadan": {
         "type": "object",
         "properties": {
@@ -1806,10 +1828,14 @@
                 ]
               }
             ]
+          },
+          "publishedToday": {
+            "type": "boolean"
           }
         },
         "required": [
-          "entry"
+          "entry",
+          "publishedToday"
         ]
       },
       "SuperDashboard": {
@@ -6975,6 +7001,47 @@
         }
       }
     },
+    "/api/admin/masjids/{masjidId}/items/daily-content": {
+      "post": {
+        "summary": "Publish today's hadith or ayah — a verified library entry and an optional note (B6)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DailyContentPublish"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemPublished"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/masjids/{masjidId}/ramadan": {
       "get": {
         "summary": "Ramadan mode (start/end, null when off) and the Sehri / Iftar precautions",
@@ -7132,7 +7199,7 @@
     },
     "/api/admin/masjids/{masjidId}/library/suggestion": {
       "get": {
-        "summary": "Today's hadith/ayah suggestion — same all day, not one published in the last 60 days (B6)",
+        "summary": "Today's hadith/ayah suggestion — same all day, not one published in the last 60 days — and whether one of the kind went out today (B6)",
         "tags": [
           "masjid"
         ],

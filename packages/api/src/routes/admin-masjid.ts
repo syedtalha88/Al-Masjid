@@ -15,6 +15,7 @@ import {
 import {
   deleteSpecialDate,
   publishAnnouncement,
+  publishDailyContent,
   recordImageUpload,
   saveRamadan,
   saveSpecialDate,
@@ -27,6 +28,7 @@ import {
   adminScheduleSchema,
   adminSpecialDatesSchema,
   announcementPublishSchema,
+  dailyContentPublishSchema,
   imageUploadedSchema,
   imageUploadQuerySchema,
   itemPublishedSchema,
@@ -321,6 +323,36 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
             ...(eventAt === undefined ? {} : { eventAt: new Date(eventAt) }),
             ...(image === undefined ? {} : { image }),
           },
+          now: clock.now(),
+          requestId,
+        });
+        const notification =
+          published.quotaLeft === null
+            ? null
+            : {
+                queued: true,
+                targeted: await countNotifyAudience(db, auth.scope, masjidId, 'everyone'),
+                quotaLeft: published.quotaLeft,
+              };
+        return reply(201, { item: published.item, notification });
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/masjids/:masjidId/items/daily-content',
+      summary: "Publish today's hadith or ayah — a verified library entry and an optional note (B6)",
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: writes,
+      request: { params: Params, body: dailyContentPublishSchema },
+      responses: { 201: itemPublishedSchema },
+      handler: async ({ auth, params, body, clock, requestId, reply }) => {
+        const masjidId = masjidIdOf(params.masjidId);
+        const libraryId = parseId(body.libraryId);
+        if (!libraryId) throw new ApiProblem(404, 'LIBRARY_ENTRY_NOT_FOUND');
+        const published = await publishDailyContent(db, auth.scope, {
+          masjidId,
+          daily: { libraryId, note: body.note, notify: body.notify },
           now: clock.now(),
           requestId,
         });

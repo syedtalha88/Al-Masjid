@@ -4,7 +4,7 @@
 // with every query word quoted, so all words must match (DECISIONS #106).
 import { dailyIndex } from '@mc/domain/rotation';
 import { searchTerms } from '@mc/domain/search';
-import { calendarDateInZone } from '@mc/domain/time';
+import { calendarDateInZone, istInstant } from '@mc/domain/time';
 import type { Document, UUID } from 'mongodb';
 
 import type { DbHandle } from '../client.ts';
@@ -211,4 +211,28 @@ export async function suggestLibraryEntry(
     if (doc) return contentOf(doc);
   }
   return null;
+}
+
+/**
+ * B6 soft warning (PHASE_03 T3.7): whether the masjid already published daily content of `kind` today (IST day) —
+ * one of each kind a day is the rule; a second one is allowed after the warning.
+ *
+ * @throws StateError MASJID_NOT_FOUND (not one of the admin's masjids).
+ */
+export async function dailyPublishedToday(
+  handle: DbHandle,
+  scope: Scope,
+  masjidId: UUID,
+  input: { kind: 'hadith' | 'ayah'; now: Date },
+): Promise<boolean> {
+  requireOwnMasjid(scope, masjidId);
+  const db = await handle.db();
+  const today = await scoped({ scope, db }, 'items').count({
+    masjid_id: masjidId,
+    type: 'daily_content',
+    status: 'published',
+    'daily.kind': input.kind,
+    published_at: { $gte: istInstant(calendarDateInZone(input.now), '00:00') },
+  });
+  return today > 0;
 }

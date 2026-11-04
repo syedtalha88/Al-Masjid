@@ -2,7 +2,7 @@
 // suggestion, for the Hadith/Ayah publisher and the dua picker (B6/B7). Verified entries only — the repositories read
 // through the admin policy cell; another masjid's id answers like an unknown one.
 import { type DbHandle, parseId } from '@mc/db';
-import { listLibraryForAdmin, suggestLibraryEntry } from '@mc/db/repos';
+import { dailyPublishedToday, listLibraryForAdmin, suggestLibraryEntry } from '@mc/db/repos';
 import {
   adminLibraryListSchema,
   adminLibraryQuerySchema,
@@ -51,17 +51,20 @@ export function adminLibraryRoutes(deps: AdminLibraryRouteDeps): RouteDefinition
     defineRoute({
       method: 'get',
       path: '/masjids/:masjidId/library/suggestion',
-      summary: "Today's hadith/ayah suggestion — same all day, not one published in the last 60 days (B6)",
+      summary:
+        "Today's hadith/ayah suggestion — same all day, not one published in the last 60 days — and whether one of the kind went out today (B6)",
       tags: ['masjid'],
       auth: 'session',
       request: { params: Params, query: librarySuggestionQuerySchema },
       responses: { 200: librarySuggestionSchema },
       handler: async ({ auth, params, query, clock, reply }) => {
-        const entry = await suggestLibraryEntry(db, auth.scope, masjidIdOf(params.masjidId), {
-          kind: query.kind,
-          now: clock.now(),
-        });
-        return reply(200, { entry });
+        const masjidId = masjidIdOf(params.masjidId);
+        const input = { kind: query.kind, now: clock.now() };
+        const [entry, publishedToday] = await Promise.all([
+          suggestLibraryEntry(db, auth.scope, masjidId, input),
+          dailyPublishedToday(db, auth.scope, masjidId, input),
+        ]);
+        return reply(200, { entry, publishedToday });
       },
     }),
   ];

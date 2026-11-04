@@ -1,8 +1,9 @@
 // PHASE_03 T3.4 (API) against a migrated MongoDB as api-admin's own database user: the Content Library import (dry
 // run → ★ all-or-nothing import as draft), file checks (UTF-8, JSON, envelope, size, multipart only), edits, verify,
-// retire, and the admin reads — verified entries only (acceptance), today's suggestion, other masjids unreachable.
+// retire, and the admin reads — verified entries only (acceptance), today's suggestion, other masjids unreachable —
+// and (T3.7) publishing a verified hadith as daily content, with the suggestion's "already one today" flag.
 // Religious text: the 10 §5 placeholders only.
-import { LIBRARY_IMPORT_FORMAT, LIBRARY_IMPORT_MAX_BYTES } from '@mc/shared/contracts';
+import { itemPublishedSchema, LIBRARY_IMPORT_FORMAT, LIBRARY_IMPORT_MAX_BYTES } from '@mc/shared/contracts';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 
@@ -197,5 +198,87 @@ describe('masjid admins: verified entries only (T3.4 acceptance), suggestion', (
       .set('Cookie', cookie);
     expect(elsewhere.status).toBe(404);
     expect(elsewhere.body).toMatchObject({ code: 'MASJID_NOT_FOUND' });
+  });
+});
+
+describe('daily content (T3.7): POST /items/daily-content and the "already today" flag', () => {
+  it('publishes a verified hadith with a note; the suggestion then says one went out today; refusals', async () => {
+    const masjid = await asSuper('post', '/masjids').send({
+      name: 'Test Masjid Daily',
+      area: 'Test Area',
+      city: 'Hyderabad',
+      state: 'Telangana',
+      address: 'Test address',
+      lat: 17.385,
+      lng: 78.4867,
+    });
+    const masjidId = (masjid.body as { id: string }).id;
+    const admin = await asSuper('post', '/admins').send({
+      displayName: 'Test Imam',
+      uiLocale: 'en',
+      masjidId,
+      role: 'owner',
+    });
+    const cookie = await register((admin.body as { inviteUrl: string }).inviteUrl);
+    // Writes need the accepted undertaking (B2).
+    const settings = await asSuper('get', '/settings');
+    const version = (settings.body as { undertakingVersion: string }).undertakingVersion;
+    await request(app()).post('/api/admin/auth/undertaking').set(CSRF).set('Cookie', cookie).send({ version });
+
+    const hadith = row({ tags: ['dailyhadith'] });
+    const drafted = row({ tags: ['dailydraft'] });
+    await stepUp(true);
+    await upload('/library/import', file([hadith, drafted]));
+    const idOf = async (reference: string) =>
+      ((await asSuper('get', `/library?q=${encodeURIComponent(reference)}`)).body as { entries: { id: string }[] })
+        .entries[0]?.id ?? '';
+    const hadithId = await idOf(hadith.reference);
+    const draftId = await idOf(drafted.reference);
+    await asSuper('post', `/library/${hadithId}/verify`).send({ verifiedBy: 'Test Reviewer' });
+
+    const flag = async () =>
+      (
+        (
+          await request(app())
+            .get(`/api/admin/masjids/${masjidId}/library/suggestion?kind=hadith`)
+            .set('Cookie', cookie)
+        ).body as { publishedToday: boolean }
+      ).publishedToday;
+    const publish = (body: object, id = masjidId) =>
+      request(app()).post(`/api/admin/masjids/${id}/items/daily-content`).set('Cookie', cookie).set(CSRF).send(body);
+
+    expect(await flag()).toBe(false);
+    const published = await publish({ libraryId: hadithId, note: 'Test note from the masjid.', notify: false });
+    expect(published.status).toBe(201);
+    const { item, notification } = itemPublishedSchema.parse(published.body);
+    expect(notification).toBeNull();
+    const publicId = item.publicId;
+    expect(await db().collection('items').findOne({ public_id: publicId })).toMatchObject({
+      type: 'daily_content',
+      daily: { kind: 'hadith', note: 'Test note from the masjid.' },
+    });
+    expect(await flag()).toBe(true); // a second one is allowed — B6 warns first
+
+    const notified = await publish({ libraryId: hadithId, notify: true });
+    expect(notified.status).toBe(201);
+    expect(notified.body).toMatchObject({ notification: { queued: true, targeted: 0, quotaLeft: 7 } });
+
+    expect((await publish({ libraryId: draftId, notify: false })).body).toMatchObject({
+      status: 404,
+      code: 'LIBRARY_ENTRY_NOT_FOUND',
+    });
+    for (const body of [
+      { libraryId: 'not-an-id', notify: false },
+      { libraryId: hadithId, note: 'x'.repeat(201), notify: false },
+      { libraryId: hadithId, note: '', notify: false },
+      { libraryId: hadithId, kind: 'ayah', notify: false }, // the kind is the entry's own
+      { libraryId: hadithId, title: 'Test title', notify: false }, // free-form text is not allowed (00 §4.3)
+    ]) {
+      expect((await publish(body)).body).toMatchObject({ status: 400, code: 'VALIDATION_FAILED' });
+    }
+    expect((await publish({ libraryId: hadithId, note: 'x'.repeat(200), notify: false })).status).toBe(201);
+    expect((await publish({ libraryId: hadithId, notify: false }, '0'.repeat(32))).body).toMatchObject({
+      code: 'MASJID_NOT_FOUND',
+    });
   });
 });

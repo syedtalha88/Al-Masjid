@@ -213,5 +213,9 @@ export const adminLibraryListSchema = z
 /** `GET /masjids/:masjidId/library/suggestion?kind=` — daily content is a hadith or an ayah (02 items.daily). */
 export const librarySuggestionQuerySchema = z.object({ kind: z.enum(['hadith', 'ayah']) });
 export const librarySuggestionSchema = z
-  .object({ entry: adminLibraryEntrySchema.nullable() })
+  .object({
+    entry: adminLibraryEntrySchema.nullable(),
+    /** The masjid already published one of this kind today (IST) — B6 warns before a second (T3.7). */
+    publishedToday: z.boolean(),
+  })
   .meta({ id: 'AdminLibrarySuggestion' });
