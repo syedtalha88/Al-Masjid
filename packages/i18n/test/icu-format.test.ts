@@ -56,6 +56,8 @@ describe('mcIcuPrecompile', () => {
     expect(compiled.a.startsWith(PRECOMPILED_MARK)).toBe(true);
     expect(createIcuFormat().parse(compiled.nested.b, { count: 2 }, 'en', 'common', 'b')).toBe('2 new updates');
     expect(await transform(source, '/repo/apps/app/src/data.json')).toBeNull();
+    // The ready-made dua messages are plain text filling a text box (T3.8) — never compiled.
+    expect(await transform(source, 'C:/repo/packages/i18n/locales/ur/dua-messages.json')).toBeNull();
     expect(plugin.apply).toBe('build');
   });
 

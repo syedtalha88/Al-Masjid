@@ -242,7 +242,8 @@ function FillForm({ draft }: { readonly draft: NoticeDraft }) {
       <DatePickerSheet
         open={picking === 'eventDate'}
         onClose={() => {
-          setPicking(null);
+          // A day tap calls onChange (which may open the time sheet next) and then onClose: keep that next sheet.
+          setPicking((current) => (current === 'eventDate' ? null : current));
         }}
         title={t('notice.eventDate')}
         value={draft.eventDate}

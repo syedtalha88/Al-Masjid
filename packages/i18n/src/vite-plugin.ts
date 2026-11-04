@@ -66,6 +66,11 @@ export function mcLocaleBoot(options: LocaleBootOptions = {}): Plugin {
 
 /** Locale catalogue files (`packages/i18n/locales/<lng>/<ns>.json`). */
 const CATALOGUE = /[\\/]packages[\\/]i18n[\\/]locales[\\/][a-z]{2}[\\/][\w.-]+\.json$/;
+/**
+ * Locale files read as plain text, never through i18next: the ready-made dua messages (`dua-messages.ts` — no ICU
+ * arguments, checked by its test) fill a text box as they are.
+ */
+const PLAIN_TEXT = /[\\/]dua-messages\.json$/;
 
 /** Replaces every string leaf of a catalogue with the result of `convert`. */
 export function mapCatalogueStrings(value: unknown, convert: (message: string) => string): unknown {
@@ -99,7 +104,8 @@ export function mcIcuPrecompile(): Plugin {
       return this.resolve(`${PARSER}/no-parser.js`, importer, { ...options, skipSelf: true });
     },
     async transform(code, id) {
-      if (!CATALOGUE.test(id.split('?')[0] ?? '')) return null;
+      const path = id.split('?')[0] ?? '';
+      if (!CATALOGUE.test(path) || PLAIN_TEXT.test(path)) return null;
       const { parse } = await import('@formatjs/icu-messageformat-parser');
       const catalogue: unknown = JSON.parse(code);
       const compiled = mapCatalogueStrings(
