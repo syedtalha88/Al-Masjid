@@ -234,6 +234,41 @@ export type ImageUploaded = z.infer<typeof imageUploadedSchema>;
 export const IMAGE_KEY =
   /^m\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
+/** `m/<masjidId>/a/<random uuid>` (01 §5.5 Audio): the key `POST /audio` returns — the only shape the media route serves. */
+export const AUDIO_KEY =
+  /^m\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/a\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+/**
+ * `POST /masjids/:masjidId/audio?rightsConfirmed=true&durationS=&peaks=` (multipart `file`, 07 B14): the ownership
+ * tick, and what the admin's browser measured while decoding the recording for its preview — the length in seconds
+ * (≤ 600) and 48 peaks 0…255 as a comma list. The server bounds both; the storage's own duration decides when it has
+ * one (DECISIONS #126).
+ */
+export const audioUploadQuerySchema = z.strictObject({
+  rightsConfirmed: z.literal('true'),
+  durationS: z
+    .string()
+    .regex(/^\d{1,3}(\.\d{1,3})?$/)
+    .transform(Number)
+    .pipe(z.number().min(0.5).max(600.5)),
+  peaks: z
+    .string()
+    .max(48 * 4)
+    .regex(/^\d{1,3}(,\d{1,3}){47}$/)
+    .transform((value) => value.split(',').map(Number))
+    .pipe(z.array(z.int().min(0).max(255)).length(48)),
+});
+
+/** The stored recording: its key (sent with the post), whole seconds and the waveform. */
+export const audioUploadedSchema = z
+  .object({
+    audioKey: z.string(),
+    durationS: z.int().min(1).max(600),
+    peaks: z.array(z.int().min(0).max(255)).length(48),
+  })
+  .meta({ id: 'AudioUploaded' });
+export type AudioUploaded = z.infer<typeof audioUploadedSchema>;
+
 /** 00 §4.3: a free-text notice's title and body. */
 export const NOTICE_TITLE_MAX = 80;
 export const NOTICE_BODY_MAX = 1000;

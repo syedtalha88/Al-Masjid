@@ -128,6 +128,7 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'special.delete': [],
   'ramadan.update': ['on'],
   'image.upload': ['purpose', 'rights_confirmed'],
+  'audio.upload': ['duration_s', 'rights_confirmed'],
   'item.publish': ['type', 'template', 'notify', 'image'],
   'item.edit': ['type'],
   'item.delete': ['type'],

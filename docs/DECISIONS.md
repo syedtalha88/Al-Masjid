@@ -1763,4 +1763,25 @@ keys. 03 §4 lists `GET /` · `PATCH /` (allowed fields only) · `POST /photo`.
 **Consequences:** db +5, api int +4, admin unit +3; e2e `e2e/admin/profile.spec.ts`; B13 × 4 locales + axe. The replaced
 photo's file is not deleted yet (F52).
 
+### #126 — Voice-note length and waveform: measured by the admin's browser, bounded by the server, the storage decides when it can (PHASE_03 T3.13, part 1) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 01 §5.5 says the upload response's `duration` (Cloudinary) must be ≤ 600 s and a 48-value peak envelope
+is computed. Checked on 4 Nov 2026: Cloudinary's current upload / audio / upload-parameters docs show no video or audio
+upload response at all — `duration` there is only a transformation parameter — so the field cannot be relied on as
+documented. Locally (file store) there is no Cloudinary, and a MediaRecorder WebM carries no duration in its header.
+Decoding audio on the server would need ffmpeg in the API image.
+**Decision:**
+- The admin's browser decodes the recording anyway (Web Audio) for its own preview; it sends the length and the 48
+  peaks with the upload (`POST /masjids/:id/audio?rightsConfirmed=true&durationS=&peaks=`). The contract bounds them
+  (0.5…600.5 s, exactly 48 integers 0…255).
+- The server identifies the container by magic bytes (Ogg, WebM, MP4/M4A/3GP, MP3, WAV, ADTS AAC — `sniffAudio`;
+  anything else `422 AUDIO_INVALID`), stores it (Cloudinary `video` resource, key `m/<masjid>/a/<uuid>`; locally at its
+  delivery path), and keeps **the storage's own duration when the response has one**, else the browser's
+  (`keptDuration`, whole seconds). Over ten minutes → the stored file is deleted and `422 AUDIO_TOO_LONG`.
+- The length limit protects cost and abuse, not correctness: a client lying about the length only matters where the
+  storage cannot measure it (local); on staging the real response is checked once O25 is done, and if Cloudinary's
+  response turns out to carry no `duration`, a follow-up reads it through the Admin API before accepting (F53).
+- Peaks are decorative (07 A18) and stored as sent after validation. Audit `audio.upload {duration_s, rights_confirmed}`.
+**Consequences:** api unit `audio.test.ts` 6, api int +2. Part 2 adds `voice` to the three item types; part 3 the
+recorder (B14), the player (A18), the worker cache, the Caddy `/a/m4a/<key>` route and CSP `media-src`.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._

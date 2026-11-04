@@ -62,6 +62,8 @@ export const API_ERRORS = {
   DUA_INVALID: 400, // janaza time out of range (T3.8)
   EDIT_WINDOW_CLOSED: 409, // a post is editable for 24 h after publishing (00 §4.3, T3.9)
   ITEM_NOT_EDITABLE: 409, // timing updates and later types are not edited in B12 (T3.9)
+  AUDIO_INVALID: 422, // not an accepted recording by its first bytes (T3.13)
+  AUDIO_TOO_LONG: 422, // over 10 minutes (04 R14, T3.13)
   PROFILE_INVALID: 400, // another masjid's photo, Hijri offset outside −2…+2, nothing to change (T3.10)
 } as const satisfies Readonly<Record<string, number>>;
 

@@ -670,6 +670,8 @@ errors,DUA_INVALID,Something in this dua request is not right. Please check the 
 errors,EDIT_WINDOW_CLOSED,Posts can be changed for 24 hours after publishing. You can still delete this post.,پوسٹ شائع ہونے کے 24 گھنٹے تک ہی بدلی جا سکتی ہے۔ آپ اسے اب بھی ہٹا سکتے ہیں۔,no
 errors,ITEM_NOT_EDITABLE,This kind of post cannot be changed here.,اس طرح کی پوسٹ یہاں بدلی نہیں جا سکتی۔,no
 errors,PROFILE_INVALID,This change to the masjid profile is not possible. Please check it and try again.,مسجد پروفائل میں یہ تبدیلی ممکن نہیں۔ براہِ کرم دیکھیں اور دوبارہ کوشش کریں۔,no
+errors,AUDIO_INVALID,This file is not a voice recording the app can use. Please record again or choose another file.,یہ فائل ایسی آواز کی ریکارڈنگ نہیں جسے ایپ استعمال کر سکے۔ براہِ کرم دوبارہ ریکارڈ کریں یا دوسری فائل چنیں۔,no
+errors,AUDIO_TOO_LONG,Voice notes can be at most 10 minutes long.,وائس نوٹ زیادہ سے زیادہ 10 منٹ کا ہو سکتا ہے۔,no
 follow,scan.title,Scan masjid QR,مسجد کا QR اسکین کریں,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,اپنا کیمرا مسجد کے پوسٹر پر لگے QR کوڈ کی طرف کریں۔,no
 follow,scan.torch,Flashlight,ٹارچ,no

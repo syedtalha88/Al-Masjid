@@ -20,6 +20,7 @@ import {
   adminMasjidStatsSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
+  audioUploadedSchema,
   imageUploadedSchema,
   itemEditedSchema,
   itemPublishedSchema,
@@ -767,5 +768,45 @@ describe('Masjid Profile (T3.10): photo, Hijri adjustment, change requests; noth
         }),
       ]),
     );
+  });
+});
+
+describe('voice notes (T3.13): POST /audio', () => {
+  const PEAKS = Array.from({ length: 48 }, (_, index) => (index * 5) % 256);
+  const OGG = Buffer.concat([Buffer.from('OggS', 'latin1'), Buffer.alloc(64)]);
+  const upload = (bytes: Buffer, query: string, path = own) =>
+    request(app())
+      .post(`/api/admin/masjids/${path}/audio${query}`)
+      .set('Cookie', adminCookie)
+      .set(CSRF)
+      .attach('file', bytes, 'voice.ogg');
+  const good = `?rightsConfirmed=true&durationS=12.4&peaks=${PEAKS.join(',')}`;
+
+  it('stores the recording; answers its key, whole seconds and the waveform; audited with the rights tick', async () => {
+    const response = await upload(OGG, good);
+    expect(response.status).toBe(201);
+    const body = audioUploadedSchema.parse(response.body);
+    expect(body).toEqual({
+      audioKey: expect.stringMatching(new RegExp(`^m/${own}/a/[0-9a-f-]{36}$`)) as unknown,
+      durationS: 12,
+      peaks: PEAKS,
+    });
+    expect(await readFile(join(mediaDir, 'a', 'm4a', body.audioKey))).toEqual(OGG);
+    expect(await test?.db.collection('audit_log').findOne({ action: 'audio.upload' })).toMatchObject({
+      meta: { duration_s: 12, rights_confirmed: true },
+    });
+  });
+
+  it('refuses what is not audio (422), no rights tick / bad length / bad peaks (400), another masjid (404)', async () => {
+    const jpeg = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(64)]);
+    expect((await upload(jpeg, good)).body).toMatchObject({ status: 422, code: 'AUDIO_INVALID' });
+    for (const query of [
+      `?durationS=12&peaks=${PEAKS.join(',')}`,
+      `?rightsConfirmed=true&durationS=601&peaks=${PEAKS.join(',')}`,
+      `?rightsConfirmed=true&durationS=12&peaks=1,2,3`,
+    ]) {
+      expect((await upload(OGG, query)).status, query).toBe(400);
+    }
+    expect((await upload(OGG, good, other)).status).toBe(404);
   });
 });

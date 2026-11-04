@@ -5,24 +5,38 @@ import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve, sep } from 'node:path';
 
-import { IMAGE_KEY } from '@mc/shared/contracts';
+import { AUDIO_KEY, IMAGE_KEY } from '@mc/shared/contracts';
 
+import { AUDIO_MIME, type SniffedAudio } from './audio.ts';
 import { IMAGE_FORMATS, IMAGE_WIDTHS, renderVariant } from './image.ts';
 
-export { IMAGE_KEY };
+export { AUDIO_KEY, IMAGE_KEY };
 
 /** A new random key for one of `masjidId`'s images. */
 export const newImageKey = (masjidId: string): string => `m/${masjidId}/${randomUUID()}`;
+/** A new random key for one of `masjidId`'s voice notes (01 §5.5 Audio). */
+export const newAudioKey = (masjidId: string): string => `m/${masjidId}/a/${randomUUID()}`;
 
 export interface MediaStore {
   /** Stores a sanitized master under `key` (never overwrites). */
   putImage(key: string, master: Buffer): Promise<void>;
   /** Removes the image and its delivery copies (missing is fine). */
   deleteImage(key: string): Promise<void>;
+  /**
+   * Stores a recording under `key` (never overwrites).
+   *
+   * @returns the duration the storage measured itself (Cloudinary), when it did.
+   */
+  putAudio(key: string, bytes: Buffer, type: SniffedAudio): Promise<{ readonly durationS?: number }>;
+  /** Removes the recording and its delivery copy (missing is fine). */
+  deleteAudio(key: string): Promise<void>;
 }
 
 function assertKey(key: string): void {
   if (!IMAGE_KEY.test(key)) throw new Error('media: malformed image key');
+}
+function assertAudioKey(key: string): void {
+  if (!AUDIO_KEY.test(key)) throw new Error('media: malformed audio key');
 }
 
 /**
@@ -57,6 +71,19 @@ export function fileMediaStore(dir: string): MediaStore {
       for (const path of [inside('masters', `${key}.jpg`), ...variants(key).map((variant) => variant.path)]) {
         await rm(path, { force: true });
       }
+    },
+    // Locally the recording is served as uploaded at its delivery path (no AAC re-encode — the browser that recorded
+    // it plays it); the duration is the browser's.
+    async putAudio(key, bytes) {
+      assertAudioKey(key);
+      const path = inside('a', 'm4a', key);
+      await mkdir(dirname(path), { recursive: true });
+      await writeFile(path, bytes, { flag: 'wx' });
+      return {};
+    },
+    async deleteAudio(key) {
+      assertAudioKey(key);
+      await rm(inside('a', 'm4a', key), { force: true });
     },
   };
 }
@@ -103,8 +130,8 @@ export function cloudinaryMediaStore(config: CloudinaryConfig): MediaStore {
     form.set('signature', cloudinarySignature(params, config.apiSecret));
     return form;
   };
-  const post = async (action: 'upload' | 'destroy', form: FormData) => {
-    const response = await call(`${CLOUDINARY_API}/${encodeURIComponent(config.cloudName)}/image/${action}`, {
+  const post = async (action: 'upload' | 'destroy', form: FormData, resource: 'image' | 'video' = 'image') => {
+    const response = await call(`${CLOUDINARY_API}/${encodeURIComponent(config.cloudName)}/${resource}/${action}`, {
       method: 'POST',
       body: form,
       redirect: 'error',
@@ -123,6 +150,21 @@ export function cloudinaryMediaStore(config: CloudinaryConfig): MediaStore {
     async deleteImage(key) {
       assertKey(key);
       await post('destroy', signedForm({ invalidate: 'true', public_id: key, timestamp: String(now()) }));
+    },
+    // Audio is Cloudinary's `video` resource type; the delivery is one named AAC transformation (01 §5.5).
+    async putAudio(key, bytes, type) {
+      assertAudioKey(key);
+      const form = signedForm({ overwrite: 'false', public_id: key, timestamp: String(now()) });
+      form.set('file', new Blob([new Uint8Array(bytes)], { type: AUDIO_MIME[type] }), `voice.${type}`);
+      const response = await post('upload', form, 'video');
+      const body: unknown = await response.json().catch(() => null);
+      // Not documented as an upload response field for audio (checked 4 Nov 2026): used only when it is there.
+      const duration = typeof body === 'object' && body !== null && 'duration' in body ? body.duration : undefined;
+      return typeof duration === 'number' && Number.isFinite(duration) ? { durationS: duration } : {};
+    },
+    async deleteAudio(key) {
+      assertAudioKey(key);
+      await post('destroy', signedForm({ invalidate: 'true', public_id: key, timestamp: String(now()) }), 'video');
     },
   };
 }

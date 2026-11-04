@@ -77,7 +77,7 @@ export {
   mirrorVisibility,
   type NewMasjid,
 } from './masjids.ts';
-export { type ImagePurpose, recordImageUpload } from './media.ts';
+export { type ImagePurpose, recordAudioUpload, recordImageUpload } from './media.ts';
 export { type MasjidProfilePatch, requestMasjidChange, updateMasjidProfile } from './profile.ts';
 export {
   enqueueNotification,

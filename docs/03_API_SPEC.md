@@ -123,6 +123,8 @@ My Posts (T3.9, DECISIONS #124): `GET /items?type=&status=&cursor=` → `{items:
 
 Masjid Profile (T3.10, DECISIONS #125): `GET /masjids/:id` → `{id, name, nameI18n, area, city, state, address, photo?{key, thumbhash?, url?}, hijriOffset (-2…+2 | null), globalHijriOffset}`. `PATCH /masjids/:id` `{hijriOffset: -2…+2 | null}` only (any other key → 400). `POST /masjids/:id/photo?rightsConfirmed=true` (multipart `file`, the image pipeline) → the profile. Both bump the masjid version; `400 PROFILE_INVALID` for an offset out of range or nothing to change. `POST /masjids/:id/change-requests {note ≤ 300}` → 204: a note for the Super Admin, listed in `GET /super/dashboard` → `changeRequests` until that masjid is next edited.
 
+Voice notes (T3.13, DECISIONS #126): `POST /masjids/:id/audio?rightsConfirmed=true&durationS=<seconds>&peaks=<48 comma-separated 0…255>` (multipart `file`, ≤ 25 MB, container by magic bytes) → 201 `{audioKey, durationS, peaks}`; not audio `422 AUDIO_INVALID`; over 10 minutes (the storage's own measurement when it has one, else the declared length) `422 AUDIO_TOO_LONG` and nothing kept.
+
 ## 5. Super Admin API — `admin.<domain>/api/super` (role super_admin; ★ = step-up required)
 | Area | Endpoints |
 |---|---|

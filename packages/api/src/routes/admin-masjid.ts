@@ -22,6 +22,7 @@ import {
   publishAnnouncement,
   publishDailyContent,
   publishDuaRequest,
+  recordAudioUpload,
   recordImageUpload,
   requestMasjidChange,
   saveRamadan,
@@ -39,6 +40,8 @@ import {
   adminScheduleSchema,
   adminSpecialDatesSchema,
   announcementPublishSchema,
+  audioUploadedSchema,
+  audioUploadQuerySchema,
   dailyContentPublishSchema,
   duaPublishSchema,
   imageUploadedSchema,
@@ -65,8 +68,9 @@ import { z } from 'zod';
 
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
 import { ApiProblem } from '../http/problem.ts';
+import { AUDIO_MAX_BYTES, AudioRejected, keptDuration, sniffAudio } from '../media/audio.ts';
 import { IMAGE_MAX_BYTES, ImageRejected, sanitizeImage } from '../media/image.ts';
-import { type MediaStore, newImageKey } from '../media/store.ts';
+import { type MediaStore, newAudioKey, newImageKey } from '../media/store.ts';
 
 export interface AdminMasjidRouteDeps {
   readonly db: DbHandle;
@@ -575,6 +579,37 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
         const masjidId = masjidIdOf(params.masjidId);
         await updateMasjidProfile(db, auth.scope, { masjidId, patch: { hijriOffset: body.hijriOffset }, requestId });
         return reply(200, await profileOf(auth.scope, masjidId));
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/masjids/:masjidId/audio',
+      summary:
+        'Upload a voice note (up to 25 MB and 10 minutes; Ogg, WebM, MP4/M4A/AAC/3GP, MP3 or WAV by content) with its waveform',
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: uploads,
+      upload: { maxBytes: AUDIO_MAX_BYTES },
+      request: { params: Params, query: audioUploadQuerySchema },
+      responses: { 201: audioUploadedSchema },
+      handler: async ({ auth, params, query, file, requestId, reply }) => {
+        const masjidId = masjidIdOf(params.masjidId);
+        requireOwnMasjid(auth.scope, masjidId);
+        if (!media || !file) throw new ApiProblem(503, 'SERVICE_UNAVAILABLE');
+        const type = sniffAudio(file.bytes);
+        if (!type) throw new ApiProblem(422, 'AUDIO_INVALID');
+        const key = newAudioKey(idText(masjidId));
+        const stored = await media.store.putAudio(key, file.bytes, type);
+        let durationS: number;
+        try {
+          durationS = keptDuration(query.durationS, stored.durationS);
+        } catch (error) {
+          if (!(error instanceof AudioRejected)) throw error;
+          await media.store.deleteAudio(key);
+          throw new ApiProblem(422, 'AUDIO_TOO_LONG');
+        }
+        await recordAudioUpload(db, auth.scope, { masjidId, key, durationS, requestId });
+        return reply(201, { audioKey: key, durationS, peaks: query.peaks });
       },
     }),
     defineRoute({

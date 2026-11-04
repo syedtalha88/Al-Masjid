@@ -670,6 +670,8 @@ errors,DUA_INVALID,Something in this dua request is not right. Please check the 
 errors,EDIT_WINDOW_CLOSED,Posts can be changed for 24 hours after publishing. You can still delete this post.,పోస్ట్‌ను ప్రచురించిన 24 గంటల వరకే మార్చగలరు. మీరు దీన్ని ఇంకా తొలగించవచ్చు.,no
 errors,ITEM_NOT_EDITABLE,This kind of post cannot be changed here.,ఈ రకమైన పోస్ట్‌ను ఇక్కడ మార్చలేరు.,no
 errors,PROFILE_INVALID,This change to the masjid profile is not possible. Please check it and try again.,మస్జిద్ ప్రొఫైల్‌లో ఈ మార్పు సాధ్యం కాదు. దయచేసి తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.,no
+errors,AUDIO_INVALID,This file is not a voice recording the app can use. Please record again or choose another file.,ఈ ఫైల్ యాప్ ఉపయోగించగల వాయిస్ రికార్డింగ్ కాదు. దయచేసి మళ్ళీ రికార్డ్ చేయండి లేదా వేరే ఫైల్ ఎంచుకోండి.,no
+errors,AUDIO_TOO_LONG,Voice notes can be at most 10 minutes long.,వాయిస్ నోట్ గరిష్ఠంగా 10 నిమిషాలు ఉండవచ్చు.,no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no

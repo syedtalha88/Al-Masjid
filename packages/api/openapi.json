@@ -2036,6 +2036,32 @@
         ],
         "additionalProperties": false
       },
+      "AudioUploaded": {
+        "type": "object",
+        "properties": {
+          "audioKey": {
+            "type": "string"
+          },
+          "durationS": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 600
+          },
+          "peaks": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            }
+          }
+        },
+        "required": [
+          "audioKey",
+          "durationS",
+          "peaks"
+        ]
+      },
       "MasjidChangeRequest": {
         "type": "object",
         "properties": {
@@ -8316,6 +8342,86 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminMasjidProfile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/audio": {
+      "post": {
+        "summary": "Upload a voice note (up to 25 MB and 10 minutes; Ogg, WebM, MP4/M4A/AAC/3GP, MP3 or WAV by content) with its waveform",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true"
+              ]
+            },
+            "required": true,
+            "name": "rightsConfirmed",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,3}(\\.\\d{1,3})?$"
+            },
+            "required": true,
+            "name": "durationS",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 192,
+              "pattern": "^\\d{1,3}(,\\d{1,3}){47}$"
+            },
+            "required": true,
+            "name": "peaks",
+            "in": "query"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudioUploaded"
                 }
               }
             }
