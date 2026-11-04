@@ -10,10 +10,16 @@ import { numberOf } from '../repos/read.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
-import { enqueueNotification, insertPublishedItem, type ItemContent } from './publish.ts';
+import {
+  enqueueNotification,
+  insertPublishedItem,
+  type ItemContent,
+  voiceContent,
+  type VoiceInput,
+} from './publish.ts';
 
 /** Today's hadith / ayah as the admin publishes it (the contract checked the note's length and characters). */
-export interface DailyContentInput {
+export interface DailyContentInput extends VoiceInput {
   readonly libraryId: UUID;
   readonly note?: string | undefined;
   readonly notify: boolean;
@@ -30,11 +36,12 @@ export interface DailyContentPublished {
  * Today's hadith / ayah content: a verified hadith or ayah (read through the admin cell in the caller's transaction) and
  * the note. Shared by publishing and editing (T3.9).
  *
- * @throws StateError LIBRARY_ENTRY_NOT_FOUND (unknown, draft or retired entry, or not a hadith / ayah).
+ * @throws StateError LIBRARY_ENTRY_NOT_FOUND (unknown, draft or retired entry, or not a hadith / ayah), VOICE_INVALID.
  */
 export async function dailyContent(
   ctx: TxContext,
   daily: Omit<DailyContentInput, 'notify'>,
+  masjidId: UUID,
 ): Promise<{ content: ItemContent; kind: 'hadith' | 'ayah' }> {
   // The admin cell reads verified entries only.
   const entry = await scoped(ctx, 'content_library').findOne({
@@ -48,6 +55,7 @@ export async function dailyContent(
     kind,
     content: {
       isImportant: false,
+      ...voiceContent(idText(masjidId), daily),
       detail: { daily: { library_id: libraryId, kind, ...(note === undefined ? {} : { note }) } },
     },
   };
@@ -80,7 +88,7 @@ export async function publishDailyContent(
   return withTransaction(handle, scope, async (ctx) => {
     const masjid = await scoped(ctx, 'masjids').findOne({ _id: input.masjidId });
     if (!masjid) throw new StateError('MASJID_NOT_FOUND');
-    const { content, kind } = await dailyContent(ctx, input.daily);
+    const { content, kind } = await dailyContent(ctx, input.daily, input.masjidId);
     const version = (numberOf(masjid, 'content_version') ?? 0) + 1;
 
     const published = await contentWrite(ctx, input.masjidId, async (store) => {

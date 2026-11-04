@@ -51,4 +51,6 @@ export const SCHEMA_AREAS: Readonly<
   '0009_library_dhikr': { collections: ['content_library', 'notice_templates'], views: ['v_pub_library'] },
   // PHASE_03 T3.5 (DECISIONS #111): template status `draft` — unreviewed templates are never active.
   '0010_template_draft': { collections: ['notice_templates'], views: ['v_pub_templates'] },
+  // PHASE_03 T3.13 (DECISIONS #104): `voice` on announcement / daily_content / dua_request, always with a title.
+  '0011_item_voice': { collections: ['items'] },
 };

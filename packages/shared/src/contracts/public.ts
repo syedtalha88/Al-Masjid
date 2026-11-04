@@ -272,6 +272,14 @@ export const feedItemSchema = z.object({
   image: z.optional(mediaImageSchema),
   publishedAt: instant,
   editedAt: z.optional(instant),
+  /** A voice note (T3.13): the app plays `<media origin>/a/m4a/<key>`; `peaks` draw the waveform. */
+  voice: z.optional(
+    z.object({
+      key: z.string(),
+      durationS: z.number().check(z.int(), z.minimum(1), z.maximum(600)),
+      peaks: z.optional(z.array(z.number().check(z.int(), z.minimum(0), z.maximum(255)))),
+    }),
+  ),
   announcement: z.optional(
     z.object({ category: z.enum(['general', 'event', 'facilities', 'timing']), eventAt: z.optional(instant) }),
   ),

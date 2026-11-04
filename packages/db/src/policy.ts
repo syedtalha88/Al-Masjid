@@ -139,6 +139,7 @@ const ITEM_WRITABLE = [
   'published_version',
   'edited_at',
   'deleted_at',
+  'voice',
   'announcement',
   'daily',
   'dua',

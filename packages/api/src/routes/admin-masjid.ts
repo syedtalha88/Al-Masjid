@@ -118,7 +118,10 @@ function itemEditOf(body: ItemEditBody): ItemEdit {
       };
     }
     case 'daily_content':
-      return { type: body.type, daily: { libraryId: libraryIdOf(body.libraryId), note: body.note } };
+      return {
+        type: body.type,
+        daily: { libraryId: libraryIdOf(body.libraryId), note: body.note, voice: body.voice, title: body.title },
+      };
     case 'dua_request': {
       const { type, libraryId, janazaAt, ...dua } = body;
       return {
@@ -451,7 +454,7 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
         if (!libraryId) throw new ApiProblem(404, 'LIBRARY_ENTRY_NOT_FOUND');
         const published = await publishDailyContent(db, auth.scope, {
           masjidId,
-          daily: { libraryId, note: body.note, notify: body.notify },
+          daily: { libraryId, note: body.note, voice: body.voice, title: body.title, notify: body.notify },
           now: clock.now(),
           requestId,
         });

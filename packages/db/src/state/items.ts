@@ -38,9 +38,9 @@ async function contentOf(ctx: TxContext, masjidId: UUID, edit: ItemEdit, now: Da
     case 'announcement':
       return announcementContent(ctx, masjidId, edit.announcement, now);
     case 'daily_content':
-      return (await dailyContent(ctx, edit.daily)).content;
+      return (await dailyContent(ctx, edit.daily, masjidId)).content;
     case 'dua_request':
-      return duaContent(ctx, edit.dua, now);
+      return duaContent(ctx, edit.dua, now, masjidId);
   }
 }
 

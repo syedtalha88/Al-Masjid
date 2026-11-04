@@ -51,6 +51,7 @@
   "EDIT_WINDOW_CLOSED": "Posts can be changed for 24 hours after publishing. You can still delete this post.",
   "ITEM_NOT_EDITABLE": "This kind of post cannot be changed here.",
   "PROFILE_INVALID": "This change to the masjid profile is not possible. Please check it and try again.",
+  "VOICE_INVALID": "A voice note needs a short title. Please add one and try again.",
   "AUDIO_INVALID": "This file is not a voice recording the app can use. Please record again or choose another file.",
   "AUDIO_TOO_LONG": "Voice notes can be at most 10 minutes long."
 }

@@ -11,14 +11,20 @@ import { numberOf } from '../repos/read.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
-import { enqueueNotification, insertPublishedItem, type ItemContent } from './publish.ts';
+import {
+  enqueueNotification,
+  insertPublishedItem,
+  type ItemContent,
+  voiceContent,
+  type VoiceInput,
+} from './publish.ts';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 /** A janaza is announced at most this far ahead, and not more than a day after it was held. */
 const JANAZA_AHEAD_DAYS = 30;
 
 /** A dua request as the admin publishes it (the contract checked lengths, characters and inteqal-only fields). */
-export interface DuaRequestInput {
+export interface DuaRequestInput extends VoiceInput {
   readonly category: 'illness' | 'inteqal' | 'other';
   readonly message: string;
   readonly locale: 'en' | 'hi' | 'ur' | 'te';
@@ -40,12 +46,13 @@ export interface DuaRequestPublished {
  * A dua request's content, checked as at publish: a janaza only with inteqal and from a day ago to 30 days ahead, a
  * verified dua (read through the admin cell in the caller's transaction). Shared by publishing and editing (T3.9).
  *
- * @throws StateError DUA_INVALID, LIBRARY_ENTRY_NOT_FOUND.
+ * @throws StateError DUA_INVALID, LIBRARY_ENTRY_NOT_FOUND, VOICE_INVALID.
  */
 export async function duaContent(
   ctx: TxContext,
   dua: Omit<DuaRequestInput, 'notify'>,
   now: Date,
+  masjidId: UUID,
 ): Promise<ItemContent> {
   if ((dua.janazaAt !== undefined || dua.janazaPlace !== undefined) && dua.category !== 'inteqal') {
     throw new StateError('DUA_INVALID');
@@ -62,6 +69,7 @@ export async function duaContent(
   if (!entry) throw new StateError('LIBRARY_ENTRY_NOT_FOUND');
   return {
     isImportant: false,
+    ...voiceContent(idText(masjidId), dua),
     body: dua.message,
     contentLocale: dua.locale,
     detail: {
@@ -104,7 +112,7 @@ export async function publishDuaRequest(
   return withTransaction(handle, scope, async (ctx) => {
     const masjid = await scoped(ctx, 'masjids').findOne({ _id: input.masjidId });
     if (!masjid) throw new StateError('MASJID_NOT_FOUND');
-    const content = await duaContent(ctx, dua, now);
+    const content = await duaContent(ctx, dua, now, input.masjidId);
     const version = (numberOf(masjid, 'content_version') ?? 0) + 1;
 
     const published = await contentWrite(ctx, input.masjidId, async (store) => {

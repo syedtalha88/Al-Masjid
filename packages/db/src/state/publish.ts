@@ -23,10 +23,44 @@ export interface ItemContent {
   readonly templateParams?: Readonly<Record<string, unknown>>;
   /** A photo from `POST /images` and the admin's ownership tick (05 §9). */
   readonly image?: { readonly key: string; readonly thumbhash: string; readonly rightsConfirmed: boolean };
+  /** A voice note from `POST /audio` (T3.13); the item then always has a `title`. */
+  readonly voice?: VoiceNote;
   readonly detail:
     | { readonly announcement: Readonly<Record<string, unknown>> }
     | { readonly daily: Readonly<Record<string, unknown>> }
     | { readonly dua: Readonly<Record<string, unknown>> };
+}
+
+/** A voice note as a post carries it (02 items.voice). */
+export interface VoiceNote {
+  readonly key: string;
+  readonly durationS: number;
+  readonly peaks: readonly number[];
+}
+
+/** A voice note, with the post's title (required with one), on top of a type's content. */
+export interface VoiceInput {
+  readonly voice?: VoiceNote | undefined;
+  /** The post's title: required with a voice note when the content has no title of its own. */
+  readonly title?: string | undefined;
+}
+
+/**
+ * The voice note and title part of a post's content, checked: the recording is the masjid's own (`m/<masjid>/a/…`) and
+ * the post then has a title (its own text's, or `input.title`).
+ *
+ * @param ownTitle - the title the content already has (a free-text notice), if any.
+ * @throws StateError VOICE_INVALID.
+ */
+export function voiceContent(
+  masjidId: string,
+  input: VoiceInput,
+  ownTitle?: string,
+): { readonly voice?: VoiceNote; readonly title?: string } {
+  const title = ownTitle ?? input.title;
+  if (!input.voice) return {}; // a title comes with a voice note only (the contract refuses it alone)
+  if (!input.voice.key.startsWith(`m/${masjidId}/a/`) || title === undefined) throw new StateError('VOICE_INVALID');
+  return { voice: input.voice, ...(ownTitle === undefined ? { title } : {}) };
 }
 
 /** The common fields of a published item. */
@@ -46,6 +80,7 @@ export const OPTIONAL_CONTENT_FIELDS = [
   'image_key',
   'image_thumbhash',
   'rights_confirmed',
+  'voice',
 ] as const;
 
 /** The item document fields of `content` (snake_case, absent optionals left out). */
@@ -63,6 +98,15 @@ export function contentDocument(content: ItemContent): Record<string, unknown> {
           image_key: content.image.key,
           image_thumbhash: content.image.thumbhash,
           rights_confirmed: content.image.rightsConfirmed,
+        }),
+    ...(content.voice === undefined
+      ? {}
+      : {
+          voice: {
+            key: content.voice.key,
+            duration_s: content.voice.durationS,
+            peaks: [...content.voice.peaks],
+          },
         }),
     ...content.detail,
   };

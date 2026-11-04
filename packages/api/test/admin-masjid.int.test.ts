@@ -810,3 +810,32 @@ describe('voice notes (T3.13): POST /audio', () => {
     expect((await upload(OGG, good, other)).status).toBe(404);
   });
 });
+
+describe('voice notes on notices (T3.13 part 2)', () => {
+  const PEAKS = Array.from({ length: 48 }, (_, index) => (index * 5) % 256);
+  const voice = (masjid: string) => ({
+    key: `m/${masjid}/a/0b7f6c2e-1d4a-4f3b-9c8e-2a1b3c4d5e6f`,
+    durationS: 95,
+    peaks: PEAKS,
+  });
+  const TEXT = {
+    content: { kind: 'text', title: 'Test voice notice', body: 'Test body', locale: 'en' },
+    category: 'general',
+    isImportant: false,
+    notify: false,
+  };
+  const publish = (body: object) =>
+    request(app()).post(`/api/admin/masjids/${own}/items/announcement`).set('Cookie', adminCookie).set(CSRF).send(body);
+
+  it('a free-text notice with a voice note is published; the contract and the data layer refuse the rest', async () => {
+    expect((await publish({ ...TEXT, voice: voice(own) })).status).toBe(201);
+    // A free-text notice has its own title; a voice note needs one; peaks are 48 values; the recording is the masjid's.
+    expect((await publish({ ...TEXT, voice: voice(own), title: 'Test extra title' })).status).toBe(400);
+    expect((await publish({ ...TEXT, voice: { ...voice(own), peaks: [1, 2] } })).status).toBe(400);
+    expect((await publish({ ...TEXT, voice: { ...voice(own), key: 'm/x/a/y' } })).status).toBe(400);
+    expect((await publish({ ...TEXT, voice: voice(other) })).body).toMatchObject({
+      status: 400,
+      code: 'VOICE_INVALID',
+    });
+  });
+});

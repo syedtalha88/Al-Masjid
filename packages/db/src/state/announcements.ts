@@ -13,14 +13,20 @@ import { TEMPLATE_PARAM_TYPE } from '../schema/enums.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
-import { enqueueNotification, insertPublishedItem, type ItemContent } from './publish.ts';
+import {
+  enqueueNotification,
+  insertPublishedItem,
+  type ItemContent,
+  voiceContent,
+  type VoiceInput,
+} from './publish.ts';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 /** An event may be at most this far ahead (as special dates — 00 §4.2), and not more than a day in the past. */
 const EVENT_AHEAD_DAYS = 400;
 
 /** A notice as the admin publishes it (the contracts checked shapes and lengths). */
-export interface AnnouncementInput {
+export interface AnnouncementInput extends VoiceInput {
   readonly content:
     | {
         readonly kind: 'template';
@@ -60,7 +66,8 @@ const paramsOf = (template: Document) =>
  * ahead, a template an admin may pick (read in the caller's transaction) with params that fit it. Shared by publishing
  * and editing (T3.9).
  *
- * @throws StateError ANNOUNCEMENT_INVALID, TEMPLATE_NOT_FOUND.
+ * @throws StateError ANNOUNCEMENT_INVALID, TEMPLATE_NOT_FOUND, VOICE_INVALID (another masjid's recording, a voice
+ *   note without a title).
  */
 export async function announcementContent(
   ctx: TxContext,
@@ -83,11 +90,13 @@ export async function announcementContent(
       throw new StateError('ANNOUNCEMENT_INVALID');
     }
   }
+  const voice = voiceContent(idText(masjidId), announcement, content.kind === 'text' ? content.title : undefined);
   return {
     isImportant: announcement.isImportant,
     ...(content.kind === 'template'
       ? { templateKey: content.key, templateParams: content.params }
       : { title: content.title, body: content.body, contentLocale: content.locale }),
+    ...voice,
     ...(image ? { image } : {}),
     detail: { announcement: { category: announcement.category, ...(eventAt ? { event_at: eventAt } : {}) } },
   };

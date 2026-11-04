@@ -289,8 +289,37 @@ const templateValueSchema = z.union([
  * body in a stated language; category and Important (preset from the template, editable); an event time (category
  * `event` only); an optional photo from `POST /images` (with the ownership tick again); "Notify followers".
  */
+/**
+ * A voice note from `POST /audio` (T3.13, DECISIONS #104) on a notice, hadith / ayah or dua request, and the post's
+ * title, which a voice note always needs: a free-text notice has its own; the others send `title`.
+ */
+const voiceFields = {
+  voice: z
+    .strictObject({
+      key: z.string().regex(AUDIO_KEY),
+      durationS: z.int().min(1).max(600),
+      peaks: z.array(z.int().min(0).max(255)).length(48),
+    })
+    .optional(),
+  title: safeText(120, { min: 1 }).optional(),
+};
+/** A voice note needs a title — the post's own (free-text notice) or `title`; `title` comes only with a voice note. */
+const checkVoice = (
+  value: { readonly voice?: unknown; readonly title?: string | undefined; readonly ownTitle?: boolean },
+  ctx: z.RefinementCtx,
+) => {
+  if (value.voice !== undefined && value.title === undefined && value.ownTitle !== true) {
+    ctx.addIssue({ code: 'custom', message: 'a voice note needs a title', path: ['title'] });
+  }
+  // The title goes with a voice note only — hadith, ayah and dua posts carry no free text of their own (00 §4.3).
+  if (value.voice === undefined && value.title !== undefined) {
+    ctx.addIssue({ code: 'custom', message: 'a title goes with a voice note', path: ['title'] });
+  }
+};
+
 /** A notice's fields — published (with "Notify followers") or edited (T3.9) alike. */
 const announcementFields = {
+  ...voiceFields,
   content: z.discriminatedUnion('kind', [
     z.strictObject({
       kind: z.literal('template'),
@@ -324,6 +353,8 @@ const checkAnnouncement = (
   value: {
     readonly eventAt?: string | undefined;
     readonly category: string;
+    readonly voice?: unknown;
+    readonly title?: string | undefined;
     readonly content:
       { readonly kind: 'template'; readonly params: Readonly<Record<string, unknown>> } | { readonly kind: 'text' };
   },
@@ -335,6 +366,11 @@ const checkAnnouncement = (
   if (value.content.kind === 'template' && Object.keys(value.content.params).length > 4) {
     ctx.addIssue({ code: 'custom', message: 'at most four params', path: ['content', 'params'] });
   }
+  // A free-text notice has its own title; a template notice with a voice note sends `title`.
+  if (value.content.kind === 'text' && value.title !== undefined) {
+    ctx.addIssue({ code: 'custom', message: 'a free-text notice has its own title', path: ['title'] });
+  }
+  checkVoice({ voice: value.voice, title: value.title, ownTitle: value.content.kind === 'text' }, ctx);
 };
 
 export const announcementPublishSchema = z
@@ -357,12 +393,14 @@ export const DAILY_NOTE_MAX = 200;
  */
 /** Today's hadith / ayah fields — published or edited (T3.9) alike. */
 const dailyFields = {
+  ...voiceFields,
   libraryId: z.string().regex(UUID_V4),
   note: safeText(DAILY_NOTE_MAX, { min: 1, multiline: true }).optional(),
 };
 
 export const dailyContentPublishSchema = z
   .strictObject({ ...dailyFields, notify: z.boolean() })
+  .superRefine(checkVoice)
   .meta({ id: 'DailyContentPublish' });
 export type DailyContentPublish = z.infer<typeof dailyContentPublishSchema>;
 
@@ -381,6 +419,7 @@ export const JANAZA_PLACE_MAX = 120;
  */
 /** A dua request's fields — published or edited (T3.9) alike. */
 const duaFields = {
+  ...voiceFields,
   category: z.enum(['illness', 'inteqal', 'other']),
   message: safeText(DUA_MESSAGE_MAX, { min: 1, multiline: true }),
   locale: z.enum(['en', 'hi', 'ur', 'te']),
@@ -390,15 +429,18 @@ const duaFields = {
   janazaAt: z.iso.datetime().optional(),
   janazaPlace: safeText(JANAZA_PLACE_MAX, { min: 1 }).optional(),
 };
-/** A janaza goes with inteqal only. */
+/** A janaza goes with inteqal only; a voice note needs a title. */
 const checkDua = (
   value: {
     readonly category: string;
     readonly janazaAt?: string | undefined;
     readonly janazaPlace?: string | undefined;
+    readonly voice?: unknown;
+    readonly title?: string | undefined;
   },
   ctx: z.RefinementCtx,
 ) => {
+  checkVoice(value, ctx);
   if (value.category !== 'inteqal' && (value.janazaAt !== undefined || value.janazaPlace !== undefined)) {
     ctx.addIssue({ code: 'custom', message: 'a janaza goes with inteqal only', path: ['janazaAt'] });
   }
@@ -434,6 +476,7 @@ export const itemEditSchema = z
   ])
   .superRefine((value, ctx) => {
     if (value.type === 'announcement') checkAnnouncement(value, ctx);
+    if (value.type === 'daily_content') checkVoice(value, ctx);
     if (value.type === 'dua_request') checkDua(value, ctx);
   })
   .meta({ id: 'ItemEdit' });

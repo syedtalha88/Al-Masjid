@@ -294,6 +294,7 @@ export const itemOf = (doc: Document, library: ReadonlyMap<string, PublicLibrary
   const dua = objectOf(doc, 'dua');
   const campaign = objectOf(doc, 'campaign');
   const video = objectOf(doc, 'video');
+  const voice = objectOf(doc, 'voice');
   return compact({
     publicId: need(doc, 'public_id'),
     masjidId: idOf(doc, 'masjid_id'),
@@ -308,6 +309,15 @@ export const itemOf = (doc: Document, library: ReadonlyMap<string, PublicLibrary
     image: image(doc, 'image_key', 'image_thumbhash'),
     publishedAt: iso(doc, 'published_at') ?? iso(doc, 'created_at') ?? '',
     editedAt: iso(doc, 'edited_at'),
+    voice: voice
+      ? compact({
+          key: need(voice, 'key'),
+          durationS: numberOf(voice, 'duration_s') ?? 0,
+          peaks: Array.isArray(voice['peaks'])
+            ? voice['peaks'].filter((peak): peak is number => typeof peak === 'number')
+            : undefined,
+        })
+      : undefined,
     announcement: announcement
       ? compact({
           category: oneOf(announcement, 'category', ANNOUNCEMENT_CATEGORY),
