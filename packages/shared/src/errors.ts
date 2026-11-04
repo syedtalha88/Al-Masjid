@@ -59,6 +59,7 @@ export const API_ERRORS = {
   RAMADAN_INVALID: 400,
   IMAGE_INVALID: 422, // not an accepted photo, HEIC, over 40 MP, corrupt (T3.6)
   ANNOUNCEMENT_INVALID: 400, // template params, another masjid's photo, event time out of range (T3.6)
+  DUA_INVALID: 400, // janaza time out of range (T3.8)
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

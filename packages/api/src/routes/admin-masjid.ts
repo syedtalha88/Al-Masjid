@@ -16,6 +16,7 @@ import {
   deleteSpecialDate,
   publishAnnouncement,
   publishDailyContent,
+  publishDuaRequest,
   recordImageUpload,
   saveRamadan,
   saveSpecialDate,
@@ -29,6 +30,7 @@ import {
   adminSpecialDatesSchema,
   announcementPublishSchema,
   dailyContentPublishSchema,
+  duaPublishSchema,
   imageUploadedSchema,
   imageUploadQuerySchema,
   itemPublishedSchema,
@@ -353,6 +355,37 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
         const published = await publishDailyContent(db, auth.scope, {
           masjidId,
           daily: { libraryId, note: body.note, notify: body.notify },
+          now: clock.now(),
+          requestId,
+        });
+        const notification =
+          published.quotaLeft === null
+            ? null
+            : {
+                queued: true,
+                targeted: await countNotifyAudience(db, auth.scope, masjidId, 'everyone'),
+                quotaLeft: published.quotaLeft,
+              };
+        return reply(201, { item: published.item, notification });
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/masjids/:masjidId/items/dua',
+      summary: 'Publish a dua request — message, optional private name, a verified dua, an inteqal janaza (B7)',
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: writes,
+      request: { params: Params, body: duaPublishSchema },
+      responses: { 201: itemPublishedSchema },
+      handler: async ({ auth, params, body, clock, requestId, reply }) => {
+        const masjidId = masjidIdOf(params.masjidId);
+        const libraryId = parseId(body.libraryId);
+        if (!libraryId) throw new ApiProblem(404, 'LIBRARY_ENTRY_NOT_FOUND');
+        const { janazaAt, libraryId: _text, ...rest } = body;
+        const published = await publishDuaRequest(db, auth.scope, {
+          masjidId,
+          dua: { ...rest, libraryId, ...(janazaAt === undefined ? {} : { janazaAt: new Date(janazaAt) }) },
           now: clock.now(),
           requestId,
         });

@@ -297,6 +297,9 @@ export type AnnouncementPublish = z.infer<typeof announcementPublishSchema>;
 
 // --- Daily hadith / ayah (07 B6, 00 §4.3 Daily, PHASE_03 T3.7) ------------------------------------------------------
 
+/** A canonical lower-case UUID v4 (ids the admin API accepts in bodies). */
+const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
 /** 00 §4.3: the masjid's optional short note under today's hadith / ayah. */
 export const DAILY_NOTE_MAX = 200;
 
@@ -306,12 +309,47 @@ export const DAILY_NOTE_MAX = 200;
  */
 export const dailyContentPublishSchema = z
   .strictObject({
-    libraryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/),
+    libraryId: z.string().regex(UUID_V4),
     note: safeText(DAILY_NOTE_MAX, { min: 1, multiline: true }).optional(),
     notify: z.boolean(),
   })
   .meta({ id: 'DailyContentPublish' });
 export type DailyContentPublish = z.infer<typeof dailyContentPublishSchema>;
+
+// --- Dua requests (07 B7, 00 §4.3 Dua requests, PHASE_03 T3.8) ----------------------------------------------------
+
+/** 00 §4.3 / 02 items.dua: the message, the person's name and the janaza place. */
+export const DUA_MESSAGE_MAX = 500;
+export const DUA_NAME_MAX = 80;
+export const JANAZA_PLACE_MAX = 120;
+
+/**
+ * Body of `POST /masjids/:masjidId/items/dua` (07 B7): the category, the message in a stated language (template-assisted
+ * in the app), the person's name — optional, and kept from musallis while `namePrivate` is on (02 §4.2) — a verified
+ * dua of the Content Library, and for inteqal an optional janaza time and place. The title is the category's ("Request
+ * for Dua"), never sent.
+ */
+export const duaPublishSchema = z
+  .strictObject({
+    category: z.enum(['illness', 'inteqal', 'other']),
+    message: safeText(DUA_MESSAGE_MAX, { min: 1, multiline: true }),
+    locale: z.enum(['en', 'hi', 'ur', 'te']),
+    personName: safeText(DUA_NAME_MAX, { min: 1 }).optional(),
+    namePrivate: z.boolean(),
+    libraryId: z.string().regex(UUID_V4),
+    janazaAt: z.iso.datetime().optional(),
+    janazaPlace: safeText(JANAZA_PLACE_MAX, { min: 1 }).optional(),
+    notify: z.boolean(),
+  })
+  .refine(
+    (value) => value.category === 'inteqal' || (value.janazaAt === undefined && value.janazaPlace === undefined),
+    {
+      message: 'a janaza goes with inteqal only',
+      path: ['janazaAt'],
+    },
+  )
+  .meta({ id: 'DuaPublish' });
+export type DuaPublish = z.infer<typeof duaPublishSchema>;
 
 /**
  * Every publish answers with the item and, when it notifies, the notification about to go out (03 §4): `targeted` =

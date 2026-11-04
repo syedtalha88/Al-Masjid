@@ -1620,6 +1620,66 @@
         ],
         "additionalProperties": false
       },
+      "DuaPublish": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "illness",
+              "inteqal",
+              "other"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
+          },
+          "personName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "namePrivate": {
+            "type": "boolean"
+          },
+          "libraryId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+          },
+          "janazaAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "janazaPlace": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "category",
+          "message",
+          "locale",
+          "namePrivate",
+          "libraryId",
+          "notify"
+        ],
+        "additionalProperties": false
+      },
       "Ramadan": {
         "type": "object",
         "properties": {
@@ -7024,6 +7084,47 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/DailyContentPublish"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemPublished"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/items/dua": {
+      "post": {
+        "summary": "Publish a dua request — message, optional private name, a verified dua, an inteqal janaza (B7)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DuaPublish"
               }
             }
           }

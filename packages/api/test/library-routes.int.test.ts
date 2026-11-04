@@ -1,15 +1,22 @@
 // PHASE_03 T3.4 (API) against a migrated MongoDB as api-admin's own database user: the Content Library import (dry
 // run → ★ all-or-nothing import as draft), file checks (UTF-8, JSON, envelope, size, multipart only), edits, verify,
 // retire, and the admin reads — verified entries only (acceptance), today's suggestion, other masjids unreachable —
-// and (T3.7) publishing a verified hadith as daily content, with the suggestion's "already one today" flag.
+// and (T3.7) publishing a verified hadith as daily content, with the suggestion's "already one today" flag, and (T3.8) a
+// dua request whose private name never appears in api-public's responses (acceptance).
 // Religious text: the 10 §5 placeholders only.
+import { processUserHandle } from '@mc/db/testing';
 import { itemPublishedSchema, LIBRARY_IMPORT_FORMAT, LIBRARY_IMPORT_MAX_BYTES } from '@mc/shared/contracts';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 
+import { createPublicApp } from '../src/app.ts';
+import { deviceAuthenticator } from '../src/auth/device.ts';
+import { memoryRateLimiter } from '../src/http/rate-limit.ts';
+import { apiPublicRoutes } from '../src/routes/index.ts';
+import { silentLogger } from './helpers.ts';
 import { CSRF, superHarness } from './super-harness.ts';
 
-const { app, asSuper, stepUp, register, db } = superHarness('library_routes');
+const { app, asSuper, stepUp, register, db, testDatabase, clock } = superHarness('library_routes');
 
 let counter = 0;
 const row = (over: Record<string, unknown> = {}) => {
@@ -279,6 +286,135 @@ describe('daily content (T3.7): POST /items/daily-content and the "already today
     expect((await publish({ libraryId: hadithId, note: 'x'.repeat(200), notify: false })).status).toBe(201);
     expect((await publish({ libraryId: hadithId, notify: false }, '0'.repeat(32))).body).toMatchObject({
       code: 'MASJID_NOT_FOUND',
+    });
+  });
+});
+
+describe('dua requests (T3.8): POST /items/dua; a private name never reaches musallis', () => {
+  const offset = (jamaatOffsetMin: number) => ({
+    adhanMode: 'auto',
+    adhanAdjustMin: 0,
+    jamaatMode: 'offset',
+    jamaatOffsetMin,
+  });
+  const NAME = 'Testperson Private';
+
+  it('publishes; api-public answers without the private name (feed and item); refusals', async () => {
+    const masjid = await asSuper('post', '/masjids').send({
+      name: 'Test Masjid Dua',
+      area: 'Test Area',
+      city: 'Hyderabad',
+      state: 'Telangana',
+      address: 'Test address',
+      lat: 17.385,
+      lng: 78.4867,
+    });
+    const masjidId = (masjid.body as { id: string }).id;
+    const admin = await asSuper('post', '/admins').send({
+      displayName: 'Test Imam',
+      uiLocale: 'en',
+      masjidId,
+      role: 'owner',
+    });
+    const cookie = await register((admin.body as { inviteUrl: string }).inviteUrl);
+    const settings = await asSuper('get', '/settings');
+    const version = (settings.body as { undertakingVersion: string }).undertakingVersion;
+    await request(app()).post('/api/admin/auth/undertaking').set(CSRF).set('Cookie', cookie).send({ version });
+    const timings = await request(app())
+      .put(`/api/admin/masjids/${masjidId}/timings`)
+      .set('Cookie', cookie)
+      .set(CSRF)
+      .set('If-Match', '"0"')
+      .send({
+        prayers: { fajr: offset(20), dhuhr: offset(15), asr: offset(15), maghrib: offset(5), isha: offset(15) },
+        jumuah: [{ seq: 1, jamaatTime: '13:30' }],
+        notify: false,
+      });
+    expect(timings.status).toBe(200);
+    expect((await asSuper('post', `/masjids/${masjidId}/activate`)).status).toBe(204);
+
+    const shifa = row({ kind: 'dua', dua_category: 'illness', tags: ['duaillness'] });
+    await stepUp(true);
+    await upload('/library/import', file([shifa]));
+    const listed = await asSuper('get', `/library?q=${encodeURIComponent(shifa.reference)}`);
+    const duaId = (listed.body as { entries: { id: string }[] }).entries[0]?.id ?? '';
+    await asSuper('post', `/library/${duaId}/verify`).send({ verifiedBy: 'Test Reviewer' });
+
+    const publish = (body: object) =>
+      request(app()).post(`/api/admin/masjids/${masjidId}/items/dua`).set('Cookie', cookie).set(CSRF).send(body);
+    const BODY = {
+      category: 'illness',
+      message: 'Test dua request message.',
+      locale: 'en',
+      personName: NAME,
+      namePrivate: true,
+      libraryId: duaId,
+      notify: false,
+    };
+    const published = await publish(BODY);
+    expect(published.status).toBe(201);
+    const { item } = itemPublishedSchema.parse(published.body);
+    expect(await db().collection('items').findOne({ public_id: item.publicId })).toMatchObject({
+      dua: { person_name: NAME, name_private: true },
+    });
+
+    // What a musalli's app receives, from api-public as the real mc_public user.
+    const asPublic = await processUserHandle(testDatabase(), 'mc_public');
+    try {
+      const publicApp = createPublicApp({
+        logger: silentLogger(),
+        release: 't',
+        trustedProxyMode: 'none',
+        clock,
+        rateLimiter: memoryRateLimiter(),
+        authenticateDevice: deviceAuthenticator({ db: asPublic.handle, clock }),
+        routes: apiPublicRoutes({ db: asPublic.handle, turnstile: () => Promise.resolve(true) }),
+      }).app;
+      const follow = async (path: string) => {
+        const first = await request(publicApp).get(path);
+        return first.status >= 300 && first.status < 400
+          ? request(publicApp).get(first.headers['location'] ?? '')
+          : first;
+      };
+      const detail = await follow(`/api/v1/items/${item.publicId}`);
+      expect(detail.status).toBe(200);
+      expect(detail.body).toMatchObject({ item: { dua: { category: 'illness', namePrivate: true } } });
+      const feed = await follow(`/api/v1/masjids/${masjidId}/feed?type=dua_request`);
+      expect(feed.status).toBe(200);
+      expect(JSON.stringify(feed.body)).toContain(item.publicId);
+      for (const response of [detail, feed]) expect(JSON.stringify(response.body)).not.toContain(NAME);
+    } finally {
+      await asPublic.dispose();
+    }
+
+    expect((await publish({ ...BODY, janazaAt: '2026-10-28T12:00:00.000Z' })).body).toMatchObject({
+      status: 400,
+      code: 'VALIDATION_FAILED', // a janaza goes with inteqal only
+    });
+    expect((await publish({ ...BODY, message: 'x'.repeat(501) })).status).toBe(400);
+    expect((await publish({ ...BODY, title: 'Test title' })).status).toBe(400);
+    expect(
+      (
+        await publish({
+          ...BODY,
+          category: 'inteqal',
+          janazaAt: '2026-12-28T12:00:00.000Z',
+          janazaPlace: 'Test place',
+        })
+      ).body,
+    ).toMatchObject({ status: 400, code: 'DUA_INVALID' }); // over 30 days ahead
+    expect(
+      (
+        await publish({
+          ...BODY,
+          category: 'inteqal',
+          janazaAt: '2026-10-28T12:00:00.000Z',
+          janazaPlace: 'Test place',
+        })
+      ).status,
+    ).toBe(201);
+    expect((await publish({ ...BODY, libraryId: '0b7f6c2e-1d4a-4f3b-9c8e-2a1b3c4d5e6f' })).body).toMatchObject({
+      code: 'LIBRARY_ENTRY_NOT_FOUND',
     });
   });
 });

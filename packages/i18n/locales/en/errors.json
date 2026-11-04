@@ -46,5 +46,6 @@
   "SPECIAL_DATE_INVALID": "Please check the date and times: up to 5 different times, on a date within about a year.",
   "RAMADAN_INVALID": "Please check the Ramadan dates: the last day comes after the first, at most 30 days.",
   "IMAGE_INVALID": "This photo can't be used. Please choose a JPEG, PNG or WebP photo (iPhone: pick it from Photos).",
-  "ANNOUNCEMENT_INVALID": "Something in this notice is not right. Please check the details and try again."
+  "ANNOUNCEMENT_INVALID": "Something in this notice is not right. Please check the details and try again.",
+  "DUA_INVALID": "Something in this dua request is not right. Please check the janaza time and try again."
 }

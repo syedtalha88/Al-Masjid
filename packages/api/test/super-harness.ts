@@ -115,5 +115,5 @@ export function superHarness(name: string, now = new Date('2026-10-28T08:00:00Z'
     await test?.dispose();
   });
 
-  return { app, asSuper, stepUp, register, db: () => t().db, clock };
+  return { app, asSuper, stepUp, register, db: () => t().db, testDatabase: t, clock };
 }
