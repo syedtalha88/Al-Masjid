@@ -76,6 +76,7 @@
 | O32 | **Verified Content Library file** — hadith / ayah / duas / adhkar / ruqyah from licensed, scholar-checked sources in the format of `docs/content-library-format.md` | — | before pilot |
 | O33 | **Grievance Officer details** — name, email and address in Super Admin → Settings (the app hides the contact link while the "NOT SET" placeholders are there) | 5 min | before launch |
 | O34 | **Legal checklist** — `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md` (lawyer review of the privacy policy and terms, etc.) | — | before pilot |
+| O35 | **Hadith/Ayah topic chips** — when you try B6 ("Choose another"), say whether the topic chips may show the library's tag words as written (e.g. `patience`, `after fajr`) in every language, or should be translated (then the library file gets a label per language — F51) | — | optional, before pilot |
 
 ### Whenever you like
 
