@@ -72,7 +72,7 @@
 | # | What | Time | When |
 |---|---|---|---|
 | O30 | **Notice templates** — Super Admin → Notice templates → **Add starter templates**; have someone check each one in all 4 languages (or send `packages/i18n/review/*.csv` to translators), tick **Translations reviewed**, **Activate** | 1–2 h | before pilot |
-| O31 | **All app translations reviewed** — send the review files `packages/i18n/review/hi.csv`, `ur.csv`, `te.csv` (about 1,000 strings each, all drafts — 4 Nov 2026) to translators; Claude Code puts their answers back | depends on translators | before pilot |
+| O31 | **All app translations reviewed** — send the review files `packages/i18n/review/hi.csv`, `ur.csv`, `te.csv` (about 1,030 strings each, all drafts — 4 Nov 2026) to translators; Claude Code puts their answers back | depends on translators | before pilot |
 | O32 | **Verified Content Library file** — hadith / ayah / duas / adhkar / ruqyah from licensed, scholar-checked sources in the format of `docs/content-library-format.md` | — | before pilot |
 | O33 | **Grievance Officer details** — name, email and address in Super Admin → Settings (the app hides the contact link while the "NOT SET" placeholders are there) | 5 min | before launch |
 | O34 | **Legal checklist** — `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md` (lawyer review of the privacy policy and terms, etc.) | — | before pilot |

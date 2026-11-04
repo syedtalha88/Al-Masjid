@@ -115,6 +115,8 @@ Publishing endpoints accept `notify: boolean` and return `{item, notification: {
 
 `POST /items/announcement` (T3.6, DECISIONS #120): `{content: {kind: 'template', key, params} | {kind: 'text', title ≤80, body ≤1000, locale}, category, isImportant, eventAt? (category event only; from a day ago to 400 days ahead), image? {key (m/<own masjid>/…), thumbhash, rightsConfirmed: true}, notify}` → 201 `{item: {id, publicId}, notification}`. Params are checked against the template's declared params; an unknown, draft, retired or system template is `404 TEMPLATE_NOT_FOUND`; params that do not fit, another masjid's photo or an event time out of range are `400 ANNOUNCEMENT_INVALID`; no notifications left is `409 NOTIFY_QUOTA_EXCEEDED` (nothing published). `GET /templates` lists the active, non-system templates in all four languages (the public `NoticeTemplate` shape).
 
+`POST /items/daily-content` (T3.7, DECISIONS #122): `{libraryId, note? (1–200), notify}` → 201 `{item, notification}`. The kind (hadith / ayah) is the library entry's own; free text, a `kind` or a `title` in the body is a 400. A draft, retired, dua, dhikr or unknown entry is `404 LIBRARY_ENTRY_NOT_FOUND`; no notifications left is `409 NOTIFY_QUOTA_EXCEEDED`. A second one of the same kind on a day is allowed: `GET /library/suggestion?kind=` answers `{entry, publishedToday}` so B6 can warn first.
+
 ## 5. Super Admin API — `admin.<domain>/api/super` (role super_admin; ★ = step-up required)
 | Area | Endpoints |
 |---|---|

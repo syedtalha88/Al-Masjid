@@ -1649,4 +1649,33 @@ admin unit +18. New glyph `PencilIcon` ("Write your own"). Not built yet (F50): 
 no upload progress), the Home tile's mint pulse after a publish (08 §5.12), the success screen's "View" (needs My Posts,
 T3.9).
 
+### #122 — Today's hadith / ayah: a library id and a note, a soft "already today" warning, B6 on the B5 pattern (PHASE_03 T3.7) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 00 §4.3 allows daily content only from the verified Content Library (no free-form text) with an optional
+note ≤ 200; PHASE_03 T3.7 asks for one daily_content of each kind per masjid per day as a *soft* warning, not a refusal;
+07 B6 lists toggle → suggestion → "Choose another" (keyword / topic chips) → note → preview → publish.
+**Decision:**
+- `POST /masjids/:id/items/daily-content` takes `{libraryId, note?, notify}` only (strict body — a `kind`, `title` or
+  text is a 400). The kind is the entry's own; the entry is read through the admin policy cell inside the transaction,
+  so draft / retired entries, duas, dhikr and unknown ids are all `404 LIBRARY_ENTRY_NOT_FOUND`. Same publish path as
+  notices (`insertPublishedItem`, `enqueueNotification`, audit `item.publish` with `type: 'daily_content'`), same
+  `{item, notification}` answer.
+- The server never refuses a second one of a kind on a day. `GET /library/suggestion` now also answers
+  `publishedToday` (published, not deleted, since 00:00 IST — `dailyPublishedToday`); B6 shows a sun-toned warning on
+  step 1 and again on the preview, and publishing goes on.
+- B6 is three pushed routes (`/daily`, `/daily/note`, `/daily/preview`) with an in-memory draft, as B5 (#121). The
+  draft store became `createDraftStore()` (`features/publish/draft-store.ts`), and the last step — notify switch, quota
+  line, quota dialog, success moment — became `PublishStep` / `PublishedMoment` (`features/publish`) used by B5 and B6
+  and next by B7. Their strings stay under `notice.*` (generic wording) instead of being copied per flow.
+- "Choose another" is a full-height sheet: search words (the library's whole-word search, #106) and topic chips — the
+  eight most used tags of the kind, from the unfiltered first page. Tags are shown as the library writes them
+  (`after-fajr` → "after fajr"): they are the owner's data like references (`docs/content-library-format.md` calls them
+  the admins' chip words), not UI copy. Every entry shows the Arabic, the translation in the admin's language (English
+  with a tag when missing) and the reference.
+- Preview: `PreviewFrame` + the musalli `FeedItemCard` → the Hadith & Quran "Today's" hero card.
+**Consequences:** db `daily.int.test.ts` 7, api int +1 (library routes), admin unit +13 (daily, publish); B6 journey
+(`e2e/admin/daily.spec.ts`: an Urdu musalli sees the hero after one poll; a second hadith warns and publishes) and B6 ×
+4 locales + axe. Test note: while a sheet closes the whole stack is `inert` for its exit animation — Playwright's `fill`
+then types into nothing, so specs tap a field before filling it. Tag labels per language would need a library-format
+change (F51, only if the owner wants it).
+
 _None — every decision is ACCEPTED (23 Oct 2026)._
