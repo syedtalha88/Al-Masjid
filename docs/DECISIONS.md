@@ -1678,7 +1678,7 @@ note ≤ 200; PHASE_03 T3.7 asks for one daily_content of each kind per masjid p
 then types into nothing, so specs tap a field before filling it. Tag labels per language would need a library-format
 change (F51, only if the owner wants it).
 
-### #123 — Dua requests: template-assisted text in a chosen language, a verified dua, janaza for inteqal only (PHASE_03 T3.8, part 1) — ACCEPTED (Claude Code, 4 Nov 2026)
+### #123 — Dua requests: template-assisted text in a chosen language, a verified dua, janaza for inteqal only (PHASE_03 T3.8) — ACCEPTED (Claude Code, 4 Nov 2026)
 **Context:** 00 §4.3 says the message is "template-assisted, ≤ 500 chars", the title comes from the category and the
 name is optional with "Keep name private" on by default; PHASE_03 T3.8 asks for message templates per category in four
 languages (draft-flagged) and an integration test that a private name never reaches musallis.
@@ -1695,11 +1695,16 @@ languages (draft-flagged) and an integration test that a private name never reac
 - A private name is stored for the masjid's own record and removed by `v_pub_items` (02 §4.2). Proved at both layers:
   db `duas.int.test.ts` (view as `mc_public`, item, feed) and api `library-routes.int.test.ts` (api-public's item and
   feed responses as the real `mc_public` user never contain it).
-- B7 (part 2, not built yet): four pushed steps — category (3 big cards; a tap goes on) → details (language, ready-made
+- B7: four pushed steps — category (3 big cards; a tap goes on) → details (language, ready-made
   messages as radio cards + the editable text, name + "Keep name private" + consent hint, inteqal janaza date/time/place)
   → attach dua (verified duas of the category; a tap picks and goes on) → preview (`FeedItemCard`) + `PublishStep`.
-  That keeps "illness request with private name" at 5 taps (T3.12). The logic is done (`features/dua/lib/dua.ts`).
-**Consequences:** db +7, api int +1, i18n +2, admin unit +7. The library search hook moved to `features/library` with an
-optional dua category (B6 and B7 share it).
+  That keeps "illness request with private name" at 5 taps (T3.12). Logic in `features/dua/lib/dua.ts`.
+- `dua-messages.json` is excluded from the build-time ICU precompile (`mcIcuPrecompile`): it is read as plain text, not
+  through i18next — found in the journey, where the message box showed the compiled AST.
+- Found and fixed on the way: `DatePickerSheet` calls `onChange` and then `onClose`, so a date sheet that opens the time
+  sheet next (B5 event, B7 janaza) closed it again at once; `onClose` now clears only its own picker.
+**Consequences:** db +7, api int +1, i18n +3, admin unit +7; B7 journey (`e2e/admin/dua.spec.ts`: a Hindi musalli
+never sees the private name; an inteqal with janaza in slate) and B7 × 4 locales + axe. The library search hook moved
+to `features/library` with an optional dua category (B6 and B7 share it).
 
 _None — every decision is ACCEPTED (23 Oct 2026)._
