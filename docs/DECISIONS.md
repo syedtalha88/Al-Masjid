@@ -1707,4 +1707,34 @@ languages (draft-flagged) and an integration test that a private name never reac
 never sees the private name; an inteqal with janaza in slate) and B7 × 4 locales + axe. The library search hook moved
 to `features/library` with an optional dua category (B6 and B7 share it).
 
+### #124 — My Posts: edits reopen the creation flow, checked as at publish; soft delete with the purge marker (PHASE_03 T3.9) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 00 §4.3 allows edits for 24 h after publishing, without a new notification, shown as "edited"; 03 §4 lists
+`GET /items`, `PATCH /items/:id` (If-Match `updated_at`) and `DELETE /items/:id`; 02 §5 asks for a purge marker
+(`purge_after = now + 180 days`) when an item becomes deleted, which the policy gateway refuses to every generic write.
+**Decision:**
+- **One set of rules for publish and edit.** Each type's checks became a content builder (`announcementContent`,
+  `dailyContent`, `duaContent` → `ItemContent` → `contentDocument`); publishing and `editItem` both use them, so an edit
+  can never store what a publish would refuse. The PATCH body is the type's publish body without `notify`, tagged with
+  its `type` (`itemEditSchema`; the shared field sets keep them equal). An edit `$set`s the new content, `$unset`s the
+  optional fields it no longer has (e.g. own text → template), sets `edited_at` and never notifies.
+- **Concurrency:** If-Match is the item's `updated_at` (ISO, quotes optional); a mismatch — checked again in the update
+  filter — is `412 PRECONDITION_FAILED`, and the app sends the admin back to My Posts with a plain dialog. Past 24 h:
+  `409 EDIT_WINDOW_CLOSED`; another type or a timing update: `409 ITEM_NOT_EDITABLE`; deleted or removed posts:
+  `404 ITEM_NOT_FOUND` (removed ones are fenced by the admin update cell anyway).
+- **Delete** is allowed at any age: status `deleted`, `deleted_at`, then the purge marker as a data-layer effect
+  (`markItemForPurge` in `effects.ts`, like the version bump — raw collection, own masjid, in the transaction), version
+  bump, audit `item.delete`. Deleting again is a no-op (no second bump or audit entry). Removed posts cannot be deleted
+  (moderation evidence).
+- **List:** every status, newest first, 30 a page; each row carries the item exactly as musallis receive it (the public
+  `itemOf`, so "View" is the musalli card) plus `updatedAt`, `editableUntil`, `libraryId`, the private dua name (the
+  masjid's own record — still never in `v_pub_items`) and a removed post's reason. These response schemas are Zod Mini
+  (`contracts/admin-items.ts`): a classic object cannot embed the Mini `feedItemSchema` for the OpenAPI generator.
+- **B12 UI:** type chips; cards with status, "You can change it until …", View (sheet), Edit, Delete (confirm). Edit puts
+  the post back into its flow's draft (`editing: {itemId, updatedAt}`) and opens step 2; the last step then shows "Save
+  changes" (`SaveStep`) and "Saved". An edited notice's photo keeps its key and shows its ThumbHash (the admin app has
+  no media origin). The publish moment's "View in My Posts" (F50) and "Done" after saving open My Posts on top of Home.
+**Consequences:** db `items.int.test.ts` 8, api int +4, admin unit +7; e2e `e2e/admin/posts.spec.ts` (publish → View
+in My Posts → edit → the musalli sees "Edited" → delete → gone after one poll) and B12 × 4 locales + axe. The musalli
+hadith reader and dua detail now show "Edited" too (notices already did).
+
 _None — every decision is ACCEPTED (23 Oct 2026)._

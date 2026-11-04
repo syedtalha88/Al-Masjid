@@ -119,6 +119,8 @@ Publishing endpoints accept `notify: boolean` and return `{item, notification: {
 
 `POST /items/dua` (T3.8, DECISIONS #123): `{category, message (1–500), locale, personName? (≤80), namePrivate, libraryId, janazaAt?, janazaPlace? (≤120), notify}` → 201 `{item, notification}`. The entry must be a verified dua (`404 LIBRARY_ENTRY_NOT_FOUND`); `janazaAt` / `janazaPlace` only with `inteqal` (400), the janaza from a day ago to 30 days ahead (`400 DUA_INVALID`). The title is the category's ("Request for Dua"), never sent. A private name is never in api-public's responses (`v_pub_items` removes it).
 
+My Posts (T3.9, DECISIONS #124): `GET /items?type=&status=&cursor=` → `{items: [{id, status, updatedAt, editableUntil?, libraryId?, privateName?, removedReason?, deletedAt?, item: FeedItem}], next}` (every status, newest first, 30 a page). `PATCH /items/:id` with `If-Match: "<updatedAt>"` and `{type, …the type's publish fields without notify}` → `{updatedAt}`; within 24 h of publishing (`409 EDIT_WINDOW_CLOSED`), stale If-Match `412 PRECONDITION_FAILED`, missing `400`, another type or a timing update `409 ITEM_NOT_EDITABLE`; content is checked as at publish; sets `edited_at`; never notifies. `DELETE /items/:id` → 204 (any age; again → 204; removed posts → 404): soft delete, purge after 180 days.
+
 ## 5. Super Admin API — `admin.<domain>/api/super` (role super_admin; ★ = step-up required)
 | Area | Endpoints |
 |---|---|
