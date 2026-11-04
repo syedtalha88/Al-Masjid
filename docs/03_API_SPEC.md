@@ -121,6 +121,8 @@ Publishing endpoints accept `notify: boolean` and return `{item, notification: {
 
 My Posts (T3.9, DECISIONS #124): `GET /items?type=&status=&cursor=` → `{items: [{id, status, updatedAt, editableUntil?, libraryId?, privateName?, removedReason?, deletedAt?, item: FeedItem}], next}` (every status, newest first, 30 a page). `PATCH /items/:id` with `If-Match: "<updatedAt>"` and `{type, …the type's publish fields without notify}` → `{updatedAt}`; within 24 h of publishing (`409 EDIT_WINDOW_CLOSED`), stale If-Match `412 PRECONDITION_FAILED`, missing `400`, another type or a timing update `409 ITEM_NOT_EDITABLE`; content is checked as at publish; sets `edited_at`; never notifies. `DELETE /items/:id` → 204 (any age; again → 204; removed posts → 404): soft delete, purge after 180 days.
 
+Masjid Profile (T3.10, DECISIONS #125): `GET /masjids/:id` → `{id, name, nameI18n, area, city, state, address, photo?{key, thumbhash?, url?}, hijriOffset (-2…+2 | null), globalHijriOffset}`. `PATCH /masjids/:id` `{hijriOffset: -2…+2 | null}` only (any other key → 400). `POST /masjids/:id/photo?rightsConfirmed=true` (multipart `file`, the image pipeline) → the profile. Both bump the masjid version; `400 PROFILE_INVALID` for an offset out of range or nothing to change. `POST /masjids/:id/change-requests {note ≤ 300}` → 204: a note for the Super Admin, listed in `GET /super/dashboard` → `changeRequests` until that masjid is next edited.
+
 ## 5. Super Admin API — `admin.<domain>/api/super` (role super_admin; ★ = step-up required)
 | Area | Endpoints |
 |---|---|

@@ -1737,4 +1737,30 @@ to `features/library` with an optional dua category (B6 and B7 share it).
 in My Posts → edit → the musalli sees "Edited" → delete → gone after one poll) and B12 × 4 locales + axe. The musalli
 hadith reader and dua detail now show "Edited" too (notices already did).
 
+### #125 — Masjid Profile: photo and Hijri adjustment through the allow-list; name changes as a note for the Super Admin (PHASE_03 T3.10) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 07 B13 lets the admin change the photo and the Hijri adjustment and view the names (changes "go to Super
+Admin"); PHASE_03 T3.10 asks for a "Request change" that creates an audit note and a dashboard item, and an
+integration test that the policy layer's field allow-list refuses everything else, including `$set`-style and dotted
+keys. 03 §4 lists `GET /` · `PATCH /` (allowed fields only) · `POST /photo`.
+**Decision:**
+- `PATCH /masjids/:id` takes `{hijriOffset: -2…+2 | null}` only (strict body; `null` unsets the field so the app's global
+  offset applies). `POST /masjids/:id/photo?rightsConfirmed=true` runs the same image pipeline as `/images` (one shared
+  helper), records the upload (`image.upload`, purpose `masjid`) and sets `photo_key` / `photo_thumbhash`. Both go
+  through `updateMasjidProfile` → the admin `masjids` cell (`ADMIN_MASJID_FIELDS`), with the version bump (public fields)
+  and audit `masjid.profile {fields}`; another masjid's photo key or an out-of-range offset is `400 PROFILE_INVALID`.
+  Both answer the whole profile (with the photo's delivery URL).
+- **Request change:** `POST /masjids/:id/change-requests {note ≤ 300}` writes audit `masjid.change_request {note}` —
+  no new collection. `GET /super/dashboard` gains `changeRequests`: the last 90 days' notes, closed automatically once
+  the Super Admin edits that masjid afterwards (`masjid.update` audit entry later than the note). The dashboard row
+  opens the masjid. (`listChangeRequests` is Super Admin only.)
+- **Acceptance:** db `profile.int.test.ts` writes 13 crafted updates straight at the admin cell (other fields, dotted
+  paths, `$`-positional paths, operator-shaped values and keys, `$unset`/`$inc`/`$rename`/`$currentDate`, a replacement
+  document) — all refused, the document unchanged; api `admin-masjid.int.test.ts` sends 11 crafted PATCH bodies — all
+  400, name / status / name_i18n unchanged.
+- B13 screen: photo (ownership tick first, as notice photos), names in four scripts and the place (view) + "Request a
+  change" sheet, Hijri −2…+2 as a segmented control with today's Hijri date for the chosen value and "Follow the app's
+  date", My account row. Payment, Chanda, the admins list and the undertaking view come with their phases.
+**Consequences:** db +5, api int +4, admin unit +3; e2e `e2e/admin/profile.spec.ts`; B13 × 4 locales + axe. The replaced
+photo's file is not deleted yet (F52).
+
 _None — every decision is ACCEPTED (23 Oct 2026)._
