@@ -405,6 +405,40 @@ export const itemEditSchema = z
 export type ItemEditBody = z.infer<typeof itemEditSchema>;
 export const itemEditedSchema = z.object({ updatedAt: z.iso.datetime() }).meta({ id: 'ItemEdited' });
 
+// --- Masjid Profile (07 B13, 03 §4 Profile, PHASE_03 T3.10) -------------------------------------------------------
+
+/** `GET /masjids/:masjidId` (and the answer of `PATCH` / `POST /photo`): what B13 shows. */
+export const adminMasjidProfileSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    nameI18n: z.object({ hi: z.string().optional(), ur: z.string().optional(), te: z.string().optional() }),
+    area: z.string(),
+    city: z.string(),
+    state: z.string(),
+    address: z.string(),
+    photo: z.object({ key: z.string(), thumbhash: z.string().optional(), url: z.string().optional() }).optional(),
+    /** The masjid's own Hijri adjustment; `null` = the app's global one. */
+    hijriOffset: z.int().min(-2).max(2).nullable(),
+    globalHijriOffset: z.int().min(-2).max(2),
+  })
+  .meta({ id: 'AdminMasjidProfile' });
+export type AdminMasjidProfile = z.infer<typeof adminMasjidProfileSchema>;
+
+/** `PATCH /masjids/:masjidId` — the Hijri adjustment only (the photo has its own upload; names go through a request). */
+export const masjidProfilePatchSchema = z
+  .strictObject({ hijriOffset: z.int().min(-2).max(2).nullable() })
+  .meta({ id: 'MasjidProfilePatch' });
+export type MasjidProfilePatchBody = z.infer<typeof masjidProfilePatchSchema>;
+
+/** `POST /masjids/:masjidId/photo?rightsConfirmed=true` — the ownership tick, as for notice photos (05 §9). */
+export const masjidPhotoQuerySchema = z.strictObject({ rightsConfirmed: z.literal('true') });
+
+/** `POST /masjids/:masjidId/change-requests` — names, area or address: a note for the Super Admin. */
+export const masjidChangeRequestSchema = z
+  .strictObject({ note: safeText(300, { min: 1, multiline: true }) })
+  .meta({ id: 'MasjidChangeRequest' });
+
 /**
  * Every publish answers with the item and, when it notifies, the notification about to go out (03 §4): `targeted` =
  * followers with notifications on for the item's audience, `quotaLeft` = notifications left today. Sending is Phase 4.

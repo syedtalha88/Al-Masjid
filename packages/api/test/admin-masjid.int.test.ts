@@ -16,6 +16,7 @@ import { createTestDatabase, processUserHandle, type TestDatabase } from '@mc/db
 import { ManualClock } from '@mc/shared/clock';
 import {
   adminItemListSchema,
+  adminMasjidProfileSchema,
   adminMasjidStatsSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
@@ -25,6 +26,7 @@ import {
   pushQuotaSchema,
   ramadanSchema,
   specialDateSavedSchema,
+  superDashboardSchema,
   templateListSchema,
   timingsPreviewSchema,
   timingsSavedSchema,
@@ -665,5 +667,105 @@ describe('My Posts (T3.9): list, edit within 24 h, delete', () => {
     expect((await remove('not-an-id')).body).toMatchObject({ status: 404, code: 'ITEM_NOT_FOUND' });
     expect((await remove(item.id, other)).status).toBe(404);
     expect((await get(`/${other}/items`)).status).toBe(404);
+  });
+});
+
+describe('Masjid Profile (T3.10): photo, Hijri adjustment, change requests; nothing else can change', () => {
+  const patch = (body: unknown, path = own) =>
+    request(app())
+      .patch(`/api/admin/masjids/${path}`)
+      .set('Cookie', adminCookie)
+      .set(CSRF)
+      .set('Content-Type', 'application/json')
+      .send(JSON.stringify(body));
+  const profile = async () => {
+    const response = await get(`/${own}`);
+    expect(response.status).toBe(200);
+    return adminMasjidProfileSchema.parse(response.body);
+  };
+
+  it('reads the profile; sets and clears the Hijri adjustment', async () => {
+    const before = await profile();
+    expect(before).toMatchObject({ id: own, name: 'Test Masjid Own', hijriOffset: null, globalHijriOffset: 0 });
+    const set = await patch({ hijriOffset: 1 });
+    expect(set.status).toBe(200);
+    expect(adminMasjidProfileSchema.parse(set.body).hijriOffset).toBe(1);
+    expect(adminMasjidProfileSchema.parse((await patch({ hijriOffset: null })).body).hijriOffset).toBeNull();
+    expect((await get(`/${other}`)).status).toBe(404);
+    expect((await patch({ hijriOffset: 1 }, other)).status).toBe(404);
+  });
+
+  it('crafted payloads are refused (T3.10 acceptance): other fields, $-operators, dotted keys, out of range', async () => {
+    const before = await test?.db.collection('masjids').findOne({ name: 'Test Masjid Own' });
+    for (const body of [
+      { name: 'Test renamed' },
+      { hijriOffset: 1, name: 'Test renamed' },
+      { hijriOffset: 1, status: 'active' },
+      { $set: { name: 'Test renamed' } },
+      { hijriOffset: 1, $set: { name: 'Test renamed' } },
+      { 'name_i18n.ur': 'Test name' },
+      { hijriOffset: { $gt: 0 } },
+      { hijriOffset: 3 },
+      { hijriOffset: '1' },
+      {},
+      [{ hijriOffset: 1 }],
+    ]) {
+      const response = await patch(body);
+      expect(response.status, JSON.stringify(body)).toBe(400);
+    }
+    const after = await test?.db.collection('masjids').findOne({ name: 'Test Masjid Own' });
+    expect(after?.['name']).toBe(before?.['name']);
+    expect(after?.['status']).toBe(before?.['status']);
+    expect(after?.['name_i18n']).toEqual(before?.['name_i18n']);
+  });
+
+  it('changes the photo through the pipeline (rights tick required); the profile answers its URL', async () => {
+    const bytes = await sharp({ create: { width: 800, height: 600, channels: 3, background: { r: 10, g: 90, b: 60 } } })
+      .jpeg()
+      .toBuffer();
+    const upload = (query: string) =>
+      request(app())
+        .post(`/api/admin/masjids/${own}/photo${query}`)
+        .set('Cookie', adminCookie)
+        .set(CSRF)
+        .attach('file', bytes, 'photo.jpg');
+    expect((await upload('')).status).toBe(400);
+    const response = await upload('?rightsConfirmed=true');
+    expect(response.status).toBe(200);
+    const body = adminMasjidProfileSchema.parse(response.body);
+    expect(body.photo?.key).toMatch(new RegExp(`^m/${own}/[0-9a-f-]{36}$`));
+    expect(body.photo?.url).toBe(`https://media.test/i/960/webp/${body.photo?.key ?? ''}`);
+    expect(
+      await test?.db.collection('audit_log').findOne({ action: 'image.upload', 'meta.purpose': 'masjid' }),
+    ).not.toBeNull();
+  });
+
+  it('a change request reaches the Super Admin dashboard', async () => {
+    const sent = await request(app())
+      .post(`/api/admin/masjids/${own}/change-requests`)
+      .set('Cookie', adminCookie)
+      .set(CSRF)
+      .send({ note: 'Test note: please fix the Telugu name.' });
+    expect(sent.status).toBe(204);
+    expect(
+      (
+        await request(app())
+          .post(`/api/admin/masjids/${own}/change-requests`)
+          .set('Cookie', adminCookie)
+          .set(CSRF)
+          .send({ note: '' })
+      ).status,
+    ).toBe(400);
+    const dashboard = await request(app()).get('/api/super/dashboard').set('Cookie', superCookie);
+    expect(dashboard.status).toBe(200);
+    expect(superDashboardSchema.parse(dashboard.body).changeRequests).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          masjidId: own,
+          masjidName: 'Test Masjid Own',
+          note: 'Test note: please fix the Telugu name.',
+        }),
+      ]),
+    );
   });
 });

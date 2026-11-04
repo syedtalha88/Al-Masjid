@@ -5,6 +5,7 @@ import { type DbHandle, idText, parseId } from '@mc/db';
 import {
   countNotifyAudience,
   getAdminSchedule,
+  getMasjidProfile,
   getMasjidStats,
   getPushQuota,
   getRamadan,
@@ -22,15 +23,18 @@ import {
   publishDailyContent,
   publishDuaRequest,
   recordImageUpload,
+  requestMasjidChange,
   saveRamadan,
   saveSpecialDate,
   saveTimings,
+  updateMasjidProfile,
 } from '@mc/db/state';
 import { resolveSchedule } from '@mc/domain/prayer';
 import { addDays, calendarDateInZone } from '@mc/domain/time';
 import {
   adminItemListQuerySchema,
   adminItemListSchema,
+  adminMasjidProfileSchema,
   adminMasjidStatsSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
@@ -43,6 +47,9 @@ import {
   itemEditedSchema,
   itemEditSchema,
   itemPublishedSchema,
+  masjidChangeRequestSchema,
+  masjidPhotoQuerySchema,
+  masjidProfilePatchSchema,
   pushQuotaSchema,
   ramadanSaveSchema,
   ramadanSchema,
@@ -154,6 +161,38 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
     { bucket: 'adminUploads', key: (req: Request) => req.params['masjidId']?.toString() },
     ...writes,
   ] as const;
+
+  /** Delivery URLs of a stored image on the media origin (01 §5.4). */
+  const urlsOf = (key: string) => {
+    if (!media) return undefined;
+    const origin = media.origin.endsWith('/') ? media.origin.slice(0, -1) : media.origin;
+    const url = (width: number) => `${origin}/i/${String(width)}/webp/${key}`;
+    return { w480: url(480), w960: url(960), w1440: url(1440) };
+  };
+
+  /** An uploaded photo through the pipeline (magic bytes, size, re-encode, no metadata, ThumbHash) into the store. */
+  const storeImage = async (masjidId: ReturnType<typeof masjidIdOf>, bytes: Buffer) => {
+    if (!media) throw new ApiProblem(503, 'SERVICE_UNAVAILABLE');
+    let image: Awaited<ReturnType<typeof sanitizeImage>>;
+    try {
+      image = await sanitizeImage(bytes);
+    } catch (error) {
+      if (error instanceof ImageRejected) throw new ApiProblem(422, 'IMAGE_INVALID');
+      throw error;
+    }
+    const key = newImageKey(idText(masjidId));
+    await media.store.putImage(key, image.master);
+    return { key, image };
+  };
+
+  /** B13's profile with the photo's delivery URL. */
+  const profileOf = async (scope: Parameters<typeof getMasjidProfile>[1], masjidId: ReturnType<typeof masjidIdOf>) => {
+    const profile = await getMasjidProfile(db, scope, masjidId);
+    if (!profile) throw new ApiProblem(404, 'MASJID_NOT_FOUND');
+    const url = profile.photo ? urlsOf(profile.photo.key)?.w960 : undefined;
+    return { ...profile, ...(profile.photo ? { photo: { ...profile.photo, ...(url ? { url } : {}) } } : {}) };
+  };
+
   return [
     defineRoute({
       method: 'get',
@@ -335,25 +374,17 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
       handler: async ({ auth, params, query, file, requestId, reply }) => {
         const masjidId = masjidIdOf(params.masjidId);
         requireOwnMasjid(auth.scope, masjidId);
-        if (!media || !file) throw new ApiProblem(503, 'SERVICE_UNAVAILABLE');
-        let image: Awaited<ReturnType<typeof sanitizeImage>>;
-        try {
-          image = await sanitizeImage(file.bytes);
-        } catch (error) {
-          if (error instanceof ImageRejected) throw new ApiProblem(422, 'IMAGE_INVALID');
-          throw error;
-        }
-        const key = newImageKey(idText(masjidId));
-        await media.store.putImage(key, image.master);
+        if (!file) throw new ApiProblem(503, 'SERVICE_UNAVAILABLE');
+        const { key, image } = await storeImage(masjidId, file.bytes);
         await recordImageUpload(db, auth.scope, { masjidId, key, purpose: query.purpose, requestId });
-        const origin = media.origin.endsWith('/') ? media.origin.slice(0, -1) : media.origin;
-        const url = (width: number) => `${origin}/i/${String(width)}/webp/${key}`;
+        const urls = urlsOf(key);
+        if (!urls) throw new ApiProblem(503, 'SERVICE_UNAVAILABLE');
         return reply(201, {
           imageKey: key,
           thumbhash: image.thumbhash,
           width: image.width,
           height: image.height,
-          urls: { w480: url(480), w960: url(960), w1440: url(1440) },
+          urls,
         });
       },
     }),
@@ -516,6 +547,73 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
           masjidId: masjidIdOf(params.masjidId),
           itemId: itemIdOf(params.itemId),
           now: clock.now(),
+          requestId,
+        });
+        return reply(204, {});
+      },
+    }),
+    defineRoute({
+      method: 'get',
+      path: '/masjids/:masjidId',
+      summary: 'Masjid Profile: names in four scripts, place, photo, the Hijri adjustment (B13)',
+      tags: ['masjid'],
+      auth: 'session',
+      request: { params: Params },
+      responses: { 200: adminMasjidProfileSchema },
+      handler: async ({ auth, params, reply }) => reply(200, await profileOf(auth.scope, masjidIdOf(params.masjidId))),
+    }),
+    defineRoute({
+      method: 'patch',
+      path: '/masjids/:masjidId',
+      summary: "Set the masjid's Hijri adjustment (-2 to +2; null = the app's) - no other field can change here",
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: writes,
+      request: { params: Params, body: masjidProfilePatchSchema },
+      responses: { 200: adminMasjidProfileSchema },
+      handler: async ({ auth, params, body, requestId, reply }) => {
+        const masjidId = masjidIdOf(params.masjidId);
+        await updateMasjidProfile(db, auth.scope, { masjidId, patch: { hijriOffset: body.hijriOffset }, requestId });
+        return reply(200, await profileOf(auth.scope, masjidId));
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/masjids/:masjidId/photo',
+      summary: 'Change the masjid photo (up to 10 MB; JPEG, PNG, WebP or AVIF by content; sanitized and re-encoded)',
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: uploads,
+      upload: { maxBytes: IMAGE_MAX_BYTES },
+      request: { params: Params, query: masjidPhotoQuerySchema },
+      responses: { 200: adminMasjidProfileSchema },
+      handler: async ({ auth, params, file, requestId, reply }) => {
+        const masjidId = masjidIdOf(params.masjidId);
+        requireOwnMasjid(auth.scope, masjidId);
+        if (!file) throw new ApiProblem(503, 'SERVICE_UNAVAILABLE');
+        const { key, image } = await storeImage(masjidId, file.bytes);
+        await recordImageUpload(db, auth.scope, { masjidId, key, purpose: 'masjid', requestId });
+        await updateMasjidProfile(db, auth.scope, {
+          masjidId,
+          patch: { photo: { key, thumbhash: image.thumbhash } },
+          requestId,
+        });
+        return reply(200, await profileOf(auth.scope, masjidId));
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/masjids/:masjidId/change-requests',
+      summary: 'Ask the Super Admin to change the names, area or address (a note on their dashboard)',
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: writes,
+      request: { params: Params, body: masjidChangeRequestSchema },
+      responses: { 204: Empty },
+      handler: async ({ auth, params, body, requestId, reply }) => {
+        await requestMasjidChange(db, auth.scope, {
+          masjidId: masjidIdOf(params.masjidId),
+          note: body.note,
           requestId,
         });
         return reply(204, {});

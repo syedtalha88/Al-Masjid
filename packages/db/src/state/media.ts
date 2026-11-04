@@ -7,7 +7,7 @@ import { writeAudit } from '../effects.ts';
 import { requireOwnMasjid } from '../repos/admin.ts';
 import type { Scope } from '../scope.ts';
 
-export type ImagePurpose = 'announcement' | 'campaign';
+export type ImagePurpose = 'announcement' | 'campaign' | 'masjid';
 
 /**
  * Records that an admin stored `key` for one of their masjids (after it was sanitized and stored).

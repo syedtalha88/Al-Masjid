@@ -49,5 +49,6 @@
   "ANNOUNCEMENT_INVALID": "Something in this notice is not right. Please check the details and try again.",
   "DUA_INVALID": "Something in this dua request is not right. Please check the janaza time and try again.",
   "EDIT_WINDOW_CLOSED": "Posts can be changed for 24 hours after publishing. You can still delete this post.",
-  "ITEM_NOT_EDITABLE": "This kind of post cannot be changed here."
+  "ITEM_NOT_EDITABLE": "This kind of post cannot be changed here.",
+  "PROFILE_INVALID": "This change to the masjid profile is not possible. Please check it and try again."
 }

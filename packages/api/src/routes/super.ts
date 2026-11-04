@@ -9,6 +9,7 @@ import {
   getMasjidDetail,
   getSettings,
   listAudit,
+  listChangeRequests,
   listMasjids,
   type MasjidRow,
 } from '@mc/db/repos';
@@ -146,7 +147,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
     defineRoute({
       method: 'get',
       path: '/dashboard',
-      summary: 'Pending activations, masjid counts and passkey clone alerts (C1)',
+      summary: "Pending activations, masjid counts, passkey clone alerts and admins' change requests (C1)",
       tags: ['super'],
       auth: 'super',
       responses: {
@@ -154,10 +155,12 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       },
       handler: async ({ auth, clock, reply }) => {
         const dashboard = await getDashboard(db, auth.scope, { now: clock.now() });
+        const changeRequests = await listChangeRequests(db, auth.scope, { now: clock.now() });
         return reply(200, {
           pending: dashboard.pending.map(rowOut),
           counts: { ...dashboard.counts },
           passkeyAlerts: dashboard.passkeyAlerts,
+          changeRequests,
         });
       },
     }),

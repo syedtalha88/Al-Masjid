@@ -45,6 +45,7 @@ const STATE_CODES: Readonly<Record<string, ApiErrorCode>> = {
   DUA_INVALID: 'DUA_INVALID',
   EDIT_WINDOW_CLOSED: 'EDIT_WINDOW_CLOSED',
   ITEM_NOT_EDITABLE: 'ITEM_NOT_EDITABLE',
+  PROFILE_INVALID: 'PROFILE_INVALID',
   // The authenticated device was deleted meanwhile (Clear all data on another tab): the app registers again.
   DEVICE_NOT_FOUND: 'DEVICE_AUTH_REQUIRED',
 };

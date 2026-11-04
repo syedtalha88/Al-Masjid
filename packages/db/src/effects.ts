@@ -91,6 +91,8 @@ export async function markItemForPurge(ctx: TxContext, masjidId: UUID, itemId: U
 export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'masjid.create': ['name', 'city'],
   'masjid.update': ['fields'],
+  'masjid.profile': ['fields'],
+  'masjid.change_request': ['note'],
   'masjid.activate': [],
   'masjid.suspend': ['reason'],
   'masjid.unsuspend': ['reason'],

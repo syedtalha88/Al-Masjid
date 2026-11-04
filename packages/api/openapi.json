@@ -1941,6 +1941,115 @@
           }
         ]
       },
+      "AdminMasjidProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nameI18n": {
+            "type": "object",
+            "properties": {
+              "hi": {
+                "type": "string"
+              },
+              "ur": {
+                "type": "string"
+              },
+              "te": {
+                "type": "string"
+              }
+            }
+          },
+          "area": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "photo": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "thumbhash": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "key"
+            ]
+          },
+          "hijriOffset": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": -2,
+            "maximum": 2
+          },
+          "globalHijriOffset": {
+            "type": "integer",
+            "minimum": -2,
+            "maximum": 2
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "nameI18n",
+          "area",
+          "city",
+          "state",
+          "address",
+          "hijriOffset",
+          "globalHijriOffset"
+        ]
+      },
+      "MasjidProfilePatch": {
+        "type": "object",
+        "properties": {
+          "hijriOffset": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": -2,
+            "maximum": 2
+          }
+        },
+        "required": [
+          "hijriOffset"
+        ],
+        "additionalProperties": false
+      },
+      "MasjidChangeRequest": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "note"
+        ],
+        "additionalProperties": false
+      },
       "Ramadan": {
         "type": "object",
         "properties": {
@@ -2194,12 +2303,44 @@
           "passkeyAlerts": {
             "type": "integer",
             "minimum": 0
+          },
+          "changeRequests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "masjidId": {
+                  "type": "string"
+                },
+                "masjidName": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "masjidId",
+                "masjidName",
+                "note",
+                "at"
+              ]
+            }
           }
         },
         "required": [
           "pending",
           "counts",
-          "passkeyAlerts"
+          "passkeyAlerts",
+          "changeRequests"
         ]
       },
       "SuperMasjidRow": {
@@ -8112,6 +8253,171 @@
         }
       }
     },
+    "/api/admin/masjids/{masjidId}": {
+      "get": {
+        "summary": "Masjid Profile: names in four scripts, place, photo, the Hijri adjustment (B13)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMasjidProfile"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Set the masjid's Hijri adjustment (-2 to +2; null = the app's) - no other field can change here",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasjidProfilePatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMasjidProfile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/photo": {
+      "post": {
+        "summary": "Change the masjid photo (up to 10 MB; JPEG, PNG, WebP or AVIF by content; sanitized and re-encoded)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true"
+              ]
+            },
+            "required": true,
+            "name": "rightsConfirmed",
+            "in": "query"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMasjidProfile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/change-requests": {
+      "post": {
+        "summary": "Ask the Super Admin to change the names, area or address (a note on their dashboard)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasjidChangeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
     "/api/admin/masjids/{masjidId}/ramadan": {
       "get": {
         "summary": "Ramadan mode (start/end, null when off) and the Sehri / Iftar precautions",
@@ -8312,7 +8618,7 @@
     },
     "/api/super/dashboard": {
       "get": {
-        "summary": "Pending activations, masjid counts and passkey clone alerts (C1)",
+        "summary": "Pending activations, masjid counts, passkey clone alerts and admins' change requests (C1)",
         "tags": [
           "super"
         ],

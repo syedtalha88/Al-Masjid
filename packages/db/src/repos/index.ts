@@ -22,6 +22,13 @@ export {
   type SuperLibraryRow,
 } from './library.ts';
 export {
+  CHANGE_REQUEST_DAYS,
+  type ChangeRequestRow,
+  getMasjidProfile,
+  listChangeRequests,
+  type MasjidProfileView,
+} from './profile.ts';
+export {
   FEED_PAGE_MAX,
   findDuaItemId,
   getAmeenCounts,
