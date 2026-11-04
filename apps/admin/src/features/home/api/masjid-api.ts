@@ -3,6 +3,7 @@ import {
   adminItemListSchema,
   type AdminItemStatus,
   adminLibraryListSchema,
+  adminMasjidProfileSchema,
   adminMasjidStatsSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
@@ -108,6 +109,21 @@ export const masjidApi = {
     }),
   deleteItem: (masjidId: string, itemId: string) =>
     call(`${base(masjidId)}/items/${encodeURIComponent(itemId)}`, noContentSchema, { method: 'DELETE' }),
+  /** B13 (T3.10): the masjid profile. */
+  profile: (masjidId: string, signal?: AbortSignal) =>
+    call(base(masjidId), adminMasjidProfileSchema, withSignal(signal)),
+  /** The Hijri adjustment (−2…+2; `null` = the app's). */
+  setHijriOffset: (masjidId: string, hijriOffset: number | null) =>
+    call(base(masjidId), adminMasjidProfileSchema, { method: 'PATCH', body: { hijriOffset } }),
+  /** A new masjid photo (multipart `file`); the caller has the ownership tick. */
+  uploadMasjidPhoto: (masjidId: string, file: Blob) => {
+    const form = new FormData();
+    form.append('file', file);
+    return call(`${base(masjidId)}/photo?rightsConfirmed=true`, adminMasjidProfileSchema, { method: 'POST', form });
+  },
+  /** "Request change": names, area or address — a note for the Super Admin. */
+  requestChange: (masjidId: string, note: string) =>
+    call(`${base(masjidId)}/change-requests`, noContentSchema, { method: 'POST', body: { note } }),
   /** B7 (T3.8): a dua request. */
   publishDua: (masjidId: string, body: DuaPublish) =>
     call(`${base(masjidId)}/items/dua`, itemPublishedSchema, { method: 'POST', body }),
@@ -132,6 +148,7 @@ export const masjidKeys = {
   ramadan: (masjidId: string) => ['masjid', masjidId, 'ramadan'] as const,
   templates: (masjidId: string) => ['masjid', masjidId, 'templates'] as const,
   items: (masjidId: string, type: string) => ['masjid', masjidId, 'items', type] as const,
+  profile: (masjidId: string) => ['masjid', masjidId, 'profile'] as const,
   suggestion: (masjidId: string, kind: 'hadith' | 'ayah') => ['masjid', masjidId, 'suggestion', kind] as const,
   library: (masjidId: string, kind: string, q: string, tag: string, category: string) =>
     ['masjid', masjidId, 'library', kind, q, tag, category] as const,

@@ -440,5 +440,31 @@
     "openPosts": "मेरी पोस्ट खोलें",
     "viewPosts": "मेरी पोस्ट में देखें",
     "editTitle": "पोस्ट बदलें"
+  },
+  "profile": {
+    "title": "मस्जिद प्रोफ़ाइल",
+    "photo": "फ़ोटो",
+    "photoNone": "अभी कोई फ़ोटो नहीं",
+    "changePhoto": "फ़ोटो बदलें",
+    "photoChanged": "फ़ोटो बदल दी गई",
+    "photoAlt": "मस्जिद की फ़ोटो",
+    "names": "मस्जिद का नाम",
+    "notSet": "नहीं लिखा गया",
+    "place": "इलाक़ा और पता",
+    "requestChange": "बदलाव की गुज़ारिश करें",
+    "requestTitle": "क्या बदलना चाहिए?",
+    "requestHint": "Masjid Connect टीम नाम और पते जाँचकर बदलती है।",
+    "requestNote": "आपका नोट",
+    "send": "भेजें",
+    "requestSent": "Masjid Connect टीम को भेज दिया गया",
+    "hijri": "हिजरी तारीख़",
+    "hijriHint": "अगर यहाँ चाँद एक दिन पहले या बाद में दिखा हो तो इसे बदलें।",
+    "hijriDays": "दिन",
+    "hijriToday": "आज: {date}",
+    "hijriFollowing": "ऐप की तारीख़ के मुताबिक़।",
+    "hijriFollow": "ऐप की तारीख़ अपनाएँ",
+    "saved": "सहेजा गया",
+    "account": "मेरा अकाउंट",
+    "accountHint": "भाषा, सेशन और पासकी"
   }
 }

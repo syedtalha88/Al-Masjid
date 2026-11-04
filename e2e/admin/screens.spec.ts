@@ -328,6 +328,16 @@ for (const locale of LOCALES) {
         await adminPage.waitForTimeout(400);
         await adminShot('b12-delete');
         await adminPage.keyboard.press('Escape');
+        // T3.10 B13: the profile (names, place, Hijri adjustment, My account) and the "Request a change" sheet.
+        await adminPage.goto(`${ADMIN_URL}/profile`);
+        await expect(adminPage.locator('[data-names]')).toBeVisible();
+        await adminPage.waitForLoadState('networkidle');
+        await adminShot('b13-profile');
+        await adminPage.getByRole('button', { name: label(locale, 'admin', 'profile.requestChange') }).click();
+        await expect(adminPage.getByRole('dialog')).toBeVisible();
+        await adminPage.waitForTimeout(600); // the sheet's spring settles before the shot
+        await adminShot('b13-request');
+        await adminPage.keyboard.press('Escape');
         await adminPage.goto(`${ADMIN_URL}/account`);
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b13-account-admin');

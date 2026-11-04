@@ -440,5 +440,31 @@
     "openPosts": "Open My Posts",
     "viewPosts": "View in My Posts",
     "editTitle": "Edit post"
+  },
+  "profile": {
+    "title": "Masjid Profile",
+    "photo": "Photo",
+    "photoNone": "No photo yet",
+    "changePhoto": "Change photo",
+    "photoChanged": "Photo changed",
+    "photoAlt": "The masjid photo",
+    "names": "Name of the masjid",
+    "notSet": "Not set",
+    "place": "Area and address",
+    "requestChange": "Request a change",
+    "requestTitle": "What should be changed?",
+    "requestHint": "The Masjid Connect team checks and changes names and addresses.",
+    "requestNote": "Your note",
+    "send": "Send",
+    "requestSent": "Sent to the Masjid Connect team",
+    "hijri": "Hijri date",
+    "hijriHint": "Adjust it if the moon was seen a day earlier or later here.",
+    "hijriDays": "Days",
+    "hijriToday": "Today: {date}",
+    "hijriFollowing": "Following the app’s date.",
+    "hijriFollow": "Follow the app’s date",
+    "saved": "Saved",
+    "account": "My account",
+    "accountHint": "Language, sessions and passkeys"
   }
 }

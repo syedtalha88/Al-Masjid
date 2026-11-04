@@ -383,6 +383,30 @@ admin,posts.staleBody,Someone saved it after you opened it. Please open it again
 admin,posts.openPosts,Open My Posts,मेरी पोस्ट खोलें,no
 admin,posts.viewPosts,View in My Posts,मेरी पोस्ट में देखें,no
 admin,posts.editTitle,Edit post,पोस्ट बदलें,no
+admin,profile.title,Masjid Profile,मस्जिद प्रोफ़ाइल,no
+admin,profile.photo,Photo,फ़ोटो,no
+admin,profile.photoNone,No photo yet,अभी कोई फ़ोटो नहीं,no
+admin,profile.changePhoto,Change photo,फ़ोटो बदलें,no
+admin,profile.photoChanged,Photo changed,फ़ोटो बदल दी गई,no
+admin,profile.photoAlt,The masjid photo,मस्जिद की फ़ोटो,no
+admin,profile.names,Name of the masjid,मस्जिद का नाम,no
+admin,profile.notSet,Not set,नहीं लिखा गया,no
+admin,profile.place,Area and address,इलाक़ा और पता,no
+admin,profile.requestChange,Request a change,बदलाव की गुज़ारिश करें,no
+admin,profile.requestTitle,What should be changed?,क्या बदलना चाहिए?,no
+admin,profile.requestHint,The Masjid Connect team checks and changes names and addresses.,Masjid Connect टीम नाम और पते जाँचकर बदलती है।,no
+admin,profile.requestNote,Your note,आपका नोट,no
+admin,profile.send,Send,भेजें,no
+admin,profile.requestSent,Sent to the Masjid Connect team,Masjid Connect टीम को भेज दिया गया,no
+admin,profile.hijri,Hijri date,हिजरी तारीख़,no
+admin,profile.hijriHint,Adjust it if the moon was seen a day earlier or later here.,अगर यहाँ चाँद एक दिन पहले या बाद में दिखा हो तो इसे बदलें।,no
+admin,profile.hijriDays,Days,दिन,no
+admin,profile.hijriToday,Today: {date},आज: {date},no
+admin,profile.hijriFollowing,Following the app’s date.,ऐप की तारीख़ के मुताबिक़।,no
+admin,profile.hijriFollow,Follow the app’s date,ऐप की तारीख़ अपनाएँ,no
+admin,profile.saved,Saved,सहेजा गया,no
+admin,profile.account,My account,मेरा अकाउंट,no
+admin,profile.accountHint,"Language, sessions and passkeys","भाषा, सेशन और पासकी",no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no
@@ -645,6 +669,7 @@ errors,ANNOUNCEMENT_INVALID,Something in this notice is not right. Please check 
 errors,DUA_INVALID,Something in this dua request is not right. Please check the janaza time and try again.,इस दुआ की गुज़ारिश में कुछ ठीक नहीं है। कृपया जनाज़े का समय जाँचें और फिर से कोशिश करें।,no
 errors,EDIT_WINDOW_CLOSED,Posts can be changed for 24 hours after publishing. You can still delete this post.,पोस्ट प्रकाशित होने के 24 घंटे तक ही बदली जा सकती है। आप इसे अब भी हटा सकते हैं।,no
 errors,ITEM_NOT_EDITABLE,This kind of post cannot be changed here.,इस तरह की पोस्ट यहाँ बदली नहीं जा सकती।,no
+errors,PROFILE_INVALID,This change to the masjid profile is not possible. Please check it and try again.,मस्जिद प्रोफ़ाइल में यह बदलाव मुमकिन नहीं है। कृपया जाँचें और फिर से कोशिश करें।,no
 follow,scan.title,Scan masjid QR,मस्जिद का QR स्कैन करें,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,अपना कैमरा मस्जिद के पोस्टर पर लगे QR कोड की ओर करें।,no
 follow,scan.torch,Flashlight,टॉर्च,no
@@ -842,6 +867,8 @@ super,dashboard.pending,Waiting for activation,चालू होने का 
 super,dashboard.noPending,No masjids are waiting for activation.,कोई मस्जिद चालू होने का इंतज़ार नहीं कर रही।,no
 super,dashboard.counts,Masjids,मस्जिदें,no
 super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","पिछले 30 दिनों में {count, plural, one {# लॉग इन} other {# लॉग इन}} रोका गया, क्योंकि किसी फ़ोन की नकल हुई हो सकती है। हर प्रभावित एडमिन को नया लॉग इन लिंक दें।",no
+super,dashboard.changeRequests,Requested changes,बदलाव की गुज़ारिशें,no
+super,dashboard.noChangeRequests,No change requests from admins.,एडमिन की ओर से बदलाव की कोई गुज़ारिश नहीं।,no
 super,masjids.search,"Search by name, city or code","नाम, शहर या कोड से खोजें",no
 super,masjids.all,All,सभी,no
 super,masjids.new,New masjid,नई मस्जिद,no

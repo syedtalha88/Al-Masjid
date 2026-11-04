@@ -383,6 +383,30 @@ admin,posts.staleBody,Someone saved it after you opened it. Please open it again
 admin,posts.openPosts,Open My Posts,میری پوسٹس کھولیں,no
 admin,posts.viewPosts,View in My Posts,میری پوسٹس میں دیکھیں,no
 admin,posts.editTitle,Edit post,پوسٹ بدلیں,no
+admin,profile.title,Masjid Profile,مسجد پروفائل,no
+admin,profile.photo,Photo,تصویر,no
+admin,profile.photoNone,No photo yet,ابھی کوئی تصویر نہیں,no
+admin,profile.changePhoto,Change photo,تصویر بدلیں,no
+admin,profile.photoChanged,Photo changed,تصویر بدل دی گئی,no
+admin,profile.photoAlt,The masjid photo,مسجد کی تصویر,no
+admin,profile.names,Name of the masjid,مسجد کا نام,no
+admin,profile.notSet,Not set,درج نہیں,no
+admin,profile.place,Area and address,علاقہ اور پتہ,no
+admin,profile.requestChange,Request a change,تبدیلی کی درخواست کریں,no
+admin,profile.requestTitle,What should be changed?,کیا بدلنا چاہیے؟,no
+admin,profile.requestHint,The Masjid Connect team checks and changes names and addresses.,Masjid Connect ٹیم نام اور پتے جانچ کر بدلتی ہے۔,no
+admin,profile.requestNote,Your note,آپ کا نوٹ,no
+admin,profile.send,Send,بھیجیں,no
+admin,profile.requestSent,Sent to the Masjid Connect team,Masjid Connect ٹیم کو بھیج دیا گیا,no
+admin,profile.hijri,Hijri date,ہجری تاریخ,no
+admin,profile.hijriHint,Adjust it if the moon was seen a day earlier or later here.,اگر یہاں چاند ایک دن پہلے یا بعد میں نظر آیا ہو تو اسے بدلیں۔,no
+admin,profile.hijriDays,Days,دن,no
+admin,profile.hijriToday,Today: {date},آج: {date},no
+admin,profile.hijriFollowing,Following the app’s date.,ایپ کی تاریخ کے مطابق۔,no
+admin,profile.hijriFollow,Follow the app’s date,ایپ کی تاریخ اپنائیں,no
+admin,profile.saved,Saved,محفوظ ہو گیا,no
+admin,profile.account,My account,میرا اکاؤنٹ,no
+admin,profile.accountHint,"Language, sessions and passkeys",زبان، سیشن اور پاس کی,no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no
@@ -645,6 +669,7 @@ errors,ANNOUNCEMENT_INVALID,Something in this notice is not right. Please check 
 errors,DUA_INVALID,Something in this dua request is not right. Please check the janaza time and try again.,اس دعا کی درخواست میں کچھ درست نہیں ہے۔ براہِ کرم جنازے کا وقت دیکھیں اور دوبارہ کوشش کریں۔,no
 errors,EDIT_WINDOW_CLOSED,Posts can be changed for 24 hours after publishing. You can still delete this post.,پوسٹ شائع ہونے کے 24 گھنٹے تک ہی بدلی جا سکتی ہے۔ آپ اسے اب بھی ہٹا سکتے ہیں۔,no
 errors,ITEM_NOT_EDITABLE,This kind of post cannot be changed here.,اس طرح کی پوسٹ یہاں بدلی نہیں جا سکتی۔,no
+errors,PROFILE_INVALID,This change to the masjid profile is not possible. Please check it and try again.,مسجد پروفائل میں یہ تبدیلی ممکن نہیں۔ براہِ کرم دیکھیں اور دوبارہ کوشش کریں۔,no
 follow,scan.title,Scan masjid QR,مسجد کا QR اسکین کریں,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,اپنا کیمرا مسجد کے پوسٹر پر لگے QR کوڈ کی طرف کریں۔,no
 follow,scan.torch,Flashlight,ٹارچ,no
@@ -842,6 +867,8 @@ super,dashboard.pending,Waiting for activation,فعال ہونے کی منتظر
 super,dashboard.noPending,No masjids are waiting for activation.,کوئی مسجد فعال ہونے کی منتظر نہیں ہے۔,no
 super,dashboard.counts,Masjids,مساجد,no
 super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","پچھلے 30 دنوں میں {count, plural, one {# لاگ اِن} other {# لاگ اِن}} روکا گیا، کیونکہ کسی فون کی نقل ہو سکتی ہے۔ ہر متاثرہ ایڈمن کو نیا لاگ اِن لنک دیں۔",no
+super,dashboard.changeRequests,Requested changes,تبدیلی کی درخواستیں,no
+super,dashboard.noChangeRequests,No change requests from admins.,ایڈمنز کی طرف سے تبدیلی کی کوئی درخواست نہیں۔,no
 super,masjids.search,"Search by name, city or code",نام، شہر یا کوڈ سے تلاش کریں,no
 super,masjids.all,All,سب,no
 super,masjids.new,New masjid,نئی مسجد,no

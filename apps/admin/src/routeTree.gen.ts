@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as PostsRouteImport } from './routes/posts'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as TimingsRouteImport } from './routes/timings'
 import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase'
 import { Route as DailyIndexRouteImport } from './routes/daily.index'
@@ -54,6 +55,11 @@ const AccountRoute = AccountRouteImport.update({
 const PostsRoute = PostsRouteImport.update({
   id: '/posts',
   path: '/posts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TimingsRoute = TimingsRouteImport.update({
@@ -201,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
   '/posts': typeof PostsRoute
+  '/profile': typeof ProfileRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/daily/note': typeof DailyNoteRoute
@@ -234,6 +241,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
   '/posts': typeof PostsRoute
+  '/profile': typeof ProfileRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/daily/note': typeof DailyNoteRoute
@@ -268,6 +276,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
   '/posts': typeof PostsRoute
+  '/profile': typeof ProfileRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
   '/daily/note': typeof DailyNoteRoute
@@ -303,6 +312,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account'
     | '/posts'
+    | '/profile'
     | '/timings'
     | '/_dev/showcase'
     | '/daily/note'
@@ -336,6 +346,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account'
     | '/posts'
+    | '/profile'
     | '/timings'
     | '/_dev/showcase'
     | '/daily/note'
@@ -369,6 +380,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account'
     | '/posts'
+    | '/profile'
     | '/timings'
     | '/_dev/showcase'
     | '/daily/note'
@@ -403,6 +415,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRoute
   PostsRoute: typeof PostsRoute
+  ProfileRoute: typeof ProfileRoute
   TimingsRoute: typeof TimingsRoute
   DevShowcaseRoute: typeof DevShowcaseRoute
   DailyNoteRoute: typeof DailyNoteRoute
@@ -453,6 +466,13 @@ declare module '@tanstack/react-router' {
       path: '/posts'
       fullPath: '/posts'
       preLoaderRoute: typeof PostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/timings': {
@@ -670,6 +690,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
   PostsRoute: PostsRoute,
+  ProfileRoute: ProfileRoute,
   TimingsRoute: TimingsRoute,
   DevShowcaseRoute: DevShowcaseRoute,
   DailyNoteRoute: DailyNoteRoute,
