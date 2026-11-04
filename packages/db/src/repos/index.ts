@@ -9,6 +9,7 @@ export {
   quotaUsageId,
   requireOwnMasjid,
 } from './admin.ts';
+export { type AdminItemRow, type AdminItemStatus, listItemsForAdmin } from './items.ts';
 export {
   type AdminLibraryRow,
   dailyPublishedToday,

@@ -3,14 +3,14 @@
 // bump, the audit entry and — with "Notify followers" — the quota count and the pending outbox job. One transaction.
 import type { UUID } from 'mongodb';
 
-import { type DbHandle, withTransaction } from '../client.ts';
+import { type DbHandle, type TxContext, withTransaction } from '../client.ts';
 import { contentWrite, StateError, writeAudit } from '../effects.ts';
 import { requireOwnMasjid } from '../repos/admin.ts';
 import { numberOf } from '../repos/read.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
-import { enqueueNotification, insertPublishedItem } from './publish.ts';
+import { enqueueNotification, insertPublishedItem, type ItemContent } from './publish.ts';
 
 /** Today's hadith / ayah as the admin publishes it (the contract checked the note's length and characters). */
 export interface DailyContentInput {
@@ -24,6 +24,33 @@ export interface DailyContentPublished {
   readonly kind: 'hadith' | 'ayah';
   /** Notifications left today after this publish; `null` when it did not notify. */
   readonly quotaLeft: number | null;
+}
+
+/**
+ * Today's hadith / ayah content: a verified hadith or ayah (read through the admin cell in the caller's transaction) and
+ * the note. Shared by publishing and editing (T3.9).
+ *
+ * @throws StateError LIBRARY_ENTRY_NOT_FOUND (unknown, draft or retired entry, or not a hadith / ayah).
+ */
+export async function dailyContent(
+  ctx: TxContext,
+  daily: Omit<DailyContentInput, 'notify'>,
+): Promise<{ content: ItemContent; kind: 'hadith' | 'ayah' }> {
+  // The admin cell reads verified entries only.
+  const entry = await scoped(ctx, 'content_library').findOne({
+    _id: daily.libraryId,
+    kind: { $in: ['hadith', 'ayah'] },
+  });
+  const kind: unknown = entry?.['kind'];
+  if (kind !== 'hadith' && kind !== 'ayah') throw new StateError('LIBRARY_ENTRY_NOT_FOUND');
+  const { libraryId, note } = daily;
+  return {
+    kind,
+    content: {
+      isImportant: false,
+      detail: { daily: { library_id: libraryId, kind, ...(note === undefined ? {} : { note }) } },
+    },
+  };
 }
 
 /**
@@ -48,15 +75,12 @@ export async function publishDailyContent(
   if (scope.kind !== 'admin') throw new StateError('FORBIDDEN');
   const adminId = scope.adminId;
   const now = input.now ?? new Date();
-  const { libraryId, note, notify } = input.daily;
+  const { notify } = input.daily;
 
   return withTransaction(handle, scope, async (ctx) => {
     const masjid = await scoped(ctx, 'masjids').findOne({ _id: input.masjidId });
     if (!masjid) throw new StateError('MASJID_NOT_FOUND');
-    // The admin cell reads verified entries only.
-    const entry = await scoped(ctx, 'content_library').findOne({ _id: libraryId, kind: { $in: ['hadith', 'ayah'] } });
-    const kind: unknown = entry?.['kind'];
-    if (kind !== 'hadith' && kind !== 'ayah') throw new StateError('LIBRARY_ENTRY_NOT_FOUND');
+    const { content, kind } = await dailyContent(ctx, input.daily);
     const version = (numberOf(masjid, 'content_version') ?? 0) + 1;
 
     const published = await contentWrite(ctx, input.masjidId, async (store) => {
@@ -65,9 +89,8 @@ export async function publishDailyContent(
         {
           type: 'daily_content',
           audience: 'everyone',
-          isImportant: false,
           notify,
-          detail: { daily: { library_id: libraryId, kind, ...(note === undefined ? {} : { note }) } },
+          ...content,
           createdBy: adminId,
           masjidVisible: masjid['status'] === 'active',
           version,

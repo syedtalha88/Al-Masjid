@@ -8,12 +8,16 @@ import {
   getMasjidStats,
   getPushQuota,
   getRamadan,
+  listItemsForAdmin,
   listSpecialDates,
   listTemplatesForAdmin,
   requireOwnMasjid,
 } from '@mc/db/repos';
 import {
+  deleteItem,
   deleteSpecialDate,
+  editItem,
+  type ItemEdit,
   publishAnnouncement,
   publishDailyContent,
   publishDuaRequest,
@@ -25,6 +29,8 @@ import {
 import { resolveSchedule } from '@mc/domain/prayer';
 import { addDays, calendarDateInZone } from '@mc/domain/time';
 import {
+  adminItemListQuerySchema,
+  adminItemListSchema,
   adminMasjidStatsSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
@@ -33,6 +39,9 @@ import {
   duaPublishSchema,
   imageUploadedSchema,
   imageUploadQuerySchema,
+  type ItemEditBody,
+  itemEditedSchema,
+  itemEditSchema,
   itemPublishedSchema,
   pushQuotaSchema,
   ramadanSaveSchema,
@@ -65,6 +74,59 @@ function masjidIdOf(text: string) {
   const id = parseId(text);
   if (!id) throw new ApiProblem(404, 'MASJID_NOT_FOUND');
   return id;
+}
+
+const ItemParams = z.object({ masjidId: z.string().max(64), itemId: z.string().max(64) });
+
+/** A post's id from the path; a malformed one answers like an unknown post. */
+function itemIdOf(text: string) {
+  const id = parseId(text);
+  if (!id) throw new ApiProblem(404, 'ITEM_NOT_FOUND');
+  return id;
+}
+
+/** A library id of an edit body (contract-checked UUID text). */
+function libraryIdOf(text: string) {
+  const id = parseId(text);
+  if (!id) throw new ApiProblem(404, 'LIBRARY_ENTRY_NOT_FOUND');
+  return id;
+}
+
+/** The PATCH body as the data layer takes it (instants as Dates, ids as UUIDs). */
+function itemEditOf(body: ItemEditBody): ItemEdit {
+  switch (body.type) {
+    case 'announcement': {
+      const { type, eventAt, image, ...announcement } = body;
+      return {
+        type,
+        announcement: {
+          ...announcement,
+          ...(eventAt === undefined ? {} : { eventAt: new Date(eventAt) }),
+          ...(image === undefined ? {} : { image }),
+        },
+      };
+    }
+    case 'daily_content':
+      return { type: body.type, daily: { libraryId: libraryIdOf(body.libraryId), note: body.note } };
+    case 'dua_request': {
+      const { type, libraryId, janazaAt, ...dua } = body;
+      return {
+        type,
+        dua: {
+          ...dua,
+          libraryId: libraryIdOf(libraryId),
+          ...(janazaAt === undefined ? {} : { janazaAt: new Date(janazaAt) }),
+        },
+      };
+    }
+  }
+}
+
+/** `If-Match: "<updatedAt>"` of a post (quotes optional). Missing or malformed → 400. */
+function updatedAtOf(header: string | undefined): string {
+  const parsed = z.iso.datetime().safeParse(header?.replaceAll('"', ''));
+  if (!parsed.success) throw new ApiProblem(400, 'VALIDATION_FAILED');
+  return parsed.data;
 }
 
 const PreviewQuery = z.object({ date: z.iso.date() });
@@ -398,6 +460,65 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
                 quotaLeft: published.quotaLeft,
               };
         return reply(201, { item: published.item, notification });
+      },
+    }),
+    defineRoute({
+      method: 'get',
+      path: '/masjids/:masjidId/items',
+      summary: 'My Posts: every status, newest first, with the edit window and the If-Match value (B12)',
+      tags: ['masjid'],
+      auth: 'session',
+      request: { params: Params, query: adminItemListQuerySchema },
+      responses: { 200: adminItemListSchema },
+      handler: async ({ auth, params, query, clock, reply }) => {
+        const page = await listItemsForAdmin(db, auth.scope, masjidIdOf(params.masjidId), {
+          type: query.type,
+          status: query.status,
+          cursor: query.cursor,
+          now: clock.now(),
+        });
+        return reply(200, { items: page.rows, next: page.next });
+      },
+    }),
+    defineRoute({
+      method: 'patch',
+      path: '/masjids/:masjidId/items/:itemId',
+      summary:
+        'Edit a post within 24 h of publishing (If-Match: "<updatedAt>"; 412 when someone saved in between; never notifies)',
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: writes,
+      request: { params: ItemParams, body: itemEditSchema },
+      responses: { 200: itemEditedSchema },
+      handler: async ({ auth, params, body, req, clock, requestId, reply }) => {
+        const edited = await editItem(db, auth.scope, {
+          masjidId: masjidIdOf(params.masjidId),
+          itemId: itemIdOf(params.itemId),
+          ifMatch: updatedAtOf(req.get('if-match')),
+          edit: itemEditOf(body),
+          now: clock.now(),
+          requestId,
+        });
+        return reply(200, edited);
+      },
+    }),
+    defineRoute({
+      method: 'delete',
+      path: '/masjids/:masjidId/items/:itemId',
+      summary: 'Delete a post (followers stop seeing it after their next version poll; kept 180 days, then purged)',
+      tags: ['masjid'],
+      auth: 'session',
+      rateLimit: writes,
+      request: { params: ItemParams },
+      responses: { 204: Empty },
+      handler: async ({ auth, params, clock, requestId, reply }) => {
+        await deleteItem(db, auth.scope, {
+          masjidId: masjidIdOf(params.masjidId),
+          itemId: itemIdOf(params.itemId),
+          now: clock.now(),
+          requestId,
+        });
+        return reply(204, {});
       },
     }),
     defineRoute({

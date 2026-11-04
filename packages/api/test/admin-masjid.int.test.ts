@@ -1,6 +1,7 @@
 // PHASE_03 T3.1 (API) against a migrated MongoDB as the real mc_admin user: the masjid-scoped Admin Home reads —
 // stats, push quota, schedule — for the admin's own masjid; another masjid, a malformed id and the Super Admin (not a
-// member) all get the uniform 404; no session → 401. T3.2: the timings editor; T3.3: special dates and Ramadan; T3.6:
+// member) all get the uniform 404; no session → 401. T3.2: the timings editor; T3.3: special dates and Ramadan; T3.9: My
+// Posts (list, edit within 24 h with If-Match, delete); T3.6:
 // photos, the template list and publishing a notice.
 import { randomBytes } from 'node:crypto';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
@@ -14,10 +15,12 @@ import { registerCredential } from '@mc/db/state';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '@mc/db/testing';
 import { ManualClock } from '@mc/shared/clock';
 import {
+  adminItemListSchema,
   adminMasjidStatsSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
   imageUploadedSchema,
+  itemEditedSchema,
   itemPublishedSchema,
   pushQuotaSchema,
   ramadanSchema,
@@ -570,5 +573,97 @@ describe('notices (T3.6)', () => {
     expect((await publish(NOTICE, 'not-an-id')).body).toMatchObject({ status: 404, code: 'MASJID_NOT_FOUND' });
     const anonymous = await request(app()).post(`/api/admin/masjids/${own}/items/announcement`).set(CSRF).send(NOTICE);
     expect(anonymous.status).toBe(401);
+  });
+});
+
+describe('My Posts (T3.9): list, edit within 24 h, delete', () => {
+  const NOTICE_TEXT = {
+    content: { kind: 'text', title: 'Test post title', body: 'Test post body', locale: 'en' },
+    category: 'general',
+    isImportant: false,
+  };
+  const publishText = async () => {
+    const response = await request(app())
+      .post(`/api/admin/masjids/${own}/items/announcement`)
+      .set('Cookie', adminCookie)
+      .set(CSRF)
+      .send({ ...NOTICE_TEXT, notify: false });
+    expect(response.status).toBe(201);
+    return itemPublishedSchema.parse(response.body).item;
+  };
+  const list = async (query = '') => {
+    const response = await get(`/${own}/items${query}`);
+    expect(response.status).toBe(200);
+    return adminItemListSchema.parse(response.body);
+  };
+  const patch = (itemId: string, ifMatch: string | null, body: object) => {
+    const call = request(app()).patch(`/api/admin/masjids/${own}/items/${itemId}`).set('Cookie', adminCookie).set(CSRF);
+    return (ifMatch === null ? call : call.set('If-Match', `"${ifMatch}"`)).send(body);
+  };
+  const EDIT = {
+    type: 'announcement',
+    ...NOTICE_TEXT,
+    content: { ...NOTICE_TEXT.content, title: 'Test edited title' },
+  };
+
+  it('lists the post with its If-Match value and edit window; an edit within 24 h is saved', async () => {
+    const item = await publishText();
+    const row = (await list()).items.find((entry) => entry.id === item.id);
+    expect(row).toMatchObject({ status: 'published', item: { title: 'Test post title', type: 'announcement' } });
+    expect(row?.editableUntil).toBe(new Date(clock.now().getTime() + 24 * 60 * 60 * 1000).toISOString());
+    const saved = await patch(item.id, row?.updatedAt ?? '', EDIT);
+    expect(saved.status).toBe(200);
+    expect(itemEditedSchema.parse(saved.body).updatedAt).toBe(clock.now().toISOString());
+    const after = (await list()).items.find((entry) => entry.id === item.id);
+    expect(after?.item).toMatchObject({ title: 'Test edited title', editedAt: clock.now().toISOString() });
+  });
+
+  it('If-Match: stale → 412, missing → 400; a body of another type → 409 ITEM_NOT_EDITABLE; bad bodies → 400', async () => {
+    const item = await publishText();
+    const row = (await list()).items.find((entry) => entry.id === item.id);
+    const updatedAt = row?.updatedAt ?? '';
+    expect((await patch(item.id, '2026-01-01T00:00:00.000Z', EDIT)).body).toMatchObject({
+      status: 412,
+      code: 'PRECONDITION_FAILED',
+    });
+    expect((await patch(item.id, null, EDIT)).status).toBe(400);
+    expect(
+      (await patch(item.id, updatedAt, { type: 'daily_content', libraryId: '0b7f6c2e-1d4a-4f3b-9c8e-2a1b3c4d5e6f' }))
+        .body,
+    ).toMatchObject({ status: 409, code: 'ITEM_NOT_EDITABLE' });
+    for (const body of [
+      { ...EDIT, notify: true },
+      { ...EDIT, type: 'video' },
+      { ...EDIT, eventAt: clock.now().toISOString() },
+    ]) {
+      expect((await patch(item.id, updatedAt, body)).body).toMatchObject({ status: 400, code: 'VALIDATION_FAILED' });
+    }
+  });
+
+  it('after 24 h: 409 EDIT_WINDOW_CLOSED and no edit window in the list (T3.9 acceptance)', async () => {
+    const item = await publishText();
+    const dayAgo = new Date(clock.now().getTime() - 24 * 60 * 60 * 1000 - 60_000);
+    await test?.db.collection('items').updateOne({ public_id: item.publicId }, { $set: { published_at: dayAgo } });
+    const row = (await list()).items.find((entry) => entry.id === item.id);
+    expect(row).not.toHaveProperty('editableUntil');
+    expect((await patch(item.id, row?.updatedAt ?? '', EDIT)).body).toMatchObject({
+      status: 409,
+      code: 'EDIT_WINDOW_CLOSED',
+    });
+  });
+
+  it('delete → 204 (again 204); the list shows it deleted; filters; another masjid and bad ids → 404', async () => {
+    const item = await publishText();
+    const remove = (itemId: string, masjid = own) =>
+      request(app()).delete(`/api/admin/masjids/${masjid}/items/${itemId}`).set('Cookie', adminCookie).set(CSRF);
+    expect((await remove(item.id)).status).toBe(204);
+    expect((await remove(item.id)).status).toBe(204);
+    const deleted = await list('?status=deleted');
+    expect(deleted.items.find((entry) => entry.id === item.id)).toMatchObject({ status: 'deleted' });
+    expect((await list('?type=daily_content')).items.every((entry) => entry.item.type === 'daily_content')).toBe(true);
+    expect((await get(`/${own}/items?status=hidden`)).status).toBe(400);
+    expect((await remove('not-an-id')).body).toMatchObject({ status: 404, code: 'ITEM_NOT_FOUND' });
+    expect((await remove(item.id, other)).status).toBe(404);
+    expect((await get(`/${other}/items`)).status).toBe(404);
   });
 });

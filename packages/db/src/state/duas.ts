@@ -4,14 +4,14 @@
 // (never the name) and — with "Notify followers" — the quota count and the pending outbox job. One transaction.
 import type { UUID } from 'mongodb';
 
-import { type DbHandle, withTransaction } from '../client.ts';
+import { type DbHandle, type TxContext, withTransaction } from '../client.ts';
 import { contentWrite, StateError, writeAudit } from '../effects.ts';
 import { requireOwnMasjid } from '../repos/admin.ts';
 import { numberOf } from '../repos/read.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
-import { enqueueNotification, insertPublishedItem } from './publish.ts';
+import { enqueueNotification, insertPublishedItem, type ItemContent } from './publish.ts';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 /** A janaza is announced at most this far ahead, and not more than a day after it was held. */
@@ -37,6 +37,47 @@ export interface DuaRequestPublished {
 }
 
 /**
+ * A dua request's content, checked as at publish: a janaza only with inteqal and from a day ago to 30 days ahead, a
+ * verified dua (read through the admin cell in the caller's transaction). Shared by publishing and editing (T3.9).
+ *
+ * @throws StateError DUA_INVALID, LIBRARY_ENTRY_NOT_FOUND.
+ */
+export async function duaContent(
+  ctx: TxContext,
+  dua: Omit<DuaRequestInput, 'notify'>,
+  now: Date,
+): Promise<ItemContent> {
+  if ((dua.janazaAt !== undefined || dua.janazaPlace !== undefined) && dua.category !== 'inteqal') {
+    throw new StateError('DUA_INVALID');
+  }
+  if (
+    dua.janazaAt &&
+    (dua.janazaAt.getTime() < now.getTime() - DAY_MS ||
+      dua.janazaAt.getTime() > now.getTime() + JANAZA_AHEAD_DAYS * DAY_MS)
+  ) {
+    throw new StateError('DUA_INVALID');
+  }
+  // The admin cell reads verified entries only.
+  const entry = await scoped(ctx, 'content_library').findOne({ _id: dua.libraryId, kind: 'dua' });
+  if (!entry) throw new StateError('LIBRARY_ENTRY_NOT_FOUND');
+  return {
+    isImportant: false,
+    body: dua.message,
+    contentLocale: dua.locale,
+    detail: {
+      dua: {
+        category: dua.category,
+        ...(dua.personName === undefined ? {} : { person_name: dua.personName }),
+        name_private: dua.namePrivate,
+        library_id: dua.libraryId,
+        ...(dua.janazaAt === undefined ? {} : { janaza_at: dua.janazaAt }),
+        ...(dua.janazaPlace === undefined ? {} : { janaza_place: dua.janazaPlace }),
+      },
+    },
+  };
+}
+
+/**
  * Publishes a dua request for one of the admin's masjids.
  *
  * @returns the item's ids and, when notifying, the notifications left today.
@@ -59,23 +100,11 @@ export async function publishDuaRequest(
   const adminId = scope.adminId;
   const now = input.now ?? new Date();
   const { dua } = input;
-  if ((dua.janazaAt !== undefined || dua.janazaPlace !== undefined) && dua.category !== 'inteqal') {
-    throw new StateError('DUA_INVALID');
-  }
-  if (
-    dua.janazaAt &&
-    (dua.janazaAt.getTime() < now.getTime() - DAY_MS ||
-      dua.janazaAt.getTime() > now.getTime() + JANAZA_AHEAD_DAYS * DAY_MS)
-  ) {
-    throw new StateError('DUA_INVALID');
-  }
 
   return withTransaction(handle, scope, async (ctx) => {
     const masjid = await scoped(ctx, 'masjids').findOne({ _id: input.masjidId });
     if (!masjid) throw new StateError('MASJID_NOT_FOUND');
-    // The admin cell reads verified entries only.
-    const entry = await scoped(ctx, 'content_library').findOne({ _id: dua.libraryId, kind: 'dua' });
-    if (!entry) throw new StateError('LIBRARY_ENTRY_NOT_FOUND');
+    const content = await duaContent(ctx, dua, now);
     const version = (numberOf(masjid, 'content_version') ?? 0) + 1;
 
     const published = await contentWrite(ctx, input.masjidId, async (store) => {
@@ -84,20 +113,8 @@ export async function publishDuaRequest(
         {
           type: 'dua_request',
           audience: 'everyone',
-          isImportant: false,
           notify: dua.notify,
-          body: dua.message,
-          contentLocale: dua.locale,
-          detail: {
-            dua: {
-              category: dua.category,
-              ...(dua.personName === undefined ? {} : { person_name: dua.personName }),
-              name_private: dua.namePrivate,
-              library_id: dua.libraryId,
-              ...(dua.janazaAt === undefined ? {} : { janaza_at: dua.janazaAt }),
-              ...(dua.janazaPlace === undefined ? {} : { janaza_place: dua.janazaPlace }),
-            },
-          },
+          ...content,
           createdBy: adminId,
           masjidVisible: masjid['status'] === 'active',
           version,

@@ -5,7 +5,7 @@
 import { templateValueProblems } from '@mc/i18n/template-args';
 import type { Document, UUID } from 'mongodb';
 
-import { type DbHandle, withTransaction } from '../client.ts';
+import { type DbHandle, type TxContext, withTransaction } from '../client.ts';
 import { contentWrite, StateError, writeAudit } from '../effects.ts';
 import { requireOwnMasjid } from '../repos/admin.ts';
 import { arrayOf, need, numberOf, oneOf } from '../repos/read.ts';
@@ -13,7 +13,7 @@ import { TEMPLATE_PARAM_TYPE } from '../schema/enums.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
-import { enqueueNotification, insertPublishedItem } from './publish.ts';
+import { enqueueNotification, insertPublishedItem, type ItemContent } from './publish.ts';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 /** An event may be at most this far ahead (as special dates — 00 §4.2), and not more than a day in the past. */
@@ -56,6 +56,44 @@ const paramsOf = (template: Document) =>
   }));
 
 /**
+ * A notice's content, checked as at publish: a photo of the masjid's own, an event time from a day ago to 400 days
+ * ahead, a template an admin may pick (read in the caller's transaction) with params that fit it. Shared by publishing
+ * and editing (T3.9).
+ *
+ * @throws StateError ANNOUNCEMENT_INVALID, TEMPLATE_NOT_FOUND.
+ */
+export async function announcementContent(
+  ctx: TxContext,
+  masjidId: UUID,
+  announcement: Omit<AnnouncementInput, 'notify'>,
+  now: Date,
+): Promise<ItemContent> {
+  const { content, image, eventAt } = announcement;
+  if (image && !image.key.startsWith(`m/${idText(masjidId)}/`)) throw new StateError('ANNOUNCEMENT_INVALID');
+  if (
+    eventAt &&
+    (eventAt.getTime() < now.getTime() - DAY_MS || eventAt.getTime() > now.getTime() + EVENT_AHEAD_DAYS * DAY_MS)
+  ) {
+    throw new StateError('ANNOUNCEMENT_INVALID');
+  }
+  if (content.kind === 'template') {
+    const template = await scoped(ctx, 'notice_templates').findOne({ _id: content.key });
+    if (!template) throw new StateError('TEMPLATE_NOT_FOUND');
+    if (templateValueProblems(content.params, paramsOf(template)).length > 0) {
+      throw new StateError('ANNOUNCEMENT_INVALID');
+    }
+  }
+  return {
+    isImportant: announcement.isImportant,
+    ...(content.kind === 'template'
+      ? { templateKey: content.key, templateParams: content.params }
+      : { title: content.title, body: content.body, contentLocale: content.locale }),
+    ...(image ? { image } : {}),
+    detail: { announcement: { category: announcement.category, ...(eventAt ? { event_at: eventAt } : {}) } },
+  };
+}
+
+/**
  * Publishes a notice for one of the admin's masjids.
  *
  * @returns the item's ids and, when notifying, the notifications left today.
@@ -77,27 +115,13 @@ export async function publishAnnouncement(
   if (scope.kind !== 'admin') throw new StateError('FORBIDDEN');
   const adminId = scope.adminId;
   const now = input.now ?? new Date();
-  const { content, image, eventAt } = input.announcement;
-  if (image && !image.key.startsWith(`m/${idText(input.masjidId)}/`)) throw new StateError('ANNOUNCEMENT_INVALID');
-  if (
-    eventAt &&
-    (eventAt.getTime() < now.getTime() - DAY_MS || eventAt.getTime() > now.getTime() + EVENT_AHEAD_DAYS * DAY_MS)
-  ) {
-    throw new StateError('ANNOUNCEMENT_INVALID');
-  }
+  const { content, image, notify } = input.announcement;
 
   return withTransaction(handle, scope, async (ctx) => {
     const masjid = await scoped(ctx, 'masjids').findOne({ _id: input.masjidId });
     if (!masjid) throw new StateError('MASJID_NOT_FOUND');
-    if (content.kind === 'template') {
-      const template = await scoped(ctx, 'notice_templates').findOne({ _id: content.key });
-      if (!template) throw new StateError('TEMPLATE_NOT_FOUND');
-      if (templateValueProblems(content.params, paramsOf(template)).length > 0) {
-        throw new StateError('ANNOUNCEMENT_INVALID');
-      }
-    }
+    const itemContent = await announcementContent(ctx, input.masjidId, input.announcement, now);
     const version = (numberOf(masjid, 'content_version') ?? 0) + 1;
-    const { notify } = input.announcement;
 
     const published = await contentWrite(ctx, input.masjidId, async (store) => {
       const item = await insertPublishedItem(
@@ -105,15 +129,8 @@ export async function publishAnnouncement(
         {
           type: 'announcement',
           audience: 'everyone',
-          isImportant: input.announcement.isImportant,
           notify,
-          ...(content.kind === 'template'
-            ? { templateKey: content.key, templateParams: content.params }
-            : { title: content.title, body: content.body, contentLocale: content.locale }),
-          ...(image ? { image } : {}),
-          detail: {
-            announcement: { category: input.announcement.category, ...(eventAt ? { event_at: eventAt } : {}) },
-          },
+          ...itemContent,
           createdBy: adminId,
           masjidVisible: masjid['status'] === 'active',
           version,

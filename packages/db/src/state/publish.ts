@@ -13,12 +13,9 @@ import { newId, newPublicId } from '../values.ts';
 
 export type ItemAudience = 'everyone' | 'brothers' | 'sisters';
 
-/** The common fields of a published item; `detail` is the type's own object (02 §2 `ITEM_DETAIL`). */
-export interface PublishedItemInput {
-  readonly type: 'announcement' | 'timing_update' | 'daily_content' | 'dua_request';
-  readonly audience: ItemAudience;
+/** What an item says — set at publish, replaced by an edit (T3.9); `detail` is the type's own object (02 §2). */
+export interface ItemContent {
   readonly isImportant: boolean;
-  readonly notify: boolean;
   readonly title?: string;
   readonly body?: string;
   readonly contentLocale?: 'en' | 'hi' | 'ur' | 'te';
@@ -30,6 +27,45 @@ export interface PublishedItemInput {
     | { readonly announcement: Readonly<Record<string, unknown>> }
     | { readonly daily: Readonly<Record<string, unknown>> }
     | { readonly dua: Readonly<Record<string, unknown>> };
+}
+
+/** The common fields of a published item. */
+export interface PublishedItemInput extends ItemContent {
+  readonly type: 'announcement' | 'timing_update' | 'daily_content' | 'dua_request';
+  readonly audience: ItemAudience;
+  readonly notify: boolean;
+}
+
+/** The optional content fields: an edit `$unset`s those its new content no longer has. */
+export const OPTIONAL_CONTENT_FIELDS = [
+  'title',
+  'body',
+  'content_locale',
+  'template_key',
+  'template_params',
+  'image_key',
+  'image_thumbhash',
+  'rights_confirmed',
+] as const;
+
+/** The item document fields of `content` (snake_case, absent optionals left out). */
+export function contentDocument(content: ItemContent): Record<string, unknown> {
+  return {
+    ...(content.title === undefined ? {} : { title: content.title }),
+    ...(content.body === undefined ? {} : { body: content.body }),
+    ...(content.contentLocale === undefined ? {} : { content_locale: content.contentLocale }),
+    ...(content.templateKey === undefined ? {} : { template_key: content.templateKey }),
+    ...(content.templateParams === undefined ? {} : { template_params: { ...content.templateParams } }),
+    is_important: content.isImportant,
+    ...(content.image === undefined
+      ? {}
+      : {
+          image_key: content.image.key,
+          image_thumbhash: content.image.thumbhash,
+          rights_confirmed: content.image.rightsConfirmed,
+        }),
+    ...content.detail,
+  };
 }
 
 /**
@@ -52,25 +88,12 @@ export async function insertPublishedItem(
     type: input.type,
     status: 'published',
     audience: input.audience,
-    ...(input.title === undefined ? {} : { title: input.title }),
-    ...(input.body === undefined ? {} : { body: input.body }),
-    ...(input.contentLocale === undefined ? {} : { content_locale: input.contentLocale }),
-    ...(input.templateKey === undefined ? {} : { template_key: input.templateKey }),
-    ...(input.templateParams === undefined ? {} : { template_params: { ...input.templateParams } }),
-    is_important: input.isImportant,
-    ...(input.image === undefined
-      ? {}
-      : {
-          image_key: input.image.key,
-          image_thumbhash: input.image.thumbhash,
-          rights_confirmed: input.image.rightsConfirmed,
-        }),
+    ...contentDocument(input),
     notify: input.notify,
     masjid_visible: input.masjidVisible,
     published_at: now,
     published_version: Long.fromNumber(input.version),
     created_by: input.createdBy,
-    ...input.detail,
     created_at: now,
     updated_at: now,
   });

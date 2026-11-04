@@ -60,6 +60,8 @@ export const API_ERRORS = {
   IMAGE_INVALID: 422, // not an accepted photo, HEIC, over 40 MP, corrupt (T3.6)
   ANNOUNCEMENT_INVALID: 400, // template params, another masjid's photo, event time out of range (T3.6)
   DUA_INVALID: 400, // janaza time out of range (T3.8)
+  EDIT_WINDOW_CLOSED: 409, // a post is editable for 24 h after publishing (00 §4.3, T3.9)
+  ITEM_NOT_EDITABLE: 409, // timing updates and later types are not edited in B12 (T3.9)
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

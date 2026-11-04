@@ -211,7 +211,8 @@ const occasionsOf = (doc: Document) => {
   return Array.isArray(value) ? value.map((entry: unknown) => oneOf({ entry }, 'entry', DHIKR_OCCASION)) : undefined;
 };
 
-const libraryOf = (doc: Document) => ({
+/** A library document as clients read it (`libraryEntrySchema`) — public view and admin cell alike. */
+export const libraryOf = (doc: Document) => ({
   id: idOf(doc),
   kind: oneOf(doc, 'kind', LIBRARY_KIND),
   arabic: need(doc, 'arabic'),
@@ -276,7 +277,7 @@ export async function listTemplates(handle: DbHandle) {
 
 export type PublicAudience = 'everyone' | 'brothers' | 'sisters';
 
-const libraryIdOf = (doc: Document): UUID | undefined => {
+export const libraryIdOf = (doc: Document): UUID | undefined => {
   for (const key of ['daily', 'dua']) {
     const id: unknown = objectOf(doc, key)?.['library_id'];
     if (id instanceof UUID) return id;
@@ -284,7 +285,8 @@ const libraryIdOf = (doc: Document): UUID | undefined => {
   return undefined;
 };
 
-const itemOf = (doc: Document, library: ReadonlyMap<string, PublicLibraryEntry>) => {
+/** An item document as clients read it (`feedItemSchema`) — the public feed and the admin's My Posts (T3.9). */
+export const itemOf = (doc: Document, library: ReadonlyMap<string, PublicLibraryEntry>) => {
   const libraryId = libraryIdOf(doc);
   const entry = libraryId ? library.get(idText(libraryId)) : undefined;
   const announcement = objectOf(doc, 'announcement');
@@ -364,13 +366,13 @@ async function withLibrary(handle: DbHandle, docs: readonly Document[]) {
 }
 
 /** Feed cursors: base64url JSON `[published_at ms, _id hex]` — validated on the way back in. */
-const encodeCursor = (doc: Document): string => {
+export const encodeCursor = (doc: Document): string => {
   const at: unknown = doc['published_at'];
   const id: unknown = doc['_id'];
   if (!(at instanceof Date) || !(id instanceof UUID)) throw new Error('feed item without published_at/_id');
   return Buffer.from(JSON.stringify([at.getTime(), id.toHexString(false)])).toString('base64url');
 };
-function decodeCursor(cursor: string): { at: Date; id: UUID } {
+export function decodeCursor(cursor: string): { at: Date; id: UUID } {
   try {
     const parsed: unknown = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8'));
     if (

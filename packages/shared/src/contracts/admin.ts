@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { ITEM_TYPE_VALUES } from './public.ts';
 import { safeText } from './text.ts';
 
 // api-admin masjid-scoped contracts (03 §4 "Masjid-scoped", PHASE_03) — the server validates its responses with these,
@@ -253,45 +254,57 @@ const templateValueSchema = z.union([
  * body in a stated language; category and Important (preset from the template, editable); an event time (category
  * `event` only); an optional photo from `POST /images` (with the ownership tick again); "Notify followers".
  */
+/** A notice's fields — published (with "Notify followers") or edited (T3.9) alike. */
+const announcementFields = {
+  content: z.discriminatedUnion('kind', [
+    z.strictObject({
+      kind: z.literal('template'),
+      key: z.string().regex(/^[a-z][a-z0-9_]{2,63}$/),
+      params: z.record(z.string().regex(/^[a-z][a-zA-Z0-9]{0,39}$/), templateValueSchema),
+    }),
+    z.strictObject({
+      kind: z.literal('text'),
+      title: safeText(NOTICE_TITLE_MAX, { min: 1 }),
+      body: safeText(NOTICE_BODY_MAX, { min: 1, multiline: true }),
+      locale: z.enum(['en', 'hi', 'ur', 'te']),
+    }),
+  ]),
+  category: z.enum(['general', 'event', 'facilities', 'timing']),
+  isImportant: z.boolean(),
+  eventAt: z.iso.datetime().optional(),
+  image: z
+    .strictObject({
+      key: z.string().regex(IMAGE_KEY),
+      thumbhash: z
+        .string()
+        .max(64)
+        .regex(/^[A-Za-z0-9+/]+={0,2}$/),
+      /** The B5 ownership checkbox: the masjid may publish this photo (05 §9). */
+      rightsConfirmed: z.literal(true),
+    })
+    .optional(),
+};
+/** A notice's own rules: an event time only on an event; at most four template params. */
+const checkAnnouncement = (
+  value: {
+    readonly eventAt?: string | undefined;
+    readonly category: string;
+    readonly content:
+      { readonly kind: 'template'; readonly params: Readonly<Record<string, unknown>> } | { readonly kind: 'text' };
+  },
+  ctx: z.RefinementCtx,
+) => {
+  if (value.eventAt !== undefined && value.category !== 'event') {
+    ctx.addIssue({ code: 'custom', message: 'eventAt goes with an event only', path: ['eventAt'] });
+  }
+  if (value.content.kind === 'template' && Object.keys(value.content.params).length > 4) {
+    ctx.addIssue({ code: 'custom', message: 'at most four params', path: ['content', 'params'] });
+  }
+};
+
 export const announcementPublishSchema = z
-  .strictObject({
-    content: z.discriminatedUnion('kind', [
-      z.strictObject({
-        kind: z.literal('template'),
-        key: z.string().regex(/^[a-z][a-z0-9_]{2,63}$/),
-        params: z.record(z.string().regex(/^[a-z][a-zA-Z0-9]{0,39}$/), templateValueSchema),
-      }),
-      z.strictObject({
-        kind: z.literal('text'),
-        title: safeText(NOTICE_TITLE_MAX, { min: 1 }),
-        body: safeText(NOTICE_BODY_MAX, { min: 1, multiline: true }),
-        locale: z.enum(['en', 'hi', 'ur', 'te']),
-      }),
-    ]),
-    category: z.enum(['general', 'event', 'facilities', 'timing']),
-    isImportant: z.boolean(),
-    eventAt: z.iso.datetime().optional(),
-    image: z
-      .strictObject({
-        key: z.string().regex(IMAGE_KEY),
-        thumbhash: z
-          .string()
-          .max(64)
-          .regex(/^[A-Za-z0-9+/]+={0,2}$/),
-        /** The B5 ownership checkbox: the masjid may publish this photo (05 §9). */
-        rightsConfirmed: z.literal(true),
-      })
-      .optional(),
-    notify: z.boolean(),
-  })
-  .refine((value) => value.eventAt === undefined || value.category === 'event', {
-    message: 'eventAt goes with an event only',
-    path: ['eventAt'],
-  })
-  .refine((value) => value.content.kind === 'text' || Object.keys(value.content.params).length <= 4, {
-    message: 'at most four params',
-    path: ['content', 'params'],
-  })
+  .strictObject({ ...announcementFields, notify: z.boolean() })
+  .superRefine(checkAnnouncement)
   .meta({ id: 'AnnouncementPublish' });
 export type AnnouncementPublish = z.infer<typeof announcementPublishSchema>;
 
@@ -307,12 +320,14 @@ export const DAILY_NOTE_MAX = 200;
  * Body of `POST /masjids/:masjidId/items/daily-content` (07 B6): a verified hadith or ayah of the Content Library — the
  * kind is the entry's own; free-form hadith/ayah text is not allowed (00 §4.3) — the optional note, "Notify followers".
  */
+/** Today's hadith / ayah fields — published or edited (T3.9) alike. */
+const dailyFields = {
+  libraryId: z.string().regex(UUID_V4),
+  note: safeText(DAILY_NOTE_MAX, { min: 1, multiline: true }).optional(),
+};
+
 export const dailyContentPublishSchema = z
-  .strictObject({
-    libraryId: z.string().regex(UUID_V4),
-    note: safeText(DAILY_NOTE_MAX, { min: 1, multiline: true }).optional(),
-    notify: z.boolean(),
-  })
+  .strictObject({ ...dailyFields, notify: z.boolean() })
   .meta({ id: 'DailyContentPublish' });
 export type DailyContentPublish = z.infer<typeof dailyContentPublishSchema>;
 
@@ -329,27 +344,66 @@ export const JANAZA_PLACE_MAX = 120;
  * dua of the Content Library, and for inteqal an optional janaza time and place. The title is the category's ("Request
  * for Dua"), never sent.
  */
+/** A dua request's fields — published or edited (T3.9) alike. */
+const duaFields = {
+  category: z.enum(['illness', 'inteqal', 'other']),
+  message: safeText(DUA_MESSAGE_MAX, { min: 1, multiline: true }),
+  locale: z.enum(['en', 'hi', 'ur', 'te']),
+  personName: safeText(DUA_NAME_MAX, { min: 1 }).optional(),
+  namePrivate: z.boolean(),
+  libraryId: z.string().regex(UUID_V4),
+  janazaAt: z.iso.datetime().optional(),
+  janazaPlace: safeText(JANAZA_PLACE_MAX, { min: 1 }).optional(),
+};
+/** A janaza goes with inteqal only. */
+const checkDua = (
+  value: {
+    readonly category: string;
+    readonly janazaAt?: string | undefined;
+    readonly janazaPlace?: string | undefined;
+  },
+  ctx: z.RefinementCtx,
+) => {
+  if (value.category !== 'inteqal' && (value.janazaAt !== undefined || value.janazaPlace !== undefined)) {
+    ctx.addIssue({ code: 'custom', message: 'a janaza goes with inteqal only', path: ['janazaAt'] });
+  }
+};
+
 export const duaPublishSchema = z
-  .strictObject({
-    category: z.enum(['illness', 'inteqal', 'other']),
-    message: safeText(DUA_MESSAGE_MAX, { min: 1, multiline: true }),
-    locale: z.enum(['en', 'hi', 'ur', 'te']),
-    personName: safeText(DUA_NAME_MAX, { min: 1 }).optional(),
-    namePrivate: z.boolean(),
-    libraryId: z.string().regex(UUID_V4),
-    janazaAt: z.iso.datetime().optional(),
-    janazaPlace: safeText(JANAZA_PLACE_MAX, { min: 1 }).optional(),
-    notify: z.boolean(),
-  })
-  .refine(
-    (value) => value.category === 'inteqal' || (value.janazaAt === undefined && value.janazaPlace === undefined),
-    {
-      message: 'a janaza goes with inteqal only',
-      path: ['janazaAt'],
-    },
-  )
+  .strictObject({ ...duaFields, notify: z.boolean() })
+  .superRefine(checkDua)
   .meta({ id: 'DuaPublish' });
 export type DuaPublish = z.infer<typeof duaPublishSchema>;
+
+// --- My Posts (07 B12, 03 §4 Items, PHASE_03 T3.9) ----------------------------------------------------------------
+
+export const ITEM_STATUS_VALUES = ['published', 'deleted', 'removed'] as const;
+export type AdminItemStatus = (typeof ITEM_STATUS_VALUES)[number];
+
+/** `GET /masjids/:masjidId/items?type=&status=&cursor=`. */
+export const adminItemListQuerySchema = z.object({
+  type: z.enum(ITEM_TYPE_VALUES).optional(),
+  status: z.enum(ITEM_STATUS_VALUES).optional(),
+  cursor: z.string().max(200).optional(),
+});
+
+/**
+ * Body of `PATCH /masjids/:masjidId/items/:itemId` (If-Match: `"<updatedAt>"`; ≤ 24 h after publishing): the post's
+ * type and its new content — the publish body without "Notify followers" (edits never notify — 00 §4.3).
+ */
+export const itemEditSchema = z
+  .discriminatedUnion('type', [
+    z.strictObject({ type: z.literal('announcement'), ...announcementFields }),
+    z.strictObject({ type: z.literal('daily_content'), ...dailyFields }),
+    z.strictObject({ type: z.literal('dua_request'), ...duaFields }),
+  ])
+  .superRefine((value, ctx) => {
+    if (value.type === 'announcement') checkAnnouncement(value, ctx);
+    if (value.type === 'dua_request') checkDua(value, ctx);
+  })
+  .meta({ id: 'ItemEdit' });
+export type ItemEditBody = z.infer<typeof itemEditSchema>;
+export const itemEditedSchema = z.object({ updatedAt: z.iso.datetime() }).meta({ id: 'ItemEdited' });
 
 /**
  * Every publish answers with the item and, when it notifies, the notification about to go out (03 §4): `targeted` =

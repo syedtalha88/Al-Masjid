@@ -47,5 +47,7 @@
   "RAMADAN_INVALID": "Please check the Ramadan dates: the last day comes after the first, at most 30 days.",
   "IMAGE_INVALID": "This photo can't be used. Please choose a JPEG, PNG or WebP photo (iPhone: pick it from Photos).",
   "ANNOUNCEMENT_INVALID": "Something in this notice is not right. Please check the details and try again.",
-  "DUA_INVALID": "Something in this dua request is not right. Please check the janaza time and try again."
+  "DUA_INVALID": "Something in this dua request is not right. Please check the janaza time and try again.",
+  "EDIT_WINDOW_CLOSED": "Posts can be changed for 24 hours after publishing. You can still delete this post.",
+  "ITEM_NOT_EDITABLE": "This kind of post cannot be changed here."
 }
