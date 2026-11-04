@@ -1784,4 +1784,20 @@ Decoding audio on the server would need ffmpeg in the API image.
 **Consequences:** api unit `audio.test.ts` 6, api int +2. Part 2 adds `voice` to the three item types; part 3 the
 recorder (B14), the player (A18), the worker cache, the Caddy `/a/m4a/<key>` route and CSP `media-src`.
 
+### #127 — Voice notes on posts: always titled, the masjid's own recordings, the key not a URL (PHASE_03 T3.13, part 2) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 02 items: `voice {key ≤ 200, duration_s 1..600, peaks? ≤ 48}` on announcement / daily_content /
+dua_request, and "when present `title` is required"; 03 §3 says items carry `voice {url, durationS, peaks?}`.
+**Decision:**
+- Migration **0011_item_voice** adds `voice` to the items validator (`AUDIO_KEY` pattern) and an `allOf` rule: a
+  document with `voice` must have `title` and be one of the three types (the Zod mirror checks the same). `voice` is in
+  `ITEM_WRITABLE` and in the optional content fields an edit unsets; `v_pub_items` passes it through unchanged.
+- Bodies: every publish / edit body takes `voice?: {key, durationS, peaks[48]}`. The title is the free-text notice's
+  own; template notices, hadith / ayah and dua requests send a top-level `title` (≤ 120) — **only with a voice note**
+  (alone it is refused, so those posts still carry no free text of their own — 00 §4.3). The content builders check
+  the recording is the masjid's own (`m/<masjid>/a/…`) and a title exists: `400 VOICE_INVALID`.
+- Public items carry `voice {key, durationS, peaks?}` — the key, like photos (`image {key, thumbhash}`): the app builds
+  `<media origin>/a/m4a/<key>` itself, so responses stay origin-independent (03 §3's "url" is read as the key).
+**Consequences:** db `voice.int.test.ts` 5 (incl. the validator refusing a title-less or wrong-type voice note), api
+int +1. Part 3 builds the recorder, the player and the delivery route.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._

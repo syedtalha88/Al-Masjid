@@ -20,24 +20,32 @@
 
 ## ▶ Next session — start here (4 Nov 2026 — Phase 03 IN PROGRESS)
 
-**State:** branch `feat/phase-03` pushed (T3.6–T3.10 done, T3.13 part 1 — #120–#126); `ci/phase-03` carries the same
-HEAD; `main` = staging = `cdd39fa` — nothing deployed.
+**State:** branch `feat/phase-03` pushed (T3.6–T3.10 done, T3.13 parts 1–2 — #120–#127); `ci/phase-03` carries the
+same HEAD; `main` = staging = `cdd39fa` — nothing deployed. Stopped at the owner's request (usage limit).
 
 **Do first:**
 1. **Check CI of the newest `ci/phase-03` push.** The run on `7dfd959` (T3.9) failed only in WebKit e2e
-   (`e2e/components/showcase.spec.ts` "sheet: long content snaps…" + 2 flaky); the code was untouched. If the T3.10 /
-   T3.13 runs fail the same way, reproduce locally (`--project=iphone-14 -g "long content"`, Vite dev on 5173) before
-   changing anything.
-2. **Continue T3.13 — part 2: `voice` on posts.** 02 items: `voice {key ≤200 (AUDIO_KEY), duration_s 1..600, peaks? [0..255]
-   ≤48}` on announcement / daily_content / dua_request; when present `title` is required (≤ 120). Add it to the item
-   validator (a new migration + snapshot, like 0010), `ITEM_WRITABLE`, `v_pub_items` passes it through, `itemOf` →
-   `voice {url?, durationS, peaks?}` (public contract `feedItemSchema`), the three publish bodies + `itemEditSchema`
-   (`voice?: {key, durationS, peaks}` + `title`), the content builders (key must start with `m/<own masjid>/a/`), tests.
-   Then **part 3**: B14 recorder (MediaRecorder; Safari MP4/AAC, Chrome Ogg/Opus or WebM; auto-stop 10:00; pause /
-   resume; re-record; file picker; ownership tick; Web Audio decode → `durationS` + 48 peaks), A18 `VoiceNote` in
-   `@mc/ui` (one at a time, speed, scrub; offline after first play — worker CacheFirst with range requests, max 30 / 30
-   days), Caddy `/a/m4a/<key>` (files: `/srv/media/a/m4a/<key>`; Cloudinary: named transformation `t_audio_m4a`), CSP
-   `media-src` + the media origin. Then T3.14–T3.17, T3.12.
+   (`e2e/components/showcase.spec.ts` "sheet: long content snaps…" + 2 flaky); the code was untouched. If the newer
+   runs fail the same way, reproduce locally (`--project=iphone-14 -g "long content"`, Vite dev on 5173) before
+   changing anything. Run `pnpm db:migrate` locally first (migration 0011 is new).
+2. **Finish T3.13 — part 3 (UI + delivery):**
+   - **B14 recorder** in B5 / B6 / B7 (a "Voice note" section on the fill / note / details step): MediaRecorder
+     (Safari MP4/AAC, Chrome Ogg/Opus or WebM — pick the first `MediaRecorder.isTypeSupported`), big record button,
+     live level meter, timer with auto-stop at 10:00, pause / resume, play back, re-record, "Choose audio file", the
+     ownership tick; then decode with Web Audio (`AudioContext.decodeAudioData`) → `durationS` + 48 peaks (max of
+     |sample| per slice, scaled 0…255), upload with `masjidApi` → `POST /masjids/:id/audio?rightsConfirmed=true&
+     durationS=&peaks=` (multipart `file`), keep `{key, durationS, peaks}` in the draft; a title field appears when a
+     voice note is attached (template notice / hadith / dua → top-level `title`; free-text notice → its own title).
+     Add `voice` + `title` to the three `publishBody` / edit-body builders and the preview items.
+   - **A18 `VoiceNote`** in `@mc/ui` (play/pause 56 px, waveform from peaks, scrub, elapsed / remaining, speed 1× →
+     1.5× → 2×, one plays at a time, pause on leaving, "Available when online" when offline and not cached, screen
+     reader "Voice message, 3 minutes 20 seconds, play"), shown on the announcement / daily / dua cards and the detail
+     screens; audio URL = media origin + `/a/m4a/<key>` (a helper next to `apps/app/src/lib/media.ts`).
+   - **Delivery:** Caddy media site `/a/m4a/<key>` (path allow-list on `AUDIO_KEY`; `media-files` → `/srv/media/a/m4a/
+     <key>`; `media-cloudinary` → `video/upload/t_audio_m4a/<key>`); CSP `media-src` gains `{$MEDIA_ORIGIN}`; musalli
+     worker CacheFirst for `/a/m4a/` with range requests, max 30 entries / 30 days, only after a play.
+   - e2e: an admin records (Playwright fake media stream `--use-fake-device-for-media-stream`) or chooses a file, the
+     musalli plays it; screenshots in 4 locales. Then T3.14–T3.17, T3.12.
 3. **Owner settings:** the owner removed the `git push` / `pnpm add` / `npm install` "ask" rules from
    `.claude/settings.json` (uncommitted change in the working tree — the owner's; not committed by Claude Code).
 
@@ -358,7 +366,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [x] T3.10 — Masjid Profile (B13, partial) — **done 4 Nov 2026 (DECISIONS #125), green locally, CI on the pushed branch to confirm:** `GET /masjids/:id` (profile), `PATCH /masjids/:id` (`hijriOffset` only, `null` = the app's), `POST /masjids/:id/photo` (the image pipeline, rights tick), `POST /masjids/:id/change-requests` (audit note → `GET /super/dashboard` `changeRequests`, closed by the next Super Admin edit of that masjid); B13 screen (photo, names in four scripts + place with "Request a change", Hijri −2…+2 with today's Hijri date, My account). **Acceptance:** the policy layer's field allow-list refuses everything else — db `profile.int.test.ts` (13 crafted updates incl. `$set`-style and dotted keys, all refused, document unchanged) and api `admin-masjid.int.test.ts` (11 crafted PATCH bodies, all 400). e2e `e2e/admin/profile.spec.ts`; B13 × 4 locales + axe. Follow-up F52.
 - [x] T3.11 — Shared preview & publish components — **done 2 Nov 2026 (DECISIONS #113):** `@mc/ui/content` (item → card glue moved from the musalli app; `AnnouncementItemCard`/`DailyItemCard`/`DuaItemCard`/`FeedItemCard`; musalli rows are thin wrappers), `LocaleScope` (`@mc/i18n/react`), `.mc-preview` CSS scope, `@mc/ui/admin` `PreviewFrame`/`PublishBar`/`StepHeader`/`PublishSuccess` + showcase section. **Acceptance:** DOM parity test real musalli row vs preview, 5 items × 4 locales with the admin UI in another language — 21/21 (`apps/app/src/features/content/__tests__/preview-parity.test.tsx`). Unit: ui +15 (content-items, admin-publish), i18n +1 (LocaleScope). Gates: typecheck/lint/coverage 15/15, prettier, i18n:check, size (app 185.68/186 kB, admin 207.11/220 kB), check:dist. Checked in Chromium (Pixel 7): en, Urdu preview inside an English page (mirrored only in the frame), success moment
 - [ ] T3.12 — Usability verification
-- [ ] T3.13 — Voice notes (B14 + A18) — **part 1 done 4 Nov 2026 (DECISIONS #126):** `POST /masjids/:id/audio` (magic-byte allow-list, ≤ 25 MB, length ≤ 600 s — the storage's measurement when it has one, else the browser's; 48 peaks), storage adapters (`putAudio` / `deleteAudio`: Cloudinary `video` resource, local file at the delivery path), audit `audio.upload`, errors `AUDIO_INVALID` / `AUDIO_TOO_LONG`. **Left:** part 2 `voice` on announcement / daily_content / dua_request (title required); part 3 B14 recorder, A18 player, worker cache, Caddy `/a/m4a/<key>`, CSP `media-src`.
+- [ ] T3.13 — Voice notes (B14 + A18) — **part 1 done 4 Nov 2026 (DECISIONS #126):** `POST /masjids/:id/audio` (magic-byte allow-list, ≤ 25 MB, length ≤ 600 s — the storage's measurement when it has one, else the browser's; 48 peaks), storage adapters (`putAudio` / `deleteAudio`: Cloudinary `video` resource, local file at the delivery path), audit `audio.upload`, errors `AUDIO_INVALID` / `AUDIO_TOO_LONG`. **Part 2 done 4 Nov 2026 (DECISIONS #127):** migration 0011 (`voice` + "voice ⇒ title, three types only" in the items validator), `voice` on the three publish / edit bodies (+ `title` only with a voice note), the masjid's own recordings only (`VOICE_INVALID`), public items carry `voice {key, durationS, peaks?}`, edits can remove it. **Left:** part 3 B14 recorder, A18 player, worker cache, Caddy `/a/m4a/<key>`, CSP `media-src`.
 - [ ] T3.14 — Adhkar after salah (B16 + A20)
 - [ ] T3.15 — Ruqyah (B15 + A19)
 - [ ] T3.16 — Ilm contacts (B17 + A21)
@@ -419,6 +427,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-04 | 03 / T3.13 (part 2) | `voice` on posts: migration 0011, contracts, builders, public read (#127). Dev DB migrated (`db:schema:check` clean). db:test 260 (lines 97.4 %), API int 256 — locally run with `--maxWorkers=4` (a full-parallel run crashes a worker natively while the Docker stack is up). Stopped at the owner's request (usage limit). |
 | 2026-11-04 | 03 / T3.13 (part 1) | `POST /audio` + audio storage adapters; the duration rule (#126 — Cloudinary's docs do not document `duration` in upload responses, F53). CI on `7dfd959` red in WebKit e2e only (showcase Sheet test + 2 flaky — known WebKit flakes, code untouched); `a7dc7e4` running. |
 | 2026-11-04 | 03 / T3.10 | Masjid Profile: profile read, Hijri adjustment, photo upload, change requests on the Super Admin dashboard; allow-list acceptance (#125); T3.10 ticked. Local `db:test` with all workers crashed a worker natively (0xC0000409, the Docker test stack running alongside) — `--maxWorkers=4`: 255/255, lines 97.7 %; test:int 247 green. |
 | 2026-11-04 | 03 / T3.9 | My Posts: list / edit / delete API + purge-marker effect, publish and edit share the per-type content builders, B12 screen + edit mode in the three flows, "View in My Posts" (F50), musalli "Edited" (#124); T3.9 ticked. db:test 250, test:int 243, admin coverage 84.6 %. One unrelated `@mc/ui` observability test timed out once under a full parallel run (passed alone and in the rerun). |
