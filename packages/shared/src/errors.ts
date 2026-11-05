@@ -66,6 +66,7 @@ export const API_ERRORS = {
   AUDIO_TOO_LONG: 422, // over 10 minutes (04 R14, T3.13)
   VOICE_INVALID: 400, // another masjid's recording, or a voice note without a title (T3.13)
   PROFILE_INVALID: 400, // another masjid's photo, Hijri offset outside −2…+2, nothing to change (T3.10)
+  ADHKAR_INVALID: 400, // over 30 entries or one listed twice (T3.14)
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

@@ -1,4 +1,5 @@
 import {
+  ADHKAR_MAX as DB_ADHKAR_MAX,
   ANNOUNCEMENT_CATEGORY,
   ASR_MADHAB,
   CALC_METHOD,
@@ -13,6 +14,7 @@ import {
   TEMPLATE_STATUS,
 } from '@mc/db/schema';
 import {
+  ADHKAR_MAX,
   ASR_MADHABS,
   CALC_METHODS,
   DHIKR_OCCASIONS,
@@ -42,6 +44,7 @@ describe('shared contracts mirror the database schema', () => {
     expect(LIBRARY_STATUSES).toEqual(LIBRARY_STATUS);
     expect(DUA_CATEGORIES).toEqual(DUA_CATEGORY);
     expect(DHIKR_OCCASIONS).toEqual(DHIKR_OCCASION);
+    expect(ADHKAR_MAX).toBe(DB_ADHKAR_MAX); // T3.14
   });
 
   it('notice template enums are identical (T3.5)', () => {

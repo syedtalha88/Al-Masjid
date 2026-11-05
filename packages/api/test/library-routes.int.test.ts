@@ -2,7 +2,8 @@
 // run → ★ all-or-nothing import as draft), file checks (UTF-8, JSON, envelope, size, multipart only), edits, verify,
 // retire, and the admin reads — verified entries only (acceptance), today's suggestion, other masjids unreachable —
 // and (T3.7) publishing a verified hadith as daily content, with the suggestion's "already one today" flag, and (T3.8) a
-// dua request whose private name never appears in api-public's responses (acceptance).
+// dua request whose private name never appears in api-public's responses (acceptance), and (T3.14) the masjid's "Adhkar
+// after salah" set (verified dhikr only, ≤ 30, in order).
 // Religious text: the 10 §5 placeholders only.
 import { processUserHandle } from '@mc/db/testing';
 import { itemPublishedSchema, LIBRARY_IMPORT_FORMAT, LIBRARY_IMPORT_MAX_BYTES } from '@mc/shared/contracts';
@@ -416,5 +417,77 @@ describe('dua requests (T3.8): POST /items/dua; a private name never reaches mus
     expect((await publish({ ...BODY, libraryId: '0b7f6c2e-1d4a-4f3b-9c8e-2a1b3c4d5e6f' })).body).toMatchObject({
       code: 'LIBRARY_ENTRY_NOT_FOUND',
     });
+  });
+});
+
+describe('adhkar after salah (T3.14): GET / PUT /adhkar', () => {
+  it('saves verified dhikr in order; refuses other kinds, drafts, repeats and over 30', async () => {
+    const masjid = await asSuper('post', '/masjids').send({
+      name: 'Test Masjid Adhkar',
+      area: 'Test Area',
+      city: 'Hyderabad',
+      state: 'Telangana',
+      address: 'Test address',
+      lat: 17.385,
+      lng: 78.4867,
+    });
+    const masjidId = (masjid.body as { id: string }).id;
+    const admin = await asSuper('post', '/admins').send({
+      displayName: 'Test Imam',
+      uiLocale: 'en',
+      masjidId,
+      role: 'owner',
+    });
+    const cookie = await register((admin.body as { inviteUrl: string }).inviteUrl);
+    const settings = await asSuper('get', '/settings');
+    const version = (settings.body as { undertakingVersion: string }).undertakingVersion;
+    await request(app()).post('/api/admin/auth/undertaking').set(CSRF).set('Cookie', cookie).send({ version });
+
+    const dhikr = (tag: string) => row({ kind: 'dhikr', repeat: 33, occasions: ['after_salah'], tags: [tag] });
+    const rows = [dhikr('adhkarone'), dhikr('adhkartwo'), dhikr('adhkardraft'), row({ tags: ['adhkarhadith'] })];
+    await stepUp(true);
+    await upload('/library/import', file(rows));
+    const idOf = async (reference: string) =>
+      ((await asSuper('get', `/library?q=${encodeURIComponent(reference)}`)).body as { entries: { id: string }[] })
+        .entries[0]?.id ?? '';
+    const [one, two, draft, hadith] = await Promise.all(rows.map((entry) => idOf(entry.reference)));
+    for (const id of [one, two, hadith]) {
+      await asSuper('post', `/library/${id ?? ''}/verify`).send({ verifiedBy: 'Test Reviewer' });
+    }
+
+    const path = `/api/admin/masjids/${masjidId}/adhkar`;
+    const put = (body: object) => request(app()).put(path).set('Cookie', cookie).set(CSRF).send(body);
+    expect((await request(app()).get(path).set('Cookie', cookie)).body).toEqual({ enabled: false, entries: [] });
+    const saved = await put({ enabled: true, libraryIds: [two, one] });
+    expect(saved.status).toBe(200);
+    expect(saved.body).toMatchObject({ enabled: true, entries: [{ id: two, repeat: 33 }, { id: one }] });
+    expect((await request(app()).get(path).set('Cookie', cookie)).body).toEqual(saved.body);
+
+    expect((await put({ enabled: true, libraryIds: [one, draft] })).body).toMatchObject({
+      status: 404,
+      code: 'LIBRARY_ENTRY_NOT_FOUND',
+    });
+    expect((await put({ enabled: true, libraryIds: [hadith] })).body).toMatchObject({
+      code: 'LIBRARY_ENTRY_NOT_FOUND',
+    });
+    const many = Array.from({ length: 31 }, (_, index) => `0b7f6c2e-1d4a-4f3b-9c8e-${String(index).padStart(12, '0')}`);
+    for (const body of [
+      { enabled: true, libraryIds: [one, one] },
+      { enabled: true, libraryIds: many },
+      { enabled: true, libraryIds: ['not-an-id'] },
+      { enabled: 'yes', libraryIds: [] },
+      { enabled: true, libraryIds: [], extra: 1 },
+    ]) {
+      expect((await put(body)).body).toMatchObject({ status: 400, code: 'VALIDATION_FAILED' });
+    }
+    expect((await request(app()).get(path).set('Cookie', cookie)).body).toEqual(saved.body); // nothing written
+    const other = await request(app())
+      .put(`/api/admin/masjids/${'0'.repeat(32)}/adhkar`)
+      .set('Cookie', cookie)
+      .set(CSRF)
+      .send({ enabled: true, libraryIds: [] });
+    expect(other.body).toMatchObject({ code: 'MASJID_NOT_FOUND' });
+    const audit = await db().collection('audit_log').findOne({ action: 'adhkar.update', 'meta.count': 2 });
+    expect(audit).toMatchObject({ actor_type: 'admin', meta: { enabled: true, count: 2 } });
   });
 });

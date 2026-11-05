@@ -21,6 +21,8 @@ export const ENCRYPTED_PATTERN = '^v1:[A-Za-z0-9_-]{1,32}:[A-Za-z0-9_-]{16}:[A-Z
 export const INDIA = { lat: [6, 37.5], lng: [68, 97.5] } as const;
 
 const MAX_SAFE = Number.MAX_SAFE_INTEGER;
+/** Most `dhikr` entries in a masjid's "Adhkar after salah" set (00 §4.11). */
+export const ADHKAR_MAX = 30;
 const timestamps = { created_at: f.instant(), updated_at: f.instant() };
 
 const masjids = documentSchema({
@@ -51,6 +53,8 @@ const masjids = documentSchema({
   content_version: f.long(1, MAX_SAFE),
   admin_count: f.int(0, 5),
   removals_90d_cache: opt(f.int(0, 10_000)),
+  // "Adhkar after salah" (DECISIONS #104, PHASE_03 T3.14): verified `dhikr` library entries, in order.
+  adhkar: opt(f.object({ enabled: f.bool(), library_ids: f.array(f.uuid(), { max: ADHKAR_MAX, unique: true }) })),
   ...timestamps,
   deleted_at: opt(f.instant()),
 });

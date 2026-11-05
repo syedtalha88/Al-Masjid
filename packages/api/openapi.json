@@ -2492,6 +2492,45 @@
           "publishedToday"
         ]
       },
+      "AdminAdhkar": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminLibraryEntry"
+            }
+          }
+        },
+        "required": [
+          "enabled",
+          "entries"
+        ]
+      },
+      "AdhkarPut": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "libraryIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+            },
+            "maxItems": 30
+          }
+        },
+        "required": [
+          "enabled",
+          "libraryIds"
+        ],
+        "additionalProperties": false
+      },
       "SuperDashboard": {
         "type": "object",
         "properties": {
@@ -4697,6 +4736,115 @@
                           ],
                           "additionalProperties": false
                         },
+                        "adhkar": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "entries": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                                  },
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "hadith",
+                                      "ayah",
+                                      "dua",
+                                      "dhikr"
+                                    ]
+                                  },
+                                  "arabic": {
+                                    "type": "string"
+                                  },
+                                  "transliteration": {
+                                    "type": "object",
+                                    "properties": {
+                                      "en": {
+                                        "type": "string"
+                                      },
+                                      "hi": {
+                                        "type": "string"
+                                      },
+                                      "ur": {
+                                        "type": "string"
+                                      },
+                                      "te": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  },
+                                  "translation": {
+                                    "type": "object",
+                                    "properties": {
+                                      "en": {
+                                        "type": "string"
+                                      },
+                                      "hi": {
+                                        "type": "string"
+                                      },
+                                      "ur": {
+                                        "type": "string"
+                                      },
+                                      "te": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "en"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "reference": {
+                                    "type": "string"
+                                  },
+                                  "sourceName": {
+                                    "type": "string"
+                                  },
+                                  "sourceLicense": {
+                                    "type": "string"
+                                  },
+                                  "repeat": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 1000
+                                  },
+                                  "occasions": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string",
+                                      "enum": [
+                                        "after_salah",
+                                        "morning",
+                                        "evening"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "kind",
+                                  "arabic",
+                                  "transliteration",
+                                  "translation",
+                                  "reference",
+                                  "sourceName",
+                                  "sourceLicense"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "entries"
+                          ],
+                          "additionalProperties": false
+                        },
                         "payment": {
                           "nullable": true,
                           "type": "object",
@@ -4776,6 +4924,7 @@
                         "timings",
                         "specialDates",
                         "ramadan",
+                        "adhkar",
                         "payment",
                         "campaigns",
                         "chanda"
@@ -8991,6 +9140,76 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminLibrarySuggestion"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/adhkar": {
+      "get": {
+        "summary": "\"Adhkar after salah\": on/off and the verified dhikr entries in order (B16)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAdhkar"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Replace the \"Adhkar after salah\" set — verified dhikr entries only, ≤ 30, in order (followers see it after their next version poll)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdhkarPut"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAdhkar"
                 }
               }
             }

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { adminLibraryEntrySchema } from './library.ts';
 import { ITEM_TYPE_VALUES } from './public.ts';
 import { safeText } from './text.ts';
 
@@ -516,6 +517,27 @@ export const masjidPhotoQuerySchema = z.strictObject({ rightsConfirmed: z.litera
 export const masjidChangeRequestSchema = z
   .strictObject({ note: safeText(300, { min: 1, multiline: true }) })
   .meta({ id: 'MasjidChangeRequest' });
+
+// --- Adhkar after salah (07 B16, 00 §4.11, PHASE_03 T3.14) -------------------------------------------------------
+
+/** Most `dhikr` entries in a masjid's set (00 §4.11; mirrors `@mc/db/schema`). */
+export const ADHKAR_MAX = 30;
+
+/** `GET /masjids/:masjidId/adhkar` (and the answer of `PUT`): on/off and the verified entries in the masjid's order. */
+export const adminAdhkarSchema = z
+  .object({ enabled: z.boolean(), entries: z.array(adminLibraryEntrySchema) })
+  .meta({ id: 'AdminAdhkar' });
+export type AdminAdhkar = z.infer<typeof adminAdhkarSchema>;
+
+/** `PUT /masjids/:masjidId/adhkar` — the whole set, in order: verified `dhikr` entries only, ≤ 30, none twice. */
+export const adhkarPutSchema = z
+  .strictObject({ enabled: z.boolean(), libraryIds: z.array(z.string().regex(UUID_V4)).max(ADHKAR_MAX) })
+  .refine((body) => new Set(body.libraryIds).size === body.libraryIds.length, {
+    path: ['libraryIds'],
+    message: 'an entry is listed twice',
+  })
+  .meta({ id: 'AdhkarPut' });
+export type AdhkarPut = z.infer<typeof adhkarPutSchema>;
 
 /**
  * Every publish answers with the item and, when it notifies, the notification about to go out (03 §4): `targeted` =

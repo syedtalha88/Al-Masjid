@@ -13,6 +13,7 @@ export { type AdminItemRow, type AdminItemStatus, listItemsForAdmin } from './it
 export {
   type AdminLibraryRow,
   dailyPublishedToday,
+  getAdhkarForAdmin,
   getLibraryEntryForSuper,
   type LibraryFilter,
   listLibraryForAdmin,

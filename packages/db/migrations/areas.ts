@@ -53,4 +53,6 @@ export const SCHEMA_AREAS: Readonly<
   '0010_template_draft': { collections: ['notice_templates'], views: ['v_pub_templates'] },
   // PHASE_03 T3.13 (DECISIONS #104): `voice` on announcement / daily_content / dua_request, always with a title.
   '0011_item_voice': { collections: ['items'] },
+  // PHASE_03 T3.14 (DECISIONS #104): the masjid's "Adhkar after salah" set, public through v_pub_masjids.
+  '0012_masjid_adhkar': { collections: ['masjids'], views: ['v_pub_masjids'] },
 };

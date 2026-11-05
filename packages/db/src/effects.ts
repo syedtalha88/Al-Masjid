@@ -129,6 +129,7 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'ramadan.update': ['on'],
   'image.upload': ['purpose', 'rights_confirmed'],
   'audio.upload': ['duration_s', 'rights_confirmed'],
+  'adhkar.update': ['enabled', 'count'],
   'item.publish': ['type', 'template', 'notify', 'image'],
   'item.edit': ['type'],
   'item.delete': ['type'],

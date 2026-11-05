@@ -64,6 +64,17 @@ export const arrayOf = (doc: Document, key: string): Document[] => {
   return Array.isArray(value) ? (value as Document[]) : []; // arrays of sub-documents per the validator
 };
 
+/** A masjid's "Adhkar after salah" set (DECISIONS #104): on/off and the library ids in order; `undefined` when unset. */
+export const adhkarOf = (masjid: Document): { enabled: boolean; ids: UUID[] } | undefined => {
+  const adhkar = objectOf(masjid, 'adhkar');
+  if (!adhkar) return undefined;
+  const ids: unknown = adhkar['library_ids'];
+  return {
+    enabled: adhkar['enabled'] === true,
+    ids: Array.isArray(ids) ? ids.filter((id): id is UUID => id instanceof UUID) : [],
+  };
+};
+
 /** Keeps only defined properties (contracts use absent, never undefined-valued, optional fields). */
 export const compact = <T extends Record<string, unknown>>(value: T): T =>
   Object.fromEntries(Object.entries(value).filter(([, field]) => field !== undefined)) as T; // same keys, fewer

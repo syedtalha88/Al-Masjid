@@ -38,6 +38,7 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
         'ramadan_end',
         'sehri_precaution_min',
         'iftar_precaution_min',
+        'adhkar',
         'content_version',
       ),
     },

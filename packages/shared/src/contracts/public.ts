@@ -172,6 +172,27 @@ export const specialDateSchema = z.object({
 });
 export type SpecialDate = z.infer<typeof specialDateSchema>;
 
+/** A verified Content Library entry (Arabic, transliterations, translations, attribution — 05 §9). */
+export const libraryEntrySchema = z.object({
+  id: uuidText,
+  kind: z.enum(['hadith', 'ayah', 'dua', 'dhikr']),
+  arabic: z.string(),
+  transliteration: i18nOptional,
+  translation: z.object({
+    en: z.string(),
+    hi: z.optional(z.string()),
+    ur: z.optional(z.string()),
+    te: z.optional(z.string()),
+  }),
+  reference: z.string(),
+  sourceName: z.string(),
+  sourceLicense: z.string(),
+  /** kind `dhikr` (DECISIONS #104): times it is said, and when. */
+  repeat: z.optional(z.number().check(z.int(), z.minimum(1), z.maximum(1000))),
+  occasions: z.optional(z.array(z.enum(['after_salah', 'morning', 'evening']))),
+});
+export type LibraryEntry = z.infer<typeof libraryEntrySchema>;
+
 /** `GET /masjids/:id/bundle?v=` — everything a follower needs offline (01 §5.2). */
 export const masjidBundleSchema = z.discriminatedUnion('status', [
   z.object({
@@ -201,6 +222,8 @@ export const masjidBundleSchema = z.discriminatedUnion('status', [
         iftarPrecautionMin: intIn(0, 10),
       }),
     ),
+    /** "Adhkar after salah" (A20, DECISIONS #104): the masjid's `dhikr` entries in order; `null` when off or empty. */
+    adhkar: z.nullable(z.object({ entries: z.array(libraryEntrySchema) })),
     /** Phase 5 (donations): present but empty until then. */
     payment: z.nullable(z.object({ vpa: z.string(), payeeName: z.string(), effectiveAt: instant })),
     campaigns: z.array(z.object({ publicId: publicIdText })),
@@ -225,27 +248,6 @@ export const followListSchema = z.object({
 export type FollowList = z.infer<typeof followListSchema>;
 
 // --- content -----------------------------------------------------------------------------------------------------------
-
-/** A verified Content Library entry (Arabic, transliterations, translations, attribution — 05 §9). */
-export const libraryEntrySchema = z.object({
-  id: uuidText,
-  kind: z.enum(['hadith', 'ayah', 'dua', 'dhikr']),
-  arabic: z.string(),
-  transliteration: i18nOptional,
-  translation: z.object({
-    en: z.string(),
-    hi: z.optional(z.string()),
-    ur: z.optional(z.string()),
-    te: z.optional(z.string()),
-  }),
-  reference: z.string(),
-  sourceName: z.string(),
-  sourceLicense: z.string(),
-  /** kind `dhikr` (DECISIONS #104): times it is said, and when. */
-  repeat: z.optional(z.number().check(z.int(), z.minimum(1), z.maximum(1000))),
-  occasions: z.optional(z.array(z.enum(['after_salah', 'morning', 'evening']))),
-});
-export type LibraryEntry = z.infer<typeof libraryEntrySchema>;
 
 /**
  * A notice template parameter value (`items.template_params`): times "HH:mm", dates "YYYY-MM-DD", ranges as

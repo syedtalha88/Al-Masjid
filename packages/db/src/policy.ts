@@ -105,6 +105,7 @@ export const ADMIN_MASJID_FIELDS = [
   'sehri_precaution_min',
   'iftar_precaution_min',
   'hijri_offset',
+  'adhkar',
 ] as const;
 /** Fields the Super Admin may change directly; status, deletion, follow code and counters only via state functions. */
 const SUPER_MASJID_FIELDS = [

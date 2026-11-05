@@ -1,4 +1,5 @@
 // `@mc/db/state` — the only way to perform sensitive changes (02 §3); each runs in one transaction with its audit entry.
+export { type AdhkarInput, setAdhkar } from './adhkar.ts';
 export {
   addAdminToMasjid,
   consumeInvite,

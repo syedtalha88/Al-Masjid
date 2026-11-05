@@ -14,7 +14,7 @@ import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
 import { requireOwnMasjid } from './admin.ts';
-import { compact, idOf, iso, maybeOneOf, need, numberOf, objectOf, oneOf, text } from './read.ts';
+import { adhkarOf, compact, idOf, iso, maybeOneOf, need, numberOf, objectOf, oneOf, text } from './read.ts';
 
 const PAGE = 30;
 /** Deepest page reachable by cursor — the review list is filtered, never paged through thousands of rows. */
@@ -235,4 +235,27 @@ export async function dailyPublishedToday(
     published_at: { $gte: istInstant(calendarDateInZone(input.now), '00:00') },
   });
   return today > 0;
+}
+
+/**
+ * B16: the masjid's "Adhkar after salah" set — on/off and its entries in order. Entries that are no longer verified
+ * (sent back to draft or retired since) are left out: the admin cell reads verified entries only.
+ *
+ * @returns `{enabled: false, entries: []}` when the masjid never saved a set.
+ * @throws StateError MASJID_NOT_FOUND (not one of the admin's masjids).
+ */
+export async function getAdhkarForAdmin(
+  handle: DbHandle,
+  scope: Scope,
+  masjidId: UUID,
+): Promise<{ enabled: boolean; entries: AdminLibraryRow[] }> {
+  requireOwnMasjid(scope, masjidId);
+  const db = await handle.db();
+  const masjid = await scoped({ scope, db }, 'masjids').findOne({ _id: masjidId });
+  if (!masjid) throw new StateError('MASJID_NOT_FOUND');
+  const set = adhkarOf(masjid);
+  if (!set || set.ids.length === 0) return { enabled: set?.enabled ?? false, entries: [] };
+  const docs = await scoped({ scope, db }, 'content_library').find({ _id: { $in: set.ids }, kind: 'dhikr' });
+  const byId = new Map(docs.map((doc) => [idOf(doc), contentOf(doc)]));
+  return { enabled: set.enabled, entries: set.ids.flatMap((id) => byId.get(idText(id)) ?? []) };
 }

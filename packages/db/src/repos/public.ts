@@ -24,7 +24,20 @@ import {
 import { publicScope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
-import { arrayOf, compact, idOf, iso, maybeOneOf, need, numberOf, objectOf, oneOf, text, timingsOf } from './read.ts';
+import {
+  adhkarOf,
+  arrayOf,
+  compact,
+  idOf,
+  iso,
+  maybeOneOf,
+  need,
+  numberOf,
+  objectOf,
+  oneOf,
+  text,
+  timingsOf,
+} from './read.ts';
 
 // --- document readers: ./read.ts (shared with the admin repositories) -----------------------------------------
 
@@ -195,10 +208,26 @@ export async function getMasjidBundle(handle: DbHandle, id: UUID, fromDate: stri
             iftarPrecautionMin: numberOf(masjid, 'iftar_precaution_min') ?? 0,
           }
         : null,
+    adhkar: await adhkarEntries(handle, masjid),
     payment: null,
     campaigns: [],
     chanda: null,
   };
+}
+
+/**
+ * The bundle's "Adhkar after salah" (A20): the masjid's verified `dhikr` entries in its order, or `null` when it is
+ * off or has none left (an entry retired since is left out).
+ */
+async function adhkarEntries(handle: DbHandle, masjid: Document): Promise<{ entries: PublicLibraryEntry[] } | null> {
+  const set = adhkarOf(masjid);
+  if (!set?.enabled || set.ids.length === 0) return null;
+  const library = await libraryMap(handle, set.ids);
+  const entries = set.ids.flatMap((id) => {
+    const entry = library.get(idText(id));
+    return entry?.kind === 'dhikr' ? [entry] : [];
+  });
+  return entries.length > 0 ? { entries } : null;
 }
 
 // --- library & templates -----------------------------------------------------------------------------------------------

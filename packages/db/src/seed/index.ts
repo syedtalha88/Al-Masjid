@@ -1,7 +1,8 @@
 // `@mc/db/seed` — the dev / staging seed (PHASE_02 T2.2): 3 fake masjids (Hyderabad, Delhi, Chennai) with timings,
-// Jumu'ah, a special Eid date, Ramadan mode on one masjid, 10 placeholder library entries, 8 notice templates and 30
-// published items. RELIGIOUS CONTENT POLICY (CLAUDE.md §2.3, 10 §5): library entries use the fixture placeholders
-// verbatim — no Quran, hadith or dua text, translation or reference anywhere. Names are obviously fake.
+// Jumu'ah, a special Eid date, Ramadan mode on one masjid, 13 placeholder library entries (3 `dhikr`: the alpha
+// masjid's adhkar set), 8 notice templates and 30 published items. RELIGIOUS CONTENT POLICY (CLAUDE.md §2.3, 10 §5):
+// library entries use the fixture placeholders verbatim — no Quran, hadith or dua text, translation or reference
+// anywhere. Names are obviously fake.
 // Pure document builders plus one writer; scripts/jobs call the writer with `systemScope()` (only they may build one).
 import { createHash } from 'node:crypto';
 
@@ -196,7 +197,12 @@ const TIMINGS: Readonly<Record<SeedMasjidKey, { prayers: Record<Prayer, Document
 
 // --- library (placeholders only) ---------------------------------------------------------------------------------
 
-const LIBRARY: readonly { kind: 'hadith' | 'ayah' | 'dua'; dua?: 'illness' | 'inteqal' | 'other'; tags: string[] }[] = [
+const LIBRARY: readonly {
+  kind: 'hadith' | 'ayah' | 'dua' | 'dhikr';
+  dua?: 'illness' | 'inteqal' | 'other';
+  repeat?: number;
+  tags: string[];
+}[] = [
   { kind: 'hadith', tags: ['sample'] },
   { kind: 'hadith', tags: ['sample'] },
   { kind: 'hadith', tags: ['sample'] },
@@ -207,7 +213,13 @@ const LIBRARY: readonly { kind: 'hadith' | 'ayah' | 'dua'; dua?: 'illness' | 'in
   { kind: 'dua', dua: 'illness', tags: ['shifa', 'illness'] },
   { kind: 'dua', dua: 'inteqal', tags: ['maghfirah', 'inteqal'] },
   { kind: 'dua', dua: 'other', tags: ['sample'] },
+  // "Adhkar after salah" (T3.14): the alpha masjid's set.
+  { kind: 'dhikr', repeat: 33, tags: ['sample'] },
+  { kind: 'dhikr', repeat: 33, tags: ['sample'] },
+  { kind: 'dhikr', repeat: 1, tags: ['sample'] },
 ];
+/** The `dhikr` placeholders, in the alpha masjid's order. */
+const DHIKR_SEED = [10, 11, 12] as const;
 const libraryId = (index: number) => seedId(`library-${String(index)}`);
 
 // --- notice templates ---------------------------------------------------------------------------------------------
@@ -477,6 +489,7 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
     sehri_precaution_min: masjid.key === 'beta' ? 5 : 0,
     iftar_precaution_min: masjid.key === 'beta' ? 2 : 0,
     push_daily_quota: 8,
+    ...(masjid.key === 'alpha' ? { adhkar: { enabled: true, library_ids: DHIKR_SEED.map(libraryId) } } : {}),
     content_version: Long.fromNumber(1),
     admin_count: 0,
     created_at: at(24 * 40),
@@ -538,6 +551,7 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
     source_license: PLACEHOLDER.sourceLicense,
     tags: entry.tags,
     ...(entry.dua ? { dua_category: entry.dua } : {}),
+    ...(entry.repeat === undefined ? {} : { repeat: entry.repeat, occasions: ['after_salah'] }),
     verified_by: 'Development fixture',
     verified_at: now,
     status: 'verified',

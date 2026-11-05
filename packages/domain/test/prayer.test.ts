@@ -4,6 +4,8 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 
 import {
+  ADHKAR_WINDOW_MS,
+  adhkarWindow,
   CALC_METHODS,
   computeDay,
   dailySlots,
@@ -280,6 +282,78 @@ describe('nextJamaat', () => {
     expect(
       nextJamaat(resolveSchedule(none, '2026-10-22'), resolveSchedule(none, '2026-10-23'), at('2026-10-22', '06:00')),
     ).toBeNull();
+  });
+});
+
+describe('adhkarWindow (T3.14: 30 min after each fard jamaat — adhan when none)', () => {
+  const s = schedule();
+  const thu = resolveSchedule(s, '2026-10-22');
+  const fri = resolveSchedule(s, '2026-10-23');
+  const at = (date: string, hhmm: string, seconds = 0) => new Date(istInstant(date, hhmm).getTime() + seconds * 1000);
+
+  it('opens at each prayer‘s jamaat and closes 30 minutes later', () => {
+    expect(ADHKAR_WINDOW_MS).toBe(1_800_000);
+    for (const item of thu.prayers) {
+      const jamaat = item.jamaat ?? '';
+      const open = adhkarWindow([thu], at(thu.date, jamaat));
+      expect(open).toMatchObject({ prayer: item.prayer, date: thu.date, time: jamaat });
+      expect(open?.end.getTime()).toBe(istInstant(thu.date, jamaat).getTime() + ADHKAR_WINDOW_MS);
+      expect(adhkarWindow([thu], at(thu.date, addMinutesClamped(jamaat, 29), 59))?.prayer).toBe(item.prayer);
+      expect(adhkarWindow([thu], at(thu.date, addMinutesClamped(jamaat, 30)))).toBeNull();
+      expect(adhkarWindow([thu], at(thu.date, addMinutesClamped(jamaat, -1)))?.prayer).not.toBe(item.prayer);
+    }
+    expect(adhkarWindow([thu], at(thu.date, '10:00'))).toBeNull();
+  });
+
+  it('uses the adhan when the masjid holds no jamaat for that prayer', () => {
+    const noAsr = resolveSchedule(schedule({ prayers: { ...s.prayers, asr: auto() } }), '2026-10-22');
+    const adhan = noAsr.prayers.find((item) => item.prayer === 'asr')?.adhan ?? '';
+    expect(adhkarWindow([noAsr], at(noAsr.date, addMinutesClamped(adhan, 10)))).toMatchObject({
+      prayer: 'asr',
+      time: adhan,
+    });
+  });
+
+  it('on Fridays each Jumu‘ah jamaat replaces Dhuhr; overlapping windows → the later start', () => {
+    expect(adhkarWindow([fri], at(fri.date, '13:45'))).toMatchObject({ prayer: 'jumuah', time: '13:30' });
+    expect(adhkarWindow([fri], at(fri.date, '14:35'))).toMatchObject({ prayer: 'jumuah', time: '14:30' });
+    expect(adhkarWindow([fri], at(fri.date, '13:50'))?.time).toBe('13:30'); // Dhuhr's own 13:45 is not used
+    const close = resolveSchedule(
+      schedule({
+        jumuah: [
+          { seq: 1, jamaatTime: '13:30' },
+          { seq: 2, jamaatTime: '13:50' },
+        ],
+      }),
+      '2026-10-23',
+    );
+    expect(adhkarWindow([close], at(close.date, '13:55'))?.time).toBe('13:50');
+  });
+
+  it('after Isha: a late Isha runs past midnight from yesterday; the next day starts empty', () => {
+    const late = schedule({ prayers: { ...s.prayers, isha: auto({ jamaatMode: 'fixed', jamaatTime: '23:50' }) } });
+    const day1 = resolveSchedule(late, '2026-10-22');
+    const day2 = resolveSchedule(late, '2026-10-23');
+    expect(adhkarWindow([day1, day2], at('2026-10-23', '00:10'))).toMatchObject({
+      prayer: 'isha',
+      date: '2026-10-22',
+      time: '23:50',
+    });
+    expect(adhkarWindow([day1, day2], at('2026-10-23', '00:20'))).toBeNull();
+    expect(adhkarWindow([day2], at('2026-10-23', '00:10'))).toBeNull(); // without yesterday nothing is open
+    expect(adhkarWindow([thu, fri], at('2026-10-22', '20:59', 59))?.prayer).toBe('isha');
+    expect(adhkarWindow([thu, fri], at('2026-10-22', '21:00'))).toBeNull();
+  });
+
+  it('with no jamaat at all, every adhan opens a window', () => {
+    const none = schedule({
+      prayers: { fajr: auto(), dhuhr: auto(), asr: auto(), maghrib: auto(), isha: auto() },
+      jumuah: [],
+    });
+    const day = resolveSchedule(none, '2026-10-22');
+    for (const item of day.prayers) {
+      expect(adhkarWindow([day], at(day.date, item.adhan))?.prayer).toBe(item.prayer);
+    }
   });
 });
 

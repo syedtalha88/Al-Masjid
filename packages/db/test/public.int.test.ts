@@ -103,9 +103,9 @@ afterAll(async () => {
 });
 
 describe('dev seed (T2.2)', () => {
-  it('writes 3 active masjids, 10 placeholder library entries, 17 templates and 31 items — idempotently', async () => {
+  it('writes 3 active masjids, 13 placeholder library entries, 17 templates and 31 items — idempotently', async () => {
     expect(await raw('masjids').countDocuments({ status: 'active' })).toBe(3);
-    expect(await raw('content_library').countDocuments({ status: 'verified' })).toBe(10);
+    expect(await raw('content_library').countDocuments({ status: 'verified' })).toBe(13);
     expect(await raw('notice_templates').countDocuments({ status: 'active' })).toBe(SEED_TEMPLATES.length);
     expect(SEED_TEMPLATES).toHaveLength(17);
     expect(await raw('items').countDocuments({ status: 'published' })).toBe(31);
