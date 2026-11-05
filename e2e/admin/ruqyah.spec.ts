@@ -121,6 +121,9 @@ test.describe('B15 Ruqyah (T3.15)', () => {
       const textId = (await rows.first().getAttribute('data-ruqyah-row')) ?? '';
       await rows.nth(1).getByRole('button', { name: 'Move up' }).click();
       await expect(rows.first()).not.toHaveAttribute('data-ruqyah-row', textId);
+      // The pressed "Move up" button's tint and the rows' slide settle before axe reads colours.
+      await expect(top.locator('[data-pressed]')).toHaveCount(0);
+      await admin.waitForTimeout(600);
       expect(await axeViolations(admin)).toEqual([]);
 
       // The musalli: Masjid Detail row → A19, library entry first, then the masjid's own text.

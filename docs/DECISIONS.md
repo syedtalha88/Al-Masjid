@@ -1904,4 +1904,41 @@ musalli sees the row, library first, "Added by", no source line; delete → gone
 (`e2e/app/content.spec.ts`, Arabic not mirrored) and B15 list / editor / new in the 4-locale screens spec (axe clean).
 Musalli initial JS 186.35 / 187 kB.
 
+### #131 — Ilm contacts: consent on every save, the number only inside the WhatsApp link, the audience a display filter (PHASE_03 T3.16) — ACCEPTED (Claude Code, 5 Nov 2026)
+**Context:** 00 §4.12, 02 masjid_contacts / `v_pub_contacts` / §4.1 / §6, 03 §3–4, 05 §2, 07 A21 / B17, DECISIONS #104 §4.
+**Decision:**
+- **Data:** `masjid_contacts` (migration `0014_contacts`, area "masjid sections"): `consent_confirmed` is
+  `f.confirmed()` (the validator refuses a contact without it); `deleted_at` exactly when `status: deleted` (the 30-day
+  retention clock, as Ruqyah #130); index `{masjid_id, status, audience, sort}` + partial `{deleted_at}`. A content
+  collection (every write bumps the version, confined by `contentWrite`) and in the visibility mirror. ≤ 10 active,
+  counted inside the add transaction (six parallel adds for the last three places → exactly three succeed).
+- **One E.164 rule:** 02 wrote `^+[1-9][0-9]{7,14}$` (8–15 digits); the template param `phone` (T3.4) already used
+  `@mc/domain/phone` `isE164` = `^+[1-9][0-9]{6,14}$` (7–15 digits, the E.164 maximum). The validator, the admin
+  contract, the public contract and `isE164` now share the latter, so nothing the API accepts is refused by the database
+  (contract-sync test); 02 updated.
+- **Consent:** `consentConfirmed: true` is required on **every** save (`POST` and `PATCH` replace the whole contact).
+  B17 opens a saved contact ticked, and clears the tick when its name or number changes (the person agreed to be listed
+  with those). Removal is the delete — also how a "remove me" request is carried out (05 §2).
+- **Policy / DB users:** as Ruqyah — admin S own · I own (active) · U own and active only (never `masjid_id`,
+  `created_by`; status only to `deleted`) · no D; super all; `v_pub_contacts` for every scope (both audiences, without
+  consent, creator, status). `mc_admin` find/insert/update; `atlas-roles.json` regenerated (owner step O36).
+- **Personal data:** the audit entry carries only `audience` and `consent_confirmed` — never the name or number;
+  `whatsapp` added to the logger's redaction paths (bodies are never logged anyway).
+- **Reads:** no separate endpoint — the bundle's `contacts` (both audiences, brothers first, each in the masjid's
+  order; **optional in the contract** so a bundle cached before this release still parses). No reorder in B17 (07 B17
+  asks for none): new contacts go to the end.
+- **The number is never rendered (07 A21):** one shared `IlmContactCard` (`@mc/ui/content`, A21 and the B17 preview):
+  initial, name, role, topics and a "Message" **button** that calls `window.open(url, '_blank', 'noopener,noreferrer')`
+  — not a link, so the number is in no text and no attribute (component test in 4 locales + e2e). URL from
+  `whatsappChatUrl` (`@mc/domain/phone`): `https://wa.me/<digits without +>?text=<URL-encoded greeting>` — WhatsApp's
+  documented click-to-chat format (faq.whatsapp.com, checked 5 Nov 2026). The greeting "Assalamu alaikum" is a UI
+  string in the app language (07 A21 names it), in the review CSVs with the rest.
+- **Audience:** Masjid Detail shows "Ask the masjid" (after Ruqyah) only when the masjid lists contacts for the device's
+  Brother/Sister choice; A21 lists only those. A display filter, not access control (#104 — the view carries both).
+**Consequences:** db int +9 (contacts) and the matrix / privilege / explain tests extended (45 namespaces), API int +4
+(+1 contract sync), domain +2, ui +6 (card), app unit +1, admin unit +5, e2e `e2e/admin/contacts.spec.ts` (consent
+gate, sisters' contact never on a brothers device, new number clears the tick, remove), `e2e/app/ilm.spec.ts`
+(brothers / sisters devices, no number on screen, wa.me + greeting, no row without contacts, A21 in 4 locales) and B17
+list / editor / new in the 4-locale screens spec; fixture option `appAudience`. Musalli initial JS 186.52 / 187 kB.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._
