@@ -26,6 +26,8 @@ import { Route as DuaPreviewRouteImport } from './routes/dua.preview'
 import { Route as NoticeIndexRouteImport } from './routes/notice.index'
 import { Route as NoticeFillRouteImport } from './routes/notice.fill'
 import { Route as NoticePreviewRouteImport } from './routes/notice.preview'
+import { Route as RuqyahIndexRouteImport } from './routes/ruqyah.index'
+import { Route as RuqyahIdRouteImport } from './routes/ruqyah.$id'
 import { Route as SoonTileRouteImport } from './routes/soon.$tile'
 import { Route as SpecialIndexRouteImport } from './routes/special.index'
 import { Route as SpecialIdRouteImport } from './routes/special.$id'
@@ -128,6 +130,16 @@ const NoticePreviewRoute = NoticePreviewRouteImport.update({
   path: '/notice/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RuqyahIndexRoute = RuqyahIndexRouteImport.update({
+  id: '/ruqyah/',
+  path: '/ruqyah/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RuqyahIdRoute = RuqyahIdRouteImport.update({
+  id: '/ruqyah/$id',
+  path: '/ruqyah/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SoonTileRoute = SoonTileRouteImport.update({
   id: '/soon/$tile',
   path: '/soon/$tile',
@@ -224,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/dua/preview': typeof DuaPreviewRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
+  '/ruqyah/$id': typeof RuqyahIdRoute
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
@@ -231,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/daily/': typeof DailyIndexRoute
   '/dua/': typeof DuaIndexRoute
   '/notice/': typeof NoticeIndexRoute
+  '/ruqyah/': typeof RuqyahIndexRoute
   '/special/': typeof SpecialIndexRoute
   '/super/': typeof SuperIndexRoute
   '/super/library/$id': typeof SuperLibraryIdRoute
@@ -259,6 +273,7 @@ export interface FileRoutesByTo {
   '/dua/preview': typeof DuaPreviewRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
+  '/ruqyah/$id': typeof RuqyahIdRoute
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
@@ -266,6 +281,7 @@ export interface FileRoutesByTo {
   '/daily': typeof DailyIndexRoute
   '/dua': typeof DuaIndexRoute
   '/notice': typeof NoticeIndexRoute
+  '/ruqyah': typeof RuqyahIndexRoute
   '/special': typeof SpecialIndexRoute
   '/super': typeof SuperIndexRoute
   '/super/library/$id': typeof SuperLibraryIdRoute
@@ -295,6 +311,7 @@ export interface FileRoutesById {
   '/dua/preview': typeof DuaPreviewRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
+  '/ruqyah/$id': typeof RuqyahIdRoute
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
@@ -302,6 +319,7 @@ export interface FileRoutesById {
   '/daily/': typeof DailyIndexRoute
   '/dua/': typeof DuaIndexRoute
   '/notice/': typeof NoticeIndexRoute
+  '/ruqyah/': typeof RuqyahIndexRoute
   '/special/': typeof SpecialIndexRoute
   '/super/': typeof SuperIndexRoute
   '/super/library/$id': typeof SuperLibraryIdRoute
@@ -332,6 +350,7 @@ export interface FileRouteTypes {
     | '/dua/preview'
     | '/notice/fill'
     | '/notice/preview'
+    | '/ruqyah/$id'
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
@@ -339,6 +358,7 @@ export interface FileRouteTypes {
     | '/daily/'
     | '/dua/'
     | '/notice/'
+    | '/ruqyah/'
     | '/special/'
     | '/super/'
     | '/super/library/$id'
@@ -367,6 +387,7 @@ export interface FileRouteTypes {
     | '/dua/preview'
     | '/notice/fill'
     | '/notice/preview'
+    | '/ruqyah/$id'
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
@@ -374,6 +395,7 @@ export interface FileRouteTypes {
     | '/daily'
     | '/dua'
     | '/notice'
+    | '/ruqyah'
     | '/special'
     | '/super'
     | '/super/library/$id'
@@ -402,6 +424,7 @@ export interface FileRouteTypes {
     | '/dua/preview'
     | '/notice/fill'
     | '/notice/preview'
+    | '/ruqyah/$id'
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
@@ -409,6 +432,7 @@ export interface FileRouteTypes {
     | '/daily/'
     | '/dua/'
     | '/notice/'
+    | '/ruqyah/'
     | '/special/'
     | '/super/'
     | '/super/library/$id'
@@ -438,6 +462,7 @@ export interface RootRouteChildren {
   DuaPreviewRoute: typeof DuaPreviewRoute
   NoticeFillRoute: typeof NoticeFillRoute
   NoticePreviewRoute: typeof NoticePreviewRoute
+  RuqyahIdRoute: typeof RuqyahIdRoute
   SoonTileRoute: typeof SoonTileRoute
   SpecialIdRoute: typeof SpecialIdRoute
   SuperAuditRoute: typeof SuperAuditRoute
@@ -445,6 +470,7 @@ export interface RootRouteChildren {
   DailyIndexRoute: typeof DailyIndexRoute
   DuaIndexRoute: typeof DuaIndexRoute
   NoticeIndexRoute: typeof NoticeIndexRoute
+  RuqyahIndexRoute: typeof RuqyahIndexRoute
   SpecialIndexRoute: typeof SpecialIndexRoute
   SuperIndexRoute: typeof SuperIndexRoute
   SuperLibraryIdRoute: typeof SuperLibraryIdRoute
@@ -577,6 +603,20 @@ declare module '@tanstack/react-router' {
       path: '/notice/preview'
       fullPath: '/notice/preview'
       preLoaderRoute: typeof NoticePreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ruqyah/': {
+      id: '/ruqyah/'
+      path: '/ruqyah'
+      fullPath: '/ruqyah/'
+      preLoaderRoute: typeof RuqyahIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ruqyah/$id': {
+      id: '/ruqyah/$id'
+      path: '/ruqyah/$id'
+      fullPath: '/ruqyah/$id'
+      preLoaderRoute: typeof RuqyahIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/soon/$tile': {
@@ -721,6 +761,7 @@ const rootRouteChildren: RootRouteChildren = {
   DuaPreviewRoute: DuaPreviewRoute,
   NoticeFillRoute: NoticeFillRoute,
   NoticePreviewRoute: NoticePreviewRoute,
+  RuqyahIdRoute: RuqyahIdRoute,
   SoonTileRoute: SoonTileRoute,
   SpecialIdRoute: SpecialIdRoute,
   SuperAuditRoute: SuperAuditRoute,
@@ -728,6 +769,7 @@ const rootRouteChildren: RootRouteChildren = {
   DailyIndexRoute: DailyIndexRoute,
   DuaIndexRoute: DuaIndexRoute,
   NoticeIndexRoute: NoticeIndexRoute,
+  RuqyahIndexRoute: RuqyahIndexRoute,
   SpecialIndexRoute: SpecialIndexRoute,
   SuperIndexRoute: SuperIndexRoute,
   SuperLibraryIdRoute: SuperLibraryIdRoute,

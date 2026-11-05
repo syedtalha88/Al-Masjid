@@ -7,6 +7,7 @@ import {
   adminLibraryListSchema,
   adminMasjidProfileSchema,
   adminMasjidStatsSchema,
+  adminRuqyahListSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
   type AnnouncementPublish,
@@ -22,6 +23,8 @@ import {
   pushQuotaSchema,
   type RamadanSave,
   ramadanSchema,
+  type RuqyahSave,
+  ruqyahSavedSchema,
   type SpecialDateSave,
   specialDateSavedSchema,
   templateListSchema,
@@ -117,6 +120,18 @@ export const masjidApi = {
     call(`${base(masjidId)}/adhkar`, adminAdhkarSchema, withSignal(signal)),
   saveAdhkar: (masjidId: string, body: AdhkarPut) =>
     call(`${base(masjidId)}/adhkar`, adminAdhkarSchema, { method: 'PUT', body }),
+  /** B15 (T3.15): the masjid's Ruqyah entries in its order. */
+  ruqyah: (masjidId: string, signal?: AbortSignal) =>
+    call(`${base(masjidId)}/ruqyah`, adminRuqyahListSchema, withSignal(signal)),
+  addRuqyah: (masjidId: string, body: RuqyahSave) =>
+    call(`${base(masjidId)}/ruqyah`, ruqyahSavedSchema, { method: 'POST', body }),
+  updateRuqyah: (masjidId: string, entryId: string, body: RuqyahSave) =>
+    call(`${base(masjidId)}/ruqyah/${encodeURIComponent(entryId)}`, ruqyahSavedSchema, { method: 'PATCH', body }),
+  deleteRuqyah: (masjidId: string, entryId: string) =>
+    call(`${base(masjidId)}/ruqyah/${encodeURIComponent(entryId)}`, noContentSchema, { method: 'DELETE' }),
+  /** Every active entry once, in the new order (409 `RUQYAH_ORDER_INVALID` when the list changed meanwhile). */
+  orderRuqyah: (masjidId: string, ids: readonly string[]) =>
+    call(`${base(masjidId)}/ruqyah/order`, adminRuqyahListSchema, { method: 'PUT', body: { ids } }),
   /** B13 (T3.10): the masjid profile. */
   profile: (masjidId: string, signal?: AbortSignal) =>
     call(base(masjidId), adminMasjidProfileSchema, withSignal(signal)),
@@ -169,6 +184,7 @@ export const masjidKeys = {
   items: (masjidId: string, type: string) => ['masjid', masjidId, 'items', type] as const,
   profile: (masjidId: string) => ['masjid', masjidId, 'profile'] as const,
   adhkar: (masjidId: string) => ['masjid', masjidId, 'adhkar'] as const,
+  ruqyah: (masjidId: string) => ['masjid', masjidId, 'ruqyah'] as const,
   suggestion: (masjidId: string, kind: 'hadith' | 'ayah') => ['masjid', masjidId, 'suggestion', kind] as const,
   library: (masjidId: string, kind: string, q: string, tag: string, category: string) =>
     ['masjid', masjidId, 'library', kind, q, tag, category] as const,

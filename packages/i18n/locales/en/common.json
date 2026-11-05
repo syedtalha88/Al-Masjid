@@ -106,6 +106,20 @@
       "positionValue": "{elapsed} of {total}",
       "speed": "Playback speed {speed}",
       "unavailable": "Available when online"
+    },
+    "ruqyah": {
+      "title": "Ruqyah",
+      "category": {
+        "nazar": "Protection from Nazar",
+        "sihr": "Protection from black magic",
+        "shifa": "Healing (Shifa)",
+        "protection": "Daily protection",
+        "general": "General"
+      },
+      "quoted": "“{text}”",
+      "addedBy": "Added by {masjid}",
+      "source": "Source: {name} · Licence: {license}",
+      "instructions": "Note from the masjid"
     }
   },
   "hijri": {

@@ -77,5 +77,9 @@
   "repeat": "{count, plural, one {एक बार} other {# बार}}",
   "counter": "गिनती: {total} में से {count}। गिनने के लिए टैप करें।",
   "counterDone": "पूरा हुआ: {total} में से {total}",
-  "resetCount": "गिनती फिर से शुरू करें"
+  "resetCount": "गिनती फिर से शुरू करें",
+  "emptyRuqyah": "अभी कोई रुक़्या नहीं है",
+  "emptyRuqyahBody": "जब मस्जिद रुक़्या जोड़ेगी, वह यहाँ दिखेगा।",
+  "ruqyahFailed": "रुक़्या लोड नहीं हो सका",
+  "ruqyahFailedBody": "अपना कनेक्शन जाँचें और फिर से कोशिश करें। एक बार खुलने के बाद यह ऑफ़लाइन भी मिलेगा।"
 }

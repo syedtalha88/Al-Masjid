@@ -45,6 +45,14 @@ export function previousBundle(client: QueryClient, masjidId: string, v: number)
   return newest?.data;
 }
 
+/** A19 Ruqyah (T3.15): immutable per version, kept offline once opened. */
+export const ruqyahQuery = (api: ApiClient, masjidId: string, v: number) =>
+  queryOptions({
+    queryKey: queryKeys.ruqyah(masjidId, v),
+    queryFn: ({ signal }) => api.ruqyah(masjidId, v, signal),
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+
 /** One feed page (the first page is what Home and Updates show offline). */
 export const feedQuery = (api: ApiClient, masjidId: string, v: number, aud: 'brothers' | 'sisters', type?: ItemType) =>
   queryOptions({
@@ -79,7 +87,7 @@ export const templatesQuery = (api: ApiClient) =>
   });
 
 /**
- * Removes cached bundle and feed queries of versions older than `versions` says (content-version → targeted
+ * Removes cached bundle, feed and Ruqyah queries of versions older than `versions` says (content-version → targeted
  * invalidation: newer versions are fetched by the screens, the old ones only waste the persisted cache).
  *
  * @returns how many queries were removed.
@@ -88,7 +96,12 @@ export function pruneStaleVersions(client: QueryClient, versions: MasjidVersions
   let removed = 0;
   for (const query of client.getQueryCache().getAll()) {
     const [root, masjidId, v] = query.queryKey;
-    if ((root !== 'bundle' && root !== 'feed') || typeof masjidId !== 'string' || typeof v !== 'number') continue;
+    if (
+      (root !== 'bundle' && root !== 'feed' && root !== 'ruqyah') ||
+      typeof masjidId !== 'string' ||
+      typeof v !== 'number'
+    )
+      continue;
     const current = versions[masjidId]?.v;
     // An old bundle stays until the current one has loaded: it is the screen's placeholder (`previousBundle`).
     const placeholder =

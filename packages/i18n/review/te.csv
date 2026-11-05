@@ -451,6 +451,64 @@ admin,adhkar.preview,Home card preview,హోమ్ కార్డ్ ప్ర
 admin,adhkar.save,Save,సేవ్ చేయి,no
 admin,adhkar.saved,Adhkar saved,అజ్కార్ సేవ్ అయ్యాయి,no
 admin,adhkar.added,Added,జోడించబడింది,no
+admin,ruqyah.title,Ruqyah,రుఖ్యా,no
+admin,ruqyah.intro,"Musallis see these under the same headings, in this order.","ముసల్లీలు వీటిని ఇవే శీర్షికల కింద, ఇదే క్రమంలో చూస్తారు.",no
+admin,ruqyah.count,{count} of {max},{max} లో {count},no
+admin,ruqyah.emptyTitle,No Ruqyah entries yet,ఇంకా రుఖ్యా ఏదీ లేదు,no
+admin,ruqyah.emptyBody,"Add from the verified library, type your own text, or record audio.","ధృవీకరించిన లైబ్రరీ నుండి చేర్చండి, మీ స్వంత పాఠం రాయండి, లేదా ఆడియో రికార్డ్ చేయండి.",no
+admin,ruqyah.add,Add Ruqyah,రుఖ్యా చేర్చండి,no
+admin,ruqyah.reorder,Move {entry},{entry} ను జరపండి,no
+admin,ruqyah.source.library,From library,లైబ్రరీ నుండి,no
+admin,ruqyah.source.text,Type text,పాఠం రాయండి,no
+admin,ruqyah.source.audio,Record or upload audio,ఆడియో రికార్డ్ లేదా అప్‌లోడ్ చేయండి,no
+admin,ruqyah.sourceHint.library,A verified entry with its source,మూలంతో ఒక ధృవీకరించిన ఎంట్రీ,no
+admin,ruqyah.sourceHint.text,Arabic and a translation — shown as added by your masjid,అరబిక్ మరియు ఒక అనువాదం — మీ మస్జిద్ చేర్చినట్లు చూపబడుతుంది,no
+admin,ruqyah.sourceHint.audio,"Up to 10 minutes, with a title","గరిష్టంగా 10 నిమిషాలు, ఒక శీర్షికతో",no
+admin,ruqyah.libraryGone,No longer in the library — choose another,ఇక లైబ్రరీలో లేదు — మరొకటి ఎంచుకోండి,no
+admin,ruqyah.edit,Edit,మార్చండి,no
+admin,ruqyah.moveUp,Move up,పైకి జరపండి,no
+admin,ruqyah.moveDown,Move down,కిందికి జరపండి,no
+admin,ruqyah.delete,Delete,తొలగించండి,no
+admin,ruqyah.full,{max} is the most.,గరిష్టంగా {max}.,no
+admin,ruqyah.deleteTitle,Delete this entry?,ఈ ఎంట్రీని తొలగించాలా?,no
+admin,ruqyah.deleteBody,Musallis will no longer see it.,ముసల్లీలకు ఇది ఇక కనిపించదు.,no
+admin,ruqyah.deleted,Entry deleted,ఎంట్రీ తొలగించబడింది,no
+admin,ruqyah.newTitle,Add Ruqyah,రుఖ్యా చేర్చండి,no
+admin,ruqyah.editTitle,Edit Ruqyah,రుఖ్యా మార్చండి,no
+admin,ruqyah.sourceQuestion,What do you want to add?,మీరు ఏమి చేర్చాలనుకుంటున్నారు?,no
+admin,ruqyah.categoryQuestion,Under which heading?,ఏ శీర్షిక కింద?,no
+admin,ruqyah.libraryTitle,Library entry,లైబ్రరీ ఎంట్రీ,no
+admin,ruqyah.kindLabel,Kind,రకం,no
+admin,ruqyah.kind.dua,Dua,దుఆ,no
+admin,ruqyah.kind.ayah,Ayah,ఆయత్,no
+admin,ruqyah.kind.hadith,Hadith,హదీస్,no
+admin,ruqyah.kind.dhikr,Dhikr,జిక్ర్,no
+admin,ruqyah.libraryChoose,Choose from library,లైబ్రరీ నుండి ఎంచుకోండి,no
+admin,ruqyah.libraryChange,Choose another,మరొకటి ఎంచుకోండి,no
+admin,ruqyah.textTitle,Your text,మీ పాఠం,no
+admin,ruqyah.arabic,Arabic,అరబిక్,no
+admin,ruqyah.translation,Translation,అనువాదం,no
+admin,ruqyah.translationLanguage,Language of the translation,అనువాదం భాష,no
+admin,ruqyah.reference,Reference,ఆధారం,no
+admin,ruqyah.referenceHint,"Where it is from, if you know","ఇది ఎక్కడి నుండి, మీకు తెలిస్తే",no
+admin,ruqyah.entryTitle,Title,శీర్షిక,no
+admin,ruqyah.instructions,Instruction,సూచన,no
+admin,ruqyah.instructionsHint,"For example, when to recite or listen","ఉదాహరణకు, ఎప్పుడు చదవాలి లేదా వినాలి",no
+admin,ruqyah.instructionsLanguage,Language of the instruction,సూచన భాష,no
+admin,ruqyah.preview,Preview,ప్రివ్యూ,no
+admin,ruqyah.missing,Still needed: {fields},ఇంకా అవసరం: {fields},no
+admin,ruqyah.issue.source,what to add,ఏమి చేర్చాలి,no
+admin,ruqyah.issue.category,heading,శీర్షిక,no
+admin,ruqyah.issue.library,library entry,లైబ్రరీ ఎంట్రీ,no
+admin,ruqyah.issue.arabic,Arabic,అరబిక్,no
+admin,ruqyah.issue.translation,translation,అనువాదం,no
+admin,ruqyah.issue.reference,shorter reference,చిన్న ఆధారం,no
+admin,ruqyah.issue.voice,recording,రికార్డింగ్,no
+admin,ruqyah.issue.title,title,శీర్షిక,no
+admin,ruqyah.issue.instructions,shorter instruction,చిన్న సూచన,no
+admin,ruqyah.save,Save,సేవ్ చేయండి,no
+admin,ruqyah.saved,Ruqyah saved,రుఖ్యా సేవ్ అయింది,no
+admin,ruqyah.searchTitle,Choose from library,లైబ్రరీ నుండి ఎంచుకోండి,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -538,6 +596,16 @@ common,ui.voice.position,Position in the voice message,వాయిస్ సం
 common,ui.voice.positionValue,{elapsed} of {total},{total} లో {elapsed},no
 common,ui.voice.speed,Playback speed {speed},వేగం {speed},no
 common,ui.voice.unavailable,Available when online,ఆన్‌లైన్‌లో ఉన్నప్పుడు అందుబాటులో ఉంటుంది,no
+common,ui.ruqyah.title,Ruqyah,రుఖ్యా,no
+common,ui.ruqyah.category.nazar,Protection from Nazar,నజర్ నుండి రక్షణ,no
+common,ui.ruqyah.category.sihr,Protection from black magic,చేతబడి నుండి రక్షణ,no
+common,ui.ruqyah.category.shifa,Healing (Shifa),షిఫా (స్వస్థత),no
+common,ui.ruqyah.category.protection,Daily protection,రోజువారీ రక్షణ,no
+common,ui.ruqyah.category.general,General,సాధారణం,no
+common,ui.ruqyah.quoted,“{text}”,“{text}”,no
+common,ui.ruqyah.addedBy,Added by {masjid},{masjid} చేర్చింది,no
+common,ui.ruqyah.source,Source: {name} · Licence: {license},మూలం: {name} · లైసెన్స్: {license},no
+common,ui.ruqyah.instructions,Note from the masjid,మస్జిద్ నుండి గమనిక,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,మగ్రిబ్ తర్వాత,no
 common,hijri.months.m1,Muharram,ముహర్రం,no
@@ -670,6 +738,10 @@ content,repeat,"{count, plural, one {Once} other {# times}}","{count, plural, on
 content,counter,Count: {count} of {total}. Tap to count.,లెక్క: {total}లో {count}. లెక్కించడానికి నొక్కండి.,no
 content,counterDone,Done: {total} of {total},పూర్తయింది: {total}లో {total},no
 content,resetCount,Start the count again,లెక్క మళ్ళీ మొదలుపెట్టు,no
+content,emptyRuqyah,No Ruqyah entries yet,ఇంకా రుఖ్యా ఏదీ లేదు,no
+content,emptyRuqyahBody,"When the masjid adds Ruqyah, it will appear here.","మస్జిద్ రుఖ్యా చేర్చినప్పుడు, అది ఇక్కడ కనిపిస్తుంది.",no
+content,ruqyahFailed,Ruqyah could not be loaded,రుఖ్యా లోడ్ కాలేదు,no
+content,ruqyahFailedBody,"Check your connection and try again. Once opened, it stays available offline.","మీ కనెక్షన్ తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి. ఒకసారి తెరిచాక, ఇది ఆఫ్‌లైన్‌లో కూడా అందుబాటులో ఉంటుంది.",no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,మన సమాజంలోని ఒకరు అనారోగ్యంతో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,మన సమాజంలోని ఒకరు ఆసుపత్రిలో ఉన్నారు. దయచేసి వారు కోలుకోవాలని దువా చేయండి.,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,మన సమాజంలోని ఒకరికి ఆపరేషన్ జరుగుతోంది. అంతా బాగా జరగాలని దయచేసి దువా చేయండి.,no
@@ -735,6 +807,10 @@ errors,ADHKAR_INVALID,"This adhkar list is not possible: at most 30, each one on
 errors,VOICE_INVALID,A voice note needs a short title. Please add one and try again.,వాయిస్ నోట్‌కు చిన్న శీర్షిక అవసరం. దయచేసి ఒకటి జోడించి మళ్ళీ ప్రయత్నించండి.,no
 errors,AUDIO_INVALID,This file is not a voice recording the app can use. Please record again or choose another file.,ఈ ఫైల్ యాప్ ఉపయోగించగల వాయిస్ రికార్డింగ్ కాదు. దయచేసి మళ్ళీ రికార్డ్ చేయండి లేదా వేరే ఫైల్ ఎంచుకోండి.,no
 errors,AUDIO_TOO_LONG,Voice notes can be at most 10 minutes long.,వాయిస్ నోట్ గరిష్ఠంగా 10 నిమిషాలు ఉండవచ్చు.,no
+errors,RUQYAH_INVALID,A recording needs a short title and the tick that it is yours to share. Please check and try again.,రికార్డింగ్‌కు ఒక చిన్న శీర్షిక మరియు దీన్ని పంచుకునే హక్కు మీకు ఉందని టిక్ అవసరం. దయచేసి తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.,no
+errors,RUQYAH_NOT_FOUND,This Ruqyah entry was removed. Please go back to the list.,ఈ రుఖ్యా ఎంట్రీ తొలగించబడింది. దయచేసి జాబితాకు తిరిగి వెళ్ళండి.,no
+errors,RUQYAH_LIMIT_REACHED,The Ruqyah section already has 50 entries. Delete one to add another.,రుఖ్యా విభాగంలో ఇప్పటికే 50 ఎంట్రీలు ఉన్నాయి. కొత్తది చేర్చడానికి ఒకటి తొలగించండి.,no
+errors,RUQYAH_ORDER_INVALID,The Ruqyah list changed meanwhile. Please open it again and reorder.,ఈలోగా రుఖ్యా జాబితా మారింది. దయచేసి దాన్ని మళ్ళీ తెరిచి క్రమం మార్చండి.,no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no
@@ -787,6 +863,7 @@ masjid,muteFailed,Couldn’t change notifications. Check your connection and try
 masjid,hadith,Hadith & Quran,హదీస్ & ఖుర్ఆన్,no
 masjid,duas,Dua Requests,దువా విన్నపాలు,no
 masjid,adhkar,Adhkar after salah,నమాజ్ తర్వాత అజ్కార్,no
+masjid,ruqyah,Ruqyah,రుఖ్యా,no
 masjid,campaigns,Donation Campaigns,విరాళాల ప్రచారాలు,no
 masjid,chanda,Weekly Chanda,వారపు చందా,no
 masjid,bayans,Bayans,బయాన్‌లు,no

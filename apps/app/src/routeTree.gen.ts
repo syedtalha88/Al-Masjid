@@ -31,6 +31,7 @@ import { Route as MasjidMasjidIdAdhkarRouteImport } from './routes/masjid_.$masj
 import { Route as MasjidMasjidIdAnnouncementsRouteImport } from './routes/masjid_.$masjidId.announcements'
 import { Route as MasjidMasjidIdDuasRouteImport } from './routes/masjid_.$masjidId.duas'
 import { Route as MasjidMasjidIdHadithRouteImport } from './routes/masjid_.$masjidId.hadith'
+import { Route as MasjidMasjidIdRuqyahRouteImport } from './routes/masjid_.$masjidId.ruqyah'
 import { Route as MasjidMasjidIdTimingsRouteImport } from './routes/masjid_.$masjidId.timings'
 
 const IndexRoute = IndexRouteImport.update({
@@ -144,6 +145,11 @@ const MasjidMasjidIdHadithRoute = MasjidMasjidIdHadithRouteImport.update({
   path: '/masjid/$masjidId/hadith',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MasjidMasjidIdRuqyahRoute = MasjidMasjidIdRuqyahRouteImport.update({
+  id: '/masjid_/$masjidId/ruqyah',
+  path: '/masjid/$masjidId/ruqyah',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MasjidMasjidIdTimingsRoute = MasjidMasjidIdTimingsRouteImport.update({
   id: '/masjid_/$masjidId/timings',
   path: '/masjid/$masjidId/timings',
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/masjid/$masjidId/announcements': typeof MasjidMasjidIdAnnouncementsRoute
   '/masjid/$masjidId/duas': typeof MasjidMasjidIdDuasRoute
   '/masjid/$masjidId/hadith': typeof MasjidMasjidIdHadithRoute
+  '/masjid/$masjidId/ruqyah': typeof MasjidMasjidIdRuqyahRoute
   '/masjid/$masjidId/timings': typeof MasjidMasjidIdTimingsRoute
 }
 export interface FileRoutesByTo {
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/masjid/$masjidId/announcements': typeof MasjidMasjidIdAnnouncementsRoute
   '/masjid/$masjidId/duas': typeof MasjidMasjidIdDuasRoute
   '/masjid/$masjidId/hadith': typeof MasjidMasjidIdHadithRoute
+  '/masjid/$masjidId/ruqyah': typeof MasjidMasjidIdRuqyahRoute
   '/masjid/$masjidId/timings': typeof MasjidMasjidIdTimingsRoute
 }
 export interface FileRoutesById {
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/masjid_/$masjidId/announcements': typeof MasjidMasjidIdAnnouncementsRoute
   '/masjid_/$masjidId/duas': typeof MasjidMasjidIdDuasRoute
   '/masjid_/$masjidId/hadith': typeof MasjidMasjidIdHadithRoute
+  '/masjid_/$masjidId/ruqyah': typeof MasjidMasjidIdRuqyahRoute
   '/masjid_/$masjidId/timings': typeof MasjidMasjidIdTimingsRoute
 }
 export interface FileRouteTypes {
@@ -251,6 +260,7 @@ export interface FileRouteTypes {
     | '/masjid/$masjidId/announcements'
     | '/masjid/$masjidId/duas'
     | '/masjid/$masjidId/hadith'
+    | '/masjid/$masjidId/ruqyah'
     | '/masjid/$masjidId/timings'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/masjid/$masjidId/announcements'
     | '/masjid/$masjidId/duas'
     | '/masjid/$masjidId/hadith'
+    | '/masjid/$masjidId/ruqyah'
     | '/masjid/$masjidId/timings'
   id:
     | '__root__'
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
     | '/masjid_/$masjidId/announcements'
     | '/masjid_/$masjidId/duas'
     | '/masjid_/$masjidId/hadith'
+    | '/masjid_/$masjidId/ruqyah'
     | '/masjid_/$masjidId/timings'
   fileRoutesById: FileRoutesById
 }
@@ -327,6 +339,7 @@ export interface RootRouteChildren {
   MasjidMasjidIdAnnouncementsRoute: typeof MasjidMasjidIdAnnouncementsRoute
   MasjidMasjidIdDuasRoute: typeof MasjidMasjidIdDuasRoute
   MasjidMasjidIdHadithRoute: typeof MasjidMasjidIdHadithRoute
+  MasjidMasjidIdRuqyahRoute: typeof MasjidMasjidIdRuqyahRoute
   MasjidMasjidIdTimingsRoute: typeof MasjidMasjidIdTimingsRoute
 }
 
@@ -486,6 +499,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MasjidMasjidIdHadithRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/masjid_/$masjidId/ruqyah': {
+      id: '/masjid_/$masjidId/ruqyah'
+      path: '/masjid/$masjidId/ruqyah'
+      fullPath: '/masjid/$masjidId/ruqyah'
+      preLoaderRoute: typeof MasjidMasjidIdRuqyahRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/masjid_/$masjidId/timings': {
       id: '/masjid_/$masjidId/timings'
       path: '/masjid/$masjidId/timings'
@@ -519,6 +539,7 @@ const rootRouteChildren: RootRouteChildren = {
   MasjidMasjidIdAnnouncementsRoute: MasjidMasjidIdAnnouncementsRoute,
   MasjidMasjidIdDuasRoute: MasjidMasjidIdDuasRoute,
   MasjidMasjidIdHadithRoute: MasjidMasjidIdHadithRoute,
+  MasjidMasjidIdRuqyahRoute: MasjidMasjidIdRuqyahRoute,
   MasjidMasjidIdTimingsRoute: MasjidMasjidIdTimingsRoute,
 }
 export const routeTree = rootRouteImport

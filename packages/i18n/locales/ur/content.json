@@ -77,5 +77,9 @@
   "repeat": "{count, plural, one {ایک بار} other {# بار}}",
   "counter": "گنتی: {total} میں سے {count}۔ گننے کے لیے ٹیپ کریں۔",
   "counterDone": "مکمل: {total} میں سے {total}",
-  "resetCount": "گنتی دوبارہ شروع کریں"
+  "resetCount": "گنتی دوبارہ شروع کریں",
+  "emptyRuqyah": "ابھی کوئی رقیہ نہیں ہے",
+  "emptyRuqyahBody": "جب مسجد رقیہ شامل کرے گی، وہ یہاں نظر آئے گا۔",
+  "ruqyahFailed": "رقیہ لوڈ نہیں ہو سکا",
+  "ruqyahFailedBody": "اپنا کنکشن دیکھیں اور دوبارہ کوشش کریں۔ ایک بار کھلنے کے بعد یہ آف لائن بھی دستیاب رہے گا۔"
 }

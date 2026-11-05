@@ -514,5 +514,73 @@
     "save": "Save",
     "saved": "Adhkar saved",
     "added": "Added"
+  },
+  "ruqyah": {
+    "title": "Ruqyah",
+    "intro": "Musallis see these under the same headings, in this order.",
+    "count": "{count} of {max}",
+    "emptyTitle": "No Ruqyah entries yet",
+    "emptyBody": "Add from the verified library, type your own text, or record audio.",
+    "add": "Add Ruqyah",
+    "reorder": "Move {entry}",
+    "source": {
+      "library": "From library",
+      "text": "Type text",
+      "audio": "Record or upload audio"
+    },
+    "sourceHint": {
+      "library": "A verified entry with its source",
+      "text": "Arabic and a translation — shown as added by your masjid",
+      "audio": "Up to 10 minutes, with a title"
+    },
+    "libraryGone": "No longer in the library — choose another",
+    "edit": "Edit",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "delete": "Delete",
+    "full": "{max} is the most.",
+    "deleteTitle": "Delete this entry?",
+    "deleteBody": "Musallis will no longer see it.",
+    "deleted": "Entry deleted",
+    "newTitle": "Add Ruqyah",
+    "editTitle": "Edit Ruqyah",
+    "sourceQuestion": "What do you want to add?",
+    "categoryQuestion": "Under which heading?",
+    "libraryTitle": "Library entry",
+    "kindLabel": "Kind",
+    "kind": {
+      "dua": "Dua",
+      "ayah": "Ayah",
+      "hadith": "Hadith",
+      "dhikr": "Dhikr"
+    },
+    "libraryChoose": "Choose from library",
+    "libraryChange": "Choose another",
+    "textTitle": "Your text",
+    "arabic": "Arabic",
+    "translation": "Translation",
+    "translationLanguage": "Language of the translation",
+    "reference": "Reference",
+    "referenceHint": "Where it is from, if you know",
+    "entryTitle": "Title",
+    "instructions": "Instruction",
+    "instructionsHint": "For example, when to recite or listen",
+    "instructionsLanguage": "Language of the instruction",
+    "preview": "Preview",
+    "missing": "Still needed: {fields}",
+    "issue": {
+      "source": "what to add",
+      "category": "heading",
+      "library": "library entry",
+      "arabic": "Arabic",
+      "translation": "translation",
+      "reference": "shorter reference",
+      "voice": "recording",
+      "title": "title",
+      "instructions": "shorter instruction"
+    },
+    "save": "Save",
+    "saved": "Ruqyah saved",
+    "searchTitle": "Choose from library"
   }
 }

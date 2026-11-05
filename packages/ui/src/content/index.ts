@@ -38,5 +38,6 @@ export {
   TAG_TONE,
 } from './ItemCards.tsx';
 export { DUA_TONE, ItemIcon } from './ItemIcon.tsx';
+export { RuqyahCard, type RuqyahCardProps } from './RuqyahCard.tsx';
 export { SpecialDateCard, type SpecialDateCardProps } from './SpecialDateCard.tsx';
 export { useNoticeBody } from './use-notice-body.ts';

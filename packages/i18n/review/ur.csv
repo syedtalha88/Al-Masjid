@@ -451,6 +451,64 @@ admin,adhkar.preview,Home card preview,ہوم کارڈ کی جھلک,no
 admin,adhkar.save,Save,محفوظ کریں,no
 admin,adhkar.saved,Adhkar saved,اذکار محفوظ ہو گئے,no
 admin,adhkar.added,Added,شامل ہو گیا,no
+admin,ruqyah.title,Ruqyah,رقیہ,no
+admin,ruqyah.intro,"Musallis see these under the same headings, in this order.",مصلی انہیں انہی عنوانات کے تحت، اسی ترتیب میں دیکھتے ہیں۔,no
+admin,ruqyah.count,{count} of {max},{max} میں سے {count},no
+admin,ruqyah.emptyTitle,No Ruqyah entries yet,ابھی کوئی رقیہ نہیں ہے,no
+admin,ruqyah.emptyBody,"Add from the verified library, type your own text, or record audio.",تصدیق شدہ لائبریری سے شامل کریں، اپنا متن لکھیں، یا آڈیو ریکارڈ کریں۔,no
+admin,ruqyah.add,Add Ruqyah,رقیہ شامل کریں,no
+admin,ruqyah.reorder,Move {entry},{entry} کو منتقل کریں,no
+admin,ruqyah.source.library,From library,لائبریری سے,no
+admin,ruqyah.source.text,Type text,متن لکھیں,no
+admin,ruqyah.source.audio,Record or upload audio,آڈیو ریکارڈ یا اپلوڈ کریں,no
+admin,ruqyah.sourceHint.library,A verified entry with its source,ماخذ کے ساتھ ایک تصدیق شدہ اندراج,no
+admin,ruqyah.sourceHint.text,Arabic and a translation — shown as added by your masjid,عربی اور ایک ترجمہ — آپ کی مسجد کی طرف سے شامل کیا گیا دکھایا جائے گا,no
+admin,ruqyah.sourceHint.audio,"Up to 10 minutes, with a title",زیادہ سے زیادہ 10 منٹ، ایک عنوان کے ساتھ,no
+admin,ruqyah.libraryGone,No longer in the library — choose another,اب لائبریری میں نہیں — کوئی اور منتخب کریں,no
+admin,ruqyah.edit,Edit,تبدیل کریں,no
+admin,ruqyah.moveUp,Move up,اوپر کریں,no
+admin,ruqyah.moveDown,Move down,نیچے کریں,no
+admin,ruqyah.delete,Delete,حذف کریں,no
+admin,ruqyah.full,{max} is the most.,زیادہ سے زیادہ {max}۔,no
+admin,ruqyah.deleteTitle,Delete this entry?,یہ اندراج حذف کریں؟,no
+admin,ruqyah.deleteBody,Musallis will no longer see it.,مصلی اسے اب نہیں دیکھیں گے۔,no
+admin,ruqyah.deleted,Entry deleted,اندراج حذف ہو گیا,no
+admin,ruqyah.newTitle,Add Ruqyah,رقیہ شامل کریں,no
+admin,ruqyah.editTitle,Edit Ruqyah,رقیہ تبدیل کریں,no
+admin,ruqyah.sourceQuestion,What do you want to add?,آپ کیا شامل کرنا چاہتے ہیں؟,no
+admin,ruqyah.categoryQuestion,Under which heading?,کس عنوان کے تحت؟,no
+admin,ruqyah.libraryTitle,Library entry,لائبریری کا اندراج,no
+admin,ruqyah.kindLabel,Kind,قسم,no
+admin,ruqyah.kind.dua,Dua,دعا,no
+admin,ruqyah.kind.ayah,Ayah,آیت,no
+admin,ruqyah.kind.hadith,Hadith,حدیث,no
+admin,ruqyah.kind.dhikr,Dhikr,ذکر,no
+admin,ruqyah.libraryChoose,Choose from library,لائبریری سے منتخب کریں,no
+admin,ruqyah.libraryChange,Choose another,کوئی اور منتخب کریں,no
+admin,ruqyah.textTitle,Your text,آپ کا متن,no
+admin,ruqyah.arabic,Arabic,عربی,no
+admin,ruqyah.translation,Translation,ترجمہ,no
+admin,ruqyah.translationLanguage,Language of the translation,ترجمے کی زبان,no
+admin,ruqyah.reference,Reference,حوالہ,no
+admin,ruqyah.referenceHint,"Where it is from, if you know",یہ کہاں سے ہے، اگر آپ جانتے ہیں,no
+admin,ruqyah.entryTitle,Title,عنوان,no
+admin,ruqyah.instructions,Instruction,ہدایت,no
+admin,ruqyah.instructionsHint,"For example, when to recite or listen",مثلاً کب پڑھیں یا سنیں,no
+admin,ruqyah.instructionsLanguage,Language of the instruction,ہدایت کی زبان,no
+admin,ruqyah.preview,Preview,پیش منظر,no
+admin,ruqyah.missing,Still needed: {fields},ابھی ضروری: {fields},no
+admin,ruqyah.issue.source,what to add,کیا شامل کرنا ہے,no
+admin,ruqyah.issue.category,heading,عنوان,no
+admin,ruqyah.issue.library,library entry,لائبریری کا اندراج,no
+admin,ruqyah.issue.arabic,Arabic,عربی,no
+admin,ruqyah.issue.translation,translation,ترجمہ,no
+admin,ruqyah.issue.reference,shorter reference,مختصر حوالہ,no
+admin,ruqyah.issue.voice,recording,ریکارڈنگ,no
+admin,ruqyah.issue.title,title,عنوان,no
+admin,ruqyah.issue.instructions,shorter instruction,مختصر ہدایت,no
+admin,ruqyah.save,Save,محفوظ کریں,no
+admin,ruqyah.saved,Ruqyah saved,رقیہ محفوظ ہو گیا,no
+admin,ruqyah.searchTitle,Choose from library,لائبریری سے منتخب کریں,no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no
@@ -538,6 +596,16 @@ common,ui.voice.position,Position in the voice message,وائس میسج میں 
 common,ui.voice.positionValue,{elapsed} of {total},{total} میں سے {elapsed},no
 common,ui.voice.speed,Playback speed {speed},رفتار {speed},no
 common,ui.voice.unavailable,Available when online,آن لائن ہونے پر دستیاب,no
+common,ui.ruqyah.title,Ruqyah,رقیہ,no
+common,ui.ruqyah.category.nazar,Protection from Nazar,نظر سے حفاظت,no
+common,ui.ruqyah.category.sihr,Protection from black magic,جادو سے حفاظت,no
+common,ui.ruqyah.category.shifa,Healing (Shifa),شفا,no
+common,ui.ruqyah.category.protection,Daily protection,روزانہ کی حفاظت,no
+common,ui.ruqyah.category.general,General,عام,no
+common,ui.ruqyah.quoted,“{text}”,“{text}”,no
+common,ui.ruqyah.addedBy,Added by {masjid},{masjid} کی طرف سے شامل کیا گیا,no
+common,ui.ruqyah.source,Source: {name} · Licence: {license},ماخذ: {name} · لائسنس: {license},no
+common,ui.ruqyah.instructions,Note from the masjid,مسجد کی طرف سے نوٹ,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,مغرب کے بعد,no
 common,hijri.months.m1,Muharram,محرم,no
@@ -670,6 +738,10 @@ content,repeat,"{count, plural, one {Once} other {# times}}","{count, plural, on
 content,counter,Count: {count} of {total}. Tap to count.,گنتی: {total} میں سے {count}۔ گننے کے لیے ٹیپ کریں۔,no
 content,counterDone,Done: {total} of {total},مکمل: {total} میں سے {total},no
 content,resetCount,Start the count again,گنتی دوبارہ شروع کریں,no
+content,emptyRuqyah,No Ruqyah entries yet,ابھی کوئی رقیہ نہیں ہے,no
+content,emptyRuqyahBody,"When the masjid adds Ruqyah, it will appear here.",جب مسجد رقیہ شامل کرے گی، وہ یہاں نظر آئے گا۔,no
+content,ruqyahFailed,Ruqyah could not be loaded,رقیہ لوڈ نہیں ہو سکا,no
+content,ruqyahFailedBody,"Check your connection and try again. Once opened, it stays available offline.",اپنا کنکشن دیکھیں اور دوبارہ کوشش کریں۔ ایک بار کھلنے کے بعد یہ آف لائن بھی دستیاب رہے گا۔,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,ہماری برادری کے ایک رکن بیمار ہیں۔ براہِ کرم انہیں اپنی دعاؤں میں یاد رکھیں۔,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,ہماری برادری کے ایک رکن اسپتال میں ہیں۔ براہِ کرم ان کی صحت یابی کے لیے دعا کریں۔,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,ہماری برادری کے ایک رکن کا آپریشن ہے۔ براہِ کرم دعا کریں کہ سب خیریت سے ہو۔,no
@@ -735,6 +807,10 @@ errors,ADHKAR_INVALID,"This adhkar list is not possible: at most 30, each one on
 errors,VOICE_INVALID,A voice note needs a short title. Please add one and try again.,وائس نوٹ کے ساتھ ایک مختصر عنوان ضروری ہے۔ براہِ کرم عنوان لکھیں اور دوبارہ کوشش کریں۔,no
 errors,AUDIO_INVALID,This file is not a voice recording the app can use. Please record again or choose another file.,یہ فائل ایسی آواز کی ریکارڈنگ نہیں جسے ایپ استعمال کر سکے۔ براہِ کرم دوبارہ ریکارڈ کریں یا دوسری فائل چنیں۔,no
 errors,AUDIO_TOO_LONG,Voice notes can be at most 10 minutes long.,وائس نوٹ زیادہ سے زیادہ 10 منٹ کا ہو سکتا ہے۔,no
+errors,RUQYAH_INVALID,A recording needs a short title and the tick that it is yours to share. Please check and try again.,ریکارڈنگ کے ساتھ ایک مختصر عنوان اور یہ ٹِک ضروری ہے کہ اسے شیئر کرنے کا حق آپ کے پاس ہے۔ براہِ کرم دیکھیں اور دوبارہ کوشش کریں۔,no
+errors,RUQYAH_NOT_FOUND,This Ruqyah entry was removed. Please go back to the list.,رقیہ کا یہ اندراج ہٹا دیا گیا ہے۔ براہِ کرم فہرست پر واپس جائیں۔,no
+errors,RUQYAH_LIMIT_REACHED,The Ruqyah section already has 50 entries. Delete one to add another.,رقیہ کے حصے میں پہلے ہی 50 اندراجات ہیں۔ نیا شامل کرنے کے لیے ایک ہٹائیں۔,no
+errors,RUQYAH_ORDER_INVALID,The Ruqyah list changed meanwhile. Please open it again and reorder.,اس دوران رقیہ کی فہرست بدل گئی۔ براہِ کرم اسے دوبارہ کھولیں اور ترتیب دیں۔,no
 follow,scan.title,Scan masjid QR,مسجد کا QR اسکین کریں,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,اپنا کیمرا مسجد کے پوسٹر پر لگے QR کوڈ کی طرف کریں۔,no
 follow,scan.torch,Flashlight,ٹارچ,no
@@ -787,6 +863,7 @@ masjid,muteFailed,Couldn’t change notifications. Check your connection and try
 masjid,hadith,Hadith & Quran,حدیث اور قرآن,no
 masjid,duas,Dua Requests,دعا کی درخواستیں,no
 masjid,adhkar,Adhkar after salah,نماز کے بعد کے اذکار,no
+masjid,ruqyah,Ruqyah,رقیہ,no
 masjid,campaigns,Donation Campaigns,چندہ مہمات,no
 masjid,chanda,Weekly Chanda,ہفتہ وار چندہ,no
 masjid,bayans,Bayans,بیانات,no

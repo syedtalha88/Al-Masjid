@@ -106,6 +106,20 @@
       "positionValue": "{total} లో {elapsed}",
       "speed": "వేగం {speed}",
       "unavailable": "ఆన్‌లైన్‌లో ఉన్నప్పుడు అందుబాటులో ఉంటుంది"
+    },
+    "ruqyah": {
+      "title": "రుఖ్యా",
+      "category": {
+        "nazar": "నజర్ నుండి రక్షణ",
+        "sihr": "చేతబడి నుండి రక్షణ",
+        "shifa": "షిఫా (స్వస్థత)",
+        "protection": "రోజువారీ రక్షణ",
+        "general": "సాధారణం"
+      },
+      "quoted": "“{text}”",
+      "addedBy": "{masjid} చేర్చింది",
+      "source": "మూలం: {name} · లైసెన్స్: {license}",
+      "instructions": "మస్జిద్ నుండి గమనిక"
     }
   },
   "hijri": {

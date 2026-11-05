@@ -84,6 +84,15 @@ describe('sectionRows', () => {
     ]);
   });
 
+  it('Ruqyah (A19) shows after adhkar when the bundle counts entries; a bundle cached before T3.15 shows none', () => {
+    const pages = new Map<ItemType, FeedItem[]>();
+    expect(sectionRows({ ...bundle(false, 0), sections: { ruqyah: 2, needy: 0 } }, pages, undefined, null)).toEqual([
+      { id: 'ruqyah', unseen: 0 },
+    ]);
+    expect(sectionRows({ ...bundle(false, 0), sections: { ruqyah: 0, needy: 0 } }, pages, undefined, null)).toEqual([]);
+    expect(sectionRows(bundle(false, 0), pages, undefined, null)).toEqual([]);
+  });
+
   it('loads the five feed types (chanda is in the bundle)', () => {
     expect(SECTION_TYPES).toEqual(['announcement', 'daily_content', 'dua_request', 'campaign', 'video']);
   });

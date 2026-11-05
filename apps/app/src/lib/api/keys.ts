@@ -16,6 +16,7 @@ export const queryKeys = {
   feed: (masjidId: string, v: number, aud: 'brothers' | 'sisters', type?: ItemType) =>
     ['feed', masjidId, v, aud, type ?? 'all'] as const,
   feeds: (masjidId: string) => ['feed', masjidId] as const,
+  ruqyah: (masjidId: string, v: number) => ['ruqyah', masjidId, v] as const,
   item: (publicId: string, aud: 'brothers' | 'sisters') => ['item', publicId, aud] as const,
   ameenCounts: (publicIds: readonly string[]) => ['ameens', sortedIds(publicIds)] as const,
   library: (id: string) => ['library', id] as const,
@@ -31,6 +32,7 @@ export const PERSISTED_ROOTS: ReadonlySet<string> = new Set([
   'versions',
   'bundle',
   'feed',
+  'ruqyah',
   'item',
   'library',
 ]);

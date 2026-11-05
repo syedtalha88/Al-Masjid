@@ -42,6 +42,7 @@ import {
   MoonStarsIcon,
   PlayCircleIcon,
   ShareIcon,
+  ShieldCheckIcon,
 } from '@mc/ui/icons';
 import { useMotionPrefs } from '@mc/ui/motion';
 import { BackIcon, useNavigator, useScreen } from '@mc/ui/navigation';
@@ -70,6 +71,7 @@ const SECTION_ICON: Readonly<Record<SectionId, { readonly icon: ReactNode; reado
   hadith: { icon: <BookOpenIcon />, tone: 'info' },
   duas: { icon: <HandsPrayingIcon />, tone: 'primary' },
   adhkar: { icon: <MoonStarsIcon />, tone: 'primary' },
+  ruqyah: { icon: <ShieldCheckIcon />, tone: 'info' },
   campaigns: { icon: <HeartIcon />, tone: 'heart' },
   chanda: { icon: <ChartBarIcon />, tone: 'purple' },
   bayans: { icon: <PlayCircleIcon />, tone: 'primary' },

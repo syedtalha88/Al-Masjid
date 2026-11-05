@@ -106,6 +106,20 @@
       "positionValue": "{total} में से {elapsed}",
       "speed": "चलने की रफ़्तार {speed}",
       "unavailable": "ऑनलाइन होने पर उपलब्ध"
+    },
+    "ruqyah": {
+      "title": "रुक़्या",
+      "category": {
+        "nazar": "नज़र से हिफ़ाज़त",
+        "sihr": "जादू से हिफ़ाज़त",
+        "shifa": "शिफ़ा (इलाज)",
+        "protection": "रोज़ की हिफ़ाज़त",
+        "general": "आम"
+      },
+      "quoted": "“{text}”",
+      "addedBy": "{masjid} द्वारा जोड़ा गया",
+      "source": "स्रोत: {name} · लाइसेंस: {license}",
+      "instructions": "मस्जिद की ओर से नोट"
     }
   },
   "hijri": {

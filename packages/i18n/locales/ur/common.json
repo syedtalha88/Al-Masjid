@@ -106,6 +106,20 @@
       "positionValue": "{total} میں سے {elapsed}",
       "speed": "رفتار {speed}",
       "unavailable": "آن لائن ہونے پر دستیاب"
+    },
+    "ruqyah": {
+      "title": "رقیہ",
+      "category": {
+        "nazar": "نظر سے حفاظت",
+        "sihr": "جادو سے حفاظت",
+        "shifa": "شفا",
+        "protection": "روزانہ کی حفاظت",
+        "general": "عام"
+      },
+      "quoted": "“{text}”",
+      "addedBy": "{masjid} کی طرف سے شامل کیا گیا",
+      "source": "ماخذ: {name} · لائسنس: {license}",
+      "instructions": "مسجد کی طرف سے نوٹ"
     }
   },
   "hijri": {

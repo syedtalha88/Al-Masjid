@@ -104,7 +104,8 @@ export function LibrarySearchSheet({
   readonly open: boolean;
   readonly onClose: () => void;
   readonly masjidId: string | undefined;
-  readonly kind: DailyKind | 'dhikr';
+  /** Hadith / ayah (B6), dhikr (B16) or any kind for Ruqyah (B15). */
+  readonly kind: DailyKind | 'dua' | 'dhikr';
   /** The sheet title (default: "Find a hadith" / "Find an ayah"). */
   readonly title?: string | undefined;
   readonly chosen?: ReadonlySet<string> | undefined;
