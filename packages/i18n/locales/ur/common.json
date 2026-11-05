@@ -39,7 +39,9 @@
     "eidFitr": "عید الفطر کی نماز",
     "eidAdha": "عید الاضحیٰ کی نماز",
     "today": "آج",
-    "tomorrow": "کل"
+    "tomorrow": "کل",
+    "adhkar": "نماز کے بعد کے اذکار · {prayer}",
+    "adhkarDismiss": "اگلی نماز تک چھپائیں"
   },
   "nav": {
     "back": "واپس",

@@ -39,7 +39,9 @@
     "eidFitr": "Eid ul-Fitr Salah",
     "eidAdha": "Eid ul-Adha Salah",
     "today": "Today",
-    "tomorrow": "Tomorrow"
+    "tomorrow": "Tomorrow",
+    "adhkar": "Adhkar after salah · {prayer}",
+    "adhkarDismiss": "Hide until the next salah"
   },
   "nav": {
     "back": "Back",

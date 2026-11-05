@@ -70,5 +70,12 @@
   "license": "लाइसेंस: {license}",
   "gone": "यह पोस्ट अब उपलब्ध नहीं है",
   "goneBody": "हो सकता है मस्जिद ने इसे हटा दिया हो।",
-  "back": "वापस जाएँ"
+  "back": "वापस जाएँ",
+  "adhkarTitle": "नमाज़ के बाद के अज़कार",
+  "emptyAdhkar": "अभी कोई अज़कार नहीं",
+  "emptyAdhkarBody": "इस मस्जिद ने अभी नमाज़ के बाद के अज़कार नहीं चुने हैं।",
+  "repeat": "{count, plural, one {एक बार} other {# बार}}",
+  "counter": "गिनती: {total} में से {count}। गिनने के लिए टैप करें।",
+  "counterDone": "पूरा हुआ: {total} में से {total}",
+  "resetCount": "गिनती फिर से शुरू करें"
 }

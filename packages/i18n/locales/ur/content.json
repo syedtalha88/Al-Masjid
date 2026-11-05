@@ -70,5 +70,12 @@
   "license": "لائسنس: {license}",
   "gone": "یہ پوسٹ اب دستیاب نہیں",
   "goneBody": "ممکن ہے مسجد نے اسے ہٹا دیا ہو۔",
-  "back": "واپس جائیں"
+  "back": "واپس جائیں",
+  "adhkarTitle": "نماز کے بعد کے اذکار",
+  "emptyAdhkar": "ابھی کوئی اذکار نہیں",
+  "emptyAdhkarBody": "اس مسجد نے ابھی نماز کے بعد کے اذکار نہیں چنے۔",
+  "repeat": "{count, plural, one {ایک بار} other {# بار}}",
+  "counter": "گنتی: {total} میں سے {count}۔ گننے کے لیے ٹیپ کریں۔",
+  "counterDone": "مکمل: {total} میں سے {total}",
+  "resetCount": "گنتی دوبارہ شروع کریں"
 }

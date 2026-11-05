@@ -60,6 +60,7 @@ const bundle = (id: string, status: 'active' | 'suspended' = 'active') =>
         timings: null,
         specialDates: [],
         ramadan: null,
+        adhkar: null,
         payment: null,
         campaigns: [],
         chanda: null,

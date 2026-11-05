@@ -1,12 +1,13 @@
 // A2 Home (07 A2, ref-1/1): large title "Assalamu Alaikum" with Gregorian · Hijri date, Qibla and bell; the followed
-// masjids as a snapping carousel (next jamaat + countdown + jamaat strip each); Ramadan and Eid cards; the 5 newest
-// updates; empty state; pull-to-refresh. Everything renders from the persisted cache offline; the clock re-renders
+// masjids as a snapping carousel (next jamaat + countdown + jamaat strip each); Ramadan, Eid and "Adhkar after salah"
+// (07 A20) cards; the 5 newest updates; empty state; pull-to-refresh. Everything renders from the persisted cache offline; the clock re-renders
 // once a minute (and at midnight), so prayer, Hijri date and cards roll over without a reload.
 import { effectiveHijriOffset, hijriForInstant } from '@mc/domain/hijri';
 import { useHijriLabel, useLocale, useTranslation } from '@mc/i18n/react';
 import type { FeedItem } from '@mc/shared/contracts/public';
 import { QrPosterIllustration } from '@mc/ui';
 import { Button, Card, Carousel, EmptyState, IconButton, PullToRefresh, SectionHeader } from '@mc/ui/components';
+import { AdhkarCard } from '@mc/ui/content';
 import { BellIcon, CompassIcon, KeyboardIcon } from '@mc/ui/icons';
 import { Screen, useNavigator } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -16,20 +17,22 @@ import { configQuery } from '../../lib/api/queries.ts';
 import { SHOW_COMING_SOON } from '../../lib/build.ts';
 import { useNow } from '../../lib/clock.ts';
 import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
+import { masjidName } from '../../lib/masjid.ts';
 import { setUnseenCount } from '../../lib/unseen.ts';
 import { ItemList } from '../content/ItemList.tsx';
 import { HomeMasjidCard } from './components/HomeMasjidCard.tsx';
 import { EidCard, RamadanCard } from './components/SeasonCards.tsx';
 import { useHomeData } from './hooks/useHomeData.ts';
-import { eidView, hasUnseen, prayerView, ramadanView } from './lib/home-view.ts';
+import { adhkarView, eidView, hasUnseen, prayerView, ramadanView } from './lib/home-view.ts';
 
 export function HomeScreen() {
   const { t } = useTranslation();
-  const { format } = useLocale();
+  const { locale, format } = useLocale();
   const hijriLabel = useHijriLabel();
   const navigator = useNavigator();
   const now = useNow();
-  const { api } = useAppData();
+  const { api, store } = useAppData();
+  const adhkarDismissed = useDeviceSelector((state) => state.adhkarDismissed);
   const config = useQuery(configQuery(api));
   const data = useHomeData();
 
@@ -39,7 +42,10 @@ export function HomeScreen() {
   );
   const ramadan = useMemo(() => ramadanView(active, now), [active, now]);
   const eid = useMemo(() => eidView(active, now), [active, now]);
+  const adhkarOpen = useMemo(() => adhkarView(active, now), [active, now]);
+  const adhkar = adhkarOpen && adhkarOpen.key !== adhkarDismissed ? adhkarOpen : null;
   const names = useMemo(() => new Map(active.map((bundle) => [bundle.masjid.id, bundle.masjid])), [active]);
+  const adhkarMasjid = adhkar ? names.get(adhkar.masjidId) : undefined;
 
   // Date line: today in IST · the Hijri date of the first followed masjid (its offset, its Maghrib rollover).
   const first = active[0];
@@ -137,6 +143,19 @@ export function HomeScreen() {
             </section>
             {ramadan ? <RamadanCard view={ramadan} masjid={names.get(ramadan.masjidId)} /> : null}
             {eid ? <EidCard view={eid} masjid={names.get(eid.masjidId)} /> : null}
+            {adhkar ? (
+              <AdhkarCard
+                prayer={adhkar.prayer}
+                masjid={adhkarMasjid ? masjidName(adhkarMasjid, locale) : undefined}
+                arabic={adhkar.first.arabic}
+                onSeeAll={() => {
+                  navigator.push(`/masjid/${adhkar.masjidId}/adhkar`);
+                }}
+                onDismiss={() => {
+                  void store.update((current) => ({ ...current, adhkarDismissed: adhkar.key }));
+                }}
+              />
+            ) : null}
             <section aria-labelledby="home-recent" className="flex flex-col gap-1">
               <SectionHeader
                 id="home-recent"

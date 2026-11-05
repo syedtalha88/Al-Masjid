@@ -17,9 +17,10 @@ import { join } from 'node:path';
  * T2.11 — the content screens share more of Motion and intl-messageformat, so rolldown splits them into more preloaded
  * chunks (+3.1 kB, mostly lost gzip context; owner 24 Oct 2026: "10–20 kB is fine, focus on quality" — DECISIONS #100);
  * 186 kB since T2.12 — the start-up sync of queued Settings changes / a queued "Clear all data" and the stored
- * Vibration choice (F16) run from the data layer in the entry (+1.1 kB — DECISIONS #101).
+ * Vibration choice (F16) run from the data layer in the entry (+1.1 kB — DECISIONS #101); 187 kB since T3.14 — Home's
+ * "Adhkar after salah" card and its window (186.01 kB — DECISIONS #129).
  */
-const APP_INITIAL_JS = '186 kB';
+const APP_INITIAL_JS = '187 kB';
 const ADMIN_INITIAL_JS = '220 kB';
 const INITIAL_CSS = '25 kB';
 const LAZY_CHUNK = '60 kB';

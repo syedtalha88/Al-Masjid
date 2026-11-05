@@ -35,6 +35,7 @@ const bundle = (showChanda: boolean, weeks: number): ActiveMasjidBundle => ({
   timings: null,
   specialDates: [],
   ramadan: null,
+  adhkar: null,
   payment: null,
   campaigns: [],
   chanda: {
@@ -63,6 +64,24 @@ describe('sectionRows', () => {
       { id: 'bayans', unseen: 0 },
     ]);
     expect(sectionRows(bundle(true, 0), new Map(), undefined, null)).toEqual([]);
+  });
+
+  it('"Adhkar after salah" after Dua Requests when the masjid has a set (T3.14)', () => {
+    const entry = {
+      id: '0b7f6c2e-1d4a-4f3b-9c8e-2a1b3c4d5e6f',
+      kind: 'dhikr' as const,
+      arabic: 'نَصٌّ تجريبي للعرض فقط',
+      transliteration: {},
+      translation: { en: 'Sample translation text for development.' },
+      reference: 'DEV-SAMPLE-001',
+      sourceName: 'Development fixture',
+      sourceLicense: 'N/A — not for production',
+    };
+    const pages = new Map<ItemType, FeedItem[]>([['dua_request', [item('2026-10-22T10:00:00.000Z', 'dua_request')]]]);
+    expect(sectionRows({ ...bundle(false, 0), adhkar: { entries: [entry] } }, pages, undefined, null)).toEqual([
+      { id: 'duas', unseen: 0 },
+      { id: 'adhkar', unseen: 0 },
+    ]);
   });
 
   it('loads the five feed types (chanda is in the bundle)', () => {

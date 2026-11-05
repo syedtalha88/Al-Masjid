@@ -39,7 +39,9 @@
     "eidFitr": "ईद-उल-फ़ित्र की नमाज़",
     "eidAdha": "ईद-उल-अज़हा की नमाज़",
     "today": "आज",
-    "tomorrow": "कल"
+    "tomorrow": "कल",
+    "adhkar": "नमाज़ के बाद के अज़कार · {prayer}",
+    "adhkarDismiss": "अगली नमाज़ तक छिपाएँ"
   },
   "nav": {
     "back": "वापस",

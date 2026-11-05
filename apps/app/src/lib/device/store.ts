@@ -54,6 +54,8 @@ const stateSchema = z.object({
   follows: z.array(followSchema).check(z.maxLength(MAX_FOLLOWS * 2)),
   /** Updates tab: items newer than this are unseen (07 A13). */
   updatesSeenAt: z.optional(instant),
+  /** The "Adhkar after salah" window whose Home card was dismissed (07 A20): `<masjidId>/<date>/<HH:mm>`. */
+  adhkarDismissed: z.optional(z.string().check(z.maxLength(64))),
   saved: z.array(z.object({ publicId: publicIdText, savedAt: instant })).check(z.maxLength(MAX_SAVED)),
   /** Dua requests this device said Ameen on (button state), and those still to be sent (08 §5.6). */
   ameens: z.array(publicIdText).check(z.maxLength(MAX_AMEENS)),

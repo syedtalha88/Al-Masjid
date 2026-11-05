@@ -4,13 +4,14 @@ import type { ActiveMasjidBundle, FeedItem, ItemType } from '@mc/shared/contract
 
 import { unseenCount } from '../../masjids/lib/masjids-view.ts';
 
-export type SectionId = 'announcements' | 'hadith' | 'duas' | 'campaigns' | 'chanda' | 'bayans';
+export type SectionId = 'announcements' | 'hadith' | 'duas' | 'adhkar' | 'campaigns' | 'chanda' | 'bayans';
 
-/** Overview rows in order (07 A5) and the feed type behind each (chanda comes from the bundle). */
+/** Overview rows in order (07 A5) and the feed type behind each (adhkar and chanda come from the bundle). */
 export const SECTIONS: readonly { readonly id: SectionId; readonly type: ItemType | null }[] = [
   { id: 'announcements', type: 'announcement' },
   { id: 'hadith', type: 'daily_content' },
   { id: 'duas', type: 'dua_request' },
+  { id: 'adhkar', type: null },
   { id: 'campaigns', type: 'campaign' },
   { id: 'chanda', type: null },
   { id: 'bayans', type: 'video' },
@@ -25,8 +26,8 @@ export interface SectionRow {
 }
 
 /**
- * The Overview rows: a section shows when it has content (the first page of its feed is not empty; Weekly Chanda when
- * the masjid shows it and has weeks), with the count of items not seen yet.
+ * The Overview rows: a section shows when it has content (the first page of its feed is not empty; "Adhkar after salah"
+ * when the masjid has a set; Weekly Chanda when the masjid shows it and has weeks), with the count of items not seen yet.
  *
  * @param pages - first feed page per type (missing = still loading → the row waits).
  * @param followedAt - when this device followed the masjid (`null` when not followed: nothing counts as new).
@@ -38,6 +39,7 @@ export function sectionRows(
   followedAt: string | null,
 ): SectionRow[] {
   return SECTIONS.flatMap((section): SectionRow[] => {
+    if (section.id === 'adhkar') return bundle.adhkar ? [{ id: section.id, unseen: 0 }] : []; // 07 A20 (T3.14)
     if (section.type === null) {
       return bundle.masjid.showChanda && (bundle.chanda?.weeks.length ?? 0) > 0 ? [{ id: section.id, unseen: 0 }] : [];
     }

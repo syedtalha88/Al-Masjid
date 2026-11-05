@@ -44,6 +44,7 @@ const activeBundle = (id: string, v: number) => ({
   timings: null,
   specialDates: [],
   ramadan: null,
+  adhkar: null,
   payment: null,
   campaigns: [],
   chanda: null,

@@ -39,6 +39,7 @@ import {
   MapPinIcon,
   MasjidTile,
   MegaphoneIcon,
+  MoonStarsIcon,
   PlayCircleIcon,
   ShareIcon,
 } from '@mc/ui/icons';
@@ -68,6 +69,7 @@ const SECTION_ICON: Readonly<Record<SectionId, { readonly icon: ReactNode; reado
   announcements: { icon: <MegaphoneIcon />, tone: 'info' },
   hadith: { icon: <BookOpenIcon />, tone: 'info' },
   duas: { icon: <HandsPrayingIcon />, tone: 'primary' },
+  adhkar: { icon: <MoonStarsIcon />, tone: 'primary' },
   campaigns: { icon: <HeartIcon />, tone: 'heart' },
   chanda: { icon: <ChartBarIcon />, tone: 'purple' },
   bayans: { icon: <PlayCircleIcon />, tone: 'primary' },

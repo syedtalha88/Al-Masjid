@@ -1,5 +1,6 @@
 // `@mc/ui/content` — how a feed item presents itself (07 A2, A7–A9, A13): list titles and icons, view rules, and the
 // section cards shared by the musalli app and the admin preview (T3.11).
+export { AdhkarCard, type AdhkarCardProps } from './AdhkarCard.tsx';
 export {
   ANNOUNCEMENT_FILTERS,
   type AnnouncementFilter,

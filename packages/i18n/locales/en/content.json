@@ -70,5 +70,12 @@
   "license": "Licence: {license}",
   "gone": "This post is no longer available",
   "goneBody": "The masjid may have removed it.",
-  "back": "Go back"
+  "back": "Go back",
+  "adhkarTitle": "Adhkar after salah",
+  "emptyAdhkar": "No adhkar yet",
+  "emptyAdhkarBody": "This masjid has not chosen its adhkar after salah yet.",
+  "repeat": "{count, plural, one {Once} other {# times}}",
+  "counter": "Count: {count} of {total}. Tap to count.",
+  "counterDone": "Done: {total} of {total}",
+  "resetCount": "Start the count again"
 }
