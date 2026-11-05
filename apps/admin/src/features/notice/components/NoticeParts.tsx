@@ -19,13 +19,13 @@ import {
   type Tone,
   useToast,
 } from '@mc/ui/components';
-import { FeedItemCard } from '@mc/ui/content';
+import { BloodCampCard, bloodCampOf, FeedItemCard } from '@mc/ui/content';
 import { PencilIcon, TemplateIcon } from '@mc/ui/icons';
 import { type ChangeEvent, useId, useRef, useState } from 'react';
 
 import { useErrorText } from '../../auth/hooks/use-session.ts';
 import { SlotButton } from '../../timings/components/EditorParts.tsx';
-import { TimeSheet } from '../../timings/components/TimingSheets.tsx';
+import { TimeRangeSheet, TimeSheet } from '../../timings/components/TimingSheets.tsx';
 import { ltr } from '../../timings/lib/text.ts';
 import { usePhotoUpload } from '../hooks/use-notice.ts';
 import type { NoticeCategory, NoticeIssue, NoticePhoto } from '../lib/notice.ts';
@@ -213,14 +213,16 @@ export function ParamField({ param, value, onChange, today }: ParamFieldProps) {
           </div>
           {isTime ? (
             open === 'start' || open === 'end' ? (
-              <TimeSheet
-                key={open}
+              // Both ends in one sheet, whichever slot was tapped (T3.12 tap budget).
+              <TimeRangeSheet
                 open
-                title={`${label} · ${open === 'start' ? t('notice.from') : t('notice.to')}`}
-                value={(open === 'start' ? range?.start : range?.end) || (open === 'end' ? '14:00' : '10:00')}
+                title={label}
+                fromLabel={t('notice.from')}
+                toLabel={t('notice.to')}
+                value={{ start: range?.start || '10:00', end: range?.end || '14:00' }}
                 onClose={close}
                 onDone={(picked) => {
-                  setEnd(open, picked);
+                  onChange(picked);
                   close();
                 }}
               />
@@ -502,6 +504,8 @@ export function NoticePreview({ item, templates, now, hasPhoto }: NoticePreviewP
   const { t } = useTranslation('admin');
   const { locale } = useLocale();
   const [shown, setShown] = useState<Locale>(item.contentLocale ?? locale);
+  // A blood camp also shows its Home / Masjid Detail card (07 A22, T3.17).
+  const camp = bloodCampOf(item);
   return (
     <div className="flex flex-col gap-3">
       <PreviewFrame
@@ -510,7 +514,10 @@ export function NoticePreview({ item, templates, now, hasPhoto }: NoticePreviewP
         label={t('notice.preview')}
         languageLabel={t('notice.showIn')}
       >
-        <FeedItemCard item={item} templates={templates} now={now} />
+        <div className="flex flex-col gap-3">
+          <FeedItemCard item={item} templates={templates} now={now} />
+          {camp ? <BloodCampCard camp={camp} preview /> : null}
+        </div>
       </PreviewFrame>
       {hasPhoto ? <InfoNote>{t('notice.previewNote')}</InfoNote> : null}
     </div>

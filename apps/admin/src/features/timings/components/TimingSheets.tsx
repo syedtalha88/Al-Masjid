@@ -9,6 +9,9 @@ import { useState } from 'react';
 import { ADJUST_RANGE, OFFSET_RANGE } from '../lib/editor.ts';
 import { ltr } from '../lib/text.ts';
 
+/** One-tap jamaat gaps after the adhan (minutes) — the common ones; any other value through the stepper. */
+const QUICK_OFFSETS = [5, 10, 15, 20, 30] as const;
+
 const clamp = (value: number, range: { readonly min: number; readonly max: number }) =>
   Math.min(Math.max(value, range.min), range.max);
 
@@ -95,6 +98,66 @@ export function TimeSheet({ open, title, value, onDone, onClose, clearLabel, onC
       }
     >
       <TimeWheel label={title} value={time} onChange={setTime} />
+    </Sheet>
+  );
+}
+
+export interface TimeRangeSheetProps {
+  readonly open: boolean;
+  readonly title: string;
+  readonly value: { readonly start: string; readonly end: string };
+  readonly fromLabel: string;
+  readonly toLabel: string;
+  readonly onDone: (value: { start: string; end: string }) => void;
+  readonly onClose: () => void;
+}
+
+/**
+ * A time range on two wheels in one sheet (07 B5 "time range → two wheels"): both ends with one Done, so "No water
+ * 10–2" stays within 6 taps (PHASE_03 T3.12).
+ */
+export function TimeRangeSheet({ open, title, value, fromLabel, toLabel, onDone, onClose }: TimeRangeSheetProps) {
+  const { t } = useTranslation('admin');
+  const [range, setRange] = useState(value);
+  return (
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title={title}
+      footer={
+        <Button
+          size="lg"
+          fullWidth
+          onPress={() => {
+            onDone(range);
+          }}
+        >
+          {t('timings.done')}
+        </Button>
+      }
+    >
+      <div className="flex flex-col gap-4 pb-2">
+        <section className="flex flex-col gap-1" aria-label={fromLabel}>
+          <h3 className="type-subhead-strong text-text-secondary">{fromLabel}</h3>
+          <TimeWheel
+            label={`${title} · ${fromLabel}`}
+            value={range.start}
+            onChange={(start) => {
+              setRange((current) => ({ ...current, start }));
+            }}
+          />
+        </section>
+        <section className="flex flex-col gap-1" aria-label={toLabel}>
+          <h3 className="type-subhead-strong text-text-secondary">{toLabel}</h3>
+          <TimeWheel
+            label={`${title} · ${toLabel}`}
+            value={range.end}
+            onChange={(end) => {
+              setRange((current) => ({ ...current, end }));
+            }}
+          />
+        </section>
+      </div>
     </Sheet>
   );
 }
@@ -235,16 +298,35 @@ export function JamaatSheet({ open, title, config, resolve, onDone, onClose }: P
             }}
           />
         ) : (
-          <Stepper
-            value={offset}
-            range={OFFSET_RANGE}
-            text={t('timings.offsetValue', { minutes: offset })}
-            lessLabel={t('timings.oneLess')}
-            moreLabel={t('timings.oneMore')}
-            onChange={(value) => {
-              setDraft({ ...draft, jamaatOffsetMin: value });
-            }}
-          />
+          <>
+            <Stepper
+              value={offset}
+              range={OFFSET_RANGE}
+              text={t('timings.offsetValue', { minutes: offset })}
+              lessLabel={t('timings.oneLess')}
+              moreLabel={t('timings.oneMore')}
+              onChange={(value) => {
+                setDraft({ ...draft, jamaatOffsetMin: value });
+              }}
+            />
+            {/* The usual gaps in one tap (T3.12: a jamaat change in ≤ 6 taps); the stepper fine-tunes. */}
+            <div role="group" aria-label={t('timings.quickOffsets')} className="grid grid-cols-5 gap-2">
+              {QUICK_OFFSETS.map((minutes) => (
+                <Button
+                  key={minutes}
+                  variant={minutes === offset ? 'primary' : 'outline'}
+                  className="px-0"
+                  aria-pressed={minutes === offset}
+                  aria-label={t('timings.offsetValue', { minutes })}
+                  onPress={() => {
+                    setDraft({ ...draft, jamaatOffsetMin: minutes });
+                  }}
+                >
+                  {format.number(minutes)}
+                </Button>
+              ))}
+            </div>
+          </>
         )}
         {today.jamaat ? (
           <p className="type-callout text-text">{t('timings.today', { time: ltr(format.time(today.jamaat).text) })}</p>
