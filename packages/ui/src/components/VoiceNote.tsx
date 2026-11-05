@@ -27,7 +27,7 @@ const clock = (seconds: number) => {
 /**
  * A voice note (07 A18, DECISIONS #104): play / pause (56 px), the waveform from `peaks` (decorative, filled up to the
  * position), a scrub slider, elapsed / remaining, the speed chip 1× → 1.5× → 2×. Starting one pauses any other; leaving
- * the screen (unmount) pauses it. Nothing is fetched before the first play (`preload="none"`); the app's worker keeps a
+ * the screen (unmount, or another screen pushed over it) pauses it. Nothing is fetched before the first play (`preload="none"`); the app's worker keeps a
  * played note for offline listening, and one that cannot load says "Available when online". The audio is requested
  * with CORS so the worker can read it.
  */
@@ -47,7 +47,18 @@ export function VoiceNote({ src, durationS, peaks, className }: VoiceNoteProps) 
 
   useEffect(() => {
     const element = audio.current;
+    // Leaving the screen pauses — also when another screen is pushed over this one (the navigator makes the covered
+    // screen `inert`; F54).
+    const screen = element?.closest('[data-screen]');
+    const observer =
+      screen && typeof MutationObserver === 'function'
+        ? new MutationObserver(() => {
+            if (screen.hasAttribute('inert')) element?.pause();
+          })
+        : null;
+    if (screen) observer?.observe(screen, { attributes: true, attributeFilter: ['inert'] });
     return () => {
+      observer?.disconnect();
       element?.pause();
       if (playing === element) playing = null;
     };

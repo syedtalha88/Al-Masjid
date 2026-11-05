@@ -105,7 +105,8 @@
       "position": "Position in the voice message",
       "positionValue": "{elapsed} of {total}",
       "speed": "Playback speed {speed}",
-      "unavailable": "Available when online"
+      "unavailable": "Available when online",
+      "badge": "Voice message · {duration}"
     },
     "ruqyah": {
       "title": "Ruqyah",

@@ -5,12 +5,13 @@ import { calendarDateInZone } from '@mc/domain/time';
 import { useTranslation } from '@mc/i18n/react';
 import type { FeedItem } from '@mc/shared/contracts/public';
 import { MosqueIllustration } from '@mc/ui';
-import { SegmentedControl } from '@mc/ui/components';
+import { SegmentedControl, VoiceNote } from '@mc/ui/components';
 import { DailyItemCard } from '@mc/ui/content';
 import { useNavigator, useScreen } from '@mc/ui/navigation';
 import { memo, useCallback, useMemo, useState } from 'react';
 
 import { useNow } from '../../lib/clock.ts';
+import { audioUrl } from '../../lib/media.ts';
 import { ShareSheet } from '../masjid/components/ShareSheet.tsx';
 import { ContentGate } from './components/ContentGate.tsx';
 import { SectionFrame } from './components/SectionFrame.tsx';
@@ -131,6 +132,11 @@ export const DailyCard = memo(function DailyCard({
       onReadFull={() => {
         navigator.push(`/items/${item.publicId}`);
       }}
+      voice={
+        item.voice ? (
+          <VoiceNote src={audioUrl(item.voice.key)} durationS={item.voice.durationS} peaks={item.voice.peaks} />
+        ) : undefined
+      }
     />
   );
 });

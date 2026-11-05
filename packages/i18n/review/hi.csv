@@ -634,6 +634,7 @@ common,ui.voice.position,Position in the voice message,वॉइस मैसे
 common,ui.voice.positionValue,{elapsed} of {total},{total} में से {elapsed},no
 common,ui.voice.speed,Playback speed {speed},चलने की रफ़्तार {speed},no
 common,ui.voice.unavailable,Available when online,ऑनलाइन होने पर उपलब्ध,no
+common,ui.voice.badge,Voice message · {duration},वॉइस मैसेज · {duration},no
 common,ui.ruqyah.title,Ruqyah,रुक़्या,no
 common,ui.ruqyah.category.nazar,Protection from Nazar,नज़र से हिफ़ाज़त,no
 common,ui.ruqyah.category.sihr,Protection from black magic,जादू से हिफ़ाज़त,no

@@ -133,6 +133,8 @@ test.describe('B14 voice notes (T3.13)', () => {
     await registerDevice(musalli);
     await followByCode(musalli, APP_URL, [followCode]);
     await musalli.goto(`${APP_URL}/masjid/${masjidId}/announcements`);
+    // The list card cannot hold a player: it says there is one (F54).
+    await expect(musalli.getByRole('button', { name: TITLE })).toContainText('Voice message · 0:02');
     await musalli.getByRole('button', { name: TITLE }).click();
     const note = musalli.locator('[data-voice-note]');
     await expect(note).toBeVisible();

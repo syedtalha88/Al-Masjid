@@ -634,6 +634,7 @@ common,ui.voice.position,Position in the voice message,వాయిస్ సం
 common,ui.voice.positionValue,{elapsed} of {total},{total} లో {elapsed},no
 common,ui.voice.speed,Playback speed {speed},వేగం {speed},no
 common,ui.voice.unavailable,Available when online,ఆన్‌లైన్‌లో ఉన్నప్పుడు అందుబాటులో ఉంటుంది,no
+common,ui.voice.badge,Voice message · {duration},వాయిస్ సందేశం · {duration},no
 common,ui.ruqyah.title,Ruqyah,రుఖ్యా,no
 common,ui.ruqyah.category.nazar,Protection from Nazar,నజర్ నుండి రక్షణ,no
 common,ui.ruqyah.category.sihr,Protection from black magic,చేతబడి నుండి రక్షణ,no

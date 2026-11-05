@@ -105,7 +105,8 @@
       "position": "వాయిస్ సందేశంలో స్థానం",
       "positionValue": "{total} లో {elapsed}",
       "speed": "వేగం {speed}",
-      "unavailable": "ఆన్‌లైన్‌లో ఉన్నప్పుడు అందుబాటులో ఉంటుంది"
+      "unavailable": "ఆన్‌లైన్‌లో ఉన్నప్పుడు అందుబాటులో ఉంటుంది",
+      "badge": "వాయిస్ సందేశం · {duration}"
     },
     "ruqyah": {
       "title": "రుఖ్యా",

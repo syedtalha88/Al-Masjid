@@ -5,6 +5,7 @@ import { calendarDateInZone, wallClockInZone } from '@mc/domain/time';
 import type { Formatters } from '@mc/i18n/format';
 import { useLocale, useTranslation } from '@mc/i18n/react';
 import type { FeedItem, NoticeTemplate } from '@mc/shared/contracts/public';
+import type { ReactNode } from 'react';
 
 import { AmeenButton } from '../components/AmeenButton.tsx';
 import { AnnouncementCard, DuaRequestCard } from '../components/ContentCards.tsx';
@@ -55,6 +56,7 @@ export function AnnouncementItemCard({ item, templates, now, masjid, onPress }: 
   const { t: tc } = useTranslation();
   const { locale, format } = useLocale();
   const body = useNoticeBody(item, templates);
+  const badge = useVoiceBadge(item);
   const eventAt = item.announcement?.eventAt;
   return (
     <AnnouncementCard
@@ -62,7 +64,10 @@ export function AnnouncementItemCard({ item, templates, now, masjid, onPress }: 
       title={itemTitle(item, locale, templates, tc(`item.${itemKind(item)}`))}
       time={format.relative(new Date(item.publishedAt), now)}
       body={body}
-      tags={announcementTags(item).map((tag) => ({ label: t(`tag.${tag}`), tone: TAG_TONE[tag] }))}
+      tags={[
+        ...announcementTags(item).map((tag) => ({ label: t(`tag.${tag}`), tone: TAG_TONE[tag] })),
+        ...(badge ? [badge] : []),
+      ]}
       eventDate={eventAt ? eventLabel(eventAt, format) : undefined}
       masjid={masjid}
       onPress={onPress}
@@ -80,10 +85,21 @@ export interface DailyItemCardProps {
   readonly onToggleSave: () => void;
   readonly onShare: () => void;
   readonly onReadFull: () => void;
+  /** The voice note's player (the app knows the media origin — F54). */
+  readonly voice?: ReactNode;
 }
 
 /** A8: a hadith / ayah from the verified library with the masjid's note; `null` without its library entry. */
-export function DailyItemCard({ item, hero, today, saved, onToggleSave, onShare, onReadFull }: DailyItemCardProps) {
+export function DailyItemCard({
+  item,
+  hero,
+  today,
+  saved,
+  onToggleSave,
+  onShare,
+  onReadFull,
+  voice,
+}: DailyItemCardProps) {
   const { t } = useTranslation('content');
   const { locale, format } = useLocale();
   const library = item.daily?.library;
@@ -102,6 +118,7 @@ export function DailyItemCard({ item, hero, today, saved, onToggleSave, onShare,
       date={format.date(new Date(item.publishedAt), 'medium')}
       todayLabel={today ? t(ayah ? 'todayAyah' : 'todayHadith') : undefined}
       note={item.daily?.note ? { label: t('noteFromMasjid'), text: item.daily.note } : undefined}
+      voice={voice}
       saved={saved}
       onToggleSave={onToggleSave}
       saveLabel={t('save')}
@@ -138,6 +155,7 @@ export function DuaItemCard({ item, now, ameen, onPress }: DuaItemCardProps) {
   const { t } = useTranslation('content');
   const { t: tc } = useTranslation();
   const { locale, format } = useLocale();
+  const badge = useVoiceBadge(item);
   const dua = item.dua;
   if (!dua) return null;
   const person = duaPerson(item);
@@ -148,6 +166,7 @@ export function DuaItemCard({ item, now, ameen, onPress }: DuaItemCardProps) {
     <DuaRequestCard
       icon={<ItemIcon item={item} size={56} />}
       tag={{ label: t(`tag.${dua.category}`), tone: DUA_TONE[dua.category] }}
+      badge={badge}
       time={format.relative(new Date(item.publishedAt), now)}
       title={t('requestForDua')}
       message={item.body ?? ''}
@@ -181,6 +200,18 @@ export function DuaItemCard({ item, now, ameen, onPress }: DuaItemCardProps) {
       onPress={onPress}
     />
   );
+}
+
+/**
+ * "Voice message · 3:20" for a card whose item has a voice note (F54): the section cards are whole-card buttons and
+ * cannot hold a player, so they say there is one; the detail plays it.
+ */
+function useVoiceBadge(item: FeedItem): { label: string; tone: 'info' } | undefined {
+  const { t } = useTranslation();
+  const seconds = item.voice?.durationS;
+  if (seconds === undefined) return undefined;
+  const clock = `${String(Math.floor(seconds / 60))}:${String(seconds % 60).padStart(2, '0')}`;
+  return { label: t('ui.voice.badge', { duration: clock }), tone: 'info' };
 }
 
 const noop = (): void => undefined;

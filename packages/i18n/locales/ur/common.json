@@ -105,7 +105,8 @@
       "position": "وائس میسج میں جگہ",
       "positionValue": "{total} میں سے {elapsed}",
       "speed": "رفتار {speed}",
-      "unavailable": "آن لائن ہونے پر دستیاب"
+      "unavailable": "آن لائن ہونے پر دستیاب",
+      "badge": "وائس میسج · {duration}"
     },
     "ruqyah": {
       "title": "رقیہ",

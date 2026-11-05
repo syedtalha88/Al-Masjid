@@ -126,6 +126,8 @@ export interface DuaRequestCardProps {
   readonly icon: ReactNode;
   /** Illness / Inteqal / Other. */
   readonly tag: CardTag;
+  /** A second tag after the category ("Voice message · 0:42" — F54). */
+  readonly badge?: CardTag | undefined;
   readonly time: string;
   /** "Request for Dua". */
   readonly title: string;
@@ -149,6 +151,7 @@ export interface DuaRequestCardProps {
 export function DuaRequestCard({
   icon,
   tag,
+  badge,
   time,
   title,
   message,
@@ -175,6 +178,7 @@ export function DuaRequestCard({
           <span className="flex min-w-0 flex-1 flex-col gap-1">
             <span className="flex flex-wrap items-center gap-2">
               <Tag tone={tag.tone}>{tag.label}</Tag>
+              {badge ? <Tag tone={badge.tone}>{badge.label}</Tag> : null}
               <span className="type-caption text-text-tertiary">{time}</span>
             </span>
             {masjid ? <bdi className="truncate type-caption text-text-secondary">{masjid}</bdi> : null}

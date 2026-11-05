@@ -105,7 +105,8 @@
       "position": "वॉइस मैसेज में जगह",
       "positionValue": "{total} में से {elapsed}",
       "speed": "चलने की रफ़्तार {speed}",
-      "unavailable": "ऑनलाइन होने पर उपलब्ध"
+      "unavailable": "ऑनलाइन होने पर उपलब्ध",
+      "badge": "वॉइस मैसेज · {duration}"
     },
     "ruqyah": {
       "title": "रुक़्या",
