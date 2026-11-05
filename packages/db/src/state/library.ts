@@ -2,10 +2,10 @@
 // nothing), edit, verify, retire — Super Admin only, each in one transaction with its audit entry. `search_text` is
 // derived here on every content change (DECISIONS #106), never taken from the caller.
 import { librarySearchText } from '@mc/domain/search';
-import type { UUID } from 'mongodb';
+import { UUID } from 'mongodb';
 
 import { type DbHandle, type TxContext, withTransaction } from '../client.ts';
-import { StateError, writeAudit } from '../effects.ts';
+import { bumpMasjidVersion, StateError, writeAudit } from '../effects.ts';
 import type { DHIKR_OCCASION, DUA_CATEGORY, LIBRARY_KIND } from '../schema/enums.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
@@ -280,6 +280,7 @@ export async function updateLibraryEntry(
       if (isDuplicateKey(error)) throw new StateError('LIBRARY_DUPLICATE');
       throw error;
     }
+    if (backToDraft) await bumpMasjidsUsing(ctx, input.id);
     await writeAudit(ctx, {
       action: 'library.update',
       targetType: 'library_entry',
@@ -310,6 +311,8 @@ export async function verifyLibraryEntry(
       { _id: input.id, status: 'draft' },
       { $set: { status: 'verified', verified_by: input.verifiedBy, verified_at: now, updated_at: now } },
     );
+    // Back from draft: masjids that kept it in their adhkar set or Ruqyah list show it again.
+    await bumpMasjidsUsing(ctx, input.id);
     await writeAudit(ctx, {
       action: 'library.verify',
       targetType: 'library_entry',
@@ -317,6 +320,32 @@ export async function verifyLibraryEntry(
       ...(input.requestId ? { requestId: input.requestId } : {}),
     });
   });
+}
+
+/**
+ * F55 (DECISIONS #133): an entry that stops or starts being verified changes what the masjids using it show — their
+ * adhkar set (bundle), Ruqyah list and hadith / dua posts (feeds) — and those are cached per content version. Bumps the
+ * version of every masjid that uses the entry, in the caller's transaction, so followers refetch at their next poll.
+ *
+ * @returns how many masjids were bumped.
+ */
+async function bumpMasjidsUsing(ctx: TxContext, libraryId: UUID): Promise<number> {
+  const masjids = new Map<string, UUID>();
+  const add = (id: unknown) => {
+    if (id instanceof UUID) masjids.set(idText(id), id);
+  };
+  for (const doc of await scoped(ctx, 'masjids').find({ 'adhkar.library_ids': libraryId })) add(doc['_id']);
+  for (const doc of await scoped(ctx, 'ruqyah_entries').find({ library_id: libraryId, status: 'active' })) {
+    add(doc['masjid_id']);
+  }
+  // Rare (a Super Admin action) and bounded by the posts that quote this entry: no index of its own.
+  const items = await scoped(ctx, 'items').find({
+    status: 'published',
+    $or: [{ 'daily.library_id': libraryId }, { 'dua.library_id': libraryId }],
+  });
+  for (const doc of items) add(doc['masjid_id']);
+  for (const id of masjids.values()) await bumpMasjidVersion(ctx, id);
+  return masjids.size;
 }
 
 /**
@@ -335,6 +364,7 @@ export async function retireLibraryEntry(
     const current = await loadEntry(ctx, input.id);
     if (current.status === 'retired') throw new StateError('INVALID_TRANSITION');
     await scoped(ctx, 'content_library').updateOne({ _id: input.id }, { $set: { status: 'retired', updated_at: now } });
+    if (current.status === 'verified') await bumpMasjidsUsing(ctx, input.id);
     await writeAudit(ctx, {
       action: 'library.retire',
       targetType: 'library_entry',
