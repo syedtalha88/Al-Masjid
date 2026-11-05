@@ -1800,4 +1800,33 @@ dua_request, and "when present `title` is required"; 03 §3 says items carry `vo
 **Consequences:** db `voice.int.test.ts` 5 (incl. the validator refusing a title-less or wrong-type voice note), api
 int +1. Part 3 builds the recorder, the player and the delivery route.
 
+### #128 — Voice notes in the apps: recorder, player, delivery and offline (PHASE_03 T3.13, part 3) — ACCEPTED (Claude Code, 5 Nov 2026)
+**Context:** 07 B14 / A18, 01 §5.5 Audio ("Caddy `/a/m4a/<key>`", CSP `media-src`, worker CacheFirst with range requests,
+max 30 / 30 days), 04 §7's Permissions-Policy (`microphone=()` everywhere).
+**Decision:**
+- **Microphone:** the admin SPA alone sends `microphone=(self)` (Caddy override in the admin site's static handler,
+  04 §7 note, header spec); the musalli app keeps `microphone=()`.
+- **Delivery:** the media site gains `/a/m4a/m/<masjid>/a/<id>` (path allow-list; files backend → `/srv/media/a/m4a/…`,
+  Cloudinary → `video/upload/t_audio_m4a/…m4a`, owner step O25), `immutable`, with `Access-Control-Allow-Origin: *`
+  (Cloudinary's own CORS headers stripped) so the app's worker can read it; CSP `media-src` gains `{$MEDIA_ORIGIN}` on
+  both apps. Range requests pass through.
+- **Offline (musalli worker):** `<audio crossorigin preload="none">` — nothing loads before the first play. The worker
+  answers `/a/m4a/` from `mc-audio-v1`; on a miss it fetches the whole file (≤ 10 min of AAC ≈ 4 MB), keeps it
+  (`CacheExpiration` 30 entries / 30 days) and answers the requested byte range with `createPartialResponse`
+  (`workbox-range-requests` 7.4.1 — new dependency of `apps/app`, service-worker bundle only; the app's initial JS is
+  unchanged: 185.8 kB of 186). Played notes reveal followed masjids, so "Clear all data" empties that cache too.
+- **Player (A18)** `VoiceNote` in `@mc/ui`: play / pause 56 px, decorative waveform from the peaks (filled to the
+  position), a native range slider for scrubbing (`aria-valuetext` "1:20 of 3:20"), elapsed / remaining, speed 1× →
+  1.5× → 2×, one plays at a time (module-level), pause on unmount, "Available when online" on a load error. Shown on
+  the notice, hadith and dua detail screens with the title above. The section cards (whole-card buttons) do not embed a
+  player — a nested button is invalid (F54 tracks a card badge and the A8 hero).
+- **Recorder (B14)** `VoiceField` in the notice Fill, hadith Note and dua Details steps: the ownership tick first;
+  record (MediaRecorder, the first supported of MP4 / Ogg-Opus / WebM-Opus / WebM; live level meter; timer with
+  auto-stop at 10:00; pause / resume; stop), play back, "Use this" or "Record again"; or "Choose audio file". The file
+  is decoded with Web Audio → length + 48 peaks (#126) and uploaded; the title field appears where the post has none
+  of its own (template notice, hadith, dua), and "Next" names a missing one.
+**Consequences:** admin unit +8 (peaks, format choice, bodies through the server contracts, the recorder with fake
+MediaRecorder / Web Audio), e2e `e2e/admin/voice.spec.ts` (a WAV attached by file → the musalli plays it), the header
+spec checks the admin's microphone policy; the B5/B6/B7 screens with the voice field stay axe clean in 4 locales.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._
