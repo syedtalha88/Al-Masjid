@@ -393,6 +393,35 @@ for (const locale of LOCALES) {
         await adminPage.waitForTimeout(600); // the sheet's spring settles before the shot
         await adminShot('b13-request');
         await adminPage.keyboard.press('Escape');
+        // T3.16 B17: Ilm contacts in the profile — one for sisters (API, fake number), the editor with its preview, a new
+        // contact (consent unticked, Save disabled).
+        const contact = await adminPage.request.post(`${ADMIN_URL}/api/admin/masjids/${masjidId}/contacts`, {
+          headers: CSRF,
+          data: {
+            name: `Test Contact ${locale}`,
+            role: 'Sample role',
+            topics: 'Sample topics',
+            whatsapp: '+910000000001',
+            audience: 'sisters',
+            consentConfirmed: true,
+          },
+        });
+        expect(contact.status()).toBe(201);
+        const { id: contactId } = (await contact.json()) as { id: string };
+        await adminPage.goto(`${ADMIN_URL}/profile`);
+        const contactsSection = adminPage.locator('[data-contacts-admin]');
+        await expect(contactsSection.locator('[data-contact-row]')).toHaveCount(1);
+        await contactsSection.scrollIntoViewIfNeeded();
+        await adminPage.waitForLoadState('networkidle');
+        await adminShot('b17-contacts');
+        await settled(adminPage, `/contacts/${contactId}`);
+        await expect(adminPage.locator('[data-ilm-contact]')).toBeVisible();
+        await adminShot('b17-contact-edit');
+        await settled(adminPage, '/contacts/new');
+        await expect(
+          adminPage.getByRole('button', { name: label(locale, 'admin', 'contacts.save'), exact: true }),
+        ).toBeDisabled();
+        await adminShot('b17-contact-new');
         await adminPage.goto(`${ADMIN_URL}/account`);
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b13-account-admin');
