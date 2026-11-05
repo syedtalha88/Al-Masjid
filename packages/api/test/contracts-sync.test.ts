@@ -9,6 +9,8 @@ import {
   LIBRARY_KIND,
   LIBRARY_STATUS,
   MASJID_STATUS,
+  RUQYAH_CATEGORY,
+  RUQYAH_MAX as DB_RUQYAH_MAX,
   SPECIAL_TYPE,
   TEMPLATE_PARAM_TYPE,
   TEMPLATE_STATUS,
@@ -23,6 +25,9 @@ import {
   LIBRARY_KINDS,
   LIBRARY_STATUSES,
   MASJID_STATUSES,
+  RUQYAH_CATEGORIES,
+  RUQYAH_CATEGORY_VALUES,
+  RUQYAH_MAX,
   SPECIAL_TYPES,
   TEMPLATE_CATEGORIES,
   TEMPLATE_PARAM_TYPES,
@@ -51,6 +56,12 @@ describe('shared contracts mirror the database schema', () => {
     expect(TEMPLATE_CATEGORIES).toEqual(ANNOUNCEMENT_CATEGORY);
     expect(TEMPLATE_STATUSES).toEqual(TEMPLATE_STATUS);
     expect(TEMPLATE_PARAM_TYPES).toEqual(TEMPLATE_PARAM_TYPE);
+  });
+
+  it('Ruqyah headings and the entry limit are identical (T3.15)', () => {
+    expect(RUQYAH_CATEGORIES).toEqual(RUQYAH_CATEGORY);
+    expect(RUQYAH_CATEGORY_VALUES).toEqual(RUQYAH_CATEGORY);
+    expect(RUQYAH_MAX).toBe(DB_RUQYAH_MAX);
   });
 
   it('special date types are identical (T3.3)', () => {

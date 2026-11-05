@@ -48,6 +48,7 @@ export {
   type PublicMasjidSummary,
   resolveMasjidByCode,
 } from './public.ts';
+export { type AdminRuqyahEntryRow, getPublicRuqyah, listRuqyahForAdmin, type RuqyahEntryRow } from './ruqyah.ts';
 export {
   type AdminOfMasjid,
   type AuditRow,

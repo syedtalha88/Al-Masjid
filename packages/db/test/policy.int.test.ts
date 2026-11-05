@@ -1,4 +1,4 @@
-// PHASE_01 T1.4 acceptance: every (namespace × scope × operation) cell of 02 §4.1 — 41 × 6 × 4 = 984 — is exercised
+// PHASE_01 T1.4 acceptance: every (namespace × scope × operation) cell of 02 §4.1 — 43 × 6 × 4 = 1,032 — is exercised
 // through `scoped()` against a real MongoDB and compared with an independent transcription of the table; plus
 // cross-masjid isolation (crafted ids, injected filters), an admin without memberships, allow-listed fields, hidden
 // fields, redaction, forged scopes and the operator-key guard.
@@ -28,6 +28,7 @@ const SPEC: Readonly<Partial<Record<Namespace, Partial<Record<Column, string>>>>
   ameen_counters: { public: 'S', device: 'SIU', admin: 'S', super: 'S' },
   campaign_amount_history: { admin: 'SI', super: 'S' },
   chanda_weeks: { admin: 'SIU', super: 'SIUD' },
+  ruqyah_entries: { admin: 'SIU', super: 'SIUD' }, // DECISIONS #104: delete = status deleted (U)
   content_library: { admin: 'S', super: 'SIUD' },
   notice_templates: { admin: 'S', super: 'SIUD' },
   payment_profiles: { admin: 'S', super: 'S' },
@@ -54,6 +55,7 @@ const SPEC: Readonly<Partial<Record<Namespace, Partial<Record<Column, string>>>>
   v_pub_library: { public: 'S', device: 'S', admin: 'S', super: 'S' },
   v_pub_templates: { public: 'S', device: 'S', admin: 'S', super: 'S' },
   v_pub_settings: { public: 'S', device: 'S', admin: 'S', super: 'S' },
+  v_pub_ruqyah: { public: 'S', device: 'S', admin: 'S', super: 'S' },
   v_admin_follow_audience: { admin: 'S', super: 'S' },
 };
 const LETTER: Record<Operation, string> = { find: 'S', insert: 'I', update: 'U', delete: 'D' };
@@ -95,7 +97,7 @@ function docFor(namespace: Namespace, scope: Scope, contentId: UUID): Record<str
           ? scope.deviceId
           : new UUID(),
     actor_type: scope.kind === 'super' ? 'super_admin' : scope.kind,
-    status: namespace === 'notification_jobs' ? 'pending' : 'verified',
+    status: namespace === 'notification_jobs' ? 'pending' : namespace === 'ruqyah_entries' ? 'active' : 'verified',
     system: false,
     // An outbox job starts pending with nothing sent (policy check — DECISIONS #115).
     ...(namespace === 'notification_jobs' ? { sent: 0, failed: 0, bypass_quota: false } : {}),
@@ -161,11 +163,11 @@ describe('policy matrix (02 §4.1): every cell, allowed and denied', () => {
       expect(wrong).toEqual([]);
     });
   }
-  it('the generated checklist covered 41 namespaces × 6 scopes × 4 operations (minus what MongoDB decides)', () => {
-    expect(NAMESPACES).toHaveLength(41);
-    // System scope: _migrations × 4 and 11 views × 3 write operations are left to MongoDB / the DB users.
-    expect(skipped).toBe(4 + 11 * 3);
-    expect(tested).toBe(41 * 6 * 4 - skipped); // only cells really attempted are counted (phase-verifier nit)
+  it('the generated checklist covered 43 namespaces × 6 scopes × 4 operations (minus what MongoDB decides)', () => {
+    expect(NAMESPACES).toHaveLength(43);
+    // System scope: _migrations × 4 and 12 views × 3 write operations are left to MongoDB / the DB users.
+    expect(skipped).toBe(4 + 12 * 3);
+    expect(tested).toBe(43 * 6 * 4 - skipped); // only cells really attempted are counted (phase-verifier nit)
   });
 });
 
@@ -178,6 +180,7 @@ describe('tenant isolation', () => {
     'special_timings',
     'items',
     'chanda_weeks',
+    'ruqyah_entries',
     'campaign_amount_history',
     'payment_profiles',
     'notification_jobs',

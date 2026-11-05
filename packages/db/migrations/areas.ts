@@ -55,4 +55,6 @@ export const SCHEMA_AREAS: Readonly<
   '0011_item_voice': { collections: ['items'] },
   // PHASE_03 T3.14 (DECISIONS #104): the masjid's "Adhkar after salah" set, public through v_pub_masjids.
   '0012_masjid_adhkar': { collections: ['masjids'], views: ['v_pub_masjids'] },
+  // PHASE_03 T3.15 (DECISIONS #104): the masjid's Ruqyah section — library, text or audio entries.
+  '0013_ruqyah': { collections: ['ruqyah_entries'], views: ['v_pub_ruqyah'] },
 };

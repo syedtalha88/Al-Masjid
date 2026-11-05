@@ -34,8 +34,11 @@ const prayerShape = f.object({
   jamaat_time: opt(f.time()),
   jamaat_offset_min: opt(f.int(0, 60)),
 });
-const mode = (name: string, value: string): BsonSchema => ({ properties: { [name]: { enum: [value] } } });
-const absent = (...fields: string[]): BsonSchema => ({ not: { anyOf: fields.map((name) => ({ required: [name] })) } });
+export const mode = (name: string, value: string): BsonSchema => ({ properties: { [name]: { enum: [value] } } });
+/** None of `fields` may be present. */
+export const absent = (...fields: string[]): BsonSchema => ({
+  not: { anyOf: fields.map((name) => ({ required: [name] })) },
+});
 const prayerRules: readonly BsonSchema[] = [
   {
     oneOf: [
@@ -164,7 +167,8 @@ const detailNames = Object.keys(DETAILS) as Detail[]; // keys of the literal abo
 
 /** 02 items.voice (DECISIONS #104, T3.13): a voice note on these types only, and always with a title. */
 export const VOICE_ITEM_TYPES = ['announcement', 'daily_content', 'dua_request'] as const;
-const VOICE_KEY_PATTERN =
+/** `m/<masjid>/a/<recording>` — a stored voice note (T3.13); Ruqyah audio uses the same keys. */
+export const VOICE_KEY_PATTERN =
   '^m/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/a/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$';
 const voice = f.object({
   key: f.string(200, { pattern: VOICE_KEY_PATTERN }),

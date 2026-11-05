@@ -1,5 +1,5 @@
-// api-public routes (03 §3, PHASE_02 T2.2): config, devices, resolve, follows, versions, bundle, feed, items, Ameen,
-// library, templates. Reads go through the public views only (@mc/db/repos), device writes through the device state
+// api-public routes (03 §3, PHASE_02 T2.2): config, devices, resolve, follows, versions, bundle, feed, Ruqyah (T3.15),
+// items, Ameen, library, templates. Reads go through the public views only (@mc/db/repos), device writes through the device state
 // functions; caching per 01 §5.2 — versioned GETs are immutable, a stale or missing `v` is a 302 to the current one,
 // and every cacheable masjid response carries `Cache-Tag: m-<masjidId>[, i-<publicId>]` (Cloudflare purge by tag).
 // Push subscriptions (Phase 4), reports and grievances (Phase 8) are added by their phases.
@@ -12,6 +12,7 @@ import {
   getMasjidVersions,
   getPublicConfig,
   getPublicItem,
+  getPublicRuqyah,
   listFeed,
   listTemplates,
   type PublicAudience,
@@ -47,6 +48,7 @@ import {
   registerDeviceRequestSchema,
   registerDeviceResponseSchema,
   resolveMasjidResponseSchema,
+  ruqyahListSchema,
   templateListSchema,
   updateDeviceRequestSchema,
 } from '@mc/shared/contracts';
@@ -381,6 +383,27 @@ export function publicRoutes(deps: PublicRouteDeps): RouteDefinition[] {
             : { items: [], next: null };
         cacheTag(res, `m-${idText(id)}`);
         return reply(200, page);
+      },
+    }),
+    defineRoute({
+      method: 'get',
+      path: '/masjids/:id/ruqyah',
+      summary: 'A masjid’s Ruqyah entries under their headings, library content expanded (A19; immutable per version)',
+      tags: ['masjids'],
+      auth: 'none',
+      cacheControl: versioned,
+      request: { params: z.object({ id: IdText }), query: z.object({ v: VersionText.optional() }) },
+      responses: { 200: ruqyahListSchema, 302: redirectSchema },
+      handler: async ({ params, query, res, reply }) => {
+        const id = idOr404(params.id, 'MASJID_NOT_FOUND');
+        const version = await current(id);
+        if (query.v !== String(version.v)) {
+          return reply(302, { location: versionedUrl(`/masjids/${idText(id)}/ruqyah`, query, version.v) });
+        }
+        // A suspended masjid's sections disappear with its feed (00 §4.1).
+        const ruqyah = version.status === 'active' ? await getPublicRuqyah(db, id) : { sections: [] };
+        cacheTag(res, `m-${idText(id)}`);
+        return reply(200, ruqyah);
       },
     }),
 

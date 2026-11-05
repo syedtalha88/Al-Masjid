@@ -1,6 +1,7 @@
 // `@mc/db/seed` — the dev / staging seed (PHASE_02 T2.2): 3 fake masjids (Hyderabad, Delhi, Chennai) with timings,
 // Jumu'ah, a special Eid date, Ramadan mode on one masjid, 13 placeholder library entries (3 `dhikr`: the alpha
-// masjid's adhkar set), 8 notice templates and 30 published items. RELIGIOUS CONTENT POLICY (CLAUDE.md §2.3, 10 §5):
+// masjid's adhkar set), 8 notice templates, 30 published items and two Ruqyah entries (alpha: a library dua and a
+// masjid-entered text). RELIGIOUS CONTENT POLICY (CLAUDE.md §2.3, 10 §5):
 // library entries use the fixture placeholders verbatim — no Quran, hadith or dua text, translation or reference
 // anywhere. Names are obviously fake.
 // Pure document builders plus one writer; scripts/jobs call the writer with `systemScope()` (only they may build one).
@@ -442,6 +443,7 @@ export interface DevSeed {
   readonly library: readonly Document[];
   readonly templates: readonly Document[];
   readonly items: readonly Document[];
+  readonly ruqyah: readonly Document[];
 }
 
 const replaceDate = (value: unknown, today: string): unknown => {
@@ -664,7 +666,42 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
     ameens_7d: 0,
     updated_at: now,
   }));
-  return { masjids, masjidStats, timings, specialTimings, library, templates, items };
+  // Ruqyah (T3.15): Test Masjid Alpha has a library dua under "Healing" and its own text under "Nazar".
+  const ruqyahBase = {
+    masjid_id: masjidId('alpha'),
+    status: 'active',
+    masjid_visible: true,
+    created_by: SEED_ADMIN,
+    created_at: now,
+    updated_at: now,
+  };
+  const ruqyah = [
+    {
+      _id: seedId('ruqyah-alpha-0'),
+      ...ruqyahBase,
+      category: 'shifa',
+      source: 'library',
+      library_id: libraryId(7),
+      sort: 0,
+    },
+    {
+      _id: seedId('ruqyah-alpha-1'),
+      ...ruqyahBase,
+      category: 'nazar',
+      source: 'text',
+      title: 'Sample masjid entry — DEV ONLY',
+      text: {
+        arabic: PLACEHOLDER.arabic,
+        translation: 'Sample text entered by the masjid for development. Not a real dua.',
+        translation_locale: 'en',
+        reference: 'DEV-MASJID-001',
+      },
+      instructions: 'Sample instruction from the masjid — dev only.',
+      instructions_locale: 'en',
+      sort: 1,
+    },
+  ];
+  return { masjids, masjidStats, timings, specialTimings, library, templates, items, ruqyah };
 }
 
 /** A seed document: string ids for templates, UUIDs elsewhere. */
@@ -712,6 +749,7 @@ export async function writeDevSeed(handle: DbHandle, scope: Scope, seed: DevSeed
   await put('content_library', seed.library);
   await put('notice_templates', seed.templates);
   await put('items', seed.items);
+  await put('ruqyah_entries', seed.ruqyah);
   for (const stats of seed.masjidStats) {
     await db
       .collection<SeedDoc>('masjid_stats')

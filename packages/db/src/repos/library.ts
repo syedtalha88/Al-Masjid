@@ -59,7 +59,7 @@ const occasionsOf = (doc: Document) =>
     : undefined;
 
 /** Content and chips — what both the Super Admin and admins see. */
-const contentOf = (doc: Document) => ({
+export const contentOf = (doc: Document) => ({
   id: idOf(doc),
   kind: oneOf(doc, 'kind', LIBRARY_KIND),
   arabic: need(doc, 'arabic'),

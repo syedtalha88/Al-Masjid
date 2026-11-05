@@ -550,3 +550,97 @@ export const itemPublishedSchema = z
   })
   .meta({ id: 'ItemPublished' });
 export type ItemPublished = z.infer<typeof itemPublishedSchema>;
+
+// --- Ruqyah (07 B15, 00 §4.10, PHASE_03 T3.15) ---------------------------------------------------------------------
+
+/** Most active Ruqyah entries per masjid (00 §4.10; mirrors `@mc/db/schema`). */
+export const RUQYAH_MAX = 50;
+/** The headings, in the order A19 shows them (DECISIONS #104). */
+export const RUQYAH_CATEGORIES = ['nazar', 'sihr', 'shifa', 'protection', 'general'] as const;
+export type RuqyahCategory = (typeof RUQYAH_CATEGORIES)[number];
+export const RUQYAH_TITLE_MAX = 80;
+export const RUQYAH_ARABIC_MAX = 4000;
+export const RUQYAH_TRANSLATION_MAX = 2000;
+export const RUQYAH_REFERENCE_MAX = 200;
+export const RUQYAH_INSTRUCTIONS_MAX = 300;
+const contentLocale = z.enum(['en', 'hi', 'ur', 'te']);
+
+const ruqyahCommon = {
+  category: z.enum(RUQYAH_CATEGORIES),
+  title: safeText(RUQYAH_TITLE_MAX, { min: 1 }).optional(),
+  /** The masjid's own note (e.g. when to listen), in the language it is written in. */
+  instructions: z
+    .strictObject({ text: safeText(RUQYAH_INSTRUCTIONS_MAX, { min: 1, multiline: true }), locale: contentLocale })
+    .optional(),
+};
+
+/**
+ * Body of `POST /ruqyah` and `PATCH /ruqyah/:id` — the whole entry (a PATCH replaces it; what is left out is removed):
+ * a verified library entry (any kind), text the masjid enters (Arabic + one translation + optional reference — shown as
+ * "Added by <masjid>"), or a recording from `POST /audio` with a title and the ownership tick (05 §9).
+ */
+export const ruqyahSaveSchema = z
+  .discriminatedUnion('source', [
+    z.strictObject({ ...ruqyahCommon, source: z.literal('library'), libraryId: z.string().regex(UUID_V4) }),
+    z.strictObject({
+      ...ruqyahCommon,
+      source: z.literal('text'),
+      text: z.strictObject({
+        arabic: safeText(RUQYAH_ARABIC_MAX, { min: 1, multiline: true, arabicSigns: true }),
+        translation: safeText(RUQYAH_TRANSLATION_MAX, { min: 1, multiline: true }),
+        translationLocale: contentLocale,
+        reference: safeText(RUQYAH_REFERENCE_MAX, { min: 1 }).optional(),
+      }),
+    }),
+    z.strictObject({
+      ...ruqyahCommon,
+      source: z.literal('audio'),
+      title: safeText(RUQYAH_TITLE_MAX, { min: 1 }),
+      audio: z.strictObject({
+        key: z.string().regex(AUDIO_KEY),
+        durationS: z.int().min(1).max(600),
+        peaks: z.array(z.int().min(0).max(255)).max(48).optional(),
+        /** "This recording is ours or we have permission to share it". */
+        rightsConfirmed: z.literal(true),
+      }),
+    }),
+  ])
+  .meta({ id: 'RuqyahSave' });
+export type RuqyahSave = z.infer<typeof ruqyahSaveSchema>;
+
+/** One entry as B15 reads it; `libraryId` without `library` = a library entry no longer verified (replace it). */
+export const adminRuqyahEntrySchema = z.object({
+  id: z.string(),
+  category: z.enum(RUQYAH_CATEGORIES),
+  source: z.enum(['library', 'text', 'audio']),
+  title: z.string().optional(),
+  libraryId: z.string().optional(),
+  library: adminLibraryEntrySchema.optional(),
+  text: z
+    .object({
+      arabic: z.string(),
+      translation: z.string(),
+      translationLocale: contentLocale,
+      reference: z.string().optional(),
+    })
+    .optional(),
+  audio: z.object({ key: z.string(), durationS: z.int(), peaks: z.array(z.int()).optional() }).optional(),
+  instructions: z.string().optional(),
+  instructionsLocale: contentLocale.optional(),
+});
+export type AdminRuqyahEntry = z.infer<typeof adminRuqyahEntrySchema>;
+
+/** `GET /ruqyah` (and the answer of `PUT /ruqyah/order`): the active entries in the masjid's order. */
+export const adminRuqyahListSchema = z
+  .object({ entries: z.array(adminRuqyahEntrySchema) })
+  .meta({ id: 'AdminRuqyahList' });
+export type AdminRuqyahList = z.infer<typeof adminRuqyahListSchema>;
+
+export const ruqyahSavedSchema = z.object({ id: z.string() }).meta({ id: 'RuqyahSaved' });
+
+/** `PUT /ruqyah/order` — every active entry exactly once, in the new order. */
+export const ruqyahOrderSchema = z
+  .strictObject({ ids: z.array(z.string().regex(UUID_V4)).min(1).max(RUQYAH_MAX) })
+  .refine((body) => new Set(body.ids).size === body.ids.length, { path: ['ids'], message: 'an entry is listed twice' })
+  .meta({ id: 'RuqyahOrder' });
+export type RuqyahOrder = z.infer<typeof ruqyahOrderSchema>;

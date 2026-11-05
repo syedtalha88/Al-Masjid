@@ -224,6 +224,11 @@ export const masjidBundleSchema = z.discriminatedUnion('status', [
     ),
     /** "Adhkar after salah" (A20, DECISIONS #104): the masjid's `dhikr` entries in order; `null` when off or empty. */
     adhkar: z.nullable(z.object({ entries: z.array(libraryEntrySchema) })),
+    /**
+     * How many entries the masjid's sections have, so Masjid Detail shows their rows without loading the lists (03 §3,
+     * DECISIONS #104). Optional: a bundle cached before T3.15 has none (= no rows).
+     */
+    sections: z.optional(z.object({ ruqyah: intIn(0, 1000), needy: intIn(0, 1000) })),
     /** Phase 5 (donations): present but empty until then. */
     payment: z.nullable(z.object({ vpa: z.string(), payeeName: z.string(), effectiveAt: instant })),
     campaigns: z.array(z.object({ publicId: publicIdText })),
@@ -234,6 +239,49 @@ export const masjidBundleSchema = z.discriminatedUnion('status', [
 ]);
 export type MasjidBundle = z.infer<typeof masjidBundleSchema>;
 export type ActiveMasjidBundle = Extract<MasjidBundle, { status: 'active' }>;
+
+// --- GET /masjids/:id/ruqyah?v= (A19, PHASE_03 T3.15) -------------------------------------------------------------
+
+/** The Ruqyah headings, in the order A19 shows them (DECISIONS #104). */
+export const RUQYAH_CATEGORY_VALUES = ['nazar', 'sihr', 'shifa', 'protection', 'general'] as const;
+export type RuqyahCategoryValue = (typeof RUQYAH_CATEGORY_VALUES)[number];
+
+/**
+ * One entry: a verified library entry (`library`, with its source line), text the masjid entered (`text` — shown as
+ * "Added by <masjid>", never with a source), or a recording (`audio` — the app plays `<media origin>/a/m4a/<key>`).
+ */
+export const ruqyahEntrySchema = z.object({
+  id: uuidText,
+  category: z.enum(RUQYAH_CATEGORY_VALUES),
+  source: z.enum(['library', 'text', 'audio']),
+  title: z.optional(z.string()),
+  library: z.optional(libraryEntrySchema),
+  text: z.optional(
+    z.object({
+      arabic: z.string(),
+      translation: z.string(),
+      translationLocale: LOCALE,
+      reference: z.optional(z.string()),
+    }),
+  ),
+  audio: z.optional(
+    z.object({
+      key: z.string(),
+      durationS: intIn(1, 600),
+      peaks: z.optional(z.array(intIn(0, 255))),
+    }),
+  ),
+  /** Written by the masjid (e.g. when to listen), in `instructionsLocale`. */
+  instructions: z.optional(z.string()),
+  instructionsLocale: z.optional(LOCALE),
+});
+export type RuqyahEntry = z.infer<typeof ruqyahEntrySchema>;
+
+/** The masjid's entries under their headings (only non-empty ones, in A19 order), each in the masjid's order. */
+export const ruqyahListSchema = z.object({
+  sections: z.array(z.object({ category: z.enum(RUQYAH_CATEGORY_VALUES), entries: z.array(ruqyahEntrySchema) })),
+});
+export type RuqyahList = z.infer<typeof ruqyahListSchema>;
 
 // --- follows -----------------------------------------------------------------------------------------------------------
 

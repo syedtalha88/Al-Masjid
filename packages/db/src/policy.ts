@@ -179,6 +179,24 @@ const TIMING_WRITABLE = [
   'note',
   'deleted_at',
 ];
+/** 02 §4.1 ruqyah_entries: never `masjid_id` or `created_by`; delete = `status: 'deleted'`, final (no undelete). */
+const RUQYAH_WRITABLE = [
+  'category',
+  'source',
+  'title',
+  'library_id',
+  'text',
+  'audio',
+  'instructions',
+  'instructions_locale',
+  'sort',
+  'status',
+  'deleted_at',
+];
+const ruqyahInsert = (fields: Readonly<Record<string, unknown>>): string | undefined =>
+  fields['status'] === 'active' ? undefined : 'a new entry is active';
+const ruqyahUpdate = (fields: Readonly<Record<string, unknown>>): string | undefined =>
+  'status' in fields && fields['status'] !== 'deleted' ? 'an entry can only be deleted, never restored' : undefined;
 const removedRedaction = (doc: Document): Document => {
   if (doc['status'] !== 'removed') return doc;
   const { title: _t, body: _b, image_key: _i, image_thumbhash: _h, ...rest } = doc;
@@ -271,6 +289,19 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
       find: { filter: own('masjid_id') },
       insert: { filter: own('masjid_id') },
       update: { filter: own('masjid_id'), writable: ['amount_paise', 'note', 'item_id'] },
+    },
+    super: all(),
+  },
+  ruqyah_entries: {
+    admin: {
+      find: { filter: own('masjid_id') },
+      insert: { filter: own('masjid_id'), check: ruqyahInsert },
+      // A deleted entry is never changed again (the 30-day retention clock runs from `deleted_at`).
+      update: {
+        filter: (ctx) => ({ ...own('masjid_id')(ctx), status: 'active' }),
+        writable: RUQYAH_WRITABLE,
+        check: ruqyahUpdate,
+      },
     },
     super: all(),
   },
@@ -406,6 +437,7 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
   v_pub_library: viewCells(),
   v_pub_templates: viewCells(),
   v_pub_settings: viewCells(),
+  v_pub_ruqyah: viewCells(),
   // Counts for push audiences without device ids (02 §4.2) — admins see only their own masjids.
   v_admin_follow_audience: { admin: { find: { filter: own('masjid_id') } }, super: { find: S } },
 };

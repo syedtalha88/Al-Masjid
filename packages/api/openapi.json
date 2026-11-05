@@ -2531,6 +2531,394 @@
         ],
         "additionalProperties": false
       },
+      "AdminRuqyahList": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string",
+                  "enum": [
+                    "nazar",
+                    "sihr",
+                    "shifa",
+                    "protection",
+                    "general"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "library",
+                    "text",
+                    "audio"
+                  ]
+                },
+                "title": {
+                  "type": "string"
+                },
+                "libraryId": {
+                  "type": "string"
+                },
+                "library": {
+                  "$ref": "#/components/schemas/AdminLibraryEntry"
+                },
+                "text": {
+                  "type": "object",
+                  "properties": {
+                    "arabic": {
+                      "type": "string"
+                    },
+                    "translation": {
+                      "type": "string"
+                    },
+                    "translationLocale": {
+                      "type": "string",
+                      "enum": [
+                        "en",
+                        "hi",
+                        "ur",
+                        "te"
+                      ]
+                    },
+                    "reference": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "arabic",
+                    "translation",
+                    "translationLocale"
+                  ]
+                },
+                "audio": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "durationS": {
+                      "type": "integer"
+                    },
+                    "peaks": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      }
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "durationS"
+                  ]
+                },
+                "instructions": {
+                  "type": "string"
+                },
+                "instructionsLocale": {
+                  "type": "string",
+                  "enum": [
+                    "en",
+                    "hi",
+                    "ur",
+                    "te"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "category",
+                "source"
+              ]
+            }
+          }
+        },
+        "required": [
+          "entries"
+        ]
+      },
+      "RuqyahSaved": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "RuqyahSave": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string",
+                "enum": [
+                  "nazar",
+                  "sihr",
+                  "shifa",
+                  "protection",
+                  "general"
+                ]
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "instructions": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ]
+                  }
+                },
+                "required": [
+                  "text",
+                  "locale"
+                ],
+                "additionalProperties": false
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "library"
+                ]
+              },
+              "libraryId": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              }
+            },
+            "required": [
+              "category",
+              "source",
+              "libraryId"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string",
+                "enum": [
+                  "nazar",
+                  "sihr",
+                  "shifa",
+                  "protection",
+                  "general"
+                ]
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "instructions": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ]
+                  }
+                },
+                "required": [
+                  "text",
+                  "locale"
+                ],
+                "additionalProperties": false
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              },
+              "text": {
+                "type": "object",
+                "properties": {
+                  "arabic": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000
+                  },
+                  "translation": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "translationLocale": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ]
+                  },
+                  "reference": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "arabic",
+                  "translation",
+                  "translationLocale"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "category",
+              "source",
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string",
+                "enum": [
+                  "nazar",
+                  "sihr",
+                  "shifa",
+                  "protection",
+                  "general"
+                ]
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "instructions": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ]
+                  }
+                },
+                "required": [
+                  "text",
+                  "locale"
+                ],
+                "additionalProperties": false
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "audio"
+                ]
+              },
+              "audio": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "pattern": "^m\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\/a\\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                  },
+                  "durationS": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 600
+                  },
+                  "peaks": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 255
+                    },
+                    "maxItems": 48
+                  },
+                  "rightsConfirmed": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ]
+                  }
+                },
+                "required": [
+                  "key",
+                  "durationS",
+                  "rightsConfirmed"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "category",
+              "title",
+              "source",
+              "audio"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "RuqyahOrder": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+            },
+            "minItems": 1,
+            "maxItems": 50
+          }
+        },
+        "required": [
+          "ids"
+        ],
+        "additionalProperties": false
+      },
       "SuperDashboard": {
         "type": "object",
         "properties": {
@@ -4845,6 +5233,26 @@
                           ],
                           "additionalProperties": false
                         },
+                        "sections": {
+                          "type": "object",
+                          "properties": {
+                            "ruqyah": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 1000
+                            },
+                            "needy": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 1000
+                            }
+                          },
+                          "required": [
+                            "ruqyah",
+                            "needy"
+                          ],
+                          "additionalProperties": false
+                        },
                         "payment": {
                           "nullable": true,
                           "type": "object",
@@ -5577,6 +5985,280 @@
                   "required": [
                     "items",
                     "next"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "HTTP 302"
+          }
+        }
+      }
+    },
+    "/api/v1/masjids/{id}/ruqyah": {
+      "get": {
+        "summary": "A masjid’s Ruqyah entries under their headings, library content expanded (A19; immutable per version)",
+        "tags": [
+          "masjids"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,15}$"
+            },
+            "required": false,
+            "name": "v",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sections": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "category": {
+                            "type": "string",
+                            "enum": [
+                              "nazar",
+                              "sihr",
+                              "shifa",
+                              "protection",
+                              "general"
+                            ]
+                          },
+                          "entries": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                                },
+                                "category": {
+                                  "type": "string",
+                                  "enum": [
+                                    "nazar",
+                                    "sihr",
+                                    "shifa",
+                                    "protection",
+                                    "general"
+                                  ]
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "enum": [
+                                    "library",
+                                    "text",
+                                    "audio"
+                                  ]
+                                },
+                                "title": {
+                                  "type": "string"
+                                },
+                                "library": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                                    },
+                                    "kind": {
+                                      "type": "string",
+                                      "enum": [
+                                        "hadith",
+                                        "ayah",
+                                        "dua",
+                                        "dhikr"
+                                      ]
+                                    },
+                                    "arabic": {
+                                      "type": "string"
+                                    },
+                                    "transliteration": {
+                                      "type": "object",
+                                      "properties": {
+                                        "en": {
+                                          "type": "string"
+                                        },
+                                        "hi": {
+                                          "type": "string"
+                                        },
+                                        "ur": {
+                                          "type": "string"
+                                        },
+                                        "te": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    },
+                                    "translation": {
+                                      "type": "object",
+                                      "properties": {
+                                        "en": {
+                                          "type": "string"
+                                        },
+                                        "hi": {
+                                          "type": "string"
+                                        },
+                                        "ur": {
+                                          "type": "string"
+                                        },
+                                        "te": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "required": [
+                                        "en"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "reference": {
+                                      "type": "string"
+                                    },
+                                    "sourceName": {
+                                      "type": "string"
+                                    },
+                                    "sourceLicense": {
+                                      "type": "string"
+                                    },
+                                    "repeat": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 1000
+                                    },
+                                    "occasions": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "after_salah",
+                                          "morning",
+                                          "evening"
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "kind",
+                                    "arabic",
+                                    "transliteration",
+                                    "translation",
+                                    "reference",
+                                    "sourceName",
+                                    "sourceLicense"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "text": {
+                                  "type": "object",
+                                  "properties": {
+                                    "arabic": {
+                                      "type": "string"
+                                    },
+                                    "translation": {
+                                      "type": "string"
+                                    },
+                                    "translationLocale": {
+                                      "type": "string",
+                                      "enum": [
+                                        "en",
+                                        "hi",
+                                        "ur",
+                                        "te"
+                                      ]
+                                    },
+                                    "reference": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "arabic",
+                                    "translation",
+                                    "translationLocale"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "audio": {
+                                  "type": "object",
+                                  "properties": {
+                                    "key": {
+                                      "type": "string"
+                                    },
+                                    "durationS": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 600
+                                    },
+                                    "peaks": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 255
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "key",
+                                    "durationS"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "instructions": {
+                                  "type": "string"
+                                },
+                                "instructionsLocale": {
+                                  "type": "string",
+                                  "enum": [
+                                    "en",
+                                    "hi",
+                                    "ur",
+                                    "te"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "category",
+                                "source"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "category",
+                          "entries"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "sections"
                   ],
                   "additionalProperties": false
                 }
@@ -9210,6 +9892,198 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminAdhkar"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/ruqyah": {
+      "get": {
+        "summary": "Ruqyah entries in the masjid’s order, library content expanded (B15)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRuqyahList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a Ruqyah entry at the end: a verified library entry, the masjid’s own text, or a recording with the ownership tick (≤ 50)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuqyahSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuqyahSaved"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/ruqyah/{id}": {
+      "patch": {
+        "summary": "Replace a Ruqyah entry (its place stays; a title, instruction or reference left out is removed)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuqyahSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuqyahSaved"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a Ruqyah entry (followers stop seeing it after their next version poll)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/ruqyah/order": {
+      "put": {
+        "summary": "Put the Ruqyah entries in a new order — every active entry exactly once",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuqyahOrder"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRuqyahList"
                 }
               }
             }

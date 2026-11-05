@@ -53,6 +53,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "v_pub_ruqyah"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "grievance_seq"
               },
               {
@@ -207,6 +211,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "v_pub_ruqyah"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "v_admin_follow_audience"
               },
               {
@@ -228,6 +236,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "chanda_weeks"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "ruqyah_entries"
               },
               {
                 "db": "masjid_connect",
@@ -336,6 +348,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "ruqyah_entries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "content_library"
               },
               {
@@ -431,6 +447,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "chanda_weeks"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "ruqyah_entries"
               },
               {
                 "db": "masjid_connect",
@@ -549,6 +569,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "v_pub_ruqyah"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "v_admin_follow_audience"
               },
               {
@@ -570,6 +594,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "chanda_weeks"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "ruqyah_entries"
               },
               {
                 "db": "masjid_connect",
@@ -694,6 +722,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "ruqyah_entries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "content_library"
               },
               {
@@ -815,6 +847,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "ruqyah_entries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "content_library"
               },
               {
@@ -933,6 +969,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "chanda_weeks"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "ruqyah_entries"
               },
               {
                 "db": "masjid_connect",
@@ -1059,6 +1099,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "ruqyah_entries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "content_library"
               },
               {
@@ -1192,6 +1236,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "v_pub_settings"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "v_pub_ruqyah"
               },
               {
                 "db": "masjid_connect",
@@ -1228,6 +1276,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "ruqyah_entries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "content_library"
               },
               {
@@ -1361,6 +1413,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "v_pub_settings"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "v_pub_ruqyah"
               },
               {
                 "db": "masjid_connect",
@@ -1397,6 +1453,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "ruqyah_entries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "content_library"
               },
               {
@@ -1530,6 +1590,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "v_pub_settings"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "v_pub_ruqyah"
               },
               {
                 "db": "masjid_connect",
@@ -1566,6 +1630,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "ruqyah_entries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "content_library"
               },
               {
@@ -1699,6 +1767,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "v_pub_settings"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "v_pub_ruqyah"
               },
               {
                 "db": "masjid_connect",
@@ -1735,6 +1807,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "ruqyah_entries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "content_library"
               },
               {
@@ -1868,6 +1944,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "v_pub_settings"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "v_pub_ruqyah"
               },
               {
                 "db": "masjid_connect",
@@ -1939,6 +2019,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "ruqyah_entries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "content_library"
               },
               {
@@ -2072,6 +2156,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "v_pub_settings"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "v_pub_ruqyah"
               },
               {
                 "db": "masjid_connect",

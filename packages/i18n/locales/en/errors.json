@@ -54,5 +54,9 @@
   "ADHKAR_INVALID": "This adhkar list is not possible: at most 30, each one once. Please check it and try again.",
   "VOICE_INVALID": "A voice note needs a short title. Please add one and try again.",
   "AUDIO_INVALID": "This file is not a voice recording the app can use. Please record again or choose another file.",
-  "AUDIO_TOO_LONG": "Voice notes can be at most 10 minutes long."
+  "AUDIO_TOO_LONG": "Voice notes can be at most 10 minutes long.",
+  "RUQYAH_INVALID": "A recording needs a short title and the tick that it is yours to share. Please check and try again.",
+  "RUQYAH_NOT_FOUND": "This Ruqyah entry was removed. Please go back to the list.",
+  "RUQYAH_LIMIT_REACHED": "The Ruqyah section already has 50 entries. Delete one to add another.",
+  "RUQYAH_ORDER_INVALID": "The Ruqyah list changed meanwhile. Please open it again and reorder."
 }

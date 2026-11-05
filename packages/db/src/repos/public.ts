@@ -156,8 +156,9 @@ export async function getMasjidVersions(handle: DbHandle, ids: readonly UUID[]):
 const SPECIAL_DATES_MAX = 100;
 
 /**
- * `GET /masjids/:id/bundle`: the masjid's profile, raw timings, special dates from `fromDate` on, Ramadan settings;
- * payment, campaigns and chanda stay empty until Phase 5 (03 §3).
+ * `GET /masjids/:id/bundle`: the masjid's profile, raw timings, special dates from `fromDate` on, Ramadan settings,
+ * the adhkar set and the section counts (Masjid Detail rows without loading the lists); payment, campaigns, chanda and
+ * needy people stay empty until Phase 5 (03 §3).
  *
  * @param fromDate - "YYYY-MM-DD" (today − 7 days in IST: the timetable's DateStepper range).
  * @returns `null` for unknown, pending and deleted masjids; `{status: 'suspended', v}` for a suspended one.
@@ -209,6 +210,7 @@ export async function getMasjidBundle(handle: DbHandle, id: UUID, fromDate: stri
           }
         : null,
     adhkar: await adhkarEntries(handle, masjid),
+    sections: { ruqyah: await (await view(handle, 'v_pub_ruqyah')).count({ masjid_id: id }), needy: 0 },
     payment: null,
     campaigns: [],
     chanda: null,

@@ -67,6 +67,9 @@ export const f = {
 
   bool: () => field(z.boolean(), { bsonType: 'bool' }),
 
+  /** A confirmation the admin gave (02: `rights_confirmed true`, `consent_confirmed true`) — `false` is refused. */
+  confirmed: () => field(z.literal(true), { bsonType: 'bool', enum: [true] }),
+
   /** Small integer stored as BSON `int` (minutes, offsets, quotas, counts). */
   int: (minimum: number, maximum: number) =>
     field(z.number().int().min(minimum).max(maximum), { bsonType: 'int', minimum, maximum }),

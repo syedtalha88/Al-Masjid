@@ -88,6 +88,14 @@ export {
   publishTimingUpdate,
 } from './publish.ts';
 export {
+  addRuqyahEntry,
+  deleteRuqyahEntry,
+  orderRuqyahEntries,
+  type RuqyahContent,
+  type RuqyahEntryInput,
+  updateRuqyahEntry,
+} from './ruqyah.ts';
+export {
   deleteSpecialDate,
   type RamadanInput,
   saveRamadan,

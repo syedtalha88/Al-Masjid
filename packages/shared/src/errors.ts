@@ -67,6 +67,10 @@ export const API_ERRORS = {
   VOICE_INVALID: 400, // another masjid's recording, or a voice note without a title (T3.13)
   PROFILE_INVALID: 400, // another masjid's photo, Hijri offset outside −2…+2, nothing to change (T3.10)
   ADHKAR_INVALID: 400, // over 30 entries or one listed twice (T3.14)
+  RUQYAH_INVALID: 400, // a recording without the ownership tick or title, or another masjid's (T3.15)
+  RUQYAH_NOT_FOUND: 404, // unknown or deleted Ruqyah entry (T3.15)
+  RUQYAH_LIMIT_REACHED: 409, // 50 active entries (00 §4.10, T3.15)
+  RUQYAH_ORDER_INVALID: 409, // the order names a missing, extra or deleted entry — the list changed (T3.15)
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

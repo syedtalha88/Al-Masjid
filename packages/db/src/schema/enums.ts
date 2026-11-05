@@ -49,6 +49,11 @@ export const REPORT_STATUS = ['open', 'actioned', 'dismissed'] as const;
 export const GRIEVANCE_STATUS = ['open', 'acknowledged', 'resolved', 'rejected'] as const;
 export const LEGAL_ORDER_STATUS = ['received', 'actioned', 'contested', 'closed'] as const;
 export const ACTOR_TYPE = ['admin', 'super_admin', 'system', 'device'] as const;
+/** Ruqyah headings, in the order A19 shows them (DECISIONS #104). */
+export const RUQYAH_CATEGORY = ['nazar', 'sihr', 'shifa', 'protection', 'general'] as const;
+export const RUQYAH_SOURCE = ['library', 'text', 'audio'] as const;
+/** ruqyah_entries, masjid_contacts: delete = `deleted` (02 §1). */
+export const RECORD_STATUS = ['active', 'deleted'] as const;
 
 // Not named as enums in 02 §1 but closed sets in 02 §2:
 export const PLATFORM = ['android', 'ios', 'desktop', 'other'] as const;

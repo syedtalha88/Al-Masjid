@@ -122,6 +122,12 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
       ),
     },
   ],
+  // Masjid sections (DECISIONS #104): never who added an entry or the admin's rights confirmation.
+  v_pub_ruqyah: [
+    { $match: { status: 'active', masjid_visible: true } },
+    { $sort: { sort: 1, _id: 1 } },
+    { $unset: ['created_by', 'audio.rights_confirmed', 'status', 'masjid_visible', 'deleted_at'] },
+  ],
   v_admin_follow_audience: [{ $project: { _id: 0, ...keep('masjid_id', 'muted', 'push_active', 'audience_pref') } }],
 };
 
