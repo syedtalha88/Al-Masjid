@@ -94,7 +94,17 @@
     "refreshing": "تازہ ہو رہا ہے…",
     "newUpdatesShort": "{count, plural, one {نئی اپڈیٹ} other {نئی اپڈیٹس}}",
     "reorderHint": "ترتیب بدلنے کے لیے کھینچیں، یا تیر والی کیز دبائیں۔",
-    "khutbah": "خطبہ {time}"
+    "khutbah": "خطبہ {time}",
+    "voice": {
+      "label": "وائس میسج، {duration}",
+      "duration": "{minutes, plural, =0 {} one {# منٹ } other {# منٹ }}{seconds, plural, one {# سیکنڈ} other {# سیکنڈ}}",
+      "play": "چلائیں",
+      "pause": "روکیں",
+      "position": "وائس میسج میں جگہ",
+      "positionValue": "{total} میں سے {elapsed}",
+      "speed": "رفتار {speed}",
+      "unavailable": "آن لائن ہونے پر دستیاب"
+    }
   },
   "hijri": {
     "date": "{day} {month} {year}",

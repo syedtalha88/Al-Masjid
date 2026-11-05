@@ -10,8 +10,9 @@ import { createStore, get } from 'idb-keyval';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import { clientsClaim } from 'workbox-core';
 import type { WorkboxPlugin } from 'workbox-core/types';
-import { ExpirationPlugin } from 'workbox-expiration';
+import { CacheExpiration, ExpirationPlugin } from 'workbox-expiration';
 import { cleanupOutdatedCaches, createHandlerBoundToURL, matchPrecache, precacheAndRoute } from 'workbox-precaching';
+import { createPartialResponse } from 'workbox-range-requests';
 import { NavigationRoute, registerRoute, setCatchHandler } from 'workbox-routing';
 import { CacheFirst, NetworkFirst } from 'workbox-strategies';
 
@@ -91,6 +92,27 @@ registerRoute(
       new ExpirationPlugin({ maxEntries: 300, maxAgeSeconds: 30 * DAY, purgeOnQuotaError: true }),
     ),
   }),
+);
+
+// Voice notes (01 §5.5 Audio, T3.13): kept once played, max 30 for 30 days. The <audio> element asks for byte ranges
+// (206 — not cacheable), so a miss fetches the whole file (≤ 10 min of AAC ≈ 4 MB), keeps it, and answers the range
+// from it; offline, a note that was never played fails and the player says "Available when online".
+const audioExpiration = new CacheExpiration(CACHE.audio, { maxEntries: 30, maxAgeSeconds: 30 * DAY });
+registerRoute(
+  ({ url, request }) => request.method === 'GET' && url.origin === mediaOrigin && url.pathname.startsWith('/a/m4a/'),
+  async ({ request }) => {
+    const cache = await caches.open(CACHE.audio);
+    let full = await cache.match(request.url);
+    if (!full) {
+      const response = await fetch(request.url, { mode: 'cors', credentials: 'omit' });
+      if (response.status !== 200) return response;
+      await cache.put(request.url, response.clone());
+      full = response;
+    }
+    await audioExpiration.updateTimestamp(request.url);
+    void audioExpiration.expireEntries();
+    return request.headers.has('range') ? createPartialResponse(request, full) : full;
+  },
 );
 
 // Followed masjids' versions: fresh when possible, cached when offline (01 §5.6).

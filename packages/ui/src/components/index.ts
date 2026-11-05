@@ -97,3 +97,4 @@ export {
   UnderlineTabs,
   type UnderlineTabsProps,
 } from './UnderlineTabs.tsx';
+export { VoiceNote, type VoiceNoteProps } from './VoiceNote.tsx';

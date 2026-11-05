@@ -18,6 +18,8 @@ const COMMON = {
 };
 const PERMISSIONS =
   'camera=(self), geolocation=(self), accelerometer=(self), gyroscope=(self), magnetometer=(self), microphone=(), payment=(), usb=(), bluetooth=()';
+/** The admin app records voice notes (B14, DECISIONS #128): the microphone for its own origin only. */
+const ADMIN_PERMISSIONS = PERMISSIONS.replace('microphone=()', 'microphone=(self)');
 
 /** Parses a CSP header into directive → sources. */
 function csp(response: APIResponse): Map<string, string[]> {
@@ -40,7 +42,9 @@ const BEHIND_CLOUDFLARE = !new URL(APP_URL).hostname.endsWith('localhost');
 function expectCommon(response: APIResponse) {
   const headers = response.headers();
   expect(headers).toMatchObject(COMMON);
-  expect(headers['permissions-policy']?.replace(/\s/g, '')).toBe(PERMISSIONS.replace(/\s/g, ''));
+  const permissions =
+    response.url().startsWith(ADMIN_URL) && !response.url().includes('/api/') ? ADMIN_PERMISSIONS : PERMISSIONS;
+  expect(headers['permissions-policy']?.replace(/\s/g, '')).toBe(permissions.replace(/\s/g, ''));
   if (BEHIND_CLOUDFLARE) expect(headers['server'] ?? 'cloudflare').toBe('cloudflare');
   else expect(headers).not.toHaveProperty('server');
   expect(headers).not.toHaveProperty('x-powered-by');

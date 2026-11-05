@@ -94,7 +94,17 @@
     "refreshing": "रीफ़्रेश हो रहा है…",
     "newUpdatesShort": "{count, plural, one {नया अपडेट} other {नए अपडेट}}",
     "reorderHint": "क्रम बदलने के लिए खींचें, या तीर वाली कुंजियाँ दबाएँ।",
-    "khutbah": "ख़ुत्बा {time}"
+    "khutbah": "ख़ुत्बा {time}",
+    "voice": {
+      "label": "वॉइस मैसेज, {duration}",
+      "duration": "{minutes, plural, =0 {} one {# मिनट } other {# मिनट }}{seconds, plural, one {# सेकंड} other {# सेकंड}}",
+      "play": "चलाएँ",
+      "pause": "रोकें",
+      "position": "वॉइस मैसेज में जगह",
+      "positionValue": "{total} में से {elapsed}",
+      "speed": "चलने की रफ़्तार {speed}",
+      "unavailable": "ऑनलाइन होने पर उपलब्ध"
+    }
   },
   "hijri": {
     "date": "{day} {month} {year}",

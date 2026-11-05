@@ -94,7 +94,17 @@
     "refreshing": "రిఫ్రెష్ అవుతోంది…",
     "newUpdatesShort": "{count, plural, one {కొత్త అప్‌డేట్} other {కొత్త అప్‌డేట్‌లు}}",
     "reorderHint": "క్రమం మార్చడానికి లాగండి, లేదా బాణం కీలను ఉపయోగించండి.",
-    "khutbah": "ఖుత్బా {time}"
+    "khutbah": "ఖుత్బా {time}",
+    "voice": {
+      "label": "వాయిస్ సందేశం, {duration}",
+      "duration": "{minutes, plural, =0 {} one {# నిమిషం } other {# నిమిషాలు }}{seconds, plural, one {# సెకను} other {# సెకన్లు}}",
+      "play": "ప్లే చేయండి",
+      "pause": "ఆపండి",
+      "position": "వాయిస్ సందేశంలో స్థానం",
+      "positionValue": "{total} లో {elapsed}",
+      "speed": "వేగం {speed}",
+      "unavailable": "ఆన్‌లైన్‌లో ఉన్నప్పుడు అందుబాటులో ఉంటుంది"
+    }
   },
   "hijri": {
     "date": "{day} {month} {year}",

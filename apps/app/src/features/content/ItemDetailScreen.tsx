@@ -21,6 +21,7 @@ import {
   Switch,
   Tag,
   useToast,
+  VoiceNote,
 } from '@mc/ui/components';
 import {
   announcementTags,
@@ -45,7 +46,7 @@ import { templatesQuery } from '../../lib/api/queries.ts';
 import { now as correctedNow, useNow } from '../../lib/clock.ts';
 import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
 import { masjidName } from '../../lib/masjid.ts';
-import { mediaUrl } from '../../lib/media.ts';
+import { audioUrl, mediaUrl } from '../../lib/media.ts';
 import { ShareSheet } from '../masjid/components/ShareSheet.tsx';
 import { ContentGate } from './components/ContentGate.tsx';
 import { useAmeen } from './hooks/useAmeen.ts';
@@ -154,6 +155,22 @@ function useMasjidLabel(masjid: MasjidSummary | null): string | undefined {
   return masjid ? masjidName(masjid, locale) : undefined;
 }
 
+/** A post's voice note (07 A18): its title above (always shown with one) and the player. */
+function VoicePart({ item, showTitle }: { readonly item: FeedItem; readonly showTitle: boolean }) {
+  const { voice } = item;
+  if (!voice) return null;
+  return (
+    <section className="flex flex-col gap-2">
+      {showTitle && item.title ? (
+        <h3 dir="auto" className="type-headline text-text">
+          {item.title}
+        </h3>
+      ) : null}
+      <VoiceNote src={audioUrl(voice.key)} durationS={voice.durationS} peaks={voice.peaks} />
+    </section>
+  );
+}
+
 function ShareButton({ item, masjid }: DetailProps) {
   const { t } = useTranslation('content');
   const share = useShareItem();
@@ -228,6 +245,7 @@ function NoticeDetail({ item, masjid }: DetailProps) {
             {body}
           </p>
         ) : null}
+        <VoicePart item={item} showTitle={false} />
         {photo ? (
           <>
             <Pressable
@@ -352,6 +370,7 @@ function Reader({ item, masjid }: DetailProps) {
             {item.editedAt ? ` · ${t('edited')}` : ''}
           </span>
         </div>
+        <VoicePart item={item} showTitle />
         <Card className="flex flex-col gap-4 text-center">
           <ArabicText variant="hero" scale={scale}>
             {library.arabic}
@@ -462,6 +481,7 @@ function DuaDetail({ item, masjid }: DetailProps) {
             {item.body}
           </p>
         ) : null}
+        <VoicePart item={item} showTitle />
         {dua.library && text ? (
           <DuaBox
             size="lg"

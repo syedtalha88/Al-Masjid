@@ -24,3 +24,17 @@ export function mediaUrl(key: string, width: MediaWidth, origin: string | null =
     .join('/');
   return `${origin.replace(/\/$/, '')}/i/${String(width)}/webp/${path}`;
 }
+
+/**
+ * URL of a voice note on the media origin (`/a/m4a/<key>` — one AAC rendition, 01 §5.5 Audio).
+ *
+ * @returns the URL, or `null` without a media origin (the player then says it is unavailable).
+ */
+export function audioUrl(key: string, origin: string | null = mediaOrigin()): string | null {
+  if (origin === null) return null;
+  const path = key
+    .split('/')
+    .map((segment) => (/^\.+$/.test(segment) ? segment.replace(/\./g, '%2E') : encodeURIComponent(segment)))
+    .join('/');
+  return `${origin.replace(/\/$/, '')}/a/m4a/${path}`;
+}
