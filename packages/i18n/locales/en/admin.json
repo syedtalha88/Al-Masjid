@@ -581,6 +581,11 @@
     },
     "save": "Save",
     "saved": "Ruqyah saved",
-    "searchTitle": "Choose from library"
+    "searchTitle": "Choose from library",
+    "sourceLabel": {
+      "library": "From library",
+      "text": "The masjid’s own text",
+      "audio": "Recording"
+    }
   }
 }

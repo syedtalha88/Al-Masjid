@@ -509,6 +509,9 @@ admin,ruqyah.issue.instructions,shorter instruction,छोटा निर्द
 admin,ruqyah.save,Save,सेव करें,no
 admin,ruqyah.saved,Ruqyah saved,रुक़्या सेव हो गया,no
 admin,ruqyah.searchTitle,Choose from library,लाइब्रेरी से चुनें,no
+admin,ruqyah.sourceLabel.library,From library,लाइब्रेरी से,no
+admin,ruqyah.sourceLabel.text,The masjid’s own text,मस्जिद का अपना टेक्स्ट,no
+admin,ruqyah.sourceLabel.audio,Recording,रिकॉर्डिंग,no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no

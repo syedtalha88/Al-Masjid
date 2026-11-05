@@ -509,6 +509,9 @@ admin,ruqyah.issue.instructions,shorter instruction,చిన్న సూచన
 admin,ruqyah.save,Save,సేవ్ చేయండి,no
 admin,ruqyah.saved,Ruqyah saved,రుఖ్యా సేవ్ అయింది,no
 admin,ruqyah.searchTitle,Choose from library,లైబ్రరీ నుండి ఎంచుకోండి,no
+admin,ruqyah.sourceLabel.library,From library,లైబ్రరీ నుండి,no
+admin,ruqyah.sourceLabel.text,The masjid’s own text,మస్జిద్ స్వంత పాఠం,no
+admin,ruqyah.sourceLabel.audio,Recording,రికార్డింగ్,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no

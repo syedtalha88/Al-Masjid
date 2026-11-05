@@ -134,7 +134,7 @@ function RuqyahList() {
                             {entrySummary(entry)}
                           </p>
                           <span className="type-footnote text-text-secondary">
-                            {t(`ruqyah.source.${entry.source}`)}
+                            {t(`ruqyah.sourceLabel.${entry.source}`)}
                           </span>
                           {entry.source === 'library' && !entry.library ? (
                             <Tag tone="sun" className="self-start">

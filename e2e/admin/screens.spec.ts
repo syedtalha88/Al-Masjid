@@ -348,6 +348,41 @@ for (const locale of LOCALES) {
         await adminPage.waitForTimeout(600); // the sheet's spring settles before the shot
         await adminShot('b16-add');
         await adminPage.keyboard.press('Escape');
+        // T3.15 B15: Ruqyah — the masjid's own text and a library dhikr (API), the list, the editor with its preview, a new
+        // entry's first step.
+        const ruqyahPath = `${ADMIN_URL}/api/admin/masjids/${masjidId}/ruqyah`;
+        const ownText = await adminPage.request.post(ruqyahPath, {
+          headers: CSRF,
+          data: {
+            category: 'nazar',
+            source: 'text',
+            title: 'Sample masjid entry',
+            text: {
+              arabic: LIBRARY_ROW.arabic,
+              translation: LIBRARY_ROW.translation[locale],
+              translationLocale: locale,
+            },
+            instructions: { text: LIBRARY_ROW.translation[locale], locale },
+          },
+        });
+        expect(ownText.status()).toBe(201);
+        const { id: ownTextId } = (await ownText.json()) as { id: string };
+        expect(
+          (
+            await adminPage.request.post(ruqyahPath, {
+              headers: CSRF,
+              data: { category: 'shifa', source: 'library', libraryId: dhikrIds[0] },
+            })
+          ).status(),
+        ).toBe(201);
+        await settled(adminPage, '/ruqyah');
+        await expect(adminPage.locator('[data-ruqyah-row]')).toHaveCount(2);
+        await adminShot('b15-ruqyah');
+        await settled(adminPage, `/ruqyah/${ownTextId}`);
+        await expect(adminPage.locator('[data-ruqyah-added-by]')).toBeVisible();
+        await adminShot('b15-ruqyah-edit');
+        await settled(adminPage, '/ruqyah/new');
+        await adminShot('b15-ruqyah-new');
         // T3.10 B13: the profile (names, place, Hijri adjustment, My account) and the "Request a change" sheet.
         await adminPage.goto(`${ADMIN_URL}/profile`);
         await expect(adminPage.locator('[data-names]')).toBeVisible();
