@@ -1860,4 +1860,48 @@ spec checks the admin's microphone policy; the B5/B6/B7 screens with the voice f
 +3, admin unit +4, e2e `e2e/admin/adhkar.spec.ts` (admin picks → pinned clock: card after Dhuhr, gone 30 min later,
 list + counter, Hide survives a reload), B16 + its sheet in the 4-locale screens spec (axe clean). Follow-up F55.
 
+### #130 — Ruqyah: one collection, three sources, one order, the masjid's own words kept apart from the library (PHASE_03 T3.15) — ACCEPTED (Claude Code, 5 Nov 2026)
+**Context:** 00 §4.10, 02 ruqyah_entries / `v_pub_ruqyah` / §4.1 / §6, 03 §3–4, 05 §9, 07 A19 / B15, DECISIONS #104 §2.
+**Decision:**
+- **Data:** `ruqyah_entries` (migration `0013_ruqyah`, area "masjid sections"): validator `oneOf` by `source`
+  (`library_id` | `text` | `audio` — each only its own field; a recording also needs `title` and
+  `audio.rights_confirmed: true`, a new DSL field `f.confirmed()` that the consent of T3.16 reuses), `instructions` ⇔
+  `instructions_locale`, and **`deleted_at` exactly when `status: deleted`** (02 named only `status`; the 30-day
+  retention clock of 02 §6 needs the moment — indexed, partial). `audio.peaks` (≤ 48) is kept like voice notes so the
+  A18 player draws its waveform. It is a content collection (every write bumps the version and is confined by
+  `contentWrite`) and is in the visibility mirror.
+- **Policy / DB users:** admin S own · I own (only `active`) · U own and active only (never `masjid_id`, `created_by`;
+  the only status change is to `deleted` — no undelete) · no D; super all; `v_pub_ruqyah` for every scope. `mc_admin`
+  find/insert/update, `mc_system` all (retention purge), `mc_migrator` schema; `atlas-roles.json` regenerated — the
+  Atlas roles on staging must be re-applied before this code is deployed (owner step O36).
+- **The 50-entry limit** is counted inside the add transaction; the same transaction bumps the masjid's version, so two
+  parallel adds conflict on the masjid document and the retry re-counts (db test: six parallel adds for the last three
+  places → exactly three succeed).
+- **Order:** one `sort` per masjid. The admin moves entries inside a heading (B15 shows the A19 headings); the client
+  sends the whole list with the headings in A19 order (`PUT /ruqyah/order`, every active entry exactly once, else
+  `409 RUQYAH_ORDER_INVALID` — the list changed meanwhile). New entries go to the end. A `PATCH` replaces the whole
+  entry and may change its source; its place stays.
+- **Reads:** public `GET /masjids/:id/ruqyah?v=` = `{sections: [{category, entries}]}` (non-empty headings in A19 order),
+  immutable per version with `Cache-Tag: m-<id>`; a library entry no longer verified is left out for musallis and shown
+  to the admin as "no longer in the library" (`libraryId` without `library`) — F55 covers the cached-version side. The
+  bundle gains `sections {ruqyah, needy}` (needy = 0 until Phase 5), **optional in the contract** so a bundle cached
+  before this release still parses (no row then). Recordings travel as the key (#127).
+- **Labels (05 §9):** one shared `RuqyahCard` in `@mc/ui/content` (A19 and the B15 preview, T3.11): a library entry shows
+  reference + "Source · Licence"; masjid text shows only "Added by <masjid>" — never a source or verified line (component
+  test in 4 locales); its translation and the instruction carry `lang` of the language the masjid wrote them in (a tag
+  names it when it differs from the app language); Arabic is `lang="ar" dir="rtl"` everywhere.
+- **Musalli:** Masjid Detail row "Ruqyah" (after Adhkar) when `sections.ruqyah > 0`; the list is a persisted query
+  (`ruqyah` root, pruned with old versions like bundles and feeds), so it works offline once opened.
+- **Admin (B15):** Home tile → list grouped by heading (Edit, Move up / Move down and drag inside a heading — WCAG 2.5.7,
+  Delete with confirm, "n of 50"); editor: what to add (library — any kind, chosen by a kind chip; own text; recording
+  via the B14 field with its ownership tick and title) → heading → content → optional title and instruction with its
+  language → the musalli card in the preview frame (4 languages) → Save; "Still needed: …" names what is missing.
+- **Media:** a replaced or deleted recording is not deleted at once (moderation evidence / retention): deleted entries'
+  recordings go with the 30-day purge (T8.7); a recording replaced by an edit is unreferenced — F52 now covers audio too.
+**Consequences:** db int +12 (ruqyah) and the matrix / privilege / explain tests extended (43 namespaces), API int +3,
+ui +6 (card), app unit +1, admin unit +8, e2e `e2e/admin/ruqyah.spec.ts` (admin types text + library dua, reorders →
+musalli sees the row, library first, "Added by", no source line; delete → gone one poll later), A19 in 4 locales
+(`e2e/app/content.spec.ts`, Arabic not mirrored) and B15 list / editor / new in the 4-locale screens spec (axe clean).
+Musalli initial JS 186.35 / 187 kB.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._

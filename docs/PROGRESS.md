@@ -18,26 +18,33 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (5 Nov 2026 — Phase 03 IN PROGRESS)
+## ▶ Next session — start here (5 Nov 2026, later — Phase 03 IN PROGRESS)
 
-**State:** branch `feat/phase-03` pushed (T3.6–T3.10, T3.13 and T3.14 done — #120–#129); `ci/phase-03` carries the
-same HEAD; `main` = staging = `cdd39fa` — nothing deployed.
+**State:** branch `feat/phase-03` pushed (T3.6–T3.10, T3.13–T3.15 done — #120–#130); `ci/phase-03` carries the same
+HEAD; `main` = staging = `cdd39fa` — nothing deployed.
 
 **Do first:**
-1. **Check CI of the newest `ci/phase-03` push** (T3.14). Red → read the annotations (the WebKit-only showcase Sheet
-   test is a known flake). Locally run `pnpm db:reset` (migration 0012 + the seed's dhikr / adhkar set).
-2. **Next task: T3.15** Ruqyah (B15 + A19): `ruqyah_entries` collection + policy cells + `v_pub_ruqyah` + migration
-   (validator `oneOf` by source), admin CRUD + order, public `GET /masjids/:id/ruqyah?v=`, `sections.ruqyah` in the bundle,
-   Masjid Detail row, A19 grouped screen, "Added by <masjid>". Then T3.16, T3.17, T3.12, and F54 / F55 before the phase
-   report.
-3. **Owner settings:** the owner removed the `git push` / `pnpm add` / `npm install` "ask" rules from
+1. **Check CI of the newest `ci/phase-03` push** (T3.15). The T3.14 run (`a0954df`) failed only at **Lighthouse budgets**:
+   Home performance 87 < 90 (TBT 538 ms, LCP 803 ms, benchmarkIndex 2363); the last run that reached Lighthouse
+   (`6d94855`) passed. e2e was green apart from known flakes that passed on retry (perf push/pop + tab switch, WebKit
+   journey 3 CSP/reload). If Lighthouse is red again on the new HEAD it is not noise: profile Home's first load
+   (`pnpm lhci` locally on mains power, or the Lighthouse diagnostics step) — suspects: the T3.14 adhkar card path in
+   `home-view.ts` (two `resolveSchedule` per render) and the seed's larger bundle; record the outcome in DECISIONS.
+2. **Next task: T3.16** Ilm contacts (B17 + A21): `masjid_contacts` (+ policy cells, `v_pub_contacts`, migration 0014 —
+   reuse `f.confirmed()` for `consent_confirmed` and the "masjid sections" area / `SECTION_COLLECTIONS` from T3.15),
+   admin CRUD in B13 (consent tick, E.164, ≤ 10), bundle `contacts`, A21 rows by the device's Brother/Sister choice,
+   `wa.me` link with a localized greeting, the number never rendered as text. Then T3.17, T3.12, and F54 / F55 before
+   the phase report.
+3. **Owner, before Phase 03 goes to staging:** O36 (Atlas roles re-applied — the new `ruqyah_entries` collection; T3.16
+   adds `masjid_contacts`, so do it once after T3.16).
+4. **Owner settings:** the owner removed the `git push` / `pnpm add` / `npm install` "ask" rules from
    `.claude/settings.json` (uncommitted change in the working tree — the owner's; not committed by Claude Code).
 
 **Local session notes:** e2e here: `E2E_TEST_HOOKS=1 NODE_OPTIONS=--require <scratchpad>/localhost-shim.cjs` (the
 shim patches `dns.lookup` / `dns.promises.lookup` for `*.localhost` — enough for Playwright); rebuild with
 `pnpm stack:up:test` after API changes, `pnpm -F @mc/admin build` after admin changes; run `screens.spec.ts` with
 `--workers=1` here (parallel locales abort the first page load on this machine). After string changes run
-`pnpm --filter @mc/i18n i18n:review` (the review CSVs are checked by a unit test).
+`pnpm --filter @mc/i18n i18n:review` (the review CSVs are checked by a unit test). In e2e, destructive `Dialog`s are `alertdialog`, `ChipGroup` is a `radiogroup` of `radio`s; a musalli page that must see a later version installs `page.clock` and fast-forwards one poll (01:05) — a reload keeps the persisted, still-fresh versions.
 
 ### 3 Nov 2026
 
@@ -281,6 +288,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O31 | **Translation review** of `packages/i18n/review/{hi,ur,te}.csv` (≈ 920 draft strings each) | pilot | translators | before pilot |
 | O32 | **Verified Content Library file** (`docs/content-library-format.md`) | pilot | — | before pilot |
 | O33 | **Grievance Officer details** in Super Admin → Settings | launch (#101) | 5 min | before launch |
+| O36 | **Atlas roles update** — re-run `atlas-users.sh staging` (it updates the four custom roles from the new `infra/mongo/atlas-roles.json`; same steps as 16 Oct 2026), then `deploy.sh staging --verify-roles` and send Claude Code the output | New collections `ruqyah_entries` (T3.15) and `masjid_contacts` (T3.16): without it api-admin cannot read/write them on staging | 15 min | open — once, after T3.16, before Phase 03 is deployed |
 | O34 | **Legal checklist** `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md` | pilot | — | before pilot |
 
 ## Current phase task checklist
@@ -352,7 +360,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [ ] T3.12 — Usability verification
 - [x] T3.13 — Voice notes (B14 + A18) — **part 1 done 4 Nov 2026 (DECISIONS #126):** `POST /masjids/:id/audio` (magic-byte allow-list, ≤ 25 MB, length ≤ 600 s — the storage's measurement when it has one, else the browser's; 48 peaks), storage adapters (`putAudio` / `deleteAudio`: Cloudinary `video` resource, local file at the delivery path), audit `audio.upload`, errors `AUDIO_INVALID` / `AUDIO_TOO_LONG`. **Part 2 done 4 Nov 2026 (DECISIONS #127):** migration 0011 (`voice` + "voice ⇒ title, three types only" in the items validator), `voice` on the three publish / edit bodies (+ `title` only with a voice note), the masjid's own recordings only (`VOICE_INVALID`), public items carry `voice {key, durationS, peaks?}`, edits can remove it. **Part 3 done 5 Nov 2026 (DECISIONS #128):** B14 recorder `VoiceField` in B5/B6/B7 (record / pause / auto-stop 10:00 / file, Web Audio measure, title field), A18 `VoiceNote` on the detail screens, Caddy `/a/m4a/<key>` + CORS, CSP `media-src`, admin-only `microphone=(self)`, worker cache with range requests (30 / 30 days, cleared by "Clear all data"). e2e `e2e/admin/voice.spec.ts`. Follow-ups F53, F54.
 - [x] T3.14 — Adhkar after salah (B16 + A20) — **done 5 Nov 2026 (DECISIONS #129):** migration 0012 `masjids.adhkar`, `GET/PUT /adhkar`, bundle `adhkar`, `@mc/domain/prayer` `adhkarWindow`, Home card + Masjid Detail row + A20 list with session counter, B16 editor with the real card in the preview, seed dhikr. e2e `e2e/admin/adhkar.spec.ts`. Follow-up F55.
-- [ ] T3.15 — Ruqyah (B15 + A19)
+- [x] T3.15 — Ruqyah (B15 + A19) — **done 5 Nov 2026 (DECISIONS #130):** migration 0013 `ruqyah_entries` (validator `oneOf` by source, `deleted_at` retention clock), policy cells + DB privileges (matrix now 43 namespaces), `v_pub_ruqyah`, admin `GET/POST/PATCH/DELETE /ruqyah` + `PUT /ruqyah/order`, public `GET /masjids/:id/ruqyah?v=`, bundle `sections {ruqyah, needy}`, shared `RuqyahCard`, A19 screen + Masjid Detail row, B15 list (grouped, reorder inside a heading, delete) and editor (library / own text / recording, preview in 4 languages), seed: two entries on alpha. **Acceptance:** policy matrix + DB privileges (`policy.int.test.ts`, `roles.test.ts`, `privileges`); masjid text never with a source line (`packages/ui/test/ruqyah-card.test.tsx`, 4 locales, + e2e); 50-entry limit incl. parallel adds and the ownership tick (db `ruqyah.int.test.ts`, API `ruqyah-routes.int.test.ts`); A19 + B15 screenshots in 4 locales, axe clean, Arabic `lang=ar dir=rtl` / computed rtl (`e2e/app/content.spec.ts`, `e2e/admin/screens.spec.ts`); flow `e2e/admin/ruqyah.spec.ts`.
 - [ ] T3.16 — Ilm contacts (B17 + A21)
 - [ ] T3.17 — Blood donation camp (B18 + A22)
 
@@ -403,16 +411,17 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F49 | T3.11 (2 Nov 2026) | `DuaBox` translation span lacks `dir="auto"`: an English fallback translation in an Urdu UI shows its final full stop at the start (A9, A9 detail and the admin preview). Same for a special date's label and note in `SpecialDateCard` (T3.3, 3 Nov 2026). One-line fixes in `ContentCards.tsx` / `SpecialDateCard.tsx`; change the Urdu visual baselines | Phase 03, with the next intended baseline refresh (#112) |
 | F51 | T3.7 (4 Nov 2026, DECISIONS #122) | B6 topic chips show library tags as written (lower-case words, e.g. `after fajr`) in every language. Translated chip labels would need a `tag_labels` map in the library format — only if the owner asks after seeing B6 | Owner's choice (O-list) |
 | F50 | T3.6 (4 Nov 2026, DECISIONS #121) | B5 polish not built: `UploadProgress` ring (06 §6; needs XHR upload progress), the Home tile's mint pulse after a publish (08 §5.12, also B4/B11). (The success screen's "View" is done — T3.9, #124.) `special/hooks` and `timings/hooks` have no unit tests (admin coverage relies on the others) | Phase 03 (before the phase report) |
-| F52 | T3.10 (4 Nov 2026, DECISIONS #125) | A replaced masjid photo (and a notice photo removed before publishing) stays in the media store: nothing deletes unreferenced image keys yet. The `media-delete` job (01 §5.8) should remove masters + variants that no item / masjid references after a grace period | With the `media-delete` job (Phase 8 retention) |
+| F52 | T3.10 (4 Nov 2026, DECISIONS #125; audio added 5 Nov 2026, #130) | A recording replaced by an edit (voice notes, Ruqyah audio) stays in the media store too. A replaced masjid photo (and a notice photo removed before publishing) stays in the media store: nothing deletes unreferenced image keys yet. The `media-delete` job (01 §5.8) should remove masters + variants that no item / masjid references after a grace period | With the `media-delete` job (Phase 8 retention) |
 | F53 | T3.13 (4 Nov 2026, DECISIONS #126) | Cloudinary's upload docs show no `duration` in a video/audio upload response. Once staging uploads work (O25), check a real response: if `duration` is missing, read it through the Admin API (`GET resources/video/upload/<public_id>`) before accepting, so the 10-minute rule never rests on the browser's number outside local | With O25 (staging Cloudinary) |
 | F54 | T3.13 (5 Nov 2026, DECISIONS #128) | Voice notes: no badge on the section cards (whole-card buttons cannot hold a player) and no inline player in the A8 hero card; "leaving the screen pauses" only on unmount (a screen pushed over it keeps playing); the e2e attaches a file — recording through Chromium's fake microphone (`--use-fake-device-for-media-stream`) is not covered yet; check a real phone recording on staging (Safari MP4, Chrome Opus) | Before the phase report (badge, A8, fake-mic e2e); staging check with O25 |
-| F55 | T3.14 (5 Nov 2026, DECISIONS #129) | A library entry retired or sent back to draft does not bump the versions of masjids that use it, so a cached bundle (immutable per `v`) keeps showing it in the adhkar set until that masjid's next change — the same holds for items that embed library text; locally (Windows) the WebKit run of `e2e/app/content.spec.ts` stalls on a `versions` request that never leaves the browser (also with the service worker blocked; CI's WebKit passes) | Before the phase report: bump the versions of masjids using an entry on retire / back-to-draft (data-layer effect + test) |
+| F55 | T3.14 (5 Nov 2026, DECISIONS #129; Ruqyah 5 Nov 2026, #130) | Also Ruqyah: an entry whose library entry was retired stays in a cached `/ruqyah?v=` until that masjid's next change (the bump on retire must cover `ruqyah_entries.library_id` too). A library entry retired or sent back to draft does not bump the versions of masjids that use it, so a cached bundle (immutable per `v`) keeps showing it in the adhkar set until that masjid's next change — the same holds for items that embed library text; locally (Windows) the WebKit run of `e2e/app/content.spec.ts` stalls on a `versions` request that never leaves the browser (also with the service worker blocked; CI's WebKit passes) | Before the phase report: bump the versions of masjids using an entry on retire / back-to-draft (data-layer effect + test) |
 | F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-05 | 03 / T3.15 | Ruqyah (#130): migration 0013, policy + roles (Atlas file regenerated → O36), admin CRUD/order, public list, bundle sections, `RuqyahCard`, A19 + B15; db 277 incl. 12 new, API int 261, ui +6, admin +8; e2e flow + A19 ×4 + B15 ×4 green locally. CI on `a0954df` (T3.14) red at Lighthouse only (Home perf 87 < 90) — re-measured on this push. |
 | 2026-11-05 | 03 / T3.14 | Adhkar after salah (#129): data + API + bundle, domain window, Home card, A20 list with counter, B16 editor, e2e with a pinned clock; db 265 (97.5 %), API int 257, admin screens 4 locales axe clean. Musalli initial JS 186.01 → limit 187 kB. CI on `0ae6718`: only the known WebKit showcase Sheet flake. |
 | 2026-11-05 | 03 / T3.13 | Part 3: recorder, player, delivery route + CORS, CSP media-src, admin microphone, worker audio cache (#128); T3.13 ticked. CI on `6d94855` fully green (the T3.9 WebKit failure was a flake). Admin coverage 85.7 %, musalli initial JS 185.8 / 186 kB. |
 | 2026-11-04 | 03 / T3.13 (part 2) | `voice` on posts: migration 0011, contracts, builders, public read (#127). Dev DB migrated (`db:schema:check` clean). db:test 260 (lines 97.4 %), API int 256 — locally run with `--maxWorkers=4` (a full-parallel run crashes a worker natively while the Docker stack is up). Stopped at the owner's request (usage limit). |
