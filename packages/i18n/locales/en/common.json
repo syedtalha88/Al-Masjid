@@ -120,6 +120,11 @@
       "addedBy": "Added by {masjid}",
       "source": "Source: {name} · Licence: {license}",
       "instructions": "Note from the masjid"
+    },
+    "ilm": {
+      "greeting": "Assalamu alaikum",
+      "message": "Message",
+      "messageLabel": "Message {name} on WhatsApp"
     }
   },
   "hijri": {

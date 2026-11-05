@@ -15,6 +15,7 @@ export { CaretLeftIcon } from './glyph/CaretLeftIcon.tsx';
 export { CaretRightIcon } from './glyph/CaretRightIcon.tsx';
 export { CarIcon } from './glyph/CarIcon.tsx';
 export { ChartBarIcon } from './glyph/ChartBarIcon.tsx';
+export { ChatCircleIcon } from './glyph/ChatCircleIcon.tsx';
 export { CheckCircleIcon } from './glyph/CheckCircleIcon.tsx';
 export { CheckIcon } from './glyph/CheckIcon.tsx';
 export { ClockIcon } from './glyph/ClockIcon.tsx';

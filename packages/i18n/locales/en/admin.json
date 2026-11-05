@@ -587,5 +587,43 @@
       "text": "The masjid’s own text",
       "audio": "Recording"
     }
+  },
+  "contacts": {
+    "title": "Ilm contacts",
+    "count": "{count} of {max}",
+    "intro": "People musallis can message on WhatsApp for Islamic questions and advice.",
+    "add": "Add contact",
+    "full": "You have {max} contacts, the most allowed. Remove one to add another.",
+    "for": {
+      "brothers": "For brothers",
+      "sisters": "For sisters"
+    },
+    "newTitle": "New contact",
+    "editTitle": "Edit contact",
+    "name": "Name",
+    "role": "Role",
+    "roleHint": "For example: Imam, teacher",
+    "topics": "Topics",
+    "topicsHint": "For example: family questions, prayer",
+    "whatsapp": "WhatsApp number",
+    "audienceQuestion": "Who can contact this person?",
+    "consent": "This person agreed to be listed — their name and WhatsApp will be visible to app users",
+    "consentHint": "Ask them first. If they ask to be removed later, remove the contact.",
+    "preview": "What musallis see",
+    "missing": "Still needed: {fields}",
+    "issue": {
+      "name": "name",
+      "role": "a shorter role",
+      "topics": "shorter topics",
+      "phone": "WhatsApp number",
+      "audience": "brothers or sisters",
+      "consent": "the tick that they agreed"
+    },
+    "save": "Save",
+    "saved": "Contact saved",
+    "delete": "Remove contact",
+    "deleteTitle": "Remove this contact?",
+    "deleteBody": "Musallis will no longer see this person.",
+    "deleted": "Contact removed"
   }
 }

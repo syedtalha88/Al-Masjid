@@ -120,6 +120,11 @@
       "addedBy": "{masjid} చేర్చింది",
       "source": "మూలం: {name} · లైసెన్స్: {license}",
       "instructions": "మస్జిద్ నుండి గమనిక"
+    },
+    "ilm": {
+      "greeting": "అస్సలాము అలైకుమ్",
+      "message": "సందేశం పంపండి",
+      "messageLabel": "{name}కు వాట్సాప్‌లో సందేశం పంపండి"
     }
   },
   "hijri": {

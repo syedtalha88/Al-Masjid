@@ -16,6 +16,7 @@ import { Route as PostsRouteImport } from './routes/posts'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as TimingsRouteImport } from './routes/timings'
 import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase'
+import { Route as ContactsIdRouteImport } from './routes/contacts.$id'
 import { Route as DailyIndexRouteImport } from './routes/daily.index'
 import { Route as DailyNoteRouteImport } from './routes/daily.note'
 import { Route as DailyPreviewRouteImport } from './routes/daily.preview'
@@ -78,6 +79,11 @@ const TimingsRoute = TimingsRouteImport.update({
 const DevShowcaseRoute = DevShowcaseRouteImport.update({
   id: '/_dev/showcase',
   path: '/_dev/showcase',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactsIdRoute = ContactsIdRouteImport.update({
+  id: '/contacts/$id',
+  path: '/contacts/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DailyIndexRoute = DailyIndexRouteImport.update({
@@ -229,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
+  '/contacts/$id': typeof ContactsIdRoute
   '/daily/note': typeof DailyNoteRoute
   '/daily/preview': typeof DailyPreviewRoute
   '/dua/attach': typeof DuaAttachRoute
@@ -266,6 +273,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
+  '/contacts/$id': typeof ContactsIdRoute
   '/daily/note': typeof DailyNoteRoute
   '/daily/preview': typeof DailyPreviewRoute
   '/dua/attach': typeof DuaAttachRoute
@@ -304,6 +312,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/timings': typeof TimingsRoute
   '/_dev/showcase': typeof DevShowcaseRoute
+  '/contacts/$id': typeof ContactsIdRoute
   '/daily/note': typeof DailyNoteRoute
   '/daily/preview': typeof DailyPreviewRoute
   '/dua/attach': typeof DuaAttachRoute
@@ -343,6 +352,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/timings'
     | '/_dev/showcase'
+    | '/contacts/$id'
     | '/daily/note'
     | '/daily/preview'
     | '/dua/attach'
@@ -380,6 +390,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/timings'
     | '/_dev/showcase'
+    | '/contacts/$id'
     | '/daily/note'
     | '/daily/preview'
     | '/dua/attach'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/timings'
     | '/_dev/showcase'
+    | '/contacts/$id'
     | '/daily/note'
     | '/daily/preview'
     | '/dua/attach'
@@ -455,6 +467,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   TimingsRoute: typeof TimingsRoute
   DevShowcaseRoute: typeof DevShowcaseRoute
+  ContactsIdRoute: typeof ContactsIdRoute
   DailyNoteRoute: typeof DailyNoteRoute
   DailyPreviewRoute: typeof DailyPreviewRoute
   DuaAttachRoute: typeof DuaAttachRoute
@@ -533,6 +546,13 @@ declare module '@tanstack/react-router' {
       path: '/_dev/showcase'
       fullPath: '/_dev/showcase'
       preLoaderRoute: typeof DevShowcaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contacts/$id': {
+      id: '/contacts/$id'
+      path: '/contacts/$id'
+      fullPath: '/contacts/$id'
+      preLoaderRoute: typeof ContactsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/daily/': {
@@ -754,6 +774,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   TimingsRoute: TimingsRoute,
   DevShowcaseRoute: DevShowcaseRoute,
+  ContactsIdRoute: ContactsIdRoute,
   DailyNoteRoute: DailyNoteRoute,
   DailyPreviewRoute: DailyPreviewRoute,
   DuaAttachRoute: DuaAttachRoute,

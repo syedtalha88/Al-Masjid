@@ -33,6 +33,7 @@ import {
   BellSlashIcon,
   BookOpenIcon,
   ChartBarIcon,
+  ChatCircleIcon,
   DotsIcon,
   HandsPrayingIcon,
   HeartIcon,
@@ -72,6 +73,7 @@ const SECTION_ICON: Readonly<Record<SectionId, { readonly icon: ReactNode; reado
   duas: { icon: <HandsPrayingIcon />, tone: 'primary' },
   adhkar: { icon: <MoonStarsIcon />, tone: 'primary' },
   ruqyah: { icon: <ShieldCheckIcon />, tone: 'info' },
+  ilm: { icon: <ChatCircleIcon />, tone: 'primary' },
   campaigns: { icon: <HeartIcon />, tone: 'heart' },
   chanda: { icon: <ChartBarIcon />, tone: 'purple' },
   bayans: { icon: <PlayCircleIcon />, tone: 'primary' },
@@ -446,7 +448,7 @@ function Overview({
   const navigator = useNavigator();
   const view = useMemo(() => prayerView(bundle, now), [bundle, now]);
   const ramadan = useMemo(() => ramadanView([bundle], now), [bundle, now]);
-  const rows = sectionRows(bundle, detail.pages, seenAt, detail.follow?.followedAt ?? null);
+  const rows = sectionRows(bundle, detail.pages, seenAt, detail.follow?.followedAt ?? null, detail.audience);
   return (
     <div className="flex flex-col gap-4">
       {view ? (

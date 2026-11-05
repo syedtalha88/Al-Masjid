@@ -1,7 +1,7 @@
 import type { ActiveMasjidBundle, FeedItem, ItemType } from '@mc/shared/contracts/public';
 import { describe, expect, it } from 'vitest';
 
-import { directionsLink, followLink, SECTION_TYPES, sectionRows, whatsappLink } from '../detail-view.ts';
+import { contactsFor, directionsLink, followLink, SECTION_TYPES, sectionRows, whatsappLink } from '../detail-view.ts';
 
 const item = (publishedAt: string, type: ItemType = 'announcement'): FeedItem => ({
   publicId: `p${publishedAt.replace(/\D/g, '').slice(0, 10)}`,
@@ -53,17 +53,19 @@ describe('sectionRows', () => {
       ['daily_content', []],
       ['video', [item('2026-10-21T10:00:00.000Z', 'video')]],
     ]);
-    expect(sectionRows(bundle(true, 2), pages, '2026-10-21T00:00:00.000Z', '2026-10-01T00:00:00.000Z')).toEqual([
+    expect(
+      sectionRows(bundle(true, 2), pages, '2026-10-21T00:00:00.000Z', '2026-10-01T00:00:00.000Z', 'brothers'),
+    ).toEqual([
       { id: 'announcements', unseen: 1 },
       { id: 'chanda', unseen: 0 },
       { id: 'bayans', unseen: 1 },
     ]);
     // Not followed: nothing is "new"; chanda hidden when the masjid does not show it.
-    expect(sectionRows(bundle(false, 2), pages, undefined, null)).toEqual([
+    expect(sectionRows(bundle(false, 2), pages, undefined, null, 'brothers')).toEqual([
       { id: 'announcements', unseen: 0 },
       { id: 'bayans', unseen: 0 },
     ]);
-    expect(sectionRows(bundle(true, 0), new Map(), undefined, null)).toEqual([]);
+    expect(sectionRows(bundle(true, 0), new Map(), undefined, null, 'brothers')).toEqual([]);
   });
 
   it('"Adhkar after salah" after Dua Requests when the masjid has a set (T3.14)', () => {
@@ -78,7 +80,9 @@ describe('sectionRows', () => {
       sourceLicense: 'N/A — not for production',
     };
     const pages = new Map<ItemType, FeedItem[]>([['dua_request', [item('2026-10-22T10:00:00.000Z', 'dua_request')]]]);
-    expect(sectionRows({ ...bundle(false, 0), adhkar: { entries: [entry] } }, pages, undefined, null)).toEqual([
+    expect(
+      sectionRows({ ...bundle(false, 0), adhkar: { entries: [entry] } }, pages, undefined, null, 'brothers'),
+    ).toEqual([
       { id: 'duas', unseen: 0 },
       { id: 'adhkar', unseen: 0 },
     ]);
@@ -86,11 +90,38 @@ describe('sectionRows', () => {
 
   it('Ruqyah (A19) shows after adhkar when the bundle counts entries; a bundle cached before T3.15 shows none', () => {
     const pages = new Map<ItemType, FeedItem[]>();
-    expect(sectionRows({ ...bundle(false, 0), sections: { ruqyah: 2, needy: 0 } }, pages, undefined, null)).toEqual([
-      { id: 'ruqyah', unseen: 0 },
+    expect(
+      sectionRows({ ...bundle(false, 0), sections: { ruqyah: 2, needy: 0 } }, pages, undefined, null, 'brothers'),
+    ).toEqual([{ id: 'ruqyah', unseen: 0 }]);
+    expect(
+      sectionRows({ ...bundle(false, 0), sections: { ruqyah: 0, needy: 0 } }, pages, undefined, null, 'brothers'),
+    ).toEqual([]);
+    expect(sectionRows(bundle(false, 0), pages, undefined, null, 'brothers')).toEqual([]);
+  });
+
+  it('"Ask the masjid" (A21) shows only when there are contacts for the device’s own audience', () => {
+    const pages = new Map<ItemType, FeedItem[]>();
+    const contact = (audience: 'brothers' | 'sisters') => ({
+      id: `00000000-0000-4000-8000-00000000000${audience === 'brothers' ? '1' : '2'}`,
+      name: 'Test Contact',
+      whatsapp: '+910000000001',
+      audience,
+    });
+    const sistersOnly = { ...bundle(false, 0), contacts: [contact('sisters')] };
+    expect(sectionRows(sistersOnly, pages, undefined, null, 'sisters')).toEqual([{ id: 'ilm', unseen: 0 }]);
+    expect(sectionRows(sistersOnly, pages, undefined, null, 'brothers')).toEqual([]);
+    expect(contactsFor({ ...sistersOnly, contacts: [contact('brothers'), contact('sisters')] }, 'brothers')).toEqual([
+      contact('brothers'),
     ]);
-    expect(sectionRows({ ...bundle(false, 0), sections: { ruqyah: 0, needy: 0 } }, pages, undefined, null)).toEqual([]);
-    expect(sectionRows(bundle(false, 0), pages, undefined, null)).toEqual([]);
+    // A bundle cached before T3.16 has no contacts.
+    expect(contactsFor(bundle(false, 0), 'sisters')).toEqual([]);
+    // After Ruqyah, before chanda.
+    const both = { ...bundle(true, 2), sections: { ruqyah: 1, needy: 0 }, contacts: [contact('brothers')] };
+    expect(sectionRows(both, pages, undefined, null, 'brothers').map((row) => row.id)).toEqual([
+      'ruqyah',
+      'ilm',
+      'chanda',
+    ]);
   });
 
   it('loads the five feed types (chanda is in the bundle)', () => {

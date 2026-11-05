@@ -512,6 +512,38 @@ admin,ruqyah.searchTitle,Choose from library,لائبریری سے منتخب ک
 admin,ruqyah.sourceLabel.library,From library,لائبریری سے,no
 admin,ruqyah.sourceLabel.text,The masjid’s own text,مسجد کا اپنا متن,no
 admin,ruqyah.sourceLabel.audio,Recording,ریکارڈنگ,no
+admin,contacts.title,Ilm contacts,علم کے رابطے,no
+admin,contacts.count,{count} of {max},{max} میں سے {count},no
+admin,contacts.intro,People musallis can message on WhatsApp for Islamic questions and advice.,وہ لوگ جنہیں مصلی اسلامی سوالات اور مشورے کے لیے واٹس ایپ پر پیغام بھیج سکتے ہیں۔,no
+admin,contacts.add,Add contact,رابطہ شامل کریں,no
+admin,contacts.full,"You have {max} contacts, the most allowed. Remove one to add another.",آپ کے {max} رابطے ہیں، جو زیادہ سے زیادہ ہیں۔ نیا شامل کرنے کے لیے ایک ہٹائیں۔,no
+admin,contacts.for.brothers,For brothers,بھائیوں کے لیے,no
+admin,contacts.for.sisters,For sisters,بہنوں کے لیے,no
+admin,contacts.newTitle,New contact,نیا رابطہ,no
+admin,contacts.editTitle,Edit contact,رابطہ بدلیں,no
+admin,contacts.name,Name,نام,no
+admin,contacts.role,Role,ذمہ داری,no
+admin,contacts.roleHint,"For example: Imam, teacher",مثلاً: امام، استاد,no
+admin,contacts.topics,Topics,موضوعات,no
+admin,contacts.topicsHint,"For example: family questions, prayer",مثلاً: خاندانی سوالات، نماز,no
+admin,contacts.whatsapp,WhatsApp number,واٹس ایپ نمبر,no
+admin,contacts.audienceQuestion,Who can contact this person?,اس شخص سے کون رابطہ کر سکتا ہے؟,no
+admin,contacts.consent,This person agreed to be listed — their name and WhatsApp will be visible to app users,اس شخص نے فہرست میں آنے کی رضامندی دی ہے — ان کا نام اور واٹس ایپ ایپ استعمال کرنے والوں کو نظر آئے گا,no
+admin,contacts.consentHint,"Ask them first. If they ask to be removed later, remove the contact.",پہلے ان سے پوچھیں۔ اگر وہ بعد میں ہٹانے کو کہیں تو رابطہ ہٹا دیں۔,no
+admin,contacts.preview,What musallis see,مصلی کیا دیکھتے ہیں,no
+admin,contacts.missing,Still needed: {fields},ابھی درکار: {fields},no
+admin,contacts.issue.name,name,نام,no
+admin,contacts.issue.role,a shorter role,مختصر ذمہ داری,no
+admin,contacts.issue.topics,shorter topics,مختصر موضوعات,no
+admin,contacts.issue.phone,WhatsApp number,واٹس ایپ نمبر,no
+admin,contacts.issue.audience,brothers or sisters,بھائی یا بہنیں,no
+admin,contacts.issue.consent,the tick that they agreed,رضامندی کا ٹک,no
+admin,contacts.save,Save,محفوظ کریں,no
+admin,contacts.saved,Contact saved,رابطہ محفوظ ہو گیا,no
+admin,contacts.delete,Remove contact,رابطہ ہٹائیں,no
+admin,contacts.deleteTitle,Remove this contact?,یہ رابطہ ہٹائیں؟,no
+admin,contacts.deleteBody,Musallis will no longer see this person.,مصلی اب اس شخص کو نہیں دیکھیں گے۔,no
+admin,contacts.deleted,Contact removed,رابطہ ہٹا دیا گیا,no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no
@@ -609,6 +641,9 @@ common,ui.ruqyah.quoted,“{text}”,“{text}”,no
 common,ui.ruqyah.addedBy,Added by {masjid},{masjid} کی طرف سے شامل کیا گیا,no
 common,ui.ruqyah.source,Source: {name} · Licence: {license},ماخذ: {name} · لائسنس: {license},no
 common,ui.ruqyah.instructions,Note from the masjid,مسجد کی طرف سے نوٹ,no
+common,ui.ilm.greeting,Assalamu alaikum,السلام علیکم,no
+common,ui.ilm.message,Message,پیغام بھیجیں,no
+common,ui.ilm.messageLabel,Message {name} on WhatsApp,{name} کو واٹس ایپ پر پیغام بھیجیں,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,مغرب کے بعد,no
 common,hijri.months.m1,Muharram,محرم,no
@@ -743,6 +778,10 @@ content,counterDone,Done: {total} of {total},مکمل: {total} میں سے {tota
 content,resetCount,Start the count again,گنتی دوبارہ شروع کریں,no
 content,emptyRuqyah,No Ruqyah entries yet,ابھی کوئی رقیہ نہیں ہے,no
 content,emptyRuqyahBody,"When the masjid adds Ruqyah, it will appear here.",جب مسجد رقیہ شامل کرے گی، وہ یہاں نظر آئے گا۔,no
+content,ilmTitle,Ask the masjid,مسجد سے پوچھیں,no
+content,ilmIntro,"For Islamic questions and advice, contact:",اسلامی سوالات اور مشورے کے لیے رابطہ کریں:,no
+content,emptyIlm,No contacts yet,ابھی کوئی رابطہ نہیں,no
+content,emptyIlmBody,"When the masjid lists people you can ask, they will appear here.",جب مسجد اُن لوگوں کو شامل کرے گی جن سے آپ پوچھ سکتے ہیں، وہ یہاں نظر آئیں گے۔,no
 content,ruqyahFailed,Ruqyah could not be loaded,رقیہ لوڈ نہیں ہو سکا,no
 content,ruqyahFailedBody,"Check your connection and try again. Once opened, it stays available offline.",اپنا کنکشن دیکھیں اور دوبارہ کوشش کریں۔ ایک بار کھلنے کے بعد یہ آف لائن بھی دستیاب رہے گا۔,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,ہماری برادری کے ایک رکن بیمار ہیں۔ براہِ کرم انہیں اپنی دعاؤں میں یاد رکھیں۔,no
@@ -870,6 +909,7 @@ masjid,hadith,Hadith & Quran,حدیث اور قرآن,no
 masjid,duas,Dua Requests,دعا کی درخواستیں,no
 masjid,adhkar,Adhkar after salah,نماز کے بعد کے اذکار,no
 masjid,ruqyah,Ruqyah,رقیہ,no
+masjid,ilm,Ask the masjid,مسجد سے پوچھیں,no
 masjid,campaigns,Donation Campaigns,چندہ مہمات,no
 masjid,chanda,Weekly Chanda,ہفتہ وار چندہ,no
 masjid,bayans,Bayans,بیانات,no

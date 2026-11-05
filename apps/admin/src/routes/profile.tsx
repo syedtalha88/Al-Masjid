@@ -5,6 +5,7 @@ import { Screen, useNavigator } from '@mc/ui/navigation';
 import { createFileRoute } from '@tanstack/react-router';
 
 import { useErrorText, useSignedInAdmin } from '../features/auth/hooks/use-session.ts';
+import { ContactsSection } from '../features/contacts/components/ContactsSection.tsx';
 import { useMinute } from '../features/home/hooks/use-minute.ts';
 import { useSelectedMasjid } from '../features/home/hooks/use-selected-masjid.ts';
 import { HijriSection, NamesSection, PhotoSection } from '../features/profile/components/ProfileParts.tsx';
@@ -16,7 +17,8 @@ export const Route = createFileRoute('/profile')({
 
 /**
  * B13 Masjid Profile, partial (07 B13, PHASE_03 T3.10): the photo (change), the names in four scripts and the place
- * (view; "Request a change" goes to the Super Admin), the Hijri adjustment with today's Hijri date, and My account.
+ * (view; "Request a change" goes to the Super Admin), the Hijri adjustment with today's Hijri date, the Ilm contacts (B17,
+ * T3.16) and My account.
  * Payment and Chanda arrive with Phase 5.
  */
 function ProfileScreen() {
@@ -51,6 +53,7 @@ function ProfileScreen() {
             <PhotoSection masjidId={masjid?.id} profile={profile.data} />
             <NamesSection masjidId={masjid?.id} profile={profile.data} />
             <HijriSection masjidId={masjid?.id} profile={profile.data} now={now} />
+            <ContactsSection masjidId={masjid?.id} />
           </>
         ) : (
           <SkeletonText lines={10} />

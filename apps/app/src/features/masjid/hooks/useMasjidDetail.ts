@@ -20,6 +20,8 @@ export interface MasjidDetailData {
   /** This device's follow (pending unfollows excluded), or `null`. */
   readonly follow: LocalFollow | null;
   readonly pages: ReadonlyMap<ItemType, readonly FeedItem[]>;
+  /** The device's Brother/Sister choice (feeds and Ilm contacts). */
+  readonly audience: 'brothers' | 'sisters';
   readonly retry: () => void;
 }
 
@@ -74,6 +76,7 @@ export function useMasjidDetail(masjidId: string): MasjidDetailData {
     masjid,
     follow,
     pages,
+    audience,
     retry: () => {
       void home.refresh();
       void versions.refetch();

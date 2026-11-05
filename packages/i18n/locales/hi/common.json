@@ -120,6 +120,11 @@
       "addedBy": "{masjid} द्वारा जोड़ा गया",
       "source": "स्रोत: {name} · लाइसेंस: {license}",
       "instructions": "मस्जिद की ओर से नोट"
+    },
+    "ilm": {
+      "greeting": "अस्सलामु अलैकुम",
+      "message": "संदेश भेजें",
+      "messageLabel": "{name} को व्हाट्सऐप पर संदेश भेजें"
     }
   },
   "hijri": {

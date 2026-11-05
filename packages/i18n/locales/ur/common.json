@@ -120,6 +120,11 @@
       "addedBy": "{masjid} کی طرف سے شامل کیا گیا",
       "source": "ماخذ: {name} · لائسنس: {license}",
       "instructions": "مسجد کی طرف سے نوٹ"
+    },
+    "ilm": {
+      "greeting": "السلام علیکم",
+      "message": "پیغام بھیجیں",
+      "messageLabel": "{name} کو واٹس ایپ پر پیغام بھیجیں"
     }
   },
   "hijri": {

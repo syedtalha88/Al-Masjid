@@ -512,6 +512,38 @@ admin,ruqyah.searchTitle,Choose from library,లైబ్రరీ నుండ�
 admin,ruqyah.sourceLabel.library,From library,లైబ్రరీ నుండి,no
 admin,ruqyah.sourceLabel.text,The masjid’s own text,మస్జిద్ స్వంత పాఠం,no
 admin,ruqyah.sourceLabel.audio,Recording,రికార్డింగ్,no
+admin,contacts.title,Ilm contacts,ఇల్మ్ పరిచయాలు,no
+admin,contacts.count,{count} of {max},{max}లో {count},no
+admin,contacts.intro,People musallis can message on WhatsApp for Islamic questions and advice.,"ఇస్లామిక్ ప్రశ్నలు, సలహాల కోసం ముసల్లీలు వాట్సాప్‌లో సందేశం పంపగల వ్యక్తులు.",no
+admin,contacts.add,Add contact,పరిచయం చేర్చండి,no
+admin,contacts.full,"You have {max} contacts, the most allowed. Remove one to add another.","మీకు {max} పరిచయాలు ఉన్నాయి, ఇదే గరిష్ఠం. కొత్తది చేర్చడానికి ఒకటి తీసివేయండి.",no
+admin,contacts.for.brothers,For brothers,సోదరుల కోసం,no
+admin,contacts.for.sisters,For sisters,సోదరీమణుల కోసం,no
+admin,contacts.newTitle,New contact,కొత్త పరిచయం,no
+admin,contacts.editTitle,Edit contact,పరిచయం మార్చండి,no
+admin,contacts.name,Name,పేరు,no
+admin,contacts.role,Role,పాత్ర,no
+admin,contacts.roleHint,"For example: Imam, teacher","ఉదా: ఇమామ్, ఉపాధ్యాయుడు",no
+admin,contacts.topics,Topics,అంశాలు,no
+admin,contacts.topicsHint,"For example: family questions, prayer","ఉదా: కుటుంబ ప్రశ్నలు, నమాజ్",no
+admin,contacts.whatsapp,WhatsApp number,వాట్సాప్ నంబర్,no
+admin,contacts.audienceQuestion,Who can contact this person?,ఈ వ్యక్తిని ఎవరు సంప్రదించవచ్చు?,no
+admin,contacts.consent,This person agreed to be listed — their name and WhatsApp will be visible to app users,"జాబితాలో ఉండటానికి ఈ వ్యక్తి అంగీకరించారు — వారి పేరు, వాట్సాప్ యాప్ వాడేవారికి కనిపిస్తాయి",no
+admin,contacts.consentHint,"Ask them first. If they ask to be removed later, remove the contact.","ముందుగా వారిని అడగండి. తర్వాత తీసివేయమని అడిగితే, పరిచయాన్ని తీసివేయండి.",no
+admin,contacts.preview,What musallis see,ముసల్లీలు ఏమి చూస్తారు,no
+admin,contacts.missing,Still needed: {fields},ఇంకా కావాలి: {fields},no
+admin,contacts.issue.name,name,పేరు,no
+admin,contacts.issue.role,a shorter role,చిన్న పాత్ర,no
+admin,contacts.issue.topics,shorter topics,చిన్న అంశాలు,no
+admin,contacts.issue.phone,WhatsApp number,వాట్సాప్ నంబర్,no
+admin,contacts.issue.audience,brothers or sisters,సోదరులు లేదా సోదరీమణులు,no
+admin,contacts.issue.consent,the tick that they agreed,అంగీకార టిక్,no
+admin,contacts.save,Save,సేవ్ చేయండి,no
+admin,contacts.saved,Contact saved,పరిచయం సేవ్ అయింది,no
+admin,contacts.delete,Remove contact,పరిచయం తీసివేయండి,no
+admin,contacts.deleteTitle,Remove this contact?,ఈ పరిచయాన్ని తీసివేయాలా?,no
+admin,contacts.deleteBody,Musallis will no longer see this person.,ముసల్లీలు ఇకపై ఈ వ్యక్తిని చూడరు.,no
+admin,contacts.deleted,Contact removed,పరిచయం తీసివేయబడింది,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -609,6 +641,9 @@ common,ui.ruqyah.quoted,“{text}”,“{text}”,no
 common,ui.ruqyah.addedBy,Added by {masjid},{masjid} చేర్చింది,no
 common,ui.ruqyah.source,Source: {name} · Licence: {license},మూలం: {name} · లైసెన్స్: {license},no
 common,ui.ruqyah.instructions,Note from the masjid,మస్జిద్ నుండి గమనిక,no
+common,ui.ilm.greeting,Assalamu alaikum,అస్సలాము అలైకుమ్,no
+common,ui.ilm.message,Message,సందేశం పంపండి,no
+common,ui.ilm.messageLabel,Message {name} on WhatsApp,{name}కు వాట్సాప్‌లో సందేశం పంపండి,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,మగ్రిబ్ తర్వాత,no
 common,hijri.months.m1,Muharram,ముహర్రం,no
@@ -743,6 +778,10 @@ content,counterDone,Done: {total} of {total},పూర్తయింది: {to
 content,resetCount,Start the count again,లెక్క మళ్ళీ మొదలుపెట్టు,no
 content,emptyRuqyah,No Ruqyah entries yet,ఇంకా రుఖ్యా ఏదీ లేదు,no
 content,emptyRuqyahBody,"When the masjid adds Ruqyah, it will appear here.","మస్జిద్ రుఖ్యా చేర్చినప్పుడు, అది ఇక్కడ కనిపిస్తుంది.",no
+content,ilmTitle,Ask the masjid,మస్జిద్‌ను అడగండి,no
+content,ilmIntro,"For Islamic questions and advice, contact:","ఇస్లామిక్ ప్రశ్నలు, సలహాల కోసం సంప్రదించండి:",no
+content,emptyIlm,No contacts yet,ఇంకా పరిచయాలు లేవు,no
+content,emptyIlmBody,"When the masjid lists people you can ask, they will appear here.","మీరు అడగగల వ్యక్తులను మస్జిద్ చేర్చినప్పుడు, వారు ఇక్కడ కనిపిస్తారు.",no
 content,ruqyahFailed,Ruqyah could not be loaded,రుఖ్యా లోడ్ కాలేదు,no
 content,ruqyahFailedBody,"Check your connection and try again. Once opened, it stays available offline.","మీ కనెక్షన్ తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి. ఒకసారి తెరిచాక, ఇది ఆఫ్‌లైన్‌లో కూడా అందుబాటులో ఉంటుంది.",no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,మన సమాజంలోని ఒకరు అనారోగ్యంతో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
@@ -870,6 +909,7 @@ masjid,hadith,Hadith & Quran,హదీస్ & ఖుర్ఆన్,no
 masjid,duas,Dua Requests,దువా విన్నపాలు,no
 masjid,adhkar,Adhkar after salah,నమాజ్ తర్వాత అజ్కార్,no
 masjid,ruqyah,Ruqyah,రుఖ్యా,no
+masjid,ilm,Ask the masjid,మస్జిద్‌ను అడగండి,no
 masjid,campaigns,Donation Campaigns,విరాళాల ప్రచారాలు,no
 masjid,chanda,Weekly Chanda,వారపు చందా,no
 masjid,bayans,Bayans,బయాన్‌లు,no

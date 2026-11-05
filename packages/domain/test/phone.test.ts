@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isE164 } from '../src/phone.ts';
+import { isE164, whatsappChatUrl } from '../src/phone.ts';
 
 describe('isE164', () => {
   it('accepts + and 7–15 digits without a leading zero', () => {
@@ -24,5 +24,23 @@ describe('isE164', () => {
       undefined,
     ])
       expect(isE164(value)).toBe(false);
+  });
+});
+
+describe('whatsappChatUrl', () => {
+  it('drops the + and URL-encodes the greeting (any script)', () => {
+    expect(whatsappChatUrl('+910000000001')).toBe('https://wa.me/910000000001');
+    expect(whatsappChatUrl('+910000000001', 'Hello there & welcome?')).toBe(
+      'https://wa.me/910000000001?text=Hello%20there%20%26%20welcome%3F',
+    );
+    const url = whatsappChatUrl('+910000000001', 'نمونہ');
+    expect(url).toBe('https://wa.me/910000000001?text=%D9%86%D9%85%D9%88%D9%86%DB%81');
+    expect(new URL(url ?? '').searchParams.get('text')).toBe('نمونہ');
+  });
+
+  it('gives no link for a number that is not E.164', () => {
+    for (const value of ['910000000001', '+91 00000 00001', 'javascript:alert(1)', '']) {
+      expect(whatsappChatUrl(value, 'Hello')).toBeNull();
+    }
   });
 });

@@ -80,6 +80,10 @@
   "resetCount": "Start the count again",
   "emptyRuqyah": "No Ruqyah entries yet",
   "emptyRuqyahBody": "When the masjid adds Ruqyah, it will appear here.",
+  "ilmTitle": "Ask the masjid",
+  "ilmIntro": "For Islamic questions and advice, contact:",
+  "emptyIlm": "No contacts yet",
+  "emptyIlmBody": "When the masjid lists people you can ask, they will appear here.",
   "ruqyahFailed": "Ruqyah could not be loaded",
   "ruqyahFailedBody": "Check your connection and try again. Once opened, it stays available offline."
 }

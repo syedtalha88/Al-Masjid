@@ -22,6 +22,7 @@ export {
   type TemplateFormat,
 } from './content-view.ts';
 export { DayTimings, type DayTimingsProps, type TimingRow, type TimingRowKey, timingRows } from './DayTimings.tsx';
+export { IlmContactCard, type IlmContactCardProps } from './IlmContactCard.tsx';
 export { type ItemKind, itemKind, itemTitle } from './item-view.ts';
 export {
   type AmeenState,
