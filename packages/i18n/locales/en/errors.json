@@ -58,5 +58,8 @@
   "RUQYAH_INVALID": "A recording needs a short title and the tick that it is yours to share. Please check and try again.",
   "RUQYAH_NOT_FOUND": "This Ruqyah entry was removed. Please go back to the list.",
   "RUQYAH_LIMIT_REACHED": "The Ruqyah section already has 50 entries. Delete one to add another.",
-  "RUQYAH_ORDER_INVALID": "The Ruqyah list changed meanwhile. Please open it again and reorder."
+  "RUQYAH_ORDER_INVALID": "The Ruqyah list changed meanwhile. Please open it again and reorder.",
+  "CONTACT_INVALID": "Please tick that this person agreed, and check the WhatsApp number.",
+  "CONTACT_NOT_FOUND": "This contact was removed. Please go back to the list.",
+  "CONTACT_LIMIT_REACHED": "You can list up to 10 contacts. Remove one to add another."
 }

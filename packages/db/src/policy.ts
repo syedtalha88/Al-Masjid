@@ -193,10 +193,23 @@ const RUQYAH_WRITABLE = [
   'status',
   'deleted_at',
 ];
-const ruqyahInsert = (fields: Readonly<Record<string, unknown>>): string | undefined =>
-  fields['status'] === 'active' ? undefined : 'a new entry is active';
-const ruqyahUpdate = (fields: Readonly<Record<string, unknown>>): string | undefined =>
-  'status' in fields && fields['status'] !== 'deleted' ? 'an entry can only be deleted, never restored' : undefined;
+/** Masjid sections (Ruqyah, Ilm contacts): a new record is active; the only status change is to deleted. */
+const sectionInsert = (fields: Readonly<Record<string, unknown>>): string | undefined =>
+  fields['status'] === 'active' ? undefined : 'a new record is active';
+const sectionUpdate = (fields: Readonly<Record<string, unknown>>): string | undefined =>
+  'status' in fields && fields['status'] !== 'deleted' ? 'a record can only be deleted, never restored' : undefined;
+/** 02 §4.1 masjid_contacts: as Ruqyah — never `masjid_id` or `created_by`; the consent stays true (the validator). */
+const CONTACT_WRITABLE = [
+  'name',
+  'role',
+  'topics',
+  'whatsapp',
+  'audience',
+  'consent_confirmed',
+  'sort',
+  'status',
+  'deleted_at',
+];
 const removedRedaction = (doc: Document): Document => {
   if (doc['status'] !== 'removed') return doc;
   const { title: _t, body: _b, image_key: _i, image_thumbhash: _h, ...rest } = doc;
@@ -295,12 +308,24 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
   ruqyah_entries: {
     admin: {
       find: { filter: own('masjid_id') },
-      insert: { filter: own('masjid_id'), check: ruqyahInsert },
+      insert: { filter: own('masjid_id'), check: sectionInsert },
       // A deleted entry is never changed again (the 30-day retention clock runs from `deleted_at`).
       update: {
         filter: (ctx) => ({ ...own('masjid_id')(ctx), status: 'active' }),
         writable: RUQYAH_WRITABLE,
-        check: ruqyahUpdate,
+        check: sectionUpdate,
+      },
+    },
+    super: all(),
+  },
+  masjid_contacts: {
+    admin: {
+      find: { filter: own('masjid_id') },
+      insert: { filter: own('masjid_id'), check: sectionInsert },
+      update: {
+        filter: (ctx) => ({ ...own('masjid_id')(ctx), status: 'active' }),
+        writable: CONTACT_WRITABLE,
+        check: sectionUpdate,
       },
     },
     super: all(),
@@ -438,6 +463,7 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
   v_pub_templates: viewCells(),
   v_pub_settings: viewCells(),
   v_pub_ruqyah: viewCells(),
+  v_pub_contacts: viewCells(),
   // Counts for push audiences without device ids (02 §4.2) — admins see only their own masjids.
   v_admin_follow_audience: { admin: { find: { filter: own('masjid_id') } }, super: { find: S } },
 };

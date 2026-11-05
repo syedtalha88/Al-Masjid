@@ -814,6 +814,9 @@ errors,RUQYAH_INVALID,A recording needs a short title and the tick that it is yo
 errors,RUQYAH_NOT_FOUND,This Ruqyah entry was removed. Please go back to the list.,رقیہ کا یہ اندراج ہٹا دیا گیا ہے۔ براہِ کرم فہرست پر واپس جائیں۔,no
 errors,RUQYAH_LIMIT_REACHED,The Ruqyah section already has 50 entries. Delete one to add another.,رقیہ کے حصے میں پہلے ہی 50 اندراجات ہیں۔ نیا شامل کرنے کے لیے ایک ہٹائیں۔,no
 errors,RUQYAH_ORDER_INVALID,The Ruqyah list changed meanwhile. Please open it again and reorder.,اس دوران رقیہ کی فہرست بدل گئی۔ براہِ کرم اسے دوبارہ کھولیں اور ترتیب دیں۔,no
+errors,CONTACT_INVALID,"Please tick that this person agreed, and check the WhatsApp number.",براہِ کرم ٹک کریں کہ اس شخص نے رضامندی دی ہے، اور واٹس ایپ نمبر جانچیں۔,no
+errors,CONTACT_NOT_FOUND,This contact was removed. Please go back to the list.,یہ رابطہ ہٹا دیا گیا ہے۔ براہِ کرم فہرست پر واپس جائیں۔,no
+errors,CONTACT_LIMIT_REACHED,You can list up to 10 contacts. Remove one to add another.,آپ زیادہ سے زیادہ 10 رابطے رکھ سکتے ہیں۔ نیا شامل کرنے کے لیے ایک ہٹائیں۔,no
 follow,scan.title,Scan masjid QR,مسجد کا QR اسکین کریں,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,اپنا کیمرا مسجد کے پوسٹر پر لگے QR کوڈ کی طرف کریں۔,no
 follow,scan.torch,Flashlight,ٹارچ,no

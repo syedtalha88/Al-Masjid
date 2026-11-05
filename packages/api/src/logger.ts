@@ -16,6 +16,7 @@ export const REDACT_PATHS = [
   'keys',
   'phone',
   'contact',
+  'whatsapp', // Ilm contact numbers (T3.16)
   // Passkey material and other never-log fields (CLAUDE.md §6; WebAuthn arrives in Phase 1).
   'email',
   'pepper',
@@ -36,6 +37,7 @@ export const REDACT_PATHS = [
   '*.keys',
   '*.phone',
   '*.contact',
+  '*.whatsapp',
   '*.email',
   '*.pepper',
   '*.vpa',

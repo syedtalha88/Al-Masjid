@@ -24,6 +24,7 @@ import {
 import { publicScope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
+import { getPublicContacts } from './contacts.ts';
 import {
   adhkarOf,
   arrayOf,
@@ -157,7 +158,7 @@ const SPECIAL_DATES_MAX = 100;
 
 /**
  * `GET /masjids/:id/bundle`: the masjid's profile, raw timings, special dates from `fromDate` on, Ramadan settings,
- * the adhkar set and the section counts (Masjid Detail rows without loading the lists); payment, campaigns, chanda and
+ * the adhkar set, the Ilm contacts (both audiences) and the section counts (Masjid Detail rows without loading the lists); payment, campaigns, chanda and
  * needy people stay empty until Phase 5 (03 §3).
  *
  * @param fromDate - "YYYY-MM-DD" (today − 7 days in IST: the timetable's DateStepper range).
@@ -210,6 +211,7 @@ export async function getMasjidBundle(handle: DbHandle, id: UUID, fromDate: stri
           }
         : null,
     adhkar: await adhkarEntries(handle, masjid),
+    contacts: await getPublicContacts(handle, id),
     sections: { ruqyah: await (await view(handle, 'v_pub_ruqyah')).count({ masjid_id: id }), needy: 0 },
     payment: null,
     campaigns: [],

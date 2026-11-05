@@ -814,6 +814,9 @@ errors,RUQYAH_INVALID,A recording needs a short title and the tick that it is yo
 errors,RUQYAH_NOT_FOUND,This Ruqyah entry was removed. Please go back to the list.,ఈ రుఖ్యా ఎంట్రీ తొలగించబడింది. దయచేసి జాబితాకు తిరిగి వెళ్ళండి.,no
 errors,RUQYAH_LIMIT_REACHED,The Ruqyah section already has 50 entries. Delete one to add another.,రుఖ్యా విభాగంలో ఇప్పటికే 50 ఎంట్రీలు ఉన్నాయి. కొత్తది చేర్చడానికి ఒకటి తొలగించండి.,no
 errors,RUQYAH_ORDER_INVALID,The Ruqyah list changed meanwhile. Please open it again and reorder.,ఈలోగా రుఖ్యా జాబితా మారింది. దయచేసి దాన్ని మళ్ళీ తెరిచి క్రమం మార్చండి.,no
+errors,CONTACT_INVALID,"Please tick that this person agreed, and check the WhatsApp number.","ఈ వ్యక్తి అంగీకరించారని టిక్ చేయండి, వాట్సాప్ నంబర్ సరిచూడండి.",no
+errors,CONTACT_NOT_FOUND,This contact was removed. Please go back to the list.,ఈ పరిచయం తీసివేయబడింది. దయచేసి జాబితాకు తిరిగి వెళ్ళండి.,no
+errors,CONTACT_LIMIT_REACHED,You can list up to 10 contacts. Remove one to add another.,మీరు గరిష్ఠంగా 10 పరిచయాలు ఉంచవచ్చు. కొత్తది చేర్చడానికి ఒకటి తీసివేయండి.,no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no

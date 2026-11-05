@@ -28,7 +28,14 @@ export interface NewMasjid {
 type IdDoc = { _id: UUID } & Record<string, unknown>;
 
 /** Child collections carrying `masjid_id` + `masjid_visible` (02 §5 visibility mirror). */
-const MIRRORED = ['special_timings', 'items', 'chanda_weeks', 'payment_profiles', 'ruqyah_entries'] as const;
+const MIRRORED = [
+  'special_timings',
+  'items',
+  'chanda_weeks',
+  'payment_profiles',
+  'ruqyah_entries',
+  'masjid_contacts',
+] as const;
 
 /** Sets `masjid_visible` on every child document of a masjid (02 §5), in the caller's transaction. */
 export async function mirrorVisibility(ctx: TxContext, masjidId: UUID, visible: boolean): Promise<void> {

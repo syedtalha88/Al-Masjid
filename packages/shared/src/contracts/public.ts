@@ -193,6 +193,20 @@ export const libraryEntrySchema = z.object({
 });
 export type LibraryEntry = z.infer<typeof libraryEntrySchema>;
 
+/**
+ * An Ilm contact (A21, PHASE_03 T3.16): a volunteer the masjid lists with their consent. `whatsapp` (E.164) only builds
+ * the `wa.me` link — the app never prints it.
+ */
+export const ilmContactSchema = z.object({
+  id: uuidText,
+  name: z.string(),
+  role: z.optional(z.string()),
+  topics: z.optional(z.string()),
+  whatsapp: z.string().check(z.regex(/^\+[1-9][0-9]{6,14}$/)),
+  audience: AUDIENCE_PREF,
+});
+export type IlmContact = z.infer<typeof ilmContactSchema>;
+
 /** `GET /masjids/:id/bundle?v=` — everything a follower needs offline (01 §5.2). */
 export const masjidBundleSchema = z.discriminatedUnion('status', [
   z.object({
@@ -229,6 +243,11 @@ export const masjidBundleSchema = z.discriminatedUnion('status', [
      * DECISIONS #104). Optional: a bundle cached before T3.15 has none (= no rows).
      */
     sections: z.optional(z.object({ ruqyah: intIn(0, 1000), needy: intIn(0, 1000) })),
+    /**
+     * Ilm contacts (A21, DECISIONS #104): both audiences — the app shows the device's own (a display filter, not access
+     * control). Optional: a bundle cached before T3.16 has none (= no row).
+     */
+    contacts: z.optional(z.array(ilmContactSchema)),
     /** Phase 5 (donations): present but empty until then. */
     payment: z.nullable(z.object({ vpa: z.string(), payeeName: z.string(), effectiveAt: instant })),
     campaigns: z.array(z.object({ publicId: publicIdText })),

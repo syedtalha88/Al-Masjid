@@ -1,12 +1,30 @@
-// 02 §2 "Masjid sections" (DECISIONS #104): ruqyah_entries. Each entry is exactly one of a verified library entry, text
-// the masjid entered or a recording it uploaded — the validator's `oneOf` by `source`, mirrored in Zod.
+// 02 §2 "Masjid sections" (DECISIONS #104): ruqyah_entries and masjid_contacts. Each Ruqyah entry is exactly one of a
+// verified library entry, text the masjid entered or a recording it uploaded — the validator's `oneOf` by `source`,
+// mirrored in Zod. An Ilm contact is a volunteer the masjid lists with their agreement (`consent_confirmed`, 05 §2).
 import { absent, mode, VOICE_KEY_PATTERN } from './content.ts';
 import { type BsonSchema, documentSchema, f, opt } from './dsl.ts';
-import { LOCALE, RECORD_STATUS, RUQYAH_CATEGORY, RUQYAH_SOURCE } from './enums.ts';
+import { AUDIENCE_PREF, LOCALE, RECORD_STATUS, RUQYAH_CATEGORY, RUQYAH_SOURCE } from './enums.ts';
 import type { CollectionSpec } from './types.ts';
 
 /** Most active Ruqyah entries per masjid (00 §4.10). */
 export const RUQYAH_MAX = 50;
+
+/** Most active Ilm contacts per masjid (00 §4.12). */
+export const CONTACTS_MAX = 10;
+
+/**
+ * A WhatsApp number in E.164: "+", then 7–15 ASCII digits without a leading zero — the rule of `@mc/domain/phone`
+ * (`isE164`) that the contracts check, so nothing the API accepts is refused here (DECISIONS #131).
+ */
+export const E164_PATTERN = '^\\+[1-9][0-9]{6,14}$';
+
+/** `deleted_at` exactly when `status: 'deleted'` (the 30-day retention clock — 02 §6). */
+const deletedAtRule: BsonSchema = {
+  oneOf: [
+    { ...mode('status', 'deleted'), required: ['deleted_at'] },
+    { ...mode('status', 'active'), ...absent('deleted_at') },
+  ],
+};
 
 const SOURCE_FIELDS = { library: 'library_id', text: 'text', audio: 'audio' } as const;
 const sourceFields = Object.values(SOURCE_FIELDS);
@@ -58,12 +76,7 @@ const ruqyahBase = documentSchema(
         anyOf: [{ required: ['instructions', 'instructions_locale'] }, absent('instructions', 'instructions_locale')],
       },
       // `deleted_at` exactly when deleted (the retention clock — 02 §6).
-      {
-        oneOf: [
-          { ...mode('status', 'deleted'), required: ['deleted_at'] },
-          { ...mode('status', 'active'), ...absent('deleted_at') },
-        ],
-      },
+      deletedAtRule,
     ],
   },
 );
@@ -89,6 +102,37 @@ const ruqyahEntries = {
   }),
 };
 
+const contactsBase = documentSchema(
+  {
+    _id: f.uuid(),
+    masjid_id: f.uuid(),
+    name: f.string(80, { minLength: 1 }),
+    role: opt(f.string(60, { minLength: 1 })),
+    topics: opt(f.string(120, { minLength: 1 })),
+    whatsapp: f.string(16, { pattern: E164_PATTERN }),
+    audience: f.enum(AUDIENCE_PREF),
+    // "This person agreed to be listed" (05 §2) — never stored without it.
+    consent_confirmed: f.confirmed(),
+    sort: f.int(0, 1_000_000),
+    status: f.enum(RECORD_STATUS),
+    masjid_visible: f.bool(),
+    created_by: f.uuid(),
+    created_at: f.instant(),
+    updated_at: f.instant(),
+    deleted_at: opt(f.instant()),
+  },
+  { allOf: [deletedAtRule] },
+);
+
+const masjidContacts = {
+  jsonSchema: contactsBase.jsonSchema,
+  zod: contactsBase.zod.superRefine((doc, ctx) => {
+    if ((doc.status === 'deleted') !== (doc.deleted_at !== undefined)) {
+      ctx.addIssue({ code: 'custom', path: ['deleted_at'], message: 'deleted_at is set exactly when deleted' });
+    }
+  }),
+};
+
 export const SECTION_COLLECTIONS: readonly CollectionSpec[] = [
   {
     name: 'ruqyah_entries',
@@ -96,6 +140,15 @@ export const SECTION_COLLECTIONS: readonly CollectionSpec[] = [
     indexes: [
       { name: 'masjid_status_category_sort', key: { masjid_id: 1, status: 1, category: 1, sort: 1 } },
       // Retention (02 §6): deleted entries are purged 30 days later.
+      { name: 'deleted_at', key: { deleted_at: 1 }, partialFilterExpression: { deleted_at: { $type: 'date' } } },
+    ],
+  },
+  {
+    name: 'masjid_contacts',
+    ...masjidContacts,
+    indexes: [
+      { name: 'masjid_status_audience_sort', key: { masjid_id: 1, status: 1, audience: 1, sort: 1 } },
+      // Retention (02 §6): deleted contacts are purged 30 days later.
       { name: 'deleted_at', key: { deleted_at: 1 }, partialFilterExpression: { deleted_at: { $type: 'date' } } },
     ],
   },

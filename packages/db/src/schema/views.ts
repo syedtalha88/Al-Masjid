@@ -128,6 +128,12 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
     { $sort: { sort: 1, _id: 1 } },
     { $unset: ['created_by', 'audio.rights_confirmed', 'status', 'masjid_visible', 'deleted_at'] },
   ],
+  // Both audiences: the app shows the device's own (a display filter, not access control — DECISIONS #104).
+  v_pub_contacts: [
+    { $match: { status: 'active', masjid_visible: true } },
+    { $sort: { audience: 1, sort: 1, _id: 1 } },
+    { $project: keep('_id', 'masjid_id', 'name', 'role', 'topics', 'whatsapp', 'audience', 'sort') },
+  ],
   v_admin_follow_audience: [{ $project: { _id: 0, ...keep('masjid_id', 'muted', 'push_active', 'audience_pref') } }],
 };
 

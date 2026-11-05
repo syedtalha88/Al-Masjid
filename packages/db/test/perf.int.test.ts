@@ -130,6 +130,22 @@ beforeAll(async () => {
       ),
       { bypassDocumentValidation: true },
     );
+  // Ilm contacts (T3.16): ten per masjid, both audiences, one deleted.
+  await t()
+    .db.collection<Raw>('masjid_contacts')
+    .insertMany(
+      masjidIds.flatMap((id) =>
+        Array.from({ length: 10 }, (_, index) => ({
+          _id: new UUID(),
+          masjid_id: id,
+          audience: index % 2 === 0 ? 'brothers' : 'sisters',
+          status: index === 9 ? 'deleted' : 'active',
+          masjid_visible: true,
+          sort: index,
+        })),
+      ),
+      { bypassDocumentValidation: true },
+    );
   const batch = 10_000;
   for (let start = 0; start < ITEMS; start += batch) {
     await t()
@@ -216,5 +232,6 @@ describe('hot public queries through the views use an index (100k items)', () =>
       'bundle special dates',
     );
     expectIndexed(await explainFind('v_pub_ruqyah', { masjid_id: target }), 'bundle ruqyah count / ruqyah list');
+    expectIndexed(await explainFind('v_pub_contacts', { masjid_id: target }), 'bundle contacts');
   });
 });

@@ -57,4 +57,6 @@ export const SCHEMA_AREAS: Readonly<
   '0012_masjid_adhkar': { collections: ['masjids'], views: ['v_pub_masjids'] },
   // PHASE_03 T3.15 (DECISIONS #104): the masjid's Ruqyah section — library, text or audio entries.
   '0013_ruqyah': { collections: ['ruqyah_entries'], views: ['v_pub_ruqyah'] },
+  // PHASE_03 T3.16 (DECISIONS #104): Ilm contacts — volunteers listed with their consent, in the bundle.
+  '0014_contacts': { collections: ['masjid_contacts'], views: ['v_pub_contacts'] },
 };

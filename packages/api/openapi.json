@@ -2919,6 +2919,105 @@
         ],
         "additionalProperties": false
       },
+      "AdminContactList": {
+        "type": "object",
+        "properties": {
+          "contacts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "topics": {
+                  "type": "string"
+                },
+                "whatsapp": {
+                  "type": "string"
+                },
+                "audience": {
+                  "type": "string",
+                  "enum": [
+                    "brothers",
+                    "sisters"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "whatsapp",
+                "audience"
+              ]
+            }
+          }
+        },
+        "required": [
+          "contacts"
+        ]
+      },
+      "ContactSaved": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "ContactSave": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "topics": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "whatsapp": {
+            "type": "string",
+            "pattern": "^\\+[1-9][0-9]{6,14}$"
+          },
+          "audience": {
+            "type": "string",
+            "enum": [
+              "brothers",
+              "sisters"
+            ]
+          },
+          "consentConfirmed": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "whatsapp",
+          "audience",
+          "consentConfirmed"
+        ],
+        "additionalProperties": false
+      },
       "SuperDashboard": {
         "type": "object",
         "properties": {
@@ -5252,6 +5351,45 @@
                             "needy"
                           ],
                           "additionalProperties": false
+                        },
+                        "contacts": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "role": {
+                                "type": "string"
+                              },
+                              "topics": {
+                                "type": "string"
+                              },
+                              "whatsapp": {
+                                "type": "string",
+                                "pattern": "^\\+[1-9][0-9]{6,14}$"
+                              },
+                              "audience": {
+                                "type": "string",
+                                "enum": [
+                                  "brothers",
+                                  "sisters"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "whatsapp",
+                              "audience"
+                            ],
+                            "additionalProperties": false
+                          }
                         },
                         "payment": {
                           "nullable": true,
@@ -10087,6 +10225,157 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/contacts": {
+      "get": {
+        "summary": "Ilm contacts, brothers’ first, each audience in the masjid’s order (B17)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminContactList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add an Ilm contact — only with `consentConfirmed: true` (≤ 10)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactSaved"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/contacts/{id}": {
+      "patch": {
+        "summary": "Replace an Ilm contact (consent confirmed again; a role or topics left out is removed)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactSaved"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove an Ilm contact (followers stop seeing it after their next version poll)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
           }
         }
       }

@@ -9,7 +9,7 @@ import type { CollectionSpec } from './types.ts';
 export * from './dsl.ts';
 export * from './enums.ts';
 export { ADHKAR_MAX, INDIA } from './masjids.ts';
-export { RUQYAH_MAX } from './sections.ts';
+export { CONTACTS_MAX, E164_PATTERN, RUQYAH_MAX } from './sections.ts';
 export type { CollectionSpec, IndexSpec } from './types.ts';
 export { VIEWS, type ViewSpec } from './views.ts';
 

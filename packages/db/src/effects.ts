@@ -134,6 +134,10 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'ruqyah.update': ['source', 'category', 'rights_confirmed'],
   'ruqyah.delete': [],
   'ruqyah.order': ['count'],
+  // Never the name or number (personal data of the volunteer — 04 §1).
+  'contact.create': ['audience', 'consent_confirmed'],
+  'contact.update': ['audience', 'consent_confirmed'],
+  'contact.delete': [],
   'item.publish': ['type', 'template', 'notify', 'image'],
   'item.edit': ['type'],
   'item.delete': ['type'],

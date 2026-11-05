@@ -1,0 +1,218 @@
+{
+  "collections": [
+    {
+      "name": "masjid_contacts",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "masjid_id",
+          "name",
+          "whatsapp",
+          "audience",
+          "consent_confirmed",
+          "sort",
+          "status",
+          "masjid_visible",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "name": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "80"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "role": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "60"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "topics": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "120"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "whatsapp": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "16"
+            },
+            "pattern": "^\\+[1-9][0-9]{6,14}$"
+          },
+          "audience": {
+            "bsonType": "string",
+            "enum": ["brothers", "sisters"]
+          },
+          "consent_confirmed": {
+            "bsonType": "bool",
+            "enum": [true]
+          },
+          "sort": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "1000000"
+            }
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["active", "deleted"]
+          },
+          "masjid_visible": {
+            "bsonType": "bool"
+          },
+          "created_by": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          },
+          "deleted_at": {
+            "bsonType": "date"
+          }
+        },
+        "allOf": [
+          {
+            "oneOf": [
+              {
+                "properties": {
+                  "status": {
+                    "enum": ["deleted"]
+                  }
+                },
+                "required": ["deleted_at"]
+              },
+              {
+                "properties": {
+                  "status": {
+                    "enum": ["active"]
+                  }
+                },
+                "not": {
+                  "anyOf": [
+                    {
+                      "required": ["deleted_at"]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "indexes": [
+        {
+          "name": "masjid_status_audience_sort",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "status": {
+              "$numberInt": "1"
+            },
+            "audience": {
+              "$numberInt": "1"
+            },
+            "sort": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "deleted_at",
+          "key": {
+            "deleted_at": {
+              "$numberInt": "1"
+            }
+          },
+          "partialFilterExpression": {
+            "deleted_at": {
+              "$type": "date"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "views": [
+    {
+      "name": "v_pub_contacts",
+      "viewOn": "masjid_contacts",
+      "pipeline": [
+        {
+          "$match": {
+            "status": "active",
+            "masjid_visible": true
+          }
+        },
+        {
+          "$sort": {
+            "audience": {
+              "$numberInt": "1"
+            },
+            "sort": {
+              "$numberInt": "1"
+            },
+            "_id": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": {
+              "$numberInt": "1"
+            },
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "name": {
+              "$numberInt": "1"
+            },
+            "role": {
+              "$numberInt": "1"
+            },
+            "topics": {
+              "$numberInt": "1"
+            },
+            "whatsapp": {
+              "$numberInt": "1"
+            },
+            "audience": {
+              "$numberInt": "1"
+            },
+            "sort": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

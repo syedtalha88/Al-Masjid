@@ -644,3 +644,49 @@ export const ruqyahOrderSchema = z
   .refine((body) => new Set(body.ids).size === body.ids.length, { path: ['ids'], message: 'an entry is listed twice' })
   .meta({ id: 'RuqyahOrder' });
 export type RuqyahOrder = z.infer<typeof ruqyahOrderSchema>;
+
+// --- Ilm contacts (07 B17, 00 §4.12, PHASE_03 T3.16) -------------------------------------------------------------------
+
+/** Most active Ilm contacts per masjid (00 §4.12; mirrors `@mc/db/schema`). */
+export const CONTACTS_MAX = 10;
+export const CONTACT_NAME_MAX = 80;
+export const CONTACT_ROLE_MAX = 60;
+export const CONTACT_TOPICS_MAX = 120;
+/** E.164: "+", then 7–15 ASCII digits without a leading zero (`@mc/domain/phone` `isE164`, the DB validator). */
+export const E164 = /^\+[1-9][0-9]{6,14}$/;
+
+/**
+ * Body of `POST /contacts` and `PATCH /contacts/:id` — the whole contact (a PATCH replaces it; a role or topics left
+ * out is removed). `consentConfirmed: true` is required on every save: "This person agreed to be listed — their name and
+ * WhatsApp will be visible to app users" (05 §2).
+ */
+export const contactSaveSchema = z
+  .strictObject({
+    name: safeText(CONTACT_NAME_MAX, { min: 1 }),
+    role: safeText(CONTACT_ROLE_MAX, { min: 1 }).optional(),
+    topics: safeText(CONTACT_TOPICS_MAX, { min: 1 }).optional(),
+    whatsapp: z.string().regex(E164),
+    audience: z.enum(['brothers', 'sisters']),
+    consentConfirmed: z.literal(true),
+  })
+  .meta({ id: 'ContactSave' });
+export type ContactSave = z.infer<typeof contactSaveSchema>;
+
+/** One contact as B17 reads it. */
+export const adminContactSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  role: z.string().optional(),
+  topics: z.string().optional(),
+  whatsapp: z.string(),
+  audience: z.enum(['brothers', 'sisters']),
+});
+export type AdminContact = z.infer<typeof adminContactSchema>;
+
+/** `GET /contacts`: the active contacts, brothers' first, each audience in the masjid's order. */
+export const adminContactListSchema = z
+  .object({ contacts: z.array(adminContactSchema) })
+  .meta({ id: 'AdminContactList' });
+export type AdminContactList = z.infer<typeof adminContactListSchema>;
+
+export const contactSavedSchema = z.object({ id: z.string() }).meta({ id: 'ContactSaved' });

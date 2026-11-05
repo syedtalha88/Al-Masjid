@@ -71,6 +71,9 @@ export const API_ERRORS = {
   RUQYAH_NOT_FOUND: 404, // unknown or deleted Ruqyah entry (T3.15)
   RUQYAH_LIMIT_REACHED: 409, // 50 active entries (00 §4.10, T3.15)
   RUQYAH_ORDER_INVALID: 409, // the order names a missing, extra or deleted entry — the list changed (T3.15)
+  CONTACT_INVALID: 400, // no consent, or a number not in E.164 (T3.16)
+  CONTACT_NOT_FOUND: 404, // unknown or deleted Ilm contact (T3.16)
+  CONTACT_LIMIT_REACHED: 409, // 10 active contacts (00 §4.12, T3.16)
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

@@ -2,6 +2,7 @@
 // contract always matches what is mounted.
 import type { RouteDefinition } from '../http/define-route.ts';
 import { type AdminAuthDeps, adminSessionRoutes } from './admin-auth.ts';
+import { adminContactRoutes } from './admin-contacts.ts';
 import { adminLibraryRoutes } from './admin-library.ts';
 import { type AdminMasjidRouteDeps, adminMasjidRoutes } from './admin-masjid.ts';
 import { type AdminPasskeyDeps, adminPasskeyRoutes } from './admin-passkeys.ts';
@@ -32,6 +33,7 @@ export function adminRoutes(deps: AdminRouteDeps): { routes: RouteDefinition[]; 
       ...adminMasjidRoutes(deps),
       ...adminLibraryRoutes(deps),
       ...adminRuqyahRoutes(deps),
+      ...adminContactRoutes(deps),
     ],
     superRoutes: [...superRoutes(deps), ...superLibraryRoutes(deps), ...superTemplateRoutes(deps)],
   };
