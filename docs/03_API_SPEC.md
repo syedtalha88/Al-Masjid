@@ -63,7 +63,7 @@ Exceeded → 429 with `Retry-After`.
 | `GET /legal/:doc/:locale` | – | Markdown → sanitized HTML for privacy/terms/grievance-officer/content-policy | s-maxage=3600 |
 
 
-Bundle additions (DECISIONS #104): `adhkar` (enabled + the ordered `dhikr` library entries), `contacts` (Ilm — both audiences; the client shows the device's own), `sections {ruqyah: count, needy: count}` so Masjid Detail can show its rows without loading the lists. Items carry `voice {url, durationS, peaks?}` when they have a voice note.
+Bundle additions (DECISIONS #104): `adhkar` (`{entries}` — the ordered verified `dhikr` library entries; `null` when off or empty — #129), `contacts` (Ilm — both audiences; the client shows the device's own), `sections {ruqyah: count, needy: count}` so Masjid Detail can show its rows without loading the lists. Items carry `voice {url, durationS, peaks?}` when they have a voice note.
 
 Non-API routes on the app origin: `/m/:code` (SPA route — landing/follow), `/p/:publicId` (SPA route — item landing). Both work for non-installed visitors. For link previews (WhatsApp), Caddy routes these two paths to `api-public`, which returns the built `index.html` with OpenGraph `<meta>` tags injected server-side (masjid name / item title only, HTML-escaped, no inline scripts; uniform generic tags for unknown codes) — `Cache-Control: public, s-maxage=300`.
 
@@ -101,7 +101,7 @@ Non-API routes on the app origin: `/m/:code` (SPA route — landing/follow), `/p
 | Videos (YouTube links only — DECISIONS #39) | `POST /videos/preview` `{url}` → `{youtubeId, startS?, title, thumbnailPreviewUrl}` (strict parse + oEmbed; `422 INVALID_VIDEO_LINK` / `422 VIDEO_UNAVAILABLE`) · `POST /videos` `{url, title, speaker?, description?, audience, locale, notify}` → published item (thumbnail copied to Cloudinary) · `PATCH /videos/:id` · `DELETE /videos/:id` |
 | Voice notes | `POST /audio` (multipart ≤ 25 MB; Ogg/Opus, WebM, MP4/M4A/AAC, MP3, WAV, 3GP by magic bytes; duration ≤ 600 s) → `{audioKey, durationS, peaks}` — attached as `voice` to `POST /items/announcement`, `/items/daily-content`, `/items/dua` (then `title` required) and to Ruqyah entries (#104) |
 | Ruqyah | `GET /ruqyah` · `POST /ruqyah` · `PATCH /ruqyah/:id` · `DELETE /ruqyah/:id` · `PUT /ruqyah/order` (#104) |
-| Adhkar | `GET /adhkar` · `PUT /adhkar` `{enabled, libraryIds[] ≤ 30}` (verified `dhikr` entries only) (#104) |
+| Adhkar | `GET /adhkar` · `PUT /adhkar` `{enabled, libraryIds[] ≤ 30}` (verified `dhikr` entries only) (#104) — both answer `{enabled, entries[]}` in order; a draft, retired, other-kind or unknown id `404 LIBRARY_ENTRY_NOT_FOUND`, a repeat `400` (#129) |
 | Ilm contacts | `GET /contacts` · `POST /contacts` (`consentConfirmed: true` required) · `PATCH /contacts/:id` · `DELETE /contacts/:id` (#104) |
 | Needy people (Phase 5) | `GET /beneficiaries?status=` · `POST /beneficiaries` (`consentConfirmed: true` required) · `PATCH /beneficiaries/:id` · `POST /beneficiaries/:id/received` `{receivedPaise}` · `POST /beneficiaries/:id/close` · `GET /beneficiaries/:id/private` (decrypts phone/note for own masjid admins; audited) (#104) |
 | Library/templates (read) | `GET /library?kind=&q=&category=&cursor=` · `GET /library/suggestion?kind=` · `GET /templates` |

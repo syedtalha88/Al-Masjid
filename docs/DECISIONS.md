@@ -1829,4 +1829,35 @@ max 30 / 30 days), 04 §7's Permissions-Policy (`microphone=()` everywhere).
 MediaRecorder / Web Audio), e2e `e2e/admin/voice.spec.ts` (a WAV attached by file → the musalli plays it), the header
 spec checks the admin's microphone policy; the B5/B6/B7 screens with the voice field stay axe clean in 4 locales.
 
+### #129 — Adhkar after salah: the set, the window, the card and the counter (PHASE_03 T3.14) — ACCEPTED (Claude Code, 5 Nov 2026)
+**Context:** 00 §4.11, 07 B16 / A20, DECISIONS #104 §3, 02 masjids.`adhkar`, 03 §3 bundle additions.
+**Decision:**
+- **Data:** `masjids.adhkar {enabled, library_ids[] ≤ 30, unique}` (migration `0012_masjid_adhkar`, also in
+  `v_pub_masjids`); written only through the admin `masjids` cell (`adhkar` added to `ADMIN_MASJID_FIELDS`) by
+  `setAdhkar`, which replaces the whole set, checks every id through the admin `content_library` cell (verified
+  `dhikr` only → else `404 LIBRARY_ENTRY_NOT_FOUND`; over 30 / a repeat → `400 ADHKAR_INVALID`), bumps the version and
+  audits `adhkar.update {enabled, count}`. Last write wins (no `If-Match`): the set is small and replaced whole.
+- **API:** `GET` / `PUT /masjids/:id/adhkar` (answer = `{enabled, entries}` in order). The bundle gains
+  `adhkar: {entries} | null` — `null` when off or empty; an entry retired since is left out (both reads).
+- **Window (`@mc/domain/prayer` `adhkarWindow`):** from each fard prayer's jamaat (its adhan when the masjid holds no
+  jamaat; on Fridays each Jumu'ah jamaat in place of Dhuhr) for 30 minutes — `[start, start + 30 min)`; overlapping
+  windows → the later start; yesterday is checked too, so an Isha before midnight runs past it.
+- **Home card (A20):** the first followed masjid (follow order) with a set and timings; title "Adhkar after salah ·
+  <prayer>", the first dhikr's Arabic (3 lines), "See all"; "Hide until the next salah" stores the window's key
+  (`<masjid>/<date>/<HH:mm>`) in the device store (`adhkarDismissed`, device only). The card lives in
+  `@mc/ui/content` (`AdhkarCard`) so the B16 preview renders the real component (T3.11).
+- **List (A20):** route `/masjid/:id/adhkar` (Masjid Detail row "Adhkar after salah" after Dua Requests when the bundle
+  has a set): Arabic at the reader's size, transliteration (the reader's switch), translation, reference, source; a
+  large counter per dhikr (selection haptic per tap, success pattern at the count, "Start the count again"); counts are
+  module memory — this app session only, never stored or sent.
+- **Admin (B16):** a Home tile "Adhkar" (07 B3 lists none; B16 needs an entry point and the admin UI is icon-first —
+  like the #104 tiles) → switch, ordered list (drag, Move up / Move down — WCAG 2.5.7 —, Remove), "Add dhikr" (the
+  library search sheet with kind `dhikr`, chosen ones marked), the Home-card preview in four languages, Save.
+- **Seed:** three verified `dhikr` placeholders (10 §5) and an adhkar set on Test Masjid Alpha.
+- **Budget:** musalli initial JS 186.01 kB → limit 187 kB (Home's card and the window; owner rule "quality over bundle
+  size"). Admin 212.7 / 220 kB.
+**Consequences:** domain +5 (every prayer, adhan fallback, Jumu'ah, overlap, midnight), db int +5, API int +1, app unit
++3, admin unit +4, e2e `e2e/admin/adhkar.spec.ts` (admin picks → pinned clock: card after Dhuhr, gone 30 min later,
+list + counter, Hide survives a reload), B16 + its sheet in the 4-locale screens spec (axe clean). Follow-up F55.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._
