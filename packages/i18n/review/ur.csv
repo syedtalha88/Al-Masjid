@@ -41,6 +41,7 @@ admin,home.tiles.donation,Donation Drive,چندہ مہم,no
 admin,home.tiles.chanda,Chanda,چندہ,no
 admin,home.tiles.video,Bayan Video,بیان ویڈیو,no
 admin,home.tiles.specialDates,Special Dates & Ramadan,خاص تاریخیں اور رمضان,no
+admin,home.tiles.adhkar,Adhkar,اذکار,no
 admin,home.tiles.myPosts,My Posts,میری پوسٹس,no
 admin,home.tiles.profile,Masjid Profile,مسجد پروفائل,no
 admin,home.tiles.ruqyah,Ruqyah,رقیہ,no
@@ -429,6 +430,27 @@ admin,voice.rightsHint,Record other people only with their permission.,دوسر�
 admin,voice.voiceTitle,Title of the voice note,وائس نوٹ کا عنوان,no
 admin,voice.voiceTitleHint,One line: what the voice note is about.,ایک لائن: وائس نوٹ کس بارے میں ہے۔,no
 admin,voice.issue,Please give the voice note a title.,براہِ کرم وائس نوٹ کا عنوان لکھیں۔,no
+admin,adhkar.title,Adhkar after salah,نماز کے بعد کے اذکار,no
+admin,adhkar.show,Show adhkar after salah,نماز کے بعد کے اذکار دکھائیں,no
+admin,adhkar.showHint,Musallis see a card on Home for 30 minutes after each salah.,ہر نماز کے بعد 30 منٹ تک نمازیوں کو ہوم پر ایک کارڈ دکھے گا۔,no
+admin,adhkar.chosen,"Adhkar, in order",اذکار، ترتیب سے,no
+admin,adhkar.count,{count} of {max},{max} میں سے {count},no
+admin,adhkar.none,No adhkar chosen yet,ابھی کوئی اذکار نہیں چنے گئے,no
+admin,adhkar.noneBody,Add dhikr from the verified library.,تصدیق شدہ لائبریری سے ذکر شامل کریں۔,no
+admin,adhkar.add,Add dhikr,ذکر شامل کریں,no
+admin,adhkar.searchTitle,Choose a dhikr,ذکر چنیں,no
+admin,adhkar.noDhikr,No verified dhikr yet,ابھی کوئی تصدیق شدہ ذکر نہیں,no
+admin,adhkar.noDhikrBody,The Super Admin adds them to the library.,سپر ایڈمن انہیں لائبریری میں شامل کرتے ہیں۔,no
+admin,adhkar.full,{max} is the most.,زیادہ سے زیادہ {max}۔,no
+admin,adhkar.repeat,"{count, plural, one {Once} other {# times}}","{count, plural, one {ایک بار} other {# بار}}",no
+admin,adhkar.moveUp,Move up,اوپر لے جائیں,no
+admin,adhkar.moveDown,Move down,نیچے لے جائیں,no
+admin,adhkar.remove,Remove,ہٹائیں,no
+admin,adhkar.reorder,Move {reference},{reference} کی جگہ بدلیں,no
+admin,adhkar.preview,Home card preview,ہوم کارڈ کی جھلک,no
+admin,adhkar.save,Save,محفوظ کریں,no
+admin,adhkar.saved,Adhkar saved,اذکار محفوظ ہو گئے,no
+admin,adhkar.added,Added,شامل ہو گیا,no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no
@@ -463,6 +485,8 @@ common,home.eidFitr,Eid ul-Fitr Salah,عید الفطر کی نماز,no
 common,home.eidAdha,Eid ul-Adha Salah,عید الاضحیٰ کی نماز,no
 common,home.today,Today,آج,no
 common,home.tomorrow,Tomorrow,کل,no
+common,home.adhkar,Adhkar after salah · {prayer},نماز کے بعد کے اذکار · {prayer},no
+common,home.adhkarDismiss,Hide until the next salah,اگلی نماز تک چھپائیں,no
 common,nav.back,Back,واپس,no
 common,nav.close,Close,بند کریں,no
 common,tabs.label,Main,مرکزی,no
@@ -639,6 +663,13 @@ content,license,Licence: {license},لائسنس: {license},no
 content,gone,This post is no longer available,یہ پوسٹ اب دستیاب نہیں,no
 content,goneBody,The masjid may have removed it.,ممکن ہے مسجد نے اسے ہٹا دیا ہو۔,no
 content,back,Go back,واپس جائیں,no
+content,adhkarTitle,Adhkar after salah,نماز کے بعد کے اذکار,no
+content,emptyAdhkar,No adhkar yet,ابھی کوئی اذکار نہیں,no
+content,emptyAdhkarBody,This masjid has not chosen its adhkar after salah yet.,اس مسجد نے ابھی نماز کے بعد کے اذکار نہیں چنے۔,no
+content,repeat,"{count, plural, one {Once} other {# times}}","{count, plural, one {ایک بار} other {# بار}}",no
+content,counter,Count: {count} of {total}. Tap to count.,گنتی: {total} میں سے {count}۔ گننے کے لیے ٹیپ کریں۔,no
+content,counterDone,Done: {total} of {total},مکمل: {total} میں سے {total},no
+content,resetCount,Start the count again,گنتی دوبارہ شروع کریں,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,ہماری برادری کے ایک رکن بیمار ہیں۔ براہِ کرم انہیں اپنی دعاؤں میں یاد رکھیں۔,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,ہماری برادری کے ایک رکن اسپتال میں ہیں۔ براہِ کرم ان کی صحت یابی کے لیے دعا کریں۔,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,ہماری برادری کے ایک رکن کا آپریشن ہے۔ براہِ کرم دعا کریں کہ سب خیریت سے ہو۔,no
@@ -700,6 +731,7 @@ errors,DUA_INVALID,Something in this dua request is not right. Please check the 
 errors,EDIT_WINDOW_CLOSED,Posts can be changed for 24 hours after publishing. You can still delete this post.,پوسٹ شائع ہونے کے 24 گھنٹے تک ہی بدلی جا سکتی ہے۔ آپ اسے اب بھی ہٹا سکتے ہیں۔,no
 errors,ITEM_NOT_EDITABLE,This kind of post cannot be changed here.,اس طرح کی پوسٹ یہاں بدلی نہیں جا سکتی۔,no
 errors,PROFILE_INVALID,This change to the masjid profile is not possible. Please check it and try again.,مسجد پروفائل میں یہ تبدیلی ممکن نہیں۔ براہِ کرم دیکھیں اور دوبارہ کوشش کریں۔,no
+errors,ADHKAR_INVALID,"This adhkar list is not possible: at most 30, each one once. Please check it and try again.",یہ اذکار کی فہرست ممکن نہیں: زیادہ سے زیادہ 30، ہر ایک صرف ایک بار۔ براہِ کرم دیکھیں اور دوبارہ کوشش کریں۔,no
 errors,VOICE_INVALID,A voice note needs a short title. Please add one and try again.,وائس نوٹ کے ساتھ ایک مختصر عنوان ضروری ہے۔ براہِ کرم عنوان لکھیں اور دوبارہ کوشش کریں۔,no
 errors,AUDIO_INVALID,This file is not a voice recording the app can use. Please record again or choose another file.,یہ فائل ایسی آواز کی ریکارڈنگ نہیں جسے ایپ استعمال کر سکے۔ براہِ کرم دوبارہ ریکارڈ کریں یا دوسری فائل چنیں۔,no
 errors,AUDIO_TOO_LONG,Voice notes can be at most 10 minutes long.,وائس نوٹ زیادہ سے زیادہ 10 منٹ کا ہو سکتا ہے۔,no
@@ -754,6 +786,7 @@ masjid,unmutedToast,Notifications are on for this masjid,اس مسجد کی اط
 masjid,muteFailed,Couldn’t change notifications. Check your connection and try again.,اطلاعات تبدیل نہیں ہو سکیں۔ انٹرنیٹ دیکھیں اور دوبارہ کوشش کریں۔,no
 masjid,hadith,Hadith & Quran,حدیث اور قرآن,no
 masjid,duas,Dua Requests,دعا کی درخواستیں,no
+masjid,adhkar,Adhkar after salah,نماز کے بعد کے اذکار,no
 masjid,campaigns,Donation Campaigns,چندہ مہمات,no
 masjid,chanda,Weekly Chanda,ہفتہ وار چندہ,no
 masjid,bayans,Bayans,بیانات,no

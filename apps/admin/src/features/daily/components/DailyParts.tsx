@@ -89,20 +89,25 @@ const ALL = '';
 const tagLabel = (tag: string) => tag.replace(/[-_]+/g, ' ');
 
 /**
- * "Choose another" (07 B6): search words and topic chips (the most used tags of the kind) over verified entries; a tap
- * picks the entry. Results come page by page ("Show more").
+ * "Choose another" (07 B6) and "Add dhikr" (B16): search words and topic chips (the most used tags of the kind) over
+ * verified entries; a tap picks the entry; `chosen` entries are marked. Results come page by page ("Show more").
  */
 export function LibrarySearchSheet({
   open,
   onClose,
   masjidId,
   kind,
+  title,
+  chosen,
   onPick,
 }: {
   readonly open: boolean;
   readonly onClose: () => void;
   readonly masjidId: string | undefined;
-  readonly kind: DailyKind;
+  readonly kind: DailyKind | 'dhikr';
+  /** The sheet title (default: "Find a hadith" / "Find an ayah"). */
+  readonly title?: string | undefined;
+  readonly chosen?: ReadonlySet<string> | undefined;
   readonly onPick: (entry: AdminLibraryEntry) => void;
 }) {
   const { t } = useTranslation('admin');
@@ -119,7 +124,7 @@ export function LibrarySearchSheet({
     <Sheet
       open={open}
       onClose={onClose}
-      title={t(kind === 'ayah' ? 'daily.searchAyah' : 'daily.searchHadith')}
+      title={title ?? t(kind === 'ayah' ? 'daily.searchAyah' : 'daily.searchHadith')}
       snaps={['full']}
     >
       <div className="flex flex-col gap-4 pb-4">
@@ -148,6 +153,8 @@ export function LibrarySearchSheet({
                   <PressableCard
                     variant="outline"
                     data-entry={entry.id}
+                    aria-current={chosen?.has(entry.id) ? true : undefined}
+                    className={chosen?.has(entry.id) ? 'border-primary-700' : ''}
                     onPress={() => {
                       onPick(entry);
                     }}

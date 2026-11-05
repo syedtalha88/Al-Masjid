@@ -41,6 +41,7 @@ admin,home.tiles.donation,Donation Drive,चंदा अभियान,no
 admin,home.tiles.chanda,Chanda,चंदा,no
 admin,home.tiles.video,Bayan Video,बयान वीडियो,no
 admin,home.tiles.specialDates,Special Dates & Ramadan,ख़ास तारीख़ें और रमज़ान,no
+admin,home.tiles.adhkar,Adhkar,अज़कार,no
 admin,home.tiles.myPosts,My Posts,मेरी पोस्ट,no
 admin,home.tiles.profile,Masjid Profile,मस्जिद प्रोफ़ाइल,no
 admin,home.tiles.ruqyah,Ruqyah,रुक़्या,no
@@ -429,6 +430,27 @@ admin,voice.rightsHint,Record other people only with their permission.,दूस
 admin,voice.voiceTitle,Title of the voice note,वॉइस नोट का शीर्षक,no
 admin,voice.voiceTitleHint,One line: what the voice note is about.,एक लाइन: वॉइस नोट किस बारे में है।,no
 admin,voice.issue,Please give the voice note a title.,कृपया वॉइस नोट का शीर्षक लिखें।,no
+admin,adhkar.title,Adhkar after salah,नमाज़ के बाद के अज़कार,no
+admin,adhkar.show,Show adhkar after salah,नमाज़ के बाद के अज़कार दिखाएँ,no
+admin,adhkar.showHint,Musallis see a card on Home for 30 minutes after each salah.,हर नमाज़ के बाद 30 मिनट तक नमाज़ियों को होम पर एक कार्ड दिखेगा।,no
+admin,adhkar.chosen,"Adhkar, in order","अज़कार, क्रम से",no
+admin,adhkar.count,{count} of {max},{max} में से {count},no
+admin,adhkar.none,No adhkar chosen yet,अभी कोई अज़कार नहीं चुना गया,no
+admin,adhkar.noneBody,Add dhikr from the verified library.,तस्दीक़ की हुई लाइब्रेरी से ज़िक्र जोड़ें।,no
+admin,adhkar.add,Add dhikr,ज़िक्र जोड़ें,no
+admin,adhkar.searchTitle,Choose a dhikr,ज़िक्र चुनें,no
+admin,adhkar.noDhikr,No verified dhikr yet,अभी कोई तस्दीक़ किया हुआ ज़िक्र नहीं,no
+admin,adhkar.noDhikrBody,The Super Admin adds them to the library.,सुपर एडमिन इन्हें लाइब्रेरी में जोड़ते हैं।,no
+admin,adhkar.full,{max} is the most.,ज़्यादा से ज़्यादा {max}।,no
+admin,adhkar.repeat,"{count, plural, one {Once} other {# times}}","{count, plural, one {एक बार} other {# बार}}",no
+admin,adhkar.moveUp,Move up,ऊपर ले जाएँ,no
+admin,adhkar.moveDown,Move down,नीचे ले जाएँ,no
+admin,adhkar.remove,Remove,हटाएँ,no
+admin,adhkar.reorder,Move {reference},{reference} की जगह बदलें,no
+admin,adhkar.preview,Home card preview,होम कार्ड की झलक,no
+admin,adhkar.save,Save,सेव करें,no
+admin,adhkar.saved,Adhkar saved,अज़कार सेव हो गए,no
+admin,adhkar.added,Added,जोड़ दिया,no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no
@@ -463,6 +485,8 @@ common,home.eidFitr,Eid ul-Fitr Salah,ईद-उल-फ़ित्र की �
 common,home.eidAdha,Eid ul-Adha Salah,ईद-उल-अज़हा की नमाज़,no
 common,home.today,Today,आज,no
 common,home.tomorrow,Tomorrow,कल,no
+common,home.adhkar,Adhkar after salah · {prayer},नमाज़ के बाद के अज़कार · {prayer},no
+common,home.adhkarDismiss,Hide until the next salah,अगली नमाज़ तक छिपाएँ,no
 common,nav.back,Back,वापस,no
 common,nav.close,Close,बंद करें,no
 common,tabs.label,Main,मुख्य,no
@@ -639,6 +663,13 @@ content,license,Licence: {license},लाइसेंस: {license},no
 content,gone,This post is no longer available,यह पोस्ट अब उपलब्ध नहीं है,no
 content,goneBody,The masjid may have removed it.,हो सकता है मस्जिद ने इसे हटा दिया हो।,no
 content,back,Go back,वापस जाएँ,no
+content,adhkarTitle,Adhkar after salah,नमाज़ के बाद के अज़कार,no
+content,emptyAdhkar,No adhkar yet,अभी कोई अज़कार नहीं,no
+content,emptyAdhkarBody,This masjid has not chosen its adhkar after salah yet.,इस मस्जिद ने अभी नमाज़ के बाद के अज़कार नहीं चुने हैं।,no
+content,repeat,"{count, plural, one {Once} other {# times}}","{count, plural, one {एक बार} other {# बार}}",no
+content,counter,Count: {count} of {total}. Tap to count.,गिनती: {total} में से {count}। गिनने के लिए टैप करें।,no
+content,counterDone,Done: {total} of {total},पूरा हुआ: {total} में से {total},no
+content,resetCount,Start the count again,गिनती फिर से शुरू करें,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,हमारी बिरादरी के एक सदस्य बीमार हैं। कृपया उन्हें अपनी दुआओं में याद रखें।,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,हमारी बिरादरी के एक सदस्य अस्पताल में हैं। कृपया उनकी सेहत के लिए दुआ करें।,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,हमारी बिरादरी के एक सदस्य का ऑपरेशन है। कृपया दुआ करें कि सब ठीक हो।,no
@@ -700,6 +731,7 @@ errors,DUA_INVALID,Something in this dua request is not right. Please check the 
 errors,EDIT_WINDOW_CLOSED,Posts can be changed for 24 hours after publishing. You can still delete this post.,पोस्ट प्रकाशित होने के 24 घंटे तक ही बदली जा सकती है। आप इसे अब भी हटा सकते हैं।,no
 errors,ITEM_NOT_EDITABLE,This kind of post cannot be changed here.,इस तरह की पोस्ट यहाँ बदली नहीं जा सकती।,no
 errors,PROFILE_INVALID,This change to the masjid profile is not possible. Please check it and try again.,मस्जिद प्रोफ़ाइल में यह बदलाव मुमकिन नहीं है। कृपया जाँचें और फिर से कोशिश करें।,no
+errors,ADHKAR_INVALID,"This adhkar list is not possible: at most 30, each one once. Please check it and try again.","यह अज़कार सूची मुमकिन नहीं है: ज़्यादा से ज़्यादा 30, हर एक सिर्फ़ एक बार। कृपया जाँचें और फिर से कोशिश करें।",no
 errors,VOICE_INVALID,A voice note needs a short title. Please add one and try again.,वॉइस नोट के साथ एक छोटा शीर्षक ज़रूरी है। कृपया शीर्षक लिखें और फिर से कोशिश करें।,no
 errors,AUDIO_INVALID,This file is not a voice recording the app can use. Please record again or choose another file.,यह फ़ाइल ऐसी आवाज़ की रिकॉर्डिंग नहीं है जिसे ऐप इस्तेमाल कर सके। कृपया फिर से रिकॉर्ड करें या दूसरी फ़ाइल चुनें।,no
 errors,AUDIO_TOO_LONG,Voice notes can be at most 10 minutes long.,वॉइस नोट ज़्यादा से ज़्यादा 10 मिनट का हो सकता है।,no
@@ -754,6 +786,7 @@ masjid,unmutedToast,Notifications are on for this masjid,इस मस्जि�
 masjid,muteFailed,Couldn’t change notifications. Check your connection and try again.,नोटिफ़िकेशन नहीं बदल सके। इंटरनेट देखें और फिर कोशिश करें।,no
 masjid,hadith,Hadith & Quran,हदीस और क़ुरआन,no
 masjid,duas,Dua Requests,दुआ की गुज़ारिशें,no
+masjid,adhkar,Adhkar after salah,नमाज़ के बाद के अज़कार,no
 masjid,campaigns,Donation Campaigns,चंदा अभियान,no
 masjid,chanda,Weekly Chanda,हफ़्ते का चंदा,no
 masjid,bayans,Bayans,बयान,no

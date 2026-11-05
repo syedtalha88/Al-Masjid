@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
+import { Route as AdhkarRouteImport } from './routes/adhkar'
 import { Route as PostsRouteImport } from './routes/posts'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as TimingsRouteImport } from './routes/timings'
@@ -50,6 +51,11 @@ const IndexRoute = IndexRouteImport.update({
 const AccountRoute = AccountRouteImport.update({
   id: '/account',
   path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdhkarRoute = AdhkarRouteImport.update({
+  id: '/adhkar',
+  path: '/adhkar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PostsRoute = PostsRouteImport.update({
@@ -206,6 +212,7 @@ const SuperMasjidsIdEditRoute = SuperMasjidsIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/adhkar': typeof AdhkarRoute
   '/posts': typeof PostsRoute
   '/profile': typeof ProfileRoute
   '/timings': typeof TimingsRoute
@@ -240,6 +247,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/adhkar': typeof AdhkarRoute
   '/posts': typeof PostsRoute
   '/profile': typeof ProfileRoute
   '/timings': typeof TimingsRoute
@@ -275,6 +283,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/adhkar': typeof AdhkarRoute
   '/posts': typeof PostsRoute
   '/profile': typeof ProfileRoute
   '/timings': typeof TimingsRoute
@@ -311,6 +320,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/account'
+    | '/adhkar'
     | '/posts'
     | '/profile'
     | '/timings'
@@ -345,6 +355,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/account'
+    | '/adhkar'
     | '/posts'
     | '/profile'
     | '/timings'
@@ -379,6 +390,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/account'
+    | '/adhkar'
     | '/posts'
     | '/profile'
     | '/timings'
@@ -414,6 +426,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRoute
+  AdhkarRoute: typeof AdhkarRoute
   PostsRoute: typeof PostsRoute
   ProfileRoute: typeof ProfileRoute
   TimingsRoute: typeof TimingsRoute
@@ -459,6 +472,13 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/account'
       preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/adhkar': {
+      id: '/adhkar'
+      path: '/adhkar'
+      fullPath: '/adhkar'
+      preLoaderRoute: typeof AdhkarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/posts': {
@@ -689,6 +709,7 @@ const SuperMasjidsIdRouteWithChildren = SuperMasjidsIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
+  AdhkarRoute: AdhkarRoute,
   PostsRoute: PostsRoute,
   ProfileRoute: ProfileRoute,
   TimingsRoute: TimingsRoute,

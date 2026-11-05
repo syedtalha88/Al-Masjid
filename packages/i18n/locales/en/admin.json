@@ -49,6 +49,7 @@
       "chanda": "Chanda",
       "video": "Bayan Video",
       "specialDates": "Special Dates & Ramadan",
+      "adhkar": "Adhkar",
       "myPosts": "My Posts",
       "profile": "Masjid Profile",
       "ruqyah": "Ruqyah",
@@ -490,5 +491,28 @@
     "voiceTitle": "Title of the voice note",
     "voiceTitleHint": "One line: what the voice note is about.",
     "issue": "Please give the voice note a title."
+  },
+  "adhkar": {
+    "title": "Adhkar after salah",
+    "show": "Show adhkar after salah",
+    "showHint": "Musallis see a card on Home for 30 minutes after each salah.",
+    "chosen": "Adhkar, in order",
+    "count": "{count} of {max}",
+    "none": "No adhkar chosen yet",
+    "noneBody": "Add dhikr from the verified library.",
+    "add": "Add dhikr",
+    "searchTitle": "Choose a dhikr",
+    "noDhikr": "No verified dhikr yet",
+    "noDhikrBody": "The Super Admin adds them to the library.",
+    "full": "{max} is the most.",
+    "repeat": "{count, plural, one {Once} other {# times}}",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove",
+    "reorder": "Move {reference}",
+    "preview": "Home card preview",
+    "save": "Save",
+    "saved": "Adhkar saved",
+    "added": "Added"
   }
 }

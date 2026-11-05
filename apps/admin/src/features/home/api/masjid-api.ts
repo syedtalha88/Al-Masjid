@@ -1,5 +1,7 @@
 // Masjid-scoped admin API (03 §4, PHASE_03): responses are parsed with the shared contracts.
 import {
+  type AdhkarPut,
+  adminAdhkarSchema,
   adminItemListSchema,
   type AdminItemStatus,
   adminLibraryListSchema,
@@ -110,6 +112,11 @@ export const masjidApi = {
     }),
   deleteItem: (masjidId: string, itemId: string) =>
     call(`${base(masjidId)}/items/${encodeURIComponent(itemId)}`, noContentSchema, { method: 'DELETE' }),
+  /** B16 (T3.14): "Adhkar after salah" — on/off and the chosen dhikr in order. */
+  adhkar: (masjidId: string, signal?: AbortSignal) =>
+    call(`${base(masjidId)}/adhkar`, adminAdhkarSchema, withSignal(signal)),
+  saveAdhkar: (masjidId: string, body: AdhkarPut) =>
+    call(`${base(masjidId)}/adhkar`, adminAdhkarSchema, { method: 'PUT', body }),
   /** B13 (T3.10): the masjid profile. */
   profile: (masjidId: string, signal?: AbortSignal) =>
     call(base(masjidId), adminMasjidProfileSchema, withSignal(signal)),
@@ -142,7 +149,7 @@ export const masjidApi = {
 };
 
 export interface LibraryFilter {
-  readonly kind: 'hadith' | 'ayah' | 'dua';
+  readonly kind: 'hadith' | 'ayah' | 'dua' | 'dhikr';
   readonly q?: string | undefined;
   readonly tag?: string | undefined;
   /** Duas only: illness, inteqal or other (07 B7). */
@@ -161,6 +168,7 @@ export const masjidKeys = {
   templates: (masjidId: string) => ['masjid', masjidId, 'templates'] as const,
   items: (masjidId: string, type: string) => ['masjid', masjidId, 'items', type] as const,
   profile: (masjidId: string) => ['masjid', masjidId, 'profile'] as const,
+  adhkar: (masjidId: string) => ['masjid', masjidId, 'adhkar'] as const,
   suggestion: (masjidId: string, kind: 'hadith' | 'ayah') => ['masjid', masjidId, 'suggestion', kind] as const,
   library: (masjidId: string, kind: string, q: string, tag: string, category: string) =>
     ['masjid', masjidId, 'library', kind, q, tag, category] as const,

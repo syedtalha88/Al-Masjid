@@ -328,6 +328,26 @@ for (const locale of LOCALES) {
         await adminPage.waitForTimeout(400);
         await adminShot('b12-delete');
         await adminPage.keyboard.press('Escape');
+        // T3.14 B16: adhkar after salah with two seed dhikr (API), the Home card preview; the "Add dhikr" sheet.
+        const dhikr = await adminPage.request.get(`${ADMIN_URL}/api/admin/masjids/${masjidId}/library?kind=dhikr`);
+        const dhikrIds = ((await dhikr.json()) as { entries: { id: string }[] }).entries.map((entry) => entry.id);
+        expect(
+          (
+            await adminPage.request.put(`${ADMIN_URL}/api/admin/masjids/${masjidId}/adhkar`, {
+              headers: CSRF,
+              data: { enabled: true, libraryIds: dhikrIds.slice(0, 2) },
+            })
+          ).status(),
+        ).toBe(200);
+        await adminPage.goto(`${ADMIN_URL}/adhkar`);
+        await expect(adminPage.locator('[data-dhikr]')).toHaveCount(2);
+        await adminPage.waitForLoadState('networkidle');
+        await adminShot('b16-adhkar');
+        await adminPage.getByRole('button', { name: label(locale, 'admin', 'adhkar.add') }).click();
+        await expect(adminPage.getByRole('dialog')).toBeVisible();
+        await adminPage.waitForTimeout(600); // the sheet's spring settles before the shot
+        await adminShot('b16-add');
+        await adminPage.keyboard.press('Escape');
         // T3.10 B13: the profile (names, place, Hijri adjustment, My account) and the "Request a change" sheet.
         await adminPage.goto(`${ADMIN_URL}/profile`);
         await expect(adminPage.locator('[data-names]')).toBeVisible();

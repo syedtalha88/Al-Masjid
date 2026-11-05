@@ -1,11 +1,11 @@
-// The verified Content Library as admins pick from it (07 B6 "Choose another", B7 "Attach dua", PHASE_03 T3.7–T3.8):
-// entries of a kind — search words, a topic tag, a dua category — page by page.
+// The verified Content Library as admins pick from it (07 B6 "Choose another", B7 "Attach dua", B16 "Add dhikr" —
+// PHASE_03 T3.7, T3.8, T3.14): entries of a kind — search words, a topic tag, a dua category — page by page.
 import { useInfiniteQuery } from '@tanstack/react-query';
 
 import { masjidApi, masjidKeys } from '../../home/api/masjid-api.ts';
 
 export interface LibrarySearch {
-  readonly kind: 'hadith' | 'ayah' | 'dua';
+  readonly kind: 'hadith' | 'ayah' | 'dua' | 'dhikr';
   readonly q: string;
   readonly tag: string;
   readonly category?: 'illness' | 'inteqal' | 'other' | undefined;

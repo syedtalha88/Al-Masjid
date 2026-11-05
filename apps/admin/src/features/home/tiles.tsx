@@ -9,6 +9,7 @@ import {
   HeartIcon,
   ListBulletsIcon,
   MegaphoneIcon,
+  MoonStarsIcon,
   PlayCircleIcon,
   ShieldCheckIcon,
 } from '@mc/ui/icons';
@@ -16,7 +17,7 @@ import type { ReactNode } from 'react';
 
 /**
  * The Admin Home tiles in their final order, icons and colors (07 B3, 06 §2 category mapping; Ruqyah, Blood Camp and
- * Help the Needy from DECISIONS #104). `phase`: the phase that builds the screen — later phases are "Coming soon" in
+ * Help the Needy from DECISIONS #104; Adhkar after salah, B16 — DECISIONS #129). `phase`: the phase that builds the screen — later phases are "Coming soon" in
  * dev/staging builds and hidden in production (PHASE_03 T3.1). `route`: where the tile opens once its task has landed
  * (`null` → "Coming soon" for now).
  */
@@ -29,6 +30,7 @@ const TILE_LIST = [
   { key: 'chanda', icon: <ChartBarIcon size={28} />, tone: 'purple', phase: 5, route: null },
   { key: 'video', icon: <PlayCircleIcon size={28} />, tone: 'primary', phase: 6, route: null },
   { key: 'specialDates', icon: <CrescentIcon size={28} />, tone: 'sun', phase: 3, route: '/special' },
+  { key: 'adhkar', icon: <MoonStarsIcon size={28} />, tone: 'primary', phase: 3, route: '/adhkar' },
   { key: 'ruqyah', icon: <ShieldCheckIcon size={28} />, tone: 'info', phase: 3, route: null },
   { key: 'bloodCamp', icon: <HeartIcon size={28} />, tone: 'danger', phase: 3, route: null },
   { key: 'needy', icon: <HandsPrayingIcon size={28} />, tone: 'heart', phase: 5, route: null },

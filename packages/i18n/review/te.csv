@@ -41,6 +41,7 @@ admin,home.tiles.donation,Donation Drive,విరాళ సేకరణ,no
 admin,home.tiles.chanda,Chanda,చందా,no
 admin,home.tiles.video,Bayan Video,బయాన్ వీడియో,no
 admin,home.tiles.specialDates,Special Dates & Ramadan,ప్రత్యేక రోజులు & రంజాన్,no
+admin,home.tiles.adhkar,Adhkar,అజ్కార్,no
 admin,home.tiles.myPosts,My Posts,నా పోస్ట్‌లు,no
 admin,home.tiles.profile,Masjid Profile,మస్జిద్ ప్రొఫైల్,no
 admin,home.tiles.ruqyah,Ruqyah,రుఖ్యా,no
@@ -429,6 +430,27 @@ admin,voice.rightsHint,Record other people only with their permission.,ఇతర
 admin,voice.voiceTitle,Title of the voice note,వాయిస్ నోట్ శీర్షిక,no
 admin,voice.voiceTitleHint,One line: what the voice note is about.,ఒక లైన్: వాయిస్ నోట్ దేని గురించి.,no
 admin,voice.issue,Please give the voice note a title.,దయచేసి వాయిస్ నోట్‌కు శీర్షిక ఇవ్వండి.,no
+admin,adhkar.title,Adhkar after salah,నమాజ్ తర్వాత అజ్కార్,no
+admin,adhkar.show,Show adhkar after salah,నమాజ్ తర్వాత అజ్కార్ చూపించు,no
+admin,adhkar.showHint,Musallis see a card on Home for 30 minutes after each salah.,ప్రతి నమాజ్ తర్వాత 30 నిమిషాల పాటు నమాజీలకు హోమ్‌లో ఒక కార్డ్ కనిపిస్తుంది.,no
+admin,adhkar.chosen,"Adhkar, in order","అజ్కార్, క్రమంలో",no
+admin,adhkar.count,{count} of {max},{max}లో {count},no
+admin,adhkar.none,No adhkar chosen yet,ఇంకా అజ్కార్ ఎంచుకోలేదు,no
+admin,adhkar.noneBody,Add dhikr from the verified library.,ధృవీకరించిన లైబ్రరీ నుండి జిక్ర్ జోడించండి.,no
+admin,adhkar.add,Add dhikr,జిక్ర్ జోడించు,no
+admin,adhkar.searchTitle,Choose a dhikr,జిక్ర్ ఎంచుకోండి,no
+admin,adhkar.noDhikr,No verified dhikr yet,ఇంకా ధృవీకరించిన జిక్ర్ లేదు,no
+admin,adhkar.noDhikrBody,The Super Admin adds them to the library.,సూపర్ అడ్మిన్ వాటిని లైబ్రరీలో జోడిస్తారు.,no
+admin,adhkar.full,{max} is the most.,గరిష్టంగా {max}.,no
+admin,adhkar.repeat,"{count, plural, one {Once} other {# times}}","{count, plural, one {ఒకసారి} other {# సార్లు}}",no
+admin,adhkar.moveUp,Move up,పైకి జరుపు,no
+admin,adhkar.moveDown,Move down,కిందికి జరుపు,no
+admin,adhkar.remove,Remove,తీసివేయి,no
+admin,adhkar.reorder,Move {reference},{reference} స్థానం మార్చు,no
+admin,adhkar.preview,Home card preview,హోమ్ కార్డ్ ప్రివ్యూ,no
+admin,adhkar.save,Save,సేవ్ చేయి,no
+admin,adhkar.saved,Adhkar saved,అజ్కార్ సేవ్ అయ్యాయి,no
+admin,adhkar.added,Added,జోడించబడింది,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -463,6 +485,8 @@ common,home.eidFitr,Eid ul-Fitr Salah,ఈదుల్ ఫిత్ర్ నమ�
 common,home.eidAdha,Eid ul-Adha Salah,ఈదుల్ అజ్‌హా నమాజ్,no
 common,home.today,Today,ఈరోజు,no
 common,home.tomorrow,Tomorrow,రేపు,no
+common,home.adhkar,Adhkar after salah · {prayer},నమాజ్ తర్వాత అజ్కార్ · {prayer},no
+common,home.adhkarDismiss,Hide until the next salah,తదుపరి నమాజ్ వరకు దాచు,no
 common,nav.back,Back,వెనుకకు,no
 common,nav.close,Close,మూసివేయి,no
 common,tabs.label,Main,ప్రధాన,no
@@ -639,6 +663,13 @@ content,license,Licence: {license},లైసెన్స్: {license},no
 content,gone,This post is no longer available,ఈ పోస్ట్ ఇక అందుబాటులో లేదు,no
 content,goneBody,The masjid may have removed it.,మస్జిద్ దీన్ని తీసేసి ఉండవచ్చు.,no
 content,back,Go back,వెనక్కి వెళ్ళండి,no
+content,adhkarTitle,Adhkar after salah,నమాజ్ తర్వాత అజ్కార్,no
+content,emptyAdhkar,No adhkar yet,ఇంకా అజ్కార్ లేవు,no
+content,emptyAdhkarBody,This masjid has not chosen its adhkar after salah yet.,ఈ మస్జిద్ ఇంకా నమాజ్ తర్వాత అజ్కార్ ఎంచుకోలేదు.,no
+content,repeat,"{count, plural, one {Once} other {# times}}","{count, plural, one {ఒకసారి} other {# సార్లు}}",no
+content,counter,Count: {count} of {total}. Tap to count.,లెక్క: {total}లో {count}. లెక్కించడానికి నొక్కండి.,no
+content,counterDone,Done: {total} of {total},పూర్తయింది: {total}లో {total},no
+content,resetCount,Start the count again,లెక్క మళ్ళీ మొదలుపెట్టు,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,మన సమాజంలోని ఒకరు అనారోగ్యంతో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,మన సమాజంలోని ఒకరు ఆసుపత్రిలో ఉన్నారు. దయచేసి వారు కోలుకోవాలని దువా చేయండి.,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,మన సమాజంలోని ఒకరికి ఆపరేషన్ జరుగుతోంది. అంతా బాగా జరగాలని దయచేసి దువా చేయండి.,no
@@ -700,6 +731,7 @@ errors,DUA_INVALID,Something in this dua request is not right. Please check the 
 errors,EDIT_WINDOW_CLOSED,Posts can be changed for 24 hours after publishing. You can still delete this post.,పోస్ట్‌ను ప్రచురించిన 24 గంటల వరకే మార్చగలరు. మీరు దీన్ని ఇంకా తొలగించవచ్చు.,no
 errors,ITEM_NOT_EDITABLE,This kind of post cannot be changed here.,ఈ రకమైన పోస్ట్‌ను ఇక్కడ మార్చలేరు.,no
 errors,PROFILE_INVALID,This change to the masjid profile is not possible. Please check it and try again.,మస్జిద్ ప్రొఫైల్‌లో ఈ మార్పు సాధ్యం కాదు. దయచేసి తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.,no
+errors,ADHKAR_INVALID,"This adhkar list is not possible: at most 30, each one once. Please check it and try again.","ఈ అజ్కార్ జాబితా సాధ్యం కాదు: గరిష్టంగా 30, ఒక్కొక్కటి ఒక్కసారే. దయచేసి తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.",no
 errors,VOICE_INVALID,A voice note needs a short title. Please add one and try again.,వాయిస్ నోట్‌కు చిన్న శీర్షిక అవసరం. దయచేసి ఒకటి జోడించి మళ్ళీ ప్రయత్నించండి.,no
 errors,AUDIO_INVALID,This file is not a voice recording the app can use. Please record again or choose another file.,ఈ ఫైల్ యాప్ ఉపయోగించగల వాయిస్ రికార్డింగ్ కాదు. దయచేసి మళ్ళీ రికార్డ్ చేయండి లేదా వేరే ఫైల్ ఎంచుకోండి.,no
 errors,AUDIO_TOO_LONG,Voice notes can be at most 10 minutes long.,వాయిస్ నోట్ గరిష్ఠంగా 10 నిమిషాలు ఉండవచ్చు.,no
@@ -754,6 +786,7 @@ masjid,unmutedToast,Notifications are on for this masjid,ఈ మసీదు న
 masjid,muteFailed,Couldn’t change notifications. Check your connection and try again.,నోటిఫికేషన్‌లను మార్చలేకపోయాం. ఇంటర్నెట్ తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.,no
 masjid,hadith,Hadith & Quran,హదీస్ & ఖుర్ఆన్,no
 masjid,duas,Dua Requests,దువా విన్నపాలు,no
+masjid,adhkar,Adhkar after salah,నమాజ్ తర్వాత అజ్కార్,no
 masjid,campaigns,Donation Campaigns,విరాళాల ప్రచారాలు,no
 masjid,chanda,Weekly Chanda,వారపు చందా,no
 masjid,bayans,Bayans,బయాన్‌లు,no
