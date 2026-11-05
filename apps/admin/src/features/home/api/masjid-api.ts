@@ -8,6 +8,7 @@ import {
   adminScheduleSchema,
   adminSpecialDatesSchema,
   type AnnouncementPublish,
+  audioUploadedSchema,
   type DailyContentPublish,
   type DuaPublish,
   imageUploadedSchema,
@@ -120,6 +121,17 @@ export const masjidApi = {
     const form = new FormData();
     form.append('file', file);
     return call(`${base(masjidId)}/photo?rightsConfirmed=true`, adminMasjidProfileSchema, { method: 'POST', form });
+  },
+  /** B14 (T3.13): a voice note with the length and peaks this browser measured; the caller has the ownership tick. */
+  uploadAudio: (masjidId: string, file: Blob, durationS: number, peaks: readonly number[]) => {
+    const form = new FormData();
+    form.append('file', file);
+    const query = new URLSearchParams({
+      rightsConfirmed: 'true',
+      durationS: durationS.toFixed(3),
+      peaks: peaks.join(','),
+    });
+    return call(`${base(masjidId)}/audio?${query.toString()}`, audioUploadedSchema, { method: 'POST', form });
   },
   /** "Request change": names, area or address — a note for the Super Admin. */
   requestChange: (masjidId: string, note: string) =>

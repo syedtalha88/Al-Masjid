@@ -17,13 +17,16 @@ import { Screen, useNavigator } from '@mc/ui/navigation';
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 
+import { useSignedInAdmin } from '../features/auth/hooks/use-session.ts';
 import { DuaIssues, DuaLost } from '../features/dua/components/DuaParts.tsx';
 import { setDuaDraft, useDuaDraft } from '../features/dua/lib/draft-store.ts';
 import { detailIssues, type DuaDraft, withLocale, withMessageKey, withOwnMessage } from '../features/dua/lib/dua.ts';
 import { useMinute } from '../features/home/hooks/use-minute.ts';
+import { useSelectedMasjid } from '../features/home/hooks/use-selected-masjid.ts';
 import { SlotButton } from '../features/timings/components/EditorParts.tsx';
 import { TimeSheet } from '../features/timings/components/TimingSheets.tsx';
 import { ltr } from '../features/timings/lib/text.ts';
+import { VoiceField } from '../features/voice/components/VoiceField.tsx';
 
 export const Route = createFileRoute('/dua/details')({
   component: DetailsDuaScreen,
@@ -48,6 +51,8 @@ function DetailsForm({ draft }: { readonly draft: DuaDraft }) {
   const { format } = useLocale();
   const navigator = useNavigator();
   const today = calendarDateInZone(useMinute());
+  const me = useSignedInAdmin();
+  const { masjid } = useSelectedMasjid(me.masjids);
   // Each refused "Next" brings the list of what is missing into view (it sits above the bar, often off screen).
   const [tried, setTried] = useState(0);
   const issueList = useRef<HTMLDivElement>(null);
@@ -165,6 +170,20 @@ function DetailsForm({ draft }: { readonly draft: DuaDraft }) {
             ) : null}
           </section>
         ) : null}
+
+        <VoiceField
+          masjidId={masjid?.id}
+          voice={draft.voice}
+          onVoice={(voice) => {
+            update({ ...draft, voice });
+          }}
+          title={{
+            value: draft.voiceTitle ?? '',
+            onChange: (voiceTitle) => {
+              update({ ...draft, voiceTitle });
+            },
+          }}
+        />
 
         <div ref={issueList}>{tried > 0 ? <DuaIssues issues={issues} /> : null}</div>
 

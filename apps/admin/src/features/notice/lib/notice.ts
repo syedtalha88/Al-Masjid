@@ -8,6 +8,7 @@ import { type AnnouncementPublish, NOTICE_BODY_MAX, NOTICE_TITLE_MAX } from '@mc
 import type { FeedItem, NoticeTemplate } from '@mc/shared/contracts/public';
 
 import type { ItemEditing } from '../../publish/use-publish.ts';
+import { voiceBody, type VoiceDraftFields, voiceTitleMissing } from '../../voice/lib/voice.ts';
 
 export type NoticeCategory = 'general' | 'event' | 'facilities' | 'timing';
 export const NOTICE_CATEGORIES: readonly NoticeCategory[] = ['general', 'event', 'facilities', 'timing'];
@@ -28,7 +29,7 @@ export type NoticeContent =
     }
   | { readonly kind: 'text'; readonly title: string; readonly body: string; readonly locale: Locale };
 
-export interface NoticeDraft {
+export interface NoticeDraft extends VoiceDraftFields {
   readonly content: NoticeContent;
   readonly category: NoticeCategory;
   readonly isImportant: boolean;
@@ -66,7 +67,8 @@ export function draftForText(locale: Locale): NoticeDraft {
 
 /** Why the draft cannot go to the preview yet (the Fill step shows each one). */
 export type NoticeIssue =
-  { readonly kind: 'param'; readonly name: string } | { readonly kind: 'title' | 'body' | 'event' | 'template' };
+  | { readonly kind: 'param'; readonly name: string }
+  | { readonly kind: 'title' | 'body' | 'event' | 'template' | 'voiceTitle' };
 
 /**
  * @param template - the draft's template (`undefined` while the list loads or when it was retired meanwhile).
@@ -88,6 +90,7 @@ export function noticeIssues(draft: NoticeDraft, template: NoticeTemplate | unde
   if (draft.category === 'event' && (draft.eventDate === null) !== (draft.eventTime === null)) {
     issues.push({ kind: 'event' });
   }
+  if (voiceTitleMissing(draft, content.kind === 'template')) issues.push({ kind: 'voiceTitle' });
   return issues;
 }
 
@@ -117,6 +120,7 @@ export function publishBody(
     ...(draft.photo
       ? { image: { key: draft.photo.key, thumbhash: draft.photo.thumbhash, rightsConfirmed: true } }
       : {}),
+    ...voiceBody(draft, content.kind === 'template'),
     notify,
   };
 }
@@ -138,6 +142,7 @@ export function previewItem(draft: NoticeDraft, masjidId: string, now: Date): Fe
       : { title: content.title.trim(), body: content.body.trim(), contentLocale: content.locale }),
     isImportant: draft.isImportant,
     ...(draft.photo ? { image: { key: draft.photo.key, thumbhash: draft.photo.thumbhash } } : {}),
+    ...voiceBody(draft, content.kind === 'template'),
     publishedAt: now.toISOString(),
     announcement: { category: draft.category, ...(eventAt === undefined ? {} : { eventAt }) },
   };

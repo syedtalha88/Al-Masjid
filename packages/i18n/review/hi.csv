@@ -275,6 +275,7 @@ admin,notice.issue.title,Please write a title (up to 80 letters).,कृपय�
 admin,notice.issue.body,"Please write the message (up to 1,000 letters).","कृपया संदेश लिखें (1,000 अक्षरों तक)।",no
 admin,notice.issue.event,Please set both the date and the time of the event.,कृपया कार्यक्रम की तारीख़ और समय दोनों सेट करें।,no
 admin,notice.issue.template,This notice is no longer available. Please choose another one.,यह सूचना अब उपलब्ध नहीं है। कृपया दूसरी चुनें।,no
+admin,notice.issue.voiceTitle,Please give the voice note a title.,कृपया वॉइस नोट का शीर्षक लिखें।,no
 admin,notice.preview,Preview,झलक,no
 admin,notice.showIn,Show in,इसमें दिखाएँ,no
 admin,notice.previewNote,Followers see the photo when they open the notice.,फ़ॉलोअर्स सूचना खोलने पर फ़ोटो देखते हैं।,no
@@ -345,6 +346,7 @@ admin,dua.next,Next: Choose the dua,आगे: दुआ चुनें,no
 admin,dua.issue.message,Please write the message (up to 500 characters).,कृपया संदेश लिखें (500 अक्षरों तक)।,no
 admin,dua.issue.name,The name is too long (up to 80 characters).,नाम बहुत लंबा है (80 अक्षरों तक)।,no
 admin,dua.issue.janaza,"Please set both the janaza date and time, or neither.","कृपया जनाज़े की तारीख़ और समय दोनों लगाएँ, या कोई नहीं।",no
+admin,dua.issue.voiceTitle,Please give the voice note a title.,कृपया वॉइस नोट का शीर्षक लिखें।,no
 admin,dua.attachTitle,Choose the dua,दुआ चुनें,no
 admin,dua.attachHint,Followers see this dua under your request.,फ़ॉलोअर्स यह दुआ आपकी गुज़ारिश के नीचे देखेंगे।,no
 admin,dua.noDuas,No dua for this in the library yet,लाइब्रेरी में अभी इसके लिए कोई दुआ नहीं है,no
@@ -407,6 +409,26 @@ admin,profile.hijriFollow,Follow the app’s date,ऐप की तारीख�
 admin,profile.saved,Saved,सहेजा गया,no
 admin,profile.account,My account,मेरा अकाउंट,no
 admin,profile.accountHint,"Language, sessions and passkeys","भाषा, सेशन और पासकी",no
+admin,voice.title,Voice note,वॉइस नोट,no
+admin,voice.optional,A voice note is optional — up to 10 minutes.,वॉइस नोट ज़रूरी नहीं — 10 मिनट तक।,no
+admin,voice.record,Record,रिकॉर्ड करें,no
+admin,voice.pause,Pause,रोकें,no
+admin,voice.resume,Resume,फिर शुरू करें,no
+admin,voice.stop,Stop,बंद करें,no
+admin,voice.level,Recording level,रिकॉर्डिंग की आवाज़,no
+admin,voice.chooseFile,Choose audio file,ऑडियो फ़ाइल चुनें,no
+admin,voice.useThis,Use this,यही लें,no
+admin,voice.again,Record again,फिर से रिकॉर्ड करें,no
+admin,voice.remove,Remove voice note,वॉइस नोट हटाएँ,no
+admin,voice.uploading,Uploading the voice note…,वॉइस नोट अपलोड हो रहा है…,no
+admin,voice.denied,"The microphone is not allowed. Allow it in the browser settings, or choose an audio file.","माइक्रोफ़ोन की इजाज़त नहीं है। ब्राउज़र की सेटिंग में इजाज़त दें, या ऑडियो फ़ाइल चुनें।",no
+admin,voice.tooLong,Voice notes can be at most 10 minutes long.,वॉइस नोट ज़्यादा से ज़्यादा 10 मिनट का हो सकता है।,no
+admin,voice.unreadable,This file cannot be played here. Please choose another one.,यह फ़ाइल यहाँ नहीं चल सकती। कृपया दूसरी फ़ाइल चुनें।,no
+admin,voice.rights,This masjid recorded this or may share it,यह रिकॉर्डिंग इस मस्जिद की है या मस्जिद इसे साझा कर सकती है,no
+admin,voice.rightsHint,Record other people only with their permission.,दूसरे लोगों को उनकी इजाज़त से ही रिकॉर्ड करें।,no
+admin,voice.voiceTitle,Title of the voice note,वॉइस नोट का शीर्षक,no
+admin,voice.voiceTitleHint,One line: what the voice note is about.,एक लाइन: वॉइस नोट किस बारे में है।,no
+admin,voice.issue,Please give the voice note a title.,कृपया वॉइस नोट का शीर्षक लिखें।,no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no
@@ -484,6 +506,14 @@ common,ui.refreshing,Refreshing…,रीफ़्रेश हो रहा ह
 common,ui.newUpdatesShort,"{count, plural, one {new update} other {new updates}}","{count, plural, one {नया अपडेट} other {नए अपडेट}}",no
 common,ui.reorderHint,"Drag to reorder, or use the arrow keys.","क्रम बदलने के लिए खींचें, या तीर वाली कुंजियाँ दबाएँ।",no
 common,ui.khutbah,Khutbah {time},ख़ुत्बा {time},no
+common,ui.voice.label,"Voice message, {duration}","वॉइस मैसेज, {duration}",no
+common,ui.voice.duration,"{minutes, plural, =0 {} one {# minute } other {# minutes }}{seconds, plural, one {# second} other {# seconds}}","{minutes, plural, =0 {} one {# मिनट } other {# मिनट }}{seconds, plural, one {# सेकंड} other {# सेकंड}}",no
+common,ui.voice.play,Play,चलाएँ,no
+common,ui.voice.pause,Pause,रोकें,no
+common,ui.voice.position,Position in the voice message,वॉइस मैसेज में जगह,no
+common,ui.voice.positionValue,{elapsed} of {total},{total} में से {elapsed},no
+common,ui.voice.speed,Playback speed {speed},चलने की रफ़्तार {speed},no
+common,ui.voice.unavailable,Available when online,ऑनलाइन होने पर उपलब्ध,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,मग़रिब के बाद,no
 common,hijri.months.m1,Muharram,मुहर्रम,no

@@ -14,10 +14,11 @@ import {
 import type { FeedItem } from '@mc/shared/contracts/public';
 
 import type { ItemEditing } from '../../publish/use-publish.ts';
+import { voiceBody, type VoiceDraftFields, voiceTitleMissing } from '../../voice/lib/voice.ts';
 
 export type { DuaCategory };
 
-export interface DuaDraft {
+export interface DuaDraft extends VoiceDraftFields {
   readonly category: DuaCategory;
   /** The language of the message (musallis see it as written). */
   readonly locale: Locale;
@@ -35,7 +36,7 @@ export interface DuaDraft {
 }
 
 /** What still blocks the next step, in the order the screen shows the fields. */
-export type DuaIssue = 'message' | 'name' | 'janaza';
+export type DuaIssue = 'message' | 'name' | 'janaza' | 'voiceTitle';
 
 /** A new draft for `category`: its first ready-made message in `locale`, the name private, no dua yet. */
 export function draftForCategory(category: DuaCategory, locale: Locale): DuaDraft {
@@ -83,6 +84,7 @@ export function detailIssues(draft: DuaDraft): DuaIssue[] {
   ) {
     issues.push('janaza');
   }
+  if (voiceTitleMissing(draft, true)) issues.push('voiceTitle');
   return issues;
 }
 
@@ -112,6 +114,7 @@ export function duaPublishBody(draft: DuaDraft, notify: boolean): DuaPublish | n
     libraryId: draft.entry.id,
     ...(janazaAt === undefined ? {} : { janazaAt }),
     ...(janazaPlace === undefined ? {} : { janazaPlace }),
+    ...voiceBody(draft, true),
     notify,
   };
 }
@@ -136,6 +139,7 @@ export function duaPreviewItem(draft: DuaDraft, masjidId: string, now: Date): Fe
     contentLocale: draft.locale,
     isImportant: false,
     publishedAt: now.toISOString(),
+    ...voiceBody(draft, true),
     dua: {
       category: draft.category,
       ...(draft.namePrivate || personName === undefined ? {} : { personName }),

@@ -5,8 +5,12 @@ import { TextArea } from '@mc/ui/components';
 import { Screen, useNavigator } from '@mc/ui/navigation';
 import { createFileRoute } from '@tanstack/react-router';
 
+import { useSignedInAdmin } from '../features/auth/hooks/use-session.ts';
 import { DailyLost, EntryText } from '../features/daily/components/DailyParts.tsx';
 import { setDailyDraft, useDailyDraft } from '../features/daily/lib/draft-store.ts';
+import { useSelectedMasjid } from '../features/home/hooks/use-selected-masjid.ts';
+import { VoiceField } from '../features/voice/components/VoiceField.tsx';
+import { voiceTitleMissing } from '../features/voice/lib/voice.ts';
 
 export const Route = createFileRoute('/daily/note')({
   component: NoteDailyScreen,
@@ -17,6 +21,8 @@ function NoteDailyScreen() {
   const { t } = useTranslation('admin');
   const navigator = useNavigator();
   const draft = useDailyDraft();
+  const me = useSignedInAdmin();
+  const { masjid } = useSelectedMasjid(me.masjids);
   if (!draft) return <DailyLost />;
   return (
     <Screen title={t('daily.title')}>
@@ -38,8 +44,22 @@ function NoteDailyScreen() {
             setDailyDraft({ ...draft, note: event.target.value });
           }}
         />
+        <VoiceField
+          masjidId={masjid?.id}
+          voice={draft.voice}
+          onVoice={(voice) => {
+            setDailyDraft({ ...draft, voice });
+          }}
+          title={{
+            value: draft.voiceTitle ?? '',
+            onChange: (voiceTitle) => {
+              setDailyDraft({ ...draft, voiceTitle });
+            },
+          }}
+        />
         <PublishBar
           actionLabel={t('notice.next')}
+          disabled={voiceTitleMissing(draft, true)}
           onAction={() => {
             navigator.push('/daily/preview');
           }}

@@ -39,6 +39,7 @@ import {
 import { SlotButton } from '../features/timings/components/EditorParts.tsx';
 import { TimeSheet } from '../features/timings/components/TimingSheets.tsx';
 import { ltr } from '../features/timings/lib/text.ts';
+import { VoiceField } from '../features/voice/components/VoiceField.tsx';
 
 export const Route = createFileRoute('/notice/fill')({
   component: FillNoticeScreen,
@@ -222,6 +223,24 @@ function FillForm({ draft }: { readonly draft: NoticeDraft }) {
           onPhoto={(photo) => {
             update({ photo });
           }}
+        />
+
+        <VoiceField
+          masjidId={masjid?.id}
+          voice={draft.voice}
+          onVoice={(voice) => {
+            update({ voice });
+          }}
+          title={
+            content.kind === 'template'
+              ? {
+                  value: draft.voiceTitle ?? '',
+                  onChange: (voiceTitle) => {
+                    update({ voiceTitle });
+                  },
+                }
+              : undefined
+          }
         />
 
         <div ref={issueList}>{tried > 0 ? <NoticeIssues issues={issues} params={template?.params ?? []} /> : null}</div>

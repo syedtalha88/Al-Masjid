@@ -5,11 +5,12 @@ import { type AdminLibraryEntry, DAILY_NOTE_MAX, type DailyContentPublish } from
 import type { FeedItem } from '@mc/shared/contracts/public';
 
 import type { ItemEditing } from '../../publish/use-publish.ts';
+import { voiceBody, type VoiceDraftFields, voiceTitleMissing } from '../../voice/lib/voice.ts';
 
 export type DailyKind = 'hadith' | 'ayah';
 export const DAILY_KINDS: readonly DailyKind[] = ['hadith', 'ayah'];
 
-export interface DailyDraft {
+export interface DailyDraft extends VoiceDraftFields {
   readonly kind: DailyKind;
   readonly entry: AdminLibraryEntry;
   /** As typed; trimmed when published (empty = no note). */
@@ -34,8 +35,8 @@ export function noteOf(draft: DailyDraft): string | undefined {
 /** The body of `POST /items/daily-content`; `null` when the note is too long (the field also stops at the limit). */
 export function dailyPublishBody(draft: DailyDraft, notify: boolean): DailyContentPublish | null {
   const note = noteOf(draft);
-  if (note !== undefined && note.length > DAILY_NOTE_MAX) return null;
-  return { libraryId: draft.entry.id, ...(note === undefined ? {} : { note }), notify };
+  if ((note !== undefined && note.length > DAILY_NOTE_MAX) || voiceTitleMissing(draft, true)) return null;
+  return { libraryId: draft.entry.id, ...(note === undefined ? {} : { note }), ...voiceBody(draft, true), notify };
 }
 
 const PREVIEW_ID = 'previewDaily';
@@ -51,6 +52,7 @@ export function dailyPreviewItem(draft: DailyDraft, masjidId: string, now: Date)
     audience: 'everyone',
     isImportant: false,
     publishedAt: now.toISOString(),
+    ...voiceBody(draft, true),
     daily: {
       kind: draft.kind,
       ...(note === undefined ? {} : { note }),

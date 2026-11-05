@@ -310,7 +310,8 @@
       "title": "Please write a title (up to 80 letters).",
       "body": "Please write the message (up to 1,000 letters).",
       "event": "Please set both the date and the time of the event.",
-      "template": "This notice is no longer available. Please choose another one."
+      "template": "This notice is no longer available. Please choose another one.",
+      "voiceTitle": "Please give the voice note a title."
     },
     "preview": "Preview",
     "showIn": "Show in",
@@ -394,7 +395,8 @@
     "issue": {
       "message": "Please write the message (up to 500 characters).",
       "name": "The name is too long (up to 80 characters).",
-      "janaza": "Please set both the janaza date and time, or neither."
+      "janaza": "Please set both the janaza date and time, or neither.",
+      "voiceTitle": "Please give the voice note a title."
     },
     "attachTitle": "Choose the dua",
     "attachHint": "Followers see this dua under your request.",
@@ -466,5 +468,27 @@
     "saved": "Saved",
     "account": "My account",
     "accountHint": "Language, sessions and passkeys"
+  },
+  "voice": {
+    "title": "Voice note",
+    "optional": "A voice note is optional — up to 10 minutes.",
+    "record": "Record",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "level": "Recording level",
+    "chooseFile": "Choose audio file",
+    "useThis": "Use this",
+    "again": "Record again",
+    "remove": "Remove voice note",
+    "uploading": "Uploading the voice note…",
+    "denied": "The microphone is not allowed. Allow it in the browser settings, or choose an audio file.",
+    "tooLong": "Voice notes can be at most 10 minutes long.",
+    "unreadable": "This file cannot be played here. Please choose another one.",
+    "rights": "This masjid recorded this or may share it",
+    "rightsHint": "Record other people only with their permission.",
+    "voiceTitle": "Title of the voice note",
+    "voiceTitleHint": "One line: what the voice note is about.",
+    "issue": "Please give the voice note a title."
   }
 }

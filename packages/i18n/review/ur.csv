@@ -275,6 +275,7 @@ admin,notice.issue.title,Please write a title (up to 80 letters).,براہِ ک�
 admin,notice.issue.body,"Please write the message (up to 1,000 letters).","براہِ کرم پیغام لکھیں (1,000 حروف تک)۔",no
 admin,notice.issue.event,Please set both the date and the time of the event.,براہِ کرم پروگرام کی تاریخ اور وقت دونوں طے کریں۔,no
 admin,notice.issue.template,This notice is no longer available. Please choose another one.,یہ اعلان اب دستیاب نہیں۔ براہِ کرم کوئی اور چنیں۔,no
+admin,notice.issue.voiceTitle,Please give the voice note a title.,براہِ کرم وائس نوٹ کا عنوان لکھیں۔,no
 admin,notice.preview,Preview,جھلک,no
 admin,notice.showIn,Show in,اس میں دکھائیں,no
 admin,notice.previewNote,Followers see the photo when they open the notice.,فالوورز اعلان کھولنے پر تصویر دیکھتے ہیں۔,no
@@ -345,6 +346,7 @@ admin,dua.next,Next: Choose the dua,آگے: دعا چنیں,no
 admin,dua.issue.message,Please write the message (up to 500 characters).,براہِ کرم پیغام لکھیں (500 حروف تک)۔,no
 admin,dua.issue.name,The name is too long (up to 80 characters).,نام بہت لمبا ہے (80 حروف تک)۔,no
 admin,dua.issue.janaza,"Please set both the janaza date and time, or neither.",براہِ کرم جنازے کی تاریخ اور وقت دونوں لگائیں، یا کوئی نہیں۔,no
+admin,dua.issue.voiceTitle,Please give the voice note a title.,براہِ کرم وائس نوٹ کا عنوان لکھیں۔,no
 admin,dua.attachTitle,Choose the dua,دعا چنیں,no
 admin,dua.attachHint,Followers see this dua under your request.,فالوورز یہ دعا آپ کی درخواست کے نیچے دیکھیں گے۔,no
 admin,dua.noDuas,No dua for this in the library yet,لائبریری میں ابھی اس کے لیے کوئی دعا نہیں,no
@@ -407,6 +409,26 @@ admin,profile.hijriFollow,Follow the app’s date,ایپ کی تاریخ اپن�
 admin,profile.saved,Saved,محفوظ ہو گیا,no
 admin,profile.account,My account,میرا اکاؤنٹ,no
 admin,profile.accountHint,"Language, sessions and passkeys",زبان، سیشن اور پاس کی,no
+admin,voice.title,Voice note,وائس نوٹ,no
+admin,voice.optional,A voice note is optional — up to 10 minutes.,وائس نوٹ ضروری نہیں — 10 منٹ تک۔,no
+admin,voice.record,Record,ریکارڈ کریں,no
+admin,voice.pause,Pause,روکیں,no
+admin,voice.resume,Resume,دوبارہ شروع کریں,no
+admin,voice.stop,Stop,بند کریں,no
+admin,voice.level,Recording level,ریکارڈنگ کی آواز,no
+admin,voice.chooseFile,Choose audio file,آڈیو فائل چنیں,no
+admin,voice.useThis,Use this,یہی لیں,no
+admin,voice.again,Record again,دوبارہ ریکارڈ کریں,no
+admin,voice.remove,Remove voice note,وائس نوٹ ہٹائیں,no
+admin,voice.uploading,Uploading the voice note…,وائس نوٹ اپ لوڈ ہو رہا ہے…,no
+admin,voice.denied,"The microphone is not allowed. Allow it in the browser settings, or choose an audio file.",مائیکروفون کی اجازت نہیں ہے۔ براؤزر کی سیٹنگ میں اجازت دیں، یا آڈیو فائل چنیں۔,no
+admin,voice.tooLong,Voice notes can be at most 10 minutes long.,وائس نوٹ زیادہ سے زیادہ 10 منٹ کا ہو سکتا ہے۔,no
+admin,voice.unreadable,This file cannot be played here. Please choose another one.,یہ فائل یہاں نہیں چل سکتی۔ براہِ کرم دوسری فائل چنیں۔,no
+admin,voice.rights,This masjid recorded this or may share it,یہ ریکارڈنگ اس مسجد کی ہے یا مسجد اسے شیئر کر سکتی ہے,no
+admin,voice.rightsHint,Record other people only with their permission.,دوسرے لوگوں کو صرف ان کی اجازت سے ریکارڈ کریں۔,no
+admin,voice.voiceTitle,Title of the voice note,وائس نوٹ کا عنوان,no
+admin,voice.voiceTitleHint,One line: what the voice note is about.,ایک لائن: وائس نوٹ کس بارے میں ہے۔,no
+admin,voice.issue,Please give the voice note a title.,براہِ کرم وائس نوٹ کا عنوان لکھیں۔,no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no
@@ -484,6 +506,14 @@ common,ui.refreshing,Refreshing…,تازہ ہو رہا ہے…,no
 common,ui.newUpdatesShort,"{count, plural, one {new update} other {new updates}}","{count, plural, one {نئی اپڈیٹ} other {نئی اپڈیٹس}}",no
 common,ui.reorderHint,"Drag to reorder, or use the arrow keys.",ترتیب بدلنے کے لیے کھینچیں، یا تیر والی کیز دبائیں۔,no
 common,ui.khutbah,Khutbah {time},خطبہ {time},no
+common,ui.voice.label,"Voice message, {duration}",وائس میسج، {duration},no
+common,ui.voice.duration,"{minutes, plural, =0 {} one {# minute } other {# minutes }}{seconds, plural, one {# second} other {# seconds}}","{minutes, plural, =0 {} one {# منٹ } other {# منٹ }}{seconds, plural, one {# سیکنڈ} other {# سیکنڈ}}",no
+common,ui.voice.play,Play,چلائیں,no
+common,ui.voice.pause,Pause,روکیں,no
+common,ui.voice.position,Position in the voice message,وائس میسج میں جگہ,no
+common,ui.voice.positionValue,{elapsed} of {total},{total} میں سے {elapsed},no
+common,ui.voice.speed,Playback speed {speed},رفتار {speed},no
+common,ui.voice.unavailable,Available when online,آن لائن ہونے پر دستیاب,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,مغرب کے بعد,no
 common,hijri.months.m1,Muharram,محرم,no

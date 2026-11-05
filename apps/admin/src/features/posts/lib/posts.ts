@@ -29,6 +29,20 @@ export const canDelete = (row: AdminItem): boolean => row.status === 'published'
 
 const editingOf = (row: AdminItem) => ({ itemId: row.id, updatedAt: row.updatedAt });
 
+/** A post's voice note back in a draft (no preview URL — the admin app has no media origin) and its title. */
+const voiceOf = (row: AdminItem, titled: boolean) =>
+  row.item.voice
+    ? {
+        voice: {
+          key: row.item.voice.key,
+          durationS: row.item.voice.durationS,
+          peaks: row.item.voice.peaks ?? [],
+          url: null,
+        },
+        ...(titled ? { voiceTitle: row.item.title ?? '' } : {}),
+      }
+    : {};
+
 /** A library entry as the admin flows hold it (the post carries the public shape; tags only matter for search). */
 const adminEntryOf = (entry: LibraryEntry): AdminLibraryEntry => ({ ...entry, tags: [] });
 
@@ -52,6 +66,7 @@ export function noticeDraftOf(row: AdminItem): NoticeDraft | null {
     eventDate: event.date,
     eventTime: event.time,
     photo: item.image ? { key: item.image.key, thumbhash: item.image.thumbhash ?? '', url: null } : null,
+    ...voiceOf(row, item.templateKey !== undefined),
     editing: editingOf(row),
   };
 }
@@ -65,6 +80,7 @@ export function dailyDraftOf(row: AdminItem): DailyDraft | null {
     entry: adminEntryOf(daily.library),
     note: daily.note ?? '',
     publishedToday: false,
+    ...voiceOf(row, true),
     editing: editingOf(row),
   };
 }
@@ -85,6 +101,7 @@ export function duaDraftOf(row: AdminItem): DuaDraft | null {
     janazaTime: janaza.time,
     janazaPlace: dua.janazaPlace ?? '',
     entry: adminEntryOf(dua.library),
+    ...voiceOf(row, true),
     editing: editingOf(row),
   };
 }
