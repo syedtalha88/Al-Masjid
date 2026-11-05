@@ -34,7 +34,9 @@ import {
   janazaWhen,
   libraryText,
   TAG_TONE,
+  templatePhones,
   useNoticeBody,
+  WhatsAppButton,
 } from '@mc/ui/content';
 import { BookmarkIcon, CalendarIcon, ClockIcon, CopyIcon, DownloadIcon, ShareIcon } from '@mc/ui/icons';
 import { Pressable } from '@mc/ui/motion';
@@ -200,6 +202,11 @@ function NoticeDetail({ item, masjid }: DetailProps) {
   const now = useNow();
   const templates = useQuery(templatesQuery(api)).data?.templates;
   const body = useNoticeBody(item, templates);
+  // A template's phone params (the blood camp's organiser — T3.17): one WhatsApp button each.
+  const phones = templatePhones(
+    item,
+    templates?.find((entry) => entry.key === item.templateKey),
+  );
   const name = useMasjidLabel(masjid);
   const [viewing, setViewing] = useState(false);
   const title = itemTitle(item, locale, templates, tc(`item.${itemKind(item)}`));
@@ -245,6 +252,9 @@ function NoticeDetail({ item, masjid }: DetailProps) {
             {body}
           </p>
         ) : null}
+        {phones.map((number) => (
+          <WhatsAppButton key={number} number={number} label={tc('ui.camp.contact')} />
+        ))}
         <VoicePart item={item} showTitle={false} />
         {photo ? (
           <>

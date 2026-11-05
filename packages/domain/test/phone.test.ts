@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isE164, whatsappChatUrl } from '../src/phone.ts';
+import { formatPhone, isE164, whatsappChatUrl } from '../src/phone.ts';
 
 describe('isE164', () => {
   it('accepts + and 7–15 digits without a leading zero', () => {
@@ -42,5 +42,13 @@ describe('whatsappChatUrl', () => {
     for (const value of ['910000000001', '+91 00000 00001', 'javascript:alert(1)', '']) {
       expect(whatsappChatUrl(value, 'Hello')).toBeNull();
     }
+  });
+});
+
+describe('formatPhone', () => {
+  it('groups an Indian mobile number; leaves any other number as stored', () => {
+    expect(formatPhone('+919876500001')).toBe('+91 98765 00001');
+    expect(formatPhone('+442000000000')).toBe('+442000000000');
+    expect(formatPhone('+9112345')).toBe('+9112345');
   });
 });

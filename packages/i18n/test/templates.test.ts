@@ -85,6 +85,30 @@ describe('starter notice templates', () => {
   }
 });
 
+describe('blood_donation_camp (T3.17)', () => {
+  const camp = STARTER_TEMPLATES.find((template) => template.key === 'blood_donation_camp');
+  const values = {
+    date: '2026-11-08',
+    hours: { start: '10:00', end: '16:00' },
+    place: 'Test Hall',
+    contact: '+919876500001',
+  };
+
+  it.each(LOCALES)('renders date, hours, place and the grouped number (LTR-isolated) in %s', (locale) => {
+    if (!camp) throw new Error('no blood camp template');
+    expect(camp.params.map((param) => [param.name, param.type])).toEqual([
+      ['date', 'date'],
+      ['hours', 'time_range'],
+      ['place', 'short_text'],
+      ['contact', 'phone'],
+    ]);
+    const text = formatRuntimeMessage(camp.body[locale], locale, templateArguments(values, camp.params, format));
+    for (const part of ['D<2026-11-08>', 'T<10:00>', 'T<16:00>', 'Test Hall', '\u2066+91 98765 00001\u2069']) {
+      expect(text).toContain(part);
+    }
+  });
+});
+
 describe('templateArguments', () => {
   const params = [
     { name: 'when', type: 'time' as const },
@@ -105,7 +129,7 @@ describe('templateArguments', () => {
       days_start: 'D<2026-11-05>',
       days_end: 'D<2026-11-07>',
       n: 2,
-      call: '+910000000000',
+      call: '\u2066+91 00000 00000\u2069',
     });
   });
 

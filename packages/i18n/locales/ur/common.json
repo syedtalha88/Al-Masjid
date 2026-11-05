@@ -125,6 +125,11 @@
       "greeting": "السلام علیکم",
       "message": "پیغام بھیجیں",
       "messageLabel": "{name} کو واٹس ایپ پر پیغام بھیجیں"
+    },
+    "camp": {
+      "title": "خون کے عطیے کا کیمپ",
+      "when": "{date} · {start} – {end}",
+      "contact": "واٹس ایپ پر رابطہ کریں"
     }
   },
   "hijri": {

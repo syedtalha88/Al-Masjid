@@ -8,6 +8,7 @@ import {
   daysInMonth,
   from12Hour,
   isCalendarDate,
+  istWindow,
   isWallClock,
   monthGrid,
   parseCalendarDate,
@@ -127,5 +128,22 @@ describe('wall-clock times', () => {
       expect(from12Hour(hour12, pm)).toBe(hour);
     }
     expect(() => from12Hour(13, false)).toThrow(RangeError);
+  });
+});
+
+describe('istWindow', () => {
+  it('covers an IST time range on its date', () => {
+    const { start, end } = istWindow('2026-11-08', { start: '10:00', end: '16:00' });
+    expect(start.toISOString()).toBe('2026-11-08T04:30:00.000Z');
+    expect(end.toISOString()).toBe('2026-11-08T10:30:00.000Z');
+  });
+
+  it('a range past midnight ends the next day', () => {
+    const { start, end } = istWindow('2026-12-31', { start: '20:00', end: '01:00' });
+    expect(start.toISOString()).toBe('2026-12-31T14:30:00.000Z');
+    expect(end.toISOString()).toBe('2026-12-31T19:30:00.000Z');
+    expect(istWindow('2026-11-08', { start: '09:00', end: '09:00' }).end.toISOString()).toBe(
+      '2026-11-09T03:30:00.000Z',
+    );
   });
 });

@@ -3,7 +3,7 @@
 import type { AdminContact } from '@mc/shared/contracts';
 import { describe, expect, it } from 'vitest';
 
-import { applyChange, displayPhone, draftBody, draftDirty, draftIssues, draftOf, emptyDraft } from '../lib/contacts.ts';
+import { applyChange, draftBody, draftDirty, draftIssues, draftOf, emptyDraft } from '../lib/contacts.ts';
 
 const SAVED: AdminContact = {
   id: '00000000-0000-4000-8000-0000000000c1',
@@ -49,7 +49,6 @@ describe('B17 contact draft', () => {
   it('a saved contact opens ticked, with its number in two groups', () => {
     const draft = draftOf(SAVED);
     expect(draft).toMatchObject({ phone: '+91 98765 00001', consent: true, topics: '' });
-    expect(displayPhone('+442000000000')).toBe('+442000000000');
     expect(draftDirty(draft, draft)).toBe(false);
     expect(draftDirty(draft, { ...draft, audience: 'brothers' })).toBe(true);
   });

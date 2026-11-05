@@ -1,5 +1,6 @@
 // B17 Ilm contacts (07 B17, PHASE_03 T3.16): the editor's draft, the save body and the consent rule. Pure functions; the
 // server checks the same rules (consent ticked, E.164, ≤ 10 contacts).
+import { formatPhone } from '@mc/domain/phone';
 import {
   type AdminContact,
   CONTACT_NAME_MAX,
@@ -34,18 +35,12 @@ export const emptyDraft = (): ContactDraft => ({
   consent: false,
 });
 
-/** "+919876543210" → "+91 98765 43210" (an Indian mobile number reads in two groups); any other number as stored. */
-export function displayPhone(e164: string): string {
-  const match = /^\+91(\d{5})(\d{5})$/.exec(e164);
-  return match ? `+91 ${match[1] ?? ''} ${match[2] ?? ''}` : e164;
-}
-
 /** A saved contact as a draft — its consent was given when it was saved. */
 export const draftOf = (contact: AdminContact): ContactDraft => ({
   name: contact.name,
   role: contact.role ?? '',
   topics: contact.topics ?? '',
-  phone: displayPhone(contact.whatsapp),
+  phone: formatPhone(contact.whatsapp),
   audience: contact.audience,
   consent: true,
 });

@@ -1,7 +1,7 @@
 // Template params → ICU arguments (02 notice_templates.params, PHASE_03 T3.5): shared by the musalli app (notice
 // bodies), the admin preview (C9) and the tests. Kept apart from the starter texts (./templates.ts) so the app bundle
 // does not carry them.
-import { isE164 } from '@mc/domain/phone';
+import { formatPhone, isE164 } from '@mc/domain/phone';
 import { isCalendarDate, isWallClock } from '@mc/domain/time';
 
 export const TEMPLATE_PARAM_TYPES = [
@@ -31,6 +31,10 @@ export type PrayerKey = (typeof PRAYER_KEYS)[number];
 const isPrayerKey = (value: unknown): value is PrayerKey =>
   typeof value === 'string' && (PRAYER_KEYS as readonly string[]).includes(value);
 
+/** Unicode LEFT-TO-RIGHT ISOLATE / POP DIRECTIONAL ISOLATE (UAX #9). */
+const LRI = '\u2066';
+const PDI = '\u2069';
+
 export interface TemplateFormat {
   /** "HH:mm" → "9:15 PM". */
   readonly time: (hhmm: string) => string;
@@ -42,8 +46,9 @@ export interface TemplateFormat {
 
 /**
  * The ICU arguments of a template notice: each declared param formatted by its type for the reader's locale; a range
- * `x` becomes `x_start` and `x_end`; numbers stay numbers (for plurals). Values that do not match their declared type
- * are left out, so the message fails to format and the caller falls back to the title only.
+ * `x` becomes `x_start` and `x_end`; numbers stay numbers (for plurals); a phone reads "+91 98765 43210", isolated
+ * left-to-right. Values that do not match their declared type are left out, so the message fails to format and the
+ * caller falls back to the title only.
  */
 export function templateArguments(
   values: Readonly<Record<string, TemplateValue>>,
@@ -82,7 +87,9 @@ export function templateArguments(
         if (typeof value === 'string') result[param.name] = value;
         break;
       case 'phone':
-        if (isE164(value)) result[param.name] = value;
+        // Grouped as people read it, in an LTR isolate so Urdu text keeps the digits in order; the app adds a WhatsApp
+        // button for it (DECISIONS #132).
+        if (isE164(value)) result[param.name] = `${LRI}${formatPhone(value)}${PDI}`;
         break;
     }
   }

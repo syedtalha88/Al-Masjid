@@ -422,6 +422,11 @@ for (const locale of LOCALES) {
           adminPage.getByRole('button', { name: label(locale, 'admin', 'contacts.save'), exact: true }),
         ).toBeDisabled();
         await adminShot('b17-contact-new');
+        // T3.17 B18: the Blood Camp tile's route opens step 2 of B5 with the camp template.
+        await settled(adminPage, '/blood-camp');
+        await expect(adminPage).toHaveURL(`${ADMIN_URL}/notice/fill`);
+        await expect(adminPage.locator('[data-param="contact"]')).toBeVisible();
+        await adminShot('b18-camp-fill');
         await adminPage.goto(`${ADMIN_URL}/account`);
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b13-account-admin');

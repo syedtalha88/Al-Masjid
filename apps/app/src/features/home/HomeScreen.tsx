@@ -7,7 +7,7 @@ import { useHijriLabel, useLocale, useTranslation } from '@mc/i18n/react';
 import type { FeedItem } from '@mc/shared/contracts/public';
 import { QrPosterIllustration } from '@mc/ui';
 import { Button, Card, Carousel, EmptyState, IconButton, PullToRefresh, SectionHeader } from '@mc/ui/components';
-import { AdhkarCard } from '@mc/ui/content';
+import { AdhkarCard, upcomingCamps } from '@mc/ui/content';
 import { BellIcon, CompassIcon, KeyboardIcon } from '@mc/ui/icons';
 import { Screen, useNavigator } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -19,6 +19,7 @@ import { useNow } from '../../lib/clock.ts';
 import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
 import { masjidName } from '../../lib/masjid.ts';
 import { setUnseenCount } from '../../lib/unseen.ts';
+import { CampCards } from '../content/components/CampCards.tsx';
 import { ItemList } from '../content/ItemList.tsx';
 import { HomeMasjidCard } from './components/HomeMasjidCard.tsx';
 import { EidCard, RamadanCard } from './components/SeasonCards.tsx';
@@ -46,6 +47,8 @@ export function HomeScreen() {
   const adhkar = adhkarOpen && adhkarOpen.key !== adhkarDismissed ? adhkarOpen : null;
   const names = useMemo(() => new Map(active.map((bundle) => [bundle.masjid.id, bundle.masjid])), [active]);
   const adhkarMasjid = adhkar ? names.get(adhkar.masjidId) : undefined;
+  // 07 A22: blood donation camps announced on the followed masjids' first feed pages, until each camp's end.
+  const camps = useMemo(() => upcomingCamps([...data.itemsByMasjid.values()].flat(), now), [data.itemsByMasjid, now]);
 
   // Date line: today in IST · the Hijri date of the first followed masjid (its offset, its Maghrib rollover).
   const first = active[0];
@@ -156,6 +159,7 @@ export function HomeScreen() {
                 }}
               />
             ) : null}
+            <CampCards camps={camps} masjids={names} />
             <section aria-labelledby="home-recent" className="flex flex-col gap-1">
               <SectionHeader
                 id="home-recent"

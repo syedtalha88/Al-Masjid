@@ -28,6 +28,7 @@ import {
   useToast,
   VerifiedBadge,
 } from '@mc/ui/components';
+import { upcomingCamps } from '@mc/ui/content';
 import {
   BellIcon,
   BellSlashIcon,
@@ -53,6 +54,7 @@ import { useNow } from '../../lib/clock.ts';
 import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
 import { masjidName, masjidPlace } from '../../lib/masjid.ts';
 import { mediaUrl } from '../../lib/media.ts';
+import { CampCards } from '../content/components/CampCards.tsx';
 import { ItemList } from '../content/ItemList.tsx';
 import { RamadanCard } from '../home/components/SeasonCards.tsx';
 import { prayerView, ramadanView } from '../home/lib/home-view.ts';
@@ -449,6 +451,7 @@ function Overview({
   const view = useMemo(() => prayerView(bundle, now), [bundle, now]);
   const ramadan = useMemo(() => ramadanView([bundle], now), [bundle, now]);
   const rows = sectionRows(bundle, detail.pages, seenAt, detail.follow?.followedAt ?? null, detail.audience);
+  const camps = useMemo(() => upcomingCamps(detail.pages.get('announcement') ?? [], now), [detail.pages, now]);
   return (
     <div className="flex flex-col gap-4">
       {view ? (
@@ -469,6 +472,7 @@ function Overview({
         <p className="type-callout text-text-secondary">{tc('home.noTimings')}</p>
       )}
       {ramadan ? <RamadanCard view={ramadan} masjid={undefined} /> : null}
+      <CampCards camps={camps} />
       {rows.length > 0 ? (
         <ul className="flex flex-col">
           {rows.map((row) => (

@@ -125,6 +125,11 @@
       "greeting": "Assalamu alaikum",
       "message": "Message",
       "messageLabel": "Message {name} on WhatsApp"
+    },
+    "camp": {
+      "title": "Blood donation camp",
+      "when": "{date} · {start} – {end}",
+      "contact": "Contact on WhatsApp"
     }
   },
   "hijri": {

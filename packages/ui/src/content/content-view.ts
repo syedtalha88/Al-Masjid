@@ -1,6 +1,7 @@
 // View rules of the content screens (07 A7–A9; lazy screens only — `item-view.ts` holds what Home needs): library text
 // in the app language with the English fallback (00 §4.3), announcement tags and filters, dua privacy, the 30-day
 // "Older" split, and notice-template arguments formatted by their declared type (02 §2).
+import { isE164 } from '@mc/domain/phone';
 import type { Locale } from '@mc/i18n/locales';
 import type { FeedItem, LibraryEntry, NoticeTemplate } from '@mc/shared/contracts/public';
 
@@ -90,4 +91,16 @@ export { type PrayerKey, templateArguments, type TemplateFormat } from '@mc/i18n
 export function noticeMessage(template: NoticeTemplate, locale: Locale): string {
   const own = template.body[locale];
   return present(own) ? own : template.body.en;
+}
+
+/**
+ * The phone numbers a template notice carries (params of type `phone` — the blood camp's organiser): the detail screen
+ * offers "Contact on WhatsApp" for each (DECISIONS #132).
+ */
+export function templatePhones(item: FeedItem, template: NoticeTemplate | undefined): string[] {
+  if (!template || item.templateKey !== template.key) return [];
+  return template.params.flatMap((param) => {
+    const value = item.templateParams?.[param.name];
+    return param.type === 'phone' && typeof value === 'string' && isE164(value) ? [value] : [];
+  });
 }

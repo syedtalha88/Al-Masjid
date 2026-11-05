@@ -147,6 +147,7 @@ admin,timings.saveWithout,Save without notifying,اطلاع کے بغیر محف
 admin,timings.saved,Saved,محفوظ ہو گیا,no
 admin,timings.savedNotified,Your followers will be notified.,آپ کے فالوورز کو اطلاع ملے گی۔,no
 admin,timings.savedQuiet,Followers will see the new times.,فالوورز نئے اوقات دیکھیں گے۔,no
+admin,timings.quickOffsets,Quick choice,فوری انتخاب,no
 admin,special.title,Special Dates & Ramadan,خاص تاریخیں اور رمضان,no
 admin,special.ramadan,Ramadan,رمضان,no
 admin,special.ramadanMode,Ramadan mode,رمضان موڈ,no
@@ -544,6 +545,8 @@ admin,contacts.delete,Remove contact,رابطہ ہٹائیں,no
 admin,contacts.deleteTitle,Remove this contact?,یہ رابطہ ہٹائیں؟,no
 admin,contacts.deleteBody,Musallis will no longer see this person.,مصلی اب اس شخص کو نہیں دیکھیں گے۔,no
 admin,contacts.deleted,Contact removed,رابطہ ہٹا دیا گیا,no
+admin,bloodCamp.unavailableTitle,The blood camp notice is not ready yet,خون کے عطیے کے کیمپ کا اعلان ابھی تیار نہیں,no
+admin,bloodCamp.unavailableBody,"Please ask the Super Admin to switch on the ""Blood donation camp"" ready notice.","براہِ کرم سپر ایڈمن سے ""خون کے عطیے کا کیمپ"" والا تیار اعلان چالو کرنے کو کہیں۔",no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no
@@ -644,6 +647,9 @@ common,ui.ruqyah.instructions,Note from the masjid,مسجد کی طرف سے ن�
 common,ui.ilm.greeting,Assalamu alaikum,السلام علیکم,no
 common,ui.ilm.message,Message,پیغام بھیجیں,no
 common,ui.ilm.messageLabel,Message {name} on WhatsApp,{name} کو واٹس ایپ پر پیغام بھیجیں,no
+common,ui.camp.title,Blood donation camp,خون کے عطیے کا کیمپ,no
+common,ui.camp.when,{date} · {start} – {end},{date} · {start} – {end},no
+common,ui.camp.contact,Contact on WhatsApp,واٹس ایپ پر رابطہ کریں,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,مغرب کے بعد,no
 common,hijri.months.m1,Muharram,محرم,no

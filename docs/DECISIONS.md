@@ -1941,4 +1941,34 @@ gate, sisters' contact never on a brothers device, new number clears the tick, r
 (brothers / sisters devices, no number on screen, wa.me + greeting, no row without contacts, A21 in 4 locales) and B17
 list / editor / new in the 4-locale screens spec; fixture option `appAudience`. Musalli initial JS 186.52 / 187 kB.
 
+### #132 — Blood donation camp: a notice, not a collection; the card lives while the camp's hours do (PHASE_03 T3.17) — ACCEPTED (Claude Code, 5 Nov 2026)
+**Context:** 00 §4.13, 07 A22 / B18, DECISIONS #104 §5, #111 (draft templates), #131 (WhatsApp link, one E.164 rule).
+**Decision:**
+- **No new collection or personal data:** a camp is an announcement from the starter template `blood_donation_camp`
+  (T3.4/T3.5: `date`, `hours` time range, `place`, `contact` phone; category `event`; draft translations, active on
+  dev/staging, `draft` on a new production database until the Super Admin reviews it — #111). The app reads the camp from
+  the item's template params (`bloodCampOf` in `@mc/ui/content`); no donor list, no blood groups.
+- **When it shows:** `istWindow` (`@mc/domain/time`) turns the date + hours into IST instants — a range whose end is not
+  after its start runs past midnight and ends the next day. Home and Masjid Detail show a card while `now < end`
+  (upcoming or running), soonest first; the card disappears on the minute re-render after the end. Source: the followed
+  masjids' first feed pages (Home) and the announcement page (Masjid Detail) — a camp announced so long ago that it has
+  left the first page shows only in the list (accepted; feeds are newest first and a camp is announced shortly before).
+- **The card (A22):** shared `BloodCampCard` (Home, Masjid Detail, and the admin B5 preview of a camp notice — T3.11):
+  drop icon, title, the masjid (Home), date · hours, place — that part opens the notice — and "Contact on WhatsApp"
+  (`WhatsAppButton`, the same button and `wa.me` link as Ilm contacts, #131). Home's startup code carries only the camp
+  check; the card is a lazy chunk (`@mc/ui/content/blood-camp`), so the musalli initial JS stays under 187 kB.
+- **The number:** unlike Ilm contacts (a volunteer listed with consent), the organiser's number is part of a public
+  notice the admin typed for people to call: the notice text shows it, grouped as people read it (`formatPhone`:
+  "+91 98765 43210") in a Unicode LTR isolate so Urdu text keeps the digits in order; the notice detail adds "Contact on
+  WhatsApp" for every `phone` param (`templatePhones`). The card itself does not print it.
+- **Admin (B18):** the "Blood Camp" tile (drop icon, matching A22) opens `/blood-camp`, which starts a B5 draft from the
+  template and replaces itself with step 2; Preview shows the notice card and the camp card; "Notify followers" is on by
+  default (B5). When the template is not active (production before review) the screen says to ask the Super Admin.
+- `formatPhone` moved to `@mc/domain/phone` (the B17 editor uses it too).
+**Consequences:** domain +2 (`istWindow`, `formatPhone`), i18n +4 (the camp in 4 locales — date, hours, place, isolated
+number), ui +9 (camp view incl. past midnight, card in 4 locales, preview, `templatePhones`), e2e
+`e2e/admin/blood-camp.spec.ts` (tile → fill → preview → publish; a musalli pinned to that morning sees the card on Home
+and Masjid Detail, WhatsApp opens wa.me, the detail has the number and the button; a minute after the last hour the cards
+are gone) and B18 in the 4-locale screens spec.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._

@@ -270,6 +270,21 @@ export function istInstant(date: string, hhmm: string): Date {
   return new Date(Date.UTC(year, month - 1, day, hour, minute) - IST_OFFSET_MS);
 }
 
+/**
+ * The instants an IST time range on a calendar date covers (a blood camp's hours — DECISIONS #132). A range whose end is
+ * not after its start runs past midnight and ends the next day.
+ *
+ * @throws RangeError for a malformed date or time.
+ */
+export function istWindow(
+  date: string,
+  range: { readonly start: string; readonly end: string },
+): { start: Date; end: Date } {
+  const start = istInstant(date, range.start);
+  const sameDay = minutesOfDay(range.end) > minutesOfDay(range.start);
+  return { start, end: istInstant(sameDay ? date : addDays(date, 1), range.end) };
+}
+
 /** Milliseconds until the next whole minute (1–60 000) — schedule minute-aligned re-renders with it. */
 export function msUntilNextMinute(now: Date): number {
   return 60_000 - (((now.getTime() % 60_000) + 60_000) % 60_000);

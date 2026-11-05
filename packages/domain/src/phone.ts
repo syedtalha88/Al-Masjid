@@ -9,6 +9,15 @@ export function isE164(value: unknown): value is string {
 }
 
 /**
+ * A number as people read it: an Indian mobile "+919876543210" → "+91 98765 43210"; any other E.164 number as stored.
+ * Shown wrapped by the caller in an LTR isolate where the text around it may be RTL.
+ */
+export function formatPhone(e164: string): string {
+  const match = /^\+91(\d{5})(\d{5})$/.exec(e164);
+  return match ? `+91 ${match[1] ?? ''} ${match[2] ?? ''}` : e164;
+}
+
+/**
  * WhatsApp's click-to-chat link for an E.164 number (Ilm contacts, blood camp — DECISIONS #104): `https://wa.me/<digits>`
  * — the number without "+" (WhatsApp's documented format) — with the greeting pre-filled and URL-encoded.
  *

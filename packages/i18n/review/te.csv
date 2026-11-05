@@ -147,6 +147,7 @@ admin,timings.saveWithout,Save without notifying,తెలియజేయకు�
 admin,timings.saved,Saved,సేవ్ అయింది,no
 admin,timings.savedNotified,Your followers will be notified.,మీ ఫాలోవర్లకు తెలియజేయబడుతుంది.,no
 admin,timings.savedQuiet,Followers will see the new times.,ఫాలోవర్లు కొత్త సమయాలు చూస్తారు.,no
+admin,timings.quickOffsets,Quick choice,త్వరగా ఎంచుకోండి,no
 admin,special.title,Special Dates & Ramadan,ప్రత్యేక రోజులు & రంజాన్,no
 admin,special.ramadan,Ramadan,రంజాన్,no
 admin,special.ramadanMode,Ramadan mode,రంజాన్ మోడ్,no
@@ -544,6 +545,8 @@ admin,contacts.delete,Remove contact,పరిచయం తీసివేయం
 admin,contacts.deleteTitle,Remove this contact?,ఈ పరిచయాన్ని తీసివేయాలా?,no
 admin,contacts.deleteBody,Musallis will no longer see this person.,ముసల్లీలు ఇకపై ఈ వ్యక్తిని చూడరు.,no
 admin,contacts.deleted,Contact removed,పరిచయం తీసివేయబడింది,no
+admin,bloodCamp.unavailableTitle,The blood camp notice is not ready yet,రక్తదాన శిబిరం ప్రకటన ఇంకా సిద్ధంగా లేదు,no
+admin,bloodCamp.unavailableBody,"Please ask the Super Admin to switch on the ""Blood donation camp"" ready notice.","దయచేసి ""రక్తదాన శిబిరం"" సిద్ధ ప్రకటనను ఆన్ చేయమని సూపర్ అడ్మిన్‌ను అడగండి.",no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -644,6 +647,9 @@ common,ui.ruqyah.instructions,Note from the masjid,మస్జిద్ ను�
 common,ui.ilm.greeting,Assalamu alaikum,అస్సలాము అలైకుమ్,no
 common,ui.ilm.message,Message,సందేశం పంపండి,no
 common,ui.ilm.messageLabel,Message {name} on WhatsApp,{name}కు వాట్సాప్‌లో సందేశం పంపండి,no
+common,ui.camp.title,Blood donation camp,రక్తదాన శిబిరం,no
+common,ui.camp.when,{date} · {start} – {end},{date} · {start} – {end},no
+common,ui.camp.contact,Contact on WhatsApp,వాట్సాప్‌లో సంప్రదించండి,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,మగ్రిబ్ తర్వాత,no
 common,hijri.months.m1,Muharram,ముహర్రం,no

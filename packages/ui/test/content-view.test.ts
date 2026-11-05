@@ -169,7 +169,7 @@ describe('notice templates (02 §2: ICU body + typed params formatted per locale
       hours_end: 'T(14:00)',
       n: 3,
       who: 'x',
-      contact: '+910000000000',
+      contact: '\u2066+91 00000 00000\u2069', // grouped, LTR-isolated (T3.17)
     });
   });
 

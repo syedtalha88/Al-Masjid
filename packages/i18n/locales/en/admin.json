@@ -165,7 +165,8 @@
     "saveWithout": "Save without notifying",
     "saved": "Saved",
     "savedNotified": "Your followers will be notified.",
-    "savedQuiet": "Followers will see the new times."
+    "savedQuiet": "Followers will see the new times.",
+    "quickOffsets": "Quick choice"
   },
   "special": {
     "title": "Special Dates & Ramadan",
@@ -625,5 +626,9 @@
     "deleteTitle": "Remove this contact?",
     "deleteBody": "Musallis will no longer see this person.",
     "deleted": "Contact removed"
+  },
+  "bloodCamp": {
+    "unavailableTitle": "The blood camp notice is not ready yet",
+    "unavailableBody": "Please ask the Super Admin to switch on the \"Blood donation camp\" ready notice."
   }
 }
