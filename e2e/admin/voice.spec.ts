@@ -1,8 +1,9 @@
-import { expect, test } from '@mc/config/playwright';
+import { axeViolations, expect, test } from '@mc/config/playwright';
 import { devices } from '@playwright/test';
 
 import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
 import { followByCode, registerDevice } from '../support/device.ts';
+import { shotFor, switchAppLanguage } from '../support/locale.ts';
 import {
   CSRF,
   HOOKS,
@@ -142,5 +143,22 @@ test.describe('B14 voice notes (T3.13)', () => {
     await note.getByRole('button', { name: 'Play', exact: true }).click();
     await expect(note.getByRole('button', { name: /^(Pause|Play)$/ })).toBeVisible();
     await expect(note.getByText('Available when online')).toHaveCount(0);
+    await note.getByRole('button', { name: /^(Pause|Play)$/ }).click(); // stop before the screenshots
+
+    // A18 in every language (PHASE_03 exit: screenshots in 4 locales): axe clean, Urdu mirrored, the times LTR.
+    const detail = musalli.url();
+    for (const [from, to] of [
+      ['en', 'en'],
+      ['en', 'hi'],
+      ['hi', 'ur'],
+      ['ur', 'te'],
+    ] as const) {
+      if (from !== to) await switchAppLanguage(musalli, from, to);
+      await musalli.goto(detail);
+      await expect(note).toBeVisible();
+      await expect(musalli.locator('html')).toHaveAttribute('dir', to === 'ur' ? 'rtl' : 'ltr');
+      expect(await axeViolations(musalli), `axe a18 ${to}`).toEqual([]);
+      await shotFor(musalli, to, 'a18-voice-note');
+    }
   });
 });

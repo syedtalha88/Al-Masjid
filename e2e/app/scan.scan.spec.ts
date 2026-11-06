@@ -8,7 +8,10 @@ import { followedIds } from '../support/device.ts';
 // → Masjid Detail. Desktop Chromium has no native BarcodeDetector, so the WebAssembly reader (DECISIONS #94) runs
 // under the real CSP. Runs in the `scan` project only.
 
-test('journey 2: scan refuses a foreign QR, then follows the masjid from its poster QR', async ({ page }) => {
+test('journey 2: scan refuses a foreign QR, then follows the masjid from its poster QR', async ({
+  page,
+  expectAxeClean,
+}) => {
   await page.goto(APP_URL);
   await page
     .getByRole('link', { name: 'Scan QR code' })
@@ -21,10 +24,13 @@ test('journey 2: scan refuses a foreign QR, then follows the masjid from its pos
     timeout: 15_000,
   });
   expect(new URL(page.url()).pathname).toBe('/scan');
+  // The live scanner (camera running, refusal shown) is axe clean (PHASE_03 T3.0).
+  await expectAxeClean();
 
   // The masjid's QR: preview sheet.
   const preview = page.getByRole('dialog', { name: 'Follow masjid' });
   await expect(preview.getByRole('heading', { name: 'Test Masjid Alpha' })).toBeVisible({ timeout: 15_000 });
+  await expectAxeClean();
   expect(await followedIds(page)).toHaveLength(0);
   await preview.getByRole('button', { name: 'Follow masjid' }).click();
   await expect(page).toHaveURL(/\/masjid\/[0-9a-f-]{36}$/);

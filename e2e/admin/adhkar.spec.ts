@@ -46,7 +46,9 @@ const istToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkat
 
 async function pinClock(page: Page, isoIst: string) {
   await page.clock.install({ time: new Date(isoIst) });
-  await page.route('**/api/v1/**', async (route) => {
+  // The context, not the page: the app's service worker fetches API responses too, and only the context's routes
+  // see those (Chromium) — a Date header through the worker would set the app back to the real time.
+  await page.context().route('**/api/v1/**', async (route) => {
     const response = await route.fetch();
     const headers = { ...response.headers() };
     delete headers['date'];

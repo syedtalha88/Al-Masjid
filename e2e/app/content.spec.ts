@@ -18,7 +18,7 @@ const screen = (page: Page) => page.locator('section[data-screen]:not([inert])')
 async function openSection(
   page: Page,
   code: string,
-  target: { readonly row: RegExp } | { readonly section: 'announcements' | 'hadith' | 'duas' | 'ruqyah' },
+  target: { readonly row: RegExp } | { readonly section: 'announcements' | 'hadith' | 'duas' | 'ruqyah' | 'adhkar' },
   register = false,
 ): Promise<string> {
   await page.goto(APP_URL);
@@ -204,6 +204,23 @@ for (const locale of APP_LOCALES) {
       expect(await page.evaluate(() => document.documentElement.dir)).toBe(locale === 'ur' ? 'rtl' : 'ltr');
       await expectAxeClean();
       await capture('a19-ruqyah');
+    });
+  });
+}
+
+// T3.14 A20: the seed's adhkar set of Test Masjid Alpha — the full list with each dhikr's tap counter, in 4 locales.
+for (const locale of APP_LOCALES) {
+  test.describe(`A20 Adhkar after salah (${locale})`, () => {
+    test.use({ appLocale: locale });
+
+    test('the list with its counters; Arabic not mirrored', async ({ page, expectAxeClean, capture }) => {
+      await openSection(page, 'TESTA001', { section: 'adhkar' });
+      const list = screen(page).locator('[data-adhkar-list]');
+      await expect(list.locator('[data-dhikr]').first()).toBeVisible();
+      for (const arabic of await list.getByText(ARABIC).all()) await expect(arabic).toHaveAttribute('dir', 'rtl');
+      expect(await page.evaluate(() => document.documentElement.dir)).toBe(locale === 'ur' ? 'rtl' : 'ltr');
+      await expectAxeClean();
+      await capture('a20-adhkar');
     });
   });
 }

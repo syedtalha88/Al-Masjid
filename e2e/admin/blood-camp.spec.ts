@@ -3,6 +3,7 @@ import { devices, type Page } from '@playwright/test';
 
 import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
 import { followByCode, registerDevice } from '../support/device.ts';
+import { shotFor, switchAppLanguage } from '../support/locale.ts';
 import {
   CSRF,
   HOOKS,
@@ -35,7 +36,9 @@ const istToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkat
 /** Pins the page's clock; the API's Date header is dropped so the app does not correct the pinned time. */
 async function pinClock(page: Page, iso: string) {
   await page.clock.install({ time: new Date(iso) });
-  await page.route('**/api/v1/**', async (route) => {
+  // The context, not the page: the app's service worker fetches API responses too, and only the context's routes
+  // see those (Chromium) — a Date header through the worker would set the app back to the real time.
+  await page.context().route('**/api/v1/**', async (route) => {
     const response = await route.fetch();
     const headers = { ...response.headers() };
     delete headers['date'];
@@ -169,5 +172,28 @@ test.describe('B18 blood donation camp (T3.17)', () => {
     await musalli.getByRole('navigation', { name: 'Main' }).getByRole('button', { name: /^Home/ }).click();
     await expect(musalli.getByRole('heading', { level: 1, name: 'Assalamu Alaikum' })).toBeVisible();
     await expect(musalli.locator('[data-blood-camp]')).toHaveCount(0);
+
+    // A22 in every language (PHASE_03 exit: screenshots in 4 locales), each in its own page with the
+    // morning clock again (the language change reloads the app).
+    for (const [from, to] of [
+      ['en', 'en'],
+      ['en', 'hi'],
+      ['hi', 'ur'],
+      ['ur', 'te'],
+    ] as const) {
+      const view = await musalli.context().newPage();
+      try {
+        await pinClock(view, `${today}T09:00:00+05:30`);
+        if (from !== to) await switchAppLanguage(view, from, to);
+        await view.goto(APP_URL);
+        const camp = view.locator('section[data-screen]:not([inert]) [data-blood-camp]');
+        await expect(camp).toContainText('Test Hall');
+        await expect(view.locator('html')).toHaveAttribute('dir', to === 'ur' ? 'rtl' : 'ltr');
+        expect(await axeViolations(view), `axe a22 ${to}`).toEqual([]);
+        await shotFor(view, to, 'a22-blood-camp');
+      } finally {
+        await view.close();
+      }
+    }
   });
 });

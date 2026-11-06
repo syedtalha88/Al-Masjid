@@ -277,6 +277,11 @@ for (const locale of LOCALES) {
         await dailyNote.click(); // waits for the closing sheet to release the stack (inert meanwhile)
         await dailyNote.fill('Test note from the masjid.');
         await adminShot('b6-note');
+        // T3.13 B14: the voice-note recorder under the note (Record, Choose audio file, the ownership tick).
+        const recorder = adminPage.locator('section[data-screen]:not([inert]) [data-voice-field]');
+        await recorder.scrollIntoViewIfNeeded();
+        await expect(recorder).toBeVisible();
+        await adminShot('b14-recorder');
         await adminPage.getByRole('button', { name: label(locale, 'admin', 'notice.next') }).click();
         await expect(adminPage).toHaveURL(`${ADMIN_URL}/daily/preview`);
         await expect(adminPage.locator('[data-preview-locale]')).toBeVisible();
