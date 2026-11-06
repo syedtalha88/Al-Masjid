@@ -44,7 +44,7 @@ export interface Cell {
    * per operator and path; `$unset` → `undefined`), returns why it is refused, or `undefined`. For what an allow-list
    * of field names cannot say (e.g. items: never `removed`).
    */
-  readonly check?: (fields: Readonly<Record<string, unknown>>) => string | undefined;
+  readonly check?: (fields: Readonly<Record<string, unknown>>, operator?: string) => string | undefined;
 }
 
 type Cells = Partial<Record<Kind, Partial<Record<Operation, Cell>>>>;
@@ -164,6 +164,15 @@ const pendingJob = (fields: Readonly<Record<string, unknown>>): string | undefin
   fields['status'] === 'pending' && fields['sent'] === 0 && fields['failed'] === 0 && fields['bypass_quota'] === false
     ? undefined
     : 'a new notification job is pending, with nothing sent and no quota bypass';
+/**
+ * The daily notification count only goes up, one notification at a time: a new day's row starts at 1, a write is
+ * `$inc: {count: 1}` — never a reset or a jump (security review L3, DECISIONS #135).
+ */
+const quotaCount = (fields: Readonly<Record<string, unknown>>, operator?: string): string | undefined => {
+  if (!('count' in fields)) return undefined;
+  const ok = fields['count'] === 1 && (operator === undefined || operator === '$inc');
+  return ok ? undefined : 'the notification count only goes up by one';
+};
 /** Generic item updates never touch a removed item (no un-removing). */
 const notRemoved = { status: { $ne: 'removed' } };
 
@@ -212,7 +221,8 @@ const CONTACT_WRITABLE = [
 ];
 const removedRedaction = (doc: Document): Document => {
   if (doc['status'] !== 'removed') return doc;
-  const { title: _t, body: _b, image_key: _i, image_thumbhash: _h, ...rest } = doc;
+  // A taken-down recording's key too: it cannot be read back and attached elsewhere (DECISIONS #135).
+  const { title: _t, body: _b, image_key: _i, image_thumbhash: _h, voice: _v, ...rest } = doc;
   return rest;
 };
 
@@ -394,8 +404,8 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
   push_quota_usage: {
     admin: {
       find: { filter: own('masjid_id') },
-      insert: { filter: own('masjid_id') },
-      update: { filter: own('masjid_id'), writable: ['count'] },
+      insert: { filter: own('masjid_id'), check: quotaCount },
+      update: { filter: own('masjid_id'), writable: ['count'], check: quotaCount },
     },
     super: { find: S },
   },

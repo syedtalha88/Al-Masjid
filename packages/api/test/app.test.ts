@@ -9,6 +9,7 @@ import { createAdminApp, createPublicApp } from '../src/app.ts';
 import { defineRoute, type RouteDefinition } from '../src/http/define-route.ts';
 import { ApiProblem } from '../src/http/problem.ts';
 import { redactPath } from '../src/http/request-logger.ts';
+import { MAX_UPLOADS_IN_FLIGHT } from '../src/http/upload.ts';
 import { PROBE_TIMEOUT_MS } from '../src/routes/health.ts';
 import { captureLogger, silentLogger } from './helpers.ts';
 
@@ -200,6 +201,29 @@ describe('error mapper', () => {
     });
     const logged = lines().find((line) => line['msg'] === 'unhandled error');
     expect(logged).toMatchObject({ requestId: 'req-boom-0001', level: 50 });
+  });
+
+  it('a database validation error is logged without its details (the rejected values) — DECISIONS #135', async () => {
+    const { logger, lines } = captureLogger();
+    const failing = defineRoute({
+      method: 'get',
+      path: '/invalid-document',
+      summary: 'test',
+      auth: 'none',
+      responses: { 200: z.object({}) },
+      handler: () => {
+        throw Object.assign(new Error('Document failed validation'), {
+          name: 'MongoServerError',
+          code: 121,
+          codeName: 'DocumentValidationFailure',
+          errInfo: { details: { consideredValue: '+910000000009' } },
+        });
+      },
+    });
+    expectProblem(await request(publicApp([failing], logger)).get('/api/v1/invalid-document'), 500, 'INTERNAL_ERROR');
+    const logged = lines().find((line) => line['msg'] === 'unhandled error');
+    expect(logged?.['err']).toEqual({ name: 'MongoServerError', code: 121, codeName: 'DocumentValidationFailure' });
+    expect(JSON.stringify(lines())).not.toContain('+910000000009');
   });
 
   it('a ZodError from server-side parsing is a 500, not a client error', async () => {
@@ -455,6 +479,35 @@ describe('uploads (04 §6 "Files")', () => {
       415,
       'UNSUPPORTED_MEDIA_TYPE',
     );
+  });
+
+  it('at most MAX_UPLOADS_IN_FLIGHT uploads are held at once; the next one → 503 with Retry-After until one ends', async () => {
+    let open: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      open = resolve;
+    });
+    const slow = defineRoute({
+      method: 'post',
+      path: '/slow',
+      summary: 'test',
+      auth: 'none',
+      upload: { maxBytes: 64 },
+      responses: { 201: z.object({ size: z.number() }) },
+      handler: async ({ file, reply }) => {
+        await gate;
+        return reply(201, { size: file?.bytes.length ?? -1 });
+      },
+    });
+    const held = publicApp([slow, upload]);
+    const send = (path: string) => request(held).post(`/api/v1${path}`).attach('file', Buffer.from('x'), 'a.json');
+    const pending = Array.from({ length: MAX_UPLOADS_IN_FLIGHT }, () => send('/slow').then((response) => response));
+    await new Promise((resolve) => setTimeout(resolve, 200)); // both are inside the handler
+    const refused = await send('/files');
+    expectProblem(refused, 503, 'SERVICE_UNAVAILABLE');
+    expect(refused.headers['retry-after']).toBe('5');
+    open();
+    for (const response of await Promise.all(pending)) expect(response.status).toBe(201);
+    expect((await send('/files')).status).toBe(201);
   });
 
   it('`upload` and a body schema cannot be combined', () => {

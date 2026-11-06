@@ -151,11 +151,13 @@ export function cloudinaryMediaStore(config: CloudinaryConfig): MediaStore {
       assertKey(key);
       await post('destroy', signedForm({ invalidate: 'true', public_id: key, timestamp: String(now()) }));
     },
-    // Audio is Cloudinary's `video` resource type; the delivery is one named AAC transformation (01 §5.5).
+    // Audio is Cloudinary's `video` resource type, uploaded as `private`: the original (as recorded — container
+    // metadata, a video track in an MP4) is never deliverable without a signed URL; only the derived AAC rendition
+    // (named transformation `t_audio_m4a`) is public (01 §5.5, 04 R14, DECISIONS #135).
     async putAudio(key, bytes, type) {
       assertAudioKey(key);
-      const form = signedForm({ overwrite: 'false', public_id: key, timestamp: String(now()) });
-      form.set('file', new Blob([new Uint8Array(bytes)], { type: AUDIO_MIME[type] }), `voice.${type}`);
+      const form = signedForm({ overwrite: 'false', public_id: key, timestamp: String(now()), type: 'private' });
+      form.set('file', new Blob([bytes], { type: AUDIO_MIME[type] }), `voice.${type}`);
       const response = await post('upload', form, 'video');
       const body: unknown = await response.json().catch(() => null);
       // Not documented as an upload response field for audio (checked 4 Nov 2026): used only when it is there.
@@ -164,7 +166,11 @@ export function cloudinaryMediaStore(config: CloudinaryConfig): MediaStore {
     },
     async deleteAudio(key) {
       assertAudioKey(key);
-      await post('destroy', signedForm({ invalidate: 'true', public_id: key, timestamp: String(now()) }), 'video');
+      await post(
+        'destroy',
+        signedForm({ invalidate: 'true', public_id: key, timestamp: String(now()), type: 'private' }),
+        'video',
+      );
     },
   };
 }

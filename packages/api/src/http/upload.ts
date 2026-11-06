@@ -1,6 +1,8 @@
 // Multipart uploads (04 §6 "Files", 01 §5.4–5.5): exactly one file per request, in the form field `file`, parsed with
 // @fastify/busboy (DECISIONS #107) after auth and rate limits (defineRoute `upload`). Hard limits — one part, no other
-// field, a byte limit — and the bytes stay in memory: nothing is ever written to disk.
+// field, a byte limit — and the bytes stay in memory: nothing is ever written to disk. At most
+// MAX_UPLOADS_IN_FLIGHT uploads per process are held at once (DECISIONS #135): parallel 25 MB uploads from one session
+// must not exhaust the process's memory for every other admin.
 import Busboy, { type BusboyInstance } from '@fastify/busboy';
 import type { Request } from 'express';
 
@@ -21,14 +23,35 @@ export const isMultipart = (req: Request): boolean => typeof req.is('multipart/f
 
 const invalid = () => new ApiProblem(400, 'UPLOAD_INVALID');
 
+/** Uploads held in memory at once per process: 2 × 25 MB (and its copies) stays well inside api-admin's 384 MB. */
+export const MAX_UPLOADS_IN_FLIGHT = 2;
+let inFlight = 0;
+
 /**
  * Reads the one file of a `multipart/form-data` request into memory.
  *
  * @param limits.maxBytes - the largest file accepted; one byte more is refused (the rest is discarded unread).
+ * The upload's slot is held until the response is closed (the handler is done with the bytes).
+ *
  * @throws ApiProblem 415 UNSUPPORTED_MEDIA_TYPE (not multipart), 413 PAYLOAD_TOO_LARGE (file over `maxBytes`), 400
- *   UPLOAD_INVALID (no file, a second part, any other field, a file under another field name, a malformed body).
+ *   UPLOAD_INVALID (no file, a second part, any other field, a file under another field name, a malformed body), 503
+ *   SERVICE_UNAVAILABLE with `Retry-After` (MAX_UPLOADS_IN_FLIGHT uploads are already being handled).
  */
 export function readUpload(req: Request, limits: { readonly maxBytes: number }): Promise<Upload> {
+  if (inFlight >= MAX_UPLOADS_IN_FLIGHT) {
+    return Promise.reject(
+      new ApiProblem(503, 'SERVICE_UNAVAILABLE', 'Another upload is in progress.', undefined, { 'Retry-After': '5' }),
+    );
+  }
+  inFlight += 1;
+  let released = false;
+  const release = () => {
+    if (released) return;
+    released = true;
+    inFlight -= 1;
+  };
+  if (req.res) req.res.once('close', release);
+  else req.once('close', release);
   return new Promise((resolve, reject) => {
     let busboy: BusboyInstance;
     try {

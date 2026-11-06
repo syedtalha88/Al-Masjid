@@ -163,9 +163,10 @@ function specialIdOf(text: string) {
 export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[] {
   const { db, media } = deps;
   const writes = [{ bucket: 'adminWrites', key: 'session' }] as const;
-  // 03 §2: 30 uploads per hour per masjid (whichever admin uploads), and the session's write budget.
+  // 03 §2: 30 uploads per hour per masjid (whichever admin uploads), and the session's write budget. The id is
+  // lower-cased as `parseId` does, so another spelling of the same masjid shares its bucket (DECISIONS #135).
   const uploads = [
-    { bucket: 'adminUploads', key: (req: Request) => req.params['masjidId']?.toString() },
+    { bucket: 'adminUploads', key: (req: Request) => req.params['masjidId']?.toString().toLowerCase() },
     ...writes,
   ] as const;
 

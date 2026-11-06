@@ -248,15 +248,15 @@ https://{$ADMIN_HOST} {
 	}
 }
 # Voice notes (01 §5.5 Audio, DECISIONS #104, #126, PHASE_03 T3.13): only /a/m4a/m/<masjid id>/a/<recording id> exists.
-# Cloudinary re-encodes to one AAC rendition (named transformation `t_audio_m4a`); the local file store serves the
-# recording as uploaded. Range requests pass through (seeking, the worker's partial caching).
+# Cloudinary keeps the recording `private` and serves only its AAC rendition (named transformation `t_audio_m4a`,
+# DECISIONS #135); the local file store serves the recording as uploaded. Range requests pass through (seeking, the worker's partial caching).
 (audio-files) {
 	root * /srv/media
 	rewrite * /a/m4a/m/{re.audio.1}/a/{re.audio.2}
 	file_server
 }
 (audio-cloudinary) {
-	rewrite * /{$CLOUDINARY_CLOUD_NAME:not-configured}/video/upload/t_audio_m4a/m/{re.audio.1}/a/{re.audio.2}.m4a
+	rewrite * /{$CLOUDINARY_CLOUD_NAME:not-configured}/video/private/t_audio_m4a/m/{re.audio.1}/a/{re.audio.2}.m4a
 	reverse_proxy https://res.cloudinary.com {
 		header_up Host res.cloudinary.com
 		header_up -Cookie

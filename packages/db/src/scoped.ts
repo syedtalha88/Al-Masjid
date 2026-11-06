@@ -87,7 +87,7 @@ function assertWritable(cell: Cell, namespace: string, scope: string, update: Up
       assertSafeKeys(value, namespace);
       // Every (operator, path, value) is checked on its own — a merged map would let a later entry for the same field
       // hide an earlier one (review L-10).
-      const refused = cell.check?.({ [field]: operator === '$unset' ? undefined : value });
+      const refused = cell.check?.({ [field]: operator === '$unset' ? undefined : value }, operator);
       if (refused) throw new PolicyDeniedError(namespace, 'update', scope, refused);
     }
   }

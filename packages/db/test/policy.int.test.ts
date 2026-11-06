@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { COLLECTIONS, CONTENT_COLLECTIONS, type Namespace, NAMESPACES, VIEW_SOURCES } from '../src/collections.ts';
 import { type Operation, PolicyDeniedError } from '../src/policy.ts';
+import { quotaUsageId } from '../src/repos/admin.ts';
 import { adminScope, deviceScope, hookScope, publicScope, type Scope, superScope, systemScope } from '../src/scope.ts';
 import { scoped } from '../src/scoped.ts';
 import { createTestDatabase, type TestDatabase } from '../src/testing/index.ts';
@@ -429,6 +430,24 @@ describe('fields', () => {
     expect(reports.some((doc) => 'device_id' in doc)).toBe(false);
   });
 
+  it('the daily notification count only goes up by one — no reset, no jump (DECISIONS #135)', async () => {
+    const usage = scoped({ scope: adminOfA, db: db() }, 'push_quota_usage');
+    const id = quotaUsageId(masjidA, '2026-11-06');
+    await expect(usage.insertOne({ _id: id, masjid_id: masjidA, day: '2026-11-06', count: 5 })).rejects.toThrow(
+      PolicyDeniedError,
+    );
+    await usage.insertOne({ _id: id, masjid_id: masjidA, day: '2026-11-06', count: 1 });
+    expect(await usage.updateOne({ _id: id }, { $inc: { count: 1 } })).toBe(1);
+    for (const update of [
+      { $set: { count: 0 } },
+      { $set: { count: 1 } },
+      { $inc: { count: 5 } },
+      { $inc: { count: -1 } },
+    ]) {
+      await expect(usage.updateOne({ _id: id }, update), JSON.stringify(update)).rejects.toThrow(PolicyDeniedError);
+    }
+  });
+
   it('removed items show no content to their admin', async () => {
     await raw('items').insertOne({
       _id: new UUID(),
@@ -437,12 +456,14 @@ describe('fields', () => {
       title: 'gone',
       body: 'gone',
       image_key: 'k',
+      voice: { key: 'm/x/a/y', duration_s: 3 },
     });
     const removed = (await scoped({ scope: adminOfA, db: db() }, 'items').find({ status: 'removed' }))[0];
     expect(removed).toBeDefined();
     expect(removed).not.toHaveProperty('title');
     expect(removed).not.toHaveProperty('body');
     expect(removed).not.toHaveProperty('image_key');
+    expect(removed).not.toHaveProperty('voice'); // DECISIONS #135
   });
 
   it('no generic write un-removes an item, removes one, or touches the purge marker (04 §5, review M2)', async () => {

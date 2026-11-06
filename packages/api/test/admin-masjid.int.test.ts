@@ -41,7 +41,8 @@ import { sessionAuthenticator } from '../src/auth/session.ts';
 import { type FieldKeyRing, hashToken, newToken } from '../src/crypto/field.ts';
 import { memoryRateLimiter } from '../src/http/rate-limit.ts';
 import { bootstrapSuperAdminInvite } from '../src/jobs/bootstrap-super-admin.ts';
-import { fileMediaStore } from '../src/media/store.ts';
+import { AUDIO_MAX_BYTES } from '../src/media/audio.ts';
+import { fileMediaStore, type MediaStore } from '../src/media/store.ts';
 import { adminRoutes } from '../src/routes/index.ts';
 import { passkeyDeps, silentLogger } from './helpers.ts';
 
@@ -53,6 +54,24 @@ const clock = new ManualClock(new Date('2026-10-16T08:00:00Z')); // 13:30 IST
 
 let test: TestDatabase | undefined;
 let mediaDir = '';
+/** What the storage "measures" for the next recordings (Cloudinary returns a duration; the file store does not). */
+let measuredS: number | undefined;
+const deletedAudio: string[] = [];
+/** The local file store, measuring like Cloudinary when a test sets `measuredS`, and recording deletions. */
+const store = (): MediaStore => {
+  const files = fileMediaStore(mediaDir);
+  return {
+    ...files,
+    async putAudio(key, bytes, type) {
+      const stored = await files.putAudio(key, bytes, type);
+      return measuredS === undefined ? stored : { durationS: measuredS };
+    },
+    async deleteAudio(key) {
+      deletedAudio.push(key);
+      await files.deleteAudio(key);
+    },
+  };
+};
 let asAdmin: Awaited<ReturnType<typeof processUserHandle>> | undefined;
 const h = (): DbHandle => {
   if (!asAdmin) throw new Error('no handle');
@@ -74,7 +93,7 @@ const app = () =>
       adminOrigin: ORIGIN,
       keyRing,
       ...passkeyDeps(ORIGIN, clock),
-      media: { store: fileMediaStore(mediaDir), origin: 'https://media.test' },
+      media: { store: store(), origin: 'https://media.test' },
     }),
   }).app;
 
@@ -808,6 +827,40 @@ describe('voice notes (T3.13): POST /audio', () => {
       expect((await upload(OGG, query)).status, query).toBe(400);
     }
     expect((await upload(OGG, good, other)).status).toBe(404);
+  });
+
+  it('accepts what Chrome (WebM/Opus) and Safari (MP4/AAC) record — generated fixtures, a test tone', async () => {
+    for (const name of ['chrome-opus.webm', 'safari-aac.m4a']) {
+      const bytes = await readFile(join(import.meta.dirname, 'fixtures', name));
+      const response = await upload(bytes, good);
+      expect(response.status, name).toBe(201);
+      const { audioKey } = audioUploadedSchema.parse(response.body);
+      expect(await readFile(join(mediaDir, 'a', 'm4a', audioKey))).toEqual(bytes);
+    }
+  });
+
+  it('refuses a polyglot (audio that is also an HTML page) and a file over 25 MB', async () => {
+    const polyglot = Buffer.concat([OGG, Buffer.from('<html><script>alert(1)</script></html>', 'latin1')]);
+    expect((await upload(polyglot, good)).body).toMatchObject({ status: 422, code: 'AUDIO_INVALID' });
+    const oversized = Buffer.concat([OGG, Buffer.alloc(AUDIO_MAX_BYTES)]);
+    expect((await upload(oversized, good)).body).toMatchObject({ status: 413, code: 'PAYLOAD_TOO_LARGE' });
+  });
+
+  it('10:01 measured by the storage: refused (422 AUDIO_TOO_LONG) and the stored recording deleted', async () => {
+    measuredS = 601;
+    try {
+      const before = deletedAudio.length;
+      const response = await upload(OGG, good); // the browser said 12 s — the storage's measurement decides
+      expect(response.body).toMatchObject({ status: 422, code: 'AUDIO_TOO_LONG' });
+      const deleted = deletedAudio.slice(before);
+      expect(deleted).toHaveLength(1);
+      expect(deleted[0]).toMatch(new RegExp(`^m/${own}/a/[0-9a-f-]{36}$`));
+      await expect(readFile(join(mediaDir, 'a', 'm4a', deleted[0] ?? ''))).rejects.toThrow();
+      measuredS = 600.4; // ten minutes (rounded) is still fine
+      expect((await upload(OGG, good)).status).toBe(201);
+    } finally {
+      measuredS = undefined;
+    }
   });
 });
 

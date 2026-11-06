@@ -45,11 +45,24 @@ const MP4_BRANDS = new Set([
 ]);
 
 /**
- * The audio container of `bytes` by magic number.
+ * Markup a browser would render if the file were ever opened as a page — an audio file that is also an HTML / XML
+ * document (a polyglot). Never in a real recording: only tags of four or more letters, so compressed audio matching by
+ * chance is vanishingly rare (~1 in 10^5 for a 25 MB file). The media site's `nosniff` and `default-src 'none'` stay
+ * the main guard; this refuses the file itself (PHASE_03 T3.13).
+ */
+const MARKUP = /<(?:!doctype|html|script|iframe|object|embed|\?xml)[\s/>]/i;
+
+/**
+ * The audio container of `bytes` by magic number — and nothing that is also markup.
  *
- * @returns the type, or `null` for anything else (images, documents, executables, text…).
+ * @returns the type, or `null` for anything else (images, documents, executables, text, polyglots…).
  */
 export function sniffAudio(bytes: Buffer): SniffedAudio | null {
+  const type = containerOf(bytes);
+  return type && !MARKUP.test(bytes.toString('latin1')) ? type : null;
+}
+
+function containerOf(bytes: Buffer): SniffedAudio | null {
   if (bytes.length < 12) return null;
   if (ascii(bytes, 0, 4) === 'OggS') return 'ogg';
   if (bytes[0] === 0x1a && bytes[1] === 0x45 && bytes[2] === 0xdf && bytes[3] === 0xa3) return 'webm';

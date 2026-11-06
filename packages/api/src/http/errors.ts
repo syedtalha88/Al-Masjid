@@ -7,6 +7,17 @@ import { ApiProblem, problemBody, sendProblem } from './problem.ts';
 import { getRequestId } from './request-id.ts';
 
 /**
+ * What the log keeps of an unexpected error. A MongoDB server error (it carries `errInfo`) is cut to its name, code
+ * and code name: a document-validation failure's details hold the rejected values — a contact's number, a private
+ * dua name — which must never reach the logs (DECISIONS #135). Everything else is logged as it is.
+ */
+export function loggableError(error: unknown): unknown {
+  if (typeof error !== 'object' || error === null || !('errInfo' in error)) return error;
+  const field = (key: string): unknown => Reflect.get(error, key);
+  return { name: field('name'), code: field('code'), codeName: field('codeName') };
+}
+
+/**
  * State-function refusals (`StateError` from `@mc/db`) that are answers for the client, mapped to API codes. Anything
  * else a state function throws (an internal invariant such as AUDIT_META or COUNTER_REGRESSION handled by its route)
  * stays a 500, so internal codes never leak.
@@ -133,7 +144,7 @@ export function errorMapper(logger: Logger, reportError?: ErrorReporter): ErrorR
       }
     }
 
-    logger.error({ err: error, requestId }, 'unhandled error');
+    logger.error({ err: loggableError(error), requestId }, 'unhandled error');
     reportError?.(error, { requestId });
     sendProblem(res, problemBody(500, 'INTERNAL_ERROR', { requestId }));
   };

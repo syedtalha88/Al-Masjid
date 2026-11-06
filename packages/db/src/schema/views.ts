@@ -122,11 +122,17 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
       ),
     },
   ],
-  // Masjid sections (DECISIONS #104): never who added an entry or the admin's rights confirmation.
+  // Masjid sections (DECISIONS #104): never who added an entry or the admin's rights confirmation. An allow-list, so a
+  // field added to `ruqyah_entries` later is never public by accident (DECISIONS #135).
   v_pub_ruqyah: [
     { $match: { status: 'active', masjid_visible: true } },
     { $sort: { sort: 1, _id: 1 } },
-    { $unset: ['created_by', 'audio.rights_confirmed', 'status', 'masjid_visible', 'deleted_at'] },
+    {
+      $project: {
+        ...keep('_id', 'masjid_id', 'category', 'source', 'title', 'library_id', 'text', 'instructions'),
+        ...keep('instructions_locale', 'sort', 'audio.key', 'audio.duration_s', 'audio.peaks'),
+      },
+    },
   ],
   // Both audiences: the app shows the device's own (a display filter, not access control — DECISIONS #104).
   v_pub_contacts: [

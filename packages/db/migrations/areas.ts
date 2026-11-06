@@ -59,4 +59,6 @@ export const SCHEMA_AREAS: Readonly<
   '0013_ruqyah': { collections: ['ruqyah_entries'], views: ['v_pub_ruqyah'] },
   // PHASE_03 T3.16 (DECISIONS #104): Ilm contacts — volunteers listed with their consent, in the bundle.
   '0014_contacts': { collections: ['masjid_contacts'], views: ['v_pub_contacts'] },
+  // DECISIONS #135 (security review L4): `v_pub_ruqyah` lists its public fields instead of hiding the private ones.
+  '0015_ruqyah_view': { collections: [], views: ['v_pub_ruqyah'] },
 };

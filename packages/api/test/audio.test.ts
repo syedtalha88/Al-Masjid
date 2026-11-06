@@ -22,6 +22,17 @@ afterAll(async () => {
   for (const dir of dirs) await rm(dir, { recursive: true, force: true });
 });
 
+describe('sniffAudio: polyglots', () => {
+  it('an audio header followed by HTML / XML markup is not audio; tags in ordinary bytes are', () => {
+    const ogg = Buffer.concat([Buffer.from('OggS', 'latin1'), Buffer.alloc(64)]);
+    expect(sniffAudio(ogg)).toBe('ogg');
+    for (const markup of ['<html>', '<SCRIPT src=x>', '<!DOCTYPE html>', '<?xml version="1.0"?>', '<iframe/']) {
+      expect(sniffAudio(Buffer.concat([ogg, Buffer.from(markup, 'latin1')])), markup).toBeNull();
+    }
+    expect(sniffAudio(Buffer.concat([ogg, Buffer.from('<b> <htmlx <scripts', 'latin1')]))).toBe('ogg');
+  });
+});
+
 describe('sniffAudio', () => {
   it('recognises the allowed containers by their first bytes', () => {
     expect(sniffAudio(text('OggS'))).toBe('ogg');
@@ -122,6 +133,9 @@ describe('stores', () => {
       'https://api.cloudinary.com/v1_1/testcloud/video/destroy',
     ]);
     expect(calls[0]?.form.get('public_id')).toBe(key);
+    // Private: the original is never deliverable unsigned; only the derived AAC rendition is (#135).
+    expect(calls[0]?.form.get('type')).toBe('private');
+    expect(calls[2]?.form.get('type')).toBe('private');
     expect((calls[0]?.form.get('file') as Blob | null)?.type).toBe('audio/ogg'); // the form's file part
     expect(calls[2]?.form.get('invalidate')).toBe('true');
   });
