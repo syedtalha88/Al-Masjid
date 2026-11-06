@@ -36,6 +36,8 @@
 - [x] **O19 + F17** — screen readers and iPhone swipe-back checked: working fine (20 Oct 2026)
 - [x] **O12** — Super Admin passkey on staging created with my phone (22 Oct 2026)
 - [x] **O20** — database privilege check on staging: 17/17 PASS (20 Oct 2026)
+- [x] **O36** — Atlas roles updated for Ruqyah + Ilm contacts, server scripts updated to `aea4aba`, database passwords rotated, staging restarted; privilege check shows only the expected "extra" lines until Phase 03 is deployed (6 Nov 2026)
+- [x] **O25 (keys part)** — two Cloudinary API keys made and put into the staging env files; media settings added with `make-env.sh --force` (6 Nov 2026)
 - [x] **O17** — server scripts updated to `2719f01`, edge networks recreated, `check.sh` 106 PASS · 0 FAIL; staging back with the database connected (20 Oct 2026)
 
 ---
@@ -49,9 +51,8 @@
 
 | # | What | Time | When |
 |---|---|---|---|
-| O25 | **Cloudinary for staging** — in the Cloudinary console: turn on **strict transformations**, create the six named image sizes (480 / 960 / 1440 × AVIF / WebP) and the audio one (`audio_m4a`), create **two API keys** (one for `api-admin`, one for `worker`) and put them only into the staging server's env files; add the **`media-staging`** DNS record in Cloudflare. Claude Code gives the exact click-by-click steps at T3.6 — never paste keys into chat | 20 min | before the Phase 03 staging deploy |
+| O25 | **Cloudinary for staging — rest (keys are done)** — in the Cloudinary console (Image → Studio): create the 7 transformation **templates** `mc_480_avif`, `mc_480_webp`, `mc_960_avif`, `mc_960_webp`, `mc_1440_avif`, `mc_1440_webp` (text `c_limit,w_<size>,f_<avif or webp>,q_auto`) and `audio_m4a` (text `ac_aac`), each **allowed for strict transformations**; then Settings → Security → **Strict transformations** on; check the **`media-staging`** DNS record in Cloudflare (A, Proxied, same IP as `app-staging`). The app's keys may not create them (Cloudinary answered 403 "missing permissions (create)"), so this is done by hand. Ask Claude Code for the click-by-click steps again | 15 min | before the Phase 03 staging deploy (photos and voice notes need it) |
 | O23 | **Cloudflare cache rule for the app API** — open rule "App API (origin)" and compare it field by field: Hostname **equals** `app-staging.almasjids.com`, URI Path **starts with** `/api/v1/`, Method `GET`, action **Eligible for cache**, Edge TTL "Use cache-control header if present", rule **Deployed**. Staging still answers `DYNAMIC` (25 Oct 2026). Then tell Claude Code to check again | 5 min | any time (open since 25 Oct) |
-| O36 | **Atlas roles update — due now** — two new database collections (Ruqyah and Ilm contacts) need the four Atlas roles updated: run `atlas-users.sh staging` again exactly as on 16 Oct 2026 (it reads the new roles file), then `sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles` and send Claude Code the whole output | 15 min | before Phase 03 goes to staging |
 | O8 | **Turnstile switch-over** — GitHub `staging` environment variable `VITE_PUBLIC_TURNSTILE_SITE_KEY` = your site key **and** the secret into `TURNSTILE_SECRET` of the staging API env files — both together, never via chat | 5 min | any time |
 
 ### At the end of Phase 03

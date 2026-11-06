@@ -24,24 +24,20 @@
 closed; `ci/phase-03` carries the same HEAD; `main` = staging = `cdd39fa` — nothing deployed.
 
 **Do first:**
-1. **F56 — Lighthouse warm load (CI red twice: `a0954df`, `4cc10d4`).** Everything else in CI is green (the
-   T3.15 voice-spec failure did not repeat). The *warm* (service-worker) runs miss the **performance category ≥ 90**
-   gate: app 87 (TBT 515 ms, LCP 306 ms), admin 89 (TBT 439 ms, LCP 803 ms); cold loads pass in CI. Earlier phases
-   measured warm TBT 208–253 ms (F27). Local reports (`.lighthouseci/*-warm-*.json`, benchmark 2722): the worst warm
-   run has one **"Unattributable" long task of 460–510 ms at t≈8 ms** (service-worker start / script compile before the
-   bundle runs), then the main bundle's evaluation (app ≈ 740 ms script incl. the `VisualElement` Motion chunk ≈ 320 ms,
-   admin ≈ 310–360 ms). The good runs have the same script work without that first block. Next: a Chromium trace of a
-   warm load to name the unattributable task (SW boot, precache match, font re-layout #84?); then either cut it (e.g.
-   lazy Motion features on the first screen, less warm-start work) or, if it is the SW start the owner accepted in #84
-   ("warm loads gated by LCP only"), ask the owner to gate warm runs by LCP only (`WARM_BUDGETS.categories`) — an owner
-   decision, record it in DECISIONS. Do not lower a budget without the owner.
+1. **F56 — fixed 6 Nov 2026 (#134), confirm on CI.** The warm-run failure was Lighthouse's own JS-coverage start
+   walking the previous visit's heap in a reused tab; `pnpm lhci` now starts a fresh browser per run on a per-pair
+   profile. Startup trimmed too (lazy Intl formatters, Pager reads `dir`). Local: warm app 95 / admin 97; the app's
+   *cold* LCP misses locally (2.7 s, local Docker — it did before) but passes on CI.
 2. **Then the phase close** (CLAUDE.md §5): `pnpm verify`, phase-verifier, security-reviewer, the Phase 03 report
    (`docs/reports/PHASE_03_REPORT.md` — include the T3.12 tap counts: Maghrib 6 · No water 6 · hadith 4 · dua 5 · delete
    3, `e2e/admin/usability.spec.ts`, and screenshots of every admin screen in 4 locales), deploy to staging
    (**needs O36 first**), status → AWAITING OWNER VERIFICATION. **The owner said (5 Nov 2026): finish the remaining work;
    the owner then does the pending tasks; only after that close the phase.**
-3. **Owner, before Phase 03 goes to staging:** **O36 is due now** (Atlas roles — `ruqyah_entries`, `masjid_contacts`);
-   also O25, O23, O8; then O26 (usability with a real masjid person — script in `owner/PHASE_TESTING_GUIDE.md` →
+3. **Owner:** **O36 done 6 Nov 2026** (Atlas roles updated, passwords rotated, staging restarted; `--verify-roles` on
+   `cdd39fa` shows only the expected `extra` privileges on `ruqyah_entries`, `masjid_contacts`, `v_pub_ruqyah`,
+   `v_pub_contacts` — must PASS after the Phase 03 deploy). **O25 partly:** both Cloudinary keys are in the staging
+   env files and `make-env --force` added the media vars; the 7 named transformations (the app keys may not create
+   them — 403 "missing permissions (create)") + strict mode are left for the owner in the console. Also O23, O8; then O26 (usability with a real masjid person — script in `owner/PHASE_TESTING_GUIDE.md` →
    Phase 03) and O27.
 4. **Owner settings:** the owner removed the `git push` / `pnpm add` / `npm install` "ask" rules from
    `.claude/settings.json` (uncommitted change in the working tree — the owner's; not committed by Claude Code).
@@ -423,7 +419,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F53 | T3.13 (4 Nov 2026, DECISIONS #126) | Cloudinary's upload docs show no `duration` in a video/audio upload response. Once staging uploads work (O25), check a real response: if `duration` is missing, read it through the Admin API (`GET resources/video/upload/<public_id>`) before accepting, so the 10-minute rule never rests on the browser's number outside local | With O25 (staging Cloudinary) |
 | F54 | T3.13 (5 Nov 2026, DECISIONS #128; #133) | ~~Voice notes: badge on list cards, player in the A8 card, pause when covered, fake-mic e2e~~ — **done 5 Nov 2026 (#133)**: "Voice message · 0:42" tag on announcement / dua cards, the hadith card plays it in place, the player pauses when its screen goes `inert`, `e2e/admin/voice-recording.spec.ts` records through Chromium's fake microphone. **Left:** a real phone recording on staging (Safari MP4, Chrome Opus) — owner check 3.14 | Staging check with O25 / O27 |
 | F55 | T3.14 (5 Nov 2026, DECISIONS #129, #130) | ~~A library entry retired or sent back to draft stays in cached bundles / feeds / Ruqyah lists of the masjids using it~~ — **closed 5 Nov 2026 (#133)**: retire, back-to-draft and verify bump every using masjid's version in the same transaction (`packages/db/test/library-users.int.test.ts`). Note kept: locally (Windows) the WebKit run of `e2e/app/content.spec.ts` can stall on a `versions` request (CI's WebKit passes) | Closed |
-| F56 | CI 5 Nov 2026 (`a0954df`, `4cc10d4`) | **Lighthouse warm load misses the performance category gate:** app 87 (TBT 515 ms), admin 89 (TBT 439 ms) on CI; cold loads pass. One unattributable long task of 460–510 ms right at the warm start plus the bundle evaluation (details in the handoff). Warm TBT was 208–253 ms in earlier phases (F27, #84) | Before the Phase 03 report: trace it, cut it, or ask the owner to gate warm runs by LCP only (#84) |
+| F56 | CI 5 Nov 2026 (`a0954df`, `4cc10d4`) | ~~Lighthouse warm load misses the performance category gate (app 87, admin 89)~~ — **fixed 6 Nov 2026 (#134)**: the 300–500 ms t≈8 ms task was Lighthouse's JS-coverage start walking the previous visit's heap in a reused tab; `pnpm lhci` now opens the warm visit in a freshly started browser on the cold run's profile. Also cut: Intl formatters built on first use, the onboarding pager no longer forces a style recalculation. Local warm: app 95 / admin 97. **Confirm on CI** | Closed when CI is green |
 | F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
 
 ## Session log (newest first, one line each)

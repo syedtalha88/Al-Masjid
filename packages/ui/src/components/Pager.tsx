@@ -60,10 +60,11 @@ export function Pager({ pageCount, index, onIndexChange, canAdvance, children, c
     return x.on('change', paint);
   }, [x, offsetOf]);
 
-  // The direction follows <html dir> (the language page flips it live — 07 A1).
+  // The direction follows <html dir> (the language page flips it live — 07 A1). Read from the nearest `dir`
+  // attribute, not getComputedStyle: that forced a style recalculation during the app's first render (F56).
   useLayoutEffect(() => {
     const read = () => {
-      if (viewport.current) setRtl(getComputedStyle(viewport.current).direction === 'rtl');
+      if (viewport.current) setRtl(viewport.current.closest('[dir]')?.getAttribute('dir') === 'rtl');
     };
     read();
     const observer = new MutationObserver(read);

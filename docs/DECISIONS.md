@@ -1998,4 +1998,28 @@ over typing).
 **Consequences:** db int +3 (`library-users.int.test.ts`), e2e usability (tap counts), voice-recording, voice badge
 assertion; the B4 jamaat sheet and B5 time-range screens stay axe clean in 4 locales.
 
+### #134 — Lighthouse warm runs start a fresh browser on the cold run's profile; startup work trimmed (F56) — ACCEPTED (Claude Code, 6 Nov 2026)
+**Context:** CI `a0954df` and `4cc10d4` failed the warm (service-worker) performance category ≥ 90: app 87 (TBT 515 ms),
+admin 89 (TBT 439 ms). The worst warm runs began with one 300–500 ms "Unattributable" main-thread task at t≈8 ms. A
+Chromium trace of it holds almost nothing but V8 "heap object iterator" sweeps and a code deoptimization — what V8 does
+when a profiler switches on JS coverage (Lighthouse's `unused-javascript` gatherer) in a renderer that still holds the
+previous visit's heap: `pnpm lhci` ran the warm visit in the same tab, right after the cold one. Its size grew with
+the app's heap (313 ms in October), so it fails more often as the app grows. No user's repeat visit has it.
+**Decision:**
+- `scripts/lighthouse.ts`: every cold/warm pair gets its own temporary browser profile; each run starts Chromium on
+  it and closes it afterwards, so the warm run is the app **opened again** (service worker and caches kept, new
+  process) — what a returning musalli or admin does. Budgets unchanged (01 §9; #84 warm gate as before). Locally the
+  warm medians went to app 95 / admin 97 (TBT 260 / 201 ms) with no t≈8 ms task; in a reused tab the same build
+  ranged 86–99.
+- Real startup work found by a CPU profile of the warm load (4× CPU) and cut: `formatters()` built 14 Intl formatters
+  up front on the first render (~70 ms at 4×) — each is now built on first use; the onboarding `Pager` read the text
+  direction with `getComputedStyle` (a forced style recalculation during the first render) — it now reads the nearest
+  `dir` attribute, which is what sets the direction.
+- Left as is: the rest of the warm TBT is evaluating the main bundle and React's first render (`index` ≈ 120–190 ms
+  tasks at 4×); the Motion `VisualElement` chunk is shared by every animated screen. Warm TBT stays reported, not gated
+  (#51, F27).
+**Consequences:** `pnpm lhci` takes a few seconds longer (12 browser starts); cold runs also start a fresh browser — the
+same as CI's first run did before. The local stack's app cold LCP (2.6–2.7 s, Windows + Docker) still misses 2.5 s as
+it did before this change (3.6 s on 5 Nov); CI's cold runs pass — CI is the gate.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._
