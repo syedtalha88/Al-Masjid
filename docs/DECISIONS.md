@@ -1971,4 +1971,31 @@ number), ui +9 (camp view incl. past midnight, card in 4 locales, preview, `temp
 and Masjid Detail, WhatsApp opens wa.me, the detail has the number and the button; a minute after the last hour the cards
 are gone) and B18 in the 4-locale screens spec.
 
+### #133 — Phase 03 close-out: the usability tap budget, library changes refresh their masjids, voice-note gaps (PHASE_03 T3.12, F54, F55) — ACCEPTED (Claude Code, 5 Nov 2026)
+**Context:** PHASE_03 T3.12 (5 tasks, ≤ 6 taps each), F54 (#128), F55 (#129, #130), CLAUDE.md §2.8 (low literacy: templates
+over typing).
+**Decision:**
+- **T3.12 — measured, not estimated:** `e2e/admin/usability.spec.ts` performs the 5-task script from Admin Home and counts
+  every tap until the change is saved / published: Maghrib offset **6**, "No water 10–2" **6**, today's hadith **4**,
+  illness dua with the name private **5**, delete a post **3** — no typing in any of them. Two changes made that
+  possible: the jamaat sheet offers **5 / 10 / 15 / 20 / 30 minutes** as one-tap buttons beside the ±1 stepper (07 B4's
+  stepper stays for any other value); a **time-range** param opens **one sheet with both wheels** and one Done (07 B5
+  "time range → two wheels" — before, each end had its own sheet: 8 taps). The script with the counts is in the owner
+  guide (Phase 03, check 3.13; O26) and goes into the phase report.
+- **F55 — library status changes refresh the masjids that use the entry:** `retireLibraryEntry` (from verified),
+  `updateLibraryEntry` when a content edit sends a verified entry back to draft, and `verifyLibraryEntry` bump the
+  content version of every masjid using the entry — its adhkar set (`masjids.adhkar.library_ids`), its active Ruqyah
+  entries, and its published hadith / dua posts — in the same transaction. Followers refetch the bundle, feeds and Ruqyah
+  list at their next poll, so a retired text leaves cached versions within a minute. The item lookup has no index of its
+  own (a rare Super Admin action, bounded by the posts that quote the entry). Tags-only edits change nothing visible
+  and bump nothing.
+- **F54 — voice notes:** list cards (announcements, dua requests) carry a "Voice message · 0:42" tag — a whole-card
+  button cannot hold a player; the hadith / ayah card (A8, hero and regular — not a single button) plays it in place
+  under the note; the player also pauses when another screen is pushed over its screen (it watches its screen's
+  `inert`); recording is covered by `e2e/admin/voice-recording.spec.ts` with Chromium's fake capture device (record
+  ~3 s in the hadith note step → upload → the musalli plays it in the A8 card). Still open in F54: a real phone recording
+  on staging (Safari MP4, Chrome Opus) — owner check 3.14 with O25.
+**Consequences:** db int +3 (`library-users.int.test.ts`), e2e usability (tap counts), voice-recording, voice badge
+assertion; the B4 jamaat sheet and B5 time-range screens stay axe clean in 4 locales.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._

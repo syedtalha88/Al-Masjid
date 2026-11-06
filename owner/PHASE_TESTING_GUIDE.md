@@ -128,7 +128,25 @@ Use Android B as admin and Android A / iPhone as musalli.
 | 3.10 | Edit / delete | My Posts → edit the notice; delete another post | Edit shows "edited"; deleted post disappears for musalli |
 | 3.11 | Special dates & Ramadan | Add an Eid salah with 2 times; turn on Ramadan mode | Musalli Home shows Eid card and Sehri/Iftar card |
 | 3.12 | Super Admin: library import | Super Admin → Content Library → import the sample file Claude Code gives you → verify one entry | Dry-run report first; verified entry becomes selectable by admins |
-| 3.13 | **Real-person usability test** | Give Android B to an imam/committee member who isn't technical. Ask them to do the 5 tasks in the Phase 03 report **without help** | They succeed. Note where they hesitated — tell Claude Code |
+| 3.13 | **Real-person usability test** | Give Android B to an imam/committee member who isn't technical. Ask them to do the 5 tasks below **without help** | They succeed. Note where they hesitated — tell Claude Code |
+| 3.14 | Voice note | Notice → Write your own → tick "This masjid recorded this…" → Record ~10 seconds → Stop → Use this → Publish | The musalli's Announcements card says "Voice message · 0:10"; the notice plays it; going to another screen pauses it. Try once on an iPhone and once on Android (O25 must be done for staging) |
+| 3.15 | Adhkar after salah | Adhkar → turn on → add two → Save | The musalli Home shows the "Adhkar after salah" card for 30 minutes after a jamaat |
+| 3.16 | Ruqyah | Ruqyah → Add → "Type text" (any test words) → Save; add one from the library | Masjid Detail shows "Ruqyah"; your text says "Added by <masjid>", never a source |
+| 3.17 | Ilm contacts | Masjid Profile → Ilm contacts → Add contact → a sister's name and number → For sisters → tick that she agreed → Save | A phone set to "Sister" shows "Ask the masjid" with her; a "Brother" phone does not; "Message" opens WhatsApp with "Assalamu alaikum" — the number is never shown in the app |
+| 3.18 | Blood donation camp | Blood Camp tile → date, hours, place, contact number → Preview → Publish | Musalli Home and Masjid Detail show the camp card until the camp's last hour; "Contact on WhatsApp" opens WhatsApp |
+
+### The 5-task usability script (check 3.13)
+
+Start each task on Admin Home. Do not help; just watch and note where they hesitate. Claude Code measured each task with
+an automatic test (`e2e/admin/usability.spec.ts`) — the tap counts below are the fewest taps needed; none needs typing.
+
+| Task | Say to them | Taps |
+|---|---|---|
+| 1 | "Make Maghrib jamaat 10 minutes after the adhan." (Prayer Times → Maghrib Jamaat → 10 → Done → Save timings → Save) | 6 |
+| 2 | "Tell everyone there is no water from 10 to 2 today." (Notice → No water supply → From → Done → Next → Publish) | 6 |
+| 3 | "Share today's hadith." (Hadith / Ayah → Use this → Next → Publish) | 4 |
+| 4 | "Ask for dua for someone who is ill, without giving the name." (Dua Request → Illness → Next → pick a dua → Publish) | 5 |
+| 5 | "Delete the water notice." (My Posts → Delete → Delete) | 3 |
 
 ---
 

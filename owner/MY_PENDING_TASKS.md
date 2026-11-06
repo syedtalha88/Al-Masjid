@@ -58,7 +58,7 @@
 
 | # | What | Time | When |
 |---|---|---|---|
-| O26 | **Usability check (T3.12)** — sit with a real masjid person (imam / mutawalli) and let them do the 5 tasks from the script Claude Code prepares (set Maghrib jamaat, publish "No water 10–2", today's hadith, a dua request with a private name, delete a post) | 30 min | end of Phase 03 |
+| O26 | **Usability check (T3.12)** — sit with a real masjid person (imam / mutawalli) and let them do the 5 tasks without help. The script is ready: `owner/PHASE_TESTING_GUIDE.md` → Phase 03 → "The 5-task usability script" (each task 3–6 taps, no typing). Tell Claude Code where they hesitated | 30 min | end of Phase 03, on staging |
 | O27 | **Phase 03 checks on staging** — `owner/PHASE_TESTING_GUIDE.md` → Phase 03, on your phones | 45 min | when Claude Code says "Phase 03 is ready" |
 
 ### Later phases (Claude Code reminds you)
