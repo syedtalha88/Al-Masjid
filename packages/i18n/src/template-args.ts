@@ -35,6 +35,12 @@ const isPrayerKey = (value: unknown): value is PrayerKey =>
 const LRI = '\u2066';
 const PDI = '\u2069';
 
+/**
+ * `text` in a left-to-right isolate: Latin times ("8:45 PM") and numbers keep their order inside Urdu sentences, where
+ * the bidi algorithm would otherwise show "PM 8:45" (F58). Invisible in left-to-right text.
+ */
+export const ltrIsolate = (text: string): string => `${LRI}${text}${PDI}`;
+
 export interface TemplateFormat {
   /** "HH:mm" → "9:15 PM". */
   readonly time: (hhmm: string) => string;
@@ -46,8 +52,8 @@ export interface TemplateFormat {
 
 /**
  * The ICU arguments of a template notice: each declared param formatted by its type for the reader's locale; a range
- * `x` becomes `x_start` and `x_end`; numbers stay numbers (for plurals); a phone reads "+91 98765 43210", isolated
- * left-to-right. Values that do not match their declared type are left out, so the message fails to format and the
+ * `x` becomes `x_start` and `x_end`; numbers stay numbers (for plurals); times and a phone ("+91 98765 43210") are
+ * isolated left-to-right. Values that do not match their declared type are left out, so the message fails to format and the
  * caller falls back to the title only.
  */
 export function templateArguments(
@@ -61,7 +67,7 @@ export function templateArguments(
     if (value === undefined) continue;
     switch (param.type) {
       case 'time':
-        if (isWallClock(value)) result[param.name] = format.time(value);
+        if (isWallClock(value)) result[param.name] = ltrIsolate(format.time(value));
         break;
       case 'date':
         if (isCalendarDate(value)) result[param.name] = format.date(value);
@@ -70,7 +76,7 @@ export function templateArguments(
       case 'date_range': {
         if (typeof value !== 'object') break;
         const valid = param.type === 'time_range' ? isWallClock : isCalendarDate;
-        const write = param.type === 'time_range' ? format.time : format.date;
+        const write = param.type === 'time_range' ? (hhmm: string) => ltrIsolate(format.time(hhmm)) : format.date;
         if (valid(value.start) && valid(value.end)) {
           result[`${param.name}_start`] = write(value.start);
           result[`${param.name}_end`] = write(value.end);
@@ -89,7 +95,7 @@ export function templateArguments(
       case 'phone':
         // Grouped as people read it, in an LTR isolate so Urdu text keeps the digits in order; the app adds a WhatsApp
         // button for it (DECISIONS #132).
-        if (isE164(value)) result[param.name] = `${LRI}${formatPhone(value)}${PDI}`;
+        if (isE164(value)) result[param.name] = ltrIsolate(formatPhone(value));
         break;
     }
   }

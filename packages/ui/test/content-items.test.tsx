@@ -96,7 +96,10 @@ describe('useNoticeBody', () => {
     expect(renderHook(() => useNoticeBody(NOTICE, undefined), { wrapper }).result.current).toBeUndefined();
     const template = renderHook(() => useNoticeBody(NOTICE, [TEMPLATE]), { wrapper });
     await waitFor(() => {
-      expect(template.result.current).toMatch(/^Water will not be available from 10:00\sAM to 2:00\sPM\.$/);
+      // Times in left-to-right isolates (F58).
+      expect(template.result.current).toMatch(
+        /^Water will not be available from \u206610:00\sAM\u2069 to \u20662:00\sPM\u2069\.$/,
+      );
     });
   });
 });

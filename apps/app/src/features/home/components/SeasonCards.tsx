@@ -1,6 +1,7 @@
 // Ramadan and Eid cards on Home (07 A2, 06 §6 RamadanCard): Sehri ends · Iftar with a countdown to the next of the two
 // (first followed masjid in Ramadan mode); the nearest Eid salah within 3 days with its jamaat times.
 import { Bdi, useLocale, useTranslation } from '@mc/i18n/react';
+import { ltrIsolate } from '@mc/i18n/template-args';
 import type { MasjidProfile } from '@mc/shared/contracts/public';
 import { Card, CountdownText, IconCircle } from '@mc/ui/components';
 import { CrescentIcon } from '@mc/ui/icons';
@@ -59,7 +60,8 @@ export function EidCard({ view, masjid }: { readonly view: EidView; readonly mas
       : view.inDays === 1
         ? t('home.tomorrow')
         : format.calendarDate(view.special.date, 'medium');
-  const times = format.list(view.special.times.map((entry) => format.time(entry.time).text));
+  // Each time LTR-isolated, the list itself in the page direction ("7:00 AM اور 8:00 AM" reads right in Urdu — F58).
+  const times = format.list(view.special.times.map((entry) => ltrIsolate(format.time(entry.time).text)));
   return (
     <Pressable
       kind="card"
@@ -77,7 +79,7 @@ export function EidCard({ view, masjid }: { readonly view: EidView; readonly mas
           {t(view.special.type === 'eid_ul_adha' ? 'home.eidAdha' : 'home.eidFitr')}
         </span>
         <span className="type-callout text-primary-700">
-          {when} · <Bdi>{times}</Bdi>
+          {when} · {times}
         </span>
         {masjid ? (
           <span className="truncate type-footnote text-text-secondary">{masjidName(masjid, locale)}</span>

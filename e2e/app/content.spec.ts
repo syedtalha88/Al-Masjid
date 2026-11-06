@@ -52,7 +52,9 @@ test('A7: announcements — chips, template body, event badge; detail with photo
   // A template notice: title from the template, body formatted for the locale.
   const water = list.getByRole('button', { name: 'No water supply' });
   await expect(water).toBeVisible();
-  await expect(water).toContainText(/Water will not be available from 10:00\sAM to 2:00\sPM\./);
+  await expect(water).toContainText(
+    /Water will not be available from [\u2066\u2069]?10:00\sAM[\u2066\u2069]? to [\u2066\u2069]?2:00\sPM[\u2066\u2069]?\./,
+  );
   await expect(water).toContainText('Important');
   await expect(list.getByRole('button', { name: 'Children’s weekend class' })).toContainText(/·/);
   await expectAxeClean();

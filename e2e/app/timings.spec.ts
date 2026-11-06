@@ -47,7 +47,7 @@ test('prayer timings: daily table, stepping days, Jumu’ah and special dates', 
   await screen.getByRole('tab', { name: 'Jumu’ah' }).click();
   const jumuah = screen.getByRole('tabpanel');
   await expect(jumuah.getByText('Jumu’ah 1')).toBeVisible();
-  await expect(jumuah).toContainText('Khutbah 1:15 PM');
+  await expect(jumuah).toContainText(/Khutbah [\u2066\u2069]?1:15\sPM/); // the time is LTR-isolated (F58)
   await expect(jumuah).toContainText('2:30 PM');
 
   await screen.getByRole('tab', { name: 'Special Dates' }).click();

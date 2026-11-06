@@ -3,6 +3,7 @@
 // date · hours, place — that part opens the announcement — and "Contact on WhatsApp" for the organiser. The number is
 // not printed here (the notice text has it). No donor list, no blood groups (00 §4.13).
 import { useLocale, useTranslation } from '@mc/i18n/react';
+import { ltrIsolate } from '@mc/i18n/template-args';
 
 import { Card } from '../components/Card.tsx';
 import { IconCircle } from '../components/IconCircle.tsx';
@@ -25,8 +26,8 @@ export function BloodCampCard({ camp, masjid, onOpen, preview = false }: BloodCa
   const { format } = useLocale();
   const when = t('ui.camp.when', {
     date: format.calendarDate(camp.date, 'medium'),
-    start: format.time(camp.hours.start).text,
-    end: format.time(camp.hours.end).text,
+    start: ltrIsolate(format.time(camp.hours.start).text),
+    end: ltrIsolate(format.time(camp.hours.end).text),
   });
   const summary = (
     <div className="flex items-start gap-3">

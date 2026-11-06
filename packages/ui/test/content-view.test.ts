@@ -163,10 +163,10 @@ describe('notice templates (02 §2: ICU body + typed params formatted per locale
       ),
     ).toEqual({
       prayer: 'P(isha)',
-      time: 'T(21:15)',
+      time: '\u2066T(21:15)\u2069', // times LTR-isolated (F58)
       from: 'D(2026-10-24)',
-      hours_start: 'T(10:00)',
-      hours_end: 'T(14:00)',
+      hours_start: '\u2066T(10:00)\u2069',
+      hours_end: '\u2066T(14:00)\u2069',
       n: 3,
       who: 'x',
       contact: '\u2066+91 00000 00000\u2069', // grouped, LTR-isolated (T3.17)

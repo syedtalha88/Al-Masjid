@@ -215,7 +215,9 @@ describe('PreviewFrame shows exactly the musalli rendering (T3.11)', () => {
     const item = ITEMS['templateNotice'] as FeedItem; // defined above
     const musalli = await musalliHtml(item, 'en');
     // The time formatter puts a no-break space before AM/PM (`&nbsp;` in HTML).
-    expect(musalli).toMatch(/Water will not be available from 10:00(&nbsp;|\s)AM to 2:00(&nbsp;|\s)PM\./);
+    expect(musalli).toMatch(
+      /Water will not be available from [\u2066\u2069]?10:00(&nbsp;|\s)AM[\u2066\u2069]? to [\u2066\u2069]?2:00(&nbsp;|\s)PM[\u2066\u2069]?\./,
+    );
     const preview = await previewHtml(item, 'en');
     expect(normalizeIds(preview)).toBe(normalizeIds(musalli));
   });

@@ -119,9 +119,10 @@ export function VoiceNote({ src, durationS, peaks, className }: VoiceNoteProps) 
             }}
             className="h-2 w-full accent-primary-700"
           />
-          <div className="flex justify-between type-caption tabular-nums text-text-tertiary" dir="ltr">
-            <span>{clock(position)}</span>
-            <span>−{clock(total - position)}</span>
+          {/* The row follows the page (elapsed at the slider's start — the right in Urdu); each time reads LTR (F58). */}
+          <div className="flex justify-between type-caption tabular-nums text-text-tertiary">
+            <span dir="ltr">{clock(position)}</span>
+            <span dir="ltr">−{clock(total - position)}</span>
           </div>
         </div>
         <Pressable

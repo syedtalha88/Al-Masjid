@@ -137,7 +137,11 @@ test.describe('B5 notice creator (T3.6)', () => {
       await expect(admin).toHaveURL(`${ADMIN_URL}/notice/preview`);
       const frame = admin.locator('[data-preview-locale]');
       await expect(frame.getByText('No water supply')).toBeVisible();
-      await expect(frame.getByText(/Water will not be available from 10:00\sAM to 2:00\sPM/)).toBeVisible();
+      await expect(
+        frame.getByText(
+          /Water will not be available from [\u2066\u2069]?10:00\sAM[\u2066\u2069]? to [\u2066\u2069]?2:00\sPM/,
+        ),
+      ).toBeVisible();
       await admin.getByRole('radio', { name: 'తెలుగు' }).click();
       await expect(admin.locator('[data-preview-locale="te"]').getByText('నీటి సరఫరా నిలిపివేత')).toBeVisible();
       await expect(admin.getByText('Followers see the photo when they open the notice.')).toBeVisible();

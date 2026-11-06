@@ -103,7 +103,13 @@ describe('blood_donation_camp (T3.17)', () => {
       ['contact', 'phone'],
     ]);
     const text = formatRuntimeMessage(camp.body[locale], locale, templateArguments(values, camp.params, format));
-    for (const part of ['D<2026-11-08>', 'T<10:00>', 'T<16:00>', 'Test Hall', '\u2066+91 98765 00001\u2069']) {
+    for (const part of [
+      'D<2026-11-08>',
+      '\u2066T<10:00>\u2069',
+      '\u2066T<16:00>\u2069',
+      'Test Hall',
+      '\u2066+91 98765 00001\u2069',
+    ]) {
       expect(text).toContain(part);
     }
   });
@@ -125,7 +131,7 @@ describe('templateArguments', () => {
         format,
       ),
     ).toEqual({
-      when: 'T<07:00>',
+      when: '\u2066T<07:00>\u2069', // times keep their order in Urdu sentences (F58)
       days_start: 'D<2026-11-05>',
       days_end: 'D<2026-11-07>',
       n: 2,
