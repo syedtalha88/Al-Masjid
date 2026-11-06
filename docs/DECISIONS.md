@@ -2022,4 +2022,54 @@ the app's heap (313 ms in October), so it fails more often as the app grows. No 
 same as CI's first run did before. The local stack's app cold LCP (2.6–2.7 s, Windows + Docker) still misses 2.5 s as
 it did before this change (3.6 s on 5 Nov); CI's cold runs pass — CI is the gate.
 
+### #135 — Phase 03 close: security-review and phase-verifier findings fixed; three criteria met another way (PHASE_03) — ACCEPTED (Claude Code, 6 Nov 2026)
+**Context:** the Phase 03 security review (0 HIGH, 2 MEDIUM, 5 LOW) and phase-verifier run (FAIL: 3 blockers, 4 should-fix)
+on `a75d4d8`; CLAUDE.md §5 (fix every HIGH/MEDIUM, justify LOWs).
+**Decision — security:**
+- **M1 — voice originals:** recordings are uploaded to Cloudinary as `type=private` (destroyed with the same type): the
+  original as recorded (container metadata, a video track in an MP4) is never deliverable unsigned; only derived
+  renditions are, and with strict transformations only the named one. Caddy serves
+  `video/private/t_audio_m4a/m/<masjid>/a/<id>.m4a` (verified in Cloudinary's "Control access to media" docs,
+  6 Nov 2026). The named transformation is `audio_m4a` = `ac_aac,br_48k` (AAC ~48 kbps, 01 §5.5; `br_` sets the
+  audio bitrate per Cloudinary's audio docs; phone recordings are mono already — Cloudinary documents no downmix).
+- **M2 — memory and the upload bucket:** at most two uploads per api process are held in memory at once
+  (`MAX_UPLOADS_IN_FLIGHT`; the next answers 503 `SERVICE_UNAVAILABLE` with `Retry-After: 5`, freed when the
+  response closes); the `adminUploads` key is the lower-cased masjid id, so another spelling of the same id shares the
+  30/h bucket; the audio Blob no longer copies the buffer.
+- **L2** a removed item's `voice` is redacted like its title/body/image. **L3** `push_quota_usage`: inserts start at 1,
+  updates are `$inc: {count: 1}` only — no reset, no jump (policy checks now see the update operator). **L4**
+  `v_pub_ruqyah` is an allow-list (migration `0015_ruqyah_view`). **L5** a MongoDB server error (it has `errInfo`) is
+  logged as `{name, code, codeName}` only — validation details carry the rejected values.
+- **L1 (kept, tracked as F53):** when Cloudinary returns no duration the browser's (≤ 600 s, contract-bounded) is used;
+  the first staging upload shows whether the response has it, else the Admin API is read before accepting.
+- **Polyglots:** an audio file whose bytes contain HTML / XML markup (`<html`, `<script`, `<!doctype`, `<?xml`,
+  `<iframe`, `<object`, `<embed`) is refused as not audio (T3.13); the media site's `nosniff` + CSP stay the main guard.
+**Decision — phase-verifier:**
+- T3.0: the Scan modal is axe-checked (live camera in the `scan` project; no camera on both phones).
+- T3.13 upload tests: Chrome's WebM/Opus and Safari's MP4/AAC accepted — generated fixtures (`scripts/generate-audio-
+  fixtures.ts`: Chromium's MediaRecorder records a 440 Hz tone; Playwright's WebKit has no Web Audio on Windows, and
+  the container + codec are what the server checks); polyglot and > 25 MB refused; 10:01 measured by the storage →
+  422 `AUDIO_TOO_LONG` and the stored file deleted. Player: keyboard, spoken names, one-at-a-time, reduced motion
+  (`packages/ui/test/voice-note.test.tsx`); a start interrupted by a pause (AbortError) no longer shows "unavailable".
+- 4-locale screenshots + axe: B14 recorder (`screens.spec`), A18 player (`voice.spec`), A20 adhkar list
+  (`content.spec`), A22 camp card (`blood-camp.spec`) — the app's language switched through Settings
+  (`e2e/support/locale.ts`).
+- F49 fixed (the dua translation, a special date's labels and note are `<bdi>` isolates — punctuation stays put; the
+  paragraph alignment and the Urdu baselines do not change). F50: unit tests for `use-timings-editor` and `use-special`.
+- Pinned-clock e2e helpers route at the **context**: the app's service worker fetches API responses too, and a Date
+  header through it set the app back to the real time (the blood-camp spec failed on CI at 08:00 IST).
+**Met another way (deviations):**
+- **T3.13 "Removal deletes the media"** — not at the moment of removal: a removed item keeps its media for the 180-day
+  evidence period (IT Rules 3(1)(g), 05; `purge_after`), and a recording can be referenced by more than one record;
+  deletion is the `media-delete` job of Phase 8 (F52), which deletes what nothing references after the grace period.
+  The storage adapter's delete is integrated and tested (the 10:01 path deletes the stored file).
+- **T3.13 "musalli plays it (both phones)"** — the recording e2e plays on Pixel 7 (Chromium); WebKit playback is owner
+  check 3.14 on a real iPhone against staging (Cloudinary's AAC rendition): Playwright's WebKit cannot record, and the
+  local file store serves the raw WebM/WAV that Safari does not play.
+- **F50 polish → Phase 9 (polish, with F44):** the `UploadProgress` ring (needs XHR upload progress; uploads show
+  "Uploading…" with a spinner today) and the Home tile's mint pulse after a publish (08 §5.12).
+- **T3.1 inbox banner** — waits for the inbox it points to (reports: Phase 8; change-request replies: Phase 5).
+**Consequences:** api int 272, db int 290, ui 310, admin +8, domain 192 (100 % again — `formatPhone` has no
+unreachable branch); one more migration (0015); owner O25 creates `audio_m4a` as `ac_aac,br_48k`.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._
