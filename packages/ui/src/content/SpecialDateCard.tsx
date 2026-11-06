@@ -26,7 +26,12 @@ export function SpecialDateCard({ special }: SpecialDateCardProps) {
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <p className="type-headline text-text">
           {t(`special.${special.type}`)}
-          {special.label ? <span className="type-callout text-text-secondary"> · {special.label}</span> : null}
+          {special.label ? (
+            <span className="type-callout text-text-secondary">
+              {' · '}
+              <bdi>{special.label}</bdi>
+            </span>
+          ) : null}
         </p>
         <p className="flex flex-wrap gap-1.5">
           {special.times.map((entry) => (
@@ -35,11 +40,22 @@ export function SpecialDateCard({ special }: SpecialDateCardProps) {
               className="rounded-full bg-mint-50 px-3 py-1 type-caption text-primary-800"
             >
               <Bdi>{format.time(entry.time).text}</Bdi>
-              {entry.label ? ` · ${entry.label}` : ''}
+              {entry.label ? (
+                <>
+                  {' · '}
+                  <bdi>{entry.label}</bdi>
+                </>
+              ) : null}
             </span>
           ))}
         </p>
-        {special.note ? <p className="type-footnote text-text-secondary">{special.note}</p> : null}
+        {/* The masjid's own words may be in another script than the UI: isolated, so an English full stop stays at
+            the end in Urdu (F49). */}
+        {special.note ? (
+          <p className="type-footnote text-text-secondary">
+            <bdi>{special.note}</bdi>
+          </p>
+        ) : null}
       </div>
     </div>
   );

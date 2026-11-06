@@ -30,6 +30,7 @@ describe('isE164', () => {
 describe('whatsappChatUrl', () => {
   it('drops the + and URL-encodes the greeting (any script)', () => {
     expect(whatsappChatUrl('+910000000001')).toBe('https://wa.me/910000000001');
+    expect(whatsappChatUrl('+910000000001', '')).toBe('https://wa.me/910000000001');
     expect(whatsappChatUrl('+910000000001', 'Hello there & welcome?')).toBe(
       'https://wa.me/910000000001?text=Hello%20there%20%26%20welcome%3F',
     );

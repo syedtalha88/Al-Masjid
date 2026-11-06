@@ -109,7 +109,8 @@ export function DuaBox({ arabic, transliteration, translation, translationTag, s
       ) : null}
       {translation ? (
         <span className="type-callout text-text">
-          {translation}
+          {/* Isolated: a fallback translation in another script keeps its punctuation in place (F49). */}
+          <bdi>{translation}</bdi>
           {translationTag ? (
             <Tag tone="neutral" className="ms-2 align-middle">
               {translationTag}

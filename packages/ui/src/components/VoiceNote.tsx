@@ -74,8 +74,11 @@ export function VoiceNote({ src, durationS, peaks, className }: VoiceNoteProps) 
     if (playing && playing !== element) playing.pause();
     playing = element;
     element.playbackRate = speed;
-    element.play().catch(() => {
-      setFailed(true);
+    // Only "no playable source" means unavailable: an AbortError (a pause or another note interrupted the start, e.g.
+    // while it still loads on a slow phone) or a refused autoplay is not a broken recording. Load failures arrive as
+    // the element's `error` event.
+    element.play().catch((error: unknown) => {
+      if (error instanceof DOMException && error.name === 'NotSupportedError') setFailed(true);
     });
   };
 

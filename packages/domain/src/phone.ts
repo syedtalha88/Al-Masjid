@@ -13,8 +13,7 @@ export function isE164(value: unknown): value is string {
  * Shown wrapped by the caller in an LTR isolate where the text around it may be RTL.
  */
 export function formatPhone(e164: string): string {
-  const match = /^\+91(\d{5})(\d{5})$/.exec(e164);
-  return match ? `+91 ${match[1] ?? ''} ${match[2] ?? ''}` : e164;
+  return e164.replace(/^\+91(\d{5})(\d{5})$/, '+91 $1 $2');
 }
 
 /**
