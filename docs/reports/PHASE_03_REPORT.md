@@ -61,8 +61,8 @@ needs at most 6 taps per task, measured in e2e.
 | Security scans | ✅ | gitleaks, osv-scanner, `pnpm audit`, Semgrep, hadolint, Trivy (CI) |
 | E2E (Pixel 7 / iPhone 14) | _CI run on HEAD_ | every Phase 03 spec green locally |
 | Accessibility (axe) | ✅ | every new screen axe-clean in 4 locales; serious/critical 0 |
-| Bundle budgets | ✅ | musalli initial JS 186.61 / 187 kB gz (owner rule O24); admin 213.2 / 220 kB |
-| Lighthouse (mobile) | _CI run on HEAD_ | local: warm app 95 / admin 97; cold admin 97 (§6 for the local app cold LCP) |
+| Bundle budgets | ✅ | musalli initial JS 186.75 / 187 kB gz (owner rule O24); admin 213.2 / 220 kB |
+| Lighthouse (mobile) | ✅ | CI `9a391d6`: warm PASS both apps (F56 fixed); cold admin PASS; cold app LCP **2505 ms** — 5 ms over the 2.5 s target, within the recorded 100 ms tolerance (owner rule, #136); performance 95 |
 | phase-verifier | fixed → re-run | first run FAIL (3 blockers, 4 should-fix): all fixed or recorded (#135) |
 | security-reviewer | 0 HIGH / 0 MEDIUM open | M1, M2 fixed; L2–L5 fixed; L1 tracked as F53 (#135) |
 
@@ -108,7 +108,9 @@ right order.
 - **F50 polish moved to Phase 9:** the upload progress ring and the Home tile's "just published" pulse (#135).
 - **T3.0 motion** — passes within the owner-accepted tolerance of 65 ms / 8 % (#116), not the strict 08 §8 numbers.
 - **T3.1 inbox banner** — waits for the inbox it points to (Phase 5 / Phase 8; F57).
-- **Initial JS 186.61 kB** — over the original 170 kB target, within the owner's 187 kB limit (O24, quality over
+- **Cold LCP 2505 ms** (CI) — within a recorded 100 ms tolerance over the 2.5 s target (#136, your rule for small
+  overruns).
+- **Initial JS 186.75 kB** — over the original 170 kB target, within the owner's 187 kB limit (O24, quality over
   bundle size).
 
 ## 6. Known limitations / follow-ups

@@ -2072,4 +2072,24 @@ on `a75d4d8`; CLAUDE.md §5 (fix every HIGH/MEDIUM, justify LOWs).
 **Consequences:** api int 272, db int 290, ui 310, admin +8, domain 192 (100 % again — `formatPhone` has no
 unreachable branch); one more migration (0015); owner O25 creates `audio_m4a` as `ac_aac,br_48k`.
 
+### #136 — Cold LCP gets a recorded 100 ms tolerance; Latin times are LTR-isolated in Urdu sentences (Phase 03 close) — ACCEPTED (Claude Code under the owner's standing rule, 6 Nov 2026)
+**Context:** CI `9a391d6` (run 42157915597): e2e 255 passed, perf 18 passed, Lighthouse warm PASS on both apps (F56
+fixed), but the musalli app's **cold** LCP was **2505 ms** against the 2500 ms target (median of 5; performance 95; a
+fresh browser per run since #134). The owner's standing rule (3 Nov 2026, #116): a few ms over a perf budget is
+acceptable with an explicit, recorded tolerance — do not trade quality or spend sessions on it.
+**Decision:**
+- `COLD_BUDGETS.tolerance`: LCP may exceed the 2.5 s target by up to **100 ms** before the page fails; within it the
+  run prints "over the 2500 ms target, within the 100 ms tolerance (DECISIONS #136)" — reported, never silent. The 01 §9
+  target itself is unchanged; every other budget has no tolerance.
+- **F58 (found in the Phase 03 Urdu screenshots, fixed):** a Latin time inside an Urdu sentence showed as "PM 8:45" and
+  a range as "AM – 2:00 PM 10:00" (bidi reordering). Times are now LTR isolates (U+2066 … U+2069, `ltrIsolate` in
+  `@mc/i18n/template-args`) wherever they are put into a sentence: template params `time` / `time_range` (phones
+  already were), the blood-camp card's hours, the khutbah line, the Eid card's times (each isolated, the list in the page
+  direction). The voice player's elapsed / remaining labels follow the page direction (elapsed at the slider's start —
+  the right in Urdu), each reading LTR. Visual baselines regenerated in the pinned Linux image: Urdu announcements and
+  Home now read correctly; Home in every locale also loses the Qibla placeholder (dev / staging builds only since
+  Phase 02 — the old baselines predate that and stayed within the pixel tolerance).
+**Consequences:** `packages/config/test/lighthouse.test.ts` covers the tolerance; e2e text checks allow the isolates;
+the owner sees the cold-LCP number in the Phase 03 report.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._

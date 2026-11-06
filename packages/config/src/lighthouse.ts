@@ -7,8 +7,13 @@ export type MetricId = 'largest-contentful-paint' | 'cumulative-layout-shift' | 
 export interface LighthouseBudgets {
   /** Minimum category scores, 0–1. */
   readonly categories: Readonly<Record<CategoryId, number>>;
-  /** Maximum metric values (ms; CLS unitless). */
+  /** Maximum metric values (ms; CLS unitless) — the 01 §9 targets. */
   readonly metrics: Readonly<Partial<Record<MetricId, number>>>;
+  /**
+   * How far over its target a metric may go before the page fails (the owner's rule for small overruns — DECISIONS
+   * #136); an overrun within it is reported as a note, never silently passed.
+   */
+  readonly tolerance?: Readonly<Partial<Record<MetricId, number>>>;
 }
 
 /**
@@ -19,6 +24,9 @@ export interface LighthouseBudgets {
 export const COLD_BUDGETS: LighthouseBudgets = {
   categories: { performance: 0.9, accessibility: 0.95, 'best-practices': 0.95 },
   metrics: { 'largest-contentful-paint': 2500, 'cumulative-layout-shift': 0.05, 'total-blocking-time': 200 },
+  // CI 6 Nov 2026: the musalli app's cold LCP measured 2505 ms (median of 5, a fresh browser per run — #134); the
+  // owner accepts a few ms over a perf budget with a recorded tolerance (#116, #136).
+  tolerance: { 'largest-contentful-paint': 100 },
 };
 
 /** 01 §9 "LCP (warm, SW) ≤ 1.0 s": repeat visits served by the service worker. */
@@ -110,6 +118,8 @@ export interface PageResult {
   readonly metrics: Readonly<Partial<Record<MetricId, number>>>;
   /** Human-readable budget failures; empty = pass. */
   readonly failures: readonly string[];
+  /** Metrics over their target but within the tolerance (reported, not failing). */
+  readonly notes: readonly string[];
 }
 
 const format = (id: MetricId, value: number): string =>
@@ -125,6 +135,7 @@ export function evaluateBudgets(runs: readonly RunSummary[], budgets: Lighthouse
   for (const run of runs) byUrl.set(run.url, [...(byUrl.get(run.url) ?? []), run]);
   return [...byUrl].map(([url, pageRuns]) => {
     const failures: string[] = [];
+    const notes: string[] = [];
     const categories: Partial<Record<CategoryId, number>> = {};
     for (const id of CATEGORIES) {
       const value = median(pageRuns.flatMap((run) => run.categories[id] ?? []));
@@ -142,8 +153,15 @@ export function evaluateBudgets(runs: readonly RunSummary[], budgets: Lighthouse
       if (value !== undefined) metrics[id] = value;
       if (max === undefined) continue;
       if (value === undefined) failures.push(`${id}: not measured`);
-      else if (value > max) failures.push(`${id}: ${format(id, value)} > ${format(id, max)}`);
+      else if (value > max) {
+        const allowed = budgets.tolerance?.[id] ?? 0;
+        if (value > max + allowed) failures.push(`${id}: ${format(id, value)} > ${format(id, max)}`);
+        else
+          notes.push(
+            `${id}: ${format(id, value)} over the ${format(id, max)} target, within the ${format(id, allowed)} tolerance`,
+          );
+      }
     }
-    return { url, runs: pageRuns.length, categories, metrics, failures };
+    return { url, runs: pageRuns.length, categories, metrics, failures, notes };
   });
 }
