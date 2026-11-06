@@ -1,7 +1,8 @@
 // Home's view model (07 A2) — pure functions from bundles + the corrected "now" to what the screen shows. All prayer
-// maths is `@mc/domain`; this file only picks the day, the highlighted strip cell, and the Ramadan / Eid cards.
+// maths is `@mc/domain`; this file only picks the day, the highlighted strip cell, and the Ramadan / Eid / adhkar cards.
 import { type Countdown, countdown } from '@mc/domain/countdown';
 import {
+  adhkarWindow,
   dailySlots,
   isRamadanActive,
   type JamaatSlot,
@@ -13,7 +14,7 @@ import {
   resolveSchedule,
 } from '@mc/domain/prayer';
 import { addDays, calendarDateInZone, compareCalendarDates } from '@mc/domain/time';
-import type { ActiveMasjidBundle, FeedItem, SpecialDate } from '@mc/shared/contracts/public';
+import type { ActiveMasjidBundle, FeedItem, LibraryEntry, SpecialDate } from '@mc/shared/contracts/public';
 
 /** The schedule the domain resolves, or `null` until the masjid's admin has set timings. */
 export function scheduleOf(bundle: ActiveMasjidBundle): MasjidSchedule | null {
@@ -98,6 +99,40 @@ export function ramadanView(bundles: readonly ActiveMasjidBundle[], now: Date): 
     };
   }
   return null;
+}
+
+export interface AdhkarView {
+  readonly masjidId: string;
+  readonly prayer: PrayerName | 'jumuah';
+  /** Identifies this prayer's window — "Dismiss" hides the card until the next one (07 A20). */
+  readonly key: string;
+  readonly end: Date;
+  /** The first dhikr of the set (the card shows its Arabic). */
+  readonly first: LibraryEntry;
+}
+
+/**
+ * The "Adhkar after salah" card (07 A20): the first followed masjid with a set, during the 30 minutes after one of its
+ * fard prayers (jamaat, else adhan — `@mc/domain/prayer`); yesterday counts too, for an Isha that runs past midnight.
+ *
+ * @returns `null` between windows, when no followed masjid has a set, or when that masjid has no timings yet.
+ */
+export function adhkarView(bundles: readonly ActiveMasjidBundle[], now: Date): AdhkarView | null {
+  const bundle = bundles.find((candidate) => candidate.adhkar !== null);
+  const first = bundle?.adhkar?.entries[0];
+  const schedule = bundle ? scheduleOf(bundle) : null;
+  if (!bundle || !first || !schedule) return null;
+  const today = calendarDateInZone(now);
+  const days = [addDays(today, -1), today].map((date) => resolveSchedule(schedule, date));
+  const open = adhkarWindow(days, now);
+  if (!open) return null;
+  return {
+    masjidId: bundle.masjid.id,
+    prayer: open.prayer,
+    key: `${bundle.masjid.id}/${open.date}/${open.time}`,
+    end: open.end,
+    first,
+  };
 }
 
 /** Eid card window: today and the next 3 days (07 A2). */

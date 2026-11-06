@@ -38,6 +38,8 @@ const ADMIN_WRITABLE: readonly CollectionName[] = [
   'special_timings',
   'items',
   'chanda_weeks',
+  'ruqyah_entries',
+  'masjid_contacts',
   'content_library',
   'notice_templates',
   'payment_profiles',

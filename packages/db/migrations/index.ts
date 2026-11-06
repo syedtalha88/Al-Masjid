@@ -14,6 +14,13 @@ import s0004 from './0004_devices_push.snapshot.json' with { type: 'json' };
 import s0005 from './0005_moderation_audit.snapshot.json' with { type: 'json' };
 import s0006 from './0006_views.snapshot.json' with { type: 'json' };
 import s0008 from './0008_view_order.snapshot.json' with { type: 'json' };
+import s0009 from './0009_library_dhikr.snapshot.json' with { type: 'json' };
+import s0010 from './0010_template_draft.snapshot.json' with { type: 'json' };
+import s0011 from './0011_item_voice.snapshot.json' with { type: 'json' };
+import s0012 from './0012_masjid_adhkar.snapshot.json' with { type: 'json' };
+import s0013 from './0013_ruqyah.snapshot.json' with { type: 'json' };
+import s0014 from './0014_contacts.snapshot.json' with { type: 'json' };
+import s0015 from './0015_ruqyah_view.snapshot.json' with { type: 'json' };
 
 /** A schema migration from its snapshot file (canonical EJSON → exact BSON types). */
 function schema(id: string, file: unknown): Migration {
@@ -63,4 +70,11 @@ export const MIGRATIONS: readonly Migration[] = [
   schema('0006_views', s0006),
   seedAppSettings,
   schema('0008_view_order', s0008),
+  schema('0009_library_dhikr', s0009),
+  schema('0010_template_draft', s0010),
+  schema('0011_item_voice', s0011),
+  schema('0012_masjid_adhkar', s0012),
+  schema('0013_ruqyah', s0013),
+  schema('0014_contacts', s0014),
+  schema('0015_ruqyah_view', s0015),
 ];

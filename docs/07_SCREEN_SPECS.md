@@ -124,9 +124,8 @@ Device registration failure → retry banner; onboarding continues offline and r
 ## A14. Qibla (full-screen from Home header)
 - Top: back/close; title "Qibla Direction".
 - Center: `Compass` — circular dial (ticks every 5°, N/E/S/W letters always Latin, not mirrored), rotating with device heading; fixed top indicator; **Kaaba marker** on the dial at the qibla bearing; big arrow from center to Kaaba marker. When aligned (±3°): dial ring and arrow turn primary-500, soft pulse, haptic (Android `navigator.vibrate(30)`), text "You are facing the Qibla".
-- Below: "Qibla is 287° from North" (computed), "Distance to Makkah: 3,456 km", current heading, accuracy indicator (good/medium/poor). Location source line: "Using your location" / "Using: Hyderabad" (tap to change city).
-- States: need location permission (explain + button) → need motion permission (iOS: button triggers `DeviceOrientationEvent.requestPermission()`) → calibrating (figure-8 animation "Move your phone in a figure 8") → live. No sensor / desktop → **Map mode**: MapLibre map (lazy chunk, tile provider decided in Phase 7 DECISIONS) with a great-circle line from user to Kaaba and bearing text; plus instructions.
-- Keep screen awake while open (Wake Lock API where available).
+- Below: "Qibla is 287° from North" (computed), "Distance to Makkah: 3,456 km". Location source line: "Using your location" / "Using: <first followed masjid>" (tap → "Use my location").
+- States (simple cards): need location (explain + "Use my location", or the masjid's location) → need motion permission (iOS: button triggers `DeviceOrientationEvent.requestPermission()`) → live. No compass / desktop → the dial stays North-up with the Kaaba marker at the bearing, the bearing shown large, and the hint "Face 287° from North — use your phone's compass app if you need to". No map, no city list, no calibration or accuracy indicator (DECISIONS #118).
 
 ## A15. Settings
 Large title "Settings". Grouped list (iOS style, white grouped cards on canvas):

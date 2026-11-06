@@ -31,6 +31,11 @@ export const NAV_CONFIG: NavConfig = {
   modalPaths: ['/scan', '/qibla'],
 };
 
+// Stable props for the navigator's screen slots: new elements / functions on every render defeated their memo, so each
+// router update re-rendered every mounted screen synchronously (≈ 50 ms at 4× CPU on push / pop — F46).
+const PENDING = <RoutePending />;
+const errorFallback = ({ reset }: { readonly reset: () => void }) => <RouteError reset={reset} />;
+
 /** Root of the musalli app: the stack navigator renders every screen; the router owns URLs and history. */
 export function AppNavigator() {
   const router = useRouter();
@@ -56,8 +61,8 @@ export function AppNavigator() {
     <StackNavigator
       adapter={adapter}
       config={NAV_CONFIG}
-      pendingFallback={<RoutePending />}
-      errorFallback={({ reset }) => <RouteError reset={reset} />}
+      pendingFallback={PENDING}
+      errorFallback={errorFallback}
       notFound={NotFoundScreen}
       tabBar={MusalliTabBar}
     />

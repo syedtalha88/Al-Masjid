@@ -39,7 +39,9 @@
     "eidFitr": "ఈదుల్ ఫిత్ర్ నమాజ్",
     "eidAdha": "ఈదుల్ అజ్‌హా నమాజ్",
     "today": "ఈరోజు",
-    "tomorrow": "రేపు"
+    "tomorrow": "రేపు",
+    "adhkar": "నమాజ్ తర్వాత అజ్కార్ · {prayer}",
+    "adhkarDismiss": "తదుపరి నమాజ్ వరకు దాచు"
   },
   "nav": {
     "back": "వెనుకకు",
@@ -94,7 +96,42 @@
     "refreshing": "రిఫ్రెష్ అవుతోంది…",
     "newUpdatesShort": "{count, plural, one {కొత్త అప్‌డేట్} other {కొత్త అప్‌డేట్‌లు}}",
     "reorderHint": "క్రమం మార్చడానికి లాగండి, లేదా బాణం కీలను ఉపయోగించండి.",
-    "khutbah": "ఖుత్బా {time}"
+    "khutbah": "ఖుత్బా {time}",
+    "voice": {
+      "label": "వాయిస్ సందేశం, {duration}",
+      "duration": "{minutes, plural, =0 {} one {# నిమిషం } other {# నిమిషాలు }}{seconds, plural, one {# సెకను} other {# సెకన్లు}}",
+      "play": "ప్లే చేయండి",
+      "pause": "ఆపండి",
+      "position": "వాయిస్ సందేశంలో స్థానం",
+      "positionValue": "{total} లో {elapsed}",
+      "speed": "వేగం {speed}",
+      "unavailable": "ఆన్‌లైన్‌లో ఉన్నప్పుడు అందుబాటులో ఉంటుంది",
+      "badge": "వాయిస్ సందేశం · {duration}"
+    },
+    "ruqyah": {
+      "title": "రుఖ్యా",
+      "category": {
+        "nazar": "నజర్ నుండి రక్షణ",
+        "sihr": "చేతబడి నుండి రక్షణ",
+        "shifa": "షిఫా (స్వస్థత)",
+        "protection": "రోజువారీ రక్షణ",
+        "general": "సాధారణం"
+      },
+      "quoted": "“{text}”",
+      "addedBy": "{masjid} చేర్చింది",
+      "source": "మూలం: {name} · లైసెన్స్: {license}",
+      "instructions": "మస్జిద్ నుండి గమనిక"
+    },
+    "ilm": {
+      "greeting": "అస్సలాము అలైకుమ్",
+      "message": "సందేశం పంపండి",
+      "messageLabel": "{name}కు వాట్సాప్‌లో సందేశం పంపండి"
+    },
+    "camp": {
+      "title": "రక్తదాన శిబిరం",
+      "when": "{date} · {start} – {end}",
+      "contact": "వాట్సాప్‌లో సంప్రదించండి"
+    }
   },
   "hijri": {
     "date": "{day} {month} {year}",

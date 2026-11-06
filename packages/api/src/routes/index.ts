@@ -2,12 +2,18 @@
 // contract always matches what is mounted.
 import type { RouteDefinition } from '../http/define-route.ts';
 import { type AdminAuthDeps, adminSessionRoutes } from './admin-auth.ts';
+import { adminContactRoutes } from './admin-contacts.ts';
+import { adminLibraryRoutes } from './admin-library.ts';
+import { type AdminMasjidRouteDeps, adminMasjidRoutes } from './admin-masjid.ts';
 import { type AdminPasskeyDeps, adminPasskeyRoutes } from './admin-passkeys.ts';
+import { adminRuqyahRoutes } from './admin-ruqyah.ts';
 import { linkPreviewRoutes } from './link-preview.ts';
 import { type PublicRouteDeps, publicRoutes } from './public.ts';
 import { type SuperRouteDeps, superRoutes } from './super.ts';
+import { superLibraryRoutes } from './super-library.ts';
+import { superTemplateRoutes } from './super-templates.ts';
 
-export type AdminRouteDeps = AdminAuthDeps & AdminPasskeyDeps & SuperRouteDeps;
+export type AdminRouteDeps = AdminAuthDeps & AdminPasskeyDeps & SuperRouteDeps & Pick<AdminMasjidRouteDeps, 'media'>;
 export type { PublicRouteDeps };
 
 /** api-public feature routes (03 §3, PHASE_02 T2.2). */
@@ -20,5 +26,15 @@ export function apiPublicRoutes(deps: PublicRouteDeps & { readonly appOrigin?: s
 
 /** api-admin feature routes (03 §4) and Super Admin routes (03 §5, mounted under `/api/super`). */
 export function adminRoutes(deps: AdminRouteDeps): { routes: RouteDefinition[]; superRoutes: RouteDefinition[] } {
-  return { routes: [...adminSessionRoutes(deps), ...adminPasskeyRoutes(deps)], superRoutes: superRoutes(deps) };
+  return {
+    routes: [
+      ...adminSessionRoutes(deps),
+      ...adminPasskeyRoutes(deps),
+      ...adminMasjidRoutes(deps),
+      ...adminLibraryRoutes(deps),
+      ...adminRuqyahRoutes(deps),
+      ...adminContactRoutes(deps),
+    ],
+    superRoutes: [...superRoutes(deps), ...superLibraryRoutes(deps), ...superTemplateRoutes(deps)],
+  };
 }

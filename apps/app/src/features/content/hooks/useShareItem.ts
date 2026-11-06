@@ -2,6 +2,7 @@
 // link is the public landing `/p/:publicId`; the text is "<title> — <masjid>".
 import { useLocale, useTranslation } from '@mc/i18n/react';
 import type { FeedItem, MasjidSummary } from '@mc/shared/contracts/public';
+import { itemKind, itemTitle } from '@mc/ui/content';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 
@@ -10,7 +11,6 @@ import { useAppData } from '../../../lib/data.tsx';
 import { masjidName } from '../../../lib/masjid.ts';
 import { shareNatively, type ShareTarget } from '../../masjid/components/ShareSheet.tsx';
 import { itemLink } from '../lib/actions.ts';
-import { itemKind, itemTitle } from '../lib/item-view.ts';
 
 export function useShareItem() {
   const { t } = useTranslation('content');

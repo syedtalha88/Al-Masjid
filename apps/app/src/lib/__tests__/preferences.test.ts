@@ -153,7 +153,7 @@ describe('clear all data (05 §4, journey 12)', () => {
     };
     mode = 'offline';
     expect(await clearAllData(deps, { caches: cachesLike, queryCache })).toBe('queued');
-    expect(deleted.sort()).toEqual(['mc-api-v1', 'mc-images-v1', 'mc-versions-v1']);
+    expect(deleted.sort()).toEqual(['mc-api-v1', 'mc-audio-v1', 'mc-images-v1', 'mc-versions-v1']);
     expect(await queryCache.entries()).toEqual([]);
     // A cache that cannot be emptied does not stop the rest.
     await wipeCachedContent({ caches: { delete: () => Promise.reject(new Error('blocked')) }, queryCache });

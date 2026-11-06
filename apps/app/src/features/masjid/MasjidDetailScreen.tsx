@@ -28,19 +28,23 @@ import {
   useToast,
   VerifiedBadge,
 } from '@mc/ui/components';
+import { upcomingCamps } from '@mc/ui/content';
 import {
   BellIcon,
   BellSlashIcon,
   BookOpenIcon,
   ChartBarIcon,
+  ChatCircleIcon,
   DotsIcon,
   HandsPrayingIcon,
   HeartIcon,
   MapPinIcon,
   MasjidTile,
   MegaphoneIcon,
+  MoonStarsIcon,
   PlayCircleIcon,
   ShareIcon,
+  ShieldCheckIcon,
 } from '@mc/ui/icons';
 import { useMotionPrefs } from '@mc/ui/motion';
 import { BackIcon, useNavigator, useScreen } from '@mc/ui/navigation';
@@ -50,6 +54,7 @@ import { useNow } from '../../lib/clock.ts';
 import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
 import { masjidName, masjidPlace } from '../../lib/masjid.ts';
 import { mediaUrl } from '../../lib/media.ts';
+import { CampCards } from '../content/components/CampCards.tsx';
 import { ItemList } from '../content/ItemList.tsx';
 import { RamadanCard } from '../home/components/SeasonCards.tsx';
 import { prayerView, ramadanView } from '../home/lib/home-view.ts';
@@ -68,6 +73,9 @@ const SECTION_ICON: Readonly<Record<SectionId, { readonly icon: ReactNode; reado
   announcements: { icon: <MegaphoneIcon />, tone: 'info' },
   hadith: { icon: <BookOpenIcon />, tone: 'info' },
   duas: { icon: <HandsPrayingIcon />, tone: 'primary' },
+  adhkar: { icon: <MoonStarsIcon />, tone: 'primary' },
+  ruqyah: { icon: <ShieldCheckIcon />, tone: 'info' },
+  ilm: { icon: <ChatCircleIcon />, tone: 'primary' },
   campaigns: { icon: <HeartIcon />, tone: 'heart' },
   chanda: { icon: <ChartBarIcon />, tone: 'purple' },
   bayans: { icon: <PlayCircleIcon />, tone: 'primary' },
@@ -111,29 +119,44 @@ function Detail({ masjidId }: { readonly masjidId: string }) {
     const node = scroller.current;
     if (!node) return;
     let frame = 0;
+    // The hero's height comes from a ResizeObserver (delivered after layout) — never read in an animation frame,
+    // where a just-mounted screen's layout is still dirty (F46 trace: 3.6 ms forced layout ~170 ms into the push).
+    let height = 0;
     const paint = () => {
       frame = 0;
       const y = node.scrollTop;
-      const height = hero.current?.offsetHeight ?? 1;
       if (hero.current && !reduced) {
         hero.current.style.transform =
           y >= 0
             ? `translateY(${String(y * PARALLAX)}px)`
-            : `scale(${String(Math.min(1 + -y / height, MAX_OVERSCROLL_SCALE))})`;
+            : `scale(${String(Math.min(1 + -y / Math.max(height, 1), MAX_OVERSCROLL_SCALE))})`;
       }
-      const solid = Math.min(Math.max((y - height * 0.6) / (height * 0.2), 0), 1);
+      // Until the first size arrives the bar stays hidden (the markup starts at the top).
+      const solid = height > 0 ? Math.min(Math.max((y - height * 0.6) / (height * 0.2), 0), 1) : 0;
       if (bar.current) bar.current.style.opacity = String(solid);
       if (barTitle.current) barTitle.current.style.opacity = String(solid);
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(paint);
     };
-    // First values in the next frame: the markup already starts as at the top (bar hidden, hero in place), and reading
-    // `scrollTop` / `offsetHeight` during the mount forced a layout of the new screen inside the tap (T2.14 trace).
-    onScroll();
+    // First values when the size is known: the observer's callback runs right after layout, so reading `scrollTop`
+    // there costs nothing (a restored scroll position paints at once). No layout read during the mount (T2.14 trace).
+    let observer: ResizeObserver | undefined;
+    if (typeof ResizeObserver === 'undefined') {
+      height = hero.current?.offsetHeight ?? 0; // test environments only
+    } else if (hero.current) {
+      observer = new ResizeObserver(([entry]) => {
+        if (!entry) return;
+        height = entry.borderBoxSize[0]?.blockSize ?? entry.contentRect.height;
+        if (frame) cancelAnimationFrame(frame);
+        paint();
+      });
+      observer.observe(hero.current);
+    }
     node.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       cancelAnimationFrame(frame);
+      observer?.disconnect();
       node.removeEventListener('scroll', onScroll);
     };
   }, [reduced, detail.masjid.state]);
@@ -427,7 +450,8 @@ function Overview({
   const navigator = useNavigator();
   const view = useMemo(() => prayerView(bundle, now), [bundle, now]);
   const ramadan = useMemo(() => ramadanView([bundle], now), [bundle, now]);
-  const rows = sectionRows(bundle, detail.pages, seenAt, detail.follow?.followedAt ?? null);
+  const rows = sectionRows(bundle, detail.pages, seenAt, detail.follow?.followedAt ?? null, detail.audience);
+  const camps = useMemo(() => upcomingCamps(detail.pages.get('announcement') ?? [], now), [detail.pages, now]);
   return (
     <div className="flex flex-col gap-4">
       {view ? (
@@ -448,6 +472,7 @@ function Overview({
         <p className="type-callout text-text-secondary">{tc('home.noTimings')}</p>
       )}
       {ramadan ? <RamadanCard view={ramadan} masjid={undefined} /> : null}
+      <CampCards camps={camps} />
       {rows.length > 0 ? (
         <ul className="flex flex-col">
           {rows.map((row) => (

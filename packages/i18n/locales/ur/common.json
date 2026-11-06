@@ -39,7 +39,9 @@
     "eidFitr": "عید الفطر کی نماز",
     "eidAdha": "عید الاضحیٰ کی نماز",
     "today": "آج",
-    "tomorrow": "کل"
+    "tomorrow": "کل",
+    "adhkar": "نماز کے بعد کے اذکار · {prayer}",
+    "adhkarDismiss": "اگلی نماز تک چھپائیں"
   },
   "nav": {
     "back": "واپس",
@@ -94,7 +96,42 @@
     "refreshing": "تازہ ہو رہا ہے…",
     "newUpdatesShort": "{count, plural, one {نئی اپڈیٹ} other {نئی اپڈیٹس}}",
     "reorderHint": "ترتیب بدلنے کے لیے کھینچیں، یا تیر والی کیز دبائیں۔",
-    "khutbah": "خطبہ {time}"
+    "khutbah": "خطبہ {time}",
+    "voice": {
+      "label": "وائس میسج، {duration}",
+      "duration": "{minutes, plural, =0 {} one {# منٹ } other {# منٹ }}{seconds, plural, one {# سیکنڈ} other {# سیکنڈ}}",
+      "play": "چلائیں",
+      "pause": "روکیں",
+      "position": "وائس میسج میں جگہ",
+      "positionValue": "{total} میں سے {elapsed}",
+      "speed": "رفتار {speed}",
+      "unavailable": "آن لائن ہونے پر دستیاب",
+      "badge": "وائس میسج · {duration}"
+    },
+    "ruqyah": {
+      "title": "رقیہ",
+      "category": {
+        "nazar": "نظر سے حفاظت",
+        "sihr": "جادو سے حفاظت",
+        "shifa": "شفا",
+        "protection": "روزانہ کی حفاظت",
+        "general": "عام"
+      },
+      "quoted": "“{text}”",
+      "addedBy": "{masjid} کی طرف سے شامل کیا گیا",
+      "source": "ماخذ: {name} · لائسنس: {license}",
+      "instructions": "مسجد کی طرف سے نوٹ"
+    },
+    "ilm": {
+      "greeting": "السلام علیکم",
+      "message": "پیغام بھیجیں",
+      "messageLabel": "{name} کو واٹس ایپ پر پیغام بھیجیں"
+    },
+    "camp": {
+      "title": "خون کے عطیے کا کیمپ",
+      "when": "{date} · {start} – {end}",
+      "contact": "واٹس ایپ پر رابطہ کریں"
+    }
   },
   "hijri": {
     "date": "{day} {month} {year}",

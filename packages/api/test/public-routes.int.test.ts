@@ -453,7 +453,7 @@ describe('items, Ameen, library, templates', () => {
     expect((await request(app()).get('/api/v1/library/x')).status).toBe(404);
     const templates = await request(app()).get('/api/v1/templates');
     expect(templates.headers['cache-control']).toBe(CACHE.templates);
-    expect((templates.body as { templates: unknown[] }).templates).toHaveLength(8);
+    expect((templates.body as { templates: unknown[] }).templates).toHaveLength(17);
   });
 });
 

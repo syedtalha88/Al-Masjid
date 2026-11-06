@@ -1,0 +1,70 @@
+{
+  "no_water_time_range": {
+    "title": "پانی کی فراہمی بند",
+    "body": "{hours_start} سے {hours_end} تک پانی دستیاب نہیں ہوگا۔"
+  },
+  "electricity_cut_time_range": {
+    "title": "بجلی بند",
+    "body": "{hours_start} سے {hours_end} تک بجلی نہیں رہے گی۔"
+  },
+  "jamaat_time_changed": {
+    "title": "جماعت کا وقت تبدیل",
+    "body": "{from} سے {prayer} کی جماعت {time} بجے ہوگی۔"
+  },
+  "jumuah_timing": {
+    "title": "جمعہ کا وقت",
+    "body": "اس ہفتے جمعہ کی جماعت {time} بجے ہوگی۔"
+  },
+  "eid_salah_timing": {
+    "title": "عید کی نماز",
+    "body": "عید کی نماز {date} کو {time} بجے ہوگی۔ براہِ کرم جلدی تشریف لائیں۔"
+  },
+  "bayan_event": {
+    "title": "بیان",
+    "body": "{date} کو {time} بجے {speaker} کا بیان ہوگا۔ سب کو خوش آمدید۔"
+  },
+  "cleanliness_drive": {
+    "title": "مسجد کی صفائی",
+    "body": "{date} کو {time} بجے مسجد کی صفائی ہوگی۔ رضاکاروں کا خیر مقدم ہے۔"
+  },
+  "parking_closed_date_range": {
+    "title": "پارکنگ بند",
+    "body": "پارکنگ {days_start} سے {days_end} تک بند رہے گی۔"
+  },
+  "wudu_area_maintenance": {
+    "title": "وضو خانے کی مرمت",
+    "body": "{days_start} سے {days_end} تک وضو خانے کی مرمت ہوگی۔ براہِ کرم گھر سے وضو کر کے آئیں۔"
+  },
+  "masjid_closed_repair": {
+    "title": "مرمت کے لیے مسجد بند",
+    "body": "مرمت کی وجہ سے مسجد {days_start} سے {days_end} تک بند رہے گی۔ آپ کے صبر کا شکریہ۔"
+  },
+  "taraweeh_starts": {
+    "title": "تراویح کا آغاز",
+    "body": "تراویح کی نماز {date} سے عشاء کے بعد {time} بجے شروع ہوگی۔"
+  },
+  "iftar_arrangement": {
+    "title": "مسجد میں افطار",
+    "body": "{date} کو مسجد میں افطار کا انتظام ہوگا۔ سب کو خوش آمدید۔"
+  },
+  "lost_and_found": {
+    "title": "گمشدہ اشیا",
+    "body": "مسجد میں ملا: {item}۔ لینے کے لیے براہِ کرم مسجد کے دفتر سے رابطہ کریں۔"
+  },
+  "general_thanks": {
+    "title": "شکریہ",
+    "body": "مسجد کی مدد اور تعاون کرنے والے تمام لوگوں کا شکریہ۔"
+  },
+  "blood_donation_camp": {
+    "title": "خون کے عطیے کا کیمپ",
+    "body": "{date} کو {hours_start} سے {hours_end} تک {place} میں خون کے عطیے کا کیمپ۔ نام لکھوانے کے لیے {contact} پر رابطہ کریں۔"
+  },
+  "timings_updated": {
+    "title": "نماز کے اوقات تبدیل",
+    "body": "اس مسجد کی نماز کے اوقات تبدیل کر دیے گئے ہیں۔ براہِ کرم نئے اوقات دیکھ لیں۔"
+  },
+  "special_timings": {
+    "title": "خاص اوقات",
+    "body": "اس مسجد میں {date} کے لیے خاص اوقات ہیں۔ اوقات کے لیے براہِ کرم خاص تاریخیں دیکھیں۔"
+  }
+}

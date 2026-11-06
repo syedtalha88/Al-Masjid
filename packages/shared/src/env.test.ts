@@ -347,6 +347,24 @@ describe('field rules', () => {
     ).toMatch(/≥ 1/);
   });
 
+  it('media store (T3.6): files only locally (the default there), cloudinary everywhere else; MEDIA_DIR local only', () => {
+    expect(loadServerEnv('api-admin', LOCAL['api-admin']).MEDIA_STORE).toBe('files');
+    expect(loadServerEnv('api-admin', { ...LOCAL['api-admin'], MEDIA_DIR: '/tmp/media' }).MEDIA_DIR).toBe('/tmp/media');
+    expect(loadServerEnv('api-admin', prodAdmin).MEDIA_STORE).toBe('cloudinary');
+    expect(
+      reasonFor(
+        envError(() => loadServerEnv('api-admin', { ...prodAdmin, MEDIA_STORE: 'files' })),
+        'MEDIA_STORE',
+      ),
+    ).toMatch(/cloudinary/);
+    expect(
+      reasonFor(
+        envError(() => loadServerEnv('api-admin', { ...prodAdmin, MEDIA_DIR: '/tmp/media' })),
+        'MEDIA_DIR',
+      ),
+    ).toMatch(/local only/);
+  });
+
   it('outside local: requires NODE_ENV=production and Cloudflare proxy mode', () => {
     expect(
       reasonFor(

@@ -53,6 +53,12 @@ export interface Formatters {
 
 const cache = new Map<Locale, Formatters>();
 
+/** Builds a value on first use: constructing Intl formatters is slow and most are not needed at startup (F56). */
+const lazy = <T>(build: () => T): (() => T) => {
+  let value: T | undefined;
+  return () => (value ??= build());
+};
+
 const isLatin = (text: string) => /^[\p{Script=Latin}\s.]*$/u.test(text);
 const normalizeSpaces = (text: string) => text.trim().replace(/\s+/gu, ' ');
 
@@ -67,90 +73,117 @@ export function formatters(locale: Locale): Formatters {
   if (cached) return cached;
 
   const intlLocale = INTL_LOCALE[locale];
-  const money = new Intl.NumberFormat(MONEY_LOCALE, {
-    style: 'currency',
-    currency: 'INR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-    numberingSystem: 'latn',
-  });
-  const moneyWithPaise = new Intl.NumberFormat(MONEY_LOCALE, {
-    style: 'currency',
-    currency: 'INR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-    numberingSystem: 'latn',
-  });
-  const number = new Intl.NumberFormat(MONEY_LOCALE, { numberingSystem: 'latn', maximumFractionDigits: 0 });
-  const time = new Intl.DateTimeFormat(intlLocale, {
-    hour: 'numeric',
-    minute: '2-digit',
-    hourCycle: 'h12',
-    timeZone: 'UTC',
-    numberingSystem: 'latn',
-  });
-  const dates: Record<DateStyle, Intl.DateTimeFormat> = {
-    short: new Intl.DateTimeFormat(intlLocale, {
-      day: 'numeric',
-      month: 'short',
-      timeZone: DISPLAY_TIME_ZONE,
-      numberingSystem: 'latn',
-    }),
-    medium: new Intl.DateTimeFormat(intlLocale, {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      timeZone: DISPLAY_TIME_ZONE,
-      numberingSystem: 'latn',
-    }),
-    weekday: new Intl.DateTimeFormat(intlLocale, {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-      timeZone: DISPLAY_TIME_ZONE,
-      numberingSystem: 'latn',
-    }),
+  const money = lazy(
+    () =>
+      new Intl.NumberFormat(MONEY_LOCALE, {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+        numberingSystem: 'latn',
+      }),
+  );
+  const moneyWithPaise = lazy(
+    () =>
+      new Intl.NumberFormat(MONEY_LOCALE, {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        numberingSystem: 'latn',
+      }),
+  );
+  const number = lazy(() => new Intl.NumberFormat(MONEY_LOCALE, { numberingSystem: 'latn', maximumFractionDigits: 0 }));
+  const time = lazy(
+    () =>
+      new Intl.DateTimeFormat(intlLocale, {
+        hour: 'numeric',
+        minute: '2-digit',
+        hourCycle: 'h12',
+        timeZone: 'UTC',
+        numberingSystem: 'latn',
+      }),
+  );
+  const dates: Record<DateStyle, () => Intl.DateTimeFormat> = {
+    short: lazy(
+      () =>
+        new Intl.DateTimeFormat(intlLocale, {
+          day: 'numeric',
+          month: 'short',
+          timeZone: DISPLAY_TIME_ZONE,
+          numberingSystem: 'latn',
+        }),
+    ),
+    medium: lazy(
+      () =>
+        new Intl.DateTimeFormat(intlLocale, {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          timeZone: DISPLAY_TIME_ZONE,
+          numberingSystem: 'latn',
+        }),
+    ),
+    weekday: lazy(
+      () =>
+        new Intl.DateTimeFormat(intlLocale, {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short',
+          timeZone: DISPLAY_TIME_ZONE,
+          numberingSystem: 'latn',
+        }),
+    ),
   };
-  const year = new Intl.DateTimeFormat('en-IN', { year: 'numeric', timeZone: DISPLAY_TIME_ZONE });
-  const relative = new Intl.RelativeTimeFormat(`${intlLocale}-u-nu-latn`, { numeric: 'auto' });
-  const list = new Intl.ListFormat(intlLocale, { style: 'long', type: 'conjunction' });
+  const year = lazy(() => new Intl.DateTimeFormat('en-IN', { year: 'numeric', timeZone: DISPLAY_TIME_ZONE }));
+  const relative = lazy(() => new Intl.RelativeTimeFormat(`${intlLocale}-u-nu-latn`, { numeric: 'auto' }));
+  const list = lazy(() => new Intl.ListFormat(intlLocale, { style: 'long', type: 'conjunction' }));
   // Calendar dates are plain days: formatted at UTC midnight so no zone can shift them.
-  const calendarMonth = new Intl.DateTimeFormat(intlLocale, {
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-    numberingSystem: 'latn',
-  });
-  const weekdayShort = new Intl.DateTimeFormat(intlLocale, { weekday: 'short', timeZone: 'UTC' });
-  const calendarDates = {
-    long: new Intl.DateTimeFormat(intlLocale, {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      timeZone: 'UTC',
-      numberingSystem: 'latn',
-    }),
-    medium: new Intl.DateTimeFormat(intlLocale, {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      timeZone: 'UTC',
-      numberingSystem: 'latn',
-    }),
+  const calendarMonth = lazy(
+    () =>
+      new Intl.DateTimeFormat(intlLocale, {
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+        numberingSystem: 'latn',
+      }),
+  );
+  const weekdayShort = lazy(() => new Intl.DateTimeFormat(intlLocale, { weekday: 'short', timeZone: 'UTC' }));
+  const calendarDates: Record<'long' | 'medium', () => Intl.DateTimeFormat> = {
+    long: lazy(
+      () =>
+        new Intl.DateTimeFormat(intlLocale, {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          timeZone: 'UTC',
+          numberingSystem: 'latn',
+        }),
+    ),
+    medium: lazy(
+      () =>
+        new Intl.DateTimeFormat(intlLocale, {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          timeZone: 'UTC',
+          numberingSystem: 'latn',
+        }),
+    ),
   };
 
   const result: Formatters = {
     locale,
     money(paise) {
       if (!Number.isSafeInteger(paise)) throw new RangeError('money(): paise must be a safe integer');
-      return paise % 100 === 0 ? money.format(paise / 100) : moneyWithPaise.format(paise / 100);
+      return paise % 100 === 0 ? money().format(paise / 100) : moneyWithPaise().format(paise / 100);
     },
-    number: (value) => number.format(value),
+    number: (value) => number().format(value),
     time(hhmm) {
       const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(hhmm);
       if (!match) throw new RangeError('time(): expected "HH:mm"');
-      const parts = time.formatToParts(new Date(Date.UTC(2000, 0, 1, Number(match[1]), Number(match[2]))));
+      const parts = time().formatToParts(new Date(Date.UTC(2000, 0, 1, Number(match[1]), Number(match[2]))));
       const periodPart = parts.find((part) => part.type === 'dayPeriod')?.value ?? '';
       const period = isLatin(periodPart) ? periodPart.toUpperCase() : periodPart;
       const clock = normalizeSpaces(
@@ -162,25 +195,27 @@ export function formatters(locale: Locale): Formatters {
       const text = normalizeSpaces(parts.map((part) => (part.type === 'dayPeriod' ? period : part.value)).join(''));
       return { text, time: clock, period };
     },
-    date: (value, style = 'short') => dates[style].format(value),
+    date: (value, style = 'short') => dates[style]().format(value),
     relative(value, now) {
       const seconds = Math.round((value.getTime() - now.getTime()) / 1000);
       const abs = Math.abs(seconds);
-      if (abs < 60) return relative.format(0, 'second');
-      if (abs < 3600) return relative.format(Math.round(seconds / 60), 'minute');
-      if (abs < 86_400) return relative.format(Math.round(seconds / 3600), 'hour');
+      if (abs < 60) return relative().format(0, 'second');
+      if (abs < 3600) return relative().format(Math.round(seconds / 60), 'minute');
+      if (abs < 86_400) return relative().format(Math.round(seconds / 3600), 'hour');
       const days = Math.round(seconds / 86_400);
-      if (Math.abs(days) <= RELATIVE_MAX_DAYS) return relative.format(days, 'day');
-      return year.format(value) === year.format(now) ? dates.short.format(value) : dates.medium.format(value);
+      if (Math.abs(days) <= RELATIVE_MAX_DAYS) return relative().format(days, 'day');
+      return year().format(value) === year().format(now) ? dates.short().format(value) : dates.medium().format(value);
     },
-    list: (items) => list.format(items),
-    calendarMonth: (y, m) => calendarMonth.format(new Date(Date.UTC(y, m - 1, 1))),
+    list: (items) => list().format(items),
+    calendarMonth: (y, m) => calendarMonth().format(new Date(Date.UTC(y, m - 1, 1))),
     // 4 Jan 1970 was a Sunday.
-    weekdayShort: (weekday) => weekdayShort.format(new Date(Date.UTC(1970, 0, 4 + weekday))),
+    weekdayShort: (weekday) => weekdayShort().format(new Date(Date.UTC(1970, 0, 4 + weekday))),
     calendarDate(value, style = 'long') {
       const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
       if (!match) throw new RangeError('calendarDate(): expected "YYYY-MM-DD"');
-      return calendarDates[style].format(new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))));
+      return calendarDates[style]().format(
+        new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))),
+      );
     },
   };
   cache.set(locale, result);

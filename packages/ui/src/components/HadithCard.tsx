@@ -25,6 +25,8 @@ export interface HadithCardProps {
   readonly todayLabel?: string | undefined;
   /** The admin's short note (07 A8 "Note from masjid"). */
   readonly note?: { readonly label: string; readonly text: string } | undefined;
+  /** The masjid's voice note (A18 player — F54): under the note, playable in place. */
+  readonly voice?: ReactNode;
   readonly saved: boolean;
   readonly onToggleSave: () => void;
   /** "Save" / "Saved" (accessible names of the bookmark). */
@@ -54,6 +56,7 @@ export function HadithCard({
   date,
   todayLabel,
   note,
+  voice,
   saved,
   onToggleSave,
   saveLabel,
@@ -109,6 +112,7 @@ export function HadithCard({
           </blockquote>
         </figure>
       ) : null}
+      {voice}
       <div className="mt-1 flex gap-3">
         <Button variant="outline" className="flex-1" leadingIcon={<ShareIcon />} onPress={onShare}>
           {shareLabel}

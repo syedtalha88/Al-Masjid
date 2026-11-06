@@ -228,6 +228,18 @@ describe('masjids', () => {
       { _id: adminId },
       { $set: { status: 'active', undertaking_version: 'draft-1' } },
     );
+    // T3.2: every one of the five prayers needs its jamaat (fixed or offset) before followers can see the masjid.
+    await raw('masjid_timings').updateOne(
+      { _id: id },
+      { $set: { 'prayers.asr.jamaat_mode': 'none' }, $unset: { 'prayers.asr.jamaat_offset_min': '' } },
+    );
+    expect(await errorCode(changeMasjidStatus(h(), superNow(), { masjidId: id, transition: 'activate' }))).toBe(
+      'ACTIVATION_TIMINGS_REQUIRED',
+    );
+    await raw('masjid_timings').updateOne(
+      { _id: id },
+      { $set: { 'prayers.asr.jamaat_mode': 'offset', 'prayers.asr.jamaat_offset_min': 10 } },
+    );
     await changeMasjidStatus(h(), superNow(), { masjidId: id, transition: 'activate' });
     const activated = await raw('masjids').findOne({ _id: id });
     expect(activated).toMatchObject({ status: 'active' });

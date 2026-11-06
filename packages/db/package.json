@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@mc/domain": "workspace:*",
+    "@mc/i18n": "workspace:*",
     "mongodb": "7.6.0",
     "zod": "4.6.6"
   }

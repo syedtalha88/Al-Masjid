@@ -302,6 +302,17 @@ const cloudinaryShape = (isLocal: boolean) => ({
   ),
 });
 
+/**
+ * Where api-admin keeps images (PHASE_03 T3.6): `cloudinary` (required outside local) or `files` — a local directory
+ * (`MEDIA_DIR`, local only) served by the local stack's media site, so local work never uses the real account.
+ */
+const mediaStoreShape = (isLocal: boolean) => ({
+  MEDIA_STORE: isLocal
+    ? z.enum(['cloudinary', 'files'], { error: 'must be cloudinary or files' }).default('files')
+    : z.literal('cloudinary', { error: 'must be cloudinary outside local' }).default('cloudinary'),
+  MEDIA_DIR: isLocal ? nonEmpty.optional() : z.undefined({ error: 'is for local only' }).optional(),
+});
+
 const SERVER_SCHEMAS = {
   'api-public': (appEnv: AppEnv) => {
     const isLocal = appEnv === 'local';
@@ -323,6 +334,7 @@ const SERVER_SCHEMAS = {
       SESSION_PEPPER: base64Bytes(32, false),
       RP_ID: hostname,
       ...cloudinaryShape(isLocal),
+      ...mediaStoreShape(isLocal),
       TURNSTILE_SECRET: requiredOutsideLocal(nonEmpty, isLocal),
       VAPID_PUBLIC_KEY: vapidPublicKey,
       PAYMENT_HOLD_MINUTES: paymentHoldMinutes(appEnv === 'production'),

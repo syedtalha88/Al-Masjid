@@ -38,6 +38,7 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
         'ramadan_end',
         'sehri_precaution_min',
         'iftar_precaution_min',
+        'adhkar',
         'content_version',
       ),
     },
@@ -96,11 +97,14 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
         'source_license',
         'tags',
         'dua_category',
+        'repeat',
+        'occasions',
       ),
     },
   ],
   v_pub_templates: [
-    { $match: { status: 'active' } },
+    // Retired templates stay readable: published notices that used them must still render (DECISIONS #111).
+    { $match: { status: { $in: ['active', 'retired'] } } },
     { $project: keep('category', 'icon', 'is_important_default', 'title', 'body', 'params', 'system') },
   ],
   v_pub_settings: [
@@ -117,6 +121,24 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
         'min_client_version',
       ),
     },
+  ],
+  // Masjid sections (DECISIONS #104): never who added an entry or the admin's rights confirmation. An allow-list, so a
+  // field added to `ruqyah_entries` later is never public by accident (DECISIONS #135).
+  v_pub_ruqyah: [
+    { $match: { status: 'active', masjid_visible: true } },
+    { $sort: { sort: 1, _id: 1 } },
+    {
+      $project: {
+        ...keep('_id', 'masjid_id', 'category', 'source', 'title', 'library_id', 'text', 'instructions'),
+        ...keep('instructions_locale', 'sort', 'audio.key', 'audio.duration_s', 'audio.peaks'),
+      },
+    },
+  ],
+  // Both audiences: the app shows the device's own (a display filter, not access control — DECISIONS #104).
+  v_pub_contacts: [
+    { $match: { status: 'active', masjid_visible: true } },
+    { $sort: { audience: 1, sort: 1, _id: 1 } },
+    { $project: keep('_id', 'masjid_id', 'name', 'role', 'topics', 'whatsapp', 'audience', 'sort') },
   ],
   v_admin_follow_audience: [{ $project: { _id: 0, ...keep('masjid_id', 'muted', 'push_active', 'audience_pref') } }],
 };

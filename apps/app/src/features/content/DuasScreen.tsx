@@ -1,12 +1,11 @@
 // A9 Dua Requests (07 A9, ref-3/3): chips All · Illness · Inteqal · Other; DuaRequestCards (tag + time, "Request for
 // Dua", message, the person only when the family allowed the name, the attached dua in its mint box, janaza row for
 // inteqal) with Ameen (once per device, 08 §5.6); requests older than 30 days in a collapsible "Older" section.
-import { calendarDateInZone, wallClockInZone } from '@mc/domain/time';
-import type { Formatters } from '@mc/i18n/format';
-import { useLocale, useTranslation } from '@mc/i18n/react';
+import { useTranslation } from '@mc/i18n/react';
 import type { FeedItem } from '@mc/shared/contracts/public';
 import { MosqueIllustration } from '@mc/ui';
-import { AmeenButton, ChipGroup, DuaRequestCard, type Tone } from '@mc/ui/components';
+import { ChipGroup } from '@mc/ui/components';
+import { DUA_FILTERS, type DuaFilter, DuaItemCard, filterDuas, splitArchived } from '@mc/ui/content';
 import { CaretDownIcon } from '@mc/ui/icons';
 import { Pressable } from '@mc/ui/motion';
 import { useNavigator, useScreen } from '@mc/ui/navigation';
@@ -17,23 +16,6 @@ import { ContentGate } from './components/ContentGate.tsx';
 import { SectionFrame } from './components/SectionFrame.tsx';
 import { type AmeenApi, useAmeen } from './hooks/useAmeen.ts';
 import { useSection } from './hooks/useSection.ts';
-import { ItemIcon } from './ItemIcon.tsx';
-import { DUA_FILTERS, type DuaFilter, duaPerson, filterDuas, libraryText, splitArchived } from './lib/content-view.ts';
-
-export const DUA_TAG_TONE: Readonly<Record<'illness' | 'inteqal' | 'other', Tone>> = {
-  illness: 'rose',
-  inteqal: 'slate',
-  other: 'primary',
-};
-
-/** "Today, 5:30 PM" / "Sat, 26 Sep, 5:30 PM" (IST) — when the janaza prayer is. */
-export function janazaWhen(at: string, now: Date, format: Formatters, today: string): string {
-  const date = new Date(at);
-  const time = format.time(wallClockInZone(date)).text;
-  return calendarDateInZone(date) === calendarDateInZone(now)
-    ? `${today}, ${time}`
-    : `${format.date(date, 'weekday')}, ${time}`;
-}
 
 export function DuasScreen() {
   const { params } = useScreen();
@@ -111,7 +93,10 @@ function Duas({ masjidId }: { readonly masjidId: string }) {
   );
 }
 
-/** One request — memoised: it re-renders when its own Ameen state or the clock changes. */
+/**
+ * One request (`@mc/ui/content`, the same as the admin preview) — memoised: it re-renders when its own Ameen state or
+ * the clock changes.
+ */
 export const DuaRow = memo(function DuaRow({
   item,
   now,
@@ -121,53 +106,18 @@ export const DuaRow = memo(function DuaRow({
   readonly now: Date;
   readonly ameen: AmeenApi;
 }) {
-  const { t } = useTranslation('content');
-  const { t: tc } = useTranslation();
-  const { locale, format } = useLocale();
   const navigator = useNavigator();
-  const dua = item.dua;
-  if (!dua) return null;
-  const person = duaPerson(item);
-  const library = dua.library;
-  const text = library ? libraryText(library, locale) : null;
-  const count = ameen.count(item.publicId);
-  const when = dua.janazaAt ? janazaWhen(dua.janazaAt, now, format, tc('home.today')) : undefined;
   return (
-    <DuaRequestCard
-      icon={<ItemIcon item={item} size={56} />}
-      tag={{ label: t(`tag.${dua.category}`), tone: DUA_TAG_TONE[dua.category] }}
-      time={format.relative(new Date(item.publishedAt), now)}
-      title={t('requestForDua')}
-      message={item.body ?? ''}
-      person={person?.kind === 'named' ? t('forPerson', { name: person.name }) : person ? t('forPrivate') : undefined}
-      dua={
-        library && text
-          ? {
-              arabic: library.arabic,
-              transliteration: text.transliteration,
-              translation: text.translation,
-              translationTag: text.fallback ? t('english') : undefined,
-            }
-          : undefined
-      }
-      janaza={
-        dua.category === 'inteqal' && when
-          ? dua.janazaPlace
-            ? t('janaza', { when, place: dua.janazaPlace })
-            : t('janazaTime', { when })
-          : undefined
-      }
-      footer={
-        <AmeenButton
-          said={ameen.said(item.publicId)}
-          onSay={() => {
-            ameen.say(item.publicId);
-          }}
-          label={t('ameen')}
-          saidLabel={t('ameenSaid')}
-          count={count === undefined ? undefined : t('ameenCount', { count })}
-        />
-      }
+    <DuaItemCard
+      item={item}
+      now={now}
+      ameen={{
+        said: ameen.said(item.publicId),
+        count: ameen.count(item.publicId),
+        onSay: () => {
+          ameen.say(item.publicId);
+        },
+      }}
       onPress={() => {
         navigator.push(`/items/${item.publicId}`);
       }}

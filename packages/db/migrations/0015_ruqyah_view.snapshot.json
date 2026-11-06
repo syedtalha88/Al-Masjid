@@ -1,0 +1,70 @@
+{
+  "collections": [],
+  "views": [
+    {
+      "name": "v_pub_ruqyah",
+      "viewOn": "ruqyah_entries",
+      "pipeline": [
+        {
+          "$match": {
+            "status": "active",
+            "masjid_visible": true
+          }
+        },
+        {
+          "$sort": {
+            "sort": {
+              "$numberInt": "1"
+            },
+            "_id": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": {
+              "$numberInt": "1"
+            },
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "category": {
+              "$numberInt": "1"
+            },
+            "source": {
+              "$numberInt": "1"
+            },
+            "title": {
+              "$numberInt": "1"
+            },
+            "library_id": {
+              "$numberInt": "1"
+            },
+            "text": {
+              "$numberInt": "1"
+            },
+            "instructions": {
+              "$numberInt": "1"
+            },
+            "instructions_locale": {
+              "$numberInt": "1"
+            },
+            "sort": {
+              "$numberInt": "1"
+            },
+            "audio.key": {
+              "$numberInt": "1"
+            },
+            "audio.duration_s": {
+              "$numberInt": "1"
+            },
+            "audio.peaks": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

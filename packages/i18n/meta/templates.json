@@ -1,0 +1,130 @@
+{
+  "no_water_time_range.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "no_water_time_range.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "electricity_cut_time_range.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "electricity_cut_time_range.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "jamaat_time_changed.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "jamaat_time_changed.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "jumuah_timing.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "jumuah_timing.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "eid_salah_timing.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "eid_salah_timing.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "bayan_event.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "bayan_event.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "cleanliness_drive.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "cleanliness_drive.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "parking_closed_date_range.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "parking_closed_date_range.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "wudu_area_maintenance.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "wudu_area_maintenance.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "masjid_closed_repair.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "masjid_closed_repair.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "taraweeh_starts.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "taraweeh_starts.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "iftar_arrangement.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "iftar_arrangement.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "lost_and_found.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "lost_and_found.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "general_thanks.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "general_thanks.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "blood_donation_camp.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "blood_donation_camp.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  },
+  "timings_updated.title": {
+    "context": "Notice template title (shown as the notice heading and in the admin template grid)",
+    "maxLength": 60
+  },
+  "timings_updated.body": {
+    "context": "Notice template body; {placeholders} are filled with times, dates, names — keep them",
+    "maxLength": 400
+  }
+}

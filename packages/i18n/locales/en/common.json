@@ -39,7 +39,9 @@
     "eidFitr": "Eid ul-Fitr Salah",
     "eidAdha": "Eid ul-Adha Salah",
     "today": "Today",
-    "tomorrow": "Tomorrow"
+    "tomorrow": "Tomorrow",
+    "adhkar": "Adhkar after salah · {prayer}",
+    "adhkarDismiss": "Hide until the next salah"
   },
   "nav": {
     "back": "Back",
@@ -94,7 +96,42 @@
     "refreshing": "Refreshing…",
     "newUpdatesShort": "{count, plural, one {new update} other {new updates}}",
     "reorderHint": "Drag to reorder, or use the arrow keys.",
-    "khutbah": "Khutbah {time}"
+    "khutbah": "Khutbah {time}",
+    "voice": {
+      "label": "Voice message, {duration}",
+      "duration": "{minutes, plural, =0 {} one {# minute } other {# minutes }}{seconds, plural, one {# second} other {# seconds}}",
+      "play": "Play",
+      "pause": "Pause",
+      "position": "Position in the voice message",
+      "positionValue": "{elapsed} of {total}",
+      "speed": "Playback speed {speed}",
+      "unavailable": "Available when online",
+      "badge": "Voice message · {duration}"
+    },
+    "ruqyah": {
+      "title": "Ruqyah",
+      "category": {
+        "nazar": "Protection from Nazar",
+        "sihr": "Protection from black magic",
+        "shifa": "Healing (Shifa)",
+        "protection": "Daily protection",
+        "general": "General"
+      },
+      "quoted": "“{text}”",
+      "addedBy": "Added by {masjid}",
+      "source": "Source: {name} · Licence: {license}",
+      "instructions": "Note from the masjid"
+    },
+    "ilm": {
+      "greeting": "Assalamu alaikum",
+      "message": "Message",
+      "messageLabel": "Message {name} on WhatsApp"
+    },
+    "camp": {
+      "title": "Blood donation camp",
+      "when": "{date} · {start} – {end}",
+      "contact": "Contact on WhatsApp"
+    }
   },
   "hijri": {
     "date": "{day} {month} {year}",

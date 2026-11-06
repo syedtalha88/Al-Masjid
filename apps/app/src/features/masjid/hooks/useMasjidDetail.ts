@@ -4,7 +4,7 @@ import type { ActiveMasjidBundle, FeedItem, ItemType } from '@mc/shared/contract
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { bundleQuery, feedQuery, versionsQuery } from '../../../lib/api/queries.ts';
+import { bundleQuery, feedQuery, previousBundle, versionsQuery } from '../../../lib/api/queries.ts';
 import { useAppData, useDeviceSelector } from '../../../lib/data.tsx';
 import type { LocalFollow } from '../../../lib/device/store.ts';
 import { useHomeData } from '../../home/hooks/useHomeData.ts';
@@ -20,11 +20,13 @@ export interface MasjidDetailData {
   /** This device's follow (pending unfollows excluded), or `null`. */
   readonly follow: LocalFollow | null;
   readonly pages: ReadonlyMap<ItemType, readonly FeedItem[]>;
+  /** The device's Brother/Sister choice (feeds and Ilm contacts). */
+  readonly audience: 'brothers' | 'sisters';
   readonly retry: () => void;
 }
 
 export function useMasjidDetail(masjidId: string): MasjidDetailData {
-  const { api } = useAppData();
+  const { api, queryClient } = useAppData();
   const follows = useDeviceSelector((state) => state.follows);
   const audiencePref = useDeviceSelector((state) => state.audiencePref);
   const home = useHomeData();
@@ -37,6 +39,7 @@ export function useMasjidDetail(masjidId: string): MasjidDetailData {
   const own = useQuery({
     ...bundleQuery(api, masjidId, ownVersion?.v ?? 0),
     enabled: followed === undefined && ownVersion !== undefined,
+    placeholderData: () => previousBundle(queryClient, masjidId, ownVersion?.v ?? 0),
   });
 
   const masjid: DetailState = (() => {
@@ -73,6 +76,7 @@ export function useMasjidDetail(masjidId: string): MasjidDetailData {
     masjid,
     follow,
     pages,
+    audience,
     retry: () => {
       void home.refresh();
       void versions.refetch();

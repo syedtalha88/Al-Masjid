@@ -219,6 +219,16 @@ export const superDashboardSchema = z
     counts: z.object({ pending: z.number(), active: z.number(), suspended: z.number(), deleted: z.number() }),
     /** Passkeys revoked in the last 30 days because their sign counter went backwards (possible clone, 04 §3). */
     passkeyAlerts: z.number().int().min(0),
+    /** Admins' open "Request change" notes (B13, T3.10) — closed by the next edit of that masjid. */
+    changeRequests: z.array(
+      z.object({
+        id: z.string(),
+        masjidId: z.string(),
+        masjidName: z.string(),
+        note: z.string(),
+        at: z.iso.datetime(),
+      }),
+    ),
   })
   .meta({ id: 'SuperDashboard' });
 export type SuperDashboard = z.infer<typeof superDashboardSchema>;

@@ -9,7 +9,7 @@ export interface ArabicTextProps {
   readonly variant?: 'hero' | 'body';
   readonly align?: 'center' | 'start';
   /** Reader text size factor (07 A8 A−/A+, 0.8–1.6): size and line height grow together from the type token. */
-  readonly scale?: number;
+  readonly scale?: number | undefined;
   readonly className?: string;
 }
 

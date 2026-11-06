@@ -82,6 +82,17 @@ describe('safeText (04 §6)', () => {
     expect(name.meta()).toMatchObject({ minLength: 1, maxLength: 60 });
   });
 
+  it('Arabic number / end-of-ayah signs only with `arabicSigns` (library Arabic); bidi controls never', () => {
+    const sign = (code: number) => `نص ${String.fromCodePoint(code)}١ تجريبي`; // 10 §5 placeholder words
+    const library = safeText(100, { min: 1, multiline: true, arabicSigns: true });
+    for (const code of [0x0600, 0x0605, 0x06dd, 0x08e2]) {
+      expect(name.safeParse(sign(code)).success).toBe(false);
+      expect(library.safeParse(sign(code)).success).toBe(true);
+    }
+    expect(library.safeParse(sign(0x202e)).success).toBe(false);
+    expect(hasUnsafeCharacters(sign(0x06dd), false, true)).toBe(false);
+  });
+
   it('keeps what Indian scripts need: ZWJ / ZWNJ and the LRM / RLM marks', () => {
     for (const ok of [
       'ट\u0947स\u094Dट\u200Dनाम',

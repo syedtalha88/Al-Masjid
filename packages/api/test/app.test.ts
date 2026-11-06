@@ -9,6 +9,7 @@ import { createAdminApp, createPublicApp } from '../src/app.ts';
 import { defineRoute, type RouteDefinition } from '../src/http/define-route.ts';
 import { ApiProblem } from '../src/http/problem.ts';
 import { redactPath } from '../src/http/request-logger.ts';
+import { MAX_UPLOADS_IN_FLIGHT } from '../src/http/upload.ts';
 import { PROBE_TIMEOUT_MS } from '../src/routes/health.ts';
 import { captureLogger, silentLogger } from './helpers.ts';
 
@@ -200,6 +201,29 @@ describe('error mapper', () => {
     });
     const logged = lines().find((line) => line['msg'] === 'unhandled error');
     expect(logged).toMatchObject({ requestId: 'req-boom-0001', level: 50 });
+  });
+
+  it('a database validation error is logged without its details (the rejected values) — DECISIONS #135', async () => {
+    const { logger, lines } = captureLogger();
+    const failing = defineRoute({
+      method: 'get',
+      path: '/invalid-document',
+      summary: 'test',
+      auth: 'none',
+      responses: { 200: z.object({}) },
+      handler: () => {
+        throw Object.assign(new Error('Document failed validation'), {
+          name: 'MongoServerError',
+          code: 121,
+          codeName: 'DocumentValidationFailure',
+          errInfo: { details: { consideredValue: '+910000000009' } },
+        });
+      },
+    });
+    expectProblem(await request(publicApp([failing], logger)).get('/api/v1/invalid-document'), 500, 'INTERNAL_ERROR');
+    const logged = lines().find((line) => line['msg'] === 'unhandled error');
+    expect(logged?.['err']).toEqual({ name: 'MongoServerError', code: 121, codeName: 'DocumentValidationFailure' });
+    expect(JSON.stringify(lines())).not.toContain('+910000000009');
   });
 
   it('a ZodError from server-side parsing is a 500, not a client error', async () => {
@@ -394,6 +418,111 @@ describe('JSON bodies', () => {
     );
     expect(body['errors']).toEqual([{ path: 'body', code: 'invalid_type' }]);
     expect((await request(publicApp([ping])).post('/api/v1/ping')).status).toBe(200);
+  });
+});
+
+describe('uploads (04 §6 "Files")', () => {
+  const upload = defineRoute({
+    method: 'post',
+    path: '/files',
+    summary: 'test',
+    auth: 'none',
+    upload: { maxBytes: 64 },
+    responses: { 201: z.object({ size: z.number(), filename: z.string(), mimeType: z.string() }) },
+    handler: ({ file, reply }) =>
+      reply(201, { size: file?.bytes.length ?? -1, filename: file?.filename ?? '', mimeType: file?.mimeType ?? '' }),
+  });
+  const json = defineRoute({
+    method: 'post',
+    path: '/things',
+    summary: 'test',
+    auth: 'none',
+    request: { body: z.object({ name: z.string() }) },
+    responses: { 201: z.object({ name: z.string() }) },
+    handler: ({ body, reply }) => reply(201, { name: body.name }),
+  });
+  const app = () => publicApp([upload, json]);
+
+  it('reads one file of at most maxBytes into memory', async () => {
+    const response = await request(app())
+      .post('/api/v1/files')
+      .attach('file', Buffer.from('{"ok":true}'), { filename: 'library.json', contentType: 'application/json' });
+    expect(response.status).toBe(201);
+    expect(response.body).toEqual({ size: 11, filename: 'library.json', mimeType: 'application/json' });
+  });
+
+  it('a file over maxBytes → 413', async () => {
+    expectProblem(
+      await request(app()).post('/api/v1/files').attach('file', Buffer.alloc(65), 'big.json'),
+      413,
+      'PAYLOAD_TOO_LARGE',
+    );
+  });
+
+  it('no file, another field name, a second file or any text field → 400 UPLOAD_INVALID', async () => {
+    const cases = [
+      request(app()).post('/api/v1/files').field('note', 'x'),
+      request(app()).post('/api/v1/files').attach('other', Buffer.from('x'), 'a.json'),
+      request(app())
+        .post('/api/v1/files')
+        .attach('file', Buffer.from('x'), 'a.json')
+        .attach('file', Buffer.from('y'), 'b.json'),
+      request(app()).post('/api/v1/files').field('note', 'x').attach('file', Buffer.from('x'), 'a.json'),
+    ];
+    for (const response of await Promise.all(cases)) expectProblem(response, 400, 'UPLOAD_INVALID');
+  });
+
+  it('a JSON body to an upload route, or multipart to a JSON route → 415', async () => {
+    expectProblem(await request(app()).post('/api/v1/files').send({ name: 'x' }), 415, 'UNSUPPORTED_MEDIA_TYPE');
+    expectProblem(
+      await request(app()).post('/api/v1/things').attach('file', Buffer.from('{"name":"x"}'), 'a.json'),
+      415,
+      'UNSUPPORTED_MEDIA_TYPE',
+    );
+  });
+
+  it('at most MAX_UPLOADS_IN_FLIGHT uploads are held at once; the next one → 503 with Retry-After until one ends', async () => {
+    let open: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      open = resolve;
+    });
+    const slow = defineRoute({
+      method: 'post',
+      path: '/slow',
+      summary: 'test',
+      auth: 'none',
+      upload: { maxBytes: 64 },
+      responses: { 201: z.object({ size: z.number() }) },
+      handler: async ({ file, reply }) => {
+        await gate;
+        return reply(201, { size: file?.bytes.length ?? -1 });
+      },
+    });
+    const held = publicApp([slow, upload]);
+    const send = (path: string) => request(held).post(`/api/v1${path}`).attach('file', Buffer.from('x'), 'a.json');
+    const pending = Array.from({ length: MAX_UPLOADS_IN_FLIGHT }, () => send('/slow').then((response) => response));
+    await new Promise((resolve) => setTimeout(resolve, 200)); // both are inside the handler
+    const refused = await send('/files');
+    expectProblem(refused, 503, 'SERVICE_UNAVAILABLE');
+    expect(refused.headers['retry-after']).toBe('5');
+    open();
+    for (const response of await Promise.all(pending)) expect(response.status).toBe(201);
+    expect((await send('/files')).status).toBe(201);
+  });
+
+  it('`upload` and a body schema cannot be combined', () => {
+    expect(() =>
+      defineRoute({
+        method: 'post',
+        path: '/both',
+        summary: 'test',
+        auth: 'none',
+        upload: { maxBytes: 1 },
+        request: { body: z.object({}) },
+        responses: { 204: z.undefined() },
+        handler: ({ reply }) => reply(204, undefined),
+      }),
+    ).toThrow(/exclude each other/);
   });
 });
 

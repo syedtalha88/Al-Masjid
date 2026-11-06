@@ -20,6 +20,9 @@ export const COLLECTIONS = [
   'ameen_counters',
   'campaign_amount_history',
   'chanda_weeks',
+  // masjid sections (DECISIONS #104)
+  'ruqyah_entries',
+  'masjid_contacts',
   // library & templates
   'content_library',
   'notice_templates',
@@ -55,6 +58,8 @@ export const PUBLIC_VIEWS = [
   'v_pub_library',
   'v_pub_templates',
   'v_pub_settings',
+  'v_pub_ruqyah',
+  'v_pub_contacts',
 ] as const;
 
 /** Views for admin reads that must never expose device ids (02 §4.2). */
@@ -76,6 +81,8 @@ export const CONTENT_COLLECTIONS: readonly CollectionName[] = [
   'special_timings',
   'chanda_weeks',
   'payment_profiles',
+  'ruqyah_entries',
+  'masjid_contacts',
 ];
 
 /** Every namespace (collections + views), in a stable order. */
@@ -93,5 +100,7 @@ export const VIEW_SOURCES: Readonly<Record<ViewName, CollectionName>> = {
   v_pub_library: 'content_library',
   v_pub_templates: 'notice_templates',
   v_pub_settings: 'app_settings',
+  v_pub_ruqyah: 'ruqyah_entries',
+  v_pub_contacts: 'masjid_contacts',
   v_admin_follow_audience: 'device_follows',
 };

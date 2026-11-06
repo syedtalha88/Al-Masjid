@@ -30,6 +30,8 @@ import {
   type RegisterDeviceResponse,
   registerDeviceResponseSchema,
   resolveMasjidResponseSchema,
+  type RuqyahList,
+  ruqyahListSchema,
   type TemplateList,
   templateListSchema,
   type UpdateDeviceRequest,
@@ -198,6 +200,9 @@ export function createApiClient(options: ApiClientOptions) {
         feedPageSchema,
         signal ? { signal } : {},
       ),
+    /** A19 (T3.15): the masjid's Ruqyah entries under their headings. */
+    ruqyah: (masjidId: string, v: number, signal?: AbortSignal): Promise<RuqyahList> =>
+      call(`/masjids/${enc(masjidId)}/ruqyah${query({ v })}`, ruqyahListSchema, signal ? { signal } : {}),
     item: (
       publicId: string,
       params: { v?: number; aud: 'brothers' | 'sisters' },

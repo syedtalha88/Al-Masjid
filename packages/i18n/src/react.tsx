@@ -77,6 +77,58 @@ export function I18nProvider({ children, initialLocale, fallback = null, instanc
   );
 }
 
+export interface LocaleScopeProps {
+  readonly locale: Locale;
+  readonly children: ReactNode;
+  /** Namespaces the subtree needs before it renders (it never shows raw keys). */
+  readonly namespaces: readonly Namespace[];
+  /** Shown until the first locale is ready. */
+  readonly fallback?: ReactNode;
+}
+
+const noSwitch = (): Promise<void> => Promise.resolve();
+
+/**
+ * A subtree in another language than the app's (the admin preview shows how each language sees a post — 07 B5): its
+ * own i18next instance per locale and its own formatters; `<html lang dir>` is untouched, so the caller marks the
+ * subtree with `lang`/`dir`. A locale change keeps the previous language on screen until the next one has loaded.
+ * `setLocale` inside the scope does nothing — the `locale` prop decides.
+ */
+export function LocaleScope({ locale, children, namespaces, fallback = null }: LocaleScopeProps) {
+  const [instances] = useState(() => new Map<Locale, Promise<I18n>>());
+  const [shown, setShown] = useState<{ readonly locale: Locale; readonly i18n: I18n } | null>(null);
+  const nsKey = namespaces.join(',');
+
+  useEffect(() => {
+    let active = true;
+    let pending = instances.get(locale);
+    if (!pending) {
+      pending = createI18n(locale, namespaces);
+      instances.set(locale, pending);
+    }
+    void pending.then((i18n) => {
+      if (active) setShown({ locale, i18n });
+    });
+    return () => {
+      active = false;
+    };
+    // `namespaces` is read through its joined key (callers pass literal arrays).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- nsKey stands for namespaces
+  }, [instances, locale, nsKey]);
+
+  const value = useMemo<LocaleContextValue | null>(
+    () => (shown ? { locale: shown.locale, format: formatters(shown.locale), setLocale: noSwitch } : null),
+    [shown],
+  );
+
+  if (!shown || !value) return fallback;
+  return (
+    <I18nextProvider i18n={shown.i18n}>
+      <LocaleContext value={value}>{children}</LocaleContext>
+    </I18nextProvider>
+  );
+}
+
 /** Current locale, formatters and switcher. Must be used inside `<I18nProvider>`. */
 export function useLocale(): LocaleContextValue {
   const value = use(LocaleContext);

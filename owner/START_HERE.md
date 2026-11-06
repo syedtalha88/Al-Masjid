@@ -42,7 +42,7 @@ unclear or contradictory.
 | 04 | VAPID keys (Claude Code generates; **you back up the private key**) — no new accounts |
 | 05 | Your own UPI ID for a ₹1 test |
 | 06 | Nothing new — bayans are YouTube links (DECISIONS #39); a test video on any YouTube channel you control |
-| 07 | Decision on map tiles for the Qibla fallback |
+| 07 | Nothing — a simple Qibla page (DECISIONS #118) |
 | 08 | Grievance Officer details, lawyer for legal texts |
 | 09 | Production VPS + Atlas production cluster (M10, backups on) + production Cloudinary environment, Google Play developer account, pilot masjids |
 

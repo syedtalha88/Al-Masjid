@@ -70,5 +70,20 @@
   "license": "Licence: {license}",
   "gone": "This post is no longer available",
   "goneBody": "The masjid may have removed it.",
-  "back": "Go back"
+  "back": "Go back",
+  "adhkarTitle": "Adhkar after salah",
+  "emptyAdhkar": "No adhkar yet",
+  "emptyAdhkarBody": "This masjid has not chosen its adhkar after salah yet.",
+  "repeat": "{count, plural, one {Once} other {# times}}",
+  "counter": "Count: {count} of {total}. Tap to count.",
+  "counterDone": "Done: {total} of {total}",
+  "resetCount": "Start the count again",
+  "emptyRuqyah": "No Ruqyah entries yet",
+  "emptyRuqyahBody": "When the masjid adds Ruqyah, it will appear here.",
+  "ilmTitle": "Ask the masjid",
+  "ilmIntro": "For Islamic questions and advice, contact:",
+  "emptyIlm": "No contacts yet",
+  "emptyIlmBody": "When the masjid lists people you can ask, they will appear here.",
+  "ruqyahFailed": "Ruqyah could not be loaded",
+  "ruqyahFailedBody": "Check your connection and try again. Once opened, it stays available offline."
 }

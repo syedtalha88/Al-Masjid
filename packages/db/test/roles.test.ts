@@ -31,6 +31,8 @@ const SPEC: Readonly<Record<Exclude<DbUser, 'mc_migrator'>, Readonly<Partial<Rec
     special_timings: FIU,
     items: FIU,
     chanda_weeks: FIU,
+    ruqyah_entries: FIU,
+    masjid_contacts: FIU,
     content_library: FIU,
     notice_templates: FIU,
     payment_profiles: FIU,

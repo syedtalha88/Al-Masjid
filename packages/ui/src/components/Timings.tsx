@@ -2,6 +2,7 @@
 // (Adhan + Jamaat columns, muted Sunrise row, "calculated" dots, next row tinted) and JumuahCard. Presentational: the
 // screen passes formatted labels and decides which row is next.
 import { Bdi, useLocale, useTranslation } from '@mc/i18n/react';
+import { ltrIsolate } from '@mc/i18n/template-args';
 import type { ReactNode } from 'react';
 
 import { CalendarIcon, CaretLeftIcon, CaretRightIcon } from '../icons/glyphs.tsx';
@@ -179,7 +180,7 @@ export function JumuahCard({ title, rows }: JumuahCardProps) {
               </span>
               {row.khutbah ? (
                 <span className="type-caption text-text-secondary">
-                  {t('ui.khutbah', { time: format.time(row.khutbah).text })}
+                  {t('ui.khutbah', { time: ltrIsolate(format.time(row.khutbah).text) })}
                 </span>
               ) : null}
             </li>

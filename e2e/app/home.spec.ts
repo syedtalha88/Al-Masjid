@@ -22,7 +22,9 @@ const isFriday = (date: string) => new Date(`${date}T12:00:00+05:30`).getUTCDay(
  */
 async function pinClock(page: Page, isoIst: string) {
   await page.clock.install({ time: new Date(isoIst) });
-  await page.route('**/api/v1/**', async (route) => {
+  // The context, not the page: the app's service worker fetches API responses too, and only the context's routes
+  // see those (Chromium) — a Date header through the worker would set the app back to the real time.
+  await page.context().route('**/api/v1/**', async (route) => {
     const response = await route.fetch();
     const headers = { ...response.headers() };
     delete headers['date'];
@@ -41,6 +43,9 @@ test('no masjid yet: the empty state leads to the scanner', async ({ page, expec
   await expectAxeClean();
   await page.getByRole('button', { name: 'Scan masjid QR' }).click();
   await expect(page).toHaveURL(`${APP_URL}/scan`);
+  // The Scan modal without a camera feed (both phones) is axe clean too (PHASE_03 T3.0).
+  await expect(page.getByRole('heading', { name: 'Scan masjid QR' })).toBeVisible();
+  await expectAxeClean();
 });
 
 test('followed masjids: next jamaat counts down across the jamaat start without a reload', async ({

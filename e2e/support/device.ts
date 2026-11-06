@@ -77,7 +77,11 @@ export async function followByCode(page: Page, appUrl: string, codes: readonly s
       }),
     ids,
   );
-  await page.reload();
+  await page.reload().catch(async (error: unknown) => {
+    // WebKit: the app's own start-up navigation can interrupt the reload (CI 6 Nov 2026) — the page still loads.
+    if (!(error instanceof Error) || !error.message.includes('Frame load interrupted')) throw error;
+    await page.waitForLoadState('load');
+  });
   return ids;
 }
 

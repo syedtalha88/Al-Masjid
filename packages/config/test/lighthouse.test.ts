@@ -114,13 +114,13 @@ describe('evaluateBudgets', () => {
 
   it('names every failure with value and limit', () => {
     const runs = [
-      run('https://app/', { performance: 0.85, accessibility: 0.9, bp: 0.94 }, { lcp: 2600, cls: 0.2, tbt: 250 }),
+      run('https://app/', { performance: 0.85, accessibility: 0.9, bp: 0.94 }, { lcp: 2700, cls: 0.2, tbt: 250 }),
     ];
     expect(evaluateBudgets(runs, COLD_BUDGETS)[0]?.failures).toEqual([
       'performance: 85 < 90',
       'accessibility: 90 < 95',
       'best-practices: 94 < 95',
-      'largest-contentful-paint: 2600 ms > 2500 ms',
+      'largest-contentful-paint: 2700 ms > 2500 ms',
       'cumulative-layout-shift: 0.200 > 0.050',
       'total-blocking-time: 250 ms > 200 ms',
     ]);
@@ -140,6 +140,17 @@ describe('evaluateBudgets', () => {
     const result = evaluateBudgets([run('https://app/', {}, { tbt: 5000 })], lcpOnly)[0];
     expect(result?.failures).toEqual([]);
     expect(result?.metrics['total-blocking-time']).toBe(5000);
+  });
+
+  it('cold LCP: over the 2.5 s target but within the 100 ms tolerance is a note; beyond it fails (#136)', () => {
+    const [near] = evaluateBudgets([run('https://app/', {}, { lcp: 2505 })], COLD_BUDGETS);
+    expect(near?.failures).toEqual([]);
+    expect(near?.notes).toEqual([
+      'largest-contentful-paint: 2505 ms over the 2500 ms target, within the 100 ms tolerance',
+    ]);
+    const [over] = evaluateBudgets([run('https://app/', {}, { lcp: 2601 })], COLD_BUDGETS);
+    expect(over?.failures).toEqual(['largest-contentful-paint: 2601 ms > 2500 ms']);
+    expect(evaluateBudgets([run('https://app/', {}, { lcp: 2400 })], COLD_BUDGETS)[0]?.notes).toEqual([]);
   });
 
   it('warm budget: LCP ≤ 1.0 s', () => {

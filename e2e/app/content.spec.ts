@@ -18,7 +18,7 @@ const screen = (page: Page) => page.locator('section[data-screen]:not([inert])')
 async function openSection(
   page: Page,
   code: string,
-  target: { readonly row: RegExp } | { readonly section: 'announcements' | 'hadith' | 'duas' },
+  target: { readonly row: RegExp } | { readonly section: 'announcements' | 'hadith' | 'duas' | 'ruqyah' | 'adhkar' },
   register = false,
 ): Promise<string> {
   await page.goto(APP_URL);
@@ -52,7 +52,9 @@ test('A7: announcements — chips, template body, event badge; detail with photo
   // A template notice: title from the template, body formatted for the locale.
   const water = list.getByRole('button', { name: 'No water supply' });
   await expect(water).toBeVisible();
-  await expect(water).toContainText(/Water will not be available from 10:00\sAM to 2:00\sPM\./);
+  await expect(water).toContainText(
+    /Water will not be available from [\u2066\u2069]?10:00\sAM[\u2066\u2069]? to [\u2066\u2069]?2:00\sPM[\u2066\u2069]?\./,
+  );
   await expect(water).toContainText('Important');
   await expect(list.getByRole('button', { name: 'Children’s weekend class' })).toContainText(/·/);
   await expectAxeClean();
@@ -163,6 +165,64 @@ for (const locale of APP_LOCALES) {
       const settings = (await storedDevice(page))?.['settings'] as { arabicScale: number; transliteration: boolean };
       expect(settings.arabicScale).toBeCloseTo(1.1);
       expect(settings.transliteration).toBe(false);
+    });
+  });
+}
+
+// T3.15 A19: the seed's two Ruqyah entries of Test Masjid Alpha — a library dua under "Healing (Shifa)" (with its source
+// line) and the masjid's own text under "Protection from Nazar" ("Added by", never a source); Arabic never mirrored.
+const RUQYAH_HEADINGS: Readonly<Record<string, readonly [string, string]>> = {
+  en: ['Protection from Nazar', 'Healing (Shifa)'],
+  hi: ['नज़र से हिफ़ाज़त', 'शिफ़ा (इलाज)'],
+  ur: ['نظر سے حفاظت', 'شفا'],
+  te: ['నజర్ నుండి రక్షణ', 'షిఫా (స్వస్థత)'],
+};
+for (const locale of APP_LOCALES) {
+  test.describe(`A19 Ruqyah (${locale})`, () => {
+    test.use({ appLocale: locale });
+
+    test('headings in order; masjid text "Added by", library entry with its source; Arabic not mirrored', async ({
+      page,
+      expectAxeClean,
+      capture,
+    }) => {
+      await openSection(page, 'TESTA001', { section: 'ruqyah' });
+      const view = screen(page);
+      const [nazar = '', shifa = ''] = RUQYAH_HEADINGS[locale] ?? [];
+      const headings = view.locator('[data-ruqyah-section] h2');
+      await expect(headings).toHaveText([nazar, shifa]);
+      const own = view.locator('[data-ruqyah-entry="text"]');
+      // The masjid's name in the app language (seed name_i18n).
+      await expect(own.locator('[data-ruqyah-added-by]')).toContainText(locale === 'en' ? 'Test Masjid Alpha' : /\S/);
+      await expect(own.locator('[data-ruqyah-source]')).toHaveCount(0);
+      await expect(view.locator('[data-ruqyah-entry="library"] [data-ruqyah-source]')).toContainText(
+        'Development fixture',
+      );
+      for (const arabic of await view.getByText(ARABIC).all()) {
+        await expect(arabic).toHaveAttribute('lang', 'ar');
+        await expect(arabic).toHaveAttribute('dir', 'rtl');
+        expect(await arabic.evaluate((node) => getComputedStyle(node).direction)).toBe('rtl');
+      }
+      expect(await page.evaluate(() => document.documentElement.dir)).toBe(locale === 'ur' ? 'rtl' : 'ltr');
+      await expectAxeClean();
+      await capture('a19-ruqyah');
+    });
+  });
+}
+
+// T3.14 A20: the seed's adhkar set of Test Masjid Alpha — the full list with each dhikr's tap counter, in 4 locales.
+for (const locale of APP_LOCALES) {
+  test.describe(`A20 Adhkar after salah (${locale})`, () => {
+    test.use({ appLocale: locale });
+
+    test('the list with its counters; Arabic not mirrored', async ({ page, expectAxeClean, capture }) => {
+      await openSection(page, 'TESTA001', { section: 'adhkar' });
+      const list = screen(page).locator('[data-adhkar-list]');
+      await expect(list.locator('[data-dhikr]').first()).toBeVisible();
+      for (const arabic of await list.getByText(ARABIC).all()) await expect(arabic).toHaveAttribute('dir', 'rtl');
+      expect(await page.evaluate(() => document.documentElement.dir)).toBe(locale === 'ur' ? 'rtl' : 'ltr');
+      await expectAxeClean();
+      await capture('a20-adhkar');
     });
   });
 }

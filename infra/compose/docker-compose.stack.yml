@@ -49,6 +49,12 @@ services:
     <<: *server
     command: ['dist/admin.mjs']
     env_file: ../../.env.local.stack.api-admin
+    # Photos go to the shared media volume, never to the real Cloudinary account (T3.6) — whatever the env file says.
+    environment:
+      MEDIA_STORE: files
+      MEDIA_DIR: /media
+    volumes:
+      - media:/media
     deploy:
       resources:
         limits: { cpus: '0.50', memory: 256m }
@@ -89,6 +95,9 @@ services:
       MEDIA_ORIGIN: https://media.localhost:8443 http://localhost:8790
       API_PUBLIC_UPSTREAM: api-public:8787
       API_ADMIN_UPSTREAM: api-admin:8788
+      # Images (T3.6): files written by api-admin, served at https://media.localhost:8443 and http://localhost:8790.
+      MEDIA_HOST: media.localhost
+      MEDIA_BACKEND: files
     # Non-root (04 §12.2). Locally the internal CA lives in tmpfs (regenerated on restart); on the VPS
     # Caddy uses the Cloudflare Origin CA files mounted read-only.
     user: '1000:1000'
@@ -96,11 +105,14 @@ services:
       - ../caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - ../../apps/app/dist:/srv/app:ro
       - ../../apps/admin/dist:/srv/admin:ro
+      - ../caddy/local:/etc/caddy/local:ro
+      - media:/srv/media:ro
     tmpfs:
       - /data:uid=1000,gid=1000,size=8m
       - /config:uid=1000,gid=1000,size=1m
     ports:
       - '127.0.0.1:8443:8443'
+      - '127.0.0.1:8790:8790'
     read_only: true
     cap_drop: [ALL]
     security_opt:
@@ -124,3 +136,13 @@ services:
         condition: service_healthy
       api-admin:
         condition: service_healthy
+
+volumes:
+  # Uploaded photos in the local stack (T3.6): memory-backed, owned by the server image's user (65532) and readable by
+  # Caddy (1000); gone when the stack stops.
+  media:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: uid=65532,gid=65532,mode=0755,size=256m

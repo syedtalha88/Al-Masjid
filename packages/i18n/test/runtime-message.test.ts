@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatRuntimeMessage } from '../src/runtime-message.ts';
+import { formatRuntimeMessage, messageArguments } from '../src/runtime-message.ts';
 
 describe('formatRuntimeMessage (notice templates arriving from the API)', () => {
   it('fills named arguments', () => {
@@ -28,5 +28,21 @@ describe('formatRuntimeMessage (notice templates arriving from the API)', () => 
   it('caches per locale and message', () => {
     expect(formatRuntimeMessage('{a}', 'ur', { a: '1' })).toBe('1');
     expect(formatRuntimeMessage('{a}', 'ur', { a: '2' })).toBe('2');
+  });
+});
+
+describe('messageArguments (C9 editor and template API checks)', () => {
+  it('lists every argument, including those inside plural branches, sorted and unique', () => {
+    expect(messageArguments('From {from}, {n, plural, one {# day at {time}} other {# days at {time}}}.')).toEqual([
+      'from',
+      'n',
+      'time',
+    ]);
+    expect(messageArguments('No arguments here.')).toEqual([]);
+  });
+
+  it('returns null for text that is not valid ICU', () => {
+    expect(messageArguments('Broken {name')).toBeNull();
+    expect(messageArguments('{n, plural, one {x}')).toBeNull();
   });
 });

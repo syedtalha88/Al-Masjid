@@ -16,6 +16,7 @@ import {
   Spinner,
   TimelineList,
 } from '@mc/ui/components';
+import { ItemIcon, itemKind, itemTitle } from '@mc/ui/content';
 import { Screen, useNavigator, useScreen } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -26,8 +27,6 @@ import { useAppData } from '../../lib/data.tsx';
 import { masjidName } from '../../lib/masjid.ts';
 import { sameElements, sameMap } from '../../lib/same.ts';
 import { setUnseenCount } from '../../lib/unseen.ts';
-import { ItemIcon } from '../content/ItemIcon.tsx';
-import { itemKind, itemTitle } from '../content/lib/item-view.ts';
 import { useHomeData } from '../home/hooks/useHomeData.ts';
 import { useTimeline } from './hooks/useTimeline.ts';
 import { availableFilters, FILTERS, sectionsByDay, type TimelineFilter } from './lib/timeline.ts';

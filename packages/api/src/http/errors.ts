@@ -7,6 +7,17 @@ import { ApiProblem, problemBody, sendProblem } from './problem.ts';
 import { getRequestId } from './request-id.ts';
 
 /**
+ * What the log keeps of an unexpected error. A MongoDB server error (it carries `errInfo`) is cut to its name, code
+ * and code name: a document-validation failure's details hold the rejected values — a contact's number, a private
+ * dua name — which must never reach the logs (DECISIONS #135). Everything else is logged as it is.
+ */
+export function loggableError(error: unknown): unknown {
+  if (typeof error !== 'object' || error === null || !('errInfo' in error)) return error;
+  const field = (key: string): unknown => Reflect.get(error, key);
+  return { name: field('name'), code: field('code'), codeName: field('codeName') };
+}
+
+/**
  * State-function refusals (`StateError` from `@mc/db`) that are answers for the client, mapped to API codes. Anything
  * else a state function throws (an internal invariant such as AUDIT_META or COUNTER_REGRESSION handled by its route)
  * stays a 500, so internal codes never leak.
@@ -27,6 +38,36 @@ const STATE_CODES: Readonly<Record<string, ApiErrorCode>> = {
   INVALID_CURSOR: 'INVALID_CURSOR',
   UNDERTAKING_VERSION_MISMATCH: 'UNDERTAKING_VERSION_MISMATCH',
   ITEM_NOT_FOUND: 'ITEM_NOT_FOUND',
+  LIBRARY_ENTRY_NOT_FOUND: 'LIBRARY_ENTRY_NOT_FOUND',
+  LIBRARY_DUPLICATE: 'LIBRARY_DUPLICATE',
+  LIBRARY_FIELD_NOT_FOR_KIND: 'VALIDATION_FAILED',
+  TEMPLATE_NOT_FOUND: 'TEMPLATE_NOT_FOUND',
+  TEMPLATE_EXISTS: 'TEMPLATE_EXISTS',
+  TEMPLATE_REVIEW_REQUIRED: 'TEMPLATE_REVIEW_REQUIRED',
+  PRECONDITION_FAILED: 'PRECONDITION_FAILED',
+  TIMINGS_INVALID: 'TIMINGS_INVALID',
+  NOTIFY_QUOTA_EXCEEDED: 'NOTIFY_QUOTA_EXCEEDED',
+  ACTIVATION_TIMINGS_REQUIRED: 'ACTIVATION_TIMINGS_REQUIRED',
+  SPECIAL_DATE_NOT_FOUND: 'SPECIAL_DATE_NOT_FOUND',
+  SPECIAL_DATE_INVALID: 'SPECIAL_DATE_INVALID',
+  RAMADAN_INVALID: 'RAMADAN_INVALID',
+  IMAGE_INVALID: 'IMAGE_INVALID',
+  ANNOUNCEMENT_INVALID: 'ANNOUNCEMENT_INVALID',
+  DUA_INVALID: 'DUA_INVALID',
+  EDIT_WINDOW_CLOSED: 'EDIT_WINDOW_CLOSED',
+  ITEM_NOT_EDITABLE: 'ITEM_NOT_EDITABLE',
+  PROFILE_INVALID: 'PROFILE_INVALID',
+  ADHKAR_INVALID: 'ADHKAR_INVALID',
+  RUQYAH_INVALID: 'RUQYAH_INVALID',
+  RUQYAH_NOT_FOUND: 'RUQYAH_NOT_FOUND',
+  RUQYAH_LIMIT_REACHED: 'RUQYAH_LIMIT_REACHED',
+  RUQYAH_ORDER_INVALID: 'RUQYAH_ORDER_INVALID',
+  CONTACT_INVALID: 'CONTACT_INVALID',
+  CONTACT_NOT_FOUND: 'CONTACT_NOT_FOUND',
+  CONTACT_LIMIT_REACHED: 'CONTACT_LIMIT_REACHED',
+  VOICE_INVALID: 'VOICE_INVALID',
+  AUDIO_INVALID: 'AUDIO_INVALID',
+  AUDIO_TOO_LONG: 'AUDIO_TOO_LONG',
   // The authenticated device was deleted meanwhile (Clear all data on another tab): the app registers again.
   DEVICE_NOT_FOUND: 'DEVICE_AUTH_REQUIRED',
 };
@@ -103,7 +144,7 @@ export function errorMapper(logger: Logger, reportError?: ErrorReporter): ErrorR
       }
     }
 
-    logger.error({ err: error, requestId }, 'unhandled error');
+    logger.error({ err: loggableError(error), requestId }, 'unhandled error');
     reportError?.(error, { requestId });
     sendProblem(res, problemBody(500, 'INTERNAL_ERROR', { requestId }));
   };

@@ -9,7 +9,8 @@ import { describe, expect, it } from 'vitest';
 const repo = fileURLToPath(new URL('../../..', import.meta.url));
 const SKIP = new Set(['node_modules', 'dist', 'dev-dist', '.turbo', 'test-results', 'coverage']);
 const SOURCE = /\.(tsx?|css|html|json|webmanifest)$/;
-const RAW_COLOR = /#[0-9a-fA-F]{3,8}\b|\b(rgba?|hsla?|oklch|oklab)\(|\[(#|rgb|hsl)/;
+// `DECISIONS #104` in a comment is a reference, not a #rgb color (three-digit entries since #100).
+const RAW_COLOR = /(?<!DECISIONS )#[0-9a-fA-F]{3,8}\b|\b(rgba?|hsla?|oklch|oklab)\(|\[(#|rgb|hsl)/;
 
 function files(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -19,6 +20,14 @@ function files(dir: string): string[] {
     return SOURCE.test(name) ? [path] : [];
   });
 }
+
+describe('raw color pattern', () => {
+  it('flags colors but not DECISIONS references', () => {
+    expect(RAW_COLOR.test('color: #104;')).toBe(true);
+    expect(RAW_COLOR.test("fill='#a0f'")).toBe(true);
+    expect(RAW_COLOR.test('// see DECISIONS #105')).toBe(false);
+  });
+});
 
 describe('apps/** contain no raw colors', () => {
   it.each(['apps/app', 'apps/admin'])('%s', (app) => {

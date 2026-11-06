@@ -1,0 +1,334 @@
+{
+  "collections": [
+    {
+      "name": "ruqyah_entries",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "masjid_id",
+          "category",
+          "source",
+          "sort",
+          "status",
+          "masjid_visible",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "category": {
+            "bsonType": "string",
+            "enum": ["nazar", "sihr", "shifa", "protection", "general"]
+          },
+          "source": {
+            "bsonType": "string",
+            "enum": ["library", "text", "audio"]
+          },
+          "title": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "80"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "library_id": {
+            "bsonType": "binData"
+          },
+          "text": {
+            "bsonType": "object",
+            "required": ["arabic", "translation", "translation_locale"],
+            "additionalProperties": false,
+            "properties": {
+              "arabic": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "4000"
+                },
+                "minLength": {
+                  "$numberInt": "1"
+                }
+              },
+              "translation": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "2000"
+                },
+                "minLength": {
+                  "$numberInt": "1"
+                }
+              },
+              "translation_locale": {
+                "bsonType": "string",
+                "enum": ["en", "hi", "ur", "te"]
+              },
+              "reference": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "200"
+                },
+                "minLength": {
+                  "$numberInt": "1"
+                }
+              }
+            }
+          },
+          "audio": {
+            "bsonType": "object",
+            "required": ["key", "duration_s", "rights_confirmed"],
+            "additionalProperties": false,
+            "properties": {
+              "key": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "200"
+                },
+                "pattern": "^m/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/a/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              "duration_s": {
+                "bsonType": "int",
+                "minimum": {
+                  "$numberInt": "1"
+                },
+                "maximum": {
+                  "$numberInt": "600"
+                }
+              },
+              "peaks": {
+                "bsonType": "array",
+                "items": {
+                  "bsonType": "int",
+                  "minimum": {
+                    "$numberInt": "0"
+                  },
+                  "maximum": {
+                    "$numberInt": "255"
+                  }
+                },
+                "maxItems": {
+                  "$numberInt": "48"
+                }
+              },
+              "rights_confirmed": {
+                "bsonType": "bool",
+                "enum": [true]
+              }
+            }
+          },
+          "instructions": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "300"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "instructions_locale": {
+            "bsonType": "string",
+            "enum": ["en", "hi", "ur", "te"]
+          },
+          "sort": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "1000000"
+            }
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["active", "deleted"]
+          },
+          "masjid_visible": {
+            "bsonType": "bool"
+          },
+          "created_by": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          },
+          "deleted_at": {
+            "bsonType": "date"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "source": {
+                "enum": ["library"]
+              }
+            },
+            "required": ["library_id"],
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["text"]
+                },
+                {
+                  "required": ["audio"]
+                }
+              ]
+            }
+          },
+          {
+            "properties": {
+              "source": {
+                "enum": ["text"]
+              }
+            },
+            "required": ["text"],
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["library_id"]
+                },
+                {
+                  "required": ["audio"]
+                }
+              ]
+            }
+          },
+          {
+            "properties": {
+              "source": {
+                "enum": ["audio"]
+              }
+            },
+            "required": ["audio", "title"],
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["library_id"]
+                },
+                {
+                  "required": ["text"]
+                }
+              ]
+            }
+          }
+        ],
+        "allOf": [
+          {
+            "anyOf": [
+              {
+                "required": ["instructions", "instructions_locale"]
+              },
+              {
+                "not": {
+                  "anyOf": [
+                    {
+                      "required": ["instructions"]
+                    },
+                    {
+                      "required": ["instructions_locale"]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "oneOf": [
+              {
+                "properties": {
+                  "status": {
+                    "enum": ["deleted"]
+                  }
+                },
+                "required": ["deleted_at"]
+              },
+              {
+                "properties": {
+                  "status": {
+                    "enum": ["active"]
+                  }
+                },
+                "not": {
+                  "anyOf": [
+                    {
+                      "required": ["deleted_at"]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "indexes": [
+        {
+          "name": "masjid_status_category_sort",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "status": {
+              "$numberInt": "1"
+            },
+            "category": {
+              "$numberInt": "1"
+            },
+            "sort": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "deleted_at",
+          "key": {
+            "deleted_at": {
+              "$numberInt": "1"
+            }
+          },
+          "partialFilterExpression": {
+            "deleted_at": {
+              "$type": "date"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "views": [
+    {
+      "name": "v_pub_ruqyah",
+      "viewOn": "ruqyah_entries",
+      "pipeline": [
+        {
+          "$match": {
+            "status": "active",
+            "masjid_visible": true
+          }
+        },
+        {
+          "$sort": {
+            "sort": {
+              "$numberInt": "1"
+            },
+            "_id": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "$unset": ["created_by", "audio.rights_confirmed", "status", "masjid_visible", "deleted_at"]
+        }
+      ]
+    }
+  ]
+}

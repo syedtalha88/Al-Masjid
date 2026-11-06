@@ -44,6 +44,7 @@ export {
 } from './http/rate-limit.ts';
 export { DRAIN_TIMEOUT_MS, type RunningServer, SERVER_TIMEOUTS, startHttpServer } from './http/server.ts';
 export { createLogger } from './logger.ts';
+export { type MediaStore, mediaStoreFromEnv } from './media/store.ts';
 export { buildOpenApiDocument } from './openapi.ts';
 export { adminSessionRoutes } from './routes/admin-auth.ts';
 export { type AdminPasskeyDeps, adminPasskeyRoutes } from './routes/admin-passkeys.ts';

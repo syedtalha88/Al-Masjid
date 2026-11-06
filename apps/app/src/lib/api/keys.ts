@@ -8,12 +8,15 @@ export const queryKeys = {
   config: () => ['config'] as const,
   templates: () => ['templates'] as const,
   versions: (masjidIds: readonly string[]) => ['versions', sortedIds(masjidIds)] as const,
-  bundle: (masjidId: string, v: number) => ['bundle', masjidId, v] as const,
+  /** Without `v`: every cached version of the masjid's bundle (a prefix for cache lookups). */
+  bundle: (masjidId: string, v?: number) =>
+    v === undefined ? (['bundle', masjidId] as const) : (['bundle', masjidId, v] as const),
   /** All bundle queries of a masjid (any version). */
   bundles: (masjidId: string) => ['bundle', masjidId] as const,
   feed: (masjidId: string, v: number, aud: 'brothers' | 'sisters', type?: ItemType) =>
     ['feed', masjidId, v, aud, type ?? 'all'] as const,
   feeds: (masjidId: string) => ['feed', masjidId] as const,
+  ruqyah: (masjidId: string, v: number) => ['ruqyah', masjidId, v] as const,
   item: (publicId: string, aud: 'brothers' | 'sisters') => ['item', publicId, aud] as const,
   ameenCounts: (publicIds: readonly string[]) => ['ameens', sortedIds(publicIds)] as const,
   library: (id: string) => ['library', id] as const,
@@ -29,6 +32,7 @@ export const PERSISTED_ROOTS: ReadonlySet<string> = new Set([
   'versions',
   'bundle',
   'feed',
+  'ruqyah',
   'item',
   'library',
 ]);

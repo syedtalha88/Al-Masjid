@@ -1,7 +1,7 @@
-import type { ActiveMasjidBundle, FeedItem, SpecialDate } from '@mc/shared/contracts/public';
+import type { ActiveMasjidBundle, FeedItem, LibraryEntry, SpecialDate } from '@mc/shared/contracts/public';
 import { describe, expect, it } from 'vitest';
 
-import { eidView, hasUnseen, mergeRecent, prayerView, ramadanView, scheduleOf } from '../home-view.ts';
+import { adhkarView, eidView, hasUnseen, mergeRecent, prayerView, ramadanView, scheduleOf } from '../home-view.ts';
 
 // 07 A2 Home view model: strip day + highlighted cell, next jamaat across prayer boundaries (incl. Friday Jumu'ah and
 // after Isha), Ramadan and Eid cards, recent updates. Fixed jamaat times keep the expectations independent of the
@@ -51,6 +51,7 @@ function bundle(overrides: Partial<ActiveMasjidBundle> = {}, id = '00000000-0000
     },
     specialDates: [],
     ramadan: null,
+    adhkar: null,
     payment: null,
     campaigns: [],
     chanda: null,
@@ -142,6 +143,44 @@ describe('ramadanView', () => {
     expect(ramadanView([bundle({ ramadan })], ist(THURSDAY, '22:00'))?.next).toBeNull();
     expect(ramadanView([bundle({ ramadan })], ist(FRIDAY, '12:00'))).toBeNull();
     expect(ramadanView([bundle({ ramadan, timings: null })], ist(THURSDAY, '12:00'))).toBeNull();
+  });
+});
+
+describe('adhkarView (07 A20, T3.14)', () => {
+  const dhikr: LibraryEntry = {
+    id: '0b7f6c2e-1d4a-4f3b-9c8e-2a1b3c4d5e6f',
+    kind: 'dhikr',
+    arabic: 'نَصٌّ تجريبي للعرض فقط',
+    transliteration: {},
+    translation: { en: 'Sample translation text for development.' },
+    reference: 'DEV-SAMPLE-001',
+    sourceName: 'Development fixture',
+    sourceLicense: 'N/A — not for production',
+    repeat: 33,
+  };
+  const withSet = (id?: string) => bundle({ adhkar: { entries: [dhikr] } }, id);
+
+  it('30 minutes from each jamaat of the first followed masjid with a set', () => {
+    const second = '00000000-0000-4000-8000-000000000002';
+    const view = adhkarView([bundle(), withSet(second)], ist(THURSDAY, '13:40'));
+    expect(view).toMatchObject({ masjidId: second, prayer: 'dhuhr', key: `${second}/${THURSDAY}/13:30`, first: dhikr });
+    expect(view?.end).toEqual(ist(THURSDAY, '14:00'));
+    expect(adhkarView([withSet()], ist(THURSDAY, '13:29'))).toBeNull();
+    expect(adhkarView([withSet()], ist(THURSDAY, '14:00'))).toBeNull();
+    expect(adhkarView([withSet()], ist(FRIDAY, '14:35'))).toMatchObject({ prayer: 'jumuah' });
+  });
+
+  it('after Isha into the night; nothing without a set or timings', () => {
+    const late = withSet();
+    const timings = late.timings
+      ? { ...late.timings, prayers: { ...late.timings.prayers, isha: fixed('23:45') } }
+      : null;
+    expect(adhkarView([{ ...late, timings }], ist(FRIDAY, '00:05'))).toMatchObject({
+      prayer: 'isha',
+      key: `${late.masjid.id}/${THURSDAY}/23:45`,
+    });
+    expect(adhkarView([bundle()], ist(THURSDAY, '13:40'))).toBeNull();
+    expect(adhkarView([bundle({ adhkar: { entries: [dhikr] }, timings: null })], ist(THURSDAY, '13:40'))).toBeNull();
   });
 });
 

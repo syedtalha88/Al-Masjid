@@ -62,6 +62,8 @@ describe('DuaBox / DuaRequestCard', () => {
     expect(arabic.getAttribute('dir')).toBe('rtl');
     expect(arabic.className).toContain('type-arabic-body');
     expect(screen.getByText('English')).toBeTruthy();
+    // F49: the English fallback is isolated, so its full stop stays at its end in the Urdu layout.
+    expect(screen.getByText(TRANSLATION).tagName).toBe('BDI');
   });
 
   it('keeps Ameen outside the card button; the janaza row and person line show', async () => {

@@ -34,8 +34,11 @@ const prayerShape = f.object({
   jamaat_time: opt(f.time()),
   jamaat_offset_min: opt(f.int(0, 60)),
 });
-const mode = (name: string, value: string): BsonSchema => ({ properties: { [name]: { enum: [value] } } });
-const absent = (...fields: string[]): BsonSchema => ({ not: { anyOf: fields.map((name) => ({ required: [name] })) } });
+export const mode = (name: string, value: string): BsonSchema => ({ properties: { [name]: { enum: [value] } } });
+/** None of `fields` may be present. */
+export const absent = (...fields: string[]): BsonSchema => ({
+  not: { anyOf: fields.map((name) => ({ required: [name] })) },
+});
 const prayerRules: readonly BsonSchema[] = [
   {
     oneOf: [
@@ -161,6 +164,23 @@ export const ITEM_DETAIL: Readonly<Record<(typeof ITEM_TYPE)[number], Detail>> =
   video: 'video',
 };
 const detailNames = Object.keys(DETAILS) as Detail[]; // keys of the literal above
+
+/** 02 items.voice (DECISIONS #104, T3.13): a voice note on these types only, and always with a title. */
+export const VOICE_ITEM_TYPES = ['announcement', 'daily_content', 'dua_request'] as const;
+/** `m/<masjid>/a/<recording>` — a stored voice note (T3.13); Ruqyah audio uses the same keys. */
+export const VOICE_KEY_PATTERN =
+  '^m/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/a/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$';
+const voice = f.object({
+  key: f.string(200, { pattern: VOICE_KEY_PATTERN }),
+  duration_s: f.int(1, 600),
+  peaks: opt(f.array(f.int(0, 255), { max: 48 })),
+});
+const voiceRule: BsonSchema = {
+  anyOf: [
+    { not: { required: ['voice'] } },
+    { required: ['title'], properties: { type: { enum: [...VOICE_ITEM_TYPES] } } },
+  ],
+};
 const itemOneOf: BsonSchema[] = detailNames.map((detail) => ({
   properties: { type: { enum: ITEM_TYPE.filter((type) => ITEM_DETAIL[type] === detail) } },
   required: [detail],
@@ -196,11 +216,12 @@ const itemFields = {
   removed_at: opt(f.instant()),
   removed_reason: opt(f.string(300)),
   purge_after: opt(f.instant()),
+  voice: opt(voice),
   ...Object.fromEntries(detailNames.map((detail) => [detail, optionalField(DETAILS[detail])])),
   created_at: f.instant(),
   updated_at: f.instant(),
 };
-const itemsBase = documentSchema(itemFields, { oneOf: itemOneOf });
+const itemsBase = documentSchema(itemFields, { oneOf: itemOneOf, allOf: [voiceRule] });
 const items = {
   jsonSchema: itemsBase.jsonSchema,
   zod: itemsBase.zod.superRefine((value, ctx) => {
@@ -209,6 +230,14 @@ const items = {
     for (const detail of detailNames) {
       if ((detail === want) !== (doc[detail] !== undefined)) {
         ctx.addIssue({ code: 'custom', path: [detail], message: `type ${doc.type} carries exactly "${want}"` });
+      }
+    }
+    if (doc['voice'] !== undefined) {
+      if (!VOICE_ITEM_TYPES.some((type) => type === doc.type)) {
+        ctx.addIssue({ code: 'custom', path: ['voice'], message: `type ${doc.type} carries no voice note` });
+      }
+      if (doc['title'] === undefined) {
+        ctx.addIssue({ code: 'custom', path: ['title'], message: 'a voice note needs a title' });
       }
     }
   }),

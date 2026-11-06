@@ -1,4 +1,6 @@
 // Value mappers between API values and BSON (02 §0): int64 money/counters, UUID ids.
+import { randomBytes } from 'node:crypto';
+
 import { Long, UUID } from 'mongodb';
 
 import { MAX_PAISE } from './schema/dsl.ts';
@@ -30,6 +32,9 @@ export function fromInt64(value: Long | number): number {
 
 /** A new random UUID v4 for an `_id` (DECISIONS #22). */
 export const newId = (): UUID => new UUID();
+
+/** A new random `items.public_id` (02 §2): 12 URL-safe characters, 72 random bits — unguessable share links. */
+export const newPublicId = (): string => randomBytes(9).toString('base64url');
 
 const UUID_TEXT = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 

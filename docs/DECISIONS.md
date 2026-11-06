@@ -1325,6 +1325,771 @@ global. Every section appears only when its masjid has content in it (no extra t
    (T5.8–T5.9). Specs: 00 §4.9–4.15, 02 (enums, collections), 03 (endpoints), 05 (consent, retention), 07 (A18–A24,
    B14–B19), 01 §5.5 / 04 (audio pipeline).
 
-## OPEN
+### #105 — Real-screen motion budget: how F46 was closed (PHASE_03 T3.0) — ACCEPTED (Claude Code, 27 Oct 2026)
+**Context:** `e2e/app/screens.perf.spec.ts` (08 §8 on real screens) was `fixme` since T2.14 (#103) with 50–75 ms taps,
+6–13 % dropped frames and a forced layout on sheet open. CPU profiles (mapped through the hidden source maps) and
+Chrome traces with the timeline-stack category attributed the rest:
+**Decision:**
+- **Navigation is applied as a React transition** (`startTransition` around the navigator's history-driven state
+  update): the affected screens render in 5 ms slices instead of one sync task inside the tap / popstate. Motion is not
+  delayed: a committed swipe already springs from the finger; a push's slide starts in the commit's layout effect.
+- **Stable screen-slot props**: both apps passed a new `pendingFallback` element and `errorFallback` function on every
+  render, defeating every `ScreenSlot` memo — each router update re-rendered every mounted screen. Hoisted to module
+  constants.
+- **Stable query results**: `useQueries` without `combine` returns a new array every render; `useHomeData` now uses
+  module-level `combine` functions, so Home / My Masjids rows and prayer-time computations re-run only when a query
+  result changes.
+- **Motion promises resolve after the frame** (`animateChannel`): completion fires inside Motion's rAF batch and the
+  callers' follow-ups (focus a title, close a dialog, unmount) read layout — they now run in a task after the frame.
+- **Sheet** caches its panel height with the snaps (open, drag start) — no layout read after the drag's transform write.
+- `pnpm test:perf` repeats every perf spec **3×** (`--repeat-each=3`), so one CI run is the "3 in a row" acceptance.
+- Tried and not kept: `content-visibility: hidden` for hidden tabs (WebKit lost their scroll position).
+**Consequences:** the local Windows dev PC is too noisy to judge 50 ms reliably (it varies ±20 ms between runs); CI on
+Linux is the judge. Earlier T2.14 fixes (#103) stay.
+
+### #106 — Content Library search (PHASE_03 T3.4) — ACCEPTED (Claude Code, 28 Oct 2026)
+**Context:** 02 asks for a `search_text` that is "lowercase, NFKD, Arabic harakat/tatweel removed" over all
+translations, transliterations, reference and tags, with a `default_language: "none"` text index, and T3.4 for
+"normalized search incl. Arabic without harakat". Removing every combining mark (the usual NFKD recipe) would also
+remove Devanagari and Telugu vowel signs — letters of the word, not diacritics.
+**Decision:**
+- `@mc/domain/search` `normalizeSearch`: NFKD → lower case → remove Latin combining diacritics (U+0300–036F), Arabic
+  harakat/shadda/sukun/hamza-madda marks/superscript alef, Quranic annotation marks, tatweel, and invisible characters
+  (ZWSP/ZWNJ/ZWJ, direction marks and controls, BOM, soft hyphen) → every non-letter/digit/mark run becomes one space.
+  NFKD followed by mark removal also folds أ إ آ to ا. Indic vowel signs stay. Idempotent (property test).
+- `librarySearchText` puts reference and tags first, then the English translation, Arabic, other translations and
+  transliterations; above the 20 000-character validator limit it is cut at the last whole word, so the identifying
+  fields always survive.
+- Queries use the text index: `searchTerms` (normalized, unique, ≤ 8 words) are each quoted, so `$text` ANDs them
+  (every word must appear). Whole words only — no prefix match: admins mostly tap topic/category chips, and a regex
+  over 20 kB documents would scan the collection on every keystroke.
+**Consequences:** "pati" does not find "patience"; a typed word must be complete. Revisit with real library data if
+admins struggle (T3.12 usability check).
+
+### #107 — Multipart uploads: `@fastify/busboy`, one file, read after auth (PHASE_03 T3.4) — ACCEPTED (Claude Code, 28 Oct 2026)
+**Context:** 01 §4 and 04 §6 name `busboy` for uploads (library import now; images, audio in T3.6/T3.13). `busboy`'s last
+release is 1.6.0 (19 Apr 2022) — "abandoned" under CLAUDE.md §6 (no release in 18 months). The global body gate
+(`jsonBody`, before routing) answered every non-JSON body with 415, so no route could receive a file.
+**Decision:**
+- **`@fastify/busboy` 3.2.4** (the maintained fork, same streaming API and limits; the multipart parser inside undici,
+  Node's `fetch`; no dependencies) in `@mc/api` only — server-side, no client bundle impact.
+- `http/upload.ts` `readUpload`: exactly one part, a file in field `file`, no text fields, a per-route byte limit, held in
+  memory only; violations → 400 `UPLOAD_INVALID` (new code, 4 locales) / 413 `PAYLOAD_TOO_LARGE` / 415.
+- `defineRoute({ upload: { maxBytes } })` reads the file **after** authentication and rate limits (so nobody
+  unauthenticated makes the server buffer a body); `upload` and `request.body` exclude each other. The global gate lets
+  `multipart/form-data` through unparsed, and every route without `upload` answers it with 415 — the "no form posts"
+  rule now holds per route.
+- OpenAPI documents upload routes as `multipart/form-data` with a binary `file`.
+**Consequences:** 01 §4 and 04 §6 now name `@fastify/busboy`. Content checks (magic bytes, JSON schema) stay with each
+route — the claimed file name and type are never trusted.
+
+### #108 — Content Library workflow: import, edit, verify, retire (PHASE_03 T3.4) — ACCEPTED (Claude Code, 28 Oct 2026)
+**Context:** 07 C8 / 03 §5 give the steps (upload → dry-run report → import as `draft` → review → ★ Verify / Retire)
+but not what an edit of a verified entry means, how large a file may be, or whether a partly bad file imports.
+**Decision:**
+- **File:** JSON `{format: "masjid-connect-library", version: 1, entries: [...]}`, ≤ 500 entries, ≤ 4 MB, uploaded as a
+  file (DECISIONS #107). Field names follow 02 (snake_case); unknown keys are errors. JSON Schema:
+  `scripts/library.schema.json` (generated from the Zod contract, byte-compared by a test).
+- **Dry run first, as its own route:** `POST /library/import/dry-run` (no step-up) returns the report — every row
+  error with row number + field path, duplicates (`kind + reference`) within the file and against the whole library
+  (draft, verified and retired). ★`POST /library/import` (step-up) re-validates the same file and imports **all or
+  nothing**: any error or duplicate → nothing is written and the report (status 200) says why, with `imported: 0`; otherwise every row is inserted as `draft` in one transaction with one `import_batch_id` and
+  one `library.import` audit entry (`batch`, `entries`).
+- **Edits (`PATCH /library/:id`):** draft and verified entries only; retired entries are read-only. Changing what an
+  entry *says* (Arabic, translations, transliterations, reference, source, repeat, occasions) sends a verified entry
+  back to `draft` and clears `verified_by/at` — published content must never show unverified words; tags and the dua
+  category are metadata and keep the status. `kind` never changes (retire and re-import instead).
+- **Verify:** draft → verified, `verified_by` (the scholar/reviewer, 2–120 chars) + `verified_at`, audited. Not a ★
+  action: the step-up already guards the import, and verification is the Super Admin's careful per-entry review.
+- **Retire:** draft or verified → retired (final). Items that used the entry keep their reference; the public view
+  hides retired entries, so their library content disappears from bundles (02 `v_pub_library`).
+- `search_text` is recomputed by the data layer on every content change (DECISIONS #106).
+**Consequences:** a fix to a verified translation needs a fresh verification before musallis see the entry again (the
+items that reference it show without the library body until then). Recorded in `docs/content-library-format.md`.
+
+### #109 — Batched navigations: the navigator settles every screen a skipped step moved (PHASE_03 T3.0) — ACCEPTED (Claude Code, 28 Oct 2026)
+**Context:** since #105 navigations are applied as React transitions. React may render several history changes as
+one update (two quick back presses, a pop followed by a push), and the reduced `transition` then describes only the
+last step. The navigator animated just that step: a screen popped by an earlier, skipped step stayed mounted at x = 0,
+inert and on top — taps fell through to the tab layer (CI flake "rapid double push then double pop", 28 Oct 2026). A
+component test reproduces it deterministically (`packages/ui/test/stack-navigator-batching.test.tsx`).
+**Decision:** keep the transition (it removes the 50–100 ms tap task) and make the transition effect independent of
+how many steps were batched: on a push or pop every screen in the tab's `leaving` list slides off with the same spring
+and is unmounted (not only `transition.from`); stack screens below the new top are put at the covered position
+directly; an outgoing screen that a skipped push mounted but never showed is covered without animating across.
+Also: perf failures now list, for every layout forced inside an animation frame, the script calls of that frame
+(and its JS stack with `MC_PERF_STACKS=1`), so a CI-only failure names its cause.
+**Consequences:** a batched double pop looks like one pop that also slides the higher screen away. No change for
+single navigations.
+
+### #110 — T3.0 outcome: synchronous push/pop, transition for tab roots; the perf trace ignores the test driver (PHASE_03 T3.0) — ACCEPTED (Claude Code, 1 Nov 2026)
+**Context:** with every navigation applied as a React transition (#105), CI failed two navigation e2e tests on every
+run ("rapid double push then double pop", and #109's "two pops in one update" — a covered screen swallowing the tap,
+or the top still moving), even after #109. An experiment commit with synchronous navigation (CI run 41290687905) made
+the whole e2e suite green; its perf run showed (a) tab switches dropping 8.6 % of frames without the transition, (b)
+the "layouts forced in animation frames" reported since T3.0 came from `raf@(inline)` — Playwright's injected
+element-stability loop, which reads layout before every click — and (c) one real forced layout: the Masjid Detail hero
+parallax read `scrollTop` / `offsetHeight` in its first animation frame after mount (3.6 ms).
+**Decision:**
+- Push and pop update the navigator synchronously; locations of a tab root (tab switch, pop to root) are applied as a
+  transition. #109 stays (any batched update still settles every screen).
+- The perf analyser does not count a forced layout in a frame that ran only URL-less scripts (the app's CSP allows no
+  inline script, so those are the test driver's); the failure message still lists them, marked.
+- Masjid Detail parallax: the hero height comes from a ResizeObserver, and the first paint runs in its callback (after
+  layout); scroll paints stay rAF-batched.
+**Consequences:** tapping fast through push/pop can never race a deferred stack update. Long tasks on push are
+judged by CI's perf specs as before (#105's other fixes — stable screen props, `combine`, post-frame promises — stay).
+
+### #111 — Notice templates: draft until reviewed, retired ones still render, starters by Super Admin action (PHASE_03 T3.5) — ACCEPTED (Claude Code, 1 Nov 2026)
+**Context:** 02 had `template_status: active | retired` and `translation_reviewed`, and C9 says "translation reviewed"
+is required before activation — but a new template had no state other than active, `v_pub_templates` hid retired
+templates (published notices that used one would lose their text), and the starter set (00 §4.3) needed a home that
+every environment gets, with its translations in the translators' review flow.
+**Decision:**
+- Status `draft` (migration 0010). Created templates are always `draft`; `active` requires `translation_reviewed`;
+  `active → retired`, `retired → active`; never back to draft. Params change only while `draft` (published notices
+  store values by param name). Changing the title or body of an active template must re-confirm the review in the same
+  request. System templates (e.g. `timings_updated`) cannot be retired.
+- `v_pub_templates` shows `active` **and** `retired` (old notices keep rendering); drafts are never public. The admin
+  picker (policy cell) still shows active, non-system templates only.
+- **Starters:** structure in `@mc/i18n/templates`, texts in `locales/*/templates.json` (reviewed through the review
+  CSV like every string; `i18n:check` validates their ICU and placeholder parity). They reach the database through C9's
+  **"Add starter templates"** (Super Admin, as `draft`, existing keys untouched, audited) — not through a migration: the
+  migrator user has no data privileges on `notice_templates`, and a data migration's checksum would break when the
+  translators edit the texts. The dev seed inserts them active for dev/staging.
+- ICU is validated by the API in all four languages (`@mc/i18n/runtime-message` `messageArguments`): valid ICU, no
+  arguments in titles, body arguments only from the params (a range param `x` provides `x_start` / `x_end`); C9 shows
+  the same checks live and renders a preview with sample values.
+- 16 starters: the 14 of 00 §4.3, `blood_donation_camp` (#104), and the system `timings_updated` (T3.2). Icons: a
+  fixed set (`@mc/shared/contracts/template-icons`, glyphs in `@mc/ui` TemplateIcon; eight new Phosphor glyphs).
+**Consequences:** on a new database (production) the Super Admin adds the starters and activates each one after the
+translations are reviewed — a pilot prerequisite (owner). Template text reaches the apps only through the database.
+
+### #112 — Visual baselines pin the API clock too (PHASE_03, CI) — ACCEPTED (Claude Code, 1 Nov 2026)
+**Context:** the visual baselines (#103) are seeded as of `VISUAL_NOW` (21 Oct 2026) and the page clock is pinned, but
+the API filtered special dates against its real clock ("from 7 days ago"); once the real date passed 28 Oct the Eid
+card vanished from Home and the comparison failed — a test that rots with the calendar (CI, 1 Nov 2026).
+**Decision:** the visual spec sets the API clock to `VISUAL_NOW` through the test hook (`PUT /api/v1/test/clock`) and
+resets it afterwards; CI runs the step on the runtime-test stack (after the hooks step). Without the hook the spec
+fails with a message naming the test stack.
+**Consequences:** `pnpm test:visual` needs `pnpm stack:up:test`. Known residue: the baselines predate the Qibla
+button's dev/staging gating (`SHOW_COMING_SOON`); the small compass difference is within the screenshot tolerance —
+refresh the baselines at the next intended UI change.
+
+### #113 — Admin preview = the musalli cards from `@mc/ui/content`, in their own locale scope (PHASE_03 T3.11) — ACCEPTED (Claude Code, 2 Nov 2026)
+**Context:** T3.11 requires the preview to render the real musalli components, imported from a shared path, and to
+be byte-identical to the musalli rendering. The cards were already in `@mc/ui`, but the item → card glue (titles,
+template bodies, tags, dua privacy, janaza line, icons) lived in the musalli app. The preview also has to show a
+language other than the admin's own UI language, at the musalli type scale.
+**Decision:** (1) New path `@mc/ui/content`: `item-view`, `content-view`, `ItemIcon` and `useNoticeBody` moved there
+from the app, plus `AnnouncementItemCard` / `DailyItemCard` / `DuaItemCard` (app concerns — navigation, Ameen, Saved,
+Share — are props) and `FeedItemCard` (a fresh item as its section shows it: notice in A7, "Today's" hero in A8, dua
+with no Ameen yet in A9; buttons are no-ops). The musalli rows are now thin wrappers around them. (2) `LocaleScope`
+in `@mc/i18n/react`: a subtree with its own i18next instance per locale; `<html lang dir>` is untouched; the previous
+language stays on screen until the next one has loaded. (3) CSS `.mc-preview` (generated into `type.css` / `fonts.css`,
+plus `base.css`): musalli scale (no admin +2px) and the preview language's font stack. (4) `@mc/ui/admin`:
+`PreviewFrame` (endonym switcher, phone frame, `lang`/`dir` on the screen, 200 ms crossfade on language change),
+`PublishBar`, `StepHeader`, `PublishSuccess`. Components take every label as a prop (admin i18n keys come with the
+flows in T3.6–T3.8). (5) "Byte-identical" is checked as the DOM HTML of the real musalli row against the preview's
+screen, 5 items × 4 locales, with the admin UI in a different language
+(`apps/app/src/features/content/__tests__/preview-parity.test.tsx`). React `useId` values necessarily differ
+between two trees, so ids are renamed in order of appearance before comparing; nothing else is normalized.
+**Consequences:** any change to a musalli section card changes the preview with it (intended). Musalli initial JS
+185.68 kB (limit 186 kB; +0.4 kB over the last recorded figure). The preview's buttons are real but do nothing.
+Follow-up F49: `DuaBox`'s translation has no `dir="auto"`, so an English fallback in Urdu puts its full stop at the
+start (already true in A9; fixing it changes the Urdu visual baselines).
+
+### #114 — A sheet opens across three tasks (PHASE_03 T3.0) — ACCEPTED (Claude Code, 2 Nov 2026)
+**Context:** the third CI run for T3.0 (41458742300) failed "sheet: open" (My Masjids → Add Masjid): one long task of
+51.6 / 61.5 ms; locally 62–82 ms in 5 of 5 runs. The trace put it all in the tap's task: React's commit, then the
+Sheet's open layout effect — `showModal()` (a forced style recalculation of the whole page, 661 elements, 17–22 ms:
+the rest of the page turns inert and focusability is checked), the focus move (blur/focus events), measuring the
+snaps and starting the spring.
+**Decision:** `Sheet` places the panel off-screen in the layout effect (writes only), calls `showModal()` + focuses the
+title in the next task, and measures + starts the spring in the task after that (`setTimeout(…, 0)`, the same device
+the motion driver uses to keep layout reads out of frames). Not `requestAnimationFrame`: the measurement would be a
+layout forced inside an animation frame (08 §8). Reopening during a close still springs back at once.
+**Consequences:** locally 5 of 5 runs green (from 0 of 5). The dialog exists for one extra task after the commit —
+unit tests wait for it (`findByRole`), as a browser user would. The spring starts one frame later at most; the
+press feedback is unchanged (same frame). `Dialog` (alert dialogs) keeps its synchronous open — no perf case yet.
+
+### #115 — The publish transaction writes the outbox and the quota count as the admin (PHASE_03 T3.2) — ACCEPTED (Claude Code, 2 Nov 2026)
+**Context:** 02 §4.1's matrix gave masjid admins only S on `notification_jobs` and `push_quota_usage`, but DECISIONS
+#9, 01 §5.3 and 02 §2 (`push_quota_usage`: "incremented … inside the publish transaction") have the API write the
+pending outbox job and count the notification in the same transaction as the item — which runs in the admin's scope.
+`mc_admin` already holds find/insert/update on both (02 §4.3); only the policy layer lacked the cells.
+**Decision:** narrow admin cells — `notification_jobs`: I, own masjid, checked: `status: pending`, `sent: 0`,
+`failed: 0`, `bypass_quota: false` (no updates); `push_quota_usage`: I/U, own masjid, only `count` writable. The
+shared publish helpers (`@mc/db/state` `insertPublishedItem`, `enqueueNotification`) are the only callers; the quota is
+counted with a conditional update and a race ends in `NOTIFY_QUOTA_EXCEEDED`, rolling the whole publish back.
+**Consequences:** matrix table and tests updated (admin `SI` / `SIU`); a test proves an admin cannot add a running,
+already-sent, quota-bypassing or other-masjid job, nor change a job or a quota day. Enqueueing to BullMQ after commit
+and the outbox sweeper stay Phase 4 (pending jobs simply wait).
+
+### #116 — Budgets are soft: T3.0 accepted with a recorded tolerance (PHASE_03 T3.0) — ACCEPTED (owner, 3 Nov 2026)
+**Context:** after #105, #109, #110 and #114 the real-screen perf spec (`e2e/app/screens.perf.spec.ts`) was borderline
+in CI: green on `1b12d73`, `1165371`, `cb1649a` and `b72a5c5`, red on `74b1749` (sheet open 51.6 / 61.5 ms, fixed by
+#114) and `58e9391` (push/pop long tasks 52–63 ms, ≈ 50 ms of React work; tab switches 7 % dropped frames) against
+08 §8's 50 ms / 5 %. The owner had said the same about size budgets on 24 Oct 2026 (O24).
+**Decision (owner, 3 Nov 2026):** "I accept the T3.0 with a small tolerance. It's okay if it is lagging by some ms. We
+don't want to compromise on quality … a few KBs or a few ms are manageable and acceptable." The real-screen spec fails
+only beyond **65 ms** long tasks / **8 %** dropped frames (constant `TOLERANCE` in the spec, with this entry's number).
+Forced layouts inside animation frames stay a hard failure; the navigator (T0.9) and Updates-fling (T2.10) specs keep
+the strict 08 §8 numbers. Bundle budgets work the same way: a raise of a few kB is recorded in `.size-limit.js` and
+here, not optimised away at the cost of quality.
+**Consequences:** T3.0 is done. A measurement between the strict number and the tolerance is not a task; one beyond
+it is. The real low-end check stays the owner's (O16, "looks good" 27 Oct 2026).
+
+### #117 — Special dates & Ramadan: rules, API shape, notify, and stale-while-loading bundles (PHASE_03 T3.3) — ACCEPTED (Claude Code, 3 Nov 2026)
+**Context:** 00 §4.2 and 07 B11 give the fields; 03 §4 lists `GET/POST/PATCH/DELETE /special` and `PUT /ramadan`
+without the read of Ramadan settings, the PATCH semantics, the length limits of Ramadan mode or what "Save (+ notify)"
+publishes. The acceptance journey also found that every version bump blanked the musalli screens for a moment.
+**Decision:**
+- Rules in `@mc/domain/special` (screen live checks = data layer): 1–5 times per day, no time twice; the date within
+  ±400 days of today (IST); Ramadan mode start ≤ end, at most **30 days** (start and end included), both within the
+  same window, start/end set together (both `null` = off; the precautions stay). Codes `SPECIAL_DATE_INVALID`,
+  `SPECIAL_DATE_NOT_FOUND`, `RAMADAN_INVALID`.
+- `PATCH /special/:id` takes the **whole entry** (the B11 form always has it): a label or note left out is removed.
+  Delete is soft (`deleted_at`; the public view hides it). The admin list starts 30 days back (recent days stay
+  editable, under "Past"). Added `GET /ramadan` (`{start, end, sehriPrecaution, iftarPrecaution}`, the `PUT` body's
+  shape) — the screen needs the saved state; 03 §4 updated.
+- "Notify followers" on a special date publishes a `timing_update` item with the new **system** template
+  `special_timings` (param `date`, 17th starter, texts in 4 locales for review) and its pending outbox job — the
+  shared `publishTimingUpdate` (also used by `saveTimings`). It starts **on** for today or tomorrow, off otherwise —
+  00 §4.2's rule for timing changes. Saving Ramadan mode never notifies (not asked for; the Ramadan card appears by
+  itself).
+- The musalli special-date card moved to `@mc/ui/content` (`SpecialDateCard`) so B11's preview is the real card (#113).
+- **Bug fixed (musalli):** `useQueries` gives a changed key (`['bundle', id, v]`) a new observer, so after every
+  version bump the screens saw "loading" until the new bundle arrived — Home's card blanked and the A6 tab jumped back
+  to Daily. The placeholder is now the newest cached older bundle of the same masjid (`previousBundle`), and pruning
+  keeps an old bundle until the new version has loaded (Home prunes again once it has).
+**Consequences:** db 13 / api 4 integration tests, domain 8, admin 9, app +2 unit tests; e2e B11 journey (musalli
+sees the entry and the Eid card after one poll, delete, Ramadan card) and B11 × 4 locales screenshots + axe. A
+special date's label/note in the musalli card has no `dir="auto"` yet — part of F49 (next baseline refresh).
+
+### #118 — A simple Qibla page (PHASE_07) — ACCEPTED (owner, 3 Nov 2026)
+**Context:** Phase 07 planned a full compass module: a bundled list of ~500 cities in 4 scripts, magnetic declination,
+accuracy and calibration detection, Wake Lock, and a map fallback with a tile-provider decision.
+**Decision (owner, 3 Nov 2026):** "We don't want to work that much on the Qibla module … just a simple Qibla direction
+page. Just make sure the design is good. For functionality … simple logic would be fine." Kept: the bearing and
+distance math (tested), the arrow turning with the phone's heading where there is a compass, the ±3° aligned state, the
+4-locale design, location on the device only. Location falls back to the first followed masjid's coordinates (no city
+list). No compass → North-up dial with the bearing in degrees. Dropped: map mode and tiles (the owner prerequisite
+goes), the city dataset, declination, accuracy/calibration, Wake Lock.
+**Consequences:** `PHASE_07_QIBLA.md`, 00 §4.5, 07 A14 and 08 §5.9 updated; Phase 07 needs nothing from the owner but
+the final mihrab comparison on two phones.
+
+### #119 — Image pipeline: sharp, explicit media store, Caddy media site (PHASE_03 T3.6, part 1) — ACCEPTED (Claude Code, 3 Nov 2026)
+**Context:** 01 §5.5 / #40 describe the pipeline; no code existed. sharp's prebuilt libvips decodes AVIF but has no
+HEVC, so HEIC cannot be decoded. The owner's local api-admin env holds real Cloudinary keys.
+**Decision:**
+- **sharp 0.35.5** (`@mc/api` + `@mc/server` dependency, external in the bundle, prebuilt binaries — no build
+  script). Accepted by magic bytes: JPEG, PNG, WebP, AVIF; **HEIC refused** with `IMAGE_INVALID` (iPhone Safari uploads
+  JPEG from an `image/*` picker). Pixel count read from the header first (> 40 MP refused before decoding), decoder
+  format must equal the magic bytes, then one JPEG master ≤ 1440 px, EXIF orientation applied, **no metadata**, plus
+  a ThumbHash. Test-only `exif-reader` 2.0.3 proves EXIF/GPS are gone.
+- `POST /masjids/:id/images?purpose=…&rightsConfirmed=true` (multipart `file`, ≤ 10 MB, 30/h per masjid + the session's
+  write budget) → `{imageKey, thumbhash, width, height, urls}`; key `m/<masjid>/<uuid>`; audit `image.upload` with
+  `rights_confirmed` (target id = the image id; `audit_log.target_id` ≤ 64).
+- **`MEDIA_STORE`** = `cloudinary` (required outside local) | `files` (local default, `MEDIA_DIR`): local work never
+  uploads to the real account even with keys present. Cloudinary: signed REST upload/destroy (SHA-256), no SDK.
+- **Caddy media site** `https://{$MEDIA_HOST}` (+ local-only `http://localhost:8790` from `infra/caddy/local/`): only
+  `/i/<480|960|1440>/<avif|webp>/m/<uuid>/<uuid>`, immutable, `nosniff`, CORP cross-origin; `MEDIA_BACKEND`
+  `cloudinary` (rewrite to named transformation `t_mc_<w>_<fmt>`) or `files` (shared tmpfs volume in the stack).
+  `make-env.sh` writes `MEDIA_HOST`, `MEDIA_BACKEND`, `CLOUDINARY_CLOUD_NAME` into web.env (owner O25).
+**Consequences:** Cloudinary named transformations must be called `mc_480_avif` … `mc_1440_webp` (O25 steps). Staging
+uploads fail until O25 (placeholder keys).
+
+### #120 — Publishing a notice: one body for both paths, params checked against the template (PHASE_03 T3.6, part 2) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 03 §4 names `POST /items/announcement` but not its body; 00 §4.3 gives the free-text limits (title ≤ 80,
+body ≤ 1,000 — the validator's 120 / 1,500 stay as the outer bound) and template params "with pickers"; 02 says the
+params are "validated against the template's param schema" without saying where.
+**Decision:**
+- Body `content` is a discriminated union — `{kind: 'template', key, params}` or `{kind: 'text', title, body, locale}`
+  — plus `category`, `isImportant` (preset from the template on the screen, editable), `eventAt` (category `event` only;
+  a day ago … 400 days ahead), `image {key, thumbhash, rightsConfirmed: true}`, `notify`. The audience of a notice is
+  always `everyone` (only videos choose brothers/sisters — 00 §1). Admin notices are type `announcement` even with a
+  `timing` template; `timing_update` stays for the system templates.
+- Param values: the contract checks the shape (safe text ≤ 80, whole number 0–10⁶, or `{start, end}`); the data layer
+  reads the template **inside the transaction through the admin policy cell** (active, not system — so drafts, retired
+  and system templates are `TEMPLATE_NOT_FOUND`) and runs `templateValueProblems` (`@mc/i18n/template-args`, also used
+  by B5): required present, each value of its declared type (time range ends differ — may cross midnight; date range
+  end ≥ start), no undeclared names. Refusals → new code `ANNOUNCEMENT_INVALID` (400, 4 locales).
+- The photo key must be `m/<this masjid>/…` (the `IMAGE_KEY` pattern moved to `@mc/shared/contracts`); the item stores
+  `image_key`, `image_thumbhash` and `rights_confirmed`. The ThumbHash comes back from the client (it is a placeholder,
+  not a security property).
+- `targeted` is counted **after** the commit through `v_admin_follow_audience` (follows not muted, push active, in the
+  audience) — views are not read inside the transaction; it is an estimate for the success screen. `quotaLeft` comes
+  from the transaction's own count (`enqueueNotification` now returns `{jobId, used}`).
+- Audit `item.publish` with `{type, template, notify, image}`. Admin template list: `GET /masjids/:id/templates`
+  (public `NoticeTemplate` shape, shared mapper `noticeTemplateOf`).
+**Consequences:** db 10 / api 6 integration tests, i18n +4 unit tests. The same body grows `voice` in T3.13.
+
+### #121 — B5 notice creator: three pushed screens, one draft, pickers per param type (PHASE_03 T3.6, part 3) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 07 B5 asks for a 3-step flow (Choose → Fill → Preview & Publish) with pickers instead of typing; 08 §5.12
+says steps slide horizontally. 06 §6 lists `NumberPad` (an amount pad in paise) and `UploadProgress`.
+**Decision:**
+- The steps are **three routes** (`/notice`, `/notice/fill`, `/notice/preview`) pushed on the admin stack — the
+  navigator's slide is the step motion and the phone's back button goes back one step. The draft lives in a small
+  in-memory store (`features/notice/lib/draft-store.ts`, `useSyncExternalStore`); a reload loses it and Fill / Preview
+  then offer "Choose a notice" again. Done after publishing pops to Home and clears it.
+- Pickers by param type: time → `TimeSheet`; date → `DatePickerSheet` (today … 399 days); ranges → two slots ("From" /
+  "To"); prayer → a 2-column grid of 56 px radio buttons (five prayers + Jumu'ah); short text and phone → text fields
+  (a 10-digit Indian mobile number gets +91; E.164 checked like the server); number → a numeric text field (no starter
+  uses `number`; `NumberPad` is the rupee pad). Param labels: by name for the starter params, else by type.
+- The checks are the server's (`templateValueProblems`); "Next: Preview" stays pressable and, with something missing,
+  lists it in plain words and scrolls the list into view (found while looking at the screenshots: it was off screen).
+- Category (4 radio cards) and Important are preset by the template; an event gets an optional date + time (both or
+  neither). Photo: the ownership tick comes first — the picker is disabled until it is ticked; JPEG / PNG / WebP / AVIF
+  (`accept` makes an iPhone convert HEIC); a spinner while uploading.
+- Preview: `PreviewFrame` + the musalli `FeedItemCard` (the A7 card shows no photo — a note says followers see it in
+  the notice). Notify starts on while notifications are left; quota refusal → "Publish without notifying".
+**Consequences:** journey 7 (`e2e/admin/notice.spec.ts`) and B5 × 4 locales + axe (`e2e/admin/screens.spec.ts`);
+admin unit +18. New glyph `PencilIcon` ("Write your own"). Not built yet (F50): the `UploadProgress` ring (fetch reports
+no upload progress), the Home tile's mint pulse after a publish (08 §5.12), the success screen's "View" (needs My Posts,
+T3.9).
+
+### #122 — Today's hadith / ayah: a library id and a note, a soft "already today" warning, B6 on the B5 pattern (PHASE_03 T3.7) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 00 §4.3 allows daily content only from the verified Content Library (no free-form text) with an optional
+note ≤ 200; PHASE_03 T3.7 asks for one daily_content of each kind per masjid per day as a *soft* warning, not a refusal;
+07 B6 lists toggle → suggestion → "Choose another" (keyword / topic chips) → note → preview → publish.
+**Decision:**
+- `POST /masjids/:id/items/daily-content` takes `{libraryId, note?, notify}` only (strict body — a `kind`, `title` or
+  text is a 400). The kind is the entry's own; the entry is read through the admin policy cell inside the transaction,
+  so draft / retired entries, duas, dhikr and unknown ids are all `404 LIBRARY_ENTRY_NOT_FOUND`. Same publish path as
+  notices (`insertPublishedItem`, `enqueueNotification`, audit `item.publish` with `type: 'daily_content'`), same
+  `{item, notification}` answer.
+- The server never refuses a second one of a kind on a day. `GET /library/suggestion` now also answers
+  `publishedToday` (published, not deleted, since 00:00 IST — `dailyPublishedToday`); B6 shows a sun-toned warning on
+  step 1 and again on the preview, and publishing goes on.
+- B6 is three pushed routes (`/daily`, `/daily/note`, `/daily/preview`) with an in-memory draft, as B5 (#121). The
+  draft store became `createDraftStore()` (`features/publish/draft-store.ts`), and the last step — notify switch, quota
+  line, quota dialog, success moment — became `PublishStep` / `PublishedMoment` (`features/publish`) used by B5 and B6
+  and next by B7. Their strings stay under `notice.*` (generic wording) instead of being copied per flow.
+- "Choose another" is a full-height sheet: search words (the library's whole-word search, #106) and topic chips — the
+  eight most used tags of the kind, from the unfiltered first page. Tags are shown as the library writes them
+  (`after-fajr` → "after fajr"): they are the owner's data like references (`docs/content-library-format.md` calls them
+  the admins' chip words), not UI copy. Every entry shows the Arabic, the translation in the admin's language (English
+  with a tag when missing) and the reference.
+- Preview: `PreviewFrame` + the musalli `FeedItemCard` → the Hadith & Quran "Today's" hero card.
+**Consequences:** db `daily.int.test.ts` 7, api int +1 (library routes), admin unit +13 (daily, publish); B6 journey
+(`e2e/admin/daily.spec.ts`: an Urdu musalli sees the hero after one poll; a second hadith warns and publishes) and B6 ×
+4 locales + axe. Test note: while a sheet closes the whole stack is `inert` for its exit animation — Playwright's `fill`
+then types into nothing, so specs tap a field before filling it. Tag labels per language would need a library-format
+change (F51, only if the owner wants it).
+
+### #123 — Dua requests: template-assisted text in a chosen language, a verified dua, janaza for inteqal only (PHASE_03 T3.8) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 00 §4.3 says the message is "template-assisted, ≤ 500 chars", the title comes from the category and the
+name is optional with "Keep name private" on by default; PHASE_03 T3.8 asks for message templates per category in four
+languages (draft-flagged) and an integration test that a private name never reaches musallis.
+**Decision:**
+- Ready-made messages are plain community requests (never a dua, ayah or hadith — CLAUDE.md §2.3), three per category,
+  in `packages/i18n/locales/<locale>/dua-messages.json` (`@mc/i18n/dua-messages`), reviewed with every other string
+  (review CSVs = the draft flag). B7 fills the message box with one in the language the admin picks; editing makes it
+  the admin's own text. The item stores `body` + `content_locale` — what the musalli card already shows — so no
+  `template_key` (that field references `notice_templates`).
+- `POST /masjids/:id/items/dua` `{category, message (1–500), locale, personName? (≤ 80), namePrivate, libraryId,
+  janazaAt?, janazaPlace? (≤ 120), notify}` → 201 `{item, notification}`. The library entry must be a verified `dua`
+  (else `404 LIBRARY_ENTRY_NOT_FOUND`); the UI filters by category, the server does not insist on it. A janaza goes with
+  inteqal only (contract 400) and within a day ago … 30 days ahead (`400 DUA_INVALID`). Audit meta never holds the name.
+- A private name is stored for the masjid's own record and removed by `v_pub_items` (02 §4.2). Proved at both layers:
+  db `duas.int.test.ts` (view as `mc_public`, item, feed) and api `library-routes.int.test.ts` (api-public's item and
+  feed responses as the real `mc_public` user never contain it).
+- B7: four pushed steps — category (3 big cards; a tap goes on) → details (language, ready-made
+  messages as radio cards + the editable text, name + "Keep name private" + consent hint, inteqal janaza date/time/place)
+  → attach dua (verified duas of the category; a tap picks and goes on) → preview (`FeedItemCard`) + `PublishStep`.
+  That keeps "illness request with private name" at 5 taps (T3.12). Logic in `features/dua/lib/dua.ts`.
+- `dua-messages.json` is excluded from the build-time ICU precompile (`mcIcuPrecompile`): it is read as plain text, not
+  through i18next — found in the journey, where the message box showed the compiled AST.
+- Found and fixed on the way: `DatePickerSheet` calls `onChange` and then `onClose`, so a date sheet that opens the time
+  sheet next (B5 event, B7 janaza) closed it again at once; `onClose` now clears only its own picker.
+**Consequences:** db +7, api int +1, i18n +3, admin unit +7; B7 journey (`e2e/admin/dua.spec.ts`: a Hindi musalli
+never sees the private name; an inteqal with janaza in slate) and B7 × 4 locales + axe. The library search hook moved
+to `features/library` with an optional dua category (B6 and B7 share it).
+
+### #124 — My Posts: edits reopen the creation flow, checked as at publish; soft delete with the purge marker (PHASE_03 T3.9) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 00 §4.3 allows edits for 24 h after publishing, without a new notification, shown as "edited"; 03 §4 lists
+`GET /items`, `PATCH /items/:id` (If-Match `updated_at`) and `DELETE /items/:id`; 02 §5 asks for a purge marker
+(`purge_after = now + 180 days`) when an item becomes deleted, which the policy gateway refuses to every generic write.
+**Decision:**
+- **One set of rules for publish and edit.** Each type's checks became a content builder (`announcementContent`,
+  `dailyContent`, `duaContent` → `ItemContent` → `contentDocument`); publishing and `editItem` both use them, so an edit
+  can never store what a publish would refuse. The PATCH body is the type's publish body without `notify`, tagged with
+  its `type` (`itemEditSchema`; the shared field sets keep them equal). An edit `$set`s the new content, `$unset`s the
+  optional fields it no longer has (e.g. own text → template), sets `edited_at` and never notifies.
+- **Concurrency:** If-Match is the item's `updated_at` (ISO, quotes optional); a mismatch — checked again in the update
+  filter — is `412 PRECONDITION_FAILED`, and the app sends the admin back to My Posts with a plain dialog. Past 24 h:
+  `409 EDIT_WINDOW_CLOSED`; another type or a timing update: `409 ITEM_NOT_EDITABLE`; deleted or removed posts:
+  `404 ITEM_NOT_FOUND` (removed ones are fenced by the admin update cell anyway).
+- **Delete** is allowed at any age: status `deleted`, `deleted_at`, then the purge marker as a data-layer effect
+  (`markItemForPurge` in `effects.ts`, like the version bump — raw collection, own masjid, in the transaction), version
+  bump, audit `item.delete`. Deleting again is a no-op (no second bump or audit entry). Removed posts cannot be deleted
+  (moderation evidence).
+- **List:** every status, newest first, 30 a page; each row carries the item exactly as musallis receive it (the public
+  `itemOf`, so "View" is the musalli card) plus `updatedAt`, `editableUntil`, `libraryId`, the private dua name (the
+  masjid's own record — still never in `v_pub_items`) and a removed post's reason. These response schemas are Zod Mini
+  (`contracts/admin-items.ts`): a classic object cannot embed the Mini `feedItemSchema` for the OpenAPI generator.
+- **B12 UI:** type chips; cards with status, "You can change it until …", View (sheet), Edit, Delete (confirm). Edit puts
+  the post back into its flow's draft (`editing: {itemId, updatedAt}`) and opens step 2; the last step then shows "Save
+  changes" (`SaveStep`) and "Saved". An edited notice's photo keeps its key and shows its ThumbHash (the admin app has
+  no media origin). The publish moment's "View in My Posts" (F50) and "Done" after saving open My Posts on top of Home.
+**Consequences:** db `items.int.test.ts` 8, api int +4, admin unit +7; e2e `e2e/admin/posts.spec.ts` (publish → View
+in My Posts → edit → the musalli sees "Edited" → delete → gone after one poll) and B12 × 4 locales + axe. The musalli
+hadith reader and dua detail now show "Edited" too (notices already did).
+
+### #125 — Masjid Profile: photo and Hijri adjustment through the allow-list; name changes as a note for the Super Admin (PHASE_03 T3.10) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 07 B13 lets the admin change the photo and the Hijri adjustment and view the names (changes "go to Super
+Admin"); PHASE_03 T3.10 asks for a "Request change" that creates an audit note and a dashboard item, and an
+integration test that the policy layer's field allow-list refuses everything else, including `$set`-style and dotted
+keys. 03 §4 lists `GET /` · `PATCH /` (allowed fields only) · `POST /photo`.
+**Decision:**
+- `PATCH /masjids/:id` takes `{hijriOffset: -2…+2 | null}` only (strict body; `null` unsets the field so the app's global
+  offset applies). `POST /masjids/:id/photo?rightsConfirmed=true` runs the same image pipeline as `/images` (one shared
+  helper), records the upload (`image.upload`, purpose `masjid`) and sets `photo_key` / `photo_thumbhash`. Both go
+  through `updateMasjidProfile` → the admin `masjids` cell (`ADMIN_MASJID_FIELDS`), with the version bump (public fields)
+  and audit `masjid.profile {fields}`; another masjid's photo key or an out-of-range offset is `400 PROFILE_INVALID`.
+  Both answer the whole profile (with the photo's delivery URL).
+- **Request change:** `POST /masjids/:id/change-requests {note ≤ 300}` writes audit `masjid.change_request {note}` —
+  no new collection. `GET /super/dashboard` gains `changeRequests`: the last 90 days' notes, closed automatically once
+  the Super Admin edits that masjid afterwards (`masjid.update` audit entry later than the note). The dashboard row
+  opens the masjid. (`listChangeRequests` is Super Admin only.)
+- **Acceptance:** db `profile.int.test.ts` writes 13 crafted updates straight at the admin cell (other fields, dotted
+  paths, `$`-positional paths, operator-shaped values and keys, `$unset`/`$inc`/`$rename`/`$currentDate`, a replacement
+  document) — all refused, the document unchanged; api `admin-masjid.int.test.ts` sends 11 crafted PATCH bodies — all
+  400, name / status / name_i18n unchanged.
+- B13 screen: photo (ownership tick first, as notice photos), names in four scripts and the place (view) + "Request a
+  change" sheet, Hijri −2…+2 as a segmented control with today's Hijri date for the chosen value and "Follow the app's
+  date", My account row. Payment, Chanda, the admins list and the undertaking view come with their phases.
+**Consequences:** db +5, api int +4, admin unit +3; e2e `e2e/admin/profile.spec.ts`; B13 × 4 locales + axe. The replaced
+photo's file is not deleted yet (F52).
+
+### #126 — Voice-note length and waveform: measured by the admin's browser, bounded by the server, the storage decides when it can (PHASE_03 T3.13, part 1) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 01 §5.5 says the upload response's `duration` (Cloudinary) must be ≤ 600 s and a 48-value peak envelope
+is computed. Checked on 4 Nov 2026: Cloudinary's current upload / audio / upload-parameters docs show no video or audio
+upload response at all — `duration` there is only a transformation parameter — so the field cannot be relied on as
+documented. Locally (file store) there is no Cloudinary, and a MediaRecorder WebM carries no duration in its header.
+Decoding audio on the server would need ffmpeg in the API image.
+**Decision:**
+- The admin's browser decodes the recording anyway (Web Audio) for its own preview; it sends the length and the 48
+  peaks with the upload (`POST /masjids/:id/audio?rightsConfirmed=true&durationS=&peaks=`). The contract bounds them
+  (0.5…600.5 s, exactly 48 integers 0…255).
+- The server identifies the container by magic bytes (Ogg, WebM, MP4/M4A/3GP, MP3, WAV, ADTS AAC — `sniffAudio`;
+  anything else `422 AUDIO_INVALID`), stores it (Cloudinary `video` resource, key `m/<masjid>/a/<uuid>`; locally at its
+  delivery path), and keeps **the storage's own duration when the response has one**, else the browser's
+  (`keptDuration`, whole seconds). Over ten minutes → the stored file is deleted and `422 AUDIO_TOO_LONG`.
+- The length limit protects cost and abuse, not correctness: a client lying about the length only matters where the
+  storage cannot measure it (local); on staging the real response is checked once O25 is done, and if Cloudinary's
+  response turns out to carry no `duration`, a follow-up reads it through the Admin API before accepting (F53).
+- Peaks are decorative (07 A18) and stored as sent after validation. Audit `audio.upload {duration_s, rights_confirmed}`.
+**Consequences:** api unit `audio.test.ts` 6, api int +2. Part 2 adds `voice` to the three item types; part 3 the
+recorder (B14), the player (A18), the worker cache, the Caddy `/a/m4a/<key>` route and CSP `media-src`.
+
+### #127 — Voice notes on posts: always titled, the masjid's own recordings, the key not a URL (PHASE_03 T3.13, part 2) — ACCEPTED (Claude Code, 4 Nov 2026)
+**Context:** 02 items: `voice {key ≤ 200, duration_s 1..600, peaks? ≤ 48}` on announcement / daily_content /
+dua_request, and "when present `title` is required"; 03 §3 says items carry `voice {url, durationS, peaks?}`.
+**Decision:**
+- Migration **0011_item_voice** adds `voice` to the items validator (`AUDIO_KEY` pattern) and an `allOf` rule: a
+  document with `voice` must have `title` and be one of the three types (the Zod mirror checks the same). `voice` is in
+  `ITEM_WRITABLE` and in the optional content fields an edit unsets; `v_pub_items` passes it through unchanged.
+- Bodies: every publish / edit body takes `voice?: {key, durationS, peaks[48]}`. The title is the free-text notice's
+  own; template notices, hadith / ayah and dua requests send a top-level `title` (≤ 120) — **only with a voice note**
+  (alone it is refused, so those posts still carry no free text of their own — 00 §4.3). The content builders check
+  the recording is the masjid's own (`m/<masjid>/a/…`) and a title exists: `400 VOICE_INVALID`.
+- Public items carry `voice {key, durationS, peaks?}` — the key, like photos (`image {key, thumbhash}`): the app builds
+  `<media origin>/a/m4a/<key>` itself, so responses stay origin-independent (03 §3's "url" is read as the key).
+**Consequences:** db `voice.int.test.ts` 5 (incl. the validator refusing a title-less or wrong-type voice note), api
+int +1. Part 3 builds the recorder, the player and the delivery route.
+
+### #128 — Voice notes in the apps: recorder, player, delivery and offline (PHASE_03 T3.13, part 3) — ACCEPTED (Claude Code, 5 Nov 2026)
+**Context:** 07 B14 / A18, 01 §5.5 Audio ("Caddy `/a/m4a/<key>`", CSP `media-src`, worker CacheFirst with range requests,
+max 30 / 30 days), 04 §7's Permissions-Policy (`microphone=()` everywhere).
+**Decision:**
+- **Microphone:** the admin SPA alone sends `microphone=(self)` (Caddy override in the admin site's static handler,
+  04 §7 note, header spec); the musalli app keeps `microphone=()`.
+- **Delivery:** the media site gains `/a/m4a/m/<masjid>/a/<id>` (path allow-list; files backend → `/srv/media/a/m4a/…`,
+  Cloudinary → `video/upload/t_audio_m4a/…m4a`, owner step O25), `immutable`, with `Access-Control-Allow-Origin: *`
+  (Cloudinary's own CORS headers stripped) so the app's worker can read it; CSP `media-src` gains `{$MEDIA_ORIGIN}` on
+  both apps. Range requests pass through.
+- **Offline (musalli worker):** `<audio crossorigin preload="none">` — nothing loads before the first play. The worker
+  answers `/a/m4a/` from `mc-audio-v1`; on a miss it fetches the whole file (≤ 10 min of AAC ≈ 4 MB), keeps it
+  (`CacheExpiration` 30 entries / 30 days) and answers the requested byte range with `createPartialResponse`
+  (`workbox-range-requests` 7.4.1 — new dependency of `apps/app`, service-worker bundle only; the app's initial JS is
+  unchanged: 185.8 kB of 186). Played notes reveal followed masjids, so "Clear all data" empties that cache too.
+- **Player (A18)** `VoiceNote` in `@mc/ui`: play / pause 56 px, decorative waveform from the peaks (filled to the
+  position), a native range slider for scrubbing (`aria-valuetext` "1:20 of 3:20"), elapsed / remaining, speed 1× →
+  1.5× → 2×, one plays at a time (module-level), pause on unmount, "Available when online" on a load error. Shown on
+  the notice, hadith and dua detail screens with the title above. The section cards (whole-card buttons) do not embed a
+  player — a nested button is invalid (F54 tracks a card badge and the A8 hero).
+- **Recorder (B14)** `VoiceField` in the notice Fill, hadith Note and dua Details steps: the ownership tick first;
+  record (MediaRecorder, the first supported of MP4 / Ogg-Opus / WebM-Opus / WebM; live level meter; timer with
+  auto-stop at 10:00; pause / resume; stop), play back, "Use this" or "Record again"; or "Choose audio file". The file
+  is decoded with Web Audio → length + 48 peaks (#126) and uploaded; the title field appears where the post has none
+  of its own (template notice, hadith, dua), and "Next" names a missing one.
+**Consequences:** admin unit +8 (peaks, format choice, bodies through the server contracts, the recorder with fake
+MediaRecorder / Web Audio), e2e `e2e/admin/voice.spec.ts` (a WAV attached by file → the musalli plays it), the header
+spec checks the admin's microphone policy; the B5/B6/B7 screens with the voice field stay axe clean in 4 locales.
+
+### #129 — Adhkar after salah: the set, the window, the card and the counter (PHASE_03 T3.14) — ACCEPTED (Claude Code, 5 Nov 2026)
+**Context:** 00 §4.11, 07 B16 / A20, DECISIONS #104 §3, 02 masjids.`adhkar`, 03 §3 bundle additions.
+**Decision:**
+- **Data:** `masjids.adhkar {enabled, library_ids[] ≤ 30, unique}` (migration `0012_masjid_adhkar`, also in
+  `v_pub_masjids`); written only through the admin `masjids` cell (`adhkar` added to `ADMIN_MASJID_FIELDS`) by
+  `setAdhkar`, which replaces the whole set, checks every id through the admin `content_library` cell (verified
+  `dhikr` only → else `404 LIBRARY_ENTRY_NOT_FOUND`; over 30 / a repeat → `400 ADHKAR_INVALID`), bumps the version and
+  audits `adhkar.update {enabled, count}`. Last write wins (no `If-Match`): the set is small and replaced whole.
+- **API:** `GET` / `PUT /masjids/:id/adhkar` (answer = `{enabled, entries}` in order). The bundle gains
+  `adhkar: {entries} | null` — `null` when off or empty; an entry retired since is left out (both reads).
+- **Window (`@mc/domain/prayer` `adhkarWindow`):** from each fard prayer's jamaat (its adhan when the masjid holds no
+  jamaat; on Fridays each Jumu'ah jamaat in place of Dhuhr) for 30 minutes — `[start, start + 30 min)`; overlapping
+  windows → the later start; yesterday is checked too, so an Isha before midnight runs past it.
+- **Home card (A20):** the first followed masjid (follow order) with a set and timings; title "Adhkar after salah ·
+  <prayer>", the first dhikr's Arabic (3 lines), "See all"; "Hide until the next salah" stores the window's key
+  (`<masjid>/<date>/<HH:mm>`) in the device store (`adhkarDismissed`, device only). The card lives in
+  `@mc/ui/content` (`AdhkarCard`) so the B16 preview renders the real component (T3.11).
+- **List (A20):** route `/masjid/:id/adhkar` (Masjid Detail row "Adhkar after salah" after Dua Requests when the bundle
+  has a set): Arabic at the reader's size, transliteration (the reader's switch), translation, reference, source; a
+  large counter per dhikr (selection haptic per tap, success pattern at the count, "Start the count again"); counts are
+  module memory — this app session only, never stored or sent.
+- **Admin (B16):** a Home tile "Adhkar" (07 B3 lists none; B16 needs an entry point and the admin UI is icon-first —
+  like the #104 tiles) → switch, ordered list (drag, Move up / Move down — WCAG 2.5.7 —, Remove), "Add dhikr" (the
+  library search sheet with kind `dhikr`, chosen ones marked), the Home-card preview in four languages, Save.
+- **Seed:** three verified `dhikr` placeholders (10 §5) and an adhkar set on Test Masjid Alpha.
+- **Budget:** musalli initial JS 186.01 kB → limit 187 kB (Home's card and the window; owner rule "quality over bundle
+  size"). Admin 212.7 / 220 kB.
+**Consequences:** domain +5 (every prayer, adhan fallback, Jumu'ah, overlap, midnight), db int +5, API int +1, app unit
++3, admin unit +4, e2e `e2e/admin/adhkar.spec.ts` (admin picks → pinned clock: card after Dhuhr, gone 30 min later,
+list + counter, Hide survives a reload), B16 + its sheet in the 4-locale screens spec (axe clean). Follow-up F55.
+
+### #130 — Ruqyah: one collection, three sources, one order, the masjid's own words kept apart from the library (PHASE_03 T3.15) — ACCEPTED (Claude Code, 5 Nov 2026)
+**Context:** 00 §4.10, 02 ruqyah_entries / `v_pub_ruqyah` / §4.1 / §6, 03 §3–4, 05 §9, 07 A19 / B15, DECISIONS #104 §2.
+**Decision:**
+- **Data:** `ruqyah_entries` (migration `0013_ruqyah`, area "masjid sections"): validator `oneOf` by `source`
+  (`library_id` | `text` | `audio` — each only its own field; a recording also needs `title` and
+  `audio.rights_confirmed: true`, a new DSL field `f.confirmed()` that the consent of T3.16 reuses), `instructions` ⇔
+  `instructions_locale`, and **`deleted_at` exactly when `status: deleted`** (02 named only `status`; the 30-day
+  retention clock of 02 §6 needs the moment — indexed, partial). `audio.peaks` (≤ 48) is kept like voice notes so the
+  A18 player draws its waveform. It is a content collection (every write bumps the version and is confined by
+  `contentWrite`) and is in the visibility mirror.
+- **Policy / DB users:** admin S own · I own (only `active`) · U own and active only (never `masjid_id`, `created_by`;
+  the only status change is to `deleted` — no undelete) · no D; super all; `v_pub_ruqyah` for every scope. `mc_admin`
+  find/insert/update, `mc_system` all (retention purge), `mc_migrator` schema; `atlas-roles.json` regenerated — the
+  Atlas roles on staging must be re-applied before this code is deployed (owner step O36).
+- **The 50-entry limit** is counted inside the add transaction; the same transaction bumps the masjid's version, so two
+  parallel adds conflict on the masjid document and the retry re-counts (db test: six parallel adds for the last three
+  places → exactly three succeed).
+- **Order:** one `sort` per masjid. The admin moves entries inside a heading (B15 shows the A19 headings); the client
+  sends the whole list with the headings in A19 order (`PUT /ruqyah/order`, every active entry exactly once, else
+  `409 RUQYAH_ORDER_INVALID` — the list changed meanwhile). New entries go to the end. A `PATCH` replaces the whole
+  entry and may change its source; its place stays.
+- **Reads:** public `GET /masjids/:id/ruqyah?v=` = `{sections: [{category, entries}]}` (non-empty headings in A19 order),
+  immutable per version with `Cache-Tag: m-<id>`; a library entry no longer verified is left out for musallis and shown
+  to the admin as "no longer in the library" (`libraryId` without `library`) — F55 covers the cached-version side. The
+  bundle gains `sections {ruqyah, needy}` (needy = 0 until Phase 5), **optional in the contract** so a bundle cached
+  before this release still parses (no row then). Recordings travel as the key (#127).
+- **Labels (05 §9):** one shared `RuqyahCard` in `@mc/ui/content` (A19 and the B15 preview, T3.11): a library entry shows
+  reference + "Source · Licence"; masjid text shows only "Added by <masjid>" — never a source or verified line (component
+  test in 4 locales); its translation and the instruction carry `lang` of the language the masjid wrote them in (a tag
+  names it when it differs from the app language); Arabic is `lang="ar" dir="rtl"` everywhere.
+- **Musalli:** Masjid Detail row "Ruqyah" (after Adhkar) when `sections.ruqyah > 0`; the list is a persisted query
+  (`ruqyah` root, pruned with old versions like bundles and feeds), so it works offline once opened.
+- **Admin (B15):** Home tile → list grouped by heading (Edit, Move up / Move down and drag inside a heading — WCAG 2.5.7,
+  Delete with confirm, "n of 50"); editor: what to add (library — any kind, chosen by a kind chip; own text; recording
+  via the B14 field with its ownership tick and title) → heading → content → optional title and instruction with its
+  language → the musalli card in the preview frame (4 languages) → Save; "Still needed: …" names what is missing.
+- **Media:** a replaced or deleted recording is not deleted at once (moderation evidence / retention): deleted entries'
+  recordings go with the 30-day purge (T8.7); a recording replaced by an edit is unreferenced — F52 now covers audio too.
+**Consequences:** db int +12 (ruqyah) and the matrix / privilege / explain tests extended (43 namespaces), API int +3,
+ui +6 (card), app unit +1, admin unit +8, e2e `e2e/admin/ruqyah.spec.ts` (admin types text + library dua, reorders →
+musalli sees the row, library first, "Added by", no source line; delete → gone one poll later), A19 in 4 locales
+(`e2e/app/content.spec.ts`, Arabic not mirrored) and B15 list / editor / new in the 4-locale screens spec (axe clean).
+Musalli initial JS 186.35 / 187 kB.
+
+### #131 — Ilm contacts: consent on every save, the number only inside the WhatsApp link, the audience a display filter (PHASE_03 T3.16) — ACCEPTED (Claude Code, 5 Nov 2026)
+**Context:** 00 §4.12, 02 masjid_contacts / `v_pub_contacts` / §4.1 / §6, 03 §3–4, 05 §2, 07 A21 / B17, DECISIONS #104 §4.
+**Decision:**
+- **Data:** `masjid_contacts` (migration `0014_contacts`, area "masjid sections"): `consent_confirmed` is
+  `f.confirmed()` (the validator refuses a contact without it); `deleted_at` exactly when `status: deleted` (the 30-day
+  retention clock, as Ruqyah #130); index `{masjid_id, status, audience, sort}` + partial `{deleted_at}`. A content
+  collection (every write bumps the version, confined by `contentWrite`) and in the visibility mirror. ≤ 10 active,
+  counted inside the add transaction (six parallel adds for the last three places → exactly three succeed).
+- **One E.164 rule:** 02 wrote `^+[1-9][0-9]{7,14}$` (8–15 digits); the template param `phone` (T3.4) already used
+  `@mc/domain/phone` `isE164` = `^+[1-9][0-9]{6,14}$` (7–15 digits, the E.164 maximum). The validator, the admin
+  contract, the public contract and `isE164` now share the latter, so nothing the API accepts is refused by the database
+  (contract-sync test); 02 updated.
+- **Consent:** `consentConfirmed: true` is required on **every** save (`POST` and `PATCH` replace the whole contact).
+  B17 opens a saved contact ticked, and clears the tick when its name or number changes (the person agreed to be listed
+  with those). Removal is the delete — also how a "remove me" request is carried out (05 §2).
+- **Policy / DB users:** as Ruqyah — admin S own · I own (active) · U own and active only (never `masjid_id`,
+  `created_by`; status only to `deleted`) · no D; super all; `v_pub_contacts` for every scope (both audiences, without
+  consent, creator, status). `mc_admin` find/insert/update; `atlas-roles.json` regenerated (owner step O36).
+- **Personal data:** the audit entry carries only `audience` and `consent_confirmed` — never the name or number;
+  `whatsapp` added to the logger's redaction paths (bodies are never logged anyway).
+- **Reads:** no separate endpoint — the bundle's `contacts` (both audiences, brothers first, each in the masjid's
+  order; **optional in the contract** so a bundle cached before this release still parses). No reorder in B17 (07 B17
+  asks for none): new contacts go to the end.
+- **The number is never rendered (07 A21):** one shared `IlmContactCard` (`@mc/ui/content`, A21 and the B17 preview):
+  initial, name, role, topics and a "Message" **button** that calls `window.open(url, '_blank', 'noopener,noreferrer')`
+  — not a link, so the number is in no text and no attribute (component test in 4 locales + e2e). URL from
+  `whatsappChatUrl` (`@mc/domain/phone`): `https://wa.me/<digits without +>?text=<URL-encoded greeting>` — WhatsApp's
+  documented click-to-chat format (faq.whatsapp.com, checked 5 Nov 2026). The greeting "Assalamu alaikum" is a UI
+  string in the app language (07 A21 names it), in the review CSVs with the rest.
+- **Audience:** Masjid Detail shows "Ask the masjid" (after Ruqyah) only when the masjid lists contacts for the device's
+  Brother/Sister choice; A21 lists only those. A display filter, not access control (#104 — the view carries both).
+**Consequences:** db int +9 (contacts) and the matrix / privilege / explain tests extended (45 namespaces), API int +4
+(+1 contract sync), domain +2, ui +6 (card), app unit +1, admin unit +5, e2e `e2e/admin/contacts.spec.ts` (consent
+gate, sisters' contact never on a brothers device, new number clears the tick, remove), `e2e/app/ilm.spec.ts`
+(brothers / sisters devices, no number on screen, wa.me + greeting, no row without contacts, A21 in 4 locales) and B17
+list / editor / new in the 4-locale screens spec; fixture option `appAudience`. Musalli initial JS 186.52 / 187 kB.
+
+### #132 — Blood donation camp: a notice, not a collection; the card lives while the camp's hours do (PHASE_03 T3.17) — ACCEPTED (Claude Code, 5 Nov 2026)
+**Context:** 00 §4.13, 07 A22 / B18, DECISIONS #104 §5, #111 (draft templates), #131 (WhatsApp link, one E.164 rule).
+**Decision:**
+- **No new collection or personal data:** a camp is an announcement from the starter template `blood_donation_camp`
+  (T3.4/T3.5: `date`, `hours` time range, `place`, `contact` phone; category `event`; draft translations, active on
+  dev/staging, `draft` on a new production database until the Super Admin reviews it — #111). The app reads the camp from
+  the item's template params (`bloodCampOf` in `@mc/ui/content`); no donor list, no blood groups.
+- **When it shows:** `istWindow` (`@mc/domain/time`) turns the date + hours into IST instants — a range whose end is not
+  after its start runs past midnight and ends the next day. Home and Masjid Detail show a card while `now < end`
+  (upcoming or running), soonest first; the card disappears on the minute re-render after the end. Source: the followed
+  masjids' first feed pages (Home) and the announcement page (Masjid Detail) — a camp announced so long ago that it has
+  left the first page shows only in the list (accepted; feeds are newest first and a camp is announced shortly before).
+- **The card (A22):** shared `BloodCampCard` (Home, Masjid Detail, and the admin B5 preview of a camp notice — T3.11):
+  drop icon, title, the masjid (Home), date · hours, place — that part opens the notice — and "Contact on WhatsApp"
+  (`WhatsAppButton`, the same button and `wa.me` link as Ilm contacts, #131). Home's startup code carries only the camp
+  check; the card is a lazy chunk (`@mc/ui/content/blood-camp`), so the musalli initial JS stays under 187 kB.
+- **The number:** unlike Ilm contacts (a volunteer listed with consent), the organiser's number is part of a public
+  notice the admin typed for people to call: the notice text shows it, grouped as people read it (`formatPhone`:
+  "+91 98765 43210") in a Unicode LTR isolate so Urdu text keeps the digits in order; the notice detail adds "Contact on
+  WhatsApp" for every `phone` param (`templatePhones`). The card itself does not print it.
+- **Admin (B18):** the "Blood Camp" tile (drop icon, matching A22) opens `/blood-camp`, which starts a B5 draft from the
+  template and replaces itself with step 2; Preview shows the notice card and the camp card; "Notify followers" is on by
+  default (B5). When the template is not active (production before review) the screen says to ask the Super Admin.
+- `formatPhone` moved to `@mc/domain/phone` (the B17 editor uses it too).
+**Consequences:** domain +2 (`istWindow`, `formatPhone`), i18n +4 (the camp in 4 locales — date, hours, place, isolated
+number), ui +9 (camp view incl. past midnight, card in 4 locales, preview, `templatePhones`), e2e
+`e2e/admin/blood-camp.spec.ts` (tile → fill → preview → publish; a musalli pinned to that morning sees the card on Home
+and Masjid Detail, WhatsApp opens wa.me, the detail has the number and the button; a minute after the last hour the cards
+are gone) and B18 in the 4-locale screens spec.
+
+### #133 — Phase 03 close-out: the usability tap budget, library changes refresh their masjids, voice-note gaps (PHASE_03 T3.12, F54, F55) — ACCEPTED (Claude Code, 5 Nov 2026)
+**Context:** PHASE_03 T3.12 (5 tasks, ≤ 6 taps each), F54 (#128), F55 (#129, #130), CLAUDE.md §2.8 (low literacy: templates
+over typing).
+**Decision:**
+- **T3.12 — measured, not estimated:** `e2e/admin/usability.spec.ts` performs the 5-task script from Admin Home and counts
+  every tap until the change is saved / published: Maghrib offset **6**, "No water 10–2" **6**, today's hadith **4**,
+  illness dua with the name private **5**, delete a post **3** — no typing in any of them. Two changes made that
+  possible: the jamaat sheet offers **5 / 10 / 15 / 20 / 30 minutes** as one-tap buttons beside the ±1 stepper (07 B4's
+  stepper stays for any other value); a **time-range** param opens **one sheet with both wheels** and one Done (07 B5
+  "time range → two wheels" — before, each end had its own sheet: 8 taps). The script with the counts is in the owner
+  guide (Phase 03, check 3.13; O26) and goes into the phase report.
+- **F55 — library status changes refresh the masjids that use the entry:** `retireLibraryEntry` (from verified),
+  `updateLibraryEntry` when a content edit sends a verified entry back to draft, and `verifyLibraryEntry` bump the
+  content version of every masjid using the entry — its adhkar set (`masjids.adhkar.library_ids`), its active Ruqyah
+  entries, and its published hadith / dua posts — in the same transaction. Followers refetch the bundle, feeds and Ruqyah
+  list at their next poll, so a retired text leaves cached versions within a minute. The item lookup has no index of its
+  own (a rare Super Admin action, bounded by the posts that quote the entry). Tags-only edits change nothing visible
+  and bump nothing.
+- **F54 — voice notes:** list cards (announcements, dua requests) carry a "Voice message · 0:42" tag — a whole-card
+  button cannot hold a player; the hadith / ayah card (A8, hero and regular — not a single button) plays it in place
+  under the note; the player also pauses when another screen is pushed over its screen (it watches its screen's
+  `inert`); recording is covered by `e2e/admin/voice-recording.spec.ts` with Chromium's fake capture device (record
+  ~3 s in the hadith note step → upload → the musalli plays it in the A8 card). Still open in F54: a real phone recording
+  on staging (Safari MP4, Chrome Opus) — owner check 3.14 with O25.
+**Consequences:** db int +3 (`library-users.int.test.ts`), e2e usability (tap counts), voice-recording, voice badge
+assertion; the B4 jamaat sheet and B5 time-range screens stay axe clean in 4 locales.
+
+### #134 — Lighthouse warm runs start a fresh browser on the cold run's profile; startup work trimmed (F56) — ACCEPTED (Claude Code, 6 Nov 2026)
+**Context:** CI `a0954df` and `4cc10d4` failed the warm (service-worker) performance category ≥ 90: app 87 (TBT 515 ms),
+admin 89 (TBT 439 ms). The worst warm runs began with one 300–500 ms "Unattributable" main-thread task at t≈8 ms. A
+Chromium trace of it holds almost nothing but V8 "heap object iterator" sweeps and a code deoptimization — what V8 does
+when a profiler switches on JS coverage (Lighthouse's `unused-javascript` gatherer) in a renderer that still holds the
+previous visit's heap: `pnpm lhci` ran the warm visit in the same tab, right after the cold one. Its size grew with
+the app's heap (313 ms in October), so it fails more often as the app grows. No user's repeat visit has it.
+**Decision:**
+- `scripts/lighthouse.ts`: every cold/warm pair gets its own temporary browser profile; each run starts Chromium on
+  it and closes it afterwards, so the warm run is the app **opened again** (service worker and caches kept, new
+  process) — what a returning musalli or admin does. Budgets unchanged (01 §9; #84 warm gate as before). Locally the
+  warm medians went to app 95 / admin 97 (TBT 260 / 201 ms) with no t≈8 ms task; in a reused tab the same build
+  ranged 86–99.
+- Real startup work found by a CPU profile of the warm load (4× CPU) and cut: `formatters()` built 14 Intl formatters
+  up front on the first render (~70 ms at 4×) — each is now built on first use; the onboarding `Pager` read the text
+  direction with `getComputedStyle` (a forced style recalculation during the first render) — it now reads the nearest
+  `dir` attribute, which is what sets the direction.
+- Left as is: the rest of the warm TBT is evaluating the main bundle and React's first render (`index` ≈ 120–190 ms
+  tasks at 4×); the Motion `VisualElement` chunk is shared by every animated screen. Warm TBT stays reported, not gated
+  (#51, F27).
+**Consequences:** `pnpm lhci` takes a few seconds longer (12 browser starts); cold runs also start a fresh browser — the
+same as CI's first run did before. The local stack's app cold LCP (2.6–2.7 s, Windows + Docker) still misses 2.5 s as
+it did before this change (3.6 s on 5 Nov); CI's cold runs pass — CI is the gate.
+
+### #135 — Phase 03 close: security-review and phase-verifier findings fixed; three criteria met another way (PHASE_03) — ACCEPTED (Claude Code, 6 Nov 2026)
+**Context:** the Phase 03 security review (0 HIGH, 2 MEDIUM, 5 LOW) and phase-verifier run (FAIL: 3 blockers, 4 should-fix)
+on `a75d4d8`; CLAUDE.md §5 (fix every HIGH/MEDIUM, justify LOWs).
+**Decision — security:**
+- **M1 — voice originals:** recordings are uploaded to Cloudinary as `type=private` (destroyed with the same type): the
+  original as recorded (container metadata, a video track in an MP4) is never deliverable unsigned; only derived
+  renditions are, and with strict transformations only the named one. Caddy serves
+  `video/private/t_audio_m4a/m/<masjid>/a/<id>.m4a` (verified in Cloudinary's "Control access to media" docs,
+  6 Nov 2026). The named transformation is `audio_m4a` = `ac_aac,br_48k` (AAC ~48 kbps, 01 §5.5; `br_` sets the
+  audio bitrate per Cloudinary's audio docs; phone recordings are mono already — Cloudinary documents no downmix).
+- **M2 — memory and the upload bucket:** at most two uploads per api process are held in memory at once
+  (`MAX_UPLOADS_IN_FLIGHT`; the next answers 503 `SERVICE_UNAVAILABLE` with `Retry-After: 5`, freed when the
+  response closes); the `adminUploads` key is the lower-cased masjid id, so another spelling of the same id shares the
+  30/h bucket; the audio Blob no longer copies the buffer.
+- **L2** a removed item's `voice` is redacted like its title/body/image. **L3** `push_quota_usage`: inserts start at 1,
+  updates are `$inc: {count: 1}` only — no reset, no jump (policy checks now see the update operator). **L4**
+  `v_pub_ruqyah` is an allow-list (migration `0015_ruqyah_view`). **L5** a MongoDB server error (it has `errInfo`) is
+  logged as `{name, code, codeName}` only — validation details carry the rejected values.
+- **L1 (kept, tracked as F53):** when Cloudinary returns no duration the browser's (≤ 600 s, contract-bounded) is used;
+  the first staging upload shows whether the response has it, else the Admin API is read before accepting.
+- **Polyglots:** an audio file whose bytes contain HTML / XML markup (`<html`, `<script`, `<!doctype`, `<?xml`,
+  `<iframe`, `<object`, `<embed`) is refused as not audio (T3.13); the media site's `nosniff` + CSP stay the main guard.
+**Decision — phase-verifier:**
+- T3.0: the Scan modal is axe-checked (live camera in the `scan` project; no camera on both phones).
+- T3.13 upload tests: Chrome's WebM/Opus and Safari's MP4/AAC accepted — generated fixtures (`scripts/generate-audio-
+  fixtures.ts`: Chromium's MediaRecorder records a 440 Hz tone; Playwright's WebKit has no Web Audio on Windows, and
+  the container + codec are what the server checks); polyglot and > 25 MB refused; 10:01 measured by the storage →
+  422 `AUDIO_TOO_LONG` and the stored file deleted. Player: keyboard, spoken names, one-at-a-time, reduced motion
+  (`packages/ui/test/voice-note.test.tsx`); a start interrupted by a pause (AbortError) no longer shows "unavailable".
+- 4-locale screenshots + axe: B14 recorder (`screens.spec`), A18 player (`voice.spec`), A20 adhkar list
+  (`content.spec`), A22 camp card (`blood-camp.spec`) — the app's language switched through Settings
+  (`e2e/support/locale.ts`).
+- F49 fixed (the dua translation, a special date's labels and note are `<bdi>` isolates — punctuation stays put; the
+  paragraph alignment and the Urdu baselines do not change). F50: unit tests for `use-timings-editor` and `use-special`.
+- Pinned-clock e2e helpers route at the **context**: the app's service worker fetches API responses too, and a Date
+  header through it set the app back to the real time (the blood-camp spec failed on CI at 08:00 IST).
+**Met another way (deviations):**
+- **T3.13 "Removal deletes the media"** — not at the moment of removal: a removed item keeps its media for the 180-day
+  evidence period (IT Rules 3(1)(g), 05; `purge_after`), and a recording can be referenced by more than one record;
+  deletion is the `media-delete` job of Phase 8 (F52), which deletes what nothing references after the grace period.
+  The storage adapter's delete is integrated and tested (the 10:01 path deletes the stored file).
+- **T3.13 "musalli plays it (both phones)"** — the recording e2e plays on Pixel 7 (Chromium); WebKit playback is owner
+  check 3.14 on a real iPhone against staging (Cloudinary's AAC rendition): Playwright's WebKit cannot record, and the
+  local file store serves the raw WebM/WAV that Safari does not play.
+- **F50 polish → Phase 9 (polish, with F44):** the `UploadProgress` ring (needs XHR upload progress; uploads show
+  "Uploading…" with a spinner today) and the Home tile's mint pulse after a publish (08 §5.12).
+- **T3.1 inbox banner** — waits for the inbox it points to (reports: Phase 8; change-request replies: Phase 5).
+**Consequences:** api int 272, db int 290, ui 310, admin +8, domain 192 (100 % again — `formatPhone` has no
+unreachable branch); one more migration (0015); owner O25 creates `audio_m4a` as `ac_aac,br_48k`.
+
+### #136 — Cold LCP gets a recorded 100 ms tolerance; Latin times are LTR-isolated in Urdu sentences (Phase 03 close) — ACCEPTED (Claude Code under the owner's standing rule, 6 Nov 2026)
+**Context:** CI `9a391d6` (run 42157915597): e2e 255 passed, perf 18 passed, Lighthouse warm PASS on both apps (F56
+fixed), but the musalli app's **cold** LCP was **2505 ms** against the 2500 ms target (median of 5; performance 95; a
+fresh browser per run since #134). The owner's standing rule (3 Nov 2026, #116): a few ms over a perf budget is
+acceptable with an explicit, recorded tolerance — do not trade quality or spend sessions on it.
+**Decision:**
+- `COLD_BUDGETS.tolerance`: LCP may exceed the 2.5 s target by up to **100 ms** before the page fails; within it the
+  run prints "over the 2500 ms target, within the 100 ms tolerance (DECISIONS #136)" — reported, never silent. The 01 §9
+  target itself is unchanged; every other budget has no tolerance.
+- **F58 (found in the Phase 03 Urdu screenshots, fixed):** a Latin time inside an Urdu sentence showed as "PM 8:45" and
+  a range as "AM – 2:00 PM 10:00" (bidi reordering). Times are now LTR isolates (U+2066 … U+2069, `ltrIsolate` in
+  `@mc/i18n/template-args`) wherever they are put into a sentence: template params `time` / `time_range` (phones
+  already were), the blood-camp card's hours, the khutbah line, the Eid card's times (each isolated, the list in the page
+  direction). The voice player's elapsed / remaining labels follow the page direction (elapsed at the slider's start —
+  the right in Urdu), each reading LTR. Visual baselines regenerated in the pinned Linux image: Urdu announcements and
+  Home now read correctly; Home in every locale also loses the Qibla placeholder (dev / staging builds only since
+  Phase 02 — the old baselines predate that and stayed within the pixel tolerance).
+**Consequences:** `packages/config/test/lighthouse.test.ts` covers the tolerance; e2e text checks allow the isolates;
+the owner sees the cold-LCP number in the Phase 03 report.
 
 _None — every decision is ACCEPTED (23 Oct 2026)._

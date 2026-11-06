@@ -17,12 +17,12 @@ import { createDeviceStore, memoryBackend } from '../../../../lib/device/store.t
 import { createQueryClient } from '../../../../lib/query/persist.ts';
 import { useAmeen } from '../useAmeen.ts';
 import { findCachedItem, useItem } from '../useItem.ts';
-import { useNoticeBody } from '../useNoticeBody.ts';
 import { useSaved } from '../useSaved.ts';
 import { useSection } from '../useSection.ts';
 import { useShareItem } from '../useShareItem.ts';
 
-// T2.11 content hooks (07 A7–A9): item from cache or API, Ameen state, Saved, template bodies, section data, share.
+// T2.11 content hooks (07 A7–A9): item from cache or API, Ameen state, Saved, section data, share (template bodies:
+// `@mc/ui` test/content-items.test.tsx).
 // Religious text: the 10 §5 placeholders only.
 
 const BASE = 'https://app.test/api/v1';
@@ -60,6 +60,7 @@ const bundle = (id: string, status: 'active' | 'suspended' = 'active') =>
         timings: null,
         specialDates: [],
         ramadan: null,
+        adhkar: null,
         payment: null,
         campaigns: [],
         chanda: null,
@@ -297,22 +298,6 @@ describe('useSaved', () => {
       expect(result.current.isSaved(DUA.publicId)).toBe(false);
     });
     expect(data.store.current().saved).toEqual([]);
-  });
-});
-
-describe('useNoticeBody', () => {
-  it('free text as written; a template body filled with params formatted for the locale', async () => {
-    const { wrapper } = await setup();
-    const { templateKey: _key, templateParams: _params, ...own } = NOTICE;
-    const ownWords: FeedItem = { ...own, body: 'Own words' };
-    const free = renderHook(() => useNoticeBody(ownWords), { wrapper });
-    expect(free.result.current).toBe('Own words');
-    const blank = renderHook(() => useNoticeBody({ ...DUA, body: '  ' }), { wrapper });
-    expect(blank.result.current).toBeUndefined();
-    const template = renderHook(() => useNoticeBody(NOTICE), { wrapper });
-    await waitFor(() => {
-      expect(template.result.current).toMatch(/^Water will not be available from 10:00\sAM to 2:00\sPM\.$/);
-    });
   });
 });
 

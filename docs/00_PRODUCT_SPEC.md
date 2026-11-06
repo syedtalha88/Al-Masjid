@@ -128,9 +128,10 @@ Common rules:
 - Updates tab badge = count of items since last opened Updates (computed client-side).
 
 ### 4.5 Qibla
-- Full-screen compass: Kaaba direction arrow, current heading, degrees from North, distance to Makkah (km), alignment state (green + gentle haptic within ±3°).
-- Location from GPS (permission requested on tap), or fallback **choose city** (top 500 Indian cities list bundled, offline) — location never leaves the device.
-- iOS motion permission requested on a tap. Calibration prompt when accuracy is poor. If no compass sensor: **map mode** showing the great-circle line from the user to the Kaaba with the bearing, and instructions to align with a landmark.
+- **A simple Qibla direction page** (owner, 3 Nov 2026 — DECISIONS #118): good design, simple logic.
+- Kaaba direction arrow on a dial that turns with the phone (where the phone has a compass), degrees from North, distance to Makkah (km), aligned state (green + gentle haptic within ±3°).
+- Location from GPS (permission requested on tap); otherwise the first followed masjid's location — location never leaves the device.
+- iOS motion permission requested on a tap. No compass: the dial stays North-up and shows the bearing in degrees with a one-line hint. No map, no city list, no calibration or accuracy logic.
 
 ### 4.6 Settings (musalli)
 Language · Brother/Sister · Notifications (status + enable/fix + per-masjid mute list) · Install app (guide) · My masjids (manage) · Privacy policy · Terms · Contact / Grievance · About ("Free forever. No ads, ever. No account. No tracking.") · Clear all data (deletes server device record + local data, with confirm).

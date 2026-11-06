@@ -6,6 +6,10 @@
 #                                      (Caddy rejects TLS without Cloudflare's client certificate — 04 §12.2)
 #   API_PUBLIC_UPSTREAM, API_ADMIN_UPSTREAM   e.g. api-public:8787, api-admin:8788
 #   APP_ROBOTS                X-Robots-Tag of the app origin: "noindex, nofollow" on staging, default "all"
+#   MEDIA_HOST                the image host, e.g. media-staging.<domain> (T3.6, DECISIONS #40)
+#   MEDIA_BACKEND             cloudinary → proxied to Cloudinary's named transformations (staging/production)
+#                             files      → served from /srv/media, written by api-admin (local stack)
+#   CLOUDINARY_CLOUD_NAME     the Cloudinary cloud (not a secret)
 # Security headers for static files (exact 04 §7 set incl. CSP) are completed in T0.5.
 
 {
@@ -64,12 +68,12 @@ http://:8081 {
 # tap (DECISIONS #39). Trusted Types: only the `default` policy (apps/*/src/trusted-types.ts). MEDIA_ORIGIN = the
 # image host; CSP_CONNECT_EXTRA = extra connect-src sources (the Sentry ingest host, T0.13), empty by default.
 (csp-app) {
-	header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com; style-src 'self'; img-src 'self' data: blob: {$MEDIA_ORIGIN}; media-src 'self' blob:; font-src 'self'; connect-src 'self' https://challenges.cloudflare.com {$CSP_CONNECT_EXTRA:}; frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types default"
+	header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com; style-src 'self'; img-src 'self' data: blob: {$MEDIA_ORIGIN}; media-src 'self' blob: {$MEDIA_ORIGIN}; font-src 'self'; connect-src 'self' https://challenges.cloudflare.com {$CSP_CONNECT_EXTRA:}; frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types default"
 }
 
 # CSP for the admin app: the same without Turnstile and YouTube (unused there — 04 §7 "minus … where unused").
 (csp-admin) {
-	header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: {$MEDIA_ORIGIN}; media-src 'self' blob:; font-src 'self'; connect-src 'self' {$CSP_CONNECT_EXTRA:}; frame-src 'none'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types default"
+	header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: {$MEDIA_ORIGIN}; media-src 'self' blob: {$MEDIA_ORIGIN}; font-src 'self'; connect-src 'self' {$CSP_CONNECT_EXTRA:}; frame-src 'none'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types default"
 }
 
 # Caddy's own JSON 404 for unknown /api paths: the API header set (04 §7 "API JSON responses").
@@ -214,7 +218,99 @@ https://{$ADMIN_HOST} {
 	}
 	handle {
 		import security-headers
+		# The admin app records voice notes (B14, DECISIONS #128): the microphone for this origin only.
+		header Permissions-Policy "camera=(self), geolocation=(self), accelerometer=(self), gyroscope=(self), magnetometer=(self), microphone=(self), payment=(), usb=(), bluetooth=()"
 		import csp-admin
 		import spa /srv/admin
 	}
 }
+
+# Images (01 §5.5, DECISIONS #40, PHASE_03 T3.6): only /i/<480|960|1440>/<avif|webp>/m/<masjid id>/<image id> exists;
+# anything else is a plain 404 (no listing, no other Cloudinary path, no ad-hoc transformation). Responses are
+# immutable — a changed photo gets a new key.
+(media-files) {
+	root * /srv/media
+	rewrite * /i/{re.media.1}/{re.media.2}/m/{re.media.3}/{re.media.4}.{re.media.2}
+	file_server
+}
+(media-cloudinary) {
+	rewrite * /{$CLOUDINARY_CLOUD_NAME:not-configured}/image/upload/t_mc_{re.media.1}_{re.media.2}/m/{re.media.3}/{re.media.4}
+	reverse_proxy https://res.cloudinary.com {
+		header_up Host res.cloudinary.com
+		header_up -Cookie
+		header_up -Authorization
+		# Cloudinary's own cookies, timing and server headers never reach the browser.
+		header_down -Set-Cookie
+		header_down -Server
+		header_down -Server-Timing
+		header_down -Via
+		header_down -X-Request-Id
+	}
+}
+# Voice notes (01 §5.5 Audio, DECISIONS #104, #126, PHASE_03 T3.13): only /a/m4a/m/<masjid id>/a/<recording id> exists.
+# Cloudinary keeps the recording `private` and serves only its AAC rendition (named transformation `t_audio_m4a`,
+# DECISIONS #135); the local file store serves the recording as uploaded. Range requests pass through (seeking, the worker's partial caching).
+(audio-files) {
+	root * /srv/media
+	rewrite * /a/m4a/m/{re.audio.1}/a/{re.audio.2}
+	file_server
+}
+(audio-cloudinary) {
+	rewrite * /{$CLOUDINARY_CLOUD_NAME:not-configured}/video/private/t_audio_m4a/m/{re.audio.1}/a/{re.audio.2}.m4a
+	reverse_proxy https://res.cloudinary.com {
+		header_up Host res.cloudinary.com
+		header_up -Cookie
+		header_up -Authorization
+		# The media site sets its own CORS headers for audio (one value each).
+		header_down -Access-Control-Allow-Origin
+		header_down -Access-Control-Expose-Headers
+		header_down -Set-Cookie
+		header_down -Server
+		header_down -Server-Timing
+		header_down -Via
+		header_down -X-Request-Id
+	}
+}
+(media-site) {
+	header {
+		-Server
+		X-Content-Type-Options "nosniff"
+		# Loaded as <img> / <audio> by the app and admin origins (another site than media.*, for the CORP check).
+		Cross-Origin-Resource-Policy "cross-origin"
+		Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
+		Referrer-Policy "no-referrer"
+		X-Robots-Tag "noindex"
+	}
+	@image {
+		method GET HEAD
+		path_regexp media ^/i/(480|960|1440)/(avif|webp)/m/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$
+	}
+	handle @image {
+		header Cache-Control "public, max-age=31536000, immutable"
+		import media-{$MEDIA_BACKEND:cloudinary}
+	}
+	@audio {
+		method GET HEAD
+		path_regexp audio ^/a/m4a/m/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/a/([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$
+	}
+	handle @audio {
+		header Cache-Control "public, max-age=31536000, immutable"
+		# Read by the app's service worker (it keeps played notes and answers byte ranges from them).
+		header Access-Control-Allow-Origin "*"
+		header Access-Control-Expose-Headers "Accept-Ranges, Content-Range, Content-Length"
+		import audio-{$MEDIA_BACKEND:cloudinary}
+	}
+	handle {
+		header Cache-Control "no-store"
+		respond 404
+	}
+}
+
+https://{$MEDIA_HOST:media.invalid} {
+	import common
+	import media-site
+}
+
+# Local stack only: extra sites mounted into /etc/caddy/local (the image host on http://localhost:8790, which local
+# app builds use). Nothing is mounted there on the VPS, so nothing is imported.
+import /etc/caddy/local/*.caddy

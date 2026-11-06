@@ -103,11 +103,11 @@ afterAll(async () => {
 });
 
 describe('dev seed (T2.2)', () => {
-  it('writes 3 active masjids, 10 placeholder library entries, 8 templates and 31 items — idempotently', async () => {
+  it('writes 3 active masjids, 13 placeholder library entries, 17 templates and 31 items — idempotently', async () => {
     expect(await raw('masjids').countDocuments({ status: 'active' })).toBe(3);
-    expect(await raw('content_library').countDocuments({ status: 'verified' })).toBe(10);
+    expect(await raw('content_library').countDocuments({ status: 'verified' })).toBe(13);
     expect(await raw('notice_templates').countDocuments({ status: 'active' })).toBe(SEED_TEMPLATES.length);
-    expect(SEED_TEMPLATES).toHaveLength(8);
+    expect(SEED_TEMPLATES).toHaveLength(17);
     expect(await raw('items').countDocuments({ status: 'published' })).toBe(31);
     // T2.11: a notice photo (seed key → the app paints its ThumbHash) and an archived dua request (07 A9 "Older").
     expect(await raw('items').countDocuments({ image_key: 'seed/notice-alpha' })).toBe(1);
@@ -333,7 +333,7 @@ describe('public repository (views only, as mc_public)', () => {
       await raw('content_library').updateOne({ _id: seedId('library-1') }, { $set: { status: 'verified' } });
     }
     const templates = await listTemplates(pub());
-    expect(templates).toHaveLength(8);
+    expect(templates).toHaveLength(SEED_TEMPLATES.length);
     const water = templates.find((template) => template.key === 'no_water_time_range');
     expect(water).toMatchObject({ category: 'facilities', isImportantDefault: true, system: false });
     expect(water?.params).toEqual([{ name: 'hours', type: 'time_range', required: true }]);

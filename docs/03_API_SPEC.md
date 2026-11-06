@@ -52,7 +52,7 @@ Exceeded → 429 with `Retry-After`.
 | `GET /masjids/versions?ids=` | – | `{[id]: {v, status}}` for ≤ 20 ids | s-maxage=15, swr=60 |
 | `GET /masjids/:id/bundle?v=` | – | Masjid profile, schedules (raw config — client resolves times), jumu'ah, special dates (next 60 days), ramadan, active payment profile `{vpa, payeeName}`, active campaigns summary, chanda (last 8 weeks if shown) | immutable w/ v |
 | `GET /masjids/:id/feed?v=&type=&aud=&cursor=&limit=` | – | Paginated items (limit ≤ 30), `aud` ∈ brothers/sisters → returns everyone + that audience | immutable w/ v |
-| `GET /masjids/:id/ruqyah?v=` | – | Ruqyah entries by category, library content and audio URLs expanded (DECISIONS #104) | immutable w/ v |
+| `GET /masjids/:id/ruqyah?v=` | – | `{sections: [{category, entries}]}` — non-empty headings in A19 order, entries in the masjid's order; library content expanded (entries whose library entry is no longer verified left out); recordings as `audio {key, durationS, peaks?}` — the key, like voice notes (#127); a suspended masjid answers `{sections: []}` (DECISIONS #104, #130) | immutable w/ v |
 | `GET /masjids/:id/beneficiaries?v=&zakat=` | – | Active needy people, least-funded first; public fields only (Phase 5, #104) | immutable w/ v |
 | `GET /items/:publicId?v=&aud=` | – | Full item incl. type detail + library content | immutable w/ v |
 | `POST /items/:publicId/ameen` | Device | Idempotent (via `recordAmeen`); returns `{count}` | no-store |
@@ -63,7 +63,7 @@ Exceeded → 429 with `Retry-After`.
 | `GET /legal/:doc/:locale` | – | Markdown → sanitized HTML for privacy/terms/grievance-officer/content-policy | s-maxage=3600 |
 
 
-Bundle additions (DECISIONS #104): `adhkar` (enabled + the ordered `dhikr` library entries), `contacts` (Ilm — both audiences; the client shows the device's own), `sections {ruqyah: count, needy: count}` so Masjid Detail can show its rows without loading the lists. Items carry `voice {url, durationS, peaks?}` when they have a voice note.
+Bundle additions (DECISIONS #104): `adhkar` (`{entries}` — the ordered verified `dhikr` library entries; `null` when off or empty — #129), `contacts` (Ilm — `[{id, name, role?, topics?, whatsapp, audience}]`, both audiences, brothers first, each in the masjid's order; the client shows the device's own and never prints the number; optional so an older cached bundle parses — #131), `sections {ruqyah: count, needy: count}` so Masjid Detail can show its rows without loading the lists. Items carry `voice {url, durationS, peaks?}` when they have a voice note.
 
 Non-API routes on the app origin: `/m/:code` (SPA route — landing/follow), `/p/:publicId` (SPA route — item landing). Both work for non-installed visitors. For link previews (WhatsApp), Caddy routes these two paths to `api-public`, which returns the built `index.html` with OpenGraph `<meta>` tags injected server-side (masjid name / item title only, HTML-escaped, no inline scripts; uniform generic tags for unknown codes) — `Cache-Control: public, s-maxage=300`.
 
@@ -92,17 +92,17 @@ Non-API routes on the app origin: `/m/:code` (SPA route — landing/follow), `/p
 |---|---|
 | Profile | `GET /` · `PATCH /` (allowed fields only) · `POST /photo` (multipart ≤ 10 MB → re-encode) |
 | Timings | `GET /timings` · `PUT /timings` (all five + jumu'ah atomically in one document, `If-Match: <rev>` → 412 on conflict, `notify` flag) · `GET /timings/preview?date=` (resolved times for a date) |
-| Special dates | `GET /special` · `POST /special` · `PATCH /special/:id` · `DELETE /special/:id` |
-| Ramadan | `PUT /ramadan` `{start, end, sehriPrecaution, iftarPrecaution}` |
+| Special dates | `GET /special` (from 30 days ago, by date) · `POST /special` · `PATCH /special/:id` (the whole entry; a label/note left out is removed) · `DELETE /special/:id` (soft) — body `{type, date, label?, times[1..5]{time, label?}, note?, notify}` (#117) |
+| Ramadan | `GET /ramadan` · `PUT /ramadan` `{start, end, sehriPrecaution, iftarPrecaution}` (start/end both `null` = off; ≤ 30 days — #117) |
 | Items | `GET /items?type=&status=&cursor=` · `POST /items/announcement` · `POST /items/daily-content` · `POST /items/dua` · `PATCH /items/:id` (If-Match `updated_at`; ≤ 24h after publish) · `DELETE /items/:id` |
 | Campaigns | `POST /campaigns` · `PATCH /campaigns/:id` · `POST /campaigns/:id/received` `{receivedPaise}` · `POST /campaigns/:id/complete` |
 | Chanda | `GET /chanda` · `PUT /chanda/:weekStart` `{amountPaise, note?, notify}` · `PATCH /chanda/settings` `{show, weekStart}` |
 | Payment | `GET /payment` (active + pending) · `POST /payment/requests` `{vpa, payeeName, note}` |
 | Videos (YouTube links only — DECISIONS #39) | `POST /videos/preview` `{url}` → `{youtubeId, startS?, title, thumbnailPreviewUrl}` (strict parse + oEmbed; `422 INVALID_VIDEO_LINK` / `422 VIDEO_UNAVAILABLE`) · `POST /videos` `{url, title, speaker?, description?, audience, locale, notify}` → published item (thumbnail copied to Cloudinary) · `PATCH /videos/:id` · `DELETE /videos/:id` |
 | Voice notes | `POST /audio` (multipart ≤ 25 MB; Ogg/Opus, WebM, MP4/M4A/AAC, MP3, WAV, 3GP by magic bytes; duration ≤ 600 s) → `{audioKey, durationS, peaks}` — attached as `voice` to `POST /items/announcement`, `/items/daily-content`, `/items/dua` (then `title` required) and to Ruqyah entries (#104) |
-| Ruqyah | `GET /ruqyah` · `POST /ruqyah` · `PATCH /ruqyah/:id` · `DELETE /ruqyah/:id` · `PUT /ruqyah/order` (#104) |
-| Adhkar | `GET /adhkar` · `PUT /adhkar` `{enabled, libraryIds[] ≤ 30}` (verified `dhikr` entries only) (#104) |
-| Ilm contacts | `GET /contacts` · `POST /contacts` (`consentConfirmed: true` required) · `PATCH /contacts/:id` · `DELETE /contacts/:id` (#104) |
+| Ruqyah | `GET /ruqyah` (active entries in order; a library entry no longer verified comes back with `libraryId` and no `library`) · `POST /ruqyah` → 201 `{id}` · `PATCH /ruqyah/:id` (the whole entry; what is left out is removed) · `DELETE /ruqyah/:id` → 204 (soft) · `PUT /ruqyah/order` `{ids}` (every active entry once → the list; else `409 RUQYAH_ORDER_INVALID`). Body: `{category, source: library\|text\|audio, title?, instructions?: {text, locale}}` + `libraryId` \| `text {arabic, translation, translationLocale, reference?}` \| `audio {key, durationS, peaks?, rightsConfirmed: true}` (then `title` required). Errors: `RUQYAH_INVALID` 400 (another masjid's recording), `LIBRARY_ENTRY_NOT_FOUND` 404, `RUQYAH_NOT_FOUND` 404, `RUQYAH_LIMIT_REACHED` 409 (50) (#104, #130) |
+| Adhkar | `GET /adhkar` · `PUT /adhkar` `{enabled, libraryIds[] ≤ 30}` (verified `dhikr` entries only) (#104) — both answer `{enabled, entries[]}` in order; a draft, retired, other-kind or unknown id `404 LIBRARY_ENTRY_NOT_FOUND`, a repeat `400` (#129) |
+| Ilm contacts | `GET /contacts` (`{contacts}`, brothers first) · `POST /contacts` → 201 `{id}` · `PATCH /contacts/:id` (the whole contact; a role or topics left out is removed) · `DELETE /contacts/:id` → 204 (soft). Body `{name ≤80, role? ≤60, topics? ≤120, whatsapp (E.164), audience: brothers|sisters, consentConfirmed: true}` — `consentConfirmed: true` required on every save. Errors: `VALIDATION_FAILED` 400 (no consent, not E.164), `CONTACT_NOT_FOUND` 404, `CONTACT_LIMIT_REACHED` 409 (10) (#104, #131) |
 | Needy people (Phase 5) | `GET /beneficiaries?status=` · `POST /beneficiaries` (`consentConfirmed: true` required) · `PATCH /beneficiaries/:id` · `POST /beneficiaries/:id/received` `{receivedPaise}` · `POST /beneficiaries/:id/close` · `GET /beneficiaries/:id/private` (decrypts phone/note for own masjid admins; audited) (#104) |
 | Library/templates (read) | `GET /library?kind=&q=&category=&cursor=` · `GET /library/suggestion?kind=` · `GET /templates` |
 | Notifications | `GET /notifications/quota` `{used, limit, resetsAt}` · `GET /notifications/jobs?cursor=` |
@@ -112,6 +112,18 @@ Non-API routes on the app origin: `/m/:code` (SPA route — landing/follow), `/p
 The blood donation camp (#104) is an announcement from the masjid-pickable template `blood_donation_camp` (`POST /items/announcement`) — no endpoint of its own.
 
 Publishing endpoints accept `notify: boolean` and return `{item, notification: {queued, targeted, quotaLeft} | null}`.
+
+`POST /items/announcement` (T3.6, DECISIONS #120): `{content: {kind: 'template', key, params} | {kind: 'text', title ≤80, body ≤1000, locale}, category, isImportant, eventAt? (category event only; from a day ago to 400 days ahead), image? {key (m/<own masjid>/…), thumbhash, rightsConfirmed: true}, notify}` → 201 `{item: {id, publicId}, notification}`. Params are checked against the template's declared params; an unknown, draft, retired or system template is `404 TEMPLATE_NOT_FOUND`; params that do not fit, another masjid's photo or an event time out of range are `400 ANNOUNCEMENT_INVALID`; no notifications left is `409 NOTIFY_QUOTA_EXCEEDED` (nothing published). `GET /templates` lists the active, non-system templates in all four languages (the public `NoticeTemplate` shape).
+
+`POST /items/daily-content` (T3.7, DECISIONS #122): `{libraryId, note? (1–200), notify}` → 201 `{item, notification}`. The kind (hadith / ayah) is the library entry's own; free text, a `kind` or a `title` in the body is a 400. A draft, retired, dua, dhikr or unknown entry is `404 LIBRARY_ENTRY_NOT_FOUND`; no notifications left is `409 NOTIFY_QUOTA_EXCEEDED`. A second one of the same kind on a day is allowed: `GET /library/suggestion?kind=` answers `{entry, publishedToday}` so B6 can warn first.
+
+`POST /items/dua` (T3.8, DECISIONS #123): `{category, message (1–500), locale, personName? (≤80), namePrivate, libraryId, janazaAt?, janazaPlace? (≤120), notify}` → 201 `{item, notification}`. The entry must be a verified dua (`404 LIBRARY_ENTRY_NOT_FOUND`); `janazaAt` / `janazaPlace` only with `inteqal` (400), the janaza from a day ago to 30 days ahead (`400 DUA_INVALID`). The title is the category's ("Request for Dua"), never sent. A private name is never in api-public's responses (`v_pub_items` removes it).
+
+My Posts (T3.9, DECISIONS #124): `GET /items?type=&status=&cursor=` → `{items: [{id, status, updatedAt, editableUntil?, libraryId?, privateName?, removedReason?, deletedAt?, item: FeedItem}], next}` (every status, newest first, 30 a page). `PATCH /items/:id` with `If-Match: "<updatedAt>"` and `{type, …the type's publish fields without notify}` → `{updatedAt}`; within 24 h of publishing (`409 EDIT_WINDOW_CLOSED`), stale If-Match `412 PRECONDITION_FAILED`, missing `400`, another type or a timing update `409 ITEM_NOT_EDITABLE`; content is checked as at publish; sets `edited_at`; never notifies. `DELETE /items/:id` → 204 (any age; again → 204; removed posts → 404): soft delete, purge after 180 days.
+
+Masjid Profile (T3.10, DECISIONS #125): `GET /masjids/:id` → `{id, name, nameI18n, area, city, state, address, photo?{key, thumbhash?, url?}, hijriOffset (-2…+2 | null), globalHijriOffset}`. `PATCH /masjids/:id` `{hijriOffset: -2…+2 | null}` only (any other key → 400). `POST /masjids/:id/photo?rightsConfirmed=true` (multipart `file`, the image pipeline) → the profile. Both bump the masjid version; `400 PROFILE_INVALID` for an offset out of range or nothing to change. `POST /masjids/:id/change-requests {note ≤ 300}` → 204: a note for the Super Admin, listed in `GET /super/dashboard` → `changeRequests` until that masjid is next edited.
+
+Voice notes (T3.13, DECISIONS #126): `POST /masjids/:id/audio?rightsConfirmed=true&durationS=<seconds>&peaks=<48 comma-separated 0…255>` (multipart `file`, ≤ 25 MB, container by magic bytes) → 201 `{audioKey, durationS, peaks}`; not audio `422 AUDIO_INVALID`; over 10 minutes (the storage's own measurement when it has one, else the declared length) `422 AUDIO_TOO_LONG` and nothing kept. Posts (T3.13 part 2, #127): the announcement / daily-content / dua publish and edit bodies take `voice?: {key, durationS, peaks[48]}` plus a top-level `title` (≤ 120) for posts without one of their own — only together with a voice note; another masjid's recording or a voice note without a title is `400 VOICE_INVALID`. Public items carry `voice {key, durationS, peaks?}` (the app plays `<media origin>/a/m4a/<key>`).
 
 ## 5. Super Admin API — `admin.<domain>/api/super` (role super_admin; ★ = step-up required)
 | Area | Endpoints |
@@ -123,8 +135,8 @@ Publishing endpoints accept `notify: boolean` and return `{item, notification: {
 | Moderation | `GET /reports?status=&cursor=` · ★`POST /items/:id/remove` `{reason, reportIds[]?, legalOrderId?}` · ★`POST /items/:id/restore` · `POST /reports/:id/dismiss` |
 | Grievances | `GET /grievances` · `POST /grievances/:id/ack` · `POST /grievances/:id/resolve` · ★`GET /grievances/:id/contact` |
 | Legal orders | `GET/POST /legal-orders` · `PATCH /legal-orders/:id` · `POST /legal-orders/:id/document` |
-| Library | ★`POST /library/import` (JSON file, schema-validated, dry-run first) · `PATCH /library/:id` · `POST /library/:id/verify` `{verifiedBy}` · `POST /library/:id/retire` |
-| Templates | `GET/POST/PATCH /templates` |
+| Library | `GET /library?status=&kind=&category=&tag=&q=&cursor=` · `GET /library/:id` · `POST /library/import/dry-run` (multipart JSON file → report) · ★`POST /library/import` (same file; all or nothing, as `draft`) · `PATCH /library/:id` · `POST /library/:id/verify` `{verifiedBy}` · `POST /library/:id/retire` (DECISIONS #108) |
+| Templates | `GET /templates` · `GET /templates/:key` · `POST /templates` (always `draft`) · `PATCH /templates/:key` (edits; `status` active/retired — active needs reviewed translations; params only while draft) · `POST /templates/starters` (adds missing starters as drafts) — ICU checked in all 4 languages (DECISIONS #111) |
 | Settings | `GET/PATCH /settings` |
 | Audit | `GET /audit?actor=&masjid=&action=&from=&to=&cursor=` · `GET /audit/export.csv` |
 | Posters | `GET /masjids/:id/poster-data` (follow code, deep link, names) — poster rendered client-side |

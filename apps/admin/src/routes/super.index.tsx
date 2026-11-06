@@ -93,6 +93,36 @@ function Dashboard() {
           <SkeletonText lines={3} />
         )}
       </section>
+
+      <section className="mt-8 flex flex-col gap-3" data-change-requests>
+        <SectionHeader title={t('dashboard.changeRequests')} />
+        {dashboard.data ? (
+          dashboard.data.changeRequests.length > 0 ? (
+            <ul className="flex flex-col divide-y divide-border rounded-md bg-surface shadow-e1">
+              {dashboard.data.changeRequests.map((request) => (
+                <li key={request.id}>
+                  <ListRow
+                    className="px-4"
+                    leading={<MasjidTile />}
+                    title={<span dir="auto">{request.masjidName}</span>}
+                    subtitle={<span dir="auto">{request.note}</span>}
+                    subtitleLines={3}
+                    meta={format.date(new Date(request.at), 'medium')}
+                    chevron
+                    onPress={() => {
+                      navigator.push(`/super/masjids/${request.masjidId}`);
+                    }}
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <InfoNote>{t('dashboard.noChangeRequests')}</InfoNote>
+          )
+        ) : (
+          <SkeletonText lines={3} />
+        )}
+      </section>
     </SuperFrame>
   );
 }

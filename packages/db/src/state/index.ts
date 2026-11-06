@@ -1,4 +1,5 @@
 // `@mc/db/state` — the only way to perform sensitive changes (02 §3); each runs in one transaction with its audit entry.
+export { type AdhkarInput, setAdhkar } from './adhkar.ts';
 export {
   addAdminToMasjid,
   consumeInvite,
@@ -10,6 +11,7 @@ export {
   MAX_ADMINS_PER_MASJID,
   removeAdminFromMasjid,
 } from './admins.ts';
+export { type AnnouncementInput, type AnnouncementPublished, publishAnnouncement } from './announcements.ts';
 export {
   type AdminRole,
   completeAssertion,
@@ -34,6 +36,8 @@ export {
   SESSION_LIFETIMES,
 } from './auth.ts';
 export { bootstrapSuperAdmin } from './bootstrap.ts';
+export { addContact, type ContactInput, deleteContact, updateContact } from './contacts.ts';
+export { type DailyContentInput, type DailyContentPublished, publishDailyContent } from './daily.ts';
 export {
   type AudiencePref,
   deleteDevice,
@@ -52,9 +56,22 @@ export {
   setFollowMuted,
   touchDevice,
 } from './devices.ts';
+export { type DuaRequestInput, type DuaRequestPublished, publishDuaRequest } from './duas.ts';
 export { followMasjid, MAX_FOLLOWS_PER_DEVICE, unfollowMasjid } from './follows.ts';
 export { requireSuper, STEP_UP_WINDOW_MS } from './guards.ts';
+export { deleteItem, EDIT_WINDOW_MS, EDITABLE_ITEM_TYPES, editItem, type ItemEdit } from './items.ts';
 export * from './later.ts';
+export {
+  findLibraryDuplicates,
+  importLibraryEntries,
+  type LibraryEntryInput,
+  type LibraryKey,
+  libraryKey,
+  type LibraryPatch,
+  retireLibraryEntry,
+  updateLibraryEntry,
+  verifyLibraryEntry,
+} from './library.ts';
 export {
   changeMasjidStatus,
   createMasjid,
@@ -62,6 +79,31 @@ export {
   mirrorVisibility,
   type NewMasjid,
 } from './masjids.ts';
+export { type ImagePurpose, recordAudioUpload, recordImageUpload } from './media.ts';
+export { type MasjidProfilePatch, requestMasjidChange, updateMasjidProfile } from './profile.ts';
+export {
+  enqueueNotification,
+  insertPublishedItem,
+  type ItemAudience,
+  type PublishedItemInput,
+  publishTimingUpdate,
+} from './publish.ts';
+export {
+  addRuqyahEntry,
+  deleteRuqyahEntry,
+  orderRuqyahEntries,
+  type RuqyahContent,
+  type RuqyahEntryInput,
+  updateRuqyahEntry,
+} from './ruqyah.ts';
+export {
+  deleteSpecialDate,
+  type RamadanInput,
+  saveRamadan,
+  saveSpecialDate,
+  SPECIAL_TIMINGS_TEMPLATE,
+  type SpecialDateInput,
+} from './special.ts';
 export {
   acceptUndertaking,
   type MasjidPatch,
@@ -73,3 +115,20 @@ export {
   updateMasjid,
   updateSettings,
 } from './super.ts';
+export {
+  addStarterTemplates,
+  createTemplate,
+  type StarterTemplateInput,
+  type TemplateInput,
+  type TemplateParamInput,
+  type TemplatePatch,
+  updateTemplate,
+} from './templates.ts';
+export {
+  PRAYER_KEYS,
+  type PrayerKey,
+  type PrayerTimingInput,
+  saveTimings,
+  TIMINGS_UPDATED_TEMPLATE,
+  type TimingsInput,
+} from './timings.ts';

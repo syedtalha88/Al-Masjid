@@ -47,4 +47,18 @@ export const SCHEMA_AREAS: Readonly<
   '0006_views': { collections: [], views: [...PUBLIC_VIEWS, ...ADMIN_VIEWS] },
   // PHASE_02 T2.2: feed and special-date order inside the views (index-backed pages).
   '0008_view_order': { collections: [], views: ['v_pub_items', 'v_pub_special_timings'] },
+  // PHASE_03 T3.4 (DECISIONS #104): library kind `dhikr` (+ repeat, occasions); template param type `phone`.
+  '0009_library_dhikr': { collections: ['content_library', 'notice_templates'], views: ['v_pub_library'] },
+  // PHASE_03 T3.5 (DECISIONS #111): template status `draft` — unreviewed templates are never active.
+  '0010_template_draft': { collections: ['notice_templates'], views: ['v_pub_templates'] },
+  // PHASE_03 T3.13 (DECISIONS #104): `voice` on announcement / daily_content / dua_request, always with a title.
+  '0011_item_voice': { collections: ['items'] },
+  // PHASE_03 T3.14 (DECISIONS #104): the masjid's "Adhkar after salah" set, public through v_pub_masjids.
+  '0012_masjid_adhkar': { collections: ['masjids'], views: ['v_pub_masjids'] },
+  // PHASE_03 T3.15 (DECISIONS #104): the masjid's Ruqyah section — library, text or audio entries.
+  '0013_ruqyah': { collections: ['ruqyah_entries'], views: ['v_pub_ruqyah'] },
+  // PHASE_03 T3.16 (DECISIONS #104): Ilm contacts — volunteers listed with their consent, in the bundle.
+  '0014_contacts': { collections: ['masjid_contacts'], views: ['v_pub_contacts'] },
+  // DECISIONS #135 (security review L4): `v_pub_ruqyah` lists its public fields instead of hiding the private ones.
+  '0015_ruqyah_view': { collections: [], views: ['v_pub_ruqyah'] },
 };

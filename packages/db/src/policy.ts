@@ -44,7 +44,7 @@ export interface Cell {
    * per operator and path; `$unset` → `undefined`), returns why it is refused, or `undefined`. For what an allow-list
    * of field names cannot say (e.g. items: never `removed`).
    */
-  readonly check?: (fields: Readonly<Record<string, unknown>>) => string | undefined;
+  readonly check?: (fields: Readonly<Record<string, unknown>>, operator?: string) => string | undefined;
 }
 
 type Cells = Partial<Record<Kind, Partial<Record<Operation, Cell>>>>;
@@ -105,6 +105,7 @@ export const ADMIN_MASJID_FIELDS = [
   'sehri_precaution_min',
   'iftar_precaution_min',
   'hijri_offset',
+  'adhkar',
 ] as const;
 /** Fields the Super Admin may change directly; status, deletion, follow code and counters only via state functions. */
 const SUPER_MASJID_FIELDS = [
@@ -139,6 +140,7 @@ const ITEM_WRITABLE = [
   'published_version',
   'edited_at',
   'deleted_at',
+  'voice',
   'announcement',
   'daily',
   'dua',
@@ -157,6 +159,20 @@ const itemCheck = (fields: Readonly<Record<string, unknown>>): string | undefine
   const guarded = ITEM_MODERATION_FIELDS.find((field) => field in fields);
   return guarded ? `${guarded} is set by moderation / retention only` : undefined;
 };
+/** An outbox job starts pending with nothing sent (the worker moves it on — Phase 4). */
+const pendingJob = (fields: Readonly<Record<string, unknown>>): string | undefined =>
+  fields['status'] === 'pending' && fields['sent'] === 0 && fields['failed'] === 0 && fields['bypass_quota'] === false
+    ? undefined
+    : 'a new notification job is pending, with nothing sent and no quota bypass';
+/**
+ * The daily notification count only goes up, one notification at a time: a new day's row starts at 1, a write is
+ * `$inc: {count: 1}` — never a reset or a jump (security review L3, DECISIONS #135).
+ */
+const quotaCount = (fields: Readonly<Record<string, unknown>>, operator?: string): string | undefined => {
+  if (!('count' in fields)) return undefined;
+  const ok = fields['count'] === 1 && (operator === undefined || operator === '$inc');
+  return ok ? undefined : 'the notification count only goes up by one';
+};
 /** Generic item updates never touch a removed item (no un-removing). */
 const notRemoved = { status: { $ne: 'removed' } };
 
@@ -172,9 +188,41 @@ const TIMING_WRITABLE = [
   'note',
   'deleted_at',
 ];
+/** 02 §4.1 ruqyah_entries: never `masjid_id` or `created_by`; delete = `status: 'deleted'`, final (no undelete). */
+const RUQYAH_WRITABLE = [
+  'category',
+  'source',
+  'title',
+  'library_id',
+  'text',
+  'audio',
+  'instructions',
+  'instructions_locale',
+  'sort',
+  'status',
+  'deleted_at',
+];
+/** Masjid sections (Ruqyah, Ilm contacts): a new record is active; the only status change is to deleted. */
+const sectionInsert = (fields: Readonly<Record<string, unknown>>): string | undefined =>
+  fields['status'] === 'active' ? undefined : 'a new record is active';
+const sectionUpdate = (fields: Readonly<Record<string, unknown>>): string | undefined =>
+  'status' in fields && fields['status'] !== 'deleted' ? 'a record can only be deleted, never restored' : undefined;
+/** 02 §4.1 masjid_contacts: as Ruqyah — never `masjid_id` or `created_by`; the consent stays true (the validator). */
+const CONTACT_WRITABLE = [
+  'name',
+  'role',
+  'topics',
+  'whatsapp',
+  'audience',
+  'consent_confirmed',
+  'sort',
+  'status',
+  'deleted_at',
+];
 const removedRedaction = (doc: Document): Document => {
   if (doc['status'] !== 'removed') return doc;
-  const { title: _t, body: _b, image_key: _i, image_thumbhash: _h, ...rest } = doc;
+  // A taken-down recording's key too: it cannot be read back and attached elsewhere (DECISIONS #135).
+  const { title: _t, body: _b, image_key: _i, image_thumbhash: _h, voice: _v, ...rest } = doc;
   return rest;
 };
 
@@ -267,6 +315,31 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
     },
     super: all(),
   },
+  ruqyah_entries: {
+    admin: {
+      find: { filter: own('masjid_id') },
+      insert: { filter: own('masjid_id'), check: sectionInsert },
+      // A deleted entry is never changed again (the 30-day retention clock runs from `deleted_at`).
+      update: {
+        filter: (ctx) => ({ ...own('masjid_id')(ctx), status: 'active' }),
+        writable: RUQYAH_WRITABLE,
+        check: sectionUpdate,
+      },
+    },
+    super: all(),
+  },
+  masjid_contacts: {
+    admin: {
+      find: { filter: own('masjid_id') },
+      insert: { filter: own('masjid_id'), check: sectionInsert },
+      update: {
+        filter: (ctx) => ({ ...own('masjid_id')(ctx), status: 'active' }),
+        writable: CONTACT_WRITABLE,
+        check: sectionUpdate,
+      },
+    },
+    super: all(),
+  },
   content_library: {
     admin: { find: { filter: () => ({ status: 'verified' }), hidden: ['search_text', 'import_batch_id'] } },
     super: all(),
@@ -322,8 +395,20 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
       delete: { filter: selfAdmin('admin_id') },
     },
   },
-  notification_jobs: { admin: { find: { filter: own('masjid_id') } }, super: { find: S } },
-  push_quota_usage: { admin: { find: { filter: own('masjid_id') } }, super: { find: S } },
+  // The publish transaction runs as the admin: it counts the notification and writes the pending outbox job (DECISIONS #9,
+  // #115). Jobs are insert-only and start pending; only the quota's `count` ever changes.
+  notification_jobs: {
+    admin: { find: { filter: own('masjid_id') }, insert: { filter: own('masjid_id'), check: pendingJob } },
+    super: { find: S },
+  },
+  push_quota_usage: {
+    admin: {
+      find: { filter: own('masjid_id') },
+      insert: { filter: own('masjid_id'), check: quotaCount },
+      update: { filter: own('masjid_id'), writable: ['count'], check: quotaCount },
+    },
+    super: { find: S },
+  },
   reports: {
     device: { insert: { filter: selfDevice('device_id') } },
     admin: { find: { filter: own('masjid_id'), hidden: ['device_id'] } },
@@ -387,6 +472,8 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
   v_pub_library: viewCells(),
   v_pub_templates: viewCells(),
   v_pub_settings: viewCells(),
+  v_pub_ruqyah: viewCells(),
+  v_pub_contacts: viewCells(),
   // Counts for push audiences without device ids (02 §4.2) — admins see only their own masjids.
   v_admin_follow_audience: { admin: { find: { filter: own('masjid_id') } }, super: { find: S } },
 };

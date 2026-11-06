@@ -6,11 +6,17 @@ import {
   changedSchema,
   countSchema,
   inviteLinkSchema,
+  type LIBRARY_KINDS,
+  type LIBRARY_STATUSES,
+  libraryImportReportSchema,
   noContentSchema,
   problemSchema,
+  starterTemplatesAddedSchema,
   type SuperAdminCreate,
   superAdminCreatedSchema,
   superDashboardSchema,
+  superLibraryEntryResponseSchema,
+  superLibraryListSchema,
   type SuperMasjidCreate,
   superMasjidCreatedSchema,
   superMasjidDetailSchema,
@@ -18,6 +24,10 @@ import {
   type SuperMasjidPatch,
   type SuperSettingsPatch,
   superSettingsSchema,
+  type SuperTemplateCreate,
+  superTemplateListSchema,
+  type SuperTemplatePatch,
+  superTemplateResponseSchema,
 } from '@mc/shared/contracts';
 import { ProblemError, ResponseError } from '@mc/shared/http';
 
@@ -33,6 +43,15 @@ const id = (value: string) => encodeURIComponent(value);
 
 export type MasjidStatusFilter = 'pending' | 'active' | 'suspended' | 'deleted';
 export type Transition = 'activate' | 'suspend' | 'unsuspend' | 'delete';
+export type LibraryStatus = (typeof LIBRARY_STATUSES)[number];
+export type LibraryKind = (typeof LIBRARY_KINDS)[number];
+
+/** The import file as one multipart part named `file` (DECISIONS #107). */
+const fileForm = (file: Blob, name: string) => {
+  const form = new FormData();
+  form.append('file', file, name);
+  return form;
+};
 
 export const superApi = {
   dashboard: (signal?: AbortSignal) => call(`${SUPER_API}/dashboard`, superDashboardSchema, signal ? { signal } : {}),
@@ -71,6 +90,37 @@ export const superApi = {
   updateSettings: (body: SuperSettingsPatch) => call(`${SUPER_API}/settings`, changedSchema, { method: 'PATCH', body }),
   audit: (params: AuditQuery, signal?: AbortSignal) =>
     call(`${SUPER_API}/audit${query(params)}`, auditPageSchema, signal ? { signal } : {}),
+  library: (
+    params: { status?: LibraryStatus; kind?: LibraryKind; q?: string; cursor?: string },
+    signal?: AbortSignal,
+  ) => call(`${SUPER_API}/library${query(params)}`, superLibraryListSchema, signal ? { signal } : {}),
+  libraryEntry: (entryId: string, signal?: AbortSignal) =>
+    call(`${SUPER_API}/library/${id(entryId)}`, superLibraryEntryResponseSchema, signal ? { signal } : {}),
+  /** Checks a library file; nothing is written. */
+  libraryDryRun: (file: Blob, name: string) =>
+    call(`${SUPER_API}/library/import/dry-run`, libraryImportReportSchema, {
+      method: 'POST',
+      form: fileForm(file, name),
+    }),
+  /** ★ Imports a library file as draft — all entries or none. */
+  libraryImport: (file: Blob, name: string) =>
+    call(`${SUPER_API}/library/import`, libraryImportReportSchema, { method: 'POST', form: fileForm(file, name) }),
+  verifyLibraryEntry: (entryId: string, verifiedBy: string) =>
+    call(`${SUPER_API}/library/${id(entryId)}/verify`, superLibraryEntryResponseSchema, {
+      method: 'POST',
+      body: { verifiedBy },
+    }),
+  retireLibraryEntry: (entryId: string) =>
+    call(`${SUPER_API}/library/${id(entryId)}/retire`, superLibraryEntryResponseSchema, { method: 'POST' }),
+  templates: (signal?: AbortSignal) =>
+    call(`${SUPER_API}/templates`, superTemplateListSchema, signal ? { signal } : {}),
+  template: (key: string, signal?: AbortSignal) =>
+    call(`${SUPER_API}/templates/${id(key)}`, superTemplateResponseSchema, signal ? { signal } : {}),
+  createTemplate: (body: SuperTemplateCreate) =>
+    call(`${SUPER_API}/templates`, superTemplateResponseSchema, { method: 'POST', body }),
+  updateTemplate: (key: string, body: SuperTemplatePatch) =>
+    call(`${SUPER_API}/templates/${id(key)}`, superTemplateResponseSchema, { method: 'PATCH', body }),
+  addStarterTemplates: () => call(`${SUPER_API}/templates/starters`, starterTemplatesAddedSchema, { method: 'POST' }),
   /** CSV export (★): fetched with the session cookie and handed to the browser as a download. */
   async auditCsv(params: Omit<AuditQuery, 'cursor'>): Promise<Blob> {
     const response = await fetch(`${SUPER_API}/audit/export.csv${query(params)}`, {

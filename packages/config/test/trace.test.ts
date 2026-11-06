@@ -115,6 +115,44 @@ describe('analyzeTrace — frames and layout thrash', () => {
     ];
     expect(analyzeTrace(events).layoutsInAnimationFrames).toBe(1);
   });
+
+  it('names the script calls of that frame and, when traced, the stack that forced the layout', () => {
+    const call = {
+      functionName: 'measure',
+      url: 'https://app.test/assets/index-abc.js?v=1',
+      lineNumber: 3,
+      columnNumber: 77,
+    };
+    const events = [
+      ...meta,
+      x('FireAnimationFrame', 100, 10),
+      x('FunctionCall', 101, 4, { data: call }),
+      x('Layout', 102, 3, { beginData: { stackTrace: [call, { functionName: '', url: '' }] } }),
+      x('FireAnimationFrame', 200, 10),
+      x('Layout', 202, 1),
+    ];
+    expect(analyzeTrace(events).animationFrameLayouts).toEqual([
+      expect.stringMatching(
+        /ms: layout 3 ms in a 10 ms frame; calls: measure@index-abc\.js:3:77 ; stack: measure@index-abc\.js:3:77 < \?@\(inline\):\?:\?$/,
+      ),
+      expect.stringMatching(/layout 1 ms in a 10 ms frame; calls: -$/),
+    ]);
+  });
+
+  it("does not count frames that ran only URL-less scripts (the test driver's own rAF loop) — still listed", () => {
+    const injected = { functionName: 'raf', url: '', lineNumber: 7339, columnNumber: 17 };
+    const events = [
+      ...meta,
+      x('FireAnimationFrame', 100, 1),
+      x('FunctionCall', 100.1, 0.5, { data: injected }),
+      x('Layout', 100.2, 0.1),
+    ];
+    const report = analyzeTrace(events);
+    expect(report.layoutsInAnimationFrames).toBe(0);
+    expect(report.animationFrameLayouts).toEqual([
+      expect.stringMatching(/raf@\(inline\):7339:17 \(test driver — not counted\)$/),
+    ]);
+  });
 });
 
 describe('parseTrace', () => {

@@ -40,10 +40,23 @@ admin,home.tiles.dua,Dua Request,దువా అభ్యర్థన,no
 admin,home.tiles.donation,Donation Drive,విరాళ సేకరణ,no
 admin,home.tiles.chanda,Chanda,చందా,no
 admin,home.tiles.video,Bayan Video,బయాన్ వీడియో,no
-admin,home.tiles.specialDates,Special Dates & Ramadan,ప్రత్యేక తేదీలు & రమజాన్,no
+admin,home.tiles.specialDates,Special Dates & Ramadan,ప్రత్యేక రోజులు & రంజాన్,no
+admin,home.tiles.adhkar,Adhkar,అజ్కార్,no
 admin,home.tiles.myPosts,My Posts,నా పోస్ట్‌లు,no
 admin,home.tiles.profile,Masjid Profile,మస్జిద్ ప్రొఫైల్,no
+admin,home.tiles.ruqyah,Ruqyah,రుఖ్యా,no
+admin,home.tiles.bloodCamp,Blood Camp,రక్తదాన శిబిరం,no
+admin,home.tiles.needy,Help the Needy,అవసరంలో ఉన్నవారికి సహాయం,no
 admin,home.superAdmin,Super Admin,సూపర్ అడ్మిన్,no
+admin,home.followers,"{count, plural, one {# follower} other {# followers}}","{count, plural, one {# ఫాలోవర్} other {# ఫాలోవర్లు}}",no
+admin,home.today.nextJamaat,Next jamaat,తదుపరి జమాత్,no
+admin,home.today.tomorrow,Tomorrow,రేపు,no
+admin,home.today.noJamaat,No jamaat set for today,ఈరోజు జమాత్ నిర్ణయించలేదు,no
+admin,home.today.unset,Prayer times are not set yet,నమాజ్ సమయాలు ఇంకా నిర్ణయించలేదు,no
+admin,home.today.edit,Edit timings,సమయాలు మార్చండి,no
+admin,home.today.set,Set prayer times,నమాజ్ సమయాలు సెట్ చేయండి,no
+admin,home.quota,Notifications today: {used} of {limit} used,ఈరోజు నోటిఫికేషన్లు: {limit} లో {used} వాడారు,no
+admin,home.soon,Soon,త్వరలో,no
 admin,comingSoon.title,Coming soon,త్వరలో వస్తోంది,no
 admin,comingSoon.body,This part of the app is being built. It will appear here in an update.,యాప్‌లో ఈ భాగం తయారవుతోంది. ఇది ఒక అప్‌డేట్‌లో ఇక్కడ కనిపిస్తుంది.,no
 admin,account.title,My account,నా ఖాతా,no
@@ -70,6 +83,470 @@ admin,account.linkCopied,Link copied,లింక్ కాపీ అయిం�
 admin,account.shareWhatsApp,Send on WhatsApp,వాట్సాప్‌లో పంపండి,no
 admin,account.whatsAppMessage,My Masjid Connect admin login link: {url},నా మస్జిద్ కనెక్ట్ అడ్మిన్ లాగిన్ లింక్: {url},no
 admin,account.undertaking,Admin undertaking,అడ్మిన్ హామీ పత్రం,no
+admin,timings.prevDay,Previous day,ముందు రోజు,no
+admin,timings.nextDay,Next day,తర్వాతి రోజు,no
+admin,timings.pickDay,Choose a day,రోజు ఎంచుకోండి,no
+admin,timings.title,Prayer Times,నమాజ్ సమయాలు,no
+admin,timings.adhan,Adhan,అజాన్,no
+admin,timings.jamaat,Jamaat,జమాత్,no
+admin,timings.calculated,Calculated,లెక్కించినది,no
+admin,timings.setByYou,Set by you,మీరు సెట్ చేశారు,no
+admin,timings.notSet,Not set,సెట్ చేయలేదు,no
+admin,timings.minutesAfter,{minutes} min after adhan,అజాన్ తర్వాత {minutes} నిమి,no
+admin,timings.adhanSheet,{prayer} adhan,{prayer} అజాన్,no
+admin,timings.jamaatSheet,{prayer} jamaat,{prayer} జమాత్,no
+admin,timings.modeAuto,Calculated,లెక్కించినది,no
+admin,timings.modeManual,Set time,సమయం ఎంచుకోండి,no
+admin,timings.modeFixed,Fixed time,నిర్ణీత సమయం,no
+admin,timings.modeOffset,After adhan,అజాన్ తర్వాత,no
+admin,timings.modeLabel,How it is set,ఎలా సెట్ చేయాలి,no
+admin,timings.adjust,Adjust the calculated time,లెక్కించిన సమయాన్ని మార్చండి,no
+admin,timings.asCalculated,As calculated,లెక్కించినట్లే,no
+admin,timings.later,{minutes} min later,{minutes} నిమి ఆలస్యంగా,no
+admin,timings.earlier,{minutes} min earlier,{minutes} నిమి ముందుగా,no
+admin,timings.oneEarlier,1 minute earlier,1 నిమిషం ముందు,no
+admin,timings.oneLater,1 minute later,1 నిమిషం తర్వాత,no
+admin,timings.oneLess,1 minute less,1 నిమిషం తక్కువ,no
+admin,timings.oneMore,1 minute more,1 నిమిషం ఎక్కువ,no
+admin,timings.offsetValue,{minutes} minutes after adhan,అజాన్ తర్వాత {minutes} నిమిషాలు,no
+admin,timings.today,Today: {time},ఈరోజు: {time},no
+admin,timings.done,Done,పూర్తయింది,no
+admin,timings.jumuah,Jumu’ah,జుమా,no
+admin,timings.jumuahN,Jamaat {n},జమాత్ {n},no
+admin,timings.khutbah,Khutbah,ఖుత్బా,no
+admin,timings.khutbahSheet,Khutbah before jamaat {n},జమాత్ {n} ముందు ఖుత్బా,no
+admin,timings.jumuahSheet,Jumu’ah jamaat {n},జుమా జమాత్ {n},no
+admin,timings.noKhutbah,No khutbah time,ఖుత్బా సమయం లేదు,no
+admin,timings.addJumuah,Add a Jumu’ah jamaat,జుమా జమాత్ జోడించండి,no
+admin,timings.removeJumuah,Remove jamaat {n},జమాత్ {n} తొలగించండి,no
+admin,timings.issue.jamaat_before_adhan,Jamaat is before adhan,జమాత్ అజాన్ కంటే ముందు ఉంది,no
+admin,timings.issue.isha_before_maghrib,Isha is before Maghrib,ఇషా మగ్రిబ్ కంటే ముందు ఉంది,no
+admin,timings.issue.fajr_jamaat_after_sunrise,Fajr jamaat is after sunrise,ఫజ్ర్ జమాత్ సూర్యోదయం తర్వాత ఉంది,no
+admin,timings.issue.jumuah_before_khutbah,Jamaat is before the khutbah,జమాత్ ఖుత్బా కంటే ముందు ఉంది,no
+admin,timings.issueFrom,{issue} (from {date}),{issue} ({date} నుండి),no
+admin,timings.needAll,Set all five jamaat times so your masjid can go live.,మీ మస్జిద్ ప్రారంభం కావడానికి ఐదు జమాత్ సమయాలు సెట్ చేయండి.,no
+admin,timings.preview,Preview,ప్రివ్యూ,no
+admin,timings.previewTitle,How followers will see it,ఫాలోవర్లకు ఇలా కనిపిస్తుంది,no
+admin,timings.showIn,Show in,ఇందులో చూపించు,no
+admin,timings.notify,Notify followers,ఫాలోవర్లకు తెలియజేయండి,no
+admin,timings.quota,{left} of {limit} left today,ఈరోజు {limit}లో {left} మిగిలాయి,no
+admin,timings.save,Save timings,సమయాలు సేవ్ చేయండి,no
+admin,timings.confirmTitle,Save these timings?,ఈ సమయాలు సేవ్ చేయాలా?,no
+admin,timings.confirmToday,What changes today,ఈరోజు ఏం మారుతుంది,no
+admin,timings.noChangeToday,Nothing changes today. The new times start on later days.,ఈరోజు ఏమీ మారదు. కొత్త సమయాలు తర్వాతి రోజుల నుండి అమలవుతాయి.,no
+admin,timings.willNotify,Followers will be notified.,ఫాలోవర్లకు తెలియజేయబడుతుంది.,no
+admin,timings.willNotNotify,Followers will not be notified.,ఫాలోవర్లకు తెలియజేయబడదు.,no
+admin,timings.confirmSave,Save,సేవ్ చేయండి,no
+admin,timings.changeLine,{name} {part}: {from} → {to},{name} {part}: {from} → {to},no
+admin,timings.conflictTitle,Someone else changed the timings,వేరొకరు సమయాలు మార్చారు,no
+admin,timings.conflictBody,Another admin saved new timings while you were editing. Load the latest timings and make your change again.,మీరు మార్చుతున్నప్పుడు మరో అడ్మిన్ కొత్త సమయాలు సేవ్ చేశారు. తాజా సమయాలు లోడ్ చేసి మీ మార్పు మళ్లీ చేయండి.,no
+admin,timings.loadLatest,Load the latest,తాజా సమయాలు లోడ్ చేయండి,no
+admin,timings.quotaTitle,No notifications left today,ఈరోజు నోటిఫికేషన్లు అయిపోయాయి,no
+admin,timings.quotaBody,You can still save. Followers will see the new times when they open the app.,మీరు ఇంకా సేవ్ చేయవచ్చు. ఫాలోవర్లు యాప్ తెరిచినప్పుడు కొత్త సమయాలు చూస్తారు.,no
+admin,timings.saveWithout,Save without notifying,తెలియజేయకుండా సేవ్ చేయండి,no
+admin,timings.saved,Saved,సేవ్ అయింది,no
+admin,timings.savedNotified,Your followers will be notified.,మీ ఫాలోవర్లకు తెలియజేయబడుతుంది.,no
+admin,timings.savedQuiet,Followers will see the new times.,ఫాలోవర్లు కొత్త సమయాలు చూస్తారు.,no
+admin,timings.quickOffsets,Quick choice,త్వరగా ఎంచుకోండి,no
+admin,special.title,Special Dates & Ramadan,ప్రత్యేక రోజులు & రంజాన్,no
+admin,special.ramadan,Ramadan,రంజాన్,no
+admin,special.ramadanMode,Ramadan mode,రంజాన్ మోడ్,no
+admin,special.ramadanHint,During these days followers see Sehri and Iftar times on their Home screen.,"ఈ రోజుల్లో ఫాలోవర్లకు హోమ్ స్క్రీన్‌పై సహరీ, ఇఫ్తార్ సమయాలు కనిపిస్తాయి.",no
+admin,special.firstDay,First day,మొదటి రోజు,no
+admin,special.lastDay,Last day,చివరి రోజు,no
+admin,special.pickFirst,First day of Ramadan,రంజాన్ మొదటి రోజు,no
+admin,special.pickLast,Last day of Ramadan,రంజాన్ చివరి రోజు,no
+admin,special.sehriEarlier,Sehri ends earlier by,సహరీ ఇంత ముందుగా ముగుస్తుంది,no
+admin,special.iftarLater,Iftar later by,ఇఫ్తార్ ఇంత ఆలస్యంగా,no
+admin,special.minutes,"{minutes, plural, =0 {No change} one {# minute} other {# minutes}}","{minutes, plural, =0 {మార్పు లేదు} one {# నిమిషం} other {# నిమిషాలు}}",no
+admin,special.previewToday,With these settings today: Sehri ends {sehri} · Iftar {iftar},ఈ సెట్టింగ్‌లతో ఈరోజు: సహరీ ముగింపు {sehri} · ఇఫ్తార్ {iftar},no
+admin,special.disclaimer,Followers are told to follow your masjid’s announcement if it differs.,తేడా ఉంటే మీ మస్జిద్ ప్రకటనను పాటించమని ఫాలోవర్లకు చెప్పబడుతుంది.,no
+admin,special.saveRamadan,Save Ramadan settings,రంజాన్ సెట్టింగ్‌లు సేవ్ చేయండి,no
+admin,special.ramadanSaved,Ramadan settings saved,రంజాన్ సెట్టింగ్‌లు సేవ్ అయ్యాయి,no
+admin,special.ramadanIssue.end_before_start,The last day is before the first day.,చివరి రోజు మొదటి రోజు కంటే ముందు ఉంది.,no
+admin,special.ramadanIssue.too_long,Ramadan mode can be on for at most 30 days.,రంజాన్ మోడ్ గరిష్టంగా 30 రోజులు ఉండవచ్చు.,no
+admin,special.ramadanIssue.date_out_of_range,Choose dates within a year from today.,ఈరోజు నుండి ఒక సంవత్సరంలోపు తేదీలను ఎంచుకోండి.,no
+admin,special.dates,Special dates,ప్రత్యేక రోజులు,no
+admin,special.add,Add special date,ప్రత్యేక రోజు జోడించండి,no
+admin,special.emptyTitle,No special dates yet,ఇంకా ప్రత్యేక రోజులు లేవు,no
+admin,special.emptyBody,"Add Eid, Taraweeh or another day with special times.","ఈద్, తరావీహ్ లేదా ప్రత్యేక సమయాలున్న మరో రోజును జోడించండి.",no
+admin,special.newTitle,New special date,కొత్త ప్రత్యేక రోజు,no
+admin,special.editTitle,Special date,ప్రత్యేక రోజు,no
+admin,special.typeLegend,What is the day?,ఏ రోజు?,no
+admin,special.type.eid_ul_fitr,Eid ul-Fitr,ఈదుల్ ఫిత్ర్,no
+admin,special.type.eid_ul_adha,Eid ul-Adha,ఈదుల్ అజ్‌హా,no
+admin,special.type.taraweeh,Taraweeh,తరావీహ్,no
+admin,special.type.shab_e_barat,Shab-e-Barat,షబ్-ఎ-బరాత్,no
+admin,special.type.shab_e_qadr,Shab-e-Qadr,షబ్-ఎ-ఖద్ర్,no
+admin,special.type.other,Other day,మరో రోజు,no
+admin,special.date,Date,తేదీ,no
+admin,special.pickDate,Choose the date,తేదీని ఎంచుకోండి,no
+admin,special.times,Times,సమయాలు,no
+admin,special.timeN,Time {n},సమయం {n},no
+admin,special.timeSheet,Time {n},సమయం {n},no
+admin,special.addTime,Add a time,సమయం జోడించండి,no
+admin,special.removeTime,Remove time {n},సమయం {n} తొలగించండి,no
+admin,special.timeLabel,Name for time {n},సమయం {n} పేరు,no
+admin,special.timeLabelHint,For example: 1st Jamaat,ఉదాహరణకు: మొదటి జమాత్,no
+admin,special.label,Short title,చిన్న శీర్షిక,no
+admin,special.labelHint,Shown after the day’s name,రోజు పేరు తర్వాత కనిపిస్తుంది,no
+admin,special.note,Note,గమనిక,no
+admin,special.issue.duplicate_time,Two times are the same.,రెండు సమయాలు ఒకటే.,no
+admin,special.issue.date_out_of_range,Choose a date within a year from today.,ఈరోజు నుండి ఒక సంవత్సరంలోపు తేదీని ఎంచుకోండి.,no
+admin,special.notify,Notify followers,ఫాలోవర్లకు తెలియజేయండి,no
+admin,special.quota,{left} of {limit} left today,ఈరోజు {limit}లో {left} మిగిలాయి,no
+admin,special.save,Save,సేవ్ చేయండి,no
+admin,special.saved,Saved,సేవ్ అయింది,no
+admin,special.savedNotified,Your followers will be notified.,మీ ఫాలోవర్లకు తెలియజేయబడుతుంది.,no
+admin,special.savedQuiet,Followers will see it in Special Dates.,ఫాలోవర్లు దీన్ని ప్రత్యేక రోజులలో చూస్తారు.,no
+admin,special.done,Done,పూర్తయింది,no
+admin,special.delete,Delete,తొలగించండి,no
+admin,special.deleteTitle,Delete this special date?,ఈ ప్రత్యేక రోజును తొలగించాలా?,no
+admin,special.deleteBody,Followers will no longer see it.,ఫాలోవర్లకు ఇది ఇక కనిపించదు.,no
+admin,special.deleted,Special date deleted,ప్రత్యేక రోజు తొలగించబడింది,no
+admin,special.preview,Preview,ప్రివ్యూ,no
+admin,special.previewTitle,How followers will see it,ఫాలోవర్లకు ఇలా కనిపిస్తుంది,no
+admin,special.showIn,Show in,ఇందులో చూపించు,no
+admin,special.quotaTitle,No notifications left today,ఈరోజు నోటిఫికేషన్లు మిగలలేదు,no
+admin,special.quotaBody,You can still save. Followers will see it when they open the app.,మీరు ఇంకా సేవ్ చేయవచ్చు. ఫాలోవర్లు యాప్ తెరిచినప్పుడు దీన్ని చూస్తారు.,no
+admin,special.saveWithout,Save without notifying,తెలియజేయకుండా సేవ్ చేయండి,no
+admin,special.sehriLess,Sehri: 1 minute less,సహరీ: 1 నిమిషం తక్కువ,no
+admin,special.sehriMore,Sehri: 1 minute more,సహరీ: 1 నిమిషం ఎక్కువ,no
+admin,special.iftarLess,Iftar: 1 minute less,ఇఫ్తార్: 1 నిమిషం తక్కువ,no
+admin,special.iftarMore,Iftar: 1 minute more,ఇఫ్తార్: 1 నిమిషం ఎక్కువ,no
+admin,special.past,Past,గత రోజులు,no
+admin,notice.title,Notice,ప్రకటన,no
+admin,notice.step,Step {n} of {total},{total}లో దశ {n},no
+admin,notice.chooseTitle,Choose a notice,ప్రకటనను ఎంచుకోండి,no
+admin,notice.fillTitle,Fill the details,వివరాలు నింపండి,no
+admin,notice.previewTitle,Preview & publish,ప్రివ్యూ చూసి ప్రచురించండి,no
+admin,notice.templates,Notices,ప్రకటనలు,no
+admin,notice.writeOwn,Write your own,మీరే రాయండి,no
+admin,notice.noTemplatesTitle,No ready notices yet,ఇంకా సిద్ధమైన ప్రకటనలు లేవు,no
+admin,notice.noTemplatesBody,You can still write your own notice.,మీరు ఇప్పటికీ మీ ప్రకటనను మీరే రాయవచ్చు.,no
+admin,notice.next,Next: Preview,తర్వాత: ప్రివ్యూ,no
+admin,notice.notSet,Tap to set,సెట్ చేయడానికి నొక్కండి,no
+admin,notice.from,From,నుండి,no
+admin,notice.to,To,వరకు,no
+admin,notice.param.hours,Hours,సమయం,no
+admin,notice.param.days,Days,రోజులు,no
+admin,notice.param.prayer,Prayer,నమాజ్,no
+admin,notice.param.time,Time,సమయం,no
+admin,notice.param.from,From which day,ఏ రోజు నుండి,no
+admin,notice.param.date,Date,తేదీ,no
+admin,notice.param.speaker,Speaker,బయాన్ చేసేవారు,no
+admin,notice.param.item,What was found or lost,ఏమి దొరికింది లేదా పోయింది,no
+admin,notice.param.place,Place,స్థలం,no
+admin,notice.param.contact,Contact number,సంప్రదింపు నంబర్,no
+admin,notice.paramType.time,Time,సమయం,no
+admin,notice.paramType.date,Date,తేదీ,no
+admin,notice.paramType.time_range,Time,సమయం,no
+admin,notice.paramType.date_range,Days,రోజులు,no
+admin,notice.paramType.prayer,Prayer,నమాజ్,no
+admin,notice.paramType.number,Number,సంఖ్య,no
+admin,notice.paramType.short_text,Text,రాయండి,no
+admin,notice.paramType.phone,Phone number,ఫోన్ నంబర్,no
+admin,notice.pickTime,Choose the time,సమయాన్ని ఎంచుకోండి,no
+admin,notice.pickDate,Choose the date,తేదీని ఎంచుకోండి,no
+admin,notice.pickPrayer,Choose the prayer,నమాజ్‌ను ఎంచుకోండి,no
+admin,notice.phoneHint,"Mobile number, for example 98765 43210","మొబైల్ నంబర్, ఉదాహరణకు 98765 43210",no
+admin,notice.ownTitle,Title,శీర్షిక,no
+admin,notice.ownBody,Message,సందేశం,no
+admin,notice.language,Language of the text,రాసిన భాష,no
+admin,notice.category,Type of notice,ప్రకటన రకం,no
+admin,notice.categories.general,General,సాధారణం,no
+admin,notice.categories.event,Event,కార్యక్రమం,no
+admin,notice.categories.facilities,Facilities,సౌకర్యాలు,no
+admin,notice.categories.timing,Timing,సమయాలు,no
+admin,notice.important,Important,ముఖ్యం,no
+admin,notice.importantHint,Shows a red “Important” tag.,ఎరుపు “ముఖ్యం” ట్యాగ్ చూపిస్తుంది.,no
+admin,notice.event,Event date and time,కార్యక్రమం తేదీ మరియు సమయం,no
+admin,notice.eventDate,Date,తేదీ,no
+admin,notice.eventTime,Time,సమయం,no
+admin,notice.eventClear,Remove the date,తేదీని తీసివేయండి,no
+admin,notice.photo,Photo,ఫోటో,no
+admin,notice.photoOptional,A photo is optional.,ఫోటో తప్పనిసరి కాదు.,no
+admin,notice.addPhoto,Add a photo,ఫోటో జోడించండి,no
+admin,notice.removePhoto,Remove photo,ఫోటో తీసివేయండి,no
+admin,notice.rights,This masjid owns this photo or may share it,ఈ ఫోటో ఈ మస్జిద్‌ది లేదా మస్జిద్ దీన్ని షేర్ చేయవచ్చు,no
+admin,notice.rightsHint,Photos of people only with their permission.,వ్యక్తుల ఫోటోలు వారి అనుమతితో మాత్రమే.,no
+admin,notice.uploading,Uploading the photo…,ఫోటో అప్‌లోడ్ అవుతోంది…,no
+admin,notice.photoAlt,The notice photo,ప్రకటన ఫోటో,no
+admin,notice.issue.param,Please set: {name},దయచేసి సెట్ చేయండి: {name},no
+admin,notice.issue.title,Please write a title (up to 80 letters).,దయచేసి శీర్షిక రాయండి (80 అక్షరాల వరకు).,no
+admin,notice.issue.body,"Please write the message (up to 1,000 letters).","దయచేసి సందేశం రాయండి (1,000 అక్షరాల వరకు).",no
+admin,notice.issue.event,Please set both the date and the time of the event.,దయచేసి కార్యక్రమం తేదీ మరియు సమయం రెండూ సెట్ చేయండి.,no
+admin,notice.issue.template,This notice is no longer available. Please choose another one.,ఈ ప్రకటన ఇప్పుడు అందుబాటులో లేదు. దయచేసి మరొకటి ఎంచుకోండి.,no
+admin,notice.issue.voiceTitle,Please give the voice note a title.,దయచేసి వాయిస్ నోట్‌కు శీర్షిక ఇవ్వండి.,no
+admin,notice.preview,Preview,ప్రివ్యూ,no
+admin,notice.showIn,Show in,ఇందులో చూపించు,no
+admin,notice.previewNote,Followers see the photo when they open the notice.,ఫాలోవర్లు ప్రకటనను తెరిచినప్పుడు ఫోటోను చూస్తారు.,no
+admin,notice.notify,Notify followers,ఫాలోవర్లకు తెలియజేయండి,no
+admin,notice.quota,{left} of {limit} left today,ఈరోజు {limit}లో {left} మిగిలాయి,no
+admin,notice.publish,Publish,ప్రచురించండి,no
+admin,notice.published,Published,ప్రచురించబడింది,no
+admin,notice.publishedNotified,"{count, plural, one {# person will be notified.} other {# people will be notified.}}","{count, plural, one {# వ్యక్తికి తెలియజేయబడుతుంది.} other {# మందికి తెలియజేయబడుతుంది.}}",no
+admin,notice.publishedQuiet,Followers will see it in the app.,ఫాలోవర్లు దీన్ని యాప్‌లో చూస్తారు.,no
+admin,notice.done,Done,పూర్తయింది,no
+admin,notice.quotaTitle,No notifications left today,ఈరోజు నోటిఫికేషన్లు మిగలలేదు,no
+admin,notice.quotaBody,You can still publish. Followers will see it when they open the app.,మీరు ఇంకా ప్రచురించవచ్చు. ఫాలోవర్లు యాప్ తెరిచినప్పుడు దీన్ని చూస్తారు.,no
+admin,notice.publishWithout,Publish without notifying,తెలియజేయకుండా ప్రచురించండి,no
+admin,notice.lostTitle,This notice was not kept,ఈ ప్రకటన ఉంచబడలేదు,no
+admin,notice.lostBody,Please choose the notice again.,దయచేసి ప్రకటనను మళ్ళీ ఎంచుకోండి.,no
+admin,notice.startAgain,Choose a notice,ప్రకటనను ఎంచుకోండి,no
+admin,daily.title,Hadith / Ayah,హదీస్ / ఆయత్,no
+admin,daily.chooseTitle,Choose what to share today,ఈ రోజు ఏమి పంచుకోవాలో ఎంచుకోండి,no
+admin,daily.kinds,Hadith or Ayah,హదీస్ లేదా ఆయత్,no
+admin,daily.hadith,Hadith,హదీస్,no
+admin,daily.ayah,Ayah,ఆయత్,no
+admin,daily.suggestion,Today’s suggestion,నేటి సూచన,no
+admin,daily.useThis,Use this,ఇదే ఎంచుకోండి,no
+admin,daily.chooseAnother,Choose another,మరొకటి ఎంచుకోండి,no
+admin,daily.todayHadith,"You already shared a hadith today. If you publish another, followers will see both.",మీరు ఈ రోజు ఇప్పటికే ఒక హదీస్ పంచుకున్నారు. మరొకటి ప్రచురిస్తే ఫాలోవర్లు రెండూ చూస్తారు.,no
+admin,daily.todayAyah,"You already shared an ayah today. If you publish another, followers will see both.",మీరు ఈ రోజు ఇప్పటికే ఒక ఆయత్ పంచుకున్నారు. మరొకటి ప్రచురిస్తే ఫాలోవర్లు రెండూ చూస్తారు.,no
+admin,daily.noneHadith,No hadith in the library yet,లైబ్రరీలో ఇంకా హదీస్ లేదు,no
+admin,daily.noneAyah,No ayah in the library yet,లైబ్రరీలో ఇంకా ఆయత్ లేదు,no
+admin,daily.noneBody,The Masjid Connect team adds checked hadith and ayat. Please look again later.,"Masjid Connect బృందం సరిచూసిన హదీసులు, ఆయతులు చేరుస్తుంది. దయచేసి తర్వాత మళ్ళీ చూడండి.",no
+admin,daily.searchHadith,Choose a hadith,హదీస్ ఎంచుకోండి,no
+admin,daily.searchAyah,Choose an ayah,ఆయత్ ఎంచుకోండి,no
+admin,daily.search,Search,వెతకండి,no
+admin,daily.topics,Topics,అంశాలు,no
+admin,daily.allTopics,All,అన్నీ,no
+admin,daily.noResults,Nothing found,ఏమీ దొరకలేదు,no
+admin,daily.noResultsBody,Try other words or another topic.,వేరే పదాలు లేదా వేరే అంశం ప్రయత్నించండి.,no
+admin,daily.showMore,Show more,మరిన్ని చూపించు,no
+admin,daily.english,English,ఇంగ్లీష్,no
+admin,daily.noteTitle,Add a note,గమనిక జోడించండి,no
+admin,daily.chosen,You chose,మీరు ఎంచుకున్నది,no
+admin,daily.note,Note from the masjid,మస్జిద్ నుండి గమనిక,no
+admin,daily.noteHint,Optional. A few words for your followers.,తప్పనిసరి కాదు. ఫాలోవర్ల కోసం కొన్ని మాటలు.,no
+admin,daily.lostTitle,This post was not kept,ఈ పోస్ట్ ఉంచబడలేదు,no
+admin,daily.lostBody,Please choose the hadith or ayah again.,దయచేసి హదీస్ లేదా ఆయత్‌ను మళ్ళీ ఎంచుకోండి.,no
+admin,daily.startAgain,Choose again,మళ్ళీ ఎంచుకోండి,no
+admin,dua.title,Dua Request,దువా విన్నపం,no
+admin,dua.categoryTitle,Who is the dua for?,దువా ఎవరి కోసం?,no
+admin,dua.categories.illness.title,Illness,అనారోగ్యం,no
+admin,dua.categories.illness.body,Someone who is unwell,అనారోగ్యంతో ఉన్న ఒకరు,no
+admin,dua.categories.inteqal.title,Inteqal (passed away),ఇంతెకాల్,no
+admin,dua.categories.inteqal.body,Someone who has passed away,మరణించిన ఒకరు,no
+admin,dua.categories.other.title,Other,ఇతర,no
+admin,dua.categories.other.body,Any other dua request,ఇంకేదైనా దువా విన్నపం,no
+admin,dua.detailsTitle,Write the request,విన్నపం రాయండి,no
+admin,dua.messages,Ready messages,సిద్ధంగా ఉన్న సందేశాలు,no
+admin,dua.message,Message,సందేశం,no
+admin,dua.name,Name,పేరు,no
+admin,dua.nameHint,Share a name only if the family agrees.,కుటుంబం ఒప్పుకుంటేనే పేరు చెప్పండి.,no
+admin,dua.private,Keep name private,పేరు గోప్యంగా ఉంచండి,no
+admin,dua.privateHint,Followers see “a brother or sister from our community”.,ఫాలోవర్లకు “మన సమాజంలోని ఒక సోదరుడు లేదా సోదరి” అని కనిపిస్తుంది.,no
+admin,dua.janaza,Janaza,జనాజా,no
+admin,dua.janazaOptional,Optional — the time and place of the janaza.,"తప్పనిసరి కాదు — జనాజా సమయం, స్థలం.",no
+admin,dua.janazaDate,Date,తేదీ,no
+admin,dua.janazaTime,Time,సమయం,no
+admin,dua.janazaPlace,Place,స్థలం,no
+admin,dua.janazaClear,Remove the janaza time,జనాజా సమయాన్ని తీసివేయండి,no
+admin,dua.next,Next: Choose the dua,తర్వాత: దువాను ఎంచుకోండి,no
+admin,dua.issue.message,Please write the message (up to 500 characters).,దయచేసి సందేశం రాయండి (500 అక్షరాల వరకు).,no
+admin,dua.issue.name,The name is too long (up to 80 characters).,పేరు చాలా పొడవుగా ఉంది (80 అక్షరాల వరకు).,no
+admin,dua.issue.janaza,"Please set both the janaza date and time, or neither.","దయచేసి జనాజా తేదీ, సమయం రెండూ పెట్టండి, లేదా ఏదీ వద్దు.",no
+admin,dua.issue.voiceTitle,Please give the voice note a title.,దయచేసి వాయిస్ నోట్‌కు శీర్షిక ఇవ్వండి.,no
+admin,dua.attachTitle,Choose the dua,దువాను ఎంచుకోండి,no
+admin,dua.attachHint,Followers see this dua under your request.,ఫాలోవర్లు ఈ దువాను మీ విన్నపం కింద చూస్తారు.,no
+admin,dua.noDuas,No dua for this in the library yet,లైబ్రరీలో ఇంకా దీనికి దువా లేదు,no
+admin,dua.noDuasBody,The Masjid Connect team adds checked duas. Please look again later.,Masjid Connect బృందం సరిచూసిన దువాలు చేరుస్తుంది. దయచేసి తర్వాత మళ్ళీ చూడండి.,no
+admin,dua.lostTitle,This request was not kept,ఈ విన్నపం ఉంచబడలేదు,no
+admin,dua.lostBody,Please choose who the dua is for again.,దువా ఎవరి కోసమో దయచేసి మళ్ళీ ఎంచుకోండి.,no
+admin,dua.startAgain,Choose again,మళ్ళీ ఎంచుకోండి,no
+admin,posts.title,My Posts,నా పోస్ట్‌లు,no
+admin,posts.filter,Type of post,పోస్ట్ రకం,no
+admin,posts.types.all,All,అన్నీ,no
+admin,posts.types.announcement,Notices,ప్రకటనలు,no
+admin,posts.types.daily_content,Hadith / Ayah,హదీస్ / ఆయత్,no
+admin,posts.types.dua_request,Dua requests,దువా విన్నపాలు,no
+admin,posts.types.timing_update,Timing updates,సమయ మార్పులు,no
+admin,posts.status.published,Published,ప్రచురించబడింది,no
+admin,posts.status.deleted,Deleted,తొలగించబడింది,no
+admin,posts.status.removed,Removed by moderation,మోడరేషన్ తొలగించింది,no
+admin,posts.removedReason,Reason: {reason},కారణం: {reason},no
+admin,posts.removedHint,Posts that break the content policy are removed. Followers no longer see them.,కంటెంట్ విధానానికి విరుద్ధమైన పోస్ట్‌లు తొలగించబడతాయి. ఫాలోవర్లు వాటిని ఇక చూడరు.,no
+admin,posts.editUntil,You can change it until {time},మీరు దీన్ని {time} వరకు మార్చవచ్చు,no
+admin,posts.view,View,చూడండి,no
+admin,posts.edit,Edit,మార్చండి,no
+admin,posts.delete,Delete,తొలగించండి,no
+admin,posts.deleteTitle,Delete this post?,ఈ పోస్ట్‌ను తొలగించాలా?,no
+admin,posts.deleteBody,Followers will no longer see it.,ఫాలోవర్లు దీన్ని ఇక చూడరు.,no
+admin,posts.deleted,Post deleted,పోస్ట్ తొలగించబడింది,no
+admin,posts.emptyTitle,No posts yet,ఇంకా పోస్ట్‌లు లేవు,no
+admin,posts.emptyBody,"Notices, hadith and dua requests you publish appear here.","మీరు ప్రచురించే ప్రకటనలు, హదీసులు, దువా విన్నపాలు ఇక్కడ కనిపిస్తాయి.",no
+admin,posts.newNotice,Publish a notice,ప్రకటనను ప్రచురించండి,no
+admin,posts.showMore,Show more,మరిన్ని చూపించు,no
+admin,posts.save,Save changes,మార్పులను సేవ్ చేయండి,no
+admin,posts.saved,Saved,సేవ్ అయింది,no
+admin,posts.savedBody,"Followers see the change in the app, marked “edited”.",ఫాలోవర్లు యాప్‌లో మార్పును “మార్చబడింది” గుర్తుతో చూస్తారు.,no
+admin,posts.staleTitle,This post was changed meanwhile,ఈ మధ్యలో ఈ పోస్ట్ మారింది,no
+admin,posts.staleBody,Someone saved it after you opened it. Please open it again from My Posts.,మీరు తెరిచిన తర్వాత ఎవరో దీన్ని సేవ్ చేశారు. దయచేసి నా పోస్ట్‌ల నుండి మళ్ళీ తెరవండి.,no
+admin,posts.openPosts,Open My Posts,నా పోస్ట్‌లు తెరవండి,no
+admin,posts.viewPosts,View in My Posts,నా పోస్ట్‌లలో చూడండి,no
+admin,posts.editTitle,Edit post,పోస్ట్‌ను మార్చండి,no
+admin,profile.title,Masjid Profile,మస్జిద్ ప్రొఫైల్,no
+admin,profile.photo,Photo,ఫోటో,no
+admin,profile.photoNone,No photo yet,ఇంకా ఫోటో లేదు,no
+admin,profile.changePhoto,Change photo,ఫోటో మార్చండి,no
+admin,profile.photoChanged,Photo changed,ఫోటో మార్చబడింది,no
+admin,profile.photoAlt,The masjid photo,మస్జిద్ ఫోటో,no
+admin,profile.names,Name of the masjid,మస్జిద్ పేరు,no
+admin,profile.notSet,Not set,పెట్టలేదు,no
+admin,profile.place,Area and address,"ప్రాంతం, చిరునామా",no
+admin,profile.requestChange,Request a change,మార్పు కోసం అభ్యర్థించండి,no
+admin,profile.requestTitle,What should be changed?,ఏమి మార్చాలి?,no
+admin,profile.requestHint,The Masjid Connect team checks and changes names and addresses.,"Masjid Connect బృందం పేర్లు, చిరునామాలను సరిచూసి మారుస్తుంది.",no
+admin,profile.requestNote,Your note,మీ గమనిక,no
+admin,profile.send,Send,పంపండి,no
+admin,profile.requestSent,Sent to the Masjid Connect team,Masjid Connect బృందానికి పంపబడింది,no
+admin,profile.hijri,Hijri date,హిజ్రీ తేదీ,no
+admin,profile.hijriHint,Adjust it if the moon was seen a day earlier or later here.,ఇక్కడ చంద్రుడు ఒక రోజు ముందు లేదా తర్వాత కనిపిస్తే దీన్ని మార్చండి.,no
+admin,profile.hijriDays,Days,రోజులు,no
+admin,profile.hijriToday,Today: {date},ఈ రోజు: {date},no
+admin,profile.hijriFollowing,Following the app’s date.,యాప్ తేదీని అనుసరిస్తోంది.,no
+admin,profile.hijriFollow,Follow the app’s date,యాప్ తేదీని అనుసరించండి,no
+admin,profile.saved,Saved,సేవ్ అయింది,no
+admin,profile.account,My account,నా ఖాతా,no
+admin,profile.accountHint,"Language, sessions and passkeys","భాష, సెషన్లు, పాస్‌కీలు",no
+admin,voice.title,Voice note,వాయిస్ నోట్,no
+admin,voice.optional,A voice note is optional — up to 10 minutes.,వాయిస్ నోట్ తప్పనిసరి కాదు — 10 నిమిషాల వరకు.,no
+admin,voice.record,Record,రికార్డ్ చేయండి,no
+admin,voice.pause,Pause,ఆపండి,no
+admin,voice.resume,Resume,మళ్ళీ ప్రారంభించండి,no
+admin,voice.stop,Stop,ముగించండి,no
+admin,voice.level,Recording level,రికార్డింగ్ స్థాయి,no
+admin,voice.chooseFile,Choose audio file,ఆడియో ఫైల్ ఎంచుకోండి,no
+admin,voice.useThis,Use this,ఇదే వాడండి,no
+admin,voice.again,Record again,మళ్ళీ రికార్డ్ చేయండి,no
+admin,voice.remove,Remove voice note,వాయిస్ నోట్ తీసివేయండి,no
+admin,voice.uploading,Uploading the voice note…,వాయిస్ నోట్ అప్‌లోడ్ అవుతోంది…,no
+admin,voice.denied,"The microphone is not allowed. Allow it in the browser settings, or choose an audio file.","మైక్రోఫోన్‌కు అనుమతి లేదు. బ్రౌజర్ సెట్టింగ్‌లలో అనుమతించండి, లేదా ఆడియో ఫైల్ ఎంచుకోండి.",no
+admin,voice.tooLong,Voice notes can be at most 10 minutes long.,వాయిస్ నోట్ గరిష్ఠంగా 10 నిమిషాలు ఉండవచ్చు.,no
+admin,voice.unreadable,This file cannot be played here. Please choose another one.,ఈ ఫైల్ ఇక్కడ ప్లే కాదు. దయచేసి వేరేది ఎంచుకోండి.,no
+admin,voice.rights,This masjid recorded this or may share it,ఈ రికార్డింగ్ ఈ మస్జిద్‌దే లేదా మస్జిద్ దీన్ని పంచుకోవచ్చు,no
+admin,voice.rightsHint,Record other people only with their permission.,ఇతరులను వారి అనుమతితోనే రికార్డ్ చేయండి.,no
+admin,voice.voiceTitle,Title of the voice note,వాయిస్ నోట్ శీర్షిక,no
+admin,voice.voiceTitleHint,One line: what the voice note is about.,ఒక లైన్: వాయిస్ నోట్ దేని గురించి.,no
+admin,voice.issue,Please give the voice note a title.,దయచేసి వాయిస్ నోట్‌కు శీర్షిక ఇవ్వండి.,no
+admin,adhkar.title,Adhkar after salah,నమాజ్ తర్వాత అజ్కార్,no
+admin,adhkar.show,Show adhkar after salah,నమాజ్ తర్వాత అజ్కార్ చూపించు,no
+admin,adhkar.showHint,Musallis see a card on Home for 30 minutes after each salah.,ప్రతి నమాజ్ తర్వాత 30 నిమిషాల పాటు నమాజీలకు హోమ్‌లో ఒక కార్డ్ కనిపిస్తుంది.,no
+admin,adhkar.chosen,"Adhkar, in order","అజ్కార్, క్రమంలో",no
+admin,adhkar.count,{count} of {max},{max}లో {count},no
+admin,adhkar.none,No adhkar chosen yet,ఇంకా అజ్కార్ ఎంచుకోలేదు,no
+admin,adhkar.noneBody,Add dhikr from the verified library.,ధృవీకరించిన లైబ్రరీ నుండి జిక్ర్ జోడించండి.,no
+admin,adhkar.add,Add dhikr,జిక్ర్ జోడించు,no
+admin,adhkar.searchTitle,Choose a dhikr,జిక్ర్ ఎంచుకోండి,no
+admin,adhkar.noDhikr,No verified dhikr yet,ఇంకా ధృవీకరించిన జిక్ర్ లేదు,no
+admin,adhkar.noDhikrBody,The Super Admin adds them to the library.,సూపర్ అడ్మిన్ వాటిని లైబ్రరీలో జోడిస్తారు.,no
+admin,adhkar.full,{max} is the most.,గరిష్టంగా {max}.,no
+admin,adhkar.repeat,"{count, plural, one {Once} other {# times}}","{count, plural, one {ఒకసారి} other {# సార్లు}}",no
+admin,adhkar.moveUp,Move up,పైకి జరుపు,no
+admin,adhkar.moveDown,Move down,కిందికి జరుపు,no
+admin,adhkar.remove,Remove,తీసివేయి,no
+admin,adhkar.reorder,Move {reference},{reference} స్థానం మార్చు,no
+admin,adhkar.preview,Home card preview,హోమ్ కార్డ్ ప్రివ్యూ,no
+admin,adhkar.save,Save,సేవ్ చేయి,no
+admin,adhkar.saved,Adhkar saved,అజ్కార్ సేవ్ అయ్యాయి,no
+admin,adhkar.added,Added,జోడించబడింది,no
+admin,ruqyah.title,Ruqyah,రుఖ్యా,no
+admin,ruqyah.intro,"Musallis see these under the same headings, in this order.","ముసల్లీలు వీటిని ఇవే శీర్షికల కింద, ఇదే క్రమంలో చూస్తారు.",no
+admin,ruqyah.count,{count} of {max},{max} లో {count},no
+admin,ruqyah.emptyTitle,No Ruqyah entries yet,ఇంకా రుఖ్యా ఏదీ లేదు,no
+admin,ruqyah.emptyBody,"Add from the verified library, type your own text, or record audio.","ధృవీకరించిన లైబ్రరీ నుండి చేర్చండి, మీ స్వంత పాఠం రాయండి, లేదా ఆడియో రికార్డ్ చేయండి.",no
+admin,ruqyah.add,Add Ruqyah,రుఖ్యా చేర్చండి,no
+admin,ruqyah.reorder,Move {entry},{entry} ను జరపండి,no
+admin,ruqyah.source.library,From library,లైబ్రరీ నుండి,no
+admin,ruqyah.source.text,Type text,పాఠం రాయండి,no
+admin,ruqyah.source.audio,Record or upload audio,ఆడియో రికార్డ్ లేదా అప్‌లోడ్ చేయండి,no
+admin,ruqyah.sourceHint.library,A verified entry with its source,మూలంతో ఒక ధృవీకరించిన ఎంట్రీ,no
+admin,ruqyah.sourceHint.text,Arabic and a translation — shown as added by your masjid,అరబిక్ మరియు ఒక అనువాదం — మీ మస్జిద్ చేర్చినట్లు చూపబడుతుంది,no
+admin,ruqyah.sourceHint.audio,"Up to 10 minutes, with a title","గరిష్టంగా 10 నిమిషాలు, ఒక శీర్షికతో",no
+admin,ruqyah.libraryGone,No longer in the library — choose another,ఇక లైబ్రరీలో లేదు — మరొకటి ఎంచుకోండి,no
+admin,ruqyah.edit,Edit,మార్చండి,no
+admin,ruqyah.moveUp,Move up,పైకి జరపండి,no
+admin,ruqyah.moveDown,Move down,కిందికి జరపండి,no
+admin,ruqyah.delete,Delete,తొలగించండి,no
+admin,ruqyah.full,{max} is the most.,గరిష్టంగా {max}.,no
+admin,ruqyah.deleteTitle,Delete this entry?,ఈ ఎంట్రీని తొలగించాలా?,no
+admin,ruqyah.deleteBody,Musallis will no longer see it.,ముసల్లీలకు ఇది ఇక కనిపించదు.,no
+admin,ruqyah.deleted,Entry deleted,ఎంట్రీ తొలగించబడింది,no
+admin,ruqyah.newTitle,Add Ruqyah,రుఖ్యా చేర్చండి,no
+admin,ruqyah.editTitle,Edit Ruqyah,రుఖ్యా మార్చండి,no
+admin,ruqyah.sourceQuestion,What do you want to add?,మీరు ఏమి చేర్చాలనుకుంటున్నారు?,no
+admin,ruqyah.categoryQuestion,Under which heading?,ఏ శీర్షిక కింద?,no
+admin,ruqyah.libraryTitle,Library entry,లైబ్రరీ ఎంట్రీ,no
+admin,ruqyah.kindLabel,Kind,రకం,no
+admin,ruqyah.kind.dua,Dua,దుఆ,no
+admin,ruqyah.kind.ayah,Ayah,ఆయత్,no
+admin,ruqyah.kind.hadith,Hadith,హదీస్,no
+admin,ruqyah.kind.dhikr,Dhikr,జిక్ర్,no
+admin,ruqyah.libraryChoose,Choose from library,లైబ్రరీ నుండి ఎంచుకోండి,no
+admin,ruqyah.libraryChange,Choose another,మరొకటి ఎంచుకోండి,no
+admin,ruqyah.textTitle,Your text,మీ పాఠం,no
+admin,ruqyah.arabic,Arabic,అరబిక్,no
+admin,ruqyah.translation,Translation,అనువాదం,no
+admin,ruqyah.translationLanguage,Language of the translation,అనువాదం భాష,no
+admin,ruqyah.reference,Reference,ఆధారం,no
+admin,ruqyah.referenceHint,"Where it is from, if you know","ఇది ఎక్కడి నుండి, మీకు తెలిస్తే",no
+admin,ruqyah.entryTitle,Title,శీర్షిక,no
+admin,ruqyah.instructions,Instruction,సూచన,no
+admin,ruqyah.instructionsHint,"For example, when to recite or listen","ఉదాహరణకు, ఎప్పుడు చదవాలి లేదా వినాలి",no
+admin,ruqyah.instructionsLanguage,Language of the instruction,సూచన భాష,no
+admin,ruqyah.preview,Preview,ప్రివ్యూ,no
+admin,ruqyah.missing,Still needed: {fields},ఇంకా అవసరం: {fields},no
+admin,ruqyah.issue.source,what to add,ఏమి చేర్చాలి,no
+admin,ruqyah.issue.category,heading,శీర్షిక,no
+admin,ruqyah.issue.library,library entry,లైబ్రరీ ఎంట్రీ,no
+admin,ruqyah.issue.arabic,Arabic,అరబిక్,no
+admin,ruqyah.issue.translation,translation,అనువాదం,no
+admin,ruqyah.issue.reference,shorter reference,చిన్న ఆధారం,no
+admin,ruqyah.issue.voice,recording,రికార్డింగ్,no
+admin,ruqyah.issue.title,title,శీర్షిక,no
+admin,ruqyah.issue.instructions,shorter instruction,చిన్న సూచన,no
+admin,ruqyah.save,Save,సేవ్ చేయండి,no
+admin,ruqyah.saved,Ruqyah saved,రుఖ్యా సేవ్ అయింది,no
+admin,ruqyah.searchTitle,Choose from library,లైబ్రరీ నుండి ఎంచుకోండి,no
+admin,ruqyah.sourceLabel.library,From library,లైబ్రరీ నుండి,no
+admin,ruqyah.sourceLabel.text,The masjid’s own text,మస్జిద్ స్వంత పాఠం,no
+admin,ruqyah.sourceLabel.audio,Recording,రికార్డింగ్,no
+admin,contacts.title,Ilm contacts,ఇల్మ్ పరిచయాలు,no
+admin,contacts.count,{count} of {max},{max}లో {count},no
+admin,contacts.intro,People musallis can message on WhatsApp for Islamic questions and advice.,"ఇస్లామిక్ ప్రశ్నలు, సలహాల కోసం ముసల్లీలు వాట్సాప్‌లో సందేశం పంపగల వ్యక్తులు.",no
+admin,contacts.add,Add contact,పరిచయం చేర్చండి,no
+admin,contacts.full,"You have {max} contacts, the most allowed. Remove one to add another.","మీకు {max} పరిచయాలు ఉన్నాయి, ఇదే గరిష్ఠం. కొత్తది చేర్చడానికి ఒకటి తీసివేయండి.",no
+admin,contacts.for.brothers,For brothers,సోదరుల కోసం,no
+admin,contacts.for.sisters,For sisters,సోదరీమణుల కోసం,no
+admin,contacts.newTitle,New contact,కొత్త పరిచయం,no
+admin,contacts.editTitle,Edit contact,పరిచయం మార్చండి,no
+admin,contacts.name,Name,పేరు,no
+admin,contacts.role,Role,పాత్ర,no
+admin,contacts.roleHint,"For example: Imam, teacher","ఉదా: ఇమామ్, ఉపాధ్యాయుడు",no
+admin,contacts.topics,Topics,అంశాలు,no
+admin,contacts.topicsHint,"For example: family questions, prayer","ఉదా: కుటుంబ ప్రశ్నలు, నమాజ్",no
+admin,contacts.whatsapp,WhatsApp number,వాట్సాప్ నంబర్,no
+admin,contacts.audienceQuestion,Who can contact this person?,ఈ వ్యక్తిని ఎవరు సంప్రదించవచ్చు?,no
+admin,contacts.consent,This person agreed to be listed — their name and WhatsApp will be visible to app users,"జాబితాలో ఉండటానికి ఈ వ్యక్తి అంగీకరించారు — వారి పేరు, వాట్సాప్ యాప్ వాడేవారికి కనిపిస్తాయి",no
+admin,contacts.consentHint,"Ask them first. If they ask to be removed later, remove the contact.","ముందుగా వారిని అడగండి. తర్వాత తీసివేయమని అడిగితే, పరిచయాన్ని తీసివేయండి.",no
+admin,contacts.preview,What musallis see,ముసల్లీలు ఏమి చూస్తారు,no
+admin,contacts.missing,Still needed: {fields},ఇంకా కావాలి: {fields},no
+admin,contacts.issue.name,name,పేరు,no
+admin,contacts.issue.role,a shorter role,చిన్న పాత్ర,no
+admin,contacts.issue.topics,shorter topics,చిన్న అంశాలు,no
+admin,contacts.issue.phone,WhatsApp number,వాట్సాప్ నంబర్,no
+admin,contacts.issue.audience,brothers or sisters,సోదరులు లేదా సోదరీమణులు,no
+admin,contacts.issue.consent,the tick that they agreed,అంగీకార టిక్,no
+admin,contacts.save,Save,సేవ్ చేయండి,no
+admin,contacts.saved,Contact saved,పరిచయం సేవ్ అయింది,no
+admin,contacts.delete,Remove contact,పరిచయం తీసివేయండి,no
+admin,contacts.deleteTitle,Remove this contact?,ఈ పరిచయాన్ని తీసివేయాలా?,no
+admin,contacts.deleteBody,Musallis will no longer see this person.,ముసల్లీలు ఇకపై ఈ వ్యక్తిని చూడరు.,no
+admin,contacts.deleted,Contact removed,పరిచయం తీసివేయబడింది,no
+admin,bloodCamp.unavailableTitle,The blood camp notice is not ready yet,రక్తదాన శిబిరం ప్రకటన ఇంకా సిద్ధంగా లేదు,no
+admin,bloodCamp.unavailableBody,"Please ask the Super Admin to switch on the ""Blood donation camp"" ready notice.","దయచేసి ""రక్తదాన శిబిరం"" సిద్ధ ప్రకటనను ఆన్ చేయమని సూపర్ అడ్మిన్‌ను అడగండి.",no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -104,6 +581,8 @@ common,home.eidFitr,Eid ul-Fitr Salah,ఈదుల్ ఫిత్ర్ నమ�
 common,home.eidAdha,Eid ul-Adha Salah,ఈదుల్ అజ్‌హా నమాజ్,no
 common,home.today,Today,ఈరోజు,no
 common,home.tomorrow,Tomorrow,రేపు,no
+common,home.adhkar,Adhkar after salah · {prayer},నమాజ్ తర్వాత అజ్కార్ · {prayer},no
+common,home.adhkarDismiss,Hide until the next salah,తదుపరి నమాజ్ వరకు దాచు,no
 common,nav.back,Back,వెనుకకు,no
 common,nav.close,Close,మూసివేయి,no
 common,tabs.label,Main,ప్రధాన,no
@@ -147,6 +626,31 @@ common,ui.refreshing,Refreshing…,రిఫ్రెష్ అవుతోం�
 common,ui.newUpdatesShort,"{count, plural, one {new update} other {new updates}}","{count, plural, one {కొత్త అప్‌డేట్} other {కొత్త అప్‌డేట్‌లు}}",no
 common,ui.reorderHint,"Drag to reorder, or use the arrow keys.","క్రమం మార్చడానికి లాగండి, లేదా బాణం కీలను ఉపయోగించండి.",no
 common,ui.khutbah,Khutbah {time},ఖుత్బా {time},no
+common,ui.voice.label,"Voice message, {duration}","వాయిస్ సందేశం, {duration}",no
+common,ui.voice.duration,"{minutes, plural, =0 {} one {# minute } other {# minutes }}{seconds, plural, one {# second} other {# seconds}}","{minutes, plural, =0 {} one {# నిమిషం } other {# నిమిషాలు }}{seconds, plural, one {# సెకను} other {# సెకన్లు}}",no
+common,ui.voice.play,Play,ప్లే చేయండి,no
+common,ui.voice.pause,Pause,ఆపండి,no
+common,ui.voice.position,Position in the voice message,వాయిస్ సందేశంలో స్థానం,no
+common,ui.voice.positionValue,{elapsed} of {total},{total} లో {elapsed},no
+common,ui.voice.speed,Playback speed {speed},వేగం {speed},no
+common,ui.voice.unavailable,Available when online,ఆన్‌లైన్‌లో ఉన్నప్పుడు అందుబాటులో ఉంటుంది,no
+common,ui.voice.badge,Voice message · {duration},వాయిస్ సందేశం · {duration},no
+common,ui.ruqyah.title,Ruqyah,రుఖ్యా,no
+common,ui.ruqyah.category.nazar,Protection from Nazar,నజర్ నుండి రక్షణ,no
+common,ui.ruqyah.category.sihr,Protection from black magic,చేతబడి నుండి రక్షణ,no
+common,ui.ruqyah.category.shifa,Healing (Shifa),షిఫా (స్వస్థత),no
+common,ui.ruqyah.category.protection,Daily protection,రోజువారీ రక్షణ,no
+common,ui.ruqyah.category.general,General,సాధారణం,no
+common,ui.ruqyah.quoted,“{text}”,“{text}”,no
+common,ui.ruqyah.addedBy,Added by {masjid},{masjid} చేర్చింది,no
+common,ui.ruqyah.source,Source: {name} · Licence: {license},మూలం: {name} · లైసెన్స్: {license},no
+common,ui.ruqyah.instructions,Note from the masjid,మస్జిద్ నుండి గమనిక,no
+common,ui.ilm.greeting,Assalamu alaikum,అస్సలాము అలైకుమ్,no
+common,ui.ilm.message,Message,సందేశం పంపండి,no
+common,ui.ilm.messageLabel,Message {name} on WhatsApp,{name}కు వాట్సాప్‌లో సందేశం పంపండి,no
+common,ui.camp.title,Blood donation camp,రక్తదాన శిబిరం,no
+common,ui.camp.when,{date} · {start} – {end},{date} · {start} – {end},no
+common,ui.camp.contact,Contact on WhatsApp,వాట్సాప్‌లో సంప్రదించండి,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,మగ్రిబ్ తర్వాత,no
 common,hijri.months.m1,Muharram,ముహర్రం,no
@@ -272,6 +776,30 @@ content,license,Licence: {license},లైసెన్స్: {license},no
 content,gone,This post is no longer available,ఈ పోస్ట్ ఇక అందుబాటులో లేదు,no
 content,goneBody,The masjid may have removed it.,మస్జిద్ దీన్ని తీసేసి ఉండవచ్చు.,no
 content,back,Go back,వెనక్కి వెళ్ళండి,no
+content,adhkarTitle,Adhkar after salah,నమాజ్ తర్వాత అజ్కార్,no
+content,emptyAdhkar,No adhkar yet,ఇంకా అజ్కార్ లేవు,no
+content,emptyAdhkarBody,This masjid has not chosen its adhkar after salah yet.,ఈ మస్జిద్ ఇంకా నమాజ్ తర్వాత అజ్కార్ ఎంచుకోలేదు.,no
+content,repeat,"{count, plural, one {Once} other {# times}}","{count, plural, one {ఒకసారి} other {# సార్లు}}",no
+content,counter,Count: {count} of {total}. Tap to count.,లెక్క: {total}లో {count}. లెక్కించడానికి నొక్కండి.,no
+content,counterDone,Done: {total} of {total},పూర్తయింది: {total}లో {total},no
+content,resetCount,Start the count again,లెక్క మళ్ళీ మొదలుపెట్టు,no
+content,emptyRuqyah,No Ruqyah entries yet,ఇంకా రుఖ్యా ఏదీ లేదు,no
+content,emptyRuqyahBody,"When the masjid adds Ruqyah, it will appear here.","మస్జిద్ రుఖ్యా చేర్చినప్పుడు, అది ఇక్కడ కనిపిస్తుంది.",no
+content,ilmTitle,Ask the masjid,మస్జిద్‌ను అడగండి,no
+content,ilmIntro,"For Islamic questions and advice, contact:","ఇస్లామిక్ ప్రశ్నలు, సలహాల కోసం సంప్రదించండి:",no
+content,emptyIlm,No contacts yet,ఇంకా పరిచయాలు లేవు,no
+content,emptyIlmBody,"When the masjid lists people you can ask, they will appear here.","మీరు అడగగల వ్యక్తులను మస్జిద్ చేర్చినప్పుడు, వారు ఇక్కడ కనిపిస్తారు.",no
+content,ruqyahFailed,Ruqyah could not be loaded,రుఖ్యా లోడ్ కాలేదు,no
+content,ruqyahFailedBody,"Check your connection and try again. Once opened, it stays available offline.","మీ కనెక్షన్ తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి. ఒకసారి తెరిచాక, ఇది ఆఫ్‌లైన్‌లో కూడా అందుబాటులో ఉంటుంది.",no
+dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,మన సమాజంలోని ఒకరు అనారోగ్యంతో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
+dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,మన సమాజంలోని ఒకరు ఆసుపత్రిలో ఉన్నారు. దయచేసి వారు కోలుకోవాలని దువా చేయండి.,no
+dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,మన సమాజంలోని ఒకరికి ఆపరేషన్ జరుగుతోంది. అంతా బాగా జరగాలని దయచేసి దువా చేయండి.,no
+dua-messages,inteqal.passed,A member of our community has passed away. Please make dua for them and for their family.,"మన సమాజంలోని ఒకరు మరణించారు. దయచేసి వారి కోసం, వారి కుటుంబం కోసం దువా చేయండి.",no
+dua-messages,inteqal.family,Please keep the family of the deceased in your duas and give them your support.,"దయచేసి మరణించినవారి కుటుంబాన్ని మీ దువాలలో గుర్తుంచుకోండి, వారికి తోడుగా ఉండండి.",no
+dua-messages,inteqal.janaza,A member of our community has passed away. Please join the janaza if you can.,మన సమాజంలోని ఒకరు మరణించారు. వీలైతే జనాజాలో పాల్గొనండి.,no
+dua-messages,other.difficulty,A member of our community is going through a difficult time. Please remember them in your duas.,మన సమాజంలోని ఒకరు కష్టకాలంలో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
+dua-messages,other.exams,Our students have their exams. Please make dua for their success.,మన విద్యార్థులకు పరీక్షలు ఉన్నాయి. వారి విజయం కోసం దయచేసి దువా చేయండి.,no
+dua-messages,other.travel,Members of our community are travelling for Hajj or Umrah. Please remember them in your duas.,మన సమాజంలోని కొందరు హజ్ లేదా ఉమ్రా ప్రయాణంలో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,ఇది కనిపించలేదు. ఇది తొలగించబడి ఉండవచ్చు.,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,కొన్ని వివరాలు సరిగా లేవు. దయచేసి చూసి మళ్లీ ప్రయత్నించండి.,no
@@ -279,6 +807,7 @@ errors,UNSAFE_INPUT,Some details look wrong. Please check and try again.,కొ�
 errors,INVALID_JSON,Something went wrong sending your request. Please try again.,మీ అభ్యర్థన పంపడంలో సమస్య వచ్చింది. దయచేసి మళ్లీ ప్రయత్నించండి.,no
 errors,PAYLOAD_TOO_LARGE,That is too large to send. Please try something smaller.,ఇది పంపడానికి చాలా పెద్దది. దయచేసి చిన్నది పంపండి.,no
 errors,UNSUPPORTED_MEDIA_TYPE,Something went wrong sending your request. Please try again.,మీ అభ్యర్థన పంపడంలో సమస్య వచ్చింది. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+errors,UPLOAD_INVALID,We could not read that file. Please choose one file and try again.,ఆ ఫైల్‌ను చదవలేకపోయాం. దయచేసి ఒక ఫైల్‌ను ఎంచుకుని మళ్లీ ప్రయత్నించండి.,no
 errors,CORS_NOT_ALLOWED,That action isn’t available here.,ఈ చర్య ఇక్కడ అందుబాటులో లేదు.,no
 errors,INTERNAL_ERROR,Something went wrong on our side. Please try again in a moment.,మా వైపు ఏదో సమస్య వచ్చింది. దయచేసి కొద్దిసేపటి తర్వాత మళ్లీ ప్రయత్నించండి.,no
 errors,RATE_LIMITED,Too many tries. Please wait a little and try again.,చాలా ప్రయత్నాలు జరిగాయి. కొద్దిసేపు ఆగి మళ్లీ ప్రయత్నించండి.,no
@@ -305,6 +834,35 @@ errors,INVALID_CURSOR,This list changed. Please reload it.,ఈ జాబిత�
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,మీరు ఆఫ్‌లైన్‌లో ఉన్నట్లున్నారు. దయచేసి కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి.,no
 errors,ITEM_NOT_FOUND,This post is no longer available.,ఈ పోస్ట్ ఇప్పుడు అందుబాటులో లేదు.,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,ఇది నిజమైన ఫోన్ అని మేము నిర్ధారించలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+errors,LIBRARY_ENTRY_NOT_FOUND,This library entry no longer exists.,ఈ లైబ్రరీ ఎంట్రీ ఇప్పుడు లేదు.,no
+errors,LIBRARY_DUPLICATE,An entry with this kind and reference is already in the library.,ఇదే రకం మరియు రిఫరెన్స్‌తో ఉన్న ఎంట్రీ ఇప్పటికే లైబ్రరీలో ఉంది.,no
+errors,TEMPLATE_NOT_FOUND,This template no longer exists.,ఈ టెంప్లేట్ ఇప్పుడు లేదు.,no
+errors,TEMPLATE_EXISTS,A template with this key already exists.,ఈ కీతో టెంప్లేట్ ఇప్పటికే ఉంది.,no
+errors,TEMPLATE_REVIEW_REQUIRED,Review all four translations and tick “Translations reviewed” first.,ముందుగా నాలుగు అనువాదాలను తనిఖీ చేసి “అనువాదాలు తనిఖీ చేశాం”ని టిక్ చేయండి.,no
+errors,PRECONDITION_FAILED,Someone else changed this just now. Please look at the latest version and try again.,ఇప్పుడే వేరొకరు దీన్ని మార్చారు. దయచేసి తాజా వెర్షన్ చూసి మళ్లీ ప్రయత్నించండి.,no
+errors,TIMINGS_INVALID,Some times don’t fit together. Please check the times marked in red.,కొన్ని సమయాలు సరిపోలడం లేదు. ఎరుపు రంగులో చూపిన సమయాలను తనిఖీ చేయండి.,no
+errors,NOTIFY_QUOTA_EXCEEDED,Today’s notifications are used up. You can still save without notifying followers.,ఈరోజు నోటిఫికేషన్లు అయిపోయాయి. ఫాలోవర్లకు తెలియజేయకుండానే సేవ్ చేయవచ్చు.,no
+errors,ACTIVATION_TIMINGS_REQUIRED,This masjid can be activated once all five jamaat times are set.,ఐదు జమాత్ సమయాలు సెట్ చేశాకే ఈ మస్జిద్‌ను యాక్టివేట్ చేయవచ్చు.,no
+errors,SPECIAL_DATE_NOT_FOUND,This special date was removed. Please go back to the list.,ఈ ప్రత్యేక రోజు తొలగించబడింది. దయచేసి జాబితాకు తిరిగి వెళ్లండి.,no
+errors,SPECIAL_DATE_INVALID,"Please check the date and times: up to 5 different times, on a date within about a year.","దయచేసి తేదీ మరియు సమయాలను తనిఖీ చేయండి: గరిష్టంగా 5 వేర్వేరు సమయాలు, సుమారు ఒక సంవత్సరంలోపు తేదీ.",no
+errors,RAMADAN_INVALID,"Please check the Ramadan dates: the last day comes after the first, at most 30 days.","దయచేసి రంజాన్ తేదీలను తనిఖీ చేయండి: చివరి రోజు మొదటి రోజు తర్వాత ఉండాలి, గరిష్టంగా 30 రోజులు.",no
+errors,IMAGE_INVALID,"This photo can't be used. Please choose a JPEG, PNG or WebP photo (iPhone: pick it from Photos).","ఈ ఫోటోను ఉపయోగించలేము. దయచేసి JPEG, PNG లేదా WebP ఫోటోను ఎంచుకోండి (iPhone: Photos నుండి ఎంచుకోండి).",no
+errors,ANNOUNCEMENT_INVALID,Something in this notice is not right. Please check the details and try again.,ఈ ప్రకటనలో ఏదో సరిగ్గా లేదు. దయచేసి వివరాలను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.,no
+errors,DUA_INVALID,Something in this dua request is not right. Please check the janaza time and try again.,ఈ దువా విన్నపంలో ఏదో సరిగ్గా లేదు. దయచేసి జనాజా సమయాన్ని తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.,no
+errors,EDIT_WINDOW_CLOSED,Posts can be changed for 24 hours after publishing. You can still delete this post.,పోస్ట్‌ను ప్రచురించిన 24 గంటల వరకే మార్చగలరు. మీరు దీన్ని ఇంకా తొలగించవచ్చు.,no
+errors,ITEM_NOT_EDITABLE,This kind of post cannot be changed here.,ఈ రకమైన పోస్ట్‌ను ఇక్కడ మార్చలేరు.,no
+errors,PROFILE_INVALID,This change to the masjid profile is not possible. Please check it and try again.,మస్జిద్ ప్రొఫైల్‌లో ఈ మార్పు సాధ్యం కాదు. దయచేసి తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.,no
+errors,ADHKAR_INVALID,"This adhkar list is not possible: at most 30, each one once. Please check it and try again.","ఈ అజ్కార్ జాబితా సాధ్యం కాదు: గరిష్టంగా 30, ఒక్కొక్కటి ఒక్కసారే. దయచేసి తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.",no
+errors,VOICE_INVALID,A voice note needs a short title. Please add one and try again.,వాయిస్ నోట్‌కు చిన్న శీర్షిక అవసరం. దయచేసి ఒకటి జోడించి మళ్ళీ ప్రయత్నించండి.,no
+errors,AUDIO_INVALID,This file is not a voice recording the app can use. Please record again or choose another file.,ఈ ఫైల్ యాప్ ఉపయోగించగల వాయిస్ రికార్డింగ్ కాదు. దయచేసి మళ్ళీ రికార్డ్ చేయండి లేదా వేరే ఫైల్ ఎంచుకోండి.,no
+errors,AUDIO_TOO_LONG,Voice notes can be at most 10 minutes long.,వాయిస్ నోట్ గరిష్ఠంగా 10 నిమిషాలు ఉండవచ్చు.,no
+errors,RUQYAH_INVALID,A recording needs a short title and the tick that it is yours to share. Please check and try again.,రికార్డింగ్‌కు ఒక చిన్న శీర్షిక మరియు దీన్ని పంచుకునే హక్కు మీకు ఉందని టిక్ అవసరం. దయచేసి తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.,no
+errors,RUQYAH_NOT_FOUND,This Ruqyah entry was removed. Please go back to the list.,ఈ రుఖ్యా ఎంట్రీ తొలగించబడింది. దయచేసి జాబితాకు తిరిగి వెళ్ళండి.,no
+errors,RUQYAH_LIMIT_REACHED,The Ruqyah section already has 50 entries. Delete one to add another.,రుఖ్యా విభాగంలో ఇప్పటికే 50 ఎంట్రీలు ఉన్నాయి. కొత్తది చేర్చడానికి ఒకటి తొలగించండి.,no
+errors,RUQYAH_ORDER_INVALID,The Ruqyah list changed meanwhile. Please open it again and reorder.,ఈలోగా రుఖ్యా జాబితా మారింది. దయచేసి దాన్ని మళ్ళీ తెరిచి క్రమం మార్చండి.,no
+errors,CONTACT_INVALID,"Please tick that this person agreed, and check the WhatsApp number.","ఈ వ్యక్తి అంగీకరించారని టిక్ చేయండి, వాట్సాప్ నంబర్ సరిచూడండి.",no
+errors,CONTACT_NOT_FOUND,This contact was removed. Please go back to the list.,ఈ పరిచయం తీసివేయబడింది. దయచేసి జాబితాకు తిరిగి వెళ్ళండి.,no
+errors,CONTACT_LIMIT_REACHED,You can list up to 10 contacts. Remove one to add another.,మీరు గరిష్ఠంగా 10 పరిచయాలు ఉంచవచ్చు. కొత్తది చేర్చడానికి ఒకటి తీసివేయండి.,no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no
@@ -356,6 +914,9 @@ masjid,unmutedToast,Notifications are on for this masjid,ఈ మసీదు న
 masjid,muteFailed,Couldn’t change notifications. Check your connection and try again.,నోటిఫికేషన్‌లను మార్చలేకపోయాం. ఇంటర్నెట్ తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.,no
 masjid,hadith,Hadith & Quran,హదీస్ & ఖుర్ఆన్,no
 masjid,duas,Dua Requests,దువా విన్నపాలు,no
+masjid,adhkar,Adhkar after salah,నమాజ్ తర్వాత అజ్కార్,no
+masjid,ruqyah,Ruqyah,రుఖ్యా,no
+masjid,ilm,Ask the masjid,మస్జిద్‌ను అడగండి,no
 masjid,campaigns,Donation Campaigns,విరాళాల ప్రచారాలు,no
 masjid,chanda,Weekly Chanda,వారపు చందా,no
 masjid,bayans,Bayans,బయాన్‌లు,no
@@ -492,6 +1053,8 @@ super,nav.dashboard,Dashboard,డాష్‌బోర్డ్,no
 super,nav.masjids,Masjids,మస్జిద్‌లు,no
 super,nav.settings,Settings,సెట్టింగ్స్,no
 super,nav.audit,Audit log,ఆడిట్ లాగ్,no
+super,nav.library,Content Library,కంటెంట్ లైబ్రరీ,no
+super,nav.templates,Notice templates,నోటీసు టెంప్లేట్‌లు,no
 super,status.pending,Pending,పెండింగ్,no
 super,status.active,Active,యాక్టివ్,no
 super,status.suspended,Suspended,నిలిపివేయబడింది,no
@@ -500,6 +1063,8 @@ super,dashboard.pending,Waiting for activation,యాక్టివేషన్
 super,dashboard.noPending,No masjids are waiting for activation.,యాక్టివేషన్ కోసం ఏ మస్జిద్ ఎదురుచూడటం లేదు.,no
 super,dashboard.counts,Masjids,మస్జిద్‌లు,no
 super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","గత 30 రోజుల్లో {count, plural, one {# లాగిన్} other {# లాగిన్‌లు}} నిలిపివేయబడింది, ఎందుకంటే ఒక ఫోన్ కాపీ చేయబడి ఉండవచ్చు. ప్రభావితమైన ప్రతి అడ్మిన్‌కు కొత్త లాగిన్ లింక్ ఇవ్వండి.",no
+super,dashboard.changeRequests,Requested changes,మార్పు అభ్యర్థనలు,no
+super,dashboard.noChangeRequests,No change requests from admins.,అడ్మిన్ల నుండి మార్పు అభ్యర్థనలు లేవు.,no
 super,masjids.search,"Search by name, city or code","పేరు, నగరం లేదా కోడ్‌తో వెతకండి",no
 super,masjids.all,All,అన్నీ,no
 super,masjids.new,New masjid,కొత్త మస్జిద్,no
@@ -540,7 +1105,7 @@ super,form.required,Required,తప్పనిసరి,no
 super,detail.followers,"{count, plural, one {# follower} other {# followers}}","{count, plural, one {# ఫాలోవర్} other {# ఫాలోవర్లు}}",no
 super,detail.followCode,Follow code,ఫాలో కోడ్,no
 super,detail.activate,Activate,యాక్టివేట్ చేయండి,no
-super,detail.activateHint,Needs at least one admin who has logged in and accepted the undertaking.,లాగిన్ అయి హామీ పత్రం అంగీకరించిన కనీసం ఒక అడ్మిన్ ఉండాలి.,no
+super,detail.activateHint,"Needs at least one admin who has logged in and accepted the undertaking, and all five jamaat times set.","లాగిన్ అయి హామీ పత్రం అంగీకరించిన కనీసం ఒక అడ్మిన్ ఉండాలి, ఐదు జమాత్ సమయాలు సెట్ చేసి ఉండాలి.",no
 super,detail.suspend,Suspend,నిలిపివేయండి,no
 super,detail.unsuspend,Unsuspend,మళ్లీ ప్రారంభించండి,no
 super,detail.delete,Delete masjid,మస్జిద్ తొలగించండి,no
@@ -616,3 +1181,148 @@ super,audit.actorType.admin,Admin,అడ్మిన్,no
 super,audit.actorType.super_admin,Super Admin,సూపర్ అడ్మిన్,no
 super,audit.actorType.system,System,సిస్టమ్,no
 super,audit.actorType.device,Device,డివైస్,no
+super,library.statusFilter,Status,స్థితి,no
+super,library.kindFilter,Kind,రకం,no
+super,library.fileLabel,Your file,మీ ఫైల్,no
+super,library.search,"Search reference, words or tags","రిఫరెన్స్, పదాలు లేదా ట్యాగ్‌లు వెతకండి",no
+super,library.all,All,అన్నీ,no
+super,library.kinds.hadith,Hadith,హదీస్,no
+super,library.kinds.ayah,Ayah,ఆయత్,no
+super,library.kinds.dua,Dua,దువా,no
+super,library.kinds.dhikr,Dhikr,జిక్ర్,no
+super,library.statuses.draft,Draft,డ్రాఫ్ట్,no
+super,library.statuses.verified,Verified,ధృవీకరించబడింది,no
+super,library.statuses.retired,Retired,తొలగించబడింది,no
+super,library.import,Import file,ఫైల్ ఇంపోర్ట్ చేయండి,no
+super,library.empty,No entries. Import a library file to start.,ఎంట్రీలు లేవు. ప్రారంభించడానికి లైబ్రరీ ఫైల్‌ను ఇంపోర్ట్ చేయండి.,no
+super,library.loadMore,Show more,మరిన్ని చూపించు,no
+super,library.importTitle,Import library file,లైబ్రరీ ఫైల్ ఇంపోర్ట్,no
+super,library.importIntro,Choose a JSON file in the library format. It is checked first — nothing is saved until you import.,లైబ్రరీ ఫార్మాట్‌లోని JSON ఫైల్‌ను ఎంచుకోండి. ముందుగా దాన్ని తనిఖీ చేస్తాం — ఇంపోర్ట్ చేసే వరకు ఏదీ సేవ్ కాదు.,no
+super,library.chooseFile,Choose file,ఫైల్ ఎంచుకోండి,no
+super,library.otherFile,Choose another file,మరో ఫైల్ ఎంచుకోండి,no
+super,library.checking,Checking the file…,ఫైల్‌ను తనిఖీ చేస్తున్నాం…,no
+super,library.ready,{valid} of {entries} entries are ready,{entries} లో {valid} ఎంట్రీలు సిద్ధంగా ఉన్నాయి,no
+super,library.problems,"{count, plural, one {# problem} other {# problems}}","{count, plural, one {# సమస్య} other {# సమస్యలు}}",no
+super,library.problemRow,Row {row} · {field}: {message},వరుస {row} · {field}: {message},no
+super,library.duplicates,"{count, plural, one {# entry is already there} other {# entries are already there}}","{count, plural, one {# ఎంట్రీ ఇప్పటికే ఉంది} other {# ఎంట్రీలు ఇప్పటికే ఉన్నాయి}}",no
+super,library.duplicateRow,Row {row} · {reference} — {where},వరుస {row} · {reference} — {where},no
+super,library.inFile,repeated in this file,ఈ ఫైల్‌లో మళ్లీ వచ్చింది,no
+super,library.inLibrary,already in the library,లైబ్రరీలో ఇప్పటికే ఉంది,no
+super,library.truncated,Only the first 200 are listed.,మొదటి 200 మాత్రమే చూపించాం.,no
+super,library.fixFirst,Fix the file and choose it again — an import is all or nothing.,ఫైల్‌ను సరిచేసి మళ్లీ ఎంచుకోండి — ఇంపోర్ట్ పూర్తిగా జరుగుతుంది లేదా అసలు జరగదు.,no
+super,library.importAll,"{count, plural, one {Import # entry as draft} other {Import # entries as draft}}","{count, plural, one {# ఎంట్రీని డ్రాఫ్ట్‌గా ఇంపోర్ట్ చేయండి} other {# ఎంట్రీలను డ్రాఫ్ట్‌గా ఇంపోర్ట్ చేయండి}}",no
+super,library.imported,"{count, plural, one {# entry imported as draft.} other {# entries imported as draft.}}","{count, plural, one {# ఎంట్రీ డ్రాఫ్ట్‌గా ఇంపోర్ట్ అయింది.} other {# ఎంట్రీలు డ్రాఫ్ట్‌గా ఇంపోర్ట్ అయ్యాయి.}}",no
+super,library.reviewDrafts,Review drafts,డ్రాఫ్ట్‌లు చూడండి,no
+super,library.arabic,Arabic,అరబిక్,no
+super,library.translations,Translations,అనువాదాలు,no
+super,library.transliterations,Transliterations,లిప్యంతరీకరణలు,no
+super,library.missing,Not given,ఇవ్వలేదు,no
+super,library.reference,Reference,రిఫరెన్స్,no
+super,library.source,Source,మూలం,no
+super,library.license,License,లైసెన్స్,no
+super,library.tags,Tags,ట్యాగ్‌లు,no
+super,library.category,Dua category,దువా వర్గం,no
+super,library.categories.illness,Illness,అనారోగ్యం,no
+super,library.categories.inteqal,Inteqal,ఇంతెఖాల్,no
+super,library.categories.other,Other,ఇతర,no
+super,library.repeat,"{count, plural, one {Said # time} other {Said # times}}","{count, plural, one {# సార్లు చదవండి} other {# సార్లు చదవండి}}",no
+super,library.occasions.after_salah,After salah,నమాజ్ తర్వాత,no
+super,library.occasions.morning,Morning,ఉదయం,no
+super,library.occasions.evening,Evening,సాయంత్రం,no
+super,library.verifiedBy,Verified by {name} on {date},{name} {date} న ధృవీకరించారు,no
+super,library.verify,Verify,ధృవీకరించు,no
+super,library.verifyTitle,Verify this entry,ఈ ఎంట్రీని ధృవీకరించండి,no
+super,library.verifyHint,Check every text against the source first. Write the name of the scholar or reviewer who checked it.,ముందుగా ప్రతి పాఠాన్ని మూలంతో సరిపోల్చండి. తనిఖీ చేసిన ఆలిమ్ లేదా సమీక్షకుని పేరు రాయండి.,no
+super,library.verifier,Verified by,ధృవీకరించినవారు,no
+super,library.verified,Entry verified. Admins can choose it now.,ఎంట్రీ ధృవీకరించబడింది. ఇప్పుడు అడ్మిన్‌లు దీన్ని ఎంచుకోవచ్చు.,no
+super,library.retire,Retire,తొలగించు,no
+super,library.retireTitle,Retire this entry?,ఈ ఎంట్రీని తొలగించాలా?,no
+super,library.retireBody,Admins can no longer choose it and it disappears from the app. This cannot be undone.,"అడ్మిన్‌లు ఇకపై దీన్ని ఎంచుకోలేరు, ఇది యాప్ నుండి తొలగిపోతుంది. దీన్ని వెనక్కి తీసుకోలేం.",no
+super,library.retired,Entry retired.,ఎంట్రీ తొలగించబడింది.,no
+super,templates.new,New template,కొత్త టెంప్లేట్,no
+super,templates.addStarters,Add starter templates,ప్రారంభ టెంప్లేట్‌లను జోడించండి,no
+super,templates.startersAdded,"{count, plural, =0 {All starter templates are already there.} one {# starter template added as draft.} other {# starter templates added as draft.}}","{count, plural, =0 {ప్రారంభ టెంప్లేట్‌లన్నీ ఇప్పటికే ఉన్నాయి.} one {# ప్రారంభ టెంప్లేట్ డ్రాఫ్ట్‌గా జోడించబడింది.} other {# ప్రారంభ టెంప్లేట్‌లు డ్రాఫ్ట్‌గా జోడించబడ్డాయి.}}",no
+super,templates.empty,No templates yet. Add the starter templates to begin.,ఇంకా టెంప్లేట్‌లు లేవు. ప్రారంభించడానికి ప్రారంభ టెంప్లేట్‌లను జోడించండి.,no
+super,templates.statuses.draft,Draft,డ్రాఫ్ట్,no
+super,templates.statuses.active,Active,యాక్టివ్,no
+super,templates.statuses.retired,Retired,తొలగించబడింది,no
+super,templates.categories.general,General,సాధారణ,no
+super,templates.categories.event,Event,కార్యక్రమం,no
+super,templates.categories.facilities,Facilities,సౌకర్యాలు,no
+super,templates.categories.timing,Timing,సమయం,no
+super,templates.system,System,సిస్టమ్,no
+super,templates.key,Key,కీ,no
+super,templates.keyHint,"Lower-case letters, digits and _ — cannot be changed later.","చిన్న అక్షరాలు, అంకెలు, _ — తర్వాత మార్చలేరు.",no
+super,templates.category,Category,వర్గం,no
+super,templates.icon,Icon,ఐకాన్,no
+super,templates.important,Important by default,డిఫాల్ట్‌గా ముఖ్యమైనది,no
+super,templates.params,Fill-in fields,నింపే ఫీల్డ్‌లు,no
+super,templates.paramsHint,What the imam fills in with pickers. Fixed once the template is active.,ఇమామ్ పికర్‌లతో నింపేవి. టెంప్లేట్ యాక్టివ్ అయ్యాక మారవు.,no
+super,templates.paramName,Name,పేరు,no
+super,templates.paramType,Type,రకం,no
+super,templates.paramRequired,Required,తప్పనిసరి,no
+super,templates.addParam,Add field,ఫీల్డ్ జోడించండి,no
+super,templates.removeParam,Remove field,ఫీల్డ్ తీసివేయండి,no
+super,templates.types.time,Time,సమయం,no
+super,templates.types.date,Date,తేదీ,no
+super,templates.types.date_range,Date range,తేదీల వ్యవధి,no
+super,templates.types.time_range,Time range,సమయ వ్యవధి,no
+super,templates.types.prayer,Prayer,నమాజ్,no
+super,templates.types.number,Number,సంఖ్య,no
+super,templates.types.short_text,Short text,చిన్న వచనం,no
+super,templates.types.phone,Phone number,ఫోన్ నంబర్,no
+super,templates.language,Language,భాష,no
+super,templates.title,Title,శీర్షిక,no
+super,templates.body,Text,వచనం,no
+super,templates.bodyHint,Use '{name}' for a field; a range field gives '{name_start}' and '{name_end}'.,"ఫీల్డ్ కోసం '{name}' రాయండి; వ్యవధి ఫీల్డ్ '{name_start}', '{name_end}' ఇస్తుంది.",no
+super,templates.available,Available: {names},అందుబాటులో: {names},no
+super,templates.preview,Preview with sample values,నమూనా విలువలతో ప్రివ్యూ,no
+super,templates.invalid,This text cannot be read. Check the {braces}.,ఈ వచనాన్ని చదవలేం. {braces} తనిఖీ చేయండి.,no
+super,templates.unknownArgument,Uses a field that does not exist: {names},లేని ఫీల్డ్ ఉపయోగించబడింది: {names},no
+super,templates.titleArguments,Titles cannot use fields.,శీర్షికల్లో ఫీల్డ్‌లు ఉపయోగించలేరు.,no
+super,templates.reviewed,Translations reviewed,అనువాదాలు తనిఖీ చేశాం,no
+super,templates.reviewedHint,Tick only after a person has checked all four languages. Needed to activate.,ఒక వ్యక్తి నాలుగు భాషలనూ తనిఖీ చేసిన తర్వాతే టిక్ చేయండి. యాక్టివ్ చేయడానికి అవసరం.,no
+super,templates.save,Save,సేవ్ చేయండి,no
+super,templates.saved,Template saved.,టెంప్లేట్ సేవ్ అయింది.,no
+super,templates.create,Create draft,డ్రాఫ్ట్ సృష్టించండి,no
+super,templates.activate,Activate,యాక్టివ్ చేయండి,no
+super,templates.activated,Template is active — admins can use it now.,టెంప్లేట్ యాక్టివ్ — అడ్మిన్‌లు ఇప్పుడు దీన్ని ఉపయోగించవచ్చు.,no
+super,templates.retire,Retire,తొలగించు,no
+super,templates.retireTitle,Retire this template?,ఈ టెంప్లేట్‌ను తొలగించాలా?,no
+super,templates.retireBody,Admins can no longer pick it. Notices already published with it stay readable.,అడ్మిన్‌లు ఇకపై దీన్ని ఎంచుకోలేరు. దీనితో ఇప్పటికే పంపిన నోటీసులు చదవగలిగేలా ఉంటాయి.,no
+super,templates.retired,Template retired.,టెంప్లేట్ తొలగించబడింది.,no
+super,templates.reviewFirst,Review all four translations before activating.,యాక్టివ్ చేసే ముందు నాలుగు అనువాదాలనూ తనిఖీ చేయండి.,no
+templates,no_water_time_range.title,No water supply,నీటి సరఫరా నిలిపివేత,no
+templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.,no
+templates,electricity_cut_time_range.title,Power cut,విద్యుత్ నిలిపివేత,no
+templates,electricity_cut_time_range.body,There will be no electricity from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు విద్యుత్ ఉండదు.,no
+templates,jamaat_time_changed.title,Jamaat time changed,జమాత్ సమయం మారింది,no
+templates,jamaat_time_changed.body,"From {from}, the {prayer} jamaat will be at {time}.",{from} నుండి {prayer} జమాత్ {time}కు జరుగుతుంది.,no
+templates,jumuah_timing.title,Jumu’ah timing,జుమా సమయం,no
+templates,jumuah_timing.body,This week’s Jumu’ah jamaat will be at {time}.,ఈ వారం జుమా జమాత్ {time}కు జరుగుతుంది.,no
+templates,eid_salah_timing.title,Eid salah,ఈద్ నమాజ్,no
+templates,eid_salah_timing.body,Eid salah will be held on {date} at {time}. Please arrive early.,ఈద్ నమాజ్ {date}న {time}కు జరుగుతుంది. దయచేసి ముందుగా రండి.,no
+templates,bayan_event.title,Bayan,బయాన్,no
+templates,bayan_event.body,Bayan by {speaker} on {date} at {time}. Everyone is welcome.,{date}న {time}కు {speaker} బయాన్ ఉంటుంది. అందరికీ స్వాగతం.,no
+templates,cleanliness_drive.title,Cleanliness drive,మస్జిద్ శుభ్రత,no
+templates,cleanliness_drive.body,Masjid cleanliness drive on {date} at {time}. Volunteers are welcome.,{date}న {time}కు మస్జిద్ శుభ్రత కార్యక్రమం ఉంటుంది. స్వచ్ఛంద సేవకులకు స్వాగతం.,no
+templates,parking_closed_date_range.title,Parking closed,పార్కింగ్ మూసివేత,no
+templates,parking_closed_date_range.body,The parking area will be closed from {days_start} to {days_end}.,పార్కింగ్ {days_start} నుండి {days_end} వరకు మూసి ఉంటుంది.,no
+templates,wudu_area_maintenance.title,Wudu area under maintenance,వుజూ ప్రదేశంలో మరమ్మతులు,no
+templates,wudu_area_maintenance.body,The wudu area will be under maintenance from {days_start} to {days_end}. Please make wudu at home.,{days_start} నుండి {days_end} వరకు వుజూ ప్రదేశంలో మరమ్మతులు జరుగుతాయి. దయచేసి ఇంటి నుండే వుజూ చేసుకుని రండి.,no
+templates,masjid_closed_repair.title,Masjid closed for repairs,మరమ్మతుల కోసం మస్జిద్ మూసివేత,no
+templates,masjid_closed_repair.body,The masjid will be closed for repairs from {days_start} to {days_end}. Thank you for your patience.,మరమ్మతుల కారణంగా మస్జిద్ {days_start} నుండి {days_end} వరకు మూసి ఉంటుంది. మీ ఓర్పుకు ధన్యవాదాలు.,no
+templates,taraweeh_starts.title,Taraweeh begins,తరావీహ్ ప్రారంభం,no
+templates,taraweeh_starts.body,"Taraweeh salah begins on {date} after Isha, at {time}.",తరావీహ్ నమాజ్ {date} నుండి ఇషా తర్వాత {time}కు ప్రారంభమవుతుంది.,no
+templates,iftar_arrangement.title,Iftar at the masjid,మస్జిద్‌లో ఇఫ్తార్,no
+templates,iftar_arrangement.body,Iftar will be arranged at the masjid on {date}. Everyone is welcome.,{date}న మస్జిద్‌లో ఇఫ్తార్ ఏర్పాటు ఉంటుంది. అందరికీ స్వాగతం.,no
+templates,lost_and_found.title,Lost and found,పోయినవి-దొరికినవి,no
+templates,lost_and_found.body,Found at the masjid: {item}. Please contact the masjid office to collect it.,మస్జిద్‌లో దొరికింది: {item}. తీసుకోవడానికి దయచేసి మస్జిద్ కార్యాలయాన్ని సంప్రదించండి.,no
+templates,general_thanks.title,Thank you,ధన్యవాదాలు,no
+templates,general_thanks.body,Thank you to everyone who helped and supported the masjid.,మస్జిద్‌కు సహాయం చేసి అండగా నిలిచిన అందరికీ ధన్యవాదాలు.,no
+templates,blood_donation_camp.title,Blood donation camp,రక్తదాన శిబిరం,no
+templates,blood_donation_camp.body,"Blood donation camp on {date}, {hours_start} to {hours_end}, at {place}. To register, contact {contact}.",{date}న {hours_start} నుండి {hours_end} వరకు {place}లో రక్తదాన శిబిరం. నమోదు కోసం {contact}ని సంప్రదించండి.,no
+templates,timings_updated.title,Prayer timings updated,నమాజ్ సమయాలు మారాయి,no
+templates,timings_updated.body,The prayer timings of this masjid have been updated. Please check the new times.,ఈ మస్జిద్ నమాజ్ సమయాలు నవీకరించబడ్డాయి. దయచేసి కొత్త సమయాలు చూడండి.,no
+templates,special_timings.title,Special timings,ప్రత్యేక సమయాలు,no
+templates,special_timings.body,This masjid has special timings for {date}. Please see Special Dates for the times.,ఈ మస్జిద్‌లో {date} కోసం ప్రత్యేక సమయాలు ఉన్నాయి. సమయాల కోసం దయచేసి ప్రత్యేక రోజులు చూడండి.,no

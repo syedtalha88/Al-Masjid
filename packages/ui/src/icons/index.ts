@@ -3,3 +3,4 @@ export * from './glyphs.tsx';
 export { IconFrame, type IconProps } from './Icon.tsx';
 export { MasjidGlyph, MasjidTile } from './MasjidTile.tsx';
 export { type Prayer, PrayerIcon, PRAYERS } from './PrayerIcon.tsx';
+export { TEMPLATE_ICON_GLYPHS, TEMPLATE_ICONS, TemplateIcon } from './TemplateIcon.tsx';

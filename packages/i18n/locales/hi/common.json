@@ -39,7 +39,9 @@
     "eidFitr": "ईद-उल-फ़ित्र की नमाज़",
     "eidAdha": "ईद-उल-अज़हा की नमाज़",
     "today": "आज",
-    "tomorrow": "कल"
+    "tomorrow": "कल",
+    "adhkar": "नमाज़ के बाद के अज़कार · {prayer}",
+    "adhkarDismiss": "अगली नमाज़ तक छिपाएँ"
   },
   "nav": {
     "back": "वापस",
@@ -94,7 +96,42 @@
     "refreshing": "रीफ़्रेश हो रहा है…",
     "newUpdatesShort": "{count, plural, one {नया अपडेट} other {नए अपडेट}}",
     "reorderHint": "क्रम बदलने के लिए खींचें, या तीर वाली कुंजियाँ दबाएँ।",
-    "khutbah": "ख़ुत्बा {time}"
+    "khutbah": "ख़ुत्बा {time}",
+    "voice": {
+      "label": "वॉइस मैसेज, {duration}",
+      "duration": "{minutes, plural, =0 {} one {# मिनट } other {# मिनट }}{seconds, plural, one {# सेकंड} other {# सेकंड}}",
+      "play": "चलाएँ",
+      "pause": "रोकें",
+      "position": "वॉइस मैसेज में जगह",
+      "positionValue": "{total} में से {elapsed}",
+      "speed": "चलने की रफ़्तार {speed}",
+      "unavailable": "ऑनलाइन होने पर उपलब्ध",
+      "badge": "वॉइस मैसेज · {duration}"
+    },
+    "ruqyah": {
+      "title": "रुक़्या",
+      "category": {
+        "nazar": "नज़र से हिफ़ाज़त",
+        "sihr": "जादू से हिफ़ाज़त",
+        "shifa": "शिफ़ा (इलाज)",
+        "protection": "रोज़ की हिफ़ाज़त",
+        "general": "आम"
+      },
+      "quoted": "“{text}”",
+      "addedBy": "{masjid} द्वारा जोड़ा गया",
+      "source": "स्रोत: {name} · लाइसेंस: {license}",
+      "instructions": "मस्जिद की ओर से नोट"
+    },
+    "ilm": {
+      "greeting": "अस्सलामु अलैकुम",
+      "message": "संदेश भेजें",
+      "messageLabel": "{name} को व्हाट्सऐप पर संदेश भेजें"
+    },
+    "camp": {
+      "title": "रक्तदान शिविर",
+      "when": "{date} · {start} – {end}",
+      "contact": "व्हाट्सऐप पर संपर्क करें"
+    }
   },
   "hijri": {
     "date": "{day} {month} {year}",

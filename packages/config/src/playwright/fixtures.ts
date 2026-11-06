@@ -36,6 +36,9 @@ const TRACE_CATEGORIES = [
   'disabled-by-default-devtools.timeline',
   'disabled-by-default-devtools.timeline.frame',
   'v8.execute',
+  // Diagnosis only (`MC_PERF_STACKS=1`): JS stacks on Layout / style events — which code forced a layout. Off by
+  // default: capturing stacks costs time inside the measured frames.
+  ...(process.env['MC_PERF_STACKS'] ? ['disabled-by-default-devtools.timeline.stack'] : []),
 ];
 
 export interface AxeOptions {
@@ -69,6 +72,8 @@ export interface McFixtures {
    * registers (no API traffic).
    */
   appDevice: 'onboarded' | 'fresh';
+  /** The onboarded device's Brother/Sister choice (default `brothers`; T3.16 Ilm contacts). */
+  appAudience: 'brothers' | 'sisters';
   /** CSP violations seen so far; the test fails at teardown unless this is empty (T0.5, 04 §7). */
   cspViolations: string[];
   /** Fails with a readable list when axe (WCAG 2.1 AA) finds any violation. Waits for motion to settle first. */
@@ -107,45 +112,49 @@ export async function axeViolations(page: Page, { include, exclude = [], disable
 export const test = base.extend<McFixtures>({
   appLocale: [undefined, { option: true }],
   appDevice: ['onboarded', { option: true }],
+  appAudience: ['brothers', { option: true }],
 
-  context: async ({ context, appLocale, appDevice }, use) => {
+  context: async ({ context, appLocale, appDevice, appAudience }, use) => {
     if (appDevice === 'onboarded') {
       // IndexedDB `mc-device` / `kv` / `device` (apps/app/src/lib/device). This transaction is created before the app's
       // own read (its open request is first), so the app always sees the seeded document.
-      await context.addInitScript((locale: string) => {
-        try {
-          const open = indexedDB.open('mc-device');
-          open.onupgradeneeded = () => {
-            open.result.createObjectStore('kv');
-          };
-          open.onsuccess = () => {
-            const db = open.result;
-            if (!db.objectStoreNames.contains('kv')) return;
-            const store = db.transaction('kv', 'readwrite').objectStore('kv');
-            const existing = store.get('device');
-            existing.onsuccess = () => {
-              if (existing.result !== undefined) return;
-              store.put(
-                {
-                  version: 1,
-                  locale,
-                  audiencePref: 'brothers',
-                  onboardedAt: '2026-01-01T00:00:00.000Z',
-                  registrationPending: false,
-                  follows: [],
-                  saved: [],
-                  ameens: [],
-                  pendingAmeens: [],
-                  settings: { vibration: true, arabicScale: 1, transliteration: true },
-                },
-                'device',
-              );
+      await context.addInitScript(
+        ([locale, audiencePref]: readonly [string, string]) => {
+          try {
+            const open = indexedDB.open('mc-device');
+            open.onupgradeneeded = () => {
+              open.result.createObjectStore('kv');
             };
-          };
-        } catch {
-          // Opaque origins (about:blank) have no IndexedDB.
-        }
-      }, appLocale ?? 'en');
+            open.onsuccess = () => {
+              const db = open.result;
+              if (!db.objectStoreNames.contains('kv')) return;
+              const store = db.transaction('kv', 'readwrite').objectStore('kv');
+              const existing = store.get('device');
+              existing.onsuccess = () => {
+                if (existing.result !== undefined) return;
+                store.put(
+                  {
+                    version: 1,
+                    locale,
+                    audiencePref,
+                    onboardedAt: '2026-01-01T00:00:00.000Z',
+                    registrationPending: false,
+                    follows: [],
+                    saved: [],
+                    ameens: [],
+                    pendingAmeens: [],
+                    settings: { vibration: true, arabicScale: 1, transliteration: true },
+                  },
+                  'device',
+                );
+              };
+            };
+          } catch {
+            // Opaque origins (about:blank) have no IndexedDB.
+          }
+        },
+        [appLocale ?? 'en', appAudience] as const,
+      );
     }
     if (appLocale !== undefined) {
       // Only when nothing is stored yet, so a test that switches language keeps its choice across reloads.
@@ -222,7 +231,7 @@ export const test = base.extend<McFixtures>({
     let cdp: CDPSession | undefined;
     const state = { tracing: false };
     await use({
-      async start({ cpuThrottle = 4 } = {}) {
+      async start({ cpuThrottle = Number(process.env['MC_PERF_CPU'] ?? 4) } = {}) {
         if (browserName !== 'chromium') throw new Error('perfTrace needs Chromium (the `perf` project)');
         cdp = await page.context().newCDPSession(page);
         await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuThrottle });
@@ -259,7 +268,10 @@ export function expectSmooth(report: TraceReport, { maxDroppedRatio = 0.05 }: Sm
     droppedRatio,
     `visible dropped frames ${String(droppedVisible)} (all dropped ${String(dropped)}) of ${String(presented + dropped)}`,
   ).toBeLessThan(maxDroppedRatio);
-  expect(report.layoutsInAnimationFrames, 'layouts forced inside requestAnimationFrame callbacks').toBe(0);
+  expect(
+    report.layoutsInAnimationFrames,
+    `layouts forced inside requestAnimationFrame callbacks:\n${report.animationFrameLayouts.join('\n')}`,
+  ).toBe(0);
 }
 
 export { expect };

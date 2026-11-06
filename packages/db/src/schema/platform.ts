@@ -6,6 +6,7 @@ import {
   ANNOUNCEMENT_CATEGORY,
   AUDIENCE,
   AUDIENCE_PREF,
+  DHIKR_OCCASION,
   DUA_CATEGORY,
   GRIEVANCE_CATEGORY,
   GRIEVANCE_STATUS,
@@ -45,6 +46,9 @@ const contentLibrary = documentSchema({
   source_license: f.string(200),
   tags: f.array(f.string(40), { max: 20 }),
   dua_category: opt(f.enum(DUA_CATEGORY)),
+  // kind `dhikr` (DECISIONS #104): how many times it is said, and when.
+  repeat: opt(f.int(1, 1000)),
+  occasions: opt(f.array(f.enum(DHIKR_OCCASION), { max: 3 })),
   verified_by: opt(f.string(120)),
   verified_at: opt(f.instant()),
   status: f.enum(LIBRARY_STATUS),

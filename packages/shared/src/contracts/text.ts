@@ -22,10 +22,16 @@ const UNSAFE =
   /(?![\n\u200C-\u200F\u061C])[\p{Cc}\p{Cf}\p{Cs}\p{Co}\p{Cn}\p{Zl}\p{Zp}\u115F\u1160\u2800\u3164\uFFA0]|[\u034F\u17B4\u17B5\u180B-\u180D\u180F\uFE00-\uFE0D\u{E0100}-\u{E01EF}]/u;
 
 const HAS_LETTER_OR_DIGIT = /[\p{L}\p{N}]/u;
+// Arabic number and end-of-ayah signs (Cf): allowed in verified Content Library Arabic only (PHASE_03 T3.4).
+const ARABIC_SIGNS = /[\u0600-\u0605\u06DD\u08E2]/gu;
 
-/** True when `text` contains a character {@link safeText} refuses (newlines count only when not `multiline`). */
-export function hasUnsafeCharacters(text: string, multiline = false): boolean {
-  return UNSAFE.test(text) || (!multiline && text.includes('\n'));
+/**
+ * True when `text` contains a character {@link safeText} refuses (newlines count only when not `multiline`; the
+ * Arabic number signs only when not `arabicSigns`).
+ */
+export function hasUnsafeCharacters(text: string, multiline = false, arabicSigns = false): boolean {
+  const probe = arabicSigns ? text.replace(ARABIC_SIGNS, '') : text;
+  return UNSAFE.test(probe) || (!multiline && probe.includes('\n'));
 }
 
 /** How much longer than `max` raw input may be before normalization runs at all (review L-4). */
@@ -33,11 +39,15 @@ const RAW_LENGTH_FACTOR = 4;
 
 /**
  * A free-text field (04 §6): NFC, trimmed, `min`–`max` characters, no unsafe characters; `multiline` allows newlines
- * (CRLF → LF, at most two in a row). Raw input longer than 4 × `max` is refused before it is normalized (review L-4),
- * and the OpenAPI document shows the real `min` / `max`.
+ * (CRLF → LF, at most two in a row); `arabicSigns` also allows the Arabic number and end-of-ayah signs (U+0600–0605,
+ * U+06DD, U+08E2) — library Arabic only. Raw input longer than 4 × `max` is refused before it is normalized (review
+ * L-4), and the OpenAPI document shows the real `min` / `max`.
  */
-export function safeText(max: number, options: { readonly min?: number; readonly multiline?: boolean } = {}) {
-  const { min = 0, multiline = false } = options;
+export function safeText(
+  max: number,
+  options: { readonly min?: number; readonly multiline?: boolean; readonly arabicSigns?: boolean } = {},
+) {
+  const { min = 0, multiline = false, arabicSigns = false } = options;
   return z
     .string()
     .max(max * RAW_LENGTH_FACTOR, { abort: true }) // Zod 4 checks do not abort by default (review L1)
@@ -49,7 +59,7 @@ export function safeText(max: number, options: { readonly min?: number; readonly
         .trim()
         .min(min)
         .max(max)
-        .refine((value) => !hasUnsafeCharacters(value, multiline), {
+        .refine((value) => !hasUnsafeCharacters(value, multiline, arabicSigns), {
           message: 'contains control or invisible formatting characters',
         })
         // A required field needs something readable: not only spaces, punctuation or symbols (review L2).

@@ -17,13 +17,16 @@ export const SW_CACHES = {
   images: 'mc-images-v1',
   api: 'mc-api-v1',
   versions: 'mc-versions-v1',
+  /** Voice notes, kept once played (T3.13, 01 §5.5). */
+  audio: 'mc-audio-v1',
 } as const;
 
 /**
- * Caches that reveal which masjids this phone follows (feeds, bundles, the versions URL listing the ids, masjid photos)
+ * Caches that reveal which masjids this phone follows (feeds, bundles, the versions URL listing the ids, masjid photos,
+ * played voice notes)
  * — emptied by "Clear all data" (05 §4). App code and fonts (`assets`) stay.
  */
-export const PERSONAL_CACHES = [SW_CACHES.api, SW_CACHES.versions, SW_CACHES.images] as const;
+export const PERSONAL_CACHES = [SW_CACHES.api, SW_CACHES.versions, SW_CACHES.images, SW_CACHES.audio] as const;
 
 /** Background Sync tag: Ameens said offline are sent by the worker when the connection returns (01 §5.6). */
 export const AMEEN_SYNC_TAG = 'mc-ameen';

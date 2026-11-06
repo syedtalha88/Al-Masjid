@@ -33,6 +33,17 @@
     outline-offset: 2px;
   }
 
+  /*
+   * A musalli rendering inside the admin app (PreviewFrame, T3.11): type.css / fonts.css give .mc-preview the musalli
+   * scale and its own language's font stack; the theme's font variable is resolved again here (it is computed on :root).
+   */
+  .mc-preview {
+    --font-ui: var(--mc-font-ui);
+    @apply type-body;
+    font-family: var(--font-ui);
+    color: var(--color-text);
+  }
+
   /* Arabic religious text is never mirrored or re-styled by the UI locale (06 §6 ArabicText). */
   :lang(ar) {
     font-family: var(--font-arabic);

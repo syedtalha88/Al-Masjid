@@ -7,6 +7,7 @@ import {
   HijriDate,
   I18nProvider,
   initialDocumentLocale,
+  LocaleScope,
   Money,
   Time,
   useHijriLabel,
@@ -155,5 +156,58 @@ describe('helpers', () => {
     } finally {
       silence.mockRestore();
     }
+  });
+});
+
+describe('LocaleScope (T3.11 admin preview)', () => {
+  function Scoped() {
+    const { t } = useTranslation();
+    const { locale, setLocale } = useLocale();
+    return (
+      <p data-testid="scoped" data-locale={locale} onClick={() => void setLocale('te')}>
+        {t('language.label')}
+      </p>
+    );
+  }
+
+  it('renders a subtree in its own language; the app and <html lang dir> keep theirs', async () => {
+    const { rerender } = render(
+      <I18nProvider initialLocale="en" fallback={<p>loading</p>}>
+        <Probe />
+        <LocaleScope locale="hi" namespaces={['common']} fallback={<p>scope loading</p>}>
+          <Scoped />
+        </LocaleScope>
+      </I18nProvider>,
+    );
+    expect(await screen.findByRole('heading', { name: 'Language' })).toBeTruthy();
+    const scoped = await screen.findByTestId('scoped');
+    expect(scoped.dataset['locale']).toBe('hi');
+    expect(scoped.textContent).toBe('भाषा');
+    expect(document.documentElement.lang).toBe('en');
+
+    // setLocale inside the scope does nothing — the prop decides.
+    await act(async () => {
+      scoped.click();
+      await Promise.resolve();
+    });
+    expect(screen.getByTestId('scoped').dataset['locale']).toBe('hi');
+
+    rerender(
+      <I18nProvider initialLocale="en" fallback={<p>loading</p>}>
+        <Probe />
+        <LocaleScope locale="ur" namespaces={['common']} fallback={<p>scope loading</p>}>
+          <Scoped />
+        </LocaleScope>
+      </I18nProvider>,
+    );
+    // The previous language stays until the next has loaded (never the fallback again, never raw keys).
+    expect(screen.queryByText('scope loading')).toBeNull();
+    await vi.waitFor(() => {
+      expect(screen.getByTestId('scoped').dataset['locale']).toBe('ur');
+    });
+    expect(screen.getByTestId('scoped').textContent).not.toBe('language.label');
+    expect(screen.getByRole('heading', { name: 'Language' })).toBeTruthy();
+    expect(document.documentElement.lang).toBe('en');
+    expect(document.documentElement.dir).toBe('ltr');
   });
 });

@@ -89,7 +89,9 @@ function typeUtility(name: string, style: TypeStyle): string {
 export function typeCss(): string {
   const utilities = Object.entries(TYPE_SCALE).map(([name, style]) => typeUtility(name, style));
   return `${HEADER}
-:root {
+/* .mc-preview: a musalli rendering inside the admin app (PreviewFrame, T3.11) — musalli scale, its own language. */
+:root,
+.mc-preview {
   --mc-size-bump: 0rem;
   --mc-script-size-bump: 0rem;
   --mc-lh-scale: 1;
@@ -104,13 +106,16 @@ export function typeCss(): string {
 
 /* Devanagari / Telugu: taller lines, no negative tracking. */
 :root:lang(hi),
-:root:lang(te) {
+:root:lang(te),
+.mc-preview:lang(hi),
+.mc-preview:lang(te) {
   --mc-lh-scale: ${String(LOCALE_TYPE.indicLineHeightScale)};
   --mc-tracking: 0;
 }
 
 /* Nastaliq: +2px, line-height ≥ 1.9, no letter-spacing. */
-:root:lang(ur) {
+:root:lang(ur),
+.mc-preview:lang(ur) {
   --mc-script-size-bump: ${rem(LOCALE_TYPE.urduSizeBumpPx)};
   --mc-lh-min: ${String(LOCALE_TYPE.urduMinLineHeight)};
   --mc-tracking: 0;

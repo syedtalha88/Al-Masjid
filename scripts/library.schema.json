@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "string",
+      "const": "masjid-connect-library"
+    },
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "entries": {
+      "minItems": 1,
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "hadith",
+              "ayah",
+              "dua",
+              "dhikr"
+            ]
+          },
+          "arabic": {
+            "minLength": 1,
+            "maxLength": 4000,
+            "type": "string"
+          },
+          "transliteration": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "minLength": 1,
+                "maxLength": 4000,
+                "type": "string"
+              },
+              "hi": {
+                "minLength": 1,
+                "maxLength": 4000,
+                "type": "string"
+              },
+              "ur": {
+                "minLength": 1,
+                "maxLength": 4000,
+                "type": "string"
+              },
+              "te": {
+                "minLength": 1,
+                "maxLength": 4000,
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "translation": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "minLength": 1,
+                "maxLength": 4000,
+                "type": "string"
+              },
+              "hi": {
+                "minLength": 1,
+                "maxLength": 4000,
+                "type": "string"
+              },
+              "ur": {
+                "minLength": 1,
+                "maxLength": 4000,
+                "type": "string"
+              },
+              "te": {
+                "minLength": 1,
+                "maxLength": 4000,
+                "type": "string"
+              }
+            },
+            "required": [
+              "en"
+            ],
+            "additionalProperties": false
+          },
+          "reference": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "source_name": {
+            "minLength": 1,
+            "maxLength": 120,
+            "type": "string"
+          },
+          "source_license": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "tags": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,39}$"
+            }
+          },
+          "dua_category": {
+            "type": "string",
+            "enum": [
+              "illness",
+              "inteqal",
+              "other"
+            ]
+          },
+          "repeat": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          },
+          "occasions": {
+            "minItems": 1,
+            "maxItems": 3,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "after_salah",
+                "morning",
+                "evening"
+              ]
+            }
+          }
+        },
+        "required": [
+          "kind",
+          "arabic",
+          "translation",
+          "reference",
+          "source_name",
+          "source_license"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "format",
+    "version",
+    "entries"
+  ],
+  "additionalProperties": false,
+  "$id": "https://almasjids.com/schemas/library-import-v1.json",
+  "title": "Content Library import file (masjid-connect-library, version 1)"
+}

@@ -2,7 +2,7 @@
 
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
-> Last updated: 20 Oct 2026 (evening).
+> Last updated: 3 Nov 2026.
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
 > Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.
@@ -36,24 +36,63 @@
 - [x] **O19 + F17** — screen readers and iPhone swipe-back checked: working fine (20 Oct 2026)
 - [x] **O12** — Super Admin passkey on staging created with my phone (22 Oct 2026)
 - [x] **O20** — database privilege check on staging: 17/17 PASS (20 Oct 2026)
+- [x] **O36** — Atlas roles updated for Ruqyah + Ilm contacts, server scripts updated to `aea4aba`, database passwords rotated, staging restarted; privilege check shows only the expected "extra" lines until Phase 03 is deployed (6 Nov 2026)
+- [x] **O25 (keys part)** — two Cloudinary API keys made and put into the staging env files; media settings added with `make-env.sh --force` (6 Nov 2026)
 - [x] **O17** — server scripts updated to `2719f01`, edge networks recreated, `check.sh` 106 PASS · 0 FAIL; staging back with the database connected (20 Oct 2026)
 
 ---
 
-## Still to do (in this order)
+## Still to do
 
-| # | What | Time | Notes |
+> Nothing here blocks Claude Code's work right now (3 Nov 2026). Do them whenever you have time — the "When" column
+> says by when each one is needed. Tell Claude Code "O<n> done" and it checks.
+
+### Needed before Phase 03 goes to staging
+
+| # | What | Time | When |
 |---|---|---|---|
-| ~~2~~ | ~~**Atlas IP list confirmation** (O21)~~ — **done 22 Oct 2026** | | |
-| ~~2a~~ | ~~**Server scripts update** (O22)~~ — **done 22 Oct 2026** (17/17 privileges, check.sh 114 PASS · 0 FAIL) | | |
-| ~~2b~~ | ~~**Answer DECISIONS #79**~~ — **done 20 Oct 2026: A** |
-| ~~2c~~ | ~~**Answer DECISIONS #81**~~ — **done 20 Oct 2026: A** (limit now 30) |
-| 2d | **Cloudflare cache rule for the app API (O23)** — Cloudflare → almasjids.com → **Caching → Cache Rules**: check that rule **"App API (origin)"** exists and is **enabled**, exactly as in `infra/cloudflare/README.md` §4 rule 1 (Hostname equals `app-staging.almasjids.com` AND URI Path starts with `/api/v1/` AND Request Method equals `GET` → **Eligible for cache**, Edge TTL **"Use cache-control header if present, bypass cache if not"**, Browser TTL **Respect origin**). Then tell Claude Code — it re-runs `node scripts/check-cdn-cache.mjs https://app-staging.almasjids.com` | 5 min | Phase 2 — **25 Oct 2026: you confirmed the rule is enabled, but staging still answers `DYNAMIC` (never `HIT`)** although our server sends the right headers, so the rule is not matching yet. Please open the rule and compare each field with the line above: the **Hostname** must *equal* `app-staging.almasjids.com` (not `almasjids.com`), the **URI Path** must *start with* `/api/v1/`, the action must be **Eligible for cache**, and the rule must be **Deployed** (not only saved). Then tell Claude Code to check again |
-| 2e | ~~Confirm the bundle-size raises (O24)~~ — **answered 24 Oct 2026**: a few kB more is fine | – | done |
-| 3 | **Design notes** — the minor improvements I noticed (list or screenshots) (O7) | — | when ready |
-| 4 | **Turnstile switch-over** (Phase 2, when Claude Code asks): GitHub `staging` environment variable `VITE_PUBLIC_TURNSTILE_SITE_KEY` = my site key, and the secret into the server env files — both together | 5 min | Phase 2 |
-| 5 | **Low-end Android phone** (≈ ₹8,000) for the performance check (O16) | when available | Phase 2 |
-| 6 | **O6 last:** GitHub branch ruleset (0.15) + the failing-PR test (0.16) — after this, `main` changes only through pull requests | 15 min | at the very end of Phase 01 work |
+| O25 | **Cloudinary for staging — rest (keys are done)** — in the Cloudinary console (Image → Studio): create the 7 transformation **templates** `mc_480_avif`, `mc_480_webp`, `mc_960_avif`, `mc_960_webp`, `mc_1440_avif`, `mc_1440_webp` (text `c_limit,w_<size>,f_<avif or webp>,q_auto`) and `audio_m4a` (text `ac_aac,br_48k`), each **allowed for strict transformations**; then Settings → Security → **Strict transformations** on; check the **`media-staging`** DNS record in Cloudflare (A, Proxied, same IP as `app-staging`). The app's keys may not create them (Cloudinary answered 403 "missing permissions (create)"), so this is done by hand. Ask Claude Code for the click-by-click steps again | 15 min | before the Phase 03 staging deploy (photos and voice notes need it) |
+| O23 | **Cloudflare cache rule for the app API** — open rule "App API (origin)" and compare it field by field: Hostname **equals** `app-staging.almasjids.com`, URI Path **starts with** `/api/v1/`, Method `GET`, action **Eligible for cache**, Edge TTL "Use cache-control header if present", rule **Deployed**. Staging still answers `DYNAMIC` (25 Oct 2026). Then tell Claude Code to check again | 5 min | any time (open since 25 Oct) |
+| O8 | **Turnstile switch-over** — GitHub `staging` environment variable `VITE_PUBLIC_TURNSTILE_SITE_KEY` = your site key **and** the secret into `TURNSTILE_SECRET` of the staging API env files — both together, never via chat | 5 min | any time |
+
+### At the end of Phase 03
+
+| # | What | Time | When |
+|---|---|---|---|
+| O26 | **Usability check (T3.12)** — sit with a real masjid person (imam / mutawalli) and let them do the 5 tasks without help. The script is ready: `owner/PHASE_TESTING_GUIDE.md` → Phase 03 → "The 5-task usability script" (each task 3–6 taps, no typing). Tell Claude Code where they hesitated | 30 min | end of Phase 03, on staging |
+| O27 | **Phase 03 checks on staging** — `owner/PHASE_TESTING_GUIDE.md` → Phase 03, on your phones | 45 min | when Claude Code says "Phase 03 is ready" |
+
+### Later phases (Claude Code reminds you)
+
+| # | What | Time | When |
+|---|---|---|---|
+| O28 | **A UPI ID for a ₹1 test** (your own or a masjid's; a business/merchant UPI ID is best for real masjids) | 5 min | Phase 05 |
+| O29 | **Qibla check** — compare the arrow with a masjid's mihrab direction on one Android and one iPhone | 10 min | Phase 07 |
+
+### Before the pilot launch
+
+| # | What | Time | When |
+|---|---|---|---|
+| O30 | **Notice templates** — Super Admin → Notice templates → **Add starter templates**; have someone check each one in all 4 languages (or send `packages/i18n/review/*.csv` to translators), tick **Translations reviewed**, **Activate** | 1–2 h | before pilot |
+| O31 | **All app translations reviewed** — send the review files `packages/i18n/review/hi.csv`, `ur.csv`, `te.csv` (about 1,200 strings each, all drafts — 5 Nov 2026) to translators; Claude Code puts their answers back | depends on translators | before pilot |
+| O32 | **Verified Content Library file** — hadith / ayah / duas / adhkar (kind `dhikr` with `repeat` and `occasions: ["after_salah"]` — masjids pick them in "Adhkar after salah" since T3.14) / ruqyah from licensed, scholar-checked sources in the format of `docs/content-library-format.md` | — | before pilot |
+| O33 | **Grievance Officer details** — name, email and address in Super Admin → Settings (the app hides the contact link while the "NOT SET" placeholders are there) | 5 min | before launch |
+| O34 | **Legal checklist** — `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md` (lawyer review of the privacy policy and terms, etc.) | — | before pilot |
+| O35 | **Hadith/Ayah topic chips** — when you try B6 ("Choose another"), say whether the topic chips may show the library's tag words as written (e.g. `patience`, `after fajr`) in every language, or should be translated (then the library file gets a label per language — F51) | — | optional, before pilot |
+
+### Whenever you like
+
+| # | What | Time | When |
+|---|---|---|---|
+| O7 | **Design notes** — the minor improvements you noticed (list or screenshots) | — | when ready |
+| O16 | **Low-end Android phone** (≈ ₹8,000) for a measured check — optional; you said it looks good (27 Oct 2026) | — | optional |
+| O6 | **GitHub checks 0.15 + 0.16** (branch ruleset + the failing-PR test, steps below) — after this, `main` changes only through pull requests | 15 min | **do last** |
+| O6 | 0.18 Sentry error reporting (steps below) | 15 min | optional |
+
+### Done since the last update
+
+- ~~O21, O22~~ (22 Oct 2026) · ~~O24 bundle sizes~~ (24 Oct: a few kB is fine) · ~~Cloudinary keys on this PC~~ (1 Nov 2026)
+- **T3.0 accepted with a small tolerance** (3 Nov 2026, DECISIONS #116) · **Simple Qibla page** (3 Nov 2026, DECISIONS #118)
 
 ---
 

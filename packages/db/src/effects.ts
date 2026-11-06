@@ -61,6 +61,27 @@ export async function contentWrite<T>(
   return result;
 }
 
+/** 02 §5 / §6: deleted and removed items are kept this long (IT Rules preservation), then purged by `retention`. */
+export const ITEM_PURGE_DAYS = 180;
+
+/**
+ * Purge marker (02 §5): `purge_after = now + 180 days` on an item of `masjidId` that has just become `deleted` (or
+ * `removed`), in the caller's transaction. A data-layer effect, not a policy write — the gateway refuses `purge_after`
+ * to every generic write (moderation evidence, 04 §5).
+ *
+ * @throws StateError ITEM_NOT_FOUND when no deleted / removed item of the masjid has that id (the transaction aborts).
+ */
+export async function markItemForPurge(ctx: TxContext, masjidId: UUID, itemId: UUID, now: Date): Promise<void> {
+  const result = await ctx.db
+    .collection<{ _id: UUID }>('items')
+    .updateOne(
+      { _id: itemId, masjid_id: masjidId, status: { $in: ['deleted', 'removed'] } },
+      { $set: { purge_after: new Date(now.getTime() + ITEM_PURGE_DAYS * 24 * 60 * 60 * 1000) } },
+      { session: ctx.session },
+    );
+  if (result.matchedCount !== 1) throw new StateError('ITEM_NOT_FOUND');
+}
+
 // --- audit (02 §2 audit_log, 05) ---------------------------------------------------------------------------------------
 
 /**
@@ -70,6 +91,8 @@ export async function contentWrite<T>(
 export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'masjid.create': ['name', 'city'],
   'masjid.update': ['fields'],
+  'masjid.profile': ['fields'],
+  'masjid.change_request': ['note'],
   'masjid.activate': [],
   'masjid.suspend': ['reason'],
   'masjid.unsuspend': ['reason'],
@@ -92,6 +115,32 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'credential.revoke': ['reason', 'credential'],
   'session.revoke': ['reason', 'count'],
   'settings.update': ['fields'],
+  'library.import': ['batch', 'entries'],
+  'library.update': ['fields', 'back_to_draft'],
+  'library.verify': [],
+  'library.retire': ['from'],
+  'template.create': [],
+  'template.update': ['fields', 'status'],
+  'template.add_starters': ['added'],
+  'timings.update': ['rev', 'notify'],
+  'special.create': ['type', 'notify'],
+  'special.update': ['type', 'notify'],
+  'special.delete': [],
+  'ramadan.update': ['on'],
+  'image.upload': ['purpose', 'rights_confirmed'],
+  'audio.upload': ['duration_s', 'rights_confirmed'],
+  'adhkar.update': ['enabled', 'count'],
+  'ruqyah.create': ['source', 'category', 'rights_confirmed'],
+  'ruqyah.update': ['source', 'category', 'rights_confirmed'],
+  'ruqyah.delete': [],
+  'ruqyah.order': ['count'],
+  // Never the name or number (personal data of the volunteer — 04 §1).
+  'contact.create': ['audience', 'consent_confirmed'],
+  'contact.update': ['audience', 'consent_confirmed'],
+  'contact.delete': [],
+  'item.publish': ['type', 'template', 'notify', 'image'],
+  'item.edit': ['type'],
+  'item.delete': ['type'],
 };
 const META_LIMIT_BYTES = 4096;
 

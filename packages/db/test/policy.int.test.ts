@@ -1,4 +1,4 @@
-// PHASE_01 T1.4 acceptance: every (namespace × scope × operation) cell of 02 §4.1 — 41 × 6 × 4 = 984 — is exercised
+// PHASE_01 T1.4 acceptance: every (namespace × scope × operation) cell of 02 §4.1 — 45 × 6 × 4 = 1,080 — is exercised
 // through `scoped()` against a real MongoDB and compared with an independent transcription of the table; plus
 // cross-masjid isolation (crafted ids, injected filters), an admin without memberships, allow-listed fields, hidden
 // fields, redaction, forged scopes and the operator-key guard.
@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { COLLECTIONS, CONTENT_COLLECTIONS, type Namespace, NAMESPACES, VIEW_SOURCES } from '../src/collections.ts';
 import { type Operation, PolicyDeniedError } from '../src/policy.ts';
+import { quotaUsageId } from '../src/repos/admin.ts';
 import { adminScope, deviceScope, hookScope, publicScope, type Scope, superScope, systemScope } from '../src/scope.ts';
 import { scoped } from '../src/scoped.ts';
 import { createTestDatabase, type TestDatabase } from '../src/testing/index.ts';
@@ -28,14 +29,16 @@ const SPEC: Readonly<Partial<Record<Namespace, Partial<Record<Column, string>>>>
   ameen_counters: { public: 'S', device: 'SIU', admin: 'S', super: 'S' },
   campaign_amount_history: { admin: 'SI', super: 'S' },
   chanda_weeks: { admin: 'SIU', super: 'SIUD' },
+  ruqyah_entries: { admin: 'SIU', super: 'SIUD' }, // DECISIONS #104: delete = status deleted (U)
+  masjid_contacts: { admin: 'SIU', super: 'SIUD' }, // as Ruqyah (T3.16)
   content_library: { admin: 'S', super: 'SIUD' },
   notice_templates: { admin: 'S', super: 'SIUD' },
   payment_profiles: { admin: 'S', super: 'S' },
   devices: { public: 'I', device: 'SUD' },
   device_follows: { device: 'SIUD' },
   admin_push_subscriptions: { admin: 'SID', super: 'SID' },
-  notification_jobs: { admin: 'S', super: 'S' },
-  push_quota_usage: { admin: 'S', super: 'S' },
+  notification_jobs: { admin: 'SI', super: 'S' }, // DECISIONS #115: the publish transaction writes the outbox
+  push_quota_usage: { admin: 'SIU', super: 'S' }, // #115: and counts the notification
   reports: { device: 'I', admin: 'S', super: 'SU' },
   grievances: { public: 'I', super: 'SU' },
   grievance_seq: { public: 'SIU', super: 'SU' },
@@ -54,6 +57,8 @@ const SPEC: Readonly<Partial<Record<Namespace, Partial<Record<Column, string>>>>
   v_pub_library: { public: 'S', device: 'S', admin: 'S', super: 'S' },
   v_pub_templates: { public: 'S', device: 'S', admin: 'S', super: 'S' },
   v_pub_settings: { public: 'S', device: 'S', admin: 'S', super: 'S' },
+  v_pub_ruqyah: { public: 'S', device: 'S', admin: 'S', super: 'S' },
+  v_pub_contacts: { public: 'S', device: 'S', admin: 'S', super: 'S' },
   v_admin_follow_audience: { admin: 'S', super: 'S' },
 };
 const LETTER: Record<Operation, string> = { find: 'S', insert: 'I', update: 'U', delete: 'D' };
@@ -95,8 +100,15 @@ function docFor(namespace: Namespace, scope: Scope, contentId: UUID): Record<str
           ? scope.deviceId
           : new UUID(),
     actor_type: scope.kind === 'super' ? 'super_admin' : scope.kind,
-    status: 'verified',
+    status:
+      namespace === 'notification_jobs'
+        ? 'pending'
+        : namespace === 'ruqyah_entries' || namespace === 'masjid_contacts'
+          ? 'active'
+          : 'verified',
     system: false,
+    // An outbox job starts pending with nothing sent (policy check — DECISIONS #115).
+    ...(namespace === 'notification_jobs' ? { sent: 0, failed: 0, bypass_quota: false } : {}),
   };
 }
 
@@ -159,11 +171,11 @@ describe('policy matrix (02 §4.1): every cell, allowed and denied', () => {
       expect(wrong).toEqual([]);
     });
   }
-  it('the generated checklist covered 41 namespaces × 6 scopes × 4 operations (minus what MongoDB decides)', () => {
-    expect(NAMESPACES).toHaveLength(41);
-    // System scope: _migrations × 4 and 11 views × 3 write operations are left to MongoDB / the DB users.
-    expect(skipped).toBe(4 + 11 * 3);
-    expect(tested).toBe(41 * 6 * 4 - skipped); // only cells really attempted are counted (phase-verifier nit)
+  it('the generated checklist covered 45 namespaces × 6 scopes × 4 operations (minus what MongoDB decides)', () => {
+    expect(NAMESPACES).toHaveLength(45);
+    // System scope: _migrations × 4 and 13 views × 3 write operations are left to MongoDB / the DB users.
+    expect(skipped).toBe(4 + 13 * 3);
+    expect(tested).toBe(45 * 6 * 4 - skipped); // only cells really attempted are counted (phase-verifier nit)
   });
 });
 
@@ -176,6 +188,8 @@ describe('tenant isolation', () => {
     'special_timings',
     'items',
     'chanda_weeks',
+    'ruqyah_entries',
+    'masjid_contacts',
     'campaign_amount_history',
     'payment_profiles',
     'notification_jobs',
@@ -416,6 +430,24 @@ describe('fields', () => {
     expect(reports.some((doc) => 'device_id' in doc)).toBe(false);
   });
 
+  it('the daily notification count only goes up by one — no reset, no jump (DECISIONS #135)', async () => {
+    const usage = scoped({ scope: adminOfA, db: db() }, 'push_quota_usage');
+    const id = quotaUsageId(masjidA, '2026-11-06');
+    await expect(usage.insertOne({ _id: id, masjid_id: masjidA, day: '2026-11-06', count: 5 })).rejects.toThrow(
+      PolicyDeniedError,
+    );
+    await usage.insertOne({ _id: id, masjid_id: masjidA, day: '2026-11-06', count: 1 });
+    expect(await usage.updateOne({ _id: id }, { $inc: { count: 1 } })).toBe(1);
+    for (const update of [
+      { $set: { count: 0 } },
+      { $set: { count: 1 } },
+      { $inc: { count: 5 } },
+      { $inc: { count: -1 } },
+    ]) {
+      await expect(usage.updateOne({ _id: id }, update), JSON.stringify(update)).rejects.toThrow(PolicyDeniedError);
+    }
+  });
+
   it('removed items show no content to their admin', async () => {
     await raw('items').insertOne({
       _id: new UUID(),
@@ -424,12 +456,14 @@ describe('fields', () => {
       title: 'gone',
       body: 'gone',
       image_key: 'k',
+      voice: { key: 'm/x/a/y', duration_s: 3 },
     });
     const removed = (await scoped({ scope: adminOfA, db: db() }, 'items').find({ status: 'removed' }))[0];
     expect(removed).toBeDefined();
     expect(removed).not.toHaveProperty('title');
     expect(removed).not.toHaveProperty('body');
     expect(removed).not.toHaveProperty('image_key');
+    expect(removed).not.toHaveProperty('voice'); // DECISIONS #135
   });
 
   it('no generic write un-removes an item, removes one, or touches the purge marker (04 §5, review M2)', async () => {

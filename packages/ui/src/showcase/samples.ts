@@ -38,6 +38,15 @@ export interface Samples {
   readonly notify: string;
   readonly notifyHint: string;
   readonly ownPhoto: string;
+  readonly stepLabel: string;
+  readonly stepTitle: string;
+  readonly preview: string;
+  readonly showIn: string;
+  readonly publish: string;
+  readonly published: string;
+  readonly publishedBody: string;
+  readonly done: string;
+  readonly view: string;
   readonly brother: string;
   readonly sister: string;
   readonly iAm: string;
@@ -101,6 +110,15 @@ export const SAMPLES: Readonly<Record<Locale, Samples>> = {
     notify: 'Notify followers',
     notifyHint: '6 of 8 left today',
     ownPhoto: 'I took this photo or have permission to use it',
+    stepLabel: 'Step 3 of 3',
+    stepTitle: 'Preview and publish',
+    preview: 'Preview',
+    showIn: 'Show in',
+    publish: 'Publish',
+    published: 'Published',
+    publishedBody: '1,240 people will be notified.',
+    done: 'Done',
+    view: 'View',
     brother: 'Brother',
     sister: 'Sister',
     iAm: 'I am a',
@@ -158,6 +176,15 @@ export const SAMPLES: Readonly<Record<Locale, Samples>> = {
     notify: 'फ़ॉलोअर्स को सूचना दें',
     notifyHint: 'आज 8 में से 6 बाक़ी',
     ownPhoto: 'यह फ़ोटो मैंने ली है या इसकी अनुमति है',
+    stepLabel: 'चरण 3 / 3',
+    stepTitle: 'देखें और प्रकाशित करें',
+    preview: 'पूर्वावलोकन',
+    showIn: 'इसमें दिखाएँ',
+    publish: 'प्रकाशित करें',
+    published: 'प्रकाशित हो गया',
+    publishedBody: '1,240 लोगों को सूचना मिलेगी।',
+    done: 'हो गया',
+    view: 'देखें',
     brother: 'भाई',
     sister: 'बहन',
     iAm: 'मैं हूँ',
@@ -215,6 +242,15 @@ export const SAMPLES: Readonly<Record<Locale, Samples>> = {
     notify: 'فالوورز کو اطلاع دیں',
     notifyHint: 'آج 8 میں سے 6 باقی',
     ownPhoto: 'یہ تصویر میں نے لی ہے یا اس کی اجازت ہے',
+    stepLabel: 'مرحلہ 3 / 3',
+    stepTitle: 'دیکھیں اور شائع کریں',
+    preview: 'پیش نظارہ',
+    showIn: 'اس میں دکھائیں',
+    publish: 'شائع کریں',
+    published: 'شائع ہو گیا',
+    publishedBody: '1,240 لوگوں کو اطلاع ملے گی۔',
+    done: 'ہو گیا',
+    view: 'دیکھیں',
     brother: 'بھائی',
     sister: 'بہن',
     iAm: 'میں ہوں',
@@ -272,6 +308,15 @@ export const SAMPLES: Readonly<Record<Locale, Samples>> = {
     notify: 'ఫాలోవర్లకు తెలియజేయండి',
     notifyHint: 'ఈరోజు 8లో 6 మిగిలాయి',
     ownPhoto: 'ఈ ఫోటో నేను తీశాను లేదా అనుమతి ఉంది',
+    stepLabel: 'దశ 3 / 3',
+    stepTitle: 'చూసి ప్రచురించండి',
+    preview: 'ప్రివ్యూ',
+    showIn: 'ఇందులో చూపించు',
+    publish: 'ప్రచురించండి',
+    published: 'ప్రచురించబడింది',
+    publishedBody: '1,240 మందికి తెలియజేయబడుతుంది.',
+    done: 'పూర్తయింది',
+    view: 'చూడండి',
     brother: 'సోదరుడు',
     sister: 'సోదరి',
     iAm: 'నేను',

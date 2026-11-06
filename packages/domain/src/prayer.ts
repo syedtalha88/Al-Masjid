@@ -238,6 +238,48 @@ export function nextJamaat(today: ResolvedDay, tomorrow: ResolvedDay, now: Date)
   return next ? { ...next, now: next.at.getTime() <= now.getTime() } : null;
 }
 
+/** "Adhkar after salah" shows for 30 minutes after each fard prayer starts (00 §4.11, DECISIONS #104). */
+export const ADHKAR_WINDOW_MS = 30 * 60_000;
+
+export interface AdhkarWindow {
+  readonly prayer: PrayerName | 'jumuah';
+  /** IST day of the prayer (the day before, for an Isha that runs past midnight). */
+  readonly date: string;
+  /** "HH:mm" the window opened at: the jamaat, or the adhan when the masjid holds no jamaat for that prayer. */
+  readonly time: string;
+  readonly start: Date;
+  readonly end: Date;
+}
+
+/**
+ * The open "Adhkar after salah" window: from a fard prayer's jamaat (its adhan when there is no jamaat; on Fridays each
+ * Jumu'ah jamaat in place of Dhuhr) for {@link ADHKAR_WINDOW_MS}. When two windows overlap the later start wins.
+ *
+ * @param days - resolved IST days to look at: yesterday (an Isha just before midnight) and today.
+ * @param now - the (drift-corrected) current instant.
+ * @returns the window containing `now`, or `null` between windows.
+ */
+export function adhkarWindow(days: readonly ResolvedDay[], now: Date): AdhkarWindow | null {
+  const at = now.getTime();
+  let open: AdhkarWindow | null = null;
+  for (const day of days) {
+    for (const item of day.prayers) {
+      const starts: { prayer: PrayerName | 'jumuah'; time: string }[] =
+        item.prayer === 'dhuhr' && day.isFriday && day.jumuah.length > 0
+          ? day.jumuah.map((jumuah) => ({ prayer: 'jumuah', time: jumuah.jamaatTime }))
+          : [{ prayer: item.prayer, time: item.jamaat ?? item.adhan }];
+      for (const { prayer, time } of starts) {
+        const start = istInstant(day.date, time);
+        const end = new Date(start.getTime() + ADHKAR_WINDOW_MS);
+        if (start.getTime() <= at && at < end.getTime() && (!open || start > open.start)) {
+          open = { prayer, date: day.date, time, start, end };
+        }
+      }
+    }
+  }
+  return open;
+}
+
 export interface RamadanTimes {
   /** Calculated Fajr (subh sadiq) minus the masjid's precaution. */
   readonly sehriEnds: string;

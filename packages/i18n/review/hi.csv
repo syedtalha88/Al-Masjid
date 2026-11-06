@@ -41,9 +41,22 @@ admin,home.tiles.donation,Donation Drive,चंदा अभियान,no
 admin,home.tiles.chanda,Chanda,चंदा,no
 admin,home.tiles.video,Bayan Video,बयान वीडियो,no
 admin,home.tiles.specialDates,Special Dates & Ramadan,ख़ास तारीख़ें और रमज़ान,no
+admin,home.tiles.adhkar,Adhkar,अज़कार,no
 admin,home.tiles.myPosts,My Posts,मेरी पोस्ट,no
 admin,home.tiles.profile,Masjid Profile,मस्जिद प्रोफ़ाइल,no
+admin,home.tiles.ruqyah,Ruqyah,रुक़्या,no
+admin,home.tiles.bloodCamp,Blood Camp,रक्तदान शिविर,no
+admin,home.tiles.needy,Help the Needy,ज़रूरतमंदों की मदद,no
 admin,home.superAdmin,Super Admin,सुपर एडमिन,no
+admin,home.followers,"{count, plural, one {# follower} other {# followers}}","{count, plural, one {# फ़ॉलोअर} other {# फ़ॉलोअर}}",no
+admin,home.today.nextJamaat,Next jamaat,अगली जमात,no
+admin,home.today.tomorrow,Tomorrow,कल,no
+admin,home.today.noJamaat,No jamaat set for today,आज कोई जमात तय नहीं,no
+admin,home.today.unset,Prayer times are not set yet,नमाज़ के समय अभी तय नहीं हैं,no
+admin,home.today.edit,Edit timings,समय बदलें,no
+admin,home.today.set,Set prayer times,नमाज़ के समय तय करें,no
+admin,home.quota,Notifications today: {used} of {limit} used,आज की सूचनाएँ: {limit} में से {used} इस्तेमाल,no
+admin,home.soon,Soon,जल्द,no
 admin,comingSoon.title,Coming soon,जल्द आ रहा है,no
 admin,comingSoon.body,This part of the app is being built. It will appear here in an update.,ऐप का यह हिस्सा बन रहा है। यह अगले अपडेट में यहाँ दिखेगा।,no
 admin,account.title,My account,मेरा खाता,no
@@ -70,6 +83,470 @@ admin,account.linkCopied,Link copied,लिंक कॉपी हो गया,
 admin,account.shareWhatsApp,Send on WhatsApp,व्हाट्सऐप पर भेजें,no
 admin,account.whatsAppMessage,My Masjid Connect admin login link: {url},मेरा मस्जिद कनेक्ट एडमिन लॉग इन लिंक: {url},no
 admin,account.undertaking,Admin undertaking,एडमिन वचन-पत्र,no
+admin,timings.prevDay,Previous day,पिछला दिन,no
+admin,timings.nextDay,Next day,अगला दिन,no
+admin,timings.pickDay,Choose a day,दिन चुनें,no
+admin,timings.title,Prayer Times,नमाज़ के समय,no
+admin,timings.adhan,Adhan,अज़ान,no
+admin,timings.jamaat,Jamaat,जमात,no
+admin,timings.calculated,Calculated,गणना से,no
+admin,timings.setByYou,Set by you,आपने सेट किया,no
+admin,timings.notSet,Not set,सेट नहीं,no
+admin,timings.minutesAfter,{minutes} min after adhan,अज़ान के {minutes} मिनट बाद,no
+admin,timings.adhanSheet,{prayer} adhan,{prayer} की अज़ान,no
+admin,timings.jamaatSheet,{prayer} jamaat,{prayer} की जमात,no
+admin,timings.modeAuto,Calculated,गणना से,no
+admin,timings.modeManual,Set time,समय चुनें,no
+admin,timings.modeFixed,Fixed time,तय समय,no
+admin,timings.modeOffset,After adhan,अज़ान के बाद,no
+admin,timings.modeLabel,How it is set,कैसे सेट करें,no
+admin,timings.adjust,Adjust the calculated time,गणना वाला समय बदलें,no
+admin,timings.asCalculated,As calculated,जैसा गणना में है,no
+admin,timings.later,{minutes} min later,{minutes} मिनट बाद,no
+admin,timings.earlier,{minutes} min earlier,{minutes} मिनट पहले,no
+admin,timings.oneEarlier,1 minute earlier,1 मिनट पहले,no
+admin,timings.oneLater,1 minute later,1 मिनट बाद,no
+admin,timings.oneLess,1 minute less,1 मिनट कम,no
+admin,timings.oneMore,1 minute more,1 मिनट ज़्यादा,no
+admin,timings.offsetValue,{minutes} minutes after adhan,अज़ान के {minutes} मिनट बाद,no
+admin,timings.today,Today: {time},आज: {time},no
+admin,timings.done,Done,हो गया,no
+admin,timings.jumuah,Jumu’ah,जुमा,no
+admin,timings.jumuahN,Jamaat {n},जमात {n},no
+admin,timings.khutbah,Khutbah,ख़ुत्बा,no
+admin,timings.khutbahSheet,Khutbah before jamaat {n},जमात {n} से पहले ख़ुत्बा,no
+admin,timings.jumuahSheet,Jumu’ah jamaat {n},जुमा की जमात {n},no
+admin,timings.noKhutbah,No khutbah time,ख़ुत्बे का समय नहीं,no
+admin,timings.addJumuah,Add a Jumu’ah jamaat,जुमा की जमात जोड़ें,no
+admin,timings.removeJumuah,Remove jamaat {n},जमात {n} हटाएँ,no
+admin,timings.issue.jamaat_before_adhan,Jamaat is before adhan,जमात अज़ान से पहले है,no
+admin,timings.issue.isha_before_maghrib,Isha is before Maghrib,इशा मग़रिब से पहले है,no
+admin,timings.issue.fajr_jamaat_after_sunrise,Fajr jamaat is after sunrise,फ़ज्र की जमात सूर्योदय के बाद है,no
+admin,timings.issue.jumuah_before_khutbah,Jamaat is before the khutbah,जमात ख़ुत्बे से पहले है,no
+admin,timings.issueFrom,{issue} (from {date}),{issue} ({date} से),no
+admin,timings.needAll,Set all five jamaat times so your masjid can go live.,पाँचों जमात के समय सेट करें ताकि आपकी मस्जिद शुरू हो सके।,no
+admin,timings.preview,Preview,झलक,no
+admin,timings.previewTitle,How followers will see it,फ़ॉलोअर्स को ऐसा दिखेगा,no
+admin,timings.showIn,Show in,इसमें दिखाएँ,no
+admin,timings.notify,Notify followers,फ़ॉलोअर्स को सूचना दें,no
+admin,timings.quota,{left} of {limit} left today,आज {limit} में से {left} बाक़ी,no
+admin,timings.save,Save timings,समय सेव करें,no
+admin,timings.confirmTitle,Save these timings?,ये समय सेव करें?,no
+admin,timings.confirmToday,What changes today,आज क्या बदलेगा,no
+admin,timings.noChangeToday,Nothing changes today. The new times start on later days.,आज कुछ नहीं बदलेगा। नए समय आगे के दिनों से लागू होंगे।,no
+admin,timings.willNotify,Followers will be notified.,फ़ॉलोअर्स को सूचना मिलेगी।,no
+admin,timings.willNotNotify,Followers will not be notified.,फ़ॉलोअर्स को सूचना नहीं मिलेगी।,no
+admin,timings.confirmSave,Save,सेव करें,no
+admin,timings.changeLine,{name} {part}: {from} → {to},{name} {part}: {from} → {to},no
+admin,timings.conflictTitle,Someone else changed the timings,किसी और ने समय बदल दिए,no
+admin,timings.conflictBody,Another admin saved new timings while you were editing. Load the latest timings and make your change again.,आपके बदलाव के दौरान किसी दूसरे एडमिन ने नए समय सेव किए। नए समय लोड करें और अपना बदलाव फिर से करें।,no
+admin,timings.loadLatest,Load the latest,नए समय लोड करें,no
+admin,timings.quotaTitle,No notifications left today,आज की सूचनाएँ ख़त्म,no
+admin,timings.quotaBody,You can still save. Followers will see the new times when they open the app.,आप फिर भी सेव कर सकते हैं। फ़ॉलोअर्स ऐप खोलने पर नए समय देखेंगे।,no
+admin,timings.saveWithout,Save without notifying,सूचना के बिना सेव करें,no
+admin,timings.saved,Saved,सेव हो गया,no
+admin,timings.savedNotified,Your followers will be notified.,आपके फ़ॉलोअर्स को सूचना मिलेगी।,no
+admin,timings.savedQuiet,Followers will see the new times.,फ़ॉलोअर्स नए समय देखेंगे।,no
+admin,timings.quickOffsets,Quick choice,जल्दी चुनें,no
+admin,special.title,Special Dates & Ramadan,ख़ास तारीख़ें और रमज़ान,no
+admin,special.ramadan,Ramadan,रमज़ान,no
+admin,special.ramadanMode,Ramadan mode,रमज़ान मोड,no
+admin,special.ramadanHint,During these days followers see Sehri and Iftar times on their Home screen.,इन दिनों में फ़ॉलोअर्स को होम स्क्रीन पर सहरी और इफ़्तार के समय दिखेंगे।,no
+admin,special.firstDay,First day,पहला दिन,no
+admin,special.lastDay,Last day,आख़िरी दिन,no
+admin,special.pickFirst,First day of Ramadan,रमज़ान का पहला दिन,no
+admin,special.pickLast,Last day of Ramadan,रमज़ान का आख़िरी दिन,no
+admin,special.sehriEarlier,Sehri ends earlier by,सहरी इतनी पहले ख़त्म,no
+admin,special.iftarLater,Iftar later by,इफ़्तार इतनी देर बाद,no
+admin,special.minutes,"{minutes, plural, =0 {No change} one {# minute} other {# minutes}}","{minutes, plural, =0 {कोई बदलाव नहीं} one {# मिनट} other {# मिनट}}",no
+admin,special.previewToday,With these settings today: Sehri ends {sehri} · Iftar {iftar},इन सेटिंग्स से आज: सहरी ख़त्म {sehri} · इफ़्तार {iftar},no
+admin,special.disclaimer,Followers are told to follow your masjid’s announcement if it differs.,फ़ॉलोअर्स से कहा जाता है कि फ़र्क़ हो तो आपकी मस्जिद के ऐलान को मानें।,no
+admin,special.saveRamadan,Save Ramadan settings,रमज़ान सेटिंग्स सेव करें,no
+admin,special.ramadanSaved,Ramadan settings saved,रमज़ान सेटिंग्स सेव हो गईं,no
+admin,special.ramadanIssue.end_before_start,The last day is before the first day.,आख़िरी दिन पहले दिन से पहले है।,no
+admin,special.ramadanIssue.too_long,Ramadan mode can be on for at most 30 days.,रमज़ान मोड ज़्यादा से ज़्यादा 30 दिन चालू रह सकता है।,no
+admin,special.ramadanIssue.date_out_of_range,Choose dates within a year from today.,आज से एक साल के अंदर की तारीख़ें चुनें।,no
+admin,special.dates,Special dates,ख़ास तारीख़ें,no
+admin,special.add,Add special date,ख़ास तारीख़ जोड़ें,no
+admin,special.emptyTitle,No special dates yet,अभी कोई ख़ास तारीख़ नहीं,no
+admin,special.emptyBody,"Add Eid, Taraweeh or another day with special times.","ईद, तरावीह या ख़ास समय वाला कोई और दिन जोड़ें।",no
+admin,special.newTitle,New special date,नई ख़ास तारीख़,no
+admin,special.editTitle,Special date,ख़ास तारीख़,no
+admin,special.typeLegend,What is the day?,कौन-सा दिन है?,no
+admin,special.type.eid_ul_fitr,Eid ul-Fitr,ईद-उल-फ़ित्र,no
+admin,special.type.eid_ul_adha,Eid ul-Adha,ईद-उल-अज़हा,no
+admin,special.type.taraweeh,Taraweeh,तरावीह,no
+admin,special.type.shab_e_barat,Shab-e-Barat,शब-ए-बरात,no
+admin,special.type.shab_e_qadr,Shab-e-Qadr,शब-ए-क़द्र,no
+admin,special.type.other,Other day,कोई और दिन,no
+admin,special.date,Date,तारीख़,no
+admin,special.pickDate,Choose the date,तारीख़ चुनें,no
+admin,special.times,Times,समय,no
+admin,special.timeN,Time {n},समय {n},no
+admin,special.timeSheet,Time {n},समय {n},no
+admin,special.addTime,Add a time,समय जोड़ें,no
+admin,special.removeTime,Remove time {n},समय {n} हटाएँ,no
+admin,special.timeLabel,Name for time {n},समय {n} का नाम,no
+admin,special.timeLabelHint,For example: 1st Jamaat,जैसे: पहली जमात,no
+admin,special.label,Short title,छोटा शीर्षक,no
+admin,special.labelHint,Shown after the day’s name,दिन के नाम के बाद दिखेगा,no
+admin,special.note,Note,नोट,no
+admin,special.issue.duplicate_time,Two times are the same.,दो समय एक जैसे हैं।,no
+admin,special.issue.date_out_of_range,Choose a date within a year from today.,आज से एक साल के अंदर की तारीख़ चुनें।,no
+admin,special.notify,Notify followers,फ़ॉलोअर्स को सूचना दें,no
+admin,special.quota,{left} of {limit} left today,आज {limit} में से {left} बाक़ी,no
+admin,special.save,Save,सेव करें,no
+admin,special.saved,Saved,सेव हो गया,no
+admin,special.savedNotified,Your followers will be notified.,आपके फ़ॉलोअर्स को सूचना दी जाएगी।,no
+admin,special.savedQuiet,Followers will see it in Special Dates.,फ़ॉलोअर्स इसे ख़ास दिन में देखेंगे।,no
+admin,special.done,Done,हो गया,no
+admin,special.delete,Delete,हटाएँ,no
+admin,special.deleteTitle,Delete this special date?,यह ख़ास तारीख़ हटाएँ?,no
+admin,special.deleteBody,Followers will no longer see it.,फ़ॉलोअर्स को यह अब नहीं दिखेगी।,no
+admin,special.deleted,Special date deleted,ख़ास तारीख़ हटा दी गई,no
+admin,special.preview,Preview,झलक,no
+admin,special.previewTitle,How followers will see it,फ़ॉलोअर्स को ऐसा दिखेगा,no
+admin,special.showIn,Show in,इसमें दिखाएँ,no
+admin,special.quotaTitle,No notifications left today,आज कोई सूचना बाक़ी नहीं,no
+admin,special.quotaBody,You can still save. Followers will see it when they open the app.,आप फिर भी सेव कर सकते हैं। फ़ॉलोअर्स ऐप खोलने पर इसे देखेंगे।,no
+admin,special.saveWithout,Save without notifying,सूचना दिए बिना सेव करें,no
+admin,special.sehriLess,Sehri: 1 minute less,सहरी: 1 मिनट कम,no
+admin,special.sehriMore,Sehri: 1 minute more,सहरी: 1 मिनट ज़्यादा,no
+admin,special.iftarLess,Iftar: 1 minute less,इफ़्तार: 1 मिनट कम,no
+admin,special.iftarMore,Iftar: 1 minute more,इफ़्तार: 1 मिनट ज़्यादा,no
+admin,special.past,Past,बीते दिन,no
+admin,notice.title,Notice,सूचना,no
+admin,notice.step,Step {n} of {total},{total} में से चरण {n},no
+admin,notice.chooseTitle,Choose a notice,सूचना चुनें,no
+admin,notice.fillTitle,Fill the details,जानकारी भरें,no
+admin,notice.previewTitle,Preview & publish,झलक देखें और प्रकाशित करें,no
+admin,notice.templates,Notices,सूचनाएँ,no
+admin,notice.writeOwn,Write your own,ख़ुद लिखें,no
+admin,notice.noTemplatesTitle,No ready notices yet,अभी कोई तैयार सूचना नहीं,no
+admin,notice.noTemplatesBody,You can still write your own notice.,आप फिर भी अपनी सूचना ख़ुद लिख सकते हैं।,no
+admin,notice.next,Next: Preview,आगे: झलक,no
+admin,notice.notSet,Tap to set,सेट करने के लिए छुएँ,no
+admin,notice.from,From,से,no
+admin,notice.to,To,तक,no
+admin,notice.param.hours,Hours,समय,no
+admin,notice.param.days,Days,दिन,no
+admin,notice.param.prayer,Prayer,नमाज़,no
+admin,notice.param.time,Time,समय,no
+admin,notice.param.from,From which day,किस दिन से,no
+admin,notice.param.date,Date,तारीख़,no
+admin,notice.param.speaker,Speaker,बयान करने वाले,no
+admin,notice.param.item,What was found or lost,क्या मिला या खोया,no
+admin,notice.param.place,Place,जगह,no
+admin,notice.param.contact,Contact number,संपर्क नंबर,no
+admin,notice.paramType.time,Time,समय,no
+admin,notice.paramType.date,Date,तारीख़,no
+admin,notice.paramType.time_range,Time,समय,no
+admin,notice.paramType.date_range,Days,दिन,no
+admin,notice.paramType.prayer,Prayer,नमाज़,no
+admin,notice.paramType.number,Number,संख्या,no
+admin,notice.paramType.short_text,Text,लिखें,no
+admin,notice.paramType.phone,Phone number,फ़ोन नंबर,no
+admin,notice.pickTime,Choose the time,समय चुनें,no
+admin,notice.pickDate,Choose the date,तारीख़ चुनें,no
+admin,notice.pickPrayer,Choose the prayer,नमाज़ चुनें,no
+admin,notice.phoneHint,"Mobile number, for example 98765 43210","मोबाइल नंबर, जैसे 98765 43210",no
+admin,notice.ownTitle,Title,शीर्षक,no
+admin,notice.ownBody,Message,संदेश,no
+admin,notice.language,Language of the text,लिखी हुई भाषा,no
+admin,notice.category,Type of notice,सूचना का प्रकार,no
+admin,notice.categories.general,General,आम,no
+admin,notice.categories.event,Event,कार्यक्रम,no
+admin,notice.categories.facilities,Facilities,सुविधाएँ,no
+admin,notice.categories.timing,Timing,समय,no
+admin,notice.important,Important,ज़रूरी,no
+admin,notice.importantHint,Shows a red “Important” tag.,लाल “ज़रूरी” टैग दिखाता है।,no
+admin,notice.event,Event date and time,कार्यक्रम की तारीख़ और समय,no
+admin,notice.eventDate,Date,तारीख़,no
+admin,notice.eventTime,Time,समय,no
+admin,notice.eventClear,Remove the date,तारीख़ हटाएँ,no
+admin,notice.photo,Photo,फ़ोटो,no
+admin,notice.photoOptional,A photo is optional.,फ़ोटो लगाना ज़रूरी नहीं।,no
+admin,notice.addPhoto,Add a photo,फ़ोटो लगाएँ,no
+admin,notice.removePhoto,Remove photo,फ़ोटो हटाएँ,no
+admin,notice.rights,This masjid owns this photo or may share it,यह फ़ोटो इस मस्जिद की है या मस्जिद इसे शेयर कर सकती है,no
+admin,notice.rightsHint,Photos of people only with their permission.,लोगों की फ़ोटो सिर्फ़ उनकी इजाज़त से।,no
+admin,notice.uploading,Uploading the photo…,फ़ोटो अपलोड हो रही है…,no
+admin,notice.photoAlt,The notice photo,सूचना की फ़ोटो,no
+admin,notice.issue.param,Please set: {name},कृपया सेट करें: {name},no
+admin,notice.issue.title,Please write a title (up to 80 letters).,कृपया शीर्षक लिखें (80 अक्षरों तक)।,no
+admin,notice.issue.body,"Please write the message (up to 1,000 letters).","कृपया संदेश लिखें (1,000 अक्षरों तक)।",no
+admin,notice.issue.event,Please set both the date and the time of the event.,कृपया कार्यक्रम की तारीख़ और समय दोनों सेट करें।,no
+admin,notice.issue.template,This notice is no longer available. Please choose another one.,यह सूचना अब उपलब्ध नहीं है। कृपया दूसरी चुनें।,no
+admin,notice.issue.voiceTitle,Please give the voice note a title.,कृपया वॉइस नोट का शीर्षक लिखें।,no
+admin,notice.preview,Preview,झलक,no
+admin,notice.showIn,Show in,इसमें दिखाएँ,no
+admin,notice.previewNote,Followers see the photo when they open the notice.,फ़ॉलोअर्स सूचना खोलने पर फ़ोटो देखते हैं।,no
+admin,notice.notify,Notify followers,फ़ॉलोअर्स को सूचना दें,no
+admin,notice.quota,{left} of {limit} left today,आज {limit} में से {left} बाक़ी,no
+admin,notice.publish,Publish,प्रकाशित करें,no
+admin,notice.published,Published,प्रकाशित हो गया,no
+admin,notice.publishedNotified,"{count, plural, one {# person will be notified.} other {# people will be notified.}}","{count, plural, one {# व्यक्ति को सूचना मिलेगी।} other {# लोगों को सूचना मिलेगी।}}",no
+admin,notice.publishedQuiet,Followers will see it in the app.,फ़ॉलोअर्स इसे ऐप में देखेंगे।,no
+admin,notice.done,Done,हो गया,no
+admin,notice.quotaTitle,No notifications left today,आज कोई सूचना बाक़ी नहीं,no
+admin,notice.quotaBody,You can still publish. Followers will see it when they open the app.,आप फिर भी प्रकाशित कर सकते हैं। फ़ॉलोअर्स ऐप खोलने पर इसे देखेंगे।,no
+admin,notice.publishWithout,Publish without notifying,बिना सूचना दिए प्रकाशित करें,no
+admin,notice.lostTitle,This notice was not kept,यह सूचना रखी नहीं गई,no
+admin,notice.lostBody,Please choose the notice again.,कृपया सूचना फिर से चुनें।,no
+admin,notice.startAgain,Choose a notice,सूचना चुनें,no
+admin,daily.title,Hadith / Ayah,हदीस / आयत,no
+admin,daily.chooseTitle,Choose what to share today,"आज क्या साझा करें, चुनें",no
+admin,daily.kinds,Hadith or Ayah,हदीस या आयत,no
+admin,daily.hadith,Hadith,हदीस,no
+admin,daily.ayah,Ayah,आयत,no
+admin,daily.suggestion,Today’s suggestion,आज का सुझाव,no
+admin,daily.useThis,Use this,यही चुनें,no
+admin,daily.chooseAnother,Choose another,दूसरी चुनें,no
+admin,daily.todayHadith,"You already shared a hadith today. If you publish another, followers will see both.",आज आप एक हदीस साझा कर चुके हैं। दूसरी प्रकाशित करेंगे तो फ़ॉलोअर्स दोनों देखेंगे।,no
+admin,daily.todayAyah,"You already shared an ayah today. If you publish another, followers will see both.",आज आप एक आयत साझा कर चुके हैं। दूसरी प्रकाशित करेंगे तो फ़ॉलोअर्स दोनों देखेंगे।,no
+admin,daily.noneHadith,No hadith in the library yet,लाइब्रेरी में अभी कोई हदीस नहीं है,no
+admin,daily.noneAyah,No ayah in the library yet,लाइब्रेरी में अभी कोई आयत नहीं है,no
+admin,daily.noneBody,The Masjid Connect team adds checked hadith and ayat. Please look again later.,Masjid Connect टीम जाँची हुई हदीसें और आयतें जोड़ती है। कृपया बाद में फिर देखें।,no
+admin,daily.searchHadith,Choose a hadith,हदीस चुनें,no
+admin,daily.searchAyah,Choose an ayah,आयत चुनें,no
+admin,daily.search,Search,खोजें,no
+admin,daily.topics,Topics,विषय,no
+admin,daily.allTopics,All,सभी,no
+admin,daily.noResults,Nothing found,कुछ नहीं मिला,no
+admin,daily.noResultsBody,Try other words or another topic.,दूसरे शब्द या दूसरा विषय आज़माएँ।,no
+admin,daily.showMore,Show more,और दिखाएँ,no
+admin,daily.english,English,अंग्रेज़ी,no
+admin,daily.noteTitle,Add a note,नोट जोड़ें,no
+admin,daily.chosen,You chose,आपने चुना,no
+admin,daily.note,Note from the masjid,मस्जिद की ओर से नोट,no
+admin,daily.noteHint,Optional. A few words for your followers.,ज़रूरी नहीं। फ़ॉलोअर्स के लिए कुछ शब्द।,no
+admin,daily.lostTitle,This post was not kept,यह पोस्ट रखी नहीं गई,no
+admin,daily.lostBody,Please choose the hadith or ayah again.,कृपया हदीस या आयत फिर से चुनें।,no
+admin,daily.startAgain,Choose again,फिर से चुनें,no
+admin,dua.title,Dua Request,दुआ की गुज़ारिश,no
+admin,dua.categoryTitle,Who is the dua for?,दुआ किसके लिए है?,no
+admin,dua.categories.illness.title,Illness,बीमारी,no
+admin,dua.categories.illness.body,Someone who is unwell,कोई जो बीमार है,no
+admin,dua.categories.inteqal.title,Inteqal (passed away),इंतक़ाल,no
+admin,dua.categories.inteqal.body,Someone who has passed away,कोई जिनका इंतक़ाल हो गया है,no
+admin,dua.categories.other.title,Other,अन्य,no
+admin,dua.categories.other.body,Any other dua request,दुआ की कोई और गुज़ारिश,no
+admin,dua.detailsTitle,Write the request,गुज़ारिश लिखें,no
+admin,dua.messages,Ready messages,तैयार संदेश,no
+admin,dua.message,Message,संदेश,no
+admin,dua.name,Name,नाम,no
+admin,dua.nameHint,Share a name only if the family agrees.,नाम तभी बताएँ जब घरवाले राज़ी हों।,no
+admin,dua.private,Keep name private,नाम छुपा रखें,no
+admin,dua.privateHint,Followers see “a brother or sister from our community”.,फ़ॉलोअर्स को “हमारी बिरादरी के एक भाई या बहन” दिखेगा।,no
+admin,dua.janaza,Janaza,जनाज़ा,no
+admin,dua.janazaOptional,Optional — the time and place of the janaza.,ज़रूरी नहीं — जनाज़े का समय और जगह।,no
+admin,dua.janazaDate,Date,तारीख़,no
+admin,dua.janazaTime,Time,समय,no
+admin,dua.janazaPlace,Place,जगह,no
+admin,dua.janazaClear,Remove the janaza time,जनाज़े का समय हटाएँ,no
+admin,dua.next,Next: Choose the dua,आगे: दुआ चुनें,no
+admin,dua.issue.message,Please write the message (up to 500 characters).,कृपया संदेश लिखें (500 अक्षरों तक)।,no
+admin,dua.issue.name,The name is too long (up to 80 characters).,नाम बहुत लंबा है (80 अक्षरों तक)।,no
+admin,dua.issue.janaza,"Please set both the janaza date and time, or neither.","कृपया जनाज़े की तारीख़ और समय दोनों लगाएँ, या कोई नहीं।",no
+admin,dua.issue.voiceTitle,Please give the voice note a title.,कृपया वॉइस नोट का शीर्षक लिखें।,no
+admin,dua.attachTitle,Choose the dua,दुआ चुनें,no
+admin,dua.attachHint,Followers see this dua under your request.,फ़ॉलोअर्स यह दुआ आपकी गुज़ारिश के नीचे देखेंगे।,no
+admin,dua.noDuas,No dua for this in the library yet,लाइब्रेरी में अभी इसके लिए कोई दुआ नहीं है,no
+admin,dua.noDuasBody,The Masjid Connect team adds checked duas. Please look again later.,Masjid Connect टीम जाँची हुई दुआएँ जोड़ती है। कृपया बाद में फिर देखें।,no
+admin,dua.lostTitle,This request was not kept,यह गुज़ारिश रखी नहीं गई,no
+admin,dua.lostBody,Please choose who the dua is for again.,कृपया फिर से चुनें कि दुआ किसके लिए है।,no
+admin,dua.startAgain,Choose again,फिर से चुनें,no
+admin,posts.title,My Posts,मेरी पोस्ट,no
+admin,posts.filter,Type of post,पोस्ट की किस्म,no
+admin,posts.types.all,All,सभी,no
+admin,posts.types.announcement,Notices,सूचनाएँ,no
+admin,posts.types.daily_content,Hadith / Ayah,हदीस / आयत,no
+admin,posts.types.dua_request,Dua requests,दुआ की गुज़ारिशें,no
+admin,posts.types.timing_update,Timing updates,समय में बदलाव,no
+admin,posts.status.published,Published,प्रकाशित,no
+admin,posts.status.deleted,Deleted,हटाई गई,no
+admin,posts.status.removed,Removed by moderation,मॉडरेशन ने हटाई,no
+admin,posts.removedReason,Reason: {reason},कारण: {reason},no
+admin,posts.removedHint,Posts that break the content policy are removed. Followers no longer see them.,"जो पोस्ट सामग्री नीति के ख़िलाफ़ हों, वे हटा दी जाती हैं। फ़ॉलोअर्स उन्हें अब नहीं देखते।",no
+admin,posts.editUntil,You can change it until {time},आप इसे {time} तक बदल सकते हैं,no
+admin,posts.view,View,देखें,no
+admin,posts.edit,Edit,बदलें,no
+admin,posts.delete,Delete,हटाएँ,no
+admin,posts.deleteTitle,Delete this post?,यह पोस्ट हटाएँ?,no
+admin,posts.deleteBody,Followers will no longer see it.,फ़ॉलोअर्स इसे अब नहीं देखेंगे।,no
+admin,posts.deleted,Post deleted,पोस्ट हटा दी गई,no
+admin,posts.emptyTitle,No posts yet,अभी कोई पोस्ट नहीं,no
+admin,posts.emptyBody,"Notices, hadith and dua requests you publish appear here.","आपकी प्रकाशित सूचनाएँ, हदीसें और दुआ की गुज़ारिशें यहाँ दिखेंगी।",no
+admin,posts.newNotice,Publish a notice,सूचना प्रकाशित करें,no
+admin,posts.showMore,Show more,और दिखाएँ,no
+admin,posts.save,Save changes,बदलाव सहेजें,no
+admin,posts.saved,Saved,सहेजा गया,no
+admin,posts.savedBody,"Followers see the change in the app, marked “edited”.","फ़ॉलोअर्स ऐप में बदलाव देखेंगे, “बदला गया” के निशान के साथ।",no
+admin,posts.staleTitle,This post was changed meanwhile,इस बीच यह पोस्ट बदल दी गई,no
+admin,posts.staleBody,Someone saved it after you opened it. Please open it again from My Posts.,आपके खोलने के बाद किसी ने इसे सहेजा। कृपया इसे मेरी पोस्ट से फिर खोलें।,no
+admin,posts.openPosts,Open My Posts,मेरी पोस्ट खोलें,no
+admin,posts.viewPosts,View in My Posts,मेरी पोस्ट में देखें,no
+admin,posts.editTitle,Edit post,पोस्ट बदलें,no
+admin,profile.title,Masjid Profile,मस्जिद प्रोफ़ाइल,no
+admin,profile.photo,Photo,फ़ोटो,no
+admin,profile.photoNone,No photo yet,अभी कोई फ़ोटो नहीं,no
+admin,profile.changePhoto,Change photo,फ़ोटो बदलें,no
+admin,profile.photoChanged,Photo changed,फ़ोटो बदल दी गई,no
+admin,profile.photoAlt,The masjid photo,मस्जिद की फ़ोटो,no
+admin,profile.names,Name of the masjid,मस्जिद का नाम,no
+admin,profile.notSet,Not set,नहीं लिखा गया,no
+admin,profile.place,Area and address,इलाक़ा और पता,no
+admin,profile.requestChange,Request a change,बदलाव की गुज़ारिश करें,no
+admin,profile.requestTitle,What should be changed?,क्या बदलना चाहिए?,no
+admin,profile.requestHint,The Masjid Connect team checks and changes names and addresses.,Masjid Connect टीम नाम और पते जाँचकर बदलती है।,no
+admin,profile.requestNote,Your note,आपका नोट,no
+admin,profile.send,Send,भेजें,no
+admin,profile.requestSent,Sent to the Masjid Connect team,Masjid Connect टीम को भेज दिया गया,no
+admin,profile.hijri,Hijri date,हिजरी तारीख़,no
+admin,profile.hijriHint,Adjust it if the moon was seen a day earlier or later here.,अगर यहाँ चाँद एक दिन पहले या बाद में दिखा हो तो इसे बदलें।,no
+admin,profile.hijriDays,Days,दिन,no
+admin,profile.hijriToday,Today: {date},आज: {date},no
+admin,profile.hijriFollowing,Following the app’s date.,ऐप की तारीख़ के मुताबिक़।,no
+admin,profile.hijriFollow,Follow the app’s date,ऐप की तारीख़ अपनाएँ,no
+admin,profile.saved,Saved,सहेजा गया,no
+admin,profile.account,My account,मेरा अकाउंट,no
+admin,profile.accountHint,"Language, sessions and passkeys","भाषा, सेशन और पासकी",no
+admin,voice.title,Voice note,वॉइस नोट,no
+admin,voice.optional,A voice note is optional — up to 10 minutes.,वॉइस नोट ज़रूरी नहीं — 10 मिनट तक।,no
+admin,voice.record,Record,रिकॉर्ड करें,no
+admin,voice.pause,Pause,रोकें,no
+admin,voice.resume,Resume,फिर शुरू करें,no
+admin,voice.stop,Stop,बंद करें,no
+admin,voice.level,Recording level,रिकॉर्डिंग की आवाज़,no
+admin,voice.chooseFile,Choose audio file,ऑडियो फ़ाइल चुनें,no
+admin,voice.useThis,Use this,यही लें,no
+admin,voice.again,Record again,फिर से रिकॉर्ड करें,no
+admin,voice.remove,Remove voice note,वॉइस नोट हटाएँ,no
+admin,voice.uploading,Uploading the voice note…,वॉइस नोट अपलोड हो रहा है…,no
+admin,voice.denied,"The microphone is not allowed. Allow it in the browser settings, or choose an audio file.","माइक्रोफ़ोन की इजाज़त नहीं है। ब्राउज़र की सेटिंग में इजाज़त दें, या ऑडियो फ़ाइल चुनें।",no
+admin,voice.tooLong,Voice notes can be at most 10 minutes long.,वॉइस नोट ज़्यादा से ज़्यादा 10 मिनट का हो सकता है।,no
+admin,voice.unreadable,This file cannot be played here. Please choose another one.,यह फ़ाइल यहाँ नहीं चल सकती। कृपया दूसरी फ़ाइल चुनें।,no
+admin,voice.rights,This masjid recorded this or may share it,यह रिकॉर्डिंग इस मस्जिद की है या मस्जिद इसे साझा कर सकती है,no
+admin,voice.rightsHint,Record other people only with their permission.,दूसरे लोगों को उनकी इजाज़त से ही रिकॉर्ड करें।,no
+admin,voice.voiceTitle,Title of the voice note,वॉइस नोट का शीर्षक,no
+admin,voice.voiceTitleHint,One line: what the voice note is about.,एक लाइन: वॉइस नोट किस बारे में है।,no
+admin,voice.issue,Please give the voice note a title.,कृपया वॉइस नोट का शीर्षक लिखें।,no
+admin,adhkar.title,Adhkar after salah,नमाज़ के बाद के अज़कार,no
+admin,adhkar.show,Show adhkar after salah,नमाज़ के बाद के अज़कार दिखाएँ,no
+admin,adhkar.showHint,Musallis see a card on Home for 30 minutes after each salah.,हर नमाज़ के बाद 30 मिनट तक नमाज़ियों को होम पर एक कार्ड दिखेगा।,no
+admin,adhkar.chosen,"Adhkar, in order","अज़कार, क्रम से",no
+admin,adhkar.count,{count} of {max},{max} में से {count},no
+admin,adhkar.none,No adhkar chosen yet,अभी कोई अज़कार नहीं चुना गया,no
+admin,adhkar.noneBody,Add dhikr from the verified library.,तस्दीक़ की हुई लाइब्रेरी से ज़िक्र जोड़ें।,no
+admin,adhkar.add,Add dhikr,ज़िक्र जोड़ें,no
+admin,adhkar.searchTitle,Choose a dhikr,ज़िक्र चुनें,no
+admin,adhkar.noDhikr,No verified dhikr yet,अभी कोई तस्दीक़ किया हुआ ज़िक्र नहीं,no
+admin,adhkar.noDhikrBody,The Super Admin adds them to the library.,सुपर एडमिन इन्हें लाइब्रेरी में जोड़ते हैं।,no
+admin,adhkar.full,{max} is the most.,ज़्यादा से ज़्यादा {max}।,no
+admin,adhkar.repeat,"{count, plural, one {Once} other {# times}}","{count, plural, one {एक बार} other {# बार}}",no
+admin,adhkar.moveUp,Move up,ऊपर ले जाएँ,no
+admin,adhkar.moveDown,Move down,नीचे ले जाएँ,no
+admin,adhkar.remove,Remove,हटाएँ,no
+admin,adhkar.reorder,Move {reference},{reference} की जगह बदलें,no
+admin,adhkar.preview,Home card preview,होम कार्ड की झलक,no
+admin,adhkar.save,Save,सेव करें,no
+admin,adhkar.saved,Adhkar saved,अज़कार सेव हो गए,no
+admin,adhkar.added,Added,जोड़ दिया,no
+admin,ruqyah.title,Ruqyah,रुक़्या,no
+admin,ruqyah.intro,"Musallis see these under the same headings, in this order.","मुसल्ली इन्हें इन्हीं शीर्षकों के नीचे, इसी क्रम में देखते हैं।",no
+admin,ruqyah.count,{count} of {max},{max} में से {count},no
+admin,ruqyah.emptyTitle,No Ruqyah entries yet,अभी कोई रुक़्या नहीं है,no
+admin,ruqyah.emptyBody,"Add from the verified library, type your own text, or record audio.","सत्यापित लाइब्रेरी से जोड़ें, अपना टेक्स्ट लिखें, या ऑडियो रिकॉर्ड करें।",no
+admin,ruqyah.add,Add Ruqyah,रुक़्या जोड़ें,no
+admin,ruqyah.reorder,Move {entry},{entry} को खिसकाएँ,no
+admin,ruqyah.source.library,From library,लाइब्रेरी से,no
+admin,ruqyah.source.text,Type text,टेक्स्ट लिखें,no
+admin,ruqyah.source.audio,Record or upload audio,ऑडियो रिकॉर्ड या अपलोड करें,no
+admin,ruqyah.sourceHint.library,A verified entry with its source,स्रोत के साथ एक सत्यापित प्रविष्टि,no
+admin,ruqyah.sourceHint.text,Arabic and a translation — shown as added by your masjid,अरबी और एक अनुवाद — आपकी मस्जिद द्वारा जोड़ा गया दिखेगा,no
+admin,ruqyah.sourceHint.audio,"Up to 10 minutes, with a title","अधिकतम 10 मिनट, एक शीर्षक के साथ",no
+admin,ruqyah.libraryGone,No longer in the library — choose another,अब लाइब्रेरी में नहीं है — दूसरी चुनें,no
+admin,ruqyah.edit,Edit,बदलें,no
+admin,ruqyah.moveUp,Move up,ऊपर करें,no
+admin,ruqyah.moveDown,Move down,नीचे करें,no
+admin,ruqyah.delete,Delete,हटाएँ,no
+admin,ruqyah.full,{max} is the most.,ज़्यादा से ज़्यादा {max}।,no
+admin,ruqyah.deleteTitle,Delete this entry?,यह प्रविष्टि हटाएँ?,no
+admin,ruqyah.deleteBody,Musallis will no longer see it.,मुसल्ली इसे अब नहीं देखेंगे।,no
+admin,ruqyah.deleted,Entry deleted,प्रविष्टि हटा दी गई,no
+admin,ruqyah.newTitle,Add Ruqyah,रुक़्या जोड़ें,no
+admin,ruqyah.editTitle,Edit Ruqyah,रुक़्या बदलें,no
+admin,ruqyah.sourceQuestion,What do you want to add?,आप क्या जोड़ना चाहते हैं?,no
+admin,ruqyah.categoryQuestion,Under which heading?,किस शीर्षक के नीचे?,no
+admin,ruqyah.libraryTitle,Library entry,लाइब्रेरी प्रविष्टि,no
+admin,ruqyah.kindLabel,Kind,प्रकार,no
+admin,ruqyah.kind.dua,Dua,दुआ,no
+admin,ruqyah.kind.ayah,Ayah,आयत,no
+admin,ruqyah.kind.hadith,Hadith,हदीस,no
+admin,ruqyah.kind.dhikr,Dhikr,ज़िक्र,no
+admin,ruqyah.libraryChoose,Choose from library,लाइब्रेरी से चुनें,no
+admin,ruqyah.libraryChange,Choose another,दूसरी चुनें,no
+admin,ruqyah.textTitle,Your text,आपका टेक्स्ट,no
+admin,ruqyah.arabic,Arabic,अरबी,no
+admin,ruqyah.translation,Translation,अनुवाद,no
+admin,ruqyah.translationLanguage,Language of the translation,अनुवाद की भाषा,no
+admin,ruqyah.reference,Reference,हवाला,no
+admin,ruqyah.referenceHint,"Where it is from, if you know","यह कहाँ से है, अगर आप जानते हैं",no
+admin,ruqyah.entryTitle,Title,शीर्षक,no
+admin,ruqyah.instructions,Instruction,निर्देश,no
+admin,ruqyah.instructionsHint,"For example, when to recite or listen","जैसे, कब पढ़ें या सुनें",no
+admin,ruqyah.instructionsLanguage,Language of the instruction,निर्देश की भाषा,no
+admin,ruqyah.preview,Preview,प्रीव्यू,no
+admin,ruqyah.missing,Still needed: {fields},अभी चाहिए: {fields},no
+admin,ruqyah.issue.source,what to add,क्या जोड़ना है,no
+admin,ruqyah.issue.category,heading,शीर्षक,no
+admin,ruqyah.issue.library,library entry,लाइब्रेरी प्रविष्टि,no
+admin,ruqyah.issue.arabic,Arabic,अरबी,no
+admin,ruqyah.issue.translation,translation,अनुवाद,no
+admin,ruqyah.issue.reference,shorter reference,छोटा हवाला,no
+admin,ruqyah.issue.voice,recording,रिकॉर्डिंग,no
+admin,ruqyah.issue.title,title,शीर्षक,no
+admin,ruqyah.issue.instructions,shorter instruction,छोटा निर्देश,no
+admin,ruqyah.save,Save,सेव करें,no
+admin,ruqyah.saved,Ruqyah saved,रुक़्या सेव हो गया,no
+admin,ruqyah.searchTitle,Choose from library,लाइब्रेरी से चुनें,no
+admin,ruqyah.sourceLabel.library,From library,लाइब्रेरी से,no
+admin,ruqyah.sourceLabel.text,The masjid’s own text,मस्जिद का अपना टेक्स्ट,no
+admin,ruqyah.sourceLabel.audio,Recording,रिकॉर्डिंग,no
+admin,contacts.title,Ilm contacts,इल्म संपर्क,no
+admin,contacts.count,{count} of {max},{max} में से {count},no
+admin,contacts.intro,People musallis can message on WhatsApp for Islamic questions and advice.,वे लोग जिन्हें मुसल्ली इस्लामी सवालों और सलाह के लिए व्हाट्सऐप पर संदेश भेज सकते हैं।,no
+admin,contacts.add,Add contact,संपर्क जोड़ें,no
+admin,contacts.full,"You have {max} contacts, the most allowed. Remove one to add another.","आपके {max} संपर्क हैं, जो सबसे ज़्यादा है। नया जोड़ने के लिए एक हटाएँ।",no
+admin,contacts.for.brothers,For brothers,भाइयों के लिए,no
+admin,contacts.for.sisters,For sisters,बहनों के लिए,no
+admin,contacts.newTitle,New contact,नया संपर्क,no
+admin,contacts.editTitle,Edit contact,संपर्क बदलें,no
+admin,contacts.name,Name,नाम,no
+admin,contacts.role,Role,भूमिका,no
+admin,contacts.roleHint,"For example: Imam, teacher","जैसे: इमाम, शिक्षक",no
+admin,contacts.topics,Topics,विषय,no
+admin,contacts.topicsHint,"For example: family questions, prayer","जैसे: परिवार के सवाल, नमाज़",no
+admin,contacts.whatsapp,WhatsApp number,व्हाट्सऐप नंबर,no
+admin,contacts.audienceQuestion,Who can contact this person?,इस व्यक्ति से कौन संपर्क कर सकता है?,no
+admin,contacts.consent,This person agreed to be listed — their name and WhatsApp will be visible to app users,इस व्यक्ति ने सूची में आने की सहमति दी है — उनका नाम और व्हाट्सऐप ऐप के उपयोगकर्ताओं को दिखेगा,no
+admin,contacts.consentHint,"Ask them first. If they ask to be removed later, remove the contact.","पहले उनसे पूछें। अगर वे बाद में हटाने को कहें, तो संपर्क हटा दें।",no
+admin,contacts.preview,What musallis see,मुसल्ली क्या देखते हैं,no
+admin,contacts.missing,Still needed: {fields},अभी चाहिए: {fields},no
+admin,contacts.issue.name,name,नाम,no
+admin,contacts.issue.role,a shorter role,छोटी भूमिका,no
+admin,contacts.issue.topics,shorter topics,छोटे विषय,no
+admin,contacts.issue.phone,WhatsApp number,व्हाट्सऐप नंबर,no
+admin,contacts.issue.audience,brothers or sisters,भाई या बहनें,no
+admin,contacts.issue.consent,the tick that they agreed,सहमति का टिक,no
+admin,contacts.save,Save,सहेजें,no
+admin,contacts.saved,Contact saved,संपर्क सहेजा गया,no
+admin,contacts.delete,Remove contact,संपर्क हटाएँ,no
+admin,contacts.deleteTitle,Remove this contact?,यह संपर्क हटाएँ?,no
+admin,contacts.deleteBody,Musallis will no longer see this person.,मुसल्ली अब इस व्यक्ति को नहीं देखेंगे।,no
+admin,contacts.deleted,Contact removed,संपर्क हटाया गया,no
+admin,bloodCamp.unavailableTitle,The blood camp notice is not ready yet,रक्तदान शिविर की सूचना अभी तैयार नहीं है,no
+admin,bloodCamp.unavailableBody,"Please ask the Super Admin to switch on the ""Blood donation camp"" ready notice.","कृपया सुपर एडमिन से ""रक्तदान शिविर"" वाली तैयार सूचना चालू करने को कहें।",no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no
@@ -104,6 +581,8 @@ common,home.eidFitr,Eid ul-Fitr Salah,ईद-उल-फ़ित्र की �
 common,home.eidAdha,Eid ul-Adha Salah,ईद-उल-अज़हा की नमाज़,no
 common,home.today,Today,आज,no
 common,home.tomorrow,Tomorrow,कल,no
+common,home.adhkar,Adhkar after salah · {prayer},नमाज़ के बाद के अज़कार · {prayer},no
+common,home.adhkarDismiss,Hide until the next salah,अगली नमाज़ तक छिपाएँ,no
 common,nav.back,Back,वापस,no
 common,nav.close,Close,बंद करें,no
 common,tabs.label,Main,मुख्य,no
@@ -147,6 +626,31 @@ common,ui.refreshing,Refreshing…,रीफ़्रेश हो रहा ह
 common,ui.newUpdatesShort,"{count, plural, one {new update} other {new updates}}","{count, plural, one {नया अपडेट} other {नए अपडेट}}",no
 common,ui.reorderHint,"Drag to reorder, or use the arrow keys.","क्रम बदलने के लिए खींचें, या तीर वाली कुंजियाँ दबाएँ।",no
 common,ui.khutbah,Khutbah {time},ख़ुत्बा {time},no
+common,ui.voice.label,"Voice message, {duration}","वॉइस मैसेज, {duration}",no
+common,ui.voice.duration,"{minutes, plural, =0 {} one {# minute } other {# minutes }}{seconds, plural, one {# second} other {# seconds}}","{minutes, plural, =0 {} one {# मिनट } other {# मिनट }}{seconds, plural, one {# सेकंड} other {# सेकंड}}",no
+common,ui.voice.play,Play,चलाएँ,no
+common,ui.voice.pause,Pause,रोकें,no
+common,ui.voice.position,Position in the voice message,वॉइस मैसेज में जगह,no
+common,ui.voice.positionValue,{elapsed} of {total},{total} में से {elapsed},no
+common,ui.voice.speed,Playback speed {speed},चलने की रफ़्तार {speed},no
+common,ui.voice.unavailable,Available when online,ऑनलाइन होने पर उपलब्ध,no
+common,ui.voice.badge,Voice message · {duration},वॉइस मैसेज · {duration},no
+common,ui.ruqyah.title,Ruqyah,रुक़्या,no
+common,ui.ruqyah.category.nazar,Protection from Nazar,नज़र से हिफ़ाज़त,no
+common,ui.ruqyah.category.sihr,Protection from black magic,जादू से हिफ़ाज़त,no
+common,ui.ruqyah.category.shifa,Healing (Shifa),शिफ़ा (इलाज),no
+common,ui.ruqyah.category.protection,Daily protection,रोज़ की हिफ़ाज़त,no
+common,ui.ruqyah.category.general,General,आम,no
+common,ui.ruqyah.quoted,“{text}”,“{text}”,no
+common,ui.ruqyah.addedBy,Added by {masjid},{masjid} द्वारा जोड़ा गया,no
+common,ui.ruqyah.source,Source: {name} · Licence: {license},स्रोत: {name} · लाइसेंस: {license},no
+common,ui.ruqyah.instructions,Note from the masjid,मस्जिद की ओर से नोट,no
+common,ui.ilm.greeting,Assalamu alaikum,अस्सलामु अलैकुम,no
+common,ui.ilm.message,Message,संदेश भेजें,no
+common,ui.ilm.messageLabel,Message {name} on WhatsApp,{name} को व्हाट्सऐप पर संदेश भेजें,no
+common,ui.camp.title,Blood donation camp,रक्तदान शिविर,no
+common,ui.camp.when,{date} · {start} – {end},{date} · {start} – {end},no
+common,ui.camp.contact,Contact on WhatsApp,व्हाट्सऐप पर संपर्क करें,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,मग़रिब के बाद,no
 common,hijri.months.m1,Muharram,मुहर्रम,no
@@ -272,6 +776,30 @@ content,license,Licence: {license},लाइसेंस: {license},no
 content,gone,This post is no longer available,यह पोस्ट अब उपलब्ध नहीं है,no
 content,goneBody,The masjid may have removed it.,हो सकता है मस्जिद ने इसे हटा दिया हो।,no
 content,back,Go back,वापस जाएँ,no
+content,adhkarTitle,Adhkar after salah,नमाज़ के बाद के अज़कार,no
+content,emptyAdhkar,No adhkar yet,अभी कोई अज़कार नहीं,no
+content,emptyAdhkarBody,This masjid has not chosen its adhkar after salah yet.,इस मस्जिद ने अभी नमाज़ के बाद के अज़कार नहीं चुने हैं।,no
+content,repeat,"{count, plural, one {Once} other {# times}}","{count, plural, one {एक बार} other {# बार}}",no
+content,counter,Count: {count} of {total}. Tap to count.,गिनती: {total} में से {count}। गिनने के लिए टैप करें।,no
+content,counterDone,Done: {total} of {total},पूरा हुआ: {total} में से {total},no
+content,resetCount,Start the count again,गिनती फिर से शुरू करें,no
+content,emptyRuqyah,No Ruqyah entries yet,अभी कोई रुक़्या नहीं है,no
+content,emptyRuqyahBody,"When the masjid adds Ruqyah, it will appear here.","जब मस्जिद रुक़्या जोड़ेगी, वह यहाँ दिखेगा।",no
+content,ilmTitle,Ask the masjid,मस्जिद से पूछें,no
+content,ilmIntro,"For Islamic questions and advice, contact:",इस्लामी सवालों और सलाह के लिए संपर्क करें:,no
+content,emptyIlm,No contacts yet,अभी कोई संपर्क नहीं,no
+content,emptyIlmBody,"When the masjid lists people you can ask, they will appear here.","जब मस्जिद उन लोगों को जोड़ेगी जिनसे आप पूछ सकते हैं, वे यहाँ दिखेंगे।",no
+content,ruqyahFailed,Ruqyah could not be loaded,रुक़्या लोड नहीं हो सका,no
+content,ruqyahFailedBody,"Check your connection and try again. Once opened, it stays available offline.",अपना कनेक्शन जाँचें और फिर से कोशिश करें। एक बार खुलने के बाद यह ऑफ़लाइन भी मिलेगा।,no
+dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,हमारी बिरादरी के एक सदस्य बीमार हैं। कृपया उन्हें अपनी दुआओं में याद रखें।,no
+dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,हमारी बिरादरी के एक सदस्य अस्पताल में हैं। कृपया उनकी सेहत के लिए दुआ करें।,no
+dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,हमारी बिरादरी के एक सदस्य का ऑपरेशन है। कृपया दुआ करें कि सब ठीक हो।,no
+dua-messages,inteqal.passed,A member of our community has passed away. Please make dua for them and for their family.,हमारी बिरादरी के एक सदस्य का इंतक़ाल हो गया है। कृपया उनके और उनके घरवालों के लिए दुआ करें।,no
+dua-messages,inteqal.family,Please keep the family of the deceased in your duas and give them your support.,कृपया मरहूम के घरवालों को अपनी दुआओं में याद रखें और उनका साथ दें।,no
+dua-messages,inteqal.janaza,A member of our community has passed away. Please join the janaza if you can.,हमारी बिरादरी के एक सदस्य का इंतक़ाल हो गया है। हो सके तो जनाज़े में शामिल हों।,no
+dua-messages,other.difficulty,A member of our community is going through a difficult time. Please remember them in your duas.,हमारी बिरादरी के एक सदस्य मुश्किल वक़्त से गुज़र रहे हैं। कृपया उन्हें अपनी दुआओं में याद रखें।,no
+dua-messages,other.exams,Our students have their exams. Please make dua for their success.,हमारे विद्यार्थियों के इम्तिहान हैं। कृपया उनकी कामयाबी के लिए दुआ करें।,no
+dua-messages,other.travel,Members of our community are travelling for Hajj or Umrah. Please remember them in your duas.,हमारी बिरादरी के कुछ सदस्य हज या उमरा के सफ़र पर हैं। कृपया उन्हें अपनी दुआओं में याद रखें।,no
 errors,NOT_FOUND,We couldn’t find that. It may have been removed.,यह नहीं मिला। हो सकता है इसे हटा दिया गया हो।,no
 errors,METHOD_NOT_ALLOWED,That action isn’t available here.,यह काम यहाँ उपलब्ध नहीं है।,no
 errors,VALIDATION_FAILED,Some details look wrong. Please check and try again.,कुछ जानकारी गलत लग रही है। कृपया जाँचकर फिर कोशिश करें।,no
@@ -279,6 +807,7 @@ errors,UNSAFE_INPUT,Some details look wrong. Please check and try again.,कु�
 errors,INVALID_JSON,Something went wrong sending your request. Please try again.,आपका अनुरोध भेजने में दिक्कत हुई। कृपया फिर कोशिश करें।,no
 errors,PAYLOAD_TOO_LARGE,That is too large to send. Please try something smaller.,यह भेजने के लिए बहुत बड़ा है। कृपया कुछ छोटा भेजें।,no
 errors,UNSUPPORTED_MEDIA_TYPE,Something went wrong sending your request. Please try again.,आपका अनुरोध भेजने में दिक्कत हुई। कृपया फिर कोशिश करें।,no
+errors,UPLOAD_INVALID,We could not read that file. Please choose one file and try again.,हम वह फ़ाइल नहीं पढ़ सके। कृपया एक फ़ाइल चुनें और फिर से कोशिश करें।,no
 errors,CORS_NOT_ALLOWED,That action isn’t available here.,यह काम यहाँ उपलब्ध नहीं है।,no
 errors,INTERNAL_ERROR,Something went wrong on our side. Please try again in a moment.,हमारी तरफ़ से कुछ गड़बड़ हुई। कृपया थोड़ी देर में फिर कोशिश करें।,no
 errors,RATE_LIMITED,Too many tries. Please wait a little and try again.,बहुत ज़्यादा कोशिशें हो गईं। थोड़ा रुककर फिर से कोशिश करें।,no
@@ -305,6 +834,35 @@ errors,INVALID_CURSOR,This list changed. Please reload it.,यह सूची �
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,लगता है आप ऑफ़लाइन हैं। कृपया कनेक्शन जाँचकर फिर कोशिश करें।,no
 errors,ITEM_NOT_FOUND,This post is no longer available.,यह पोस्ट अब उपलब्ध नहीं है।,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,हम जाँच नहीं सके कि यह असली फ़ोन है। कृपया फिर से कोशिश करें।,no
+errors,LIBRARY_ENTRY_NOT_FOUND,This library entry no longer exists.,यह लाइब्रेरी प्रविष्टि अब मौजूद नहीं है।,no
+errors,LIBRARY_DUPLICATE,An entry with this kind and reference is already in the library.,इसी प्रकार और संदर्भ वाली प्रविष्टि लाइब्रेरी में पहले से है।,no
+errors,TEMPLATE_NOT_FOUND,This template no longer exists.,यह टेम्पलेट अब मौजूद नहीं है।,no
+errors,TEMPLATE_EXISTS,A template with this key already exists.,इस की वाला टेम्पलेट पहले से मौजूद है।,no
+errors,TEMPLATE_REVIEW_REQUIRED,Review all four translations and tick “Translations reviewed” first.,पहले चारों अनुवाद जाँचें और “अनुवाद जाँचे गए” पर टिक करें।,no
+errors,PRECONDITION_FAILED,Someone else changed this just now. Please look at the latest version and try again.,अभी-अभी किसी और ने इसे बदला है। कृपया नया रूप देखें और फिर से कोशिश करें।,no
+errors,TIMINGS_INVALID,Some times don’t fit together. Please check the times marked in red.,कुछ समय आपस में मेल नहीं खाते। कृपया लाल रंग में दिखे समय जाँचें।,no
+errors,NOTIFY_QUOTA_EXCEEDED,Today’s notifications are used up. You can still save without notifying followers.,आज की सूचनाएँ ख़त्म हो गई हैं। आप फ़ॉलोअर्स को बताए बिना सेव कर सकते हैं।,no
+errors,ACTIVATION_TIMINGS_REQUIRED,This masjid can be activated once all five jamaat times are set.,पाँचों जमात के समय सेट होने के बाद ही यह मस्जिद सक्रिय की जा सकती है।,no
+errors,SPECIAL_DATE_NOT_FOUND,This special date was removed. Please go back to the list.,यह ख़ास तारीख़ हटा दी गई है। कृपया सूची पर वापस जाएँ।,no
+errors,SPECIAL_DATE_INVALID,"Please check the date and times: up to 5 different times, on a date within about a year.","कृपया तारीख़ और समय जाँचें: ज़्यादा से ज़्यादा 5 अलग-अलग समय, लगभग एक साल के अंदर की तारीख़।",no
+errors,RAMADAN_INVALID,"Please check the Ramadan dates: the last day comes after the first, at most 30 days.","कृपया रमज़ान की तारीख़ें जाँचें: आख़िरी दिन पहले दिन के बाद हो, ज़्यादा से ज़्यादा 30 दिन।",no
+errors,IMAGE_INVALID,"This photo can't be used. Please choose a JPEG, PNG or WebP photo (iPhone: pick it from Photos).","यह फ़ोटो इस्तेमाल नहीं हो सकती। कृपया JPEG, PNG या WebP फ़ोटो चुनें (iPhone: Photos से चुनें)।",no
+errors,ANNOUNCEMENT_INVALID,Something in this notice is not right. Please check the details and try again.,इस सूचना में कुछ ठीक नहीं है। कृपया जानकारी जाँचें और फिर से कोशिश करें।,no
+errors,DUA_INVALID,Something in this dua request is not right. Please check the janaza time and try again.,इस दुआ की गुज़ारिश में कुछ ठीक नहीं है। कृपया जनाज़े का समय जाँचें और फिर से कोशिश करें।,no
+errors,EDIT_WINDOW_CLOSED,Posts can be changed for 24 hours after publishing. You can still delete this post.,पोस्ट प्रकाशित होने के 24 घंटे तक ही बदली जा सकती है। आप इसे अब भी हटा सकते हैं।,no
+errors,ITEM_NOT_EDITABLE,This kind of post cannot be changed here.,इस तरह की पोस्ट यहाँ बदली नहीं जा सकती।,no
+errors,PROFILE_INVALID,This change to the masjid profile is not possible. Please check it and try again.,मस्जिद प्रोफ़ाइल में यह बदलाव मुमकिन नहीं है। कृपया जाँचें और फिर से कोशिश करें।,no
+errors,ADHKAR_INVALID,"This adhkar list is not possible: at most 30, each one once. Please check it and try again.","यह अज़कार सूची मुमकिन नहीं है: ज़्यादा से ज़्यादा 30, हर एक सिर्फ़ एक बार। कृपया जाँचें और फिर से कोशिश करें।",no
+errors,VOICE_INVALID,A voice note needs a short title. Please add one and try again.,वॉइस नोट के साथ एक छोटा शीर्षक ज़रूरी है। कृपया शीर्षक लिखें और फिर से कोशिश करें।,no
+errors,AUDIO_INVALID,This file is not a voice recording the app can use. Please record again or choose another file.,यह फ़ाइल ऐसी आवाज़ की रिकॉर्डिंग नहीं है जिसे ऐप इस्तेमाल कर सके। कृपया फिर से रिकॉर्ड करें या दूसरी फ़ाइल चुनें।,no
+errors,AUDIO_TOO_LONG,Voice notes can be at most 10 minutes long.,वॉइस नोट ज़्यादा से ज़्यादा 10 मिनट का हो सकता है।,no
+errors,RUQYAH_INVALID,A recording needs a short title and the tick that it is yours to share. Please check and try again.,रिकॉर्डिंग के साथ एक छोटा शीर्षक और यह टिक ज़रूरी है कि इसे शेयर करने का हक़ आपके पास है। कृपया जाँचें और फिर से कोशिश करें।,no
+errors,RUQYAH_NOT_FOUND,This Ruqyah entry was removed. Please go back to the list.,यह रुक़्या प्रविष्टि हटा दी गई है। कृपया सूची पर वापस जाएँ।,no
+errors,RUQYAH_LIMIT_REACHED,The Ruqyah section already has 50 entries. Delete one to add another.,रुक़्या सेक्शन में पहले से 50 प्रविष्टियाँ हैं। नई जोड़ने के लिए एक हटाएँ।,no
+errors,RUQYAH_ORDER_INVALID,The Ruqyah list changed meanwhile. Please open it again and reorder.,इस बीच रुक़्या सूची बदल गई। कृपया इसे फिर से खोलें और क्रम बदलें।,no
+errors,CONTACT_INVALID,"Please tick that this person agreed, and check the WhatsApp number.","कृपया टिक करें कि इस व्यक्ति ने सहमति दी है, और व्हाट्सऐप नंबर जाँचें।",no
+errors,CONTACT_NOT_FOUND,This contact was removed. Please go back to the list.,यह संपर्क हटा दिया गया है। कृपया सूची पर वापस जाएँ।,no
+errors,CONTACT_LIMIT_REACHED,You can list up to 10 contacts. Remove one to add another.,आप अधिकतम 10 संपर्क जोड़ सकते हैं। नया जोड़ने के लिए एक हटाएँ।,no
 follow,scan.title,Scan masjid QR,मस्जिद का QR स्कैन करें,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,अपना कैमरा मस्जिद के पोस्टर पर लगे QR कोड की ओर करें।,no
 follow,scan.torch,Flashlight,टॉर्च,no
@@ -356,6 +914,9 @@ masjid,unmutedToast,Notifications are on for this masjid,इस मस्जि�
 masjid,muteFailed,Couldn’t change notifications. Check your connection and try again.,नोटिफ़िकेशन नहीं बदल सके। इंटरनेट देखें और फिर कोशिश करें।,no
 masjid,hadith,Hadith & Quran,हदीस और क़ुरआन,no
 masjid,duas,Dua Requests,दुआ की गुज़ारिशें,no
+masjid,adhkar,Adhkar after salah,नमाज़ के बाद के अज़कार,no
+masjid,ruqyah,Ruqyah,रुक़्या,no
+masjid,ilm,Ask the masjid,मस्जिद से पूछें,no
 masjid,campaigns,Donation Campaigns,चंदा अभियान,no
 masjid,chanda,Weekly Chanda,हफ़्ते का चंदा,no
 masjid,bayans,Bayans,बयान,no
@@ -492,6 +1053,8 @@ super,nav.dashboard,Dashboard,डैशबोर्ड,no
 super,nav.masjids,Masjids,मस्जिदें,no
 super,nav.settings,Settings,सेटिंग,no
 super,nav.audit,Audit log,ऑडिट लॉग,no
+super,nav.library,Content Library,सामग्री लाइब्रेरी,no
+super,nav.templates,Notice templates,सूचना टेम्पलेट,no
 super,status.pending,Pending,बाक़ी,no
 super,status.active,Active,चालू,no
 super,status.suspended,Suspended,रोकी गई,no
@@ -500,6 +1063,8 @@ super,dashboard.pending,Waiting for activation,चालू होने का 
 super,dashboard.noPending,No masjids are waiting for activation.,कोई मस्जिद चालू होने का इंतज़ार नहीं कर रही।,no
 super,dashboard.counts,Masjids,मस्जिदें,no
 super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","पिछले 30 दिनों में {count, plural, one {# लॉग इन} other {# लॉग इन}} रोका गया, क्योंकि किसी फ़ोन की नकल हुई हो सकती है। हर प्रभावित एडमिन को नया लॉग इन लिंक दें।",no
+super,dashboard.changeRequests,Requested changes,बदलाव की गुज़ारिशें,no
+super,dashboard.noChangeRequests,No change requests from admins.,एडमिन की ओर से बदलाव की कोई गुज़ारिश नहीं।,no
 super,masjids.search,"Search by name, city or code","नाम, शहर या कोड से खोजें",no
 super,masjids.all,All,सभी,no
 super,masjids.new,New masjid,नई मस्जिद,no
@@ -540,7 +1105,7 @@ super,form.required,Required,ज़रूरी,no
 super,detail.followers,"{count, plural, one {# follower} other {# followers}}","{count, plural, one {# फ़ॉलोअर} other {# फ़ॉलोअर}}",no
 super,detail.followCode,Follow code,फ़ॉलो कोड,no
 super,detail.activate,Activate,चालू करें,no
-super,detail.activateHint,Needs at least one admin who has logged in and accepted the undertaking.,कम से कम एक एडमिन चाहिए जिसने लॉग इन करके वचन-पत्र स्वीकार किया हो।,no
+super,detail.activateHint,"Needs at least one admin who has logged in and accepted the undertaking, and all five jamaat times set.","कम से कम एक एडमिन चाहिए जिसने लॉग इन करके वचन-पत्र स्वीकार किया हो, और पाँचों जमात के समय सेट हों।",no
 super,detail.suspend,Suspend,रोकें,no
 super,detail.unsuspend,Unsuspend,फिर से चालू करें,no
 super,detail.delete,Delete masjid,मस्जिद हटाएँ,no
@@ -616,3 +1181,148 @@ super,audit.actorType.admin,Admin,एडमिन,no
 super,audit.actorType.super_admin,Super Admin,सुपर एडमिन,no
 super,audit.actorType.system,System,सिस्टम,no
 super,audit.actorType.device,Device,डिवाइस,no
+super,library.statusFilter,Status,स्थिति,no
+super,library.kindFilter,Kind,प्रकार,no
+super,library.fileLabel,Your file,आपकी फ़ाइल,no
+super,library.search,"Search reference, words or tags","संदर्भ, शब्द या टैग खोजें",no
+super,library.all,All,सभी,no
+super,library.kinds.hadith,Hadith,हदीस,no
+super,library.kinds.ayah,Ayah,आयत,no
+super,library.kinds.dua,Dua,दुआ,no
+super,library.kinds.dhikr,Dhikr,ज़िक्र,no
+super,library.statuses.draft,Draft,ड्राफ़्ट,no
+super,library.statuses.verified,Verified,सत्यापित,no
+super,library.statuses.retired,Retired,हटाया गया,no
+super,library.import,Import file,फ़ाइल इम्पोर्ट करें,no
+super,library.empty,No entries. Import a library file to start.,कोई प्रविष्टि नहीं। शुरू करने के लिए लाइब्रेरी फ़ाइल इम्पोर्ट करें।,no
+super,library.loadMore,Show more,और दिखाएँ,no
+super,library.importTitle,Import library file,लाइब्रेरी फ़ाइल इम्पोर्ट करें,no
+super,library.importIntro,Choose a JSON file in the library format. It is checked first — nothing is saved until you import.,लाइब्रेरी फ़ॉर्मेट की JSON फ़ाइल चुनें। पहले इसकी जाँच होती है — इम्पोर्ट करने तक कुछ भी सेव नहीं होता।,no
+super,library.chooseFile,Choose file,फ़ाइल चुनें,no
+super,library.otherFile,Choose another file,दूसरी फ़ाइल चुनें,no
+super,library.checking,Checking the file…,फ़ाइल की जाँच हो रही है…,no
+super,library.ready,{valid} of {entries} entries are ready,{entries} में से {valid} प्रविष्टियाँ तैयार हैं,no
+super,library.problems,"{count, plural, one {# problem} other {# problems}}","{count, plural, one {# समस्या} other {# समस्याएँ}}",no
+super,library.problemRow,Row {row} · {field}: {message},पंक्ति {row} · {field}: {message},no
+super,library.duplicates,"{count, plural, one {# entry is already there} other {# entries are already there}}","{count, plural, one {# प्रविष्टि पहले से है} other {# प्रविष्टियाँ पहले से हैं}}",no
+super,library.duplicateRow,Row {row} · {reference} — {where},पंक्ति {row} · {reference} — {where},no
+super,library.inFile,repeated in this file,इस फ़ाइल में दोहराई गई,no
+super,library.inLibrary,already in the library,लाइब्रेरी में पहले से है,no
+super,library.truncated,Only the first 200 are listed.,केवल पहली 200 दिखाई गई हैं।,no
+super,library.fixFirst,Fix the file and choose it again — an import is all or nothing.,फ़ाइल ठीक करके फिर से चुनें — इम्पोर्ट या तो पूरा होता है या बिल्कुल नहीं।,no
+super,library.importAll,"{count, plural, one {Import # entry as draft} other {Import # entries as draft}}","{count, plural, one {# प्रविष्टि ड्राफ़्ट के रूप में इम्पोर्ट करें} other {# प्रविष्टियाँ ड्राफ़्ट के रूप में इम्पोर्ट करें}}",no
+super,library.imported,"{count, plural, one {# entry imported as draft.} other {# entries imported as draft.}}","{count, plural, one {# प्रविष्टि ड्राफ़्ट के रूप में इम्पोर्ट हुई।} other {# प्रविष्टियाँ ड्राफ़्ट के रूप में इम्पोर्ट हुईं।}}",no
+super,library.reviewDrafts,Review drafts,ड्राफ़्ट देखें,no
+super,library.arabic,Arabic,अरबी,no
+super,library.translations,Translations,अनुवाद,no
+super,library.transliterations,Transliterations,लिप्यंतरण,no
+super,library.missing,Not given,नहीं दिया गया,no
+super,library.reference,Reference,संदर्भ,no
+super,library.source,Source,स्रोत,no
+super,library.license,License,लाइसेंस,no
+super,library.tags,Tags,टैग,no
+super,library.category,Dua category,दुआ श्रेणी,no
+super,library.categories.illness,Illness,बीमारी,no
+super,library.categories.inteqal,Inteqal,इंतिक़ाल,no
+super,library.categories.other,Other,अन्य,no
+super,library.repeat,"{count, plural, one {Said # time} other {Said # times}}","{count, plural, one {# बार पढ़ें} other {# बार पढ़ें}}",no
+super,library.occasions.after_salah,After salah,नमाज़ के बाद,no
+super,library.occasions.morning,Morning,सुबह,no
+super,library.occasions.evening,Evening,शाम,no
+super,library.verifiedBy,Verified by {name} on {date},{name} द्वारा {date} को सत्यापित,no
+super,library.verify,Verify,सत्यापित करें,no
+super,library.verifyTitle,Verify this entry,इस प्रविष्टि को सत्यापित करें,no
+super,library.verifyHint,Check every text against the source first. Write the name of the scholar or reviewer who checked it.,पहले हर पाठ को स्रोत से मिलाएँ। जाँच करने वाले आलिम या समीक्षक का नाम लिखें।,no
+super,library.verifier,Verified by,सत्यापित करने वाले,no
+super,library.verified,Entry verified. Admins can choose it now.,प्रविष्टि सत्यापित हुई। अब एडमिन इसे चुन सकते हैं।,no
+super,library.retire,Retire,हटाएँ,no
+super,library.retireTitle,Retire this entry?,यह प्रविष्टि हटाएँ?,no
+super,library.retireBody,Admins can no longer choose it and it disappears from the app. This cannot be undone.,एडमिन इसे अब नहीं चुन पाएँगे और यह ऐप से हट जाएगी। इसे वापस नहीं किया जा सकता।,no
+super,library.retired,Entry retired.,प्रविष्टि हटा दी गई।,no
+super,templates.new,New template,नया टेम्पलेट,no
+super,templates.addStarters,Add starter templates,शुरुआती टेम्पलेट जोड़ें,no
+super,templates.startersAdded,"{count, plural, =0 {All starter templates are already there.} one {# starter template added as draft.} other {# starter templates added as draft.}}","{count, plural, =0 {सभी शुरुआती टेम्पलेट पहले से मौजूद हैं।} one {# शुरुआती टेम्पलेट ड्राफ़्ट के रूप में जोड़ा गया।} other {# शुरुआती टेम्पलेट ड्राफ़्ट के रूप में जोड़े गए।}}",no
+super,templates.empty,No templates yet. Add the starter templates to begin.,अभी कोई टेम्पलेट नहीं। शुरू करने के लिए शुरुआती टेम्पलेट जोड़ें।,no
+super,templates.statuses.draft,Draft,ड्राफ़्ट,no
+super,templates.statuses.active,Active,चालू,no
+super,templates.statuses.retired,Retired,हटाया गया,no
+super,templates.categories.general,General,सामान्य,no
+super,templates.categories.event,Event,कार्यक्रम,no
+super,templates.categories.facilities,Facilities,सुविधाएँ,no
+super,templates.categories.timing,Timing,समय,no
+super,templates.system,System,सिस्टम,no
+super,templates.key,Key,की,no
+super,templates.keyHint,"Lower-case letters, digits and _ — cannot be changed later.","छोटे अक्षर, अंक और _ — बाद में नहीं बदल सकते।",no
+super,templates.category,Category,श्रेणी,no
+super,templates.icon,Icon,आइकन,no
+super,templates.important,Important by default,डिफ़ॉल्ट रूप से ज़रूरी,no
+super,templates.params,Fill-in fields,भरने वाले फ़ील्ड,no
+super,templates.paramsHint,What the imam fills in with pickers. Fixed once the template is active.,इमाम पिकर से जो भरते हैं। टेम्पलेट चालू होने के बाद ये नहीं बदलते।,no
+super,templates.paramName,Name,नाम,no
+super,templates.paramType,Type,प्रकार,no
+super,templates.paramRequired,Required,ज़रूरी,no
+super,templates.addParam,Add field,फ़ील्ड जोड़ें,no
+super,templates.removeParam,Remove field,फ़ील्ड हटाएँ,no
+super,templates.types.time,Time,समय,no
+super,templates.types.date,Date,तारीख़,no
+super,templates.types.date_range,Date range,तारीख़ की अवधि,no
+super,templates.types.time_range,Time range,समय की अवधि,no
+super,templates.types.prayer,Prayer,नमाज़,no
+super,templates.types.number,Number,संख्या,no
+super,templates.types.short_text,Short text,छोटा टेक्स्ट,no
+super,templates.types.phone,Phone number,फ़ोन नंबर,no
+super,templates.language,Language,भाषा,no
+super,templates.title,Title,शीर्षक,no
+super,templates.body,Text,टेक्स्ट,no
+super,templates.bodyHint,Use '{name}' for a field; a range field gives '{name_start}' and '{name_end}'.,फ़ील्ड के लिए '{name}' लिखें; अवधि वाला फ़ील्ड '{name_start}' और '{name_end}' देता है।,no
+super,templates.available,Available: {names},उपलब्ध: {names},no
+super,templates.preview,Preview with sample values,नमूना मानों के साथ प्रीव्यू,no
+super,templates.invalid,This text cannot be read. Check the {braces}.,यह टेक्स्ट पढ़ा नहीं जा सकता। {braces} जाँचें।,no
+super,templates.unknownArgument,Uses a field that does not exist: {names},ऐसे फ़ील्ड का उपयोग है जो मौजूद नहीं: {names},no
+super,templates.titleArguments,Titles cannot use fields.,शीर्षक में फ़ील्ड नहीं हो सकते।,no
+super,templates.reviewed,Translations reviewed,अनुवाद जाँचे गए,no
+super,templates.reviewedHint,Tick only after a person has checked all four languages. Needed to activate.,तभी टिक करें जब किसी व्यक्ति ने चारों भाषाएँ जाँच ली हों। चालू करने के लिए ज़रूरी।,no
+super,templates.save,Save,सेव करें,no
+super,templates.saved,Template saved.,टेम्पलेट सेव हुआ।,no
+super,templates.create,Create draft,ड्राफ़्ट बनाएँ,no
+super,templates.activate,Activate,चालू करें,no
+super,templates.activated,Template is active — admins can use it now.,टेम्पलेट चालू है — एडमिन अब इसका उपयोग कर सकते हैं।,no
+super,templates.retire,Retire,हटाएँ,no
+super,templates.retireTitle,Retire this template?,यह टेम्पलेट हटाएँ?,no
+super,templates.retireBody,Admins can no longer pick it. Notices already published with it stay readable.,एडमिन इसे अब नहीं चुन पाएँगे। इससे पहले से भेजी गई सूचनाएँ पढ़ी जा सकेंगी।,no
+super,templates.retired,Template retired.,टेम्पलेट हटा दिया गया।,no
+super,templates.reviewFirst,Review all four translations before activating.,चालू करने से पहले चारों अनुवाद जाँचें।,no
+templates,no_water_time_range.title,No water supply,पानी की आपूर्ति बंद,no
+templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} से {hours_end} तक पानी उपलब्ध नहीं रहेगा।,no
+templates,electricity_cut_time_range.title,Power cut,बिजली कटौती,no
+templates,electricity_cut_time_range.body,There will be no electricity from {hours_start} to {hours_end}.,{hours_start} से {hours_end} तक बिजली नहीं रहेगी।,no
+templates,jamaat_time_changed.title,Jamaat time changed,जमात का समय बदला,no
+templates,jamaat_time_changed.body,"From {from}, the {prayer} jamaat will be at {time}.",{from} से {prayer} की जमात {time} बजे होगी।,no
+templates,jumuah_timing.title,Jumu’ah timing,जुमा का समय,no
+templates,jumuah_timing.body,This week’s Jumu’ah jamaat will be at {time}.,इस हफ़्ते जुमा की जमात {time} बजे होगी।,no
+templates,eid_salah_timing.title,Eid salah,ईद की नमाज़,no
+templates,eid_salah_timing.body,Eid salah will be held on {date} at {time}. Please arrive early.,ईद की नमाज़ {date} को {time} बजे होगी। कृपया जल्दी पहुँचें।,no
+templates,bayan_event.title,Bayan,बयान,no
+templates,bayan_event.body,Bayan by {speaker} on {date} at {time}. Everyone is welcome.,{date} को {time} बजे {speaker} का बयान होगा। सभी का स्वागत है।,no
+templates,cleanliness_drive.title,Cleanliness drive,मस्जिद की सफ़ाई,no
+templates,cleanliness_drive.body,Masjid cleanliness drive on {date} at {time}. Volunteers are welcome.,{date} को {time} बजे मस्जिद की सफ़ाई होगी। स्वयंसेवकों का स्वागत है।,no
+templates,parking_closed_date_range.title,Parking closed,पार्किंग बंद,no
+templates,parking_closed_date_range.body,The parking area will be closed from {days_start} to {days_end}.,पार्किंग {days_start} से {days_end} तक बंद रहेगी।,no
+templates,wudu_area_maintenance.title,Wudu area under maintenance,वुज़ू की जगह की मरम्मत,no
+templates,wudu_area_maintenance.body,The wudu area will be under maintenance from {days_start} to {days_end}. Please make wudu at home.,{days_start} से {days_end} तक वुज़ू की जगह की मरम्मत होगी। कृपया घर से वुज़ू करके आएँ।,no
+templates,masjid_closed_repair.title,Masjid closed for repairs,मरम्मत के लिए मस्जिद बंद,no
+templates,masjid_closed_repair.body,The masjid will be closed for repairs from {days_start} to {days_end}. Thank you for your patience.,मरम्मत के कारण मस्जिद {days_start} से {days_end} तक बंद रहेगी। आपके सब्र का शुक्रिया।,no
+templates,taraweeh_starts.title,Taraweeh begins,तरावीह शुरू,no
+templates,taraweeh_starts.body,"Taraweeh salah begins on {date} after Isha, at {time}.",तरावीह की नमाज़ {date} से ईशा के बाद {time} बजे शुरू होगी।,no
+templates,iftar_arrangement.title,Iftar at the masjid,मस्जिद में इफ़्तार,no
+templates,iftar_arrangement.body,Iftar will be arranged at the masjid on {date}. Everyone is welcome.,{date} को मस्जिद में इफ़्तार का इंतज़ाम होगा। सभी का स्वागत है।,no
+templates,lost_and_found.title,Lost and found,खोया-पाया,no
+templates,lost_and_found.body,Found at the masjid: {item}. Please contact the masjid office to collect it.,मस्जिद में मिला: {item}। लेने के लिए कृपया मस्जिद के दफ़्तर से संपर्क करें।,no
+templates,general_thanks.title,Thank you,शुक्रिया,no
+templates,general_thanks.body,Thank you to everyone who helped and supported the masjid.,मस्जिद की मदद और साथ देने वाले सभी लोगों का शुक्रिया।,no
+templates,blood_donation_camp.title,Blood donation camp,रक्तदान शिविर,no
+templates,blood_donation_camp.body,"Blood donation camp on {date}, {hours_start} to {hours_end}, at {place}. To register, contact {contact}.",{date} को {hours_start} से {hours_end} तक {place} में रक्तदान शिविर। नाम लिखवाने के लिए {contact} पर संपर्क करें।,no
+templates,timings_updated.title,Prayer timings updated,नमाज़ के समय बदले,no
+templates,timings_updated.body,The prayer timings of this masjid have been updated. Please check the new times.,इस मस्जिद की नमाज़ के समय अपडेट किए गए हैं। कृपया नए समय देख लें।,no
+templates,special_timings.title,Special timings,ख़ास समय,no
+templates,special_timings.body,This masjid has special timings for {date}. Please see Special Dates for the times.,इस मस्जिद में {date} के लिए ख़ास समय हैं। समय देखने के लिए कृपया ख़ास तारीख़ें देखें।,no

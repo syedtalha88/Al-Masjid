@@ -27,9 +27,12 @@ import { Route as SettingsGrievanceRouteImport } from './routes/settings_.grieva
 import { Route as SettingsPrivacyRouteImport } from './routes/settings_.privacy'
 import { Route as SettingsSavedRouteImport } from './routes/settings_.saved'
 import { Route as MasjidMasjidIdSectionRouteImport } from './routes/masjid_.$masjidId.$section'
+import { Route as MasjidMasjidIdAdhkarRouteImport } from './routes/masjid_.$masjidId.adhkar'
 import { Route as MasjidMasjidIdAnnouncementsRouteImport } from './routes/masjid_.$masjidId.announcements'
 import { Route as MasjidMasjidIdDuasRouteImport } from './routes/masjid_.$masjidId.duas'
 import { Route as MasjidMasjidIdHadithRouteImport } from './routes/masjid_.$masjidId.hadith'
+import { Route as MasjidMasjidIdIlmRouteImport } from './routes/masjid_.$masjidId.ilm'
+import { Route as MasjidMasjidIdRuqyahRouteImport } from './routes/masjid_.$masjidId.ruqyah'
 import { Route as MasjidMasjidIdTimingsRouteImport } from './routes/masjid_.$masjidId.timings'
 
 const IndexRoute = IndexRouteImport.update({
@@ -122,6 +125,11 @@ const MasjidMasjidIdSectionRoute = MasjidMasjidIdSectionRouteImport.update({
   path: '/masjid/$masjidId/$section',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MasjidMasjidIdAdhkarRoute = MasjidMasjidIdAdhkarRouteImport.update({
+  id: '/masjid_/$masjidId/adhkar',
+  path: '/masjid/$masjidId/adhkar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MasjidMasjidIdAnnouncementsRoute =
   MasjidMasjidIdAnnouncementsRouteImport.update({
     id: '/masjid_/$masjidId/announcements',
@@ -136,6 +144,16 @@ const MasjidMasjidIdDuasRoute = MasjidMasjidIdDuasRouteImport.update({
 const MasjidMasjidIdHadithRoute = MasjidMasjidIdHadithRouteImport.update({
   id: '/masjid_/$masjidId/hadith',
   path: '/masjid/$masjidId/hadith',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MasjidMasjidIdIlmRoute = MasjidMasjidIdIlmRouteImport.update({
+  id: '/masjid_/$masjidId/ilm',
+  path: '/masjid/$masjidId/ilm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MasjidMasjidIdRuqyahRoute = MasjidMasjidIdRuqyahRouteImport.update({
+  id: '/masjid_/$masjidId/ruqyah',
+  path: '/masjid/$masjidId/ruqyah',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MasjidMasjidIdTimingsRoute = MasjidMasjidIdTimingsRouteImport.update({
@@ -163,9 +181,12 @@ export interface FileRoutesByFullPath {
   '/settings/privacy': typeof SettingsPrivacyRoute
   '/settings/saved': typeof SettingsSavedRoute
   '/masjid/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
+  '/masjid/$masjidId/adhkar': typeof MasjidMasjidIdAdhkarRoute
   '/masjid/$masjidId/announcements': typeof MasjidMasjidIdAnnouncementsRoute
   '/masjid/$masjidId/duas': typeof MasjidMasjidIdDuasRoute
   '/masjid/$masjidId/hadith': typeof MasjidMasjidIdHadithRoute
+  '/masjid/$masjidId/ilm': typeof MasjidMasjidIdIlmRoute
+  '/masjid/$masjidId/ruqyah': typeof MasjidMasjidIdRuqyahRoute
   '/masjid/$masjidId/timings': typeof MasjidMasjidIdTimingsRoute
 }
 export interface FileRoutesByTo {
@@ -187,9 +208,12 @@ export interface FileRoutesByTo {
   '/settings/privacy': typeof SettingsPrivacyRoute
   '/settings/saved': typeof SettingsSavedRoute
   '/masjid/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
+  '/masjid/$masjidId/adhkar': typeof MasjidMasjidIdAdhkarRoute
   '/masjid/$masjidId/announcements': typeof MasjidMasjidIdAnnouncementsRoute
   '/masjid/$masjidId/duas': typeof MasjidMasjidIdDuasRoute
   '/masjid/$masjidId/hadith': typeof MasjidMasjidIdHadithRoute
+  '/masjid/$masjidId/ilm': typeof MasjidMasjidIdIlmRoute
+  '/masjid/$masjidId/ruqyah': typeof MasjidMasjidIdRuqyahRoute
   '/masjid/$masjidId/timings': typeof MasjidMasjidIdTimingsRoute
 }
 export interface FileRoutesById {
@@ -212,9 +236,12 @@ export interface FileRoutesById {
   '/settings_/privacy': typeof SettingsPrivacyRoute
   '/settings_/saved': typeof SettingsSavedRoute
   '/masjid_/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
+  '/masjid_/$masjidId/adhkar': typeof MasjidMasjidIdAdhkarRoute
   '/masjid_/$masjidId/announcements': typeof MasjidMasjidIdAnnouncementsRoute
   '/masjid_/$masjidId/duas': typeof MasjidMasjidIdDuasRoute
   '/masjid_/$masjidId/hadith': typeof MasjidMasjidIdHadithRoute
+  '/masjid_/$masjidId/ilm': typeof MasjidMasjidIdIlmRoute
+  '/masjid_/$masjidId/ruqyah': typeof MasjidMasjidIdRuqyahRoute
   '/masjid_/$masjidId/timings': typeof MasjidMasjidIdTimingsRoute
 }
 export interface FileRouteTypes {
@@ -238,9 +265,12 @@ export interface FileRouteTypes {
     | '/settings/privacy'
     | '/settings/saved'
     | '/masjid/$masjidId/$section'
+    | '/masjid/$masjidId/adhkar'
     | '/masjid/$masjidId/announcements'
     | '/masjid/$masjidId/duas'
     | '/masjid/$masjidId/hadith'
+    | '/masjid/$masjidId/ilm'
+    | '/masjid/$masjidId/ruqyah'
     | '/masjid/$masjidId/timings'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -262,9 +292,12 @@ export interface FileRouteTypes {
     | '/settings/privacy'
     | '/settings/saved'
     | '/masjid/$masjidId/$section'
+    | '/masjid/$masjidId/adhkar'
     | '/masjid/$masjidId/announcements'
     | '/masjid/$masjidId/duas'
     | '/masjid/$masjidId/hadith'
+    | '/masjid/$masjidId/ilm'
+    | '/masjid/$masjidId/ruqyah'
     | '/masjid/$masjidId/timings'
   id:
     | '__root__'
@@ -286,9 +319,12 @@ export interface FileRouteTypes {
     | '/settings_/privacy'
     | '/settings_/saved'
     | '/masjid_/$masjidId/$section'
+    | '/masjid_/$masjidId/adhkar'
     | '/masjid_/$masjidId/announcements'
     | '/masjid_/$masjidId/duas'
     | '/masjid_/$masjidId/hadith'
+    | '/masjid_/$masjidId/ilm'
+    | '/masjid_/$masjidId/ruqyah'
     | '/masjid_/$masjidId/timings'
   fileRoutesById: FileRoutesById
 }
@@ -311,9 +347,12 @@ export interface RootRouteChildren {
   SettingsPrivacyRoute: typeof SettingsPrivacyRoute
   SettingsSavedRoute: typeof SettingsSavedRoute
   MasjidMasjidIdSectionRoute: typeof MasjidMasjidIdSectionRoute
+  MasjidMasjidIdAdhkarRoute: typeof MasjidMasjidIdAdhkarRoute
   MasjidMasjidIdAnnouncementsRoute: typeof MasjidMasjidIdAnnouncementsRoute
   MasjidMasjidIdDuasRoute: typeof MasjidMasjidIdDuasRoute
   MasjidMasjidIdHadithRoute: typeof MasjidMasjidIdHadithRoute
+  MasjidMasjidIdIlmRoute: typeof MasjidMasjidIdIlmRoute
+  MasjidMasjidIdRuqyahRoute: typeof MasjidMasjidIdRuqyahRoute
   MasjidMasjidIdTimingsRoute: typeof MasjidMasjidIdTimingsRoute
 }
 
@@ -445,6 +484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MasjidMasjidIdSectionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/masjid_/$masjidId/adhkar': {
+      id: '/masjid_/$masjidId/adhkar'
+      path: '/masjid/$masjidId/adhkar'
+      fullPath: '/masjid/$masjidId/adhkar'
+      preLoaderRoute: typeof MasjidMasjidIdAdhkarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/masjid_/$masjidId/announcements': {
       id: '/masjid_/$masjidId/announcements'
       path: '/masjid/$masjidId/announcements'
@@ -464,6 +510,20 @@ declare module '@tanstack/react-router' {
       path: '/masjid/$masjidId/hadith'
       fullPath: '/masjid/$masjidId/hadith'
       preLoaderRoute: typeof MasjidMasjidIdHadithRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/masjid_/$masjidId/ilm': {
+      id: '/masjid_/$masjidId/ilm'
+      path: '/masjid/$masjidId/ilm'
+      fullPath: '/masjid/$masjidId/ilm'
+      preLoaderRoute: typeof MasjidMasjidIdIlmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/masjid_/$masjidId/ruqyah': {
+      id: '/masjid_/$masjidId/ruqyah'
+      path: '/masjid/$masjidId/ruqyah'
+      fullPath: '/masjid/$masjidId/ruqyah'
+      preLoaderRoute: typeof MasjidMasjidIdRuqyahRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/masjid_/$masjidId/timings': {
@@ -495,9 +555,12 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsPrivacyRoute: SettingsPrivacyRoute,
   SettingsSavedRoute: SettingsSavedRoute,
   MasjidMasjidIdSectionRoute: MasjidMasjidIdSectionRoute,
+  MasjidMasjidIdAdhkarRoute: MasjidMasjidIdAdhkarRoute,
   MasjidMasjidIdAnnouncementsRoute: MasjidMasjidIdAnnouncementsRoute,
   MasjidMasjidIdDuasRoute: MasjidMasjidIdDuasRoute,
   MasjidMasjidIdHadithRoute: MasjidMasjidIdHadithRoute,
+  MasjidMasjidIdIlmRoute: MasjidMasjidIdIlmRoute,
+  MasjidMasjidIdRuqyahRoute: MasjidMasjidIdRuqyahRoute,
   MasjidMasjidIdTimingsRoute: MasjidMasjidIdTimingsRoute,
 }
 export const routeTree = rootRouteImport

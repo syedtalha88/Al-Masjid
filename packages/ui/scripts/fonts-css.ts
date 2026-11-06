@@ -51,12 +51,13 @@ export function fontsCss(): string {
 }`,
   );
   const stacks = LOCALES.filter((locale) => locale !== 'en').map(
-    (locale) => `:root:lang(${locale}) {\n  --mc-font-ui: ${UI_FONT_STACK[locale]};\n}`,
+    (locale) => `:root:lang(${locale}),\n.mc-preview:lang(${locale}) {\n  --mc-font-ui: ${UI_FONT_STACK[locale]};\n}`,
   );
   return `${HEADER}
 ${faces.join('\n\n')}
 
-:root {
+:root,
+.mc-preview {
   --mc-font-ui: ${UI_FONT_STACK.en};
   --mc-font-arabic: ${ARABIC_FONT_STACK};
 }

@@ -180,7 +180,8 @@ jobs:
     # ubuntu-22.04 while GitHub's ubuntu-24.04 image runs kernel 7.0.0: MongoDB 8.x refuses to start on 6.19–7.0.13
     # (TCMalloc rseq crash, SERVER-121912; fixed kernel ≥ 7.0.14). Back to 24.04 then — DECISIONS #76, PROGRESS F35.
     runs-on: ubuntu-22.04
-    timeout-minutes: 45
+    # 60: Phase 03 added ~40 e2e specs (4-locale admin screens alone take ~6 min); a green run took 34 min (6 Nov 2026).
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -247,13 +248,6 @@ jobs:
       - name: Lighthouse diagnostics (annotation)
         if: failure() && hashFiles('lhci.log') != ''
         run: node scripts/ci-annotate.mjs 'lighthouse output' tail -n 80 lhci.log
-      # Pixel comparison only inside the pinned Playwright Linux image the baselines were made in (DECISIONS #103);
-      # the script reseeds the database as of the baselines' fixed instant, so today's seed is restored afterwards.
-      - name: Visual baselines (key screens × 4 locales × 2 phones)
-        run: |
-          pnpm test:visual
-          pnpm db:reset
-
       # The e2e image: hooks present and working through Caddy.
       - name: Test stack (runtime-test image) up
         run: node scripts/compose.mjs stack-test up --build
@@ -263,6 +257,14 @@ jobs:
         env:
           E2E_TEST_HOOKS: '1'
         run: pnpm exec playwright test e2e/smoke/test-hooks.spec.ts e2e/admin/ --project=pixel-7
+      # Pixel comparison only inside the pinned Playwright Linux image the baselines were made in (DECISIONS #103);
+      # the script reseeds the database as of the baselines' fixed instant and the spec pins the API clock to it through
+      # the test hooks (date windows such as "special dates of the last 7 days" follow the server clock — #112), so it
+      # runs on the test stack; today's seed is restored afterwards.
+      - name: Visual baselines (key screens × 4 locales × 2 phones)
+        run: |
+          pnpm test:visual
+          pnpm db:reset
 
       - name: Stack diagnostics (annotations)
         if: failure()

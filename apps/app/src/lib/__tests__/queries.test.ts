@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { createApiClient } from '../api/client.ts';
 import { PERSISTED_ROOTS, queryKeys } from '../api/keys.ts';
-import { bundleQuery, feedQuery, pruneStaleVersions, versionsQuery } from '../api/queries.ts';
+import { bundleQuery, feedQuery, previousBundle, pruneStaleVersions, versionsQuery } from '../api/queries.ts';
 import { memoryBackend } from '../device/store.ts';
 import { createQueryClient, createQueryPersistence, shouldPersistQuery } from '../query/persist.ts';
 
@@ -42,6 +42,7 @@ describe('versions → versioned bundle/feed queries', () => {
         await client.query(bundleQuery(api, id, v));
         await client.query(feedQuery(api, id, v, 'brothers'));
       }
+      pruneStaleVersions(client, versions); // Home again once the new bundles are in (old ones were placeholders)
     };
     await load();
     expect(bundles).toEqual([`${A}@3`, `${B}@7`]);
@@ -144,5 +145,30 @@ describe('persisted cache (01 §5.6)', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe('a new bundle version keeps the screen (T3.3)', () => {
+  it("the placeholder is the same masjid's newest older bundle — never another masjid's", () => {
+    const client = createQueryClient();
+    client.setQueryData(queryKeys.bundle(A, 2), { status: 'suspended', v: 2 });
+    client.setQueryData(queryKeys.bundle(A, 3), { status: 'suspended', v: 3 });
+    client.setQueryData(queryKeys.bundle(B, 9), { status: 'suspended', v: 9 });
+    expect(previousBundle(client, A, 4)).toEqual({ status: 'suspended', v: 3 });
+    expect(previousBundle(client, A, 3)).toEqual({ status: 'suspended', v: 2 });
+    expect(previousBundle(client, A, 2)).toBeUndefined();
+    expect(previousBundle(client, B, 7)).toBeUndefined(); // only older versions
+  });
+
+  it('pruning keeps the old bundle until the new version has loaded, then drops it', () => {
+    const client = createQueryClient();
+    client.setQueryData(queryKeys.bundle(A, 3), { status: 'suspended', v: 3 });
+    client.setQueryData(queryKeys.feed(A, 3, 'brothers'), { items: [], next: null });
+    const versions = { [A]: { v: 4, status: 'active' as const } };
+    expect(pruneStaleVersions(client, versions)).toBe(1); // the feed goes, the bundle is the placeholder
+    expect(client.getQueryData(queryKeys.bundle(A, 3))).toBeDefined();
+    client.setQueryData(queryKeys.bundle(A, 4), { status: 'suspended', v: 4 });
+    expect(pruneStaleVersions(client, versions)).toBe(1);
+    expect(client.getQueryData(queryKeys.bundle(A, 3))).toBeUndefined();
   });
 });

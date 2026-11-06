@@ -120,7 +120,7 @@ Tap → button `scale 0.92 → 1.06 → 1` (`spring.bouncy`), hands icon lifts `
 ### 5.9 Qibla compass
 - Heading updates arrive at sensor rate; never set React state per event. Pipe into a MotionValue through a low-pass filter (exponential smoothing α≈0.15, configurable) with **shortest-angle** interpolation (handle 359°→0° wrap) and render via `rotate` transform in rAF.
 - Alignment within ±3°: ring color transitions to primary-500, glow pulse (opacity 0.4 ↔ 0, 1.2 s), haptic once per entry into the aligned zone (debounced 1.5 s).
-- Calibration figure-8 animation: SVG path with a dot moving along it (loop).
+- No calibration animation (simple page — DECISIONS #118). Reduced motion: no pulse; the dial follows the heading without gliding.
 
 ### 5.10 Feedback surfaces
 - Toast: from top `y: -120% → 0` (`spring.snappy`), auto-dismiss 3 s, swipe up to dismiss.

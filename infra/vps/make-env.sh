@@ -136,6 +136,9 @@ PAYMENT_HOLD_MINUTES=$hold"
 web="APP_HOST=app$prefix.$DOMAIN
 ADMIN_HOST=admin$prefix.$DOMAIN
 MEDIA_ORIGIN=$media_origin
+MEDIA_HOST=media$prefix.$DOMAIN
+MEDIA_BACKEND=cloudinary
+CLOUDINARY_CLOUD_NAME=$(keep web.env CLOUDINARY_CLOUD_NAME g0ytozsb)
 CSP_CONNECT_EXTRA=$(old web.env CSP_CONNECT_EXTRA)
 APP_ROBOTS=$robots
 CADDY_TLS=origin"

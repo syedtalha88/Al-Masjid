@@ -21,7 +21,23 @@ import {
   Switch,
   Tag,
   useToast,
+  VoiceNote,
 } from '@mc/ui/components';
+import {
+  announcementTags,
+  DUA_TONE,
+  duaPerson,
+  eventLabel,
+  ItemIcon,
+  itemKind,
+  itemTitle,
+  janazaWhen,
+  libraryText,
+  TAG_TONE,
+  templatePhones,
+  useNoticeBody,
+  WhatsAppButton,
+} from '@mc/ui/content';
 import { BookmarkIcon, CalendarIcon, ClockIcon, CopyIcon, DownloadIcon, ShareIcon } from '@mc/ui/icons';
 import { Pressable } from '@mc/ui/motion';
 import { Screen, useNavigator, useScreen } from '@mc/ui/navigation';
@@ -32,20 +48,14 @@ import { templatesQuery } from '../../lib/api/queries.ts';
 import { now as correctedNow, useNow } from '../../lib/clock.ts';
 import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
 import { masjidName } from '../../lib/masjid.ts';
-import { mediaUrl } from '../../lib/media.ts';
+import { audioUrl, mediaUrl } from '../../lib/media.ts';
 import { ShareSheet } from '../masjid/components/ShareSheet.tsx';
-import { eventLabel, TAG_TONE } from './AnnouncementsScreen.tsx';
 import { ContentGate } from './components/ContentGate.tsx';
-import { DUA_TAG_TONE, janazaWhen } from './DuasScreen.tsx';
 import { useAmeen } from './hooks/useAmeen.ts';
 import { useItem } from './hooks/useItem.ts';
-import { useNoticeBody } from './hooks/useNoticeBody.ts';
 import { useSaved } from './hooks/useSaved.ts';
 import { useShareItem } from './hooks/useShareItem.ts';
-import { ItemIcon } from './ItemIcon.tsx';
 import { downloadFile, eventFile } from './lib/actions.ts';
-import { announcementTags, duaPerson, libraryText } from './lib/content-view.ts';
-import { itemKind, itemTitle } from './lib/item-view.ts';
 
 /** Reader text size steps (07 A8 A−/A+; the device store allows 0.8–1.6). */
 const SCALE_STEP = 0.1;
@@ -147,6 +157,22 @@ function useMasjidLabel(masjid: MasjidSummary | null): string | undefined {
   return masjid ? masjidName(masjid, locale) : undefined;
 }
 
+/** A post's voice note (07 A18): its title above (always shown with one) and the player. */
+function VoicePart({ item, showTitle }: { readonly item: FeedItem; readonly showTitle: boolean }) {
+  const { voice } = item;
+  if (!voice) return null;
+  return (
+    <section className="flex flex-col gap-2">
+      {showTitle && item.title ? (
+        <h3 dir="auto" className="type-headline text-text">
+          {item.title}
+        </h3>
+      ) : null}
+      <VoiceNote src={audioUrl(voice.key)} durationS={voice.durationS} peaks={voice.peaks} />
+    </section>
+  );
+}
+
 function ShareButton({ item, masjid }: DetailProps) {
   const { t } = useTranslation('content');
   const share = useShareItem();
@@ -175,7 +201,12 @@ function NoticeDetail({ item, masjid }: DetailProps) {
   const { api } = useAppData();
   const now = useNow();
   const templates = useQuery(templatesQuery(api)).data?.templates;
-  const body = useNoticeBody(item);
+  const body = useNoticeBody(item, templates);
+  // A template's phone params (the blood camp's organiser — T3.17): one WhatsApp button each.
+  const phones = templatePhones(
+    item,
+    templates?.find((entry) => entry.key === item.templateKey),
+  );
   const name = useMasjidLabel(masjid);
   const [viewing, setViewing] = useState(false);
   const title = itemTitle(item, locale, templates, tc(`item.${itemKind(item)}`));
@@ -221,6 +252,10 @@ function NoticeDetail({ item, masjid }: DetailProps) {
             {body}
           </p>
         ) : null}
+        {phones.map((number) => (
+          <WhatsAppButton key={number} number={number} label={tc('ui.camp.contact')} />
+        ))}
+        <VoicePart item={item} showTitle={false} />
         {photo ? (
           <>
             <Pressable
@@ -340,8 +375,12 @@ function Reader({ item, masjid }: DetailProps) {
               <span aria-hidden>A+</span>
             </Button>
           </div>
-          <span className="type-caption text-text-tertiary">{format.date(new Date(item.publishedAt), 'medium')}</span>
+          <span className="type-caption text-text-tertiary">
+            {format.date(new Date(item.publishedAt), 'medium')}
+            {item.editedAt ? ` · ${t('edited')}` : ''}
+          </span>
         </div>
+        <VoicePart item={item} showTitle />
         <Card className="flex flex-col gap-4 text-center">
           <ArabicText variant="hero" scale={scale}>
             {library.arabic}
@@ -433,9 +472,10 @@ function DuaDetail({ item, masjid }: DetailProps) {
           <ItemIcon item={item} size={56} />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <span className="flex flex-wrap items-center gap-2">
-              <Tag tone={DUA_TAG_TONE[dua.category]}>{t(`tag.${dua.category}`)}</Tag>
+              <Tag tone={DUA_TONE[dua.category]}>{t(`tag.${dua.category}`)}</Tag>
               <span className="type-caption text-text-tertiary">
                 {format.relative(new Date(item.publishedAt), now)}
+                {item.editedAt ? ` · ${t('edited')}` : ''}
               </span>
             </span>
             <h2 className="type-title2 text-text">{t('requestForDua')}</h2>
@@ -451,6 +491,7 @@ function DuaDetail({ item, masjid }: DetailProps) {
             {item.body}
           </p>
         ) : null}
+        <VoicePart item={item} showTitle />
         {dua.library && text ? (
           <DuaBox
             size="lg"

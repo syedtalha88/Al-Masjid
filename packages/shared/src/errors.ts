@@ -12,6 +12,7 @@ export const API_ERRORS = {
   INVALID_JSON: 400,
   PAYLOAD_TOO_LARGE: 413,
   UNSUPPORTED_MEDIA_TYPE: 415,
+  UPLOAD_INVALID: 400, // multipart: no file, extra parts or fields (Phase 3)
   CORS_NOT_ALLOWED: 403,
   INTERNAL_ERROR: 500,
   // Rate limits and availability (03 §2, 01 §10)
@@ -41,6 +42,38 @@ export const API_ERRORS = {
   // Public API (03 §3, Phase 2)
   ITEM_NOT_FOUND: 404,
   TURNSTILE_FAILED: 403,
+  // Content Library (03 §5, Phase 3)
+  LIBRARY_ENTRY_NOT_FOUND: 404,
+  LIBRARY_DUPLICATE: 409,
+  // Notice templates (03 §5, Phase 3)
+  TEMPLATE_NOT_FOUND: 404,
+  TEMPLATE_EXISTS: 409,
+  TEMPLATE_REVIEW_REQUIRED: 409,
+  // Masjid admin content (03 §4, Phase 3)
+  PRECONDITION_FAILED: 412, // If-Match: someone else saved in between
+  TIMINGS_INVALID: 400,
+  NOTIFY_QUOTA_EXCEEDED: 409,
+  ACTIVATION_TIMINGS_REQUIRED: 409,
+  SPECIAL_DATE_NOT_FOUND: 404,
+  SPECIAL_DATE_INVALID: 400,
+  RAMADAN_INVALID: 400,
+  IMAGE_INVALID: 422, // not an accepted photo, HEIC, over 40 MP, corrupt (T3.6)
+  ANNOUNCEMENT_INVALID: 400, // template params, another masjid's photo, event time out of range (T3.6)
+  DUA_INVALID: 400, // janaza time out of range (T3.8)
+  EDIT_WINDOW_CLOSED: 409, // a post is editable for 24 h after publishing (00 §4.3, T3.9)
+  ITEM_NOT_EDITABLE: 409, // timing updates and later types are not edited in B12 (T3.9)
+  AUDIO_INVALID: 422, // not an accepted recording by its first bytes (T3.13)
+  AUDIO_TOO_LONG: 422, // over 10 minutes (04 R14, T3.13)
+  VOICE_INVALID: 400, // another masjid's recording, or a voice note without a title (T3.13)
+  PROFILE_INVALID: 400, // another masjid's photo, Hijri offset outside −2…+2, nothing to change (T3.10)
+  ADHKAR_INVALID: 400, // over 30 entries or one listed twice (T3.14)
+  RUQYAH_INVALID: 400, // a recording without the ownership tick or title, or another masjid's (T3.15)
+  RUQYAH_NOT_FOUND: 404, // unknown or deleted Ruqyah entry (T3.15)
+  RUQYAH_LIMIT_REACHED: 409, // 50 active entries (00 §4.10, T3.15)
+  RUQYAH_ORDER_INVALID: 409, // the order names a missing, extra or deleted entry — the list changed (T3.15)
+  CONTACT_INVALID: 400, // no consent, or a number not in E.164 (T3.16)
+  CONTACT_NOT_FOUND: 404, // unknown or deleted Ilm contact (T3.16)
+  CONTACT_LIMIT_REACHED: 409, // 10 active contacts (00 §4.12, T3.16)
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

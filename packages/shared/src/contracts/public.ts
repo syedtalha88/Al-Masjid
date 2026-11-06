@@ -172,6 +172,41 @@ export const specialDateSchema = z.object({
 });
 export type SpecialDate = z.infer<typeof specialDateSchema>;
 
+/** A verified Content Library entry (Arabic, transliterations, translations, attribution — 05 §9). */
+export const libraryEntrySchema = z.object({
+  id: uuidText,
+  kind: z.enum(['hadith', 'ayah', 'dua', 'dhikr']),
+  arabic: z.string(),
+  transliteration: i18nOptional,
+  translation: z.object({
+    en: z.string(),
+    hi: z.optional(z.string()),
+    ur: z.optional(z.string()),
+    te: z.optional(z.string()),
+  }),
+  reference: z.string(),
+  sourceName: z.string(),
+  sourceLicense: z.string(),
+  /** kind `dhikr` (DECISIONS #104): times it is said, and when. */
+  repeat: z.optional(z.number().check(z.int(), z.minimum(1), z.maximum(1000))),
+  occasions: z.optional(z.array(z.enum(['after_salah', 'morning', 'evening']))),
+});
+export type LibraryEntry = z.infer<typeof libraryEntrySchema>;
+
+/**
+ * An Ilm contact (A21, PHASE_03 T3.16): a volunteer the masjid lists with their consent. `whatsapp` (E.164) only builds
+ * the `wa.me` link — the app never prints it.
+ */
+export const ilmContactSchema = z.object({
+  id: uuidText,
+  name: z.string(),
+  role: z.optional(z.string()),
+  topics: z.optional(z.string()),
+  whatsapp: z.string().check(z.regex(/^\+[1-9][0-9]{6,14}$/)),
+  audience: AUDIENCE_PREF,
+});
+export type IlmContact = z.infer<typeof ilmContactSchema>;
+
 /** `GET /masjids/:id/bundle?v=` — everything a follower needs offline (01 §5.2). */
 export const masjidBundleSchema = z.discriminatedUnion('status', [
   z.object({
@@ -201,6 +236,18 @@ export const masjidBundleSchema = z.discriminatedUnion('status', [
         iftarPrecautionMin: intIn(0, 10),
       }),
     ),
+    /** "Adhkar after salah" (A20, DECISIONS #104): the masjid's `dhikr` entries in order; `null` when off or empty. */
+    adhkar: z.nullable(z.object({ entries: z.array(libraryEntrySchema) })),
+    /**
+     * How many entries the masjid's sections have, so Masjid Detail shows their rows without loading the lists (03 §3,
+     * DECISIONS #104). Optional: a bundle cached before T3.15 has none (= no rows).
+     */
+    sections: z.optional(z.object({ ruqyah: intIn(0, 1000), needy: intIn(0, 1000) })),
+    /**
+     * Ilm contacts (A21, DECISIONS #104): both audiences — the app shows the device's own (a display filter, not access
+     * control). Optional: a bundle cached before T3.16 has none (= no row).
+     */
+    contacts: z.optional(z.array(ilmContactSchema)),
     /** Phase 5 (donations): present but empty until then. */
     payment: z.nullable(z.object({ vpa: z.string(), payeeName: z.string(), effectiveAt: instant })),
     campaigns: z.array(z.object({ publicId: publicIdText })),
@@ -211,6 +258,49 @@ export const masjidBundleSchema = z.discriminatedUnion('status', [
 ]);
 export type MasjidBundle = z.infer<typeof masjidBundleSchema>;
 export type ActiveMasjidBundle = Extract<MasjidBundle, { status: 'active' }>;
+
+// --- GET /masjids/:id/ruqyah?v= (A19, PHASE_03 T3.15) -------------------------------------------------------------
+
+/** The Ruqyah headings, in the order A19 shows them (DECISIONS #104). */
+export const RUQYAH_CATEGORY_VALUES = ['nazar', 'sihr', 'shifa', 'protection', 'general'] as const;
+export type RuqyahCategoryValue = (typeof RUQYAH_CATEGORY_VALUES)[number];
+
+/**
+ * One entry: a verified library entry (`library`, with its source line), text the masjid entered (`text` — shown as
+ * "Added by <masjid>", never with a source), or a recording (`audio` — the app plays `<media origin>/a/m4a/<key>`).
+ */
+export const ruqyahEntrySchema = z.object({
+  id: uuidText,
+  category: z.enum(RUQYAH_CATEGORY_VALUES),
+  source: z.enum(['library', 'text', 'audio']),
+  title: z.optional(z.string()),
+  library: z.optional(libraryEntrySchema),
+  text: z.optional(
+    z.object({
+      arabic: z.string(),
+      translation: z.string(),
+      translationLocale: LOCALE,
+      reference: z.optional(z.string()),
+    }),
+  ),
+  audio: z.optional(
+    z.object({
+      key: z.string(),
+      durationS: intIn(1, 600),
+      peaks: z.optional(z.array(intIn(0, 255))),
+    }),
+  ),
+  /** Written by the masjid (e.g. when to listen), in `instructionsLocale`. */
+  instructions: z.optional(z.string()),
+  instructionsLocale: z.optional(LOCALE),
+});
+export type RuqyahEntry = z.infer<typeof ruqyahEntrySchema>;
+
+/** The masjid's entries under their headings (only non-empty ones, in A19 order), each in the masjid's order. */
+export const ruqyahListSchema = z.object({
+  sections: z.array(z.object({ category: z.enum(RUQYAH_CATEGORY_VALUES), entries: z.array(ruqyahEntrySchema) })),
+});
+export type RuqyahList = z.infer<typeof ruqyahListSchema>;
 
 // --- follows -----------------------------------------------------------------------------------------------------------
 
@@ -225,24 +315,6 @@ export const followListSchema = z.object({
 export type FollowList = z.infer<typeof followListSchema>;
 
 // --- content -----------------------------------------------------------------------------------------------------------
-
-/** A verified Content Library entry (Arabic, transliterations, translations, attribution — 05 §9). */
-export const libraryEntrySchema = z.object({
-  id: uuidText,
-  kind: z.enum(['hadith', 'ayah', 'dua']),
-  arabic: z.string(),
-  transliteration: i18nOptional,
-  translation: z.object({
-    en: z.string(),
-    hi: z.optional(z.string()),
-    ur: z.optional(z.string()),
-    te: z.optional(z.string()),
-  }),
-  reference: z.string(),
-  sourceName: z.string(),
-  sourceLicense: z.string(),
-});
-export type LibraryEntry = z.infer<typeof libraryEntrySchema>;
 
 /**
  * A notice template parameter value (`items.template_params`): times "HH:mm", dates "YYYY-MM-DD", ranges as
@@ -269,6 +341,14 @@ export const feedItemSchema = z.object({
   image: z.optional(mediaImageSchema),
   publishedAt: instant,
   editedAt: z.optional(instant),
+  /** A voice note (T3.13): the app plays `<media origin>/a/m4a/<key>`; `peaks` draw the waveform. */
+  voice: z.optional(
+    z.object({
+      key: z.string(),
+      durationS: z.number().check(z.int(), z.minimum(1), z.maximum(600)),
+      peaks: z.optional(z.array(z.number().check(z.int(), z.minimum(0), z.maximum(255)))),
+    }),
+  ),
   announcement: z.optional(
     z.object({ category: z.enum(['general', 'event', 'facilities', 'timing']), eventAt: z.optional(instant) }),
   ),
@@ -339,7 +419,7 @@ export const noticeTemplateSchema = z.object({
   params: z.array(
     z.object({
       name: z.string(),
-      type: z.enum(['time', 'date', 'date_range', 'time_range', 'prayer', 'number', 'short_text']),
+      type: z.enum(['time', 'date', 'date_range', 'time_range', 'prayer', 'number', 'short_text', 'phone']),
       required: z.boolean(),
     }),
   ),

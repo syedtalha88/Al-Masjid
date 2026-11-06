@@ -9,12 +9,15 @@ import { followByCode } from '../support/device.ts';
 // over 50 ms, < 5 % dropped frames, no forced layout from animation frames. (Qibla rotation: Phase 7.) Runs in the
 // `perf` project (`pnpm test:perf`, one worker). Needs the dev seed.
 
-// NOT YET GREEN (DECISIONS #103, PROGRESS F46): written in T2.14, this spec found 100–130 ms taps on the real screens;
-// fixes in T2.14 (forced layouts in ChipGroup / UnderlineTabs / Masjid Detail, stable navigator context, one Date per
-// minute, pushed screens rendered as a transition) brought them to ≈ 50–75 ms at 4× CPU, but long tasks, dropped
-// frames (6–13 %) and one forced layout on sheet open remain over the 08 §8 limits. The navigator (navigation.perf)
-// and the Updates fling pass those limits in CI. Re-enable when F46 is done.
-test.fixme(true, 'F46 — real-screen motion budget not met yet (DECISIONS #103)');
+// F46 (PHASE_03 T3.0): fixed by applying navigation as a React transition, stable screen-slot props, stable query
+// results (`combine`), motion promises resolved after the frame, and no layout reads during sheet drags. `pnpm
+// test:perf` repeats every perf spec 3× (DECISIONS #105).
+
+// Owner, 3 Nov 2026 (DECISIONS #116): T3.0 accepted with a small tolerance — CI measured 52–63 ms long tasks on
+// push/pop and 7 % dropped frames on tab switches against 08 §8's 50 ms / 5 %. These real screens fail only beyond
+// 65 ms / 8 %; forced layouts in animation frames stay a hard failure, and the navigator and Updates-fling specs keep
+// the strict numbers.
+const TOLERANCE = { longTaskMs: 65, maxDroppedRatio: 0.08 } as const;
 
 const top = (page: Page) => page.locator('section[data-screen]:not([inert])');
 const tab = (page: Page, name: RegExp) => page.getByRole('navigation', { name: 'Main' }).getByRole('button', { name });
@@ -75,7 +78,7 @@ test('Home → Masjid Detail push, swipe-back pop', async ({ page, perfTrace }) 
     await expect(page).toHaveURL(`${APP_URL}/`);
     await settle(page);
   }
-  expectSmooth(await perfTrace.stop());
+  expectSmooth(await perfTrace.stop({ longTaskMs: TOLERANCE.longTaskMs }), TOLERANCE);
 });
 
 test('tab switches: Home → My Masjids → Updates → Settings → Home', async ({ page, perfTrace }) => {
@@ -95,7 +98,7 @@ test('tab switches: Home → My Masjids → Updates → Settings → Home', asyn
   await round(); // warm-up: every tab's code and data once
   await perfTrace.start();
   await round();
-  expectSmooth(await perfTrace.stop());
+  expectSmooth(await perfTrace.stop({ longTaskMs: TOLERANCE.longTaskMs }), TOLERANCE);
 });
 
 test('sheet: open, drag, dismiss (My Masjids → Add Masjid)', async ({ page, perfTrace }) => {
@@ -119,5 +122,5 @@ test('sheet: open, drag, dismiss (My Masjids → Add Masjid)', async ({ page, pe
   await dragDown(page, 300, 6); // long drag: dismisses
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await settle(page);
-  expectSmooth(await perfTrace.stop());
+  expectSmooth(await perfTrace.stop({ longTaskMs: TOLERANCE.longTaskMs }), TOLERANCE);
 });

@@ -12,9 +12,14 @@
     "./hijri": "./src/hijri.ts",
     "./ics": "./src/ics.ts",
     "./money": "./src/money.ts",
+    "./phone": "./src/phone.ts",
     "./prayer": "./src/prayer.ts",
+    "./rotation": "./src/rotation.ts",
+    "./search": "./src/search.ts",
+    "./special": "./src/special.ts",
     "./thumbhash": "./src/thumbhash.ts",
-    "./time": "./src/time.ts"
+    "./time": "./src/time.ts",
+    "./timings": "./src/timings.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

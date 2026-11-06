@@ -1,8 +1,9 @@
 import { type MasjidSchedule, nextJamaat, resolveSchedule } from '@mc/domain/prayer';
 import type { SpecialDate } from '@mc/shared/contracts/public';
+import { timingRows } from '@mc/ui/content';
 import { describe, expect, it } from 'vitest';
 
-import { clampToRange, nextRowKey, timingRows, upcomingSpecials } from '../timings-view.ts';
+import { clampToRange, nextRowKey, upcomingSpecials } from '../timings-view.ts';
 
 // A6 acceptance: the times shown are exactly `@mc/domain`'s output for the masjid's configuration.
 

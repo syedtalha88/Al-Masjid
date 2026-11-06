@@ -241,6 +241,8 @@ describe('DatePickerSheet', () => {
         max="2026-10-15"
       />,
     );
+    // The modal opens in the task after the commit (Sheet: showModal is kept out of the tap's task — T3.0).
+    await screen.findByRole('dialog', { name: 'Choose date' });
     expect(screen.getByText('September 2026')).toBeTruthy();
     const selected = screen.getByRole('button', { name: 'Saturday, 26 September 2026' });
     expect(selected.getAttribute('aria-pressed')).toBe('true');
@@ -257,6 +259,7 @@ describe('DatePickerSheet', () => {
     await renderUi(
       <DatePickerSheet open onClose={vi.fn()} title="Date" value="2026-09-30" onChange={vi.fn()} today="2026-09-01" />,
     );
+    await screen.findByRole('dialog', { name: 'Date' });
     const start = screen.getByRole('button', { name: 'Wednesday, 30 September 2026' });
     start.focus();
     fireEvent.keyDown(start, { key: 'ArrowRight' });

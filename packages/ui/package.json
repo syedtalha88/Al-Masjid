@@ -14,6 +14,8 @@
     "./fonts": "./src/fonts/fonts.ts",
     "./components": "./src/components/index.ts",
     "./admin": "./src/admin/index.ts",
+    "./content": "./src/content/index.ts",
+    "./content/blood-camp": "./src/content/BloodCampCard.tsx",
     "./icons": "./src/icons/index.ts",
     "./motion": "./src/motion/index.ts",
     "./navigation": "./src/navigation/index.ts",
