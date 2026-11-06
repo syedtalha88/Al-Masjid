@@ -39,6 +39,8 @@ let inFlight = 0;
  */
 export function readUpload(req: Request, limits: { readonly maxBytes: number }): Promise<Upload> {
   if (inFlight >= MAX_UPLOADS_IN_FLIGHT) {
+    // The body is read and dropped (never kept), so the client finishes sending and reads the 503 instead of a reset.
+    req.resume();
     return Promise.reject(
       new ApiProblem(503, 'SERVICE_UNAVAILABLE', 'Another upload is in progress.', undefined, { 'Retry-After': '5' }),
     );

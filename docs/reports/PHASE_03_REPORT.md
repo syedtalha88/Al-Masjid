@@ -5,7 +5,8 @@
 > Two things the owner should know first:
 > - Photos and voice notes on staging need the rest of **O25**: seven Cloudinary templates and strict mode, done in the
 >   console (§7).
-> - Three acceptance criteria are met another way. They are listed in §5 (DECISIONS #135).
+> - Three acceptance criteria are met another way. They are listed in §5 (DECISIONS #135); please confirm them
+>   when you sign off.
 
 **Date:** 6 Nov 2026 · **Commit range:** `cdd39fa..HEAD` on `feat/phase-03` (123 commits; Phase 03 started
 27 Oct 2026) · **Staging URLs:** app https://app-staging.almasjids.com · admin https://admin-staging.almasjids.com ·
@@ -30,7 +31,7 @@ needs at most 6 taps per task, measured in e2e.
 
 | Task | Status | Key files | Tests / evidence |
 |---|---|---|---|
-| T3.0 Real-screen motion budget (F46) | ✅ owner tolerance (#116) | navigator, ChipGroup, sheets | `screens.perf.spec.ts` within 65 ms / 8 % (strict 08 §8 kept for navigator + fling); Scan modal axe-clean (#135) |
+| T3.0 Real-screen motion budget (F46) | ✅ owner tolerance (#116) | navigator, ChipGroup, sheets | `screens.perf.spec.ts` within 65 ms / 8 % (strict 08 §8 kept for navigator + fling); CI perf green on `cb1649a`, `b72a5c5`, `aea4aba`; Scan modal axe-clean (#135) |
 | T3.1 Admin Home | ✅ (inbox banner later — §5) | `apps/admin/src/routes/index.tsx`, `repos/admin.ts` | `screens.spec` b3, `use-masjid-home.test.tsx` |
 | T3.2 Timings editor (B4) | ✅ | `features/timings/`, `state/timings.ts` | journey 6 `timings.spec.ts` (controlled clock), `use-timings-editor.test.tsx` (#115) |
 | T3.3 Special dates & Ramadan (B11) | ✅ | `features/special/`, `@mc/domain/special` | `special.spec.ts`, `use-special.test.tsx` (#117) |
@@ -106,7 +107,7 @@ right order.
   on staging (#135).
 - **F50 polish moved to Phase 9:** the upload progress ring and the Home tile's "just published" pulse (#135).
 - **T3.0 motion** — passes within the owner-accepted tolerance of 65 ms / 8 % (#116), not the strict 08 §8 numbers.
-- **T3.1 inbox banner** — waits for the inbox it points to (Phase 5 / Phase 8).
+- **T3.1 inbox banner** — waits for the inbox it points to (Phase 5 / Phase 8; F57).
 - **Initial JS 186.61 kB** — over the original 170 kB target, within the owner's 187 kB limit (O24, quality over
   bundle size).
 
