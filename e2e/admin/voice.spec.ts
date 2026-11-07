@@ -145,7 +145,9 @@ test.describe('B14 voice notes (T3.13)', () => {
     // CI's Chromium sometimes reports a media error for the local file store's WAV (passes locally; staging serves
     // Cloudinary's AAC) — tracked as PROGRESS F59; real playback is owner check 3.14.
     if (!process.env['CI']) await expect(note.getByText('Available when online')).toHaveCount(0);
-    await note.getByRole('button', { name: /^(Pause|Play)$/ }).click(); // stop before the screenshots
+    // Stop before the screenshots — when it plays (on CI it may not: F59).
+    const toggle = note.getByRole('button', { name: /^(Pause|Play)$/ });
+    if (await toggle.isEnabled()) await toggle.click();
 
     // A18 in every language (PHASE_03 exit: screenshots in 4 locales): axe clean, Urdu mirrored, the times LTR.
     const detail = musalli.url();
