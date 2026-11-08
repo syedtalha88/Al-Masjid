@@ -55,7 +55,13 @@ const REMOVAL = { removeOnComplete: { age: DAY_S }, removeOnFail: { age: 7 * DAY
 /** Defaults per job (attempts, exponential backoff in ms — BullMQ waits `delay × 2^(attempt−1)`). */
 export const JOB_DEFAULTS: Readonly<Record<JobName, JobsOptions>> = {
   'push-fanout': { attempts: 5, backoff: { type: 'exponential', delay: 5_000 }, ...REMOVAL },
-  'push-send-batch': { attempts: 5, backoff: { type: 'exponential', delay: 10_000 }, ...REMOVAL },
+  // A send batch lists device ids of one masjid's followers: failed ones go after a day too (security review L10, #142).
+  'push-send-batch': {
+    attempts: 5,
+    backoff: { type: 'exponential', delay: 10_000 },
+    ...REMOVAL,
+    removeOnFail: { age: DAY_S },
+  },
   'alert-send': { attempts: 5, backoff: { type: 'exponential', delay: 30_000 }, ...REMOVAL },
   'outbox-sweeper': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
 };

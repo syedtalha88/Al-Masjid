@@ -159,6 +159,20 @@ describe('clear all data (05 §4, journey 12)', () => {
     await wipeCachedContent({ caches: { delete: () => Promise.reject(new Error('blocked')) }, queryCache });
   });
 
+  it('ends the browser push subscription too — online and while the deletion waits offline (review L9, #142)', async () => {
+    let unsubscribed = 0;
+    const unsubscribe = () => {
+      unsubscribed += 1;
+      return Promise.resolve();
+    };
+    mode = 'offline';
+    expect(await clearAllData(deps, undefined, unsubscribe)).toBe('queued'); // the server record is deleted later
+    expect(unsubscribed).toBe(1);
+    mode = 'ok';
+    expect(await clearAllData(deps, undefined, unsubscribe)).toBe('deleted');
+    expect(unsubscribed).toBe(2);
+  });
+
   it('offline: the phone is cleared now; the old record is deleted when the connection returns', async () => {
     mode = 'offline';
     expect(await clearAllData(deps)).toBe('queued');

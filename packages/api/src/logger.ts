@@ -19,6 +19,17 @@ export const REDACT_PATHS = [
   'whatsapp', // Ilm contact numbers (T3.16)
   'endpoint', // push subscriptions (T4.2): a capability URL
   'p256dh',
+  'auth', // the push subscription's auth secret (security review L7, #142)
+  'push_endpoint',
+  'push_p256dh',
+  'push_auth',
+  '*.*.endpoint',
+  '*.*.p256dh',
+  '*.*.auth',
+  '*.push_endpoint',
+  '*.push_p256dh',
+  '*.push_auth',
+  '*.auth',
   // Passkey material and other never-log fields (CLAUDE.md §6; WebAuthn arrives in Phase 1).
   'email',
   'pepper',

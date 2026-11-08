@@ -6,8 +6,10 @@ vulnerabilities:
   # distroless digest yet). Not loaded by our process: the official Node binary does not link the system zlib (it uses
   # its bundled zlib 1.3.2.1) and a running distroless Node process maps no libz; `node` is the image's only executable.
   - id: CVE-2026-76844
+    purls: ['pkg:deb/debian/zlib1g@1.3.dfsg%2Breally1.3.1-1%2Bb1'] # this package version only (review L8)
     statement: system zlib1g in the distroless base is never loaded by node (DECISIONS #141)
     expired_at: 2026-11-15
   - id: CVE-2026-85091
+    purls: ['pkg:deb/debian/zlib1g@1.3.dfsg%2Breally1.3.1-1%2Bb1'] # this package version only (review L8)
     statement: system zlib1g in the distroless base is never loaded by node (DECISIONS #141)
     expired_at: 2026-11-15

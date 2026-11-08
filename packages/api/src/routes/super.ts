@@ -542,7 +542,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       path: '/settings/push-pause',
       summary: '★ Pause or resume every notification (kill switch, C10 — jobs wait and continue on resume)',
       tags: ['super'],
-      auth: 'super',
+      auth: 'super_step_up', // ★ at the route too (04 §5); setPushPaused checks it again
       rateLimit: writes,
       request: { body: pushPauseRequestSchema },
       responses: { 200: pushPauseResponseSchema },

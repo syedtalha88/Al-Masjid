@@ -103,17 +103,33 @@ export async function wipeCachedContent(content: CachedContent = defaultCachedCo
   ]);
 }
 
+/** Ends this browser's push subscription (best effort: no worker, no subscription or an error is not a failure). */
+export type PushUnsubscribe = () => Promise<void>;
+
+const browserPushUnsubscribe: PushUnsubscribe = async () => {
+  try {
+    if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return;
+    const registration = await navigator.serviceWorker.getRegistration(); // never waits like `ready` can
+    await (await registration?.pushManager.getSubscription())?.unsubscribe();
+  } catch {
+    // Unsupported or already gone: nothing to end.
+  }
+};
+
 /**
  * Clear all data (05 §4): deletes this device's server record (its follows and Ameens go with it — 02 §5), then wipes
- * the phone's copy back to a fresh state in the current language (the app shows onboarding) and empties the cached
- * content ({@link wipeCachedContent}). Offline, the phone is cleared at once and only the old credentials stay, to
- * delete the server record later ({@link finishPendingDeletion}). The caller clears the in-memory query cache.
+ * the phone's copy back to a fresh state in the current language (the app shows onboarding), empties the cached
+ * content ({@link wipeCachedContent}) and ends the browser's push subscription, so no notification arrives even
+ * while an offline deletion waits (security review L9). Offline, the phone is cleared at once and only the old
+ * credentials stay, to delete the server record later ({@link finishPendingDeletion}). The caller clears the
+ * in-memory query cache.
  *
  * @returns `deleted` or `queued`.
  */
 export async function clearAllData(
   deps: SyncDeps,
   cached: CachedContent = defaultCachedContent(),
+  unsubscribePush: PushUnsubscribe = browserPushUnsubscribe,
 ): Promise<'deleted' | 'queued'> {
   const credentials = deps.store.current().credentials;
   let queued = false;
@@ -129,6 +145,7 @@ export async function clearAllData(
   }
   await deps.store.clear();
   await wipeCachedContent(cached);
+  await unsubscribePush();
   if (queued && credentials) {
     await deps.store.update((current) => ({ ...current, pendingDeletion: credentials }));
   }
