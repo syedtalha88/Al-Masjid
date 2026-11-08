@@ -2,7 +2,7 @@ import { expect, test } from '@mc/config/playwright';
 import { devices } from '@playwright/test';
 
 import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
-import { followByCode, registerDevice } from '../support/device.ts';
+import { awaitFollowsSynced, followByCode, registerDevice } from '../support/device.ts';
 import {
   awaitNewestJob,
   awaitPushes,
@@ -105,6 +105,7 @@ test.describe('B5 notice creator (T3.6)', () => {
       await followByCode(musalli, APP_URL, [followCode]);
       const subscription = fakeSubscription(); // notifications on for this phone (T4.9)
       await subscribeDevice(musalli, subscription);
+      await awaitFollowsSynced(musalli); // the reach line and the job count only synced follows
       await musalli.goto(`${APP_URL}/masjid/${masjidId}/announcements`);
       await expect(musalli.locator('html')).toHaveAttribute('lang', 'te');
 
@@ -156,6 +157,8 @@ test.describe('B5 notice creator (T3.6)', () => {
       await expect(admin.locator('[data-preview-locale="te"]').getByText('నీటి సరఫరా నిలిపివేత')).toBeVisible();
       await expect(admin.getByText('Followers see the photo when they open the notice.')).toBeVisible();
       await expect(admin.getByRole('switch', { name: 'Notify followers' })).toHaveAttribute('aria-checked', 'true');
+      // The Publish bar's reach = the followers with notifications on (one here) and today's quota (#143).
+      await expect(admin.getByText('Will notify 1 person · 8 of 8 left today')).toBeVisible();
       await admin.getByRole('button', { name: 'Publish', exact: true }).click();
       await expect(admin.getByRole('heading', { name: 'Published' })).toBeVisible();
       await expect(admin.getByText('1 person will be notified.')).toBeVisible(); // the one follower with push on

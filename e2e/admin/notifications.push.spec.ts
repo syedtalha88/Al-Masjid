@@ -64,6 +64,8 @@ test.describe('push end to end (T4.9)', () => {
   test('Settings → on; a notice reaches both phones in their language; the SW shows it; the kill switch holds it', async ({
     page,
     browser,
+    expectAxeClean,
+    capture,
   }) => {
     test.setTimeout(300_000);
     await resetRateLimits(page.request);
@@ -232,7 +234,15 @@ test.describe('push end to end (T4.9)', () => {
       expect(await capturedPushes(page.request, brother.endpoint)).toHaveLength(1);
       expect((await awaitNewestJob(admin.request, masjidId, 'pending')).sent).toBe(0);
 
+      // The Super Admin's dashboard says so while paused (07 C1 — verifier gap, DECISIONS #143).
+      await page.goto(`${ADMIN_URL}/super`);
+      await expect(page.getByText(label('en', 'super', 'push.pausedBanner'))).toBeVisible();
+      await page.waitForTimeout(400); // the screen settles before the shot
+      await expectAxeClean();
+      await capture('c1-push-paused');
+
       // Resume (no confirmation, the step-up is still fresh): the waiting notification goes out.
+      await page.goto(`${ADMIN_URL}/super/settings`);
       await page.getByRole('switch', { name: /^Pause all notifications/ }).click();
       await expect(page.getByRole('paragraph').filter({ hasText: 'Notifications resumed' })).toBeVisible();
       paused = false;

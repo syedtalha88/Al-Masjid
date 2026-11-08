@@ -18,28 +18,32 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (8 Nov 2026, evening — Phase 04: all built, T4.9 run locally, CI next)
+## ▶ Next session — start here (8 Nov 2026, late — Phase 04: deploy to staging pending CI)
 
-**State:** branch `feat/phase-04` (pushed; `ci/phase-04` carries the same HEAD for CI). T4.1–T4.5, T4.7, T4.8 ticked.
-T4.9 run locally (see checklist) — **one product bug found and fixed** (#140): a send batch that counted off before the
-fan-out recorded its page stranded the job (`pending_batches` now a balance — **migration 0017** — and a failed counter
-write releases the Redis ledger claim). Also: a disabled `Switch` keeps its text readable (axe), musalli initial JS
-188 kB, test races fixed (`seedOnboardedDevice`, `awaitFollowsSynced`). Docs 01/02/05/07/10 updated; O37/O38 added.
+**Owner asked (8 Nov 2026): deploy Phase 03 + 04 to staging now; the owner tests on the phone** (guide given:
+`owner/PHASE_TESTING_GUIDE.md` → Phase 03 + Phase 04). Owner must do **O37** (VAPID keys) before push works and **O25**
+for photos / voice.
 
-**Local note (8 Nov 2026):** Docker/WSL "hung" because the PC had not really restarted since 24 Oct — Windows Fast
-Startup makes "Shut down" a hibernate. Only **Restart** clears a stuck WSL (or disable Fast Startup).
+**State:** `feat/phase-04` pushed (HEAD = the progress commit after `fde9e4f`). `ci/phase-04` = `bd4845b` — its CI run was
+in progress at hand-off (check: `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-04`; the
+anonymous API limit is 60/h — poll sparingly). Previous run `64b0234`: Trivy, e2e (254 + 1 flaky), perf green;
+integration (db coverage) and warm Lighthouse red — both fixed since (#142, #143). Security review + phase-verifier done
+and fixed (DECISIONS #141 owner-approved Trivy ignore to 15 Nov — F61; #142 M1–M3 + lows, Topic dropped by the owner;
+#143 Super Admin passkey alert bug, docs, F38/F59/F60).
 
 **Do next:**
-1. Check CI on `ci/phase-04` (curl `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-04`). The
-   musalli cold LCP is judged there (2689 ms locally = the known local miss). Fix what fails; then tick T4.9.
-2. T4.6 needs only the owner's check on staging (O38) after the deploy.
-3. Phase close (CLAUDE.md §5) — after Phase 03's staging deploy (O25 rest) and the owner's O37 (VAPID keys) before the
-   Phase 04 deploy; then the Phase 04 report, phase-verifier, security-reviewer, `owner/PHASE_TESTING_GUIDE.md` Phase 04
-   section (O38 steps).
+1. If CI on `bd4845b` is green: push `feat/phase-04` to `ci/phase-04` once more (newer test commits) and, when green,
+   **merge `feat/phase-04` into `main` and push** — `release-staging` builds, the server's deploy timer installs it and
+   runs migrations 0013–0017. Tell the owner "staging is live". If red: fix first.
+2. **Unverified at hand-off** (written, lint + typecheck clean, not yet run): e2e C1 paused banner shot in
+   `notifications.push.spec.ts` and the Publish-bar reach assertion + `awaitFollowsSynced` in `notice.spec.ts`. Run:
+   `pnpm stack:up:test` → `git checkout -- apps/admin/src/routeTree.gen.ts` → push spec (`--project=push`) and
+   notice/timings/dua (`--project=pixel-7`), `--workers=1`, `E2E_TEST_HOOKS=1 NODE_OPTIONS=--require <scratchpad>/localhost-shim.cjs`.
+3. Then tick T4.9 (all #143 test gaps are now written), write `docs/reports/PHASE_04_REPORT.md` (T4.8 table from the
+   evidence file), re-run `security-reviewer` on the #142/#143 fixes. T4.6 waits for the owner's O38.
 
-**Local recipe (still valid):** `pnpm stack:up:test` → `git checkout -- apps/admin/src/routeTree.gen.ts` (the build
-reformats it) → `E2E_TEST_HOOKS=1 NODE_OPTIONS=--require <scratchpad>/localhost-shim.cjs` (Windows path via
-`cygpath -m`) → specs with `--workers=1`. Run `test:int` per package if MongoDB times out under turbo's parallel load.
+**Local notes:** the Windows Vitest worker crash (exit 3221226505) hits a random int file — re-run; run db and api
+`test:int` one after the other (parallel load times MongoDB out). Heredocs with backslashes break in Git Bash — use Edit.
 
 ## ▶ Next session — start here (5 Nov 2026, night — Phase 03: all tasks done, closing work left)
 
