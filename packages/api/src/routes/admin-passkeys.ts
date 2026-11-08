@@ -255,13 +255,6 @@ export function adminPasskeyRoutes(deps: AdminPasskeyDeps): RouteDefinition[] {
             now: clock.now(),
           });
           setSession(res, sessionToken, session.role);
-          // 04 R4 (F38 a): a passkey added to a Super Admin account alerts every Super Admin's phones.
-          if (session.role === 'super_admin')
-            void deps.alerts?.raise({
-              type: 'super_passkey_added',
-              to: { kind: 'super' },
-              key: `${idText(session.adminId)}.${String(clock.now().getTime())}`,
-            });
         } catch (error) {
           throw assertionRefusal(error, credential.id);
         }
@@ -314,13 +307,6 @@ export function adminPasskeyRoutes(deps: AdminPasskeyDeps): RouteDefinition[] {
             now: clock.now(),
           });
           setSession(res, sessionToken, session.role);
-          // 04 R4 (F38 a): a passkey added to a Super Admin account alerts every Super Admin's phones.
-          if (session.role === 'super_admin')
-            void deps.alerts?.raise({
-              type: 'super_passkey_added',
-              to: { kind: 'super' },
-              key: `${idText(session.adminId)}.${String(clock.now().getTime())}`,
-            });
         } catch (error) {
           throw assertionRefusal(error, credential.id);
         }

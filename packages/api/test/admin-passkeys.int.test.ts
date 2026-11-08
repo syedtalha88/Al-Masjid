@@ -561,6 +561,21 @@ describe('login verification (04 §3)', () => {
     ).toBe(true);
   });
 
+  it('"new passkey on a Super Admin account" is raised once for a Super Admin passkey — never on login or step-up', async () => {
+    const { token, adminId } = await invitedAdmin();
+    await raw('admin_users').updateOne({ _id: adminId }, { $set: { role: 'super_admin' } });
+    const before = raisedAlerts.filter((alert) => alert.type === 'super_passkey_added').length;
+    const { credential, cookie } = await register(token);
+    const added = () => raisedAlerts.filter((alert) => alert.type === 'super_passkey_added').length - before;
+    expect(added()).toBe(1);
+    credential.counter = 2;
+    const signedIn = await login(credential);
+    expect(signedIn.res.status).toBe(204);
+    credential.counter = 3;
+    expect((await stepUp(cookie, credential)).res.status).toBe(204);
+    expect(added()).toBe(1); // a sign-in or a step-up adds no passkey (verifier finding, DECISIONS #143)
+  });
+
   it('a FORGED assertion with a low counter does not revoke anything (the rule runs only after the signature)', async () => {
     const { token, adminId } = await invitedAdmin();
     const { credential } = await register(token);
