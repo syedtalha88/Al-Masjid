@@ -210,7 +210,7 @@ Design principles: **icons first, words second, numbers by tapping, never a blan
 - Today strip: next jamaat + "Edit timings" small button.
 - 2-column `AdminTile` grid (icon circle color per category):
   1. Prayer Times (clock) 2. Notice (megaphone) 3. Hadith / Ayah (book) 4. Dua Request (hands) 5. Donation Drive (heart) 6. Chanda (chart) 7. Bayan Video (play) 8. Special Dates & Ramadan (crescent) 9. My Posts (list) 10. Masjid Profile (gear)
-- Bottom: notifications quota pill "Notifications today: 2 of 8 used".
+- Bottom: notifications quota pill "Notifications today: 2 of 8 used" → opens **Notification history** (PHASE_04 T4.5): every notification of the masjid, newest first — its post, when, audience (everyone / brothers / sisters) and how many phones it reached (sent · failed); waiting and sending ones refresh by themselves; empty state "No notifications yet". While the Super Admin has paused notifications the home and the `PublishBar` show "Notifications are temporarily paused" (T4.7); the `PublishBar` shows "Will notify N people" for the chosen audience.
 - Inbox banner (if moderation notices / payment status updates).
 
 ## B4. Prayer Times editor
@@ -258,7 +258,7 @@ Success: check animation + "Published. 1,240 people will be notified." + buttons
 - Removed items show reason category and a link to the content policy.
 
 ## B13. Masjid Profile
-- Photo (change), names in 4 scripts (view; change requests go to Super Admin), area/address (view), Hijri adjust (−2…+2 with today's Hijri preview), Chanda settings, Payment (B8), Admins list (view; owners only), My account (language, sessions, passkeys list with labels, "Log out", "Log out all devices"), Undertaking (view accepted version).
+- Photo (change), names in 4 scripts (view; change requests go to Super Admin), area/address (view), Hijri adjust (−2…+2 with today's Hijri preview), Chanda settings, Payment (B8), Admins list (view; owners only), My account (language, sessions, passkeys list with labels, **"Alerts on this phone"** switch — security and job alerts as push to this admin phone, with blocked / unsupported / install-first-on-iPhone states (PHASE_04 T4.6), "Log out", "Log out all devices"), Undertaking (view accepted version).
 
 ## B14. Voice note recorder (in B5, B6, B7, B15) — DECISIONS #104
 - Big record button (56 px+), live level meter, timer counting to 10:00 (auto-stop), pause/resume, play back, re-record,
@@ -317,4 +317,4 @@ Import (JSON upload → schema validation → dry-run report: counts, errors per
 List + editor: key, category, icon, important default, params schema builder, text per locale with live ICU preview using sample params, "translation reviewed" checkbox (required before activation).
 
 ## C10. Settings · C11. Audit log · C12. Stats
-Settings: global Hijri offset, default quotas, maintenance banner (4 languages), legal versions, grievance officer details, support WhatsApp number, kill switches (pause all push, admin read-only mode) ★. Audit: filterable, expandable meta, CSV export ★. Stats: charts (simple bars/lines, custom SVG).
+Settings: global Hijri offset, default quotas, maintenance banner (4 languages), legal versions, grievance officer details, support WhatsApp number, kill switches (pause all push, admin read-only mode) ★ — pausing asks for confirmation, then the step-up; while paused a banner shows on the C1 dashboard and notifications wait (they go out by themselves after Resume; PHASE_04 T4.7). Audit: filterable, expandable meta, CSV export ★. Stats: charts (simple bars/lines, custom SVG).

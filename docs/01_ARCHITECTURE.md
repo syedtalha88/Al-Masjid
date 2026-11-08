@@ -171,10 +171,10 @@ masjid-connect/
 
 ### 5.3 Push pipeline (DECISIONS #9)
 1. Admin publishes → API writes item + `notification_jobs` document (`pending`, the **outbox**) + quota increment + version bump in one transaction → after commit, enqueues BullMQ job `push-fanout {jobId}` with `jobId` as the BullMQ job id (dedup).
-2. `push-fanout` (worker): load job; stop if `app_settings.push_paused`; set `running`; page through `device_follows` where `masjid_id = X, muted = false, push_active = true, audience_pref ∈ audienceTargets` ordered by `device_id` (keyset pagination, 1,000 per page, single compound index — 02 §2); for each page group by `locale` and enqueue `push-send-batch {jobId, page, locale, deviceIds[]}` (BullMQ job id = `${jobId}:${page}:${locale}`).
+2. `push-fanout` (worker): load job; if `app_settings.push_paused` the job moves to delayed for 60 s and checks again (stays `pending`/`running`, continues by itself after resume — DECISIONS #138); set `running`; page through `device_follows` where `masjid_id = X, muted = false, push_active = true, audience_pref ∈ audienceTargets` ordered by `device_id` (keyset pagination, 1,000 per page, single compound index — 02 §2); for each page group by `locale` and enqueue `push-send-batch {jobId, page, locale, deviceIds[]}` (BullMQ job id = `<jobId>.<page>.<locale>` — BullMQ refuses `:` in custom ids, DECISIONS #138).
 3. `push-send-batch`: load push endpoints for the device ids from `devices` (one `$in` query); send with concurrency 50, `TTL` 86400 (announcement) / 43200 (others), `Urgency: high` for important/inteqal else `normal`, `Topic` = item public id (collapses). Handle responses: 201 ok; 404/410 → mark subscription dead (device `push_status='dead'` + follows `push_active=false`, one transaction); 429/5xx → throw for BullMQ retry (exponential backoff, 5 attempts) — already-sent endpoints in that batch are recorded in a Redis set (`push:sent:<jobId>`, 24h TTL) so retries never double-send; 413 → log (payload bug).
 4. Update counters `sent/failed/pruned` (`$inc`); job `completed` when all batches done (pending-batch counter reaches 0).
-5. Payload (≤ 3 KB): `{ v:1, t:"<title>", b:"<body>", u:"/items/<publicId>", m:"<masjidId>", cv:<contentVersion>, tag:"<publicId>", i:"<icon url>" }`. Title/body localized at fan-out per device locale (batches are grouped by locale).
+5. Payload (≤ 3 KB, body shortened to fit): `{ v:1, t:"<title>", b:"<body>", u:"/items/<publicId>", m:"<masjidId>", cv:<contentVersion>, tag:"<publicId>", l:"<locale>" }` — `l` sets the notification `lang`/`dir`; no icon URL (the service worker uses the app's own icon and badge; DECISIONS #138). Title/body localized at fan-out per device locale (batches are grouped by locale).
 6. The service worker **always** shows a notification for every push (required by browsers); it never silently drops one.
 7. **Outbox sweeper** (every minute): re-enqueues `notification_jobs` still `pending` after 2 minutes; **stuck-job detector**: `running` with no progress for 10 min → `failed` + Super Admin alert.
 
@@ -214,7 +214,7 @@ Delivery (DECISIONS #40): `media.<domain>/i/<480|960|1440>/<avif|webp>/<key>` �
 | Queue / job | Trigger | Idempotency |
 |---|---|---|
 | `push-fanout` | API after publish commit; outbox sweeper | job status in MongoDB; BullMQ job id = notification job id |
-| `push-send-batch` | from fanout | BullMQ job id `(jobId, page, locale)` + Redis sent-set |
+| `push-send-batch` | from fanout | BullMQ job id `<jobId>.<page>.<locale>` + Redis sent-set |
 | `payment-activate` | scheduler every 10 min | state machine (02 §2 Payments) |
 | `campaign-close` | scheduler daily 00:10 IST | state machine |
 | `retention` | scheduler daily 03:00 IST | per-collection batches |

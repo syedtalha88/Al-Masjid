@@ -53,7 +53,7 @@ Features:
 - Everything in `04_SECURITY.md`.
 - Logs (API access logs, auth events) retained **≥ 180 days** — encrypted daily archive on the Mumbai VPS kept 200 days and included in VPS backups (DECISIONS #40, replaces the S3 archive of #24); owner confirms acceptability with lawyer.
 - Server clocks: the VPS runs NTP (chrony/systemd-timesyncd, checked by `infra/vps/check.sh`); MongoDB Atlas, Cloudflare and Cloudinary are NTP-synced by the providers — record this in the runbook.
-- Incident tooling: kill switches (04 §13), audit export, ability to identify affected admins.
+- Incident tooling: kill switches (04 §13) — pausing / resuming all notifications is a ★ action audited as `push.pause` / `push.resume` (PHASE_04 T4.7); audit export, ability to identify affected admins.
 - Breach notification support: Super Admin can broadcast an in-app banner to all musallis and push to all admins.
 
 ## 6. Retention

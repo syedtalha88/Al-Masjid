@@ -2171,3 +2171,46 @@ tests. T4.8 measured the worker together with the seeding (472 MB) — not the w
 
 **Consequences.** Real subscription creation and real push-service delivery are covered only by the owner's device
 checks (O38). The global kill switch in the push spec is always reset in `finally`; run hook specs with one worker.
+
+### #140 — T4.9 run: a send-batch counting race fixed (migration 0017), test defects fixed, a readable disabled Switch, musalli initial JS 188 kB (PHASE_04 T4.4, T4.9) — ACCEPTED (Claude Code under the owner's standing rule, 8 Nov 2026)
+
+**Context.** The first run of the T4.9 specs on the local stack (after the WSL hang was cleared by a real reboot — the PC
+had not restarted since 24 Oct 2026 because Fast Startup turns "Shut down" into hibernation). The worker log showed one
+send batch failing with `Document failed validation`.
+
+**Decision.**
+1. **Product bug — a fast batch could leave its job unfinishable.** The fan-out enqueues a page's batches *before* it
+   records `pending_batches += n` (so a crash in between re-enqueues instead of losing batches, #138). A batch that
+   finished first took `pending_batches` to -1, which the validator (`int ≥ 0`) refused — after the Redis ledger had
+   already marked the batch counted, so its retry skipped the count and the job could never reach 0 (it would end as
+   "stuck" after 10 min). Fixed twice: (a) `pending_batches` is a **balance** (validator `int` ±2·10⁹, migration
+   `0017_push_batch_balance`, 02 updated); completion stays "≤ 0 and `fanout_done`", and the fan-out's own final
+   `completeIfDone` covers the case where every batch counted off before the last page was recorded; (b) the
+   send-batch claims the batch, writes the counters, and **releases the claim when the write fails**
+   (`SendLedger.releaseBatch`) so the retry records it — any transient MongoDB error after the claim had the same
+   effect. Tests: db "batches may count off before the fan-out records their page"; api "a batch whose counter write
+   fails is counted by its retry" (fails without the release — checked).
+2. **Disabled `Switch` (packages/ui):** only the track dims (`disabled:opacity-40` on the control); the label and
+   description stay at full contrast. axe flagged the dimmed description of "Alerts on this phone" (WCAG 1.4.3) when
+   the browser cannot show alerts; the row says why it is off, so it must stay readable.
+3. **Test defects fixed.** (a) `push-pipeline.int`: the job completes inside the last batch's processor, a moment
+   before BullMQ moves that batch to its completed set — the test waits for BullMQ. (b) `admin-masjid.int`: the quota
+   expectation gains `paused` + `reach` (T4.5). (c) The push e2e taps "Turn on" only after
+   `navigator.serviceWorker.ready` (on a first visit the SW may still be precaching). (d) A second musalli phone made
+   with `browser.newContext()` is seeded like the fixture's own context — `seedOnboardedDevice` (exported from
+   `@mc/config/playwright`, the fixture uses it too); without it the app's first run wrote its own device document over
+   the stored credentials. Both phones' follows must be `synced` (`awaitFollowsSynced`) before publishing. (e) Kill
+   switch in the push e2e: `paused` is set before any assertion (a failed assertion had left the global pause on), a
+   leftover pause is cleared through C10 at the start (a fresh session needs the step-up — 403 through the API), the
+   step-up is optional when one was just made, and the resumed job is awaited for 90 s — a paused job looks at the
+   switch again every 60 s (`PAUSE_RECHECK_MS`, #138; T4.7 asks only that jobs continue). (f) Journey 7 expects
+   "1 person will be notified." (one follower has push on now; the app pluralises correctly). (g) The admin screens
+   spec activates its masjid (with timings) before the notification-history shot — a pending masjid's posts are not
+   public, so the worker correctly ended that notification ("item no longer published").
+4. **Musalli initial JS 187 → 188 kB** (187.65 kB, +0.65 kB): the push bridge (a tapped notification opens its screen)
+   and the soft-ask shell. The subscription code (`lib/push.ts` → `push-*.js`) and the ask sheet stay lazy — checked:
+   none of the 12 initial files contains it. Owner's standing rule: a few kB over a budget is fine when recorded.
+
+**Consequences.** Staging/production need migration 0017 (applied by the normal deploy migrate step). Hook specs that
+open a second musalli phone use `seedOnboardedDevice`; specs that publish to followers wait for
+`awaitFollowsSynced` first.

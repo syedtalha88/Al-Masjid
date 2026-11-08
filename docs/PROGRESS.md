@@ -18,30 +18,28 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (8 Nov 2026, afternoon — Phase 04: T4.9 written, not yet run)
+## ▶ Next session — start here (8 Nov 2026, evening — Phase 04: all built, T4.9 run locally, CI next)
 
-**State:** branch `feat/phase-04` (pushed). Done: T4.1–T4.7 built (see checklist), **T4.8 ticked** (worker in its own
-process: 50k → 57.3 s, 409 MB peak RSS; 100k → 112 s, same memory — DECISIONS #139). **T4.9 written, not run:** the
-runtime-test worker captures pushes (`e2e:push:captured`, local ACL only), `e2e/support/push.ts`, new Playwright project
-`push` (full Chromium), `e2e/admin/notifications.push.spec.ts` (Settings → on, notice → both phones per language, CDP
-delivery → SW notification, ★ kill switch holds/resumes; soft-ask + Settings → Notifications ×4 locales + axe), journeys
-6/7/8 assert job + captured push, admin screens add `b3-notifications`. `verify:quick` green.
+**State:** branch `feat/phase-04` (pushed; `ci/phase-04` carries the same HEAD for CI). T4.1–T4.5, T4.7, T4.8 ticked.
+T4.9 run locally (see checklist) — **one product bug found and fixed** (#140): a send batch that counted off before the
+fan-out recorded its page stranded the job (`pending_batches` now a balance — **migration 0017** — and a failed counter
+write releases the Redis ledger claim). Also: a disabled `Switch` keeps its text readable (axe), musalli initial JS
+188 kB, test races fixed (`seedOnboardedDevice`, `awaitFollowsSynced`). Docs 01/02/05/07/10 updated; O37/O38 added.
 
-**Blocked locally:** Docker Desktop/WSL hung (8 Nov, `wsl -l -v` timed out; `wslservice.exe` needs admin). The owner
-restarts it (admin PowerShell `wsl --shutdown`, or reboot). The new local Redis ACL is already written
-(`pnpm setup:local`) — Redis must restart to load it.
+**Local note (8 Nov 2026):** Docker/WSL "hung" because the PC had not really restarted since 24 Oct — Windows Fast
+Startup makes "Shut down" a hibernate. Only **Restart** clears a stuck WSL (or disable Fast Startup).
 
 **Do next:**
-1. After Docker is back: `pnpm stack:up:test`, then `pnpm test:int` (ACL test for `e2e:*`), then with the hooks env
-   (see notes below) `pnpm exec playwright test e2e/admin/notifications.push.spec.ts --project=push --workers=1`, then
-   `e2e/admin/{timings,notice,dua,screens}.spec.ts --project=pixel-7 --workers=1`. Fix what fails; look at the shots.
-2. `pnpm size` (push code must stay out of the musalli initial JS), `pnpm lhci`; tick T4.2–T4.7, T4.9.
-3. Docs: 01 §5.3 / §5.8 (batch id `.`, payload `l`), 07 (history screen, alerts switch), 05 audit actions
-   `push.pause`/`push.resume`, 10 §6 (journeys 6–8 now assert the push); `owner/MY_PENDING_TASKS.md`: **O37** — compare
-   the GitHub `staging` variable `VITE_PUBLIC_VAPID_PUBLIC_KEY` with `VAPID_PUBLIC_KEY` in
-   `/etc/masjid-connect/staging/worker.env` (must match) and back up the VAPID private key; **O38** — real-device push
-   checks (Android + installed iPhone).
-4. Phase close (CLAUDE.md §5) after Phase 03's staging deploy.
+1. Check CI on `ci/phase-04` (curl `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-04`). The
+   musalli cold LCP is judged there (2689 ms locally = the known local miss). Fix what fails; then tick T4.9.
+2. T4.6 needs only the owner's check on staging (O38) after the deploy.
+3. Phase close (CLAUDE.md §5) — after Phase 03's staging deploy (O25 rest) and the owner's O37 (VAPID keys) before the
+   Phase 04 deploy; then the Phase 04 report, phase-verifier, security-reviewer, `owner/PHASE_TESTING_GUIDE.md` Phase 04
+   section (O38 steps).
+
+**Local recipe (still valid):** `pnpm stack:up:test` → `git checkout -- apps/admin/src/routeTree.gen.ts` (the build
+reformats it) → `E2E_TEST_HOOKS=1 NODE_OPTIONS=--require <scratchpad>/localhost-shim.cjs` (Windows path via
+`cygpath -m`) → specs with `--workers=1`. Run `test:int` per package if MongoDB times out under turbo's parallel load.
 
 ## ▶ Next session — start here (5 Nov 2026, night — Phase 03: all tasks done, closing work left)
 
@@ -319,6 +317,8 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O33 | **Grievance Officer details** in Super Admin → Settings | launch (#101) | 5 min | before launch |
 | O36 | **Atlas roles update** — re-run `atlas-users.sh staging` (it updates the four custom roles from the new `infra/mongo/atlas-roles.json`; same steps as 16 Oct 2026), then `deploy.sh staging --verify-roles` and send Claude Code the output | New collections `ruqyah_entries` (T3.15) and `masjid_contacts` (T3.16): without it api-admin cannot read/write them on staging | 15 min | **due now** (both collections are in the file since T3.16) — before Phase 03 is deployed |
 | O34 | **Legal checklist** `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md` | pilot | — | before pilot |
+| O37 | **VAPID keys on staging** — `VAPID_PUBLIC_KEY` in `/etc/masjid-connect/staging/worker.env` must equal the GitHub `staging` variable `VITE_PUBLIC_VAPID_PUBLIC_KEY`; back up `VAPID_PRIVATE_KEY` (password manager; F31) | Phase 04 staging deploy — a mismatch means no push reaches any phone | 10 min | before the Phase 04 deploy |
+| O38 | **Real-device push checks** — Android + installed iPhone: turn on, receive a notice in the phone's language, tap opens it; admin "Alerts on this phone" + Super Admin test alert | Real subscription + push-service delivery (headless e2e cannot cover them — DECISIONS #139); T4.6 owner check | 20 min | Phase 04 owner verification |
 
 ## Current phase task checklist
 
@@ -400,26 +400,33 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   Redis ledger, `jobs/worker.ts` (processors, deadlines, Asia/Kolkata scheduler), mock push service. Unit: classifier,
   headers + body decrypted as a browser would, allow-list (property test), payloads refused at enqueue; integration:
   a forged payload fails at process time without retries.
-- [ ] T4.2 — Musalli subscription UX — built (`lib/push.ts`, Settings → Notifications, soft-ask after the first follow,
-  onboarding page 7, re-check on every open, 409 re-subscribe, mute per masjid; `PUT/DELETE /devices/me/push`); unit:
-  13 with a mocked PushManager; left: e2e + screenshots (T4.9)
-- [ ] T4.3 — Service worker push handling — built (`sw/push.ts`: Zod payload, generic fallback, tag, lang/dir, badge,
-  click → focus + navigate / open, `pushsubscriptionchange`); 17 unit tests; left: Chromium e2e via CDP push (T4.9)
-- [ ] T4.4 — Fan-out pipeline — processors, migration 0016, sweeper + stuck detector, localized words, publish routes
-  hand over after commit, worker entrypoint wired; `push-pipeline.int.test.ts` 10 scenarios green. Left: e2e journeys
-  (T4.9)
-- [ ] T4.5 — Quotas & admin visibility — API done (`quota` + `paused` + `reach`, `notifications/jobs`, dashboard push
-  stats; IST-midnight reset + counts-match-DB integration tests); admin UI done (quota pill → history screen,
-  "Will notify N" reach line, Super Admin 24 h stats card). Left: e2e + screenshots (T4.9)
+- [x] T4.2 — Musalli subscription UX — `lib/push.ts`, Settings → Notifications, soft-ask after the first follow,
+  onboarding page 7, re-check on every open, 409 re-subscribe, mute per masjid; `PUT/DELETE /devices/me/push`; unit 13
+  (mocked PushManager); e2e 8 Nov 2026: Settings → on through the app (stubbed PushManager), soft-ask + A15 off/on ×4
+  locales with axe + screenshots (`e2e/admin/notifications.push.spec.ts`). Real devices: O38
+- [x] T4.3 — Service worker push handling — `sw/push.ts` (Zod payload, generic fallback, tag, lang/dir, badge, click →
+  focus + navigate / open, `pushsubscriptionchange`); 17 unit tests; e2e: a captured payload delivered through CDP shows
+  the Telugu notification (title, body, tag, lang, dir) that opens the notice
+- [x] T4.4 — Fan-out pipeline — processors, migration 0016, sweeper + stuck detector, localized words, publish routes
+  hand over after commit, worker entrypoint wired; `push-pipeline.int.test.ts` 11 scenarios; journeys 6/7/8 assert job
+  + captured push. **8 Nov 2026 fix (#140):** a batch counting off before the fan-out recorded its page stranded the job
+  — `pending_batches` is a balance (migration 0017) and a failed counter write releases the ledger claim
+- [x] T4.5 — Quotas & admin visibility — `quota` + `paused` + `reach`, `notifications/jobs`, dashboard push stats
+  (IST-midnight reset + counts-match-DB integration tests); quota pill → history screen, "Will notify N" reach line,
+  Super Admin 24 h stats card; history screen `b3-notifications` ×4 locales in the screens spec
 - [ ] T4.6 — Admin push subscriptions & alerts — API done (`PUT/DELETE /auth/push`, alert service, counter-regression
   and super-passkey-added alerts — F38 a, `POST /api/super/alerts/test` outside production); admin SW alert push
   (10 unit tests) + "Alerts on this phone" switch + test alert done. Left: owner check on staging (O38)
-- [ ] T4.7 — Kill switch — worker + API done (★ `POST /settings/push-pause`, audited); C10 switch, C1 banner and
-  the Publish-bar notice done. Left: e2e (T4.9)
+- [x] T4.7 — Kill switch — ★ `POST /settings/push-pause` (audited `push.pause` / `push.resume`), C10 switch, C1
+  banner, Publish-bar notice; integration: paused → zero sends, resume → the same job continues; e2e: a notice published
+  while paused waits (admin sees "paused"), goes out after Resume
 - [x] T4.8 — Fan-out load test — 8 Nov 2026: the worker runs in its own process (`scripts/load/push-worker.ts`);
   50k → 57.3 s, 200 batches (max 2.0 s), worker CPU 26.7 s (< 0.75 CPU), worker peak RSS 409 MB (< 512 MB); 100k →
   112.4 s with the same memory (bounded by batches in flight). `docs/reports/evidence/PHASE_04_T4.8_push-load.md`
-- [ ] T4.9 — Quality gates — specs written (DECISIONS #139), not yet run (local Docker down); left: run them, size, Lighthouse
+- [ ] T4.9 — Quality gates — run locally 8 Nov 2026 (#140): integration api 335 / db 302, push spec 5, admin journeys
+  6/7/8 + screens ×4 locales green; `pnpm size` green (musalli initial 187.65 / 188 kB — subscription code lazy);
+  Lighthouse: warm both PASS, admin cold PASS, musalli cold LCP 2689 ms locally (the known local-Docker miss — CI measured
+  2505 ms in Phase 03, #136). **Left:** CI green on `ci/phase-04` (cold LCP judged there)
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
@@ -483,6 +490,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-08 | 04 / T4.9, T4.4 | T4.9 run locally after the WSL fix (a real Restart): push spec 5, journeys 6/7/8 + admin screens ×4 green; integration api 335 / db 302. **Bug fixed (#140):** send-batch counting race stranded a job (`pending_batches` balance, migration 0017, ledger claim released on a failed write) — db +1, api +1 tests (mutation-checked). Disabled `Switch` text readable (axe). Musalli initial 188 kB. Lighthouse: musalli cold LCP 2689 ms locally (known local miss) → CI on `ci/phase-04`. T4.2–T4.5, T4.7 ticked. |
 | 2026-11-05 | 03 / T3.17, T3.12, F54, F55 | Blood camp (#132): `BloodCampCard` (lazy on Home), `WhatsAppButton`, `istWindow`, `formatPhone`, B18 tile, e2e with a pinned clock; usability (#133): tap counts 6/6/4/5/3 measured by e2e, quick jamaat offsets, one-sheet time ranges; F55: library status changes bump using masjids (db +3); F54: voice badge, A8 player, pause when covered, fake-mic e2e. Local: db 289, API int green (one Windows worker crash — the file passes alone), ui 304, app 162, admin 120, i18n 199; e2e of every touched spec green. CI `4cc10d4`: e2e green (the voice flake did not repeat), **Lighthouse warm red → F56**. All Phase 03 tasks done. |
 | 2026-11-05 | 03 / T3.16 | Ilm contacts (#131): migration 0014, policy + roles (Atlas file regenerated → O36 due), admin CRUD, bundle `contacts`, `IlmContactCard` + `whatsappChatUrl`, A21 + B17; db 286 incl. 9 new, API int +4, ui +6, admin +5, domain +2, app +1; e2e B17 flow + A21 ×2 audiences ×4 locales + B17 ×4 green locally. CI on `dae7c7c` (T3.15) red at admin e2e (`voice.spec.ts`, not reproducible locally) — re-run on this push; Ruqyah spec axe settle fixed. |
 | 2026-11-05 | 03 / T3.15 | Ruqyah (#130): migration 0013, policy + roles (Atlas file regenerated → O36), admin CRUD/order, public list, bundle sections, `RuqyahCard`, A19 + B15; db 277 incl. 12 new, API int 261, ui +6, admin +8; e2e flow + A19 ×4 + B15 ×4 green locally. CI on `a0954df` (T3.14) red at Lighthouse only (Home perf 87 < 90) — re-measured on this push. |
