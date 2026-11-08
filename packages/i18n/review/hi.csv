@@ -863,6 +863,7 @@ errors,RUQYAH_ORDER_INVALID,The Ruqyah list changed meanwhile. Please open it ag
 errors,CONTACT_INVALID,"Please tick that this person agreed, and check the WhatsApp number.","कृपया टिक करें कि इस व्यक्ति ने सहमति दी है, और व्हाट्सऐप नंबर जाँचें।",no
 errors,CONTACT_NOT_FOUND,This contact was removed. Please go back to the list.,यह संपर्क हटा दिया गया है। कृपया सूची पर वापस जाएँ।,no
 errors,CONTACT_LIMIT_REACHED,You can list up to 10 contacts. Remove one to add another.,आप अधिकतम 10 संपर्क जोड़ सकते हैं। नया जोड़ने के लिए एक हटाएँ।,no
+errors,PUSH_ENDPOINT_IN_USE,Notifications could not be turned on on this phone. Please try again.,इस फ़ोन पर सूचनाएँ चालू नहीं हो सकीं। कृपया फिर से कोशिश करें।,no
 follow,scan.title,Scan masjid QR,मस्जिद का QR स्कैन करें,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,अपना कैमरा मस्जिद के पोस्टर पर लगे QR कोड की ओर करें।,no
 follow,scan.torch,Flashlight,टॉर्च,no
@@ -979,6 +980,9 @@ onboarding,install.title,Keep the app on your phone,ऐप को अपने �
 onboarding,install.body,"Install it to open it from your home screen, even without internet.","इसे इंस्टॉल करें ताकि होम स्क्रीन से खोल सकें, इंटरनेट के बिना भी।",no
 onboarding,followed,You now follow {name}.,अब आप {name} को फ़ॉलो कर रहे हैं।,no
 onboarding,followFailed,We couldn’t add that masjid right now. Open the link again when you’re online.,अभी वह मस्जिद नहीं जुड़ सकी। ऑनलाइन होने पर लिंक फिर से खोलें।,no
+onboarding,notifications.title,Notifications,सूचनाएँ,no
+onboarding,notifications.body,"Get timing changes, notices and dua requests from your masjids.","अपनी मस्जिदों से समय में बदलाव, सूचनाएँ और दुआ की गुज़ारिशें पाएँ।",no
+onboarding,notifications.turnOn,Turn on notifications,सूचनाएँ चालू करें,no
 push,voice,🎤 Voice message,🎤 वॉइस मैसेज,no
 push,fallbackTitle,Masjid update,मस्जिद की ख़बर,no
 push,fallbackBody,Open the app to see it.,देखने के लिए ऐप खोलें।,no
@@ -988,6 +992,8 @@ push,alert.push_job_stuck.title,Notification delivery stuck,सूचना भ�
 push,alert.push_job_stuck.body,A notification stopped sending for 10 minutes and was marked failed. Check the notification jobs.,एक सूचना 10 मिनट तक नहीं भेजी गई और विफल मानी गई। सूचना जॉब देखें।,no
 push,alert.test.title,Test alert,परीक्षण अलर्ट,no
 push,alert.test.body,Alerts reach this phone.,अलर्ट इस फ़ोन पर आते हैं।,no
+push,alert.super_passkey_added.title,New passkey on a Super Admin account,सुपर एडमिन खाते पर नई पासकी,no
+push,alert.super_passkey_added.body,"A passkey was just added to a Super Admin account. If this wasn't you, remove it in Account now.","अभी एक सुपर एडमिन खाते में पासकी जोड़ी गई। अगर यह आप नहीं थे, तो अभी अकाउंट में इसे हटा दें।",no
 settings,language,Language,भाषा,no
 settings,languageSheet,Choose your language,अपनी भाषा चुनें,no
 settings,audience,Brother / Sister,भाई / बहन,no
@@ -1056,6 +1062,28 @@ settings,aboutCommunity,Made for the community.,समुदाय के लि
 settings,appVersion,Version {version},संस्करण {version},no
 settings,landingTitle,Shared post,शेयर की गई पोस्ट,no
 settings,landingApp,Get the app,ऐप पाएँ,no
+settings,push.title,Notifications,सूचनाएँ,no
+settings,push.status.on,On,चालू,no
+settings,push.status.off,Off,बंद,no
+settings,push.status.blocked,Blocked in phone settings,फ़ोन की सेटिंग में बंद,no
+settings,push.status.installFirst,Install app first,पहले ऐप इंस्टॉल करें,no
+settings,push.status.unsupported,Not available on this phone,इस फ़ोन पर उपलब्ध नहीं,no
+settings,push.intro,"Get timing changes, notices and dua requests from your masjids.","अपनी मस्जिदों से समय में बदलाव, सूचनाएँ और दुआ की गुज़ारिशें पाएँ।",no
+settings,push.turnOn,Turn on notifications,सूचनाएँ चालू करें,no
+settings,push.turnOff,Turn off notifications,सूचनाएँ बंद करें,no
+settings,push.blockedTitle,Notifications are blocked,सूचनाएँ बंद हैं,no
+settings,push.blockedAndroid,"Open the phone's Settings → Apps → this app (or your browser) → Notifications, and allow them. Then come back here.",फ़ोन की सेटिंग → ऐप्स → यह ऐप (या आपका ब्राउज़र) → सूचनाएँ खोलें और अनुमति दें। फिर यहाँ लौटें।,no
+settings,push.blockedIos,"Open the iPhone's Settings → Notifications → {app}, and allow notifications.",iPhone की सेटिंग → सूचनाएँ → {app} खोलें और सूचनाओं की अनुमति दें।,no
+settings,push.blockedDesktop,"Click the lock icon next to the address, allow notifications, and open this page again.","पते के पास बने ताले के निशान पर क्लिक करें, सूचनाओं की अनुमति दें और यह पेज फिर से खोलें।",no
+settings,push.installFirstBody,"On iPhone, notifications work only in the installed app. Add it to your Home Screen, then open it from there.","iPhone पर सूचनाएँ सिर्फ़ इंस्टॉल किए गए ऐप में आती हैं। इसे होम स्क्रीन पर जोड़ें, फिर वहीं से खोलें।",no
+settings,push.unsupportedBody,This browser cannot show notifications. The app still shows every update when you open it.,यह ब्राउज़र सूचनाएँ नहीं दिखा सकता। ऐप खोलने पर हर अपडेट फिर भी दिखता है।,no
+settings,push.error,Could not change notifications. Please try again.,सूचनाएँ नहीं बदल सकीं। कृपया फिर से कोशिश करें।,no
+settings,push.masjids,Notifications per masjid,हर मस्जिद की सूचनाएँ,no
+settings,push.masjidSwitch,Notifications from {name},{name} की सूचनाएँ,no
+settings,push.noMasjids,Follow a masjid to get its notifications.,किसी मस्जिद को फ़ॉलो करें ताकि उसकी सूचनाएँ मिलें।,no
+settings,push.askTitle,Turn on notifications?,सूचनाएँ चालू करें?,no
+settings,push.askAllow,Turn on,चालू करें,no
+settings,push.askLater,Not now,अभी नहीं,no
 super,title,Super Admin,सुपर एडमिन,no
 super,nav.label,Super Admin sections,सुपर एडमिन के हिस्से,no
 super,nav.dashboard,Dashboard,डैशबोर्ड,no

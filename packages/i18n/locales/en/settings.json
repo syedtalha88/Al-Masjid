@@ -70,5 +70,31 @@
   "aboutCommunity": "Made for the community.",
   "appVersion": "Version {version}",
   "landingTitle": "Shared post",
-  "landingApp": "Get the app"
+  "landingApp": "Get the app",
+  "push": {
+    "title": "Notifications",
+    "status": {
+      "on": "On",
+      "off": "Off",
+      "blocked": "Blocked in phone settings",
+      "installFirst": "Install app first",
+      "unsupported": "Not available on this phone"
+    },
+    "intro": "Get timing changes, notices and dua requests from your masjids.",
+    "turnOn": "Turn on notifications",
+    "turnOff": "Turn off notifications",
+    "blockedTitle": "Notifications are blocked",
+    "blockedAndroid": "Open the phone's Settings → Apps → this app (or your browser) → Notifications, and allow them. Then come back here.",
+    "blockedIos": "Open the iPhone's Settings → Notifications → {app}, and allow notifications.",
+    "blockedDesktop": "Click the lock icon next to the address, allow notifications, and open this page again.",
+    "installFirstBody": "On iPhone, notifications work only in the installed app. Add it to your Home Screen, then open it from there.",
+    "unsupportedBody": "This browser cannot show notifications. The app still shows every update when you open it.",
+    "error": "Could not change notifications. Please try again.",
+    "masjids": "Notifications per masjid",
+    "masjidSwitch": "Notifications from {name}",
+    "noMasjids": "Follow a masjid to get its notifications.",
+    "askTitle": "Turn on notifications?",
+    "askAllow": "Turn on",
+    "askLater": "Not now"
+  }
 }

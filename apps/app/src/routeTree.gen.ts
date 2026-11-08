@@ -24,6 +24,7 @@ import { Route as PPublicIdRouteImport } from './routes/p.$publicId'
 import { Route as SettingsAboutRouteImport } from './routes/settings_.about'
 import { Route as SettingsDataRouteImport } from './routes/settings_.data'
 import { Route as SettingsGrievanceRouteImport } from './routes/settings_.grievance'
+import { Route as SettingsNotificationsRouteImport } from './routes/settings_.notifications'
 import { Route as SettingsPrivacyRouteImport } from './routes/settings_.privacy'
 import { Route as SettingsSavedRouteImport } from './routes/settings_.saved'
 import { Route as MasjidMasjidIdSectionRouteImport } from './routes/masjid_.$masjidId.$section'
@@ -110,6 +111,11 @@ const SettingsGrievanceRoute = SettingsGrievanceRouteImport.update({
   path: '/settings/grievance',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
+  id: '/settings_/notifications',
+  path: '/settings/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsPrivacyRoute = SettingsPrivacyRouteImport.update({
   id: '/settings_/privacy',
   path: '/settings/privacy',
@@ -178,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/settings/about': typeof SettingsAboutRoute
   '/settings/data': typeof SettingsDataRoute
   '/settings/grievance': typeof SettingsGrievanceRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
   '/settings/privacy': typeof SettingsPrivacyRoute
   '/settings/saved': typeof SettingsSavedRoute
   '/masjid/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
@@ -205,6 +212,7 @@ export interface FileRoutesByTo {
   '/settings/about': typeof SettingsAboutRoute
   '/settings/data': typeof SettingsDataRoute
   '/settings/grievance': typeof SettingsGrievanceRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
   '/settings/privacy': typeof SettingsPrivacyRoute
   '/settings/saved': typeof SettingsSavedRoute
   '/masjid/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
@@ -233,6 +241,7 @@ export interface FileRoutesById {
   '/settings_/about': typeof SettingsAboutRoute
   '/settings_/data': typeof SettingsDataRoute
   '/settings_/grievance': typeof SettingsGrievanceRoute
+  '/settings_/notifications': typeof SettingsNotificationsRoute
   '/settings_/privacy': typeof SettingsPrivacyRoute
   '/settings_/saved': typeof SettingsSavedRoute
   '/masjid_/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
@@ -262,6 +271,7 @@ export interface FileRouteTypes {
     | '/settings/about'
     | '/settings/data'
     | '/settings/grievance'
+    | '/settings/notifications'
     | '/settings/privacy'
     | '/settings/saved'
     | '/masjid/$masjidId/$section'
@@ -289,6 +299,7 @@ export interface FileRouteTypes {
     | '/settings/about'
     | '/settings/data'
     | '/settings/grievance'
+    | '/settings/notifications'
     | '/settings/privacy'
     | '/settings/saved'
     | '/masjid/$masjidId/$section'
@@ -316,6 +327,7 @@ export interface FileRouteTypes {
     | '/settings_/about'
     | '/settings_/data'
     | '/settings_/grievance'
+    | '/settings_/notifications'
     | '/settings_/privacy'
     | '/settings_/saved'
     | '/masjid_/$masjidId/$section'
@@ -344,6 +356,7 @@ export interface RootRouteChildren {
   SettingsAboutRoute: typeof SettingsAboutRoute
   SettingsDataRoute: typeof SettingsDataRoute
   SettingsGrievanceRoute: typeof SettingsGrievanceRoute
+  SettingsNotificationsRoute: typeof SettingsNotificationsRoute
   SettingsPrivacyRoute: typeof SettingsPrivacyRoute
   SettingsSavedRoute: typeof SettingsSavedRoute
   MasjidMasjidIdSectionRoute: typeof MasjidMasjidIdSectionRoute
@@ -463,6 +476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsGrievanceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings_/notifications': {
+      id: '/settings_/notifications'
+      path: '/settings/notifications'
+      fullPath: '/settings/notifications'
+      preLoaderRoute: typeof SettingsNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings_/privacy': {
       id: '/settings_/privacy'
       path: '/settings/privacy'
@@ -552,6 +572,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsAboutRoute: SettingsAboutRoute,
   SettingsDataRoute: SettingsDataRoute,
   SettingsGrievanceRoute: SettingsGrievanceRoute,
+  SettingsNotificationsRoute: SettingsNotificationsRoute,
   SettingsPrivacyRoute: SettingsPrivacyRoute,
   SettingsSavedRoute: SettingsSavedRoute,
   MasjidMasjidIdSectionRoute: MasjidMasjidIdSectionRoute,

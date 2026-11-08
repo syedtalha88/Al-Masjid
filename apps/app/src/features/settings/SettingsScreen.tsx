@@ -1,4 +1,4 @@
-// A15 Settings (07 A15): grouped list — Language, Brother/Sister, (Notifications: Phase 4, dev/staging only), Saved,
+// A15 Settings (07 A15): grouped list — Language, Brother/Sister, Notifications (status → its screen, T4.2), Saved,
 // Vibration (Android), Install app, My data, Privacy Policy, Contact & Grievance, About. Language and Brother/Sister
 // open sheets and reach the server device record (`PATCH /devices/me`, queued offline); feeds refilter by themselves.
 import { type Locale, LOCALES, NATIVE_NAME } from '@mc/i18n/locales';
@@ -30,12 +30,12 @@ import {
 import { Screen, useNavigator } from '@mc/ui/navigation';
 import { useState } from 'react';
 
-import { SHOW_COMING_SOON } from '../../lib/build.ts';
 import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
 import type { PreferenceChange } from '../../lib/device/preferences.ts';
 import { promptInstall, useCanInstall } from '../../lib/install.ts';
 import { isStandalone, platformKind } from '../../lib/platform.ts';
 import { SettingsGroup, type SettingsRow } from './components/SettingsGroup.tsx';
+import { usePushControls } from './hooks/usePushControls.ts';
 
 type SheetId = 'language' | 'audience' | 'install' | null;
 
@@ -63,8 +63,18 @@ export function useChangePreferences() {
     import('../../lib/device/preferences.ts').then((module) => module.updatePreferences(sync, change));
 }
 
+/** The Notifications row's value per status (07 A15 §3). */
+const PUSH_STATUS_KEY = {
+  on: 'push.status.on',
+  off: 'push.status.off',
+  blocked: 'push.status.blocked',
+  'install-first': 'push.status.installFirst',
+  unsupported: 'push.status.unsupported',
+} as const;
+
 function Settings() {
   const { t } = useTranslation('settings');
+  const push = usePushControls();
   const { t: tc } = useTranslation();
   const { locale, setLocale } = useLocale();
   const navigator = useNavigator();
@@ -104,17 +114,14 @@ function Settings() {
         setSheet('audience');
       },
     },
-    ...(SHOW_COMING_SOON
-      ? [
-          {
-            key: 'notifications',
-            icon: <BellIcon />,
-            tone: 'neutral' as const,
-            title: t('notifications'),
-            value: t('comingSoon'),
-          },
-        ]
-      : []),
+    {
+      key: 'notifications',
+      icon: <BellIcon />,
+      tone: 'sun' as const,
+      title: t('notifications'),
+      value: t(PUSH_STATUS_KEY[push.status]),
+      onPress: go('/settings/notifications'),
+    },
   ];
   const content: SettingsRow[] = [
     { key: 'saved', icon: <BookmarkIcon />, title: t('saved'), onPress: go('/settings/saved') },

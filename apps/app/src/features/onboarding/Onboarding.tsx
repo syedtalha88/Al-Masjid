@@ -1,8 +1,9 @@
 // A1 Onboarding (07 A1, 05 §2, 08 §5.11) — first launch only. Pages: welcome → language → brother/sister → privacy at
 // a glance (records the accepted privacy version and starts device registration; offline it continues and registers
 // later) → add your first masjid (skipped when the app was opened from a /m/:code link) → install (only when not
-// installed and the platform can install). The Notifications page arrives with push (Phase 4). Lazy-loaded: returning
-// users never download it.
+// installed and the platform can install) → notifications (when a masjid is followed or about to be — a /m/:code
+// link — the browser was never asked, and push can be offered here: Android any mode, iPhone installed only;
+// PHASE_04 T4.2). Lazy-loaded: returning users never download it.
 import { loadLegalDoc } from '@mc/i18n/legal';
 import { type Locale, LOCALES, NATIVE_NAME } from '@mc/i18n/locales';
 import { useLocale, useTranslation } from '@mc/i18n/react';
@@ -20,6 +21,7 @@ import {
   Tag,
 } from '@mc/ui/components';
 import {
+  BellIcon,
   CaretLeftIcon,
   DeviceMobileIcon,
   DownloadIcon,
@@ -33,13 +35,15 @@ import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 
 import { configQuery } from '../../lib/api/queries.ts';
 import { useAppData, useDeviceState } from '../../lib/data.tsx';
+import { visibleFollows } from '../../lib/device/store.ts';
 import { promptInstall, useCanInstall } from '../../lib/install.ts';
-import { isStandalone, platformKind } from '../../lib/platform.ts';
+import { isStandalone, platformKind, pushPromptPossible } from '../../lib/platform.ts';
+import { usePushControls } from '../settings/hooks/usePushControls.ts';
 
 /** Where the app goes after onboarding (the scanner / code entry from page 5, else Home). */
 export type OnboardingNext = '/' | '/scan' | '/scan?enter=code';
 
-type PageId = 'welcome' | 'language' | 'audience' | 'privacy' | 'masjid' | 'install';
+type PageId = 'welcome' | 'language' | 'audience' | 'privacy' | 'masjid' | 'install' | 'notifications';
 
 export interface OnboardingProps {
   /** Opened from a follow link: page 5 is skipped (the masjid is followed after onboarding). */
@@ -73,6 +77,13 @@ export default function Onboarding({ arrivedWithCode, onFinished }: OnboardingPr
 
   const platform = platformKind();
   const showInstall = !isStandalone() && (platform === 'ios' || canInstall);
+  // Decided once, at the start: answering the prompt must not remove the page being shown.
+  const [showNotifications] = useState(
+    () =>
+      (arrivedWithCode || visibleFollows(state.follows).length > 0) &&
+      state.pushAskedAt === undefined &&
+      pushPromptPossible(),
+  );
   const pages = useMemo<PageId[]>(
     () => [
       'welcome',
@@ -81,8 +92,9 @@ export default function Onboarding({ arrivedWithCode, onFinished }: OnboardingPr
       'privacy',
       ...(arrivedWithCode ? [] : (['masjid'] as const)),
       ...(showInstall ? (['install'] as const) : []),
+      ...(showNotifications ? (['notifications'] as const) : []),
     ],
-    [arrivedWithCode, showInstall],
+    [arrivedWithCode, showInstall, showNotifications],
   );
 
   // 08 §5.11: a language change crossfades the content to hide the LTR ↔ RTL flip.
@@ -149,7 +161,9 @@ export default function Onboarding({ arrivedWithCode, onFinished }: OnboardingPr
           />
         );
       case 'install':
-        return <InstallPage offline={registration === 'deferred'} onDone={() => void finish(next)} />;
+        return <InstallPage offline={registration === 'deferred'} onDone={advance} />;
+      case 'notifications':
+        return <NotificationsPage onDone={advance} />;
       case undefined:
         return null;
     }
@@ -581,6 +595,48 @@ function InstallPage({ offline, onDone }: { readonly offline: boolean; readonly 
       <p className="pt-2 pb-6 text-center type-body text-text-secondary">{t('install.body')}</p>
       {ios ? <IosInstallGuide appName={BRAND.name} onDismiss={onDone} /> : null}
       {offline ? <InfoNote className="mt-6">{t('privacy.offline')}</InfoNote> : null}
+    </Page>
+  );
+}
+
+function NotificationsPage({ onDone }: { readonly onDone: () => void }) {
+  const { t } = useTranslation('onboarding');
+  const { t: tc } = useTranslation();
+  const push = usePushControls();
+  return (
+    <Page
+      title={t('notifications.title')}
+      actions={
+        <>
+          <Button
+            size="lg"
+            fullWidth
+            loading={push.busy}
+            leadingIcon={<BellIcon size={20} />}
+            onPress={() => {
+              void push.enable().finally(onDone);
+            }}
+          >
+            {t('notifications.turnOn')}
+          </Button>
+          <Button
+            variant="ghost"
+            fullWidth
+            onPress={() => {
+              void push.decline().finally(onDone);
+            }}
+          >
+            {tc('ui.notNow')}
+          </Button>
+        </>
+      }
+    >
+      <div className="flex justify-center pt-4 pb-2">
+        <IconCircle size={56} tone="sun">
+          <BellIcon size={28} />
+        </IconCircle>
+      </div>
+      <p className="pt-2 text-center type-body text-text-secondary">{t('notifications.body')}</p>
     </Page>
   );
 }

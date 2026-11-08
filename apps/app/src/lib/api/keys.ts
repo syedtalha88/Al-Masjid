@@ -8,6 +8,8 @@ export const queryKeys = {
   config: () => ['config'] as const,
   templates: () => ['templates'] as const,
   versions: (masjidIds: readonly string[]) => ['versions', sortedIds(masjidIds)] as const,
+  /** Every versions query (a push arrived: poll now — T4.3). */
+  allVersions: () => ['versions'] as const,
   /** Without `v`: every cached version of the masjid's bundle (a prefix for cache lookups). */
   bundle: (masjidId: string, v?: number) =>
     v === undefined ? (['bundle', masjidId] as const) : (['bundle', masjidId, v] as const),

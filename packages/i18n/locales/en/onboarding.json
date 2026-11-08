@@ -38,5 +38,10 @@
     "body": "Install it to open it from your home screen, even without internet."
   },
   "followed": "You now follow {name}.",
-  "followFailed": "We couldn’t add that masjid right now. Open the link again when you’re online."
+  "followFailed": "We couldn’t add that masjid right now. Open the link again when you’re online.",
+  "notifications": {
+    "title": "Notifications",
+    "body": "Get timing changes, notices and dua requests from your masjids.",
+    "turnOn": "Turn on notifications"
+  }
 }
