@@ -51,11 +51,12 @@ function Notifications() {
     <Screen title={t('push.title')}>
       <div className="flex flex-col gap-5 pt-2 pb-8">
         <section aria-labelledby="push-heading" className="flex flex-col gap-4 rounded-md bg-surface p-4 shadow-e1">
-          <div className="flex items-center gap-3">
+          {/* Wraps: a long status (Telugu "install the app first") moves under the title instead of overflowing. */}
+          <div className="flex flex-wrap items-center gap-3">
             <IconCircle size={44} tone="primary">
               <BellIcon />
             </IconCircle>
-            <h2 id="push-heading" className="flex-1 type-headline text-text">
+            <h2 id="push-heading" className="grow type-headline text-text">
               {t('push.title')}
             </h2>
             <Tag tone={STATUS_TONE[push.status]}>{t(STATUS_KEY[push.status])}</Tag>

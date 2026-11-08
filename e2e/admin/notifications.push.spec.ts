@@ -1,4 +1,4 @@
-import { APP_LOCALES, expect, seedOnboardedDevice, test } from '@mc/config/playwright';
+import { APP_LOCALES, axeViolations, expect, seedOnboardedDevice, settle, test } from '@mc/config/playwright';
 import { devices, type Page } from '@playwright/test';
 
 import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
@@ -300,6 +300,49 @@ for (const locale of APP_LOCALES) {
       await expect(screen(page).getByRole('switch')).not.toHaveCount(0); // a switch per followed masjid
       await expectAxeClean();
       await capture('a15-notifications-on');
+    });
+
+    test('blocked in the phone settings, and install-first on an iPhone browser tab: axe + screenshots', async ({
+      browser,
+    }) => {
+      const shot = async (page: Page, name: string) => {
+        await settle(page);
+        expect(await axeViolations(page), `axe ${name}`).toEqual([]);
+        const file = await page.screenshot({ path: test.info().outputPath(`screens/${locale}/${name}.png`) });
+        await test.info().attach(`${locale}-${name}`, { body: file, contentType: 'image/png' });
+      };
+      const t = (key: string) => label(locale, 'settings', key);
+      const phone = await browser.newContext({ ...devices['Pixel 7'], ignoreHTTPSErrors: true });
+      const iphone = await browser.newContext({ ...devices['iPhone 14'], ignoreHTTPSErrors: true });
+      try {
+        for (const context of [phone, iphone]) {
+          await seedOnboardedDevice(context, locale);
+          await context.addInitScript((lang: string) => {
+            localStorage.setItem('mc.locale', lang);
+          }, locale);
+        }
+        // Android: the person answered "Block" — the screen shows how to allow it; the app never prompts again.
+        await phone.addInitScript(() => {
+          Object.defineProperty(Notification, 'permission', { get: () => 'denied' });
+        });
+        const blocked = await phone.newPage();
+        await blocked.goto(`${APP_URL}/settings/notifications`);
+        await expect(screen(blocked).locator('#push-heading').locator('..')).toContainText(t('push.status.blocked'));
+        await expect(screen(blocked).getByText(t('push.blockedTitle'))).toBeVisible();
+        await expect(screen(blocked).getByRole('button', { name: t('push.turnOn') })).toHaveCount(0);
+        await expect(blocked.locator('html')).toHaveAttribute('dir', locale === 'ur' ? 'rtl' : 'ltr');
+        await shot(blocked, 'a15-notifications-blocked');
+
+        // iPhone outside the Home Screen app: install first (with the install steps one tap away).
+        const tab = await iphone.newPage();
+        await tab.goto(`${APP_URL}/settings/notifications`);
+        await expect(screen(tab).locator('#push-heading').locator('..')).toContainText(t('push.status.installFirst'));
+        await expect(screen(tab).getByText(t('push.installFirstBody'))).toBeVisible();
+        await shot(tab, 'a15-notifications-install-first');
+      } finally {
+        await phone.close();
+        await iphone.close();
+      }
     });
   });
 }
