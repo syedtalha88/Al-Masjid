@@ -1,10 +1,21 @@
 import { useLocale, useTranslation } from '@mc/i18n/react';
 import type { SuperSettings, SuperSettingsPatch } from '@mc/shared/contracts';
-import { Button, InfoNote, SectionHeader, Select, SkeletonText, TextField, useToast } from '@mc/ui/components';
+import {
+  Button,
+  Dialog,
+  InfoNote,
+  SectionHeader,
+  Select,
+  SkeletonText,
+  Switch,
+  TextField,
+  useToast,
+} from '@mc/ui/components';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 
+import { SHOW_TEST_ALERT } from '../app/build.ts';
 import { StepUpCancelled, useStepUp } from '../features/auth/components/StepUpProvider.tsx';
 import { useErrorText } from '../features/auth/hooks/use-session.ts';
 import { superApi } from '../features/super/api/super-api.ts';
@@ -22,7 +33,8 @@ function Settings() {
   const settings = useQuery({ queryKey: SETTINGS_KEY, queryFn: ({ signal }) => superApi.settings(signal) });
   return (
     <SuperFrame title={t('nav.settings')} section="settings">
-      <div className="max-w-xl">
+      <div className="flex max-w-xl flex-col gap-8">
+        {settings.data ? <PushSwitches paused={settings.data.pushPaused} /> : null}
         {settings.data ? <SettingsForm initial={settings.data} /> : <SkeletonText lines={10} />}
       </div>
     </SuperFrame>
@@ -159,5 +171,86 @@ function SettingsForm({ initial }: { readonly initial: SuperSettings }) {
         {t('settings.save')}
       </Button>
     </div>
+  );
+}
+
+/**
+ * C10 kill switch ★ (T4.7) — pausing asks first; while paused nothing is sent, posts still publish, and the waiting
+ * notifications go out on resume — and the staging-only test alert (T4.6).
+ */
+function PushSwitches({ paused }: { readonly paused: boolean }) {
+  const { t } = useTranslation('super');
+  const toast = useToast();
+  const errorText = useErrorText();
+  const queryClient = useQueryClient();
+  const run = useStepUp();
+  const [confirm, setConfirm] = useState(false);
+  const toggle = useMutation({
+    mutationFn: (next: boolean) => run(() => superApi.setPushPaused(next)),
+    onSuccess: async (result) => {
+      toast.show({ message: result.paused ? t('push.pausedToast') : t('push.resumedToast'), tone: 'success' });
+      await queryClient.invalidateQueries({ queryKey: SETTINGS_KEY });
+      await queryClient.invalidateQueries({ queryKey: ['super', 'dashboard'] });
+    },
+    onError: (error) => {
+      if (!(error instanceof StepUpCancelled)) toast.show({ message: errorText(error), tone: 'error' });
+    },
+  });
+  const test = useMutation({
+    mutationFn: () => superApi.testAlert(),
+    onSuccess: (result) => {
+      toast.show({
+        message: result.queued ? t('push.testSent') : t('push.testFailed'),
+        tone: result.queued ? 'success' : 'error',
+      });
+    },
+    onError: () => {
+      toast.show({ message: t('push.testFailed'), tone: 'error' });
+    },
+  });
+  return (
+    <section className="flex flex-col gap-3">
+      <SectionHeader title={t('push.title')} />
+      <div className="rounded-md bg-surface px-4 py-1 shadow-e1">
+        <Switch
+          checked={paused}
+          label={`${t('push.pause')} ★`}
+          description={t('push.pauseHint')}
+          disabled={toggle.isPending}
+          onChange={(next) => {
+            if (next) setConfirm(true);
+            else toggle.mutate(false);
+          }}
+        />
+      </div>
+      {SHOW_TEST_ALERT ? (
+        <div className="flex flex-col gap-2">
+          <Button
+            variant="outline"
+            loading={test.isPending}
+            onPress={() => {
+              test.mutate();
+            }}
+          >
+            {t('push.testAlert')}
+          </Button>
+          <p className="type-footnote text-text-secondary">{t('push.testAlertHint')}</p>
+        </div>
+      ) : null}
+      <Dialog
+        open={confirm}
+        destructive
+        title={t('push.confirmTitle')}
+        body={t('push.confirmBody')}
+        confirmLabel={t('push.confirm')}
+        onClose={() => {
+          setConfirm(false);
+        }}
+        onConfirm={() => {
+          setConfirm(false);
+          toggle.mutate(true);
+        }}
+      />
+    </section>
   );
 }

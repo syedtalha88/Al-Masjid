@@ -29,7 +29,13 @@ afterEach(() => {
 // 07 B5–B7: the quota read and the publish moment every flow shares (and its quota refusal), and the flow draft store.
 describe('publish hooks', () => {
   it('reads the quota of the masjid, nothing without one', async () => {
-    vi.mocked(masjidApi.quota).mockResolvedValue({ used: 1, limit: 8, resetsAt: '2026-11-04T18:30:00.000Z' });
+    vi.mocked(masjidApi.quota).mockResolvedValue({
+      used: 1,
+      limit: 8,
+      resetsAt: '2026-11-04T18:30:00.000Z',
+      paused: false,
+      reach: { everyone: 3, brothers: 1, sisters: 2 },
+    });
     const idle = renderHook(() => useQuota(undefined), { wrapper: wrapper(client()) });
     expect(idle.result.current.fetchStatus).toBe('idle');
     const { result } = renderHook(() => useQuota('m1'), { wrapper: wrapper(client()) });

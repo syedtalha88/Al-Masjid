@@ -129,7 +129,6 @@ admin,timings.preview,Preview,झलक,no
 admin,timings.previewTitle,How followers will see it,फ़ॉलोअर्स को ऐसा दिखेगा,no
 admin,timings.showIn,Show in,इसमें दिखाएँ,no
 admin,timings.notify,Notify followers,फ़ॉलोअर्स को सूचना दें,no
-admin,timings.quota,{left} of {limit} left today,आज {limit} में से {left} बाक़ी,no
 admin,timings.save,Save timings,समय सेव करें,no
 admin,timings.confirmTitle,Save these timings?,ये समय सेव करें?,no
 admin,timings.confirmToday,What changes today,आज क्या बदलेगा,no
@@ -194,7 +193,6 @@ admin,special.note,Note,नोट,no
 admin,special.issue.duplicate_time,Two times are the same.,दो समय एक जैसे हैं।,no
 admin,special.issue.date_out_of_range,Choose a date within a year from today.,आज से एक साल के अंदर की तारीख़ चुनें।,no
 admin,special.notify,Notify followers,फ़ॉलोअर्स को सूचना दें,no
-admin,special.quota,{left} of {limit} left today,आज {limit} में से {left} बाक़ी,no
 admin,special.save,Save,सेव करें,no
 admin,special.saved,Saved,सेव हो गया,no
 admin,special.savedNotified,Your followers will be notified.,आपके फ़ॉलोअर्स को सूचना दी जाएगी।,no
@@ -282,7 +280,6 @@ admin,notice.preview,Preview,झलक,no
 admin,notice.showIn,Show in,इसमें दिखाएँ,no
 admin,notice.previewNote,Followers see the photo when they open the notice.,फ़ॉलोअर्स सूचना खोलने पर फ़ोटो देखते हैं।,no
 admin,notice.notify,Notify followers,फ़ॉलोअर्स को सूचना दें,no
-admin,notice.quota,{left} of {limit} left today,आज {limit} में से {left} बाक़ी,no
 admin,notice.publish,Publish,प्रकाशित करें,no
 admin,notice.published,Published,प्रकाशित हो गया,no
 admin,notice.publishedNotified,"{count, plural, one {# person will be notified.} other {# people will be notified.}}","{count, plural, one {# व्यक्ति को सूचना मिलेगी।} other {# लोगों को सूचना मिलेगी।}}",no
@@ -547,6 +544,27 @@ admin,contacts.deleteBody,Musallis will no longer see this person.,मुसल�
 admin,contacts.deleted,Contact removed,संपर्क हटाया गया,no
 admin,bloodCamp.unavailableTitle,The blood camp notice is not ready yet,रक्तदान शिविर की सूचना अभी तैयार नहीं है,no
 admin,bloodCamp.unavailableBody,"Please ask the Super Admin to switch on the ""Blood donation camp"" ready notice.","कृपया सुपर एडमिन से ""रक्तदान शिविर"" वाली तैयार सूचना चालू करने को कहें।",no
+admin,push.reach,"Will notify {count, plural, =0 {no one yet} one {# person} other {# people}} · {left} of {limit} left today","{count, plural, =0 {अभी किसी को सूचना नहीं जाएगी} one {# व्यक्ति को सूचना जाएगी} other {# लोगों को सूचना जाएगी}} · आज {limit} में से {left} बाक़ी",no
+admin,push.paused,Notifications are temporarily paused. Your post goes out now; notifications follow when they resume.,सूचनाएँ कुछ समय के लिए रुकी हुई हैं। आपकी पोस्ट अभी प्रकाशित होगी; सूचनाएँ फिर से शुरू होने पर जाएँगी।,no
+admin,push.history,Notifications,सूचनाएँ,no
+admin,push.historyEmpty,No notifications yet. Each post you publish with “Notify followers” shows here.,अभी कोई सूचना नहीं। “फ़ॉलोअर्स को सूचना दें” के साथ प्रकाशित हर पोस्ट यहाँ दिखेगी।,no
+admin,push.status.pending,Waiting,इंतज़ार में,no
+admin,push.status.running,Sending,भेजी जा रही,no
+admin,push.status.completed,Sent,भेजी गई,no
+admin,push.status.failed,Stopped,रुकी,no
+admin,push.counts,"{sent, plural, one {Sent to # person} other {Sent to # people}} · {failed, plural, =0 {none failed} other {# failed}}","{sent, plural, one {# व्यक्ति को भेजी} other {# लोगों को भेजी}} · {failed, plural, =0 {कोई विफल नहीं} other {# विफल}}",no
+admin,push.targeted,"{count, plural, =0 {No followers with notifications on} one {For # person} other {For # people}}","{count, plural, =0 {सूचनाएँ चालू वाला कोई फ़ॉलोअर नहीं} one {# व्यक्ति के लिए} other {# लोगों के लिए}}",no
+admin,push.audience.everyone,Everyone,सभी,no
+admin,push.audience.brothers,Brothers,भाई,no
+admin,push.audience.sisters,Sisters,बहनें,no
+admin,push.removedPost,Post removed,पोस्ट हटाई गई,no
+admin,push.alerts,Alerts on this phone,इस फ़ोन पर अलर्ट,no
+admin,push.alertsHint,Get an alert here when something needs you (for example a security check).,"जब आपकी ज़रूरत हो (जैसे सुरक्षा जाँच), यहाँ अलर्ट पाएँ।",no
+admin,push.alertsOn,Alerts are on for this phone.,इस फ़ोन पर अलर्ट चालू हैं।,no
+admin,push.alertsBlocked,Notifications are blocked for this app in the phone settings.,फ़ोन की सेटिंग में इस ऐप की सूचनाएँ बंद हैं।,no
+admin,push.alertsUnsupported,This browser cannot show alerts.,यह ब्राउज़र अलर्ट नहीं दिखा सकता।,no
+admin,push.alertsInstallFirst,"On iPhone, alerts work only in the installed app.",iPhone पर अलर्ट सिर्फ़ इंस्टॉल किए गए ऐप में आते हैं।,no
+admin,push.alertsFailed,Could not change alerts. Please try again.,अलर्ट नहीं बदल सके। कृपया फिर से कोशिश करें।,no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no
@@ -1329,6 +1347,25 @@ super,templates.retireTitle,Retire this template?,यह टेम्पले�
 super,templates.retireBody,Admins can no longer pick it. Notices already published with it stay readable.,एडमिन इसे अब नहीं चुन पाएँगे। इससे पहले से भेजी गई सूचनाएँ पढ़ी जा सकेंगी।,no
 super,templates.retired,Template retired.,टेम्पलेट हटा दिया गया।,no
 super,templates.reviewFirst,Review all four translations before activating.,चालू करने से पहले चारों अनुवाद जाँचें।,no
+super,push.title,Notifications (all masjids),सूचनाएँ (सभी मस्जिदें),no
+super,push.pause,Pause all notifications,सभी सूचनाएँ रोकें,no
+super,push.pauseHint,Stops every notification at once. Posts still publish; notifications wait and go out when you resume.,हर सूचना एक साथ रुक जाती है। पोस्ट फिर भी प्रकाशित होती हैं; सूचनाएँ इंतज़ार करती हैं और दोबारा शुरू करने पर जाती हैं।,no
+super,push.pausedBanner,All notifications are paused. Posts still publish; notifications wait until you resume.,सभी सूचनाएँ रुकी हुई हैं। पोस्ट प्रकाशित होती रहती हैं; सूचनाएँ दोबारा शुरू होने तक इंतज़ार करती हैं।,no
+super,push.resume,Resume notifications,सूचनाएँ फिर शुरू करें,no
+super,push.confirmTitle,Pause all notifications?,सभी सूचनाएँ रोकें?,no
+super,push.confirmBody,No masjid's followers will be notified until you resume. Nothing is lost.,दोबारा शुरू करने तक किसी मस्जिद के फ़ॉलोअर्स को सूचना नहीं जाएगी। कुछ भी खोएगा नहीं।,no
+super,push.confirm,Pause,रोकें,no
+super,push.pausedToast,Notifications paused,सूचनाएँ रोकी गईं,no
+super,push.resumedToast,Notifications resumed,सूचनाएँ फिर शुरू हुईं,no
+super,push.stats,Notifications in the last 24 hours,पिछले 24 घंटों की सूचनाएँ,no
+super,push.statsLine,"{sent, number} sent · {failed, number} failed · {pruned, number} phones removed","{sent, number} भेजी गईं · {failed, number} विफल · {pruned, number} फ़ोन हटाए गए",no
+super,push.jobs,"{jobs, plural, one {# notification} other {# notifications}} · {running, number} sending · {failedJobs, number} stopped","{jobs, plural, one {# सूचना} other {# सूचनाएँ}} · {running, number} भेजी जा रहीं · {failedJobs, number} रुकीं",no
+super,push.rate,"Delivered: {rate, number, percent}","पहुँचीं: {rate, number, percent}",no
+super,push.rateNone,Nothing sent yet,अभी कुछ नहीं भेजा गया,no
+super,push.testAlert,Send a test alert,परीक्षण अलर्ट भेजें,no
+super,push.testAlertHint,Sends an alert to your own phones that have alerts on (not in production).,आपके उन फ़ोन पर अलर्ट भेजता है जिन पर अलर्ट चालू हैं (प्रोडक्शन में नहीं)।,no
+super,push.testSent,Test alert sent. It should arrive within a minute.,परीक्षण अलर्ट भेजा गया। एक मिनट में आ जाना चाहिए।,no
+super,push.testFailed,The test alert could not be sent.,परीक्षण अलर्ट नहीं भेजा जा सका।,no
 templates,no_water_time_range.title,No water supply,पानी की आपूर्ति बंद,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} से {hours_end} तक पानी उपलब्ध नहीं रहेगा।,no
 templates,electricity_cut_time_range.title,Power cut,बिजली कटौती,no

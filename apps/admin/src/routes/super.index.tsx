@@ -1,5 +1,5 @@
 import { useLocale, useTranslation } from '@mc/i18n/react';
-import { Card, InfoNote, ListRow, SectionHeader, SkeletonText } from '@mc/ui/components';
+import { Button, Card, InfoNote, ListRow, SectionHeader, SkeletonText } from '@mc/ui/components';
 import { MasjidTile, WarningIcon } from '@mc/ui/icons';
 import { useNavigator } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -14,7 +14,10 @@ export const Route = createFileRoute('/super/')({
 
 const COUNTS = ['pending', 'active', 'suspended', 'deleted'] as const;
 
-/** C1 Dashboard (Phase 1 part): masjid counts and pending activations; SLA cards arrive with moderation (Phase 8). */
+/**
+ * C1 Dashboard: the push kill-switch banner and 24-hour delivery (T4.5, T4.7), masjid counts and pending activations;
+ * SLA cards arrive with moderation (Phase 8).
+ */
 function Dashboard() {
   const { t: ta } = useTranslation('admin');
   const { t } = useTranslation('super');
@@ -39,8 +42,29 @@ function Dashboard() {
         ))}
       </ul>
 
+      {dashboard.data?.push.paused ? (
+        // T4.7: the kill switch is on — a banner until it is resumed in Settings.
+        <div
+          role="status"
+          className="mb-6 flex flex-wrap items-center gap-3 rounded-md bg-danger-bg p-4 type-callout text-danger"
+        >
+          <WarningIcon size={20} className="shrink-0" />
+          <p className="min-w-0 flex-1">{t('push.pausedBanner')}</p>
+          <Button
+            variant="outline"
+            size="md"
+            onPress={() => {
+              navigator.push('/super/settings');
+            }}
+          >
+            {t('push.resume')}
+          </Button>
+        </div>
+      ) : null}
+
       {dashboard.data && dashboard.data.passkeyAlerts > 0 ? (
-        // 04 §3: a passkey whose sign counter went backwards was revoked (possible clone) — the push alert is Phase 4.
+        // 04 §3: a passkey whose sign counter went backwards was revoked (possible clone); Super Admins also get a push
+        // alert (T4.6).
         <div role="status" className="mb-6 flex items-start gap-3 rounded-md bg-danger-bg p-4 type-callout text-danger">
           <WarningIcon size={20} className="mt-px shrink-0" />
           <p className="min-w-0">{t('dashboard.passkeyAlert', { count: dashboard.data.passkeyAlerts })}</p>
@@ -60,6 +84,35 @@ function Dashboard() {
               </li>
             ))}
           </ul>
+        ) : (
+          <SkeletonText lines={2} />
+        )}
+      </section>
+
+      <section className="mt-8 flex flex-col gap-3" data-push-stats>
+        <SectionHeader title={t('push.stats')} />
+        {dashboard.data ? (
+          <Card className="flex flex-col gap-1">
+            <span className="type-headline text-text">
+              {dashboard.data.push.successRate === null
+                ? t('push.rateNone')
+                : t('push.rate', { rate: dashboard.data.push.successRate })}
+            </span>
+            <span className="type-callout text-text-secondary">
+              {t('push.statsLine', {
+                sent: dashboard.data.push.sent,
+                failed: dashboard.data.push.failed,
+                pruned: dashboard.data.push.pruned,
+              })}
+            </span>
+            <span className="type-footnote text-text-tertiary">
+              {t('push.jobs', {
+                jobs: dashboard.data.push.jobs,
+                running: dashboard.data.push.running,
+                failedJobs: dashboard.data.push.failedJobs,
+              })}
+            </span>
+          </Card>
         ) : (
           <SkeletonText lines={2} />
         )}

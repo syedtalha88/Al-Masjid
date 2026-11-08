@@ -129,7 +129,6 @@ admin,timings.preview,Preview,ప్రివ్యూ,no
 admin,timings.previewTitle,How followers will see it,ఫాలోవర్లకు ఇలా కనిపిస్తుంది,no
 admin,timings.showIn,Show in,ఇందులో చూపించు,no
 admin,timings.notify,Notify followers,ఫాలోవర్లకు తెలియజేయండి,no
-admin,timings.quota,{left} of {limit} left today,ఈరోజు {limit}లో {left} మిగిలాయి,no
 admin,timings.save,Save timings,సమయాలు సేవ్ చేయండి,no
 admin,timings.confirmTitle,Save these timings?,ఈ సమయాలు సేవ్ చేయాలా?,no
 admin,timings.confirmToday,What changes today,ఈరోజు ఏం మారుతుంది,no
@@ -194,7 +193,6 @@ admin,special.note,Note,గమనిక,no
 admin,special.issue.duplicate_time,Two times are the same.,రెండు సమయాలు ఒకటే.,no
 admin,special.issue.date_out_of_range,Choose a date within a year from today.,ఈరోజు నుండి ఒక సంవత్సరంలోపు తేదీని ఎంచుకోండి.,no
 admin,special.notify,Notify followers,ఫాలోవర్లకు తెలియజేయండి,no
-admin,special.quota,{left} of {limit} left today,ఈరోజు {limit}లో {left} మిగిలాయి,no
 admin,special.save,Save,సేవ్ చేయండి,no
 admin,special.saved,Saved,సేవ్ అయింది,no
 admin,special.savedNotified,Your followers will be notified.,మీ ఫాలోవర్లకు తెలియజేయబడుతుంది.,no
@@ -282,7 +280,6 @@ admin,notice.preview,Preview,ప్రివ్యూ,no
 admin,notice.showIn,Show in,ఇందులో చూపించు,no
 admin,notice.previewNote,Followers see the photo when they open the notice.,ఫాలోవర్లు ప్రకటనను తెరిచినప్పుడు ఫోటోను చూస్తారు.,no
 admin,notice.notify,Notify followers,ఫాలోవర్లకు తెలియజేయండి,no
-admin,notice.quota,{left} of {limit} left today,ఈరోజు {limit}లో {left} మిగిలాయి,no
 admin,notice.publish,Publish,ప్రచురించండి,no
 admin,notice.published,Published,ప్రచురించబడింది,no
 admin,notice.publishedNotified,"{count, plural, one {# person will be notified.} other {# people will be notified.}}","{count, plural, one {# వ్యక్తికి తెలియజేయబడుతుంది.} other {# మందికి తెలియజేయబడుతుంది.}}",no
@@ -547,6 +544,27 @@ admin,contacts.deleteBody,Musallis will no longer see this person.,ముసల�
 admin,contacts.deleted,Contact removed,పరిచయం తీసివేయబడింది,no
 admin,bloodCamp.unavailableTitle,The blood camp notice is not ready yet,రక్తదాన శిబిరం ప్రకటన ఇంకా సిద్ధంగా లేదు,no
 admin,bloodCamp.unavailableBody,"Please ask the Super Admin to switch on the ""Blood donation camp"" ready notice.","దయచేసి ""రక్తదాన శిబిరం"" సిద్ధ ప్రకటనను ఆన్ చేయమని సూపర్ అడ్మిన్‌ను అడగండి.",no
+admin,push.reach,"Will notify {count, plural, =0 {no one yet} one {# person} other {# people}} · {left} of {limit} left today","{count, plural, =0 {ఇంకా ఎవరికీ నోటిఫికేషన్ వెళ్లదు} one {# వ్యక్తికి నోటిఫికేషన్ వెళ్తుంది} other {# మందికి నోటిఫికేషన్ వెళ్తుంది}} · ఈరోజు {limit}లో {left} మిగిలాయి",no
+admin,push.paused,Notifications are temporarily paused. Your post goes out now; notifications follow when they resume.,నోటిఫికేషన్‌లు తాత్కాలికంగా ఆపివేయబడ్డాయి. మీ పోస్ట్ ఇప్పుడే ప్రచురించబడుతుంది; నోటిఫికేషన్‌లు మళ్లీ మొదలైనప్పుడు వెళ్తాయి.,no
+admin,push.history,Notifications,నోటిఫికేషన్‌లు,no
+admin,push.historyEmpty,No notifications yet. Each post you publish with “Notify followers” shows here.,ఇంకా నోటిఫికేషన్‌లు లేవు. “ఫాలోవర్లకు తెలియజేయండి”తో ప్రచురించిన ప్రతి పోస్ట్ ఇక్కడ కనిపిస్తుంది.,no
+admin,push.status.pending,Waiting,వేచి ఉంది,no
+admin,push.status.running,Sending,పంపుతోంది,no
+admin,push.status.completed,Sent,పంపబడింది,no
+admin,push.status.failed,Stopped,ఆగిపోయింది,no
+admin,push.counts,"{sent, plural, one {Sent to # person} other {Sent to # people}} · {failed, plural, =0 {none failed} other {# failed}}","{sent, plural, one {# వ్యక్తికి పంపబడింది} other {# మందికి పంపబడింది}} · {failed, plural, =0 {ఏదీ విఫలం కాలేదు} other {# విఫలమయ్యాయి}}",no
+admin,push.targeted,"{count, plural, =0 {No followers with notifications on} one {For # person} other {For # people}}","{count, plural, =0 {నోటిఫికేషన్‌లు ఆన్‌లో ఉన్న ఫాలోవర్లు లేరు} one {# వ్యక్తి కోసం} other {# మంది కోసం}}",no
+admin,push.audience.everyone,Everyone,అందరూ,no
+admin,push.audience.brothers,Brothers,సోదరులు,no
+admin,push.audience.sisters,Sisters,సోదరీమణులు,no
+admin,push.removedPost,Post removed,పోస్ట్ తీసివేయబడింది,no
+admin,push.alerts,Alerts on this phone,ఈ ఫోన్‌లో హెచ్చరికలు,no
+admin,push.alertsHint,Get an alert here when something needs you (for example a security check).,మీ అవసరం ఉన్నప్పుడు (ఉదా. భద్రతా తనిఖీ) ఇక్కడ హెచ్చరిక పొందండి.,no
+admin,push.alertsOn,Alerts are on for this phone.,ఈ ఫోన్‌లో హెచ్చరికలు ఆన్‌లో ఉన్నాయి.,no
+admin,push.alertsBlocked,Notifications are blocked for this app in the phone settings.,ఫోన్ సెట్టింగ్‌లలో ఈ యాప్ నోటిఫికేషన్‌లు బ్లాక్ చేయబడ్డాయి.,no
+admin,push.alertsUnsupported,This browser cannot show alerts.,ఈ బ్రౌజర్ హెచ్చరికలను చూపించలేదు.,no
+admin,push.alertsInstallFirst,"On iPhone, alerts work only in the installed app.",iPhoneలో హెచ్చరికలు ఇన్‌స్టాల్ చేసిన యాప్‌లో మాత్రమే వస్తాయి.,no
+admin,push.alertsFailed,Could not change alerts. Please try again.,హెచ్చరికలను మార్చలేకపోయాం. దయచేసి మళ్లీ ప్రయత్నించండి.,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -1329,6 +1347,25 @@ super,templates.retireTitle,Retire this template?,ఈ టెంప్లేట�
 super,templates.retireBody,Admins can no longer pick it. Notices already published with it stay readable.,అడ్మిన్‌లు ఇకపై దీన్ని ఎంచుకోలేరు. దీనితో ఇప్పటికే పంపిన నోటీసులు చదవగలిగేలా ఉంటాయి.,no
 super,templates.retired,Template retired.,టెంప్లేట్ తొలగించబడింది.,no
 super,templates.reviewFirst,Review all four translations before activating.,యాక్టివ్ చేసే ముందు నాలుగు అనువాదాలనూ తనిఖీ చేయండి.,no
+super,push.title,Notifications (all masjids),నోటిఫికేషన్‌లు (అన్ని మసీదులు),no
+super,push.pause,Pause all notifications,అన్ని నోటిఫికేషన్‌లను ఆపండి,no
+super,push.pauseHint,Stops every notification at once. Posts still publish; notifications wait and go out when you resume.,"ప్రతి నోటిఫికేషన్ ఒకేసారి ఆగిపోతుంది. పోస్ట్‌లు ప్రచురించబడతాయి; నోటిఫికేషన్‌లు వేచి ఉండి, మీరు మళ్లీ మొదలుపెట్టినప్పుడు వెళ్తాయి.",no
+super,push.pausedBanner,All notifications are paused. Posts still publish; notifications wait until you resume.,అన్ని నోటిఫికేషన్‌లు ఆపివేయబడ్డాయి. పోస్ట్‌లు ప్రచురించబడతాయి; మళ్లీ మొదలయ్యే వరకు నోటిఫికేషన్‌లు వేచి ఉంటాయి.,no
+super,push.resume,Resume notifications,నోటిఫికేషన్‌లను మళ్లీ మొదలుపెట్టండి,no
+super,push.confirmTitle,Pause all notifications?,అన్ని నోటిఫికేషన్‌లను ఆపాలా?,no
+super,push.confirmBody,No masjid's followers will be notified until you resume. Nothing is lost.,మీరు మళ్లీ మొదలుపెట్టే వరకు ఏ మసీదు ఫాలోవర్లకూ నోటిఫికేషన్ వెళ్లదు. ఏదీ పోదు.,no
+super,push.confirm,Pause,ఆపండి,no
+super,push.pausedToast,Notifications paused,నోటిఫికేషన్‌లు ఆపివేయబడ్డాయి,no
+super,push.resumedToast,Notifications resumed,నోటిఫికేషన్‌లు మళ్లీ మొదలయ్యాయి,no
+super,push.stats,Notifications in the last 24 hours,గత 24 గంటల నోటిఫికేషన్‌లు,no
+super,push.statsLine,"{sent, number} sent · {failed, number} failed · {pruned, number} phones removed","{sent, number} పంపబడ్డాయి · {failed, number} విఫలం · {pruned, number} ఫోన్‌లు తీసివేయబడ్డాయి",no
+super,push.jobs,"{jobs, plural, one {# notification} other {# notifications}} · {running, number} sending · {failedJobs, number} stopped","{jobs, plural, one {# నోటిఫికేషన్} other {# నోటిఫికేషన్‌లు}} · {running, number} పంపుతోంది · {failedJobs, number} ఆగిపోయాయి",no
+super,push.rate,"Delivered: {rate, number, percent}","చేరినవి: {rate, number, percent}",no
+super,push.rateNone,Nothing sent yet,ఇంకా ఏదీ పంపలేదు,no
+super,push.testAlert,Send a test alert,పరీక్ష హెచ్చరిక పంపండి,no
+super,push.testAlertHint,Sends an alert to your own phones that have alerts on (not in production).,హెచ్చరికలు ఆన్‌లో ఉన్న మీ ఫోన్‌లకు ఒక హెచ్చరిక పంపుతుంది (ప్రొడక్షన్‌లో కాదు).,no
+super,push.testSent,Test alert sent. It should arrive within a minute.,పరీక్ష హెచ్చరిక పంపబడింది. ఒక నిమిషంలో రావాలి.,no
+super,push.testFailed,The test alert could not be sent.,పరీక్ష హెచ్చరికను పంపలేకపోయాం.,no
 templates,no_water_time_range.title,No water supply,నీటి సరఫరా నిలిపివేత,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.,no
 templates,electricity_cut_time_range.title,Power cut,విద్యుత్ నిలిపివేత,no

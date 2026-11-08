@@ -12,6 +12,7 @@ import { useErrorText, useSignedInAdmin } from '../features/auth/hooks/use-sessi
 import { masjidApi, masjidKeys } from '../features/home/api/masjid-api.ts';
 import { useMinute } from '../features/home/hooks/use-minute.ts';
 import { useSelectedMasjid } from '../features/home/hooks/use-selected-masjid.ts';
+import { useNotifyLine } from '../features/publish/notify-line.ts';
 import { ConfirmSheet, JumuahEditor, PrayerCard, TimingsPreview } from '../features/timings/components/EditorParts.tsx';
 import { AdhanSheet, JamaatSheet, TimeSheet } from '../features/timings/components/TimingSheets.tsx';
 import { useTimingsEditor } from '../features/timings/hooks/use-timings-editor.ts';
@@ -81,6 +82,8 @@ function Timings() {
   }, [masjid, draft, saved, today]);
 
   const left = quota.data ? Math.max(quota.data.limit - quota.data.used, 0) : null;
+
+  const notifyText = useNotifyLine(quota.data);
   const notify = left === 0 ? false : (notifyChoice ?? view?.notifyDefault ?? false);
   const save = (withNotify: boolean) => {
     editor.save.mutate(
@@ -190,7 +193,7 @@ function Timings() {
               checked: notify,
               onChange: setNotifyChoice,
               label: t('timings.notify'),
-              quota: quota.data && left !== null ? t('timings.quota', { left, limit: quota.data.limit }) : undefined,
+              quota: notifyText,
               disabled: left === 0,
             }}
             actionLabel={t('timings.save')}

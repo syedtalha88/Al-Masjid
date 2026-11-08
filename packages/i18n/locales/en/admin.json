@@ -148,7 +148,6 @@
     "previewTitle": "How followers will see it",
     "showIn": "Show in",
     "notify": "Notify followers",
-    "quota": "{left} of {limit} left today",
     "save": "Save timings",
     "confirmTitle": "Save these timings?",
     "confirmToday": "What changes today",
@@ -221,7 +220,6 @@
       "date_out_of_range": "Choose a date within a year from today."
     },
     "notify": "Notify followers",
-    "quota": "{left} of {limit} left today",
     "save": "Save",
     "saved": "Saved",
     "savedNotified": "Your followers will be notified.",
@@ -319,7 +317,6 @@
     "showIn": "Show in",
     "previewNote": "Followers see the photo when they open the notice.",
     "notify": "Notify followers",
-    "quota": "{left} of {limit} left today",
     "publish": "Publish",
     "published": "Published",
     "publishedNotified": "{count, plural, one {# person will be notified.} other {# people will be notified.}}",
@@ -630,5 +627,32 @@
   "bloodCamp": {
     "unavailableTitle": "The blood camp notice is not ready yet",
     "unavailableBody": "Please ask the Super Admin to switch on the \"Blood donation camp\" ready notice."
+  },
+  "push": {
+    "reach": "Will notify {count, plural, =0 {no one yet} one {# person} other {# people}} · {left} of {limit} left today",
+    "paused": "Notifications are temporarily paused. Your post goes out now; notifications follow when they resume.",
+    "history": "Notifications",
+    "historyEmpty": "No notifications yet. Each post you publish with “Notify followers” shows here.",
+    "status": {
+      "pending": "Waiting",
+      "running": "Sending",
+      "completed": "Sent",
+      "failed": "Stopped"
+    },
+    "counts": "{sent, plural, one {Sent to # person} other {Sent to # people}} · {failed, plural, =0 {none failed} other {# failed}}",
+    "targeted": "{count, plural, =0 {No followers with notifications on} one {For # person} other {For # people}}",
+    "audience": {
+      "everyone": "Everyone",
+      "brothers": "Brothers",
+      "sisters": "Sisters"
+    },
+    "removedPost": "Post removed",
+    "alerts": "Alerts on this phone",
+    "alertsHint": "Get an alert here when something needs you (for example a security check).",
+    "alertsOn": "Alerts are on for this phone.",
+    "alertsBlocked": "Notifications are blocked for this app in the phone settings.",
+    "alertsUnsupported": "This browser cannot show alerts.",
+    "alertsInstallFirst": "On iPhone, alerts work only in the installed app.",
+    "alertsFailed": "Could not change alerts. Please try again."
   }
 }

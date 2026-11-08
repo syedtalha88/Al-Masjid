@@ -129,7 +129,6 @@ admin,timings.preview,Preview,جھلک,no
 admin,timings.previewTitle,How followers will see it,فالوورز کو ایسا نظر آئے گا,no
 admin,timings.showIn,Show in,اس میں دکھائیں,no
 admin,timings.notify,Notify followers,فالوورز کو اطلاع دیں,no
-admin,timings.quota,{left} of {limit} left today,آج {limit} میں سے {left} باقی,no
 admin,timings.save,Save timings,اوقات محفوظ کریں,no
 admin,timings.confirmTitle,Save these timings?,یہ اوقات محفوظ کریں؟,no
 admin,timings.confirmToday,What changes today,آج کیا بدلے گا,no
@@ -194,7 +193,6 @@ admin,special.note,Note,نوٹ,no
 admin,special.issue.duplicate_time,Two times are the same.,دو اوقات ایک جیسے ہیں۔,no
 admin,special.issue.date_out_of_range,Choose a date within a year from today.,آج سے ایک سال کے اندر کی تاریخ چنیں۔,no
 admin,special.notify,Notify followers,فالوورز کو اطلاع دیں,no
-admin,special.quota,{left} of {limit} left today,آج {limit} میں سے {left} باقی,no
 admin,special.save,Save,محفوظ کریں,no
 admin,special.saved,Saved,محفوظ ہو گیا,no
 admin,special.savedNotified,Your followers will be notified.,آپ کے فالوورز کو اطلاع دی جائے گی۔,no
@@ -282,7 +280,6 @@ admin,notice.preview,Preview,جھلک,no
 admin,notice.showIn,Show in,اس میں دکھائیں,no
 admin,notice.previewNote,Followers see the photo when they open the notice.,فالوورز اعلان کھولنے پر تصویر دیکھتے ہیں۔,no
 admin,notice.notify,Notify followers,فالوورز کو اطلاع دیں,no
-admin,notice.quota,{left} of {limit} left today,آج {limit} میں سے {left} باقی,no
 admin,notice.publish,Publish,شائع کریں,no
 admin,notice.published,Published,شائع ہو گیا,no
 admin,notice.publishedNotified,"{count, plural, one {# person will be notified.} other {# people will be notified.}}","{count, plural, one {# شخص کو اطلاع ملے گی۔} other {# لوگوں کو اطلاع ملے گی۔}}",no
@@ -547,6 +544,27 @@ admin,contacts.deleteBody,Musallis will no longer see this person.,مصلی اب
 admin,contacts.deleted,Contact removed,رابطہ ہٹا دیا گیا,no
 admin,bloodCamp.unavailableTitle,The blood camp notice is not ready yet,خون کے عطیے کے کیمپ کا اعلان ابھی تیار نہیں,no
 admin,bloodCamp.unavailableBody,"Please ask the Super Admin to switch on the ""Blood donation camp"" ready notice.","براہِ کرم سپر ایڈمن سے ""خون کے عطیے کا کیمپ"" والا تیار اعلان چالو کرنے کو کہیں۔",no
+admin,push.reach,"Will notify {count, plural, =0 {no one yet} one {# person} other {# people}} · {left} of {limit} left today","{count, plural, =0 {ابھی کسی کو اطلاع نہیں جائے گی} one {# شخص کو اطلاع جائے گی} other {# لوگوں کو اطلاع جائے گی}} · آج {limit} میں سے {left} باقی",no
+admin,push.paused,Notifications are temporarily paused. Your post goes out now; notifications follow when they resume.,اطلاعات عارضی طور پر روکی گئی ہیں۔ آپ کی پوسٹ ابھی شائع ہوگی؛ اطلاعات دوبارہ شروع ہونے پر جائیں گی۔,no
+admin,push.history,Notifications,اطلاعات,no
+admin,push.historyEmpty,No notifications yet. Each post you publish with “Notify followers” shows here.,ابھی کوئی اطلاع نہیں۔ ”فالوورز کو اطلاع دیں“ کے ساتھ شائع ہر پوسٹ یہاں نظر آئے گی۔,no
+admin,push.status.pending,Waiting,انتظار میں,no
+admin,push.status.running,Sending,بھیجی جا رہی,no
+admin,push.status.completed,Sent,بھیج دی گئی,no
+admin,push.status.failed,Stopped,رک گئی,no
+admin,push.counts,"{sent, plural, one {Sent to # person} other {Sent to # people}} · {failed, plural, =0 {none failed} other {# failed}}","{sent, plural, one {# شخص کو بھیجی} other {# لوگوں کو بھیجی}} · {failed, plural, =0 {کوئی ناکام نہیں} other {# ناکام}}",no
+admin,push.targeted,"{count, plural, =0 {No followers with notifications on} one {For # person} other {For # people}}","{count, plural, =0 {اطلاعات آن والا کوئی فالوور نہیں} one {# شخص کے لیے} other {# لوگوں کے لیے}}",no
+admin,push.audience.everyone,Everyone,سب,no
+admin,push.audience.brothers,Brothers,بھائی,no
+admin,push.audience.sisters,Sisters,بہنیں,no
+admin,push.removedPost,Post removed,پوسٹ ہٹا دی گئی,no
+admin,push.alerts,Alerts on this phone,اس فون پر الرٹ,no
+admin,push.alertsHint,Get an alert here when something needs you (for example a security check).,جب آپ کی ضرورت ہو (جیسے سیکیورٹی جانچ) تو یہاں الرٹ پائیں۔,no
+admin,push.alertsOn,Alerts are on for this phone.,اس فون پر الرٹ آن ہیں۔,no
+admin,push.alertsBlocked,Notifications are blocked for this app in the phone settings.,فون کی سیٹنگز میں اس ایپ کی اطلاعات بند ہیں۔,no
+admin,push.alertsUnsupported,This browser cannot show alerts.,یہ براؤزر الرٹ نہیں دکھا سکتا۔,no
+admin,push.alertsInstallFirst,"On iPhone, alerts work only in the installed app.",iPhone پر الرٹ صرف انسٹال شدہ ایپ میں آتے ہیں۔,no
+admin,push.alertsFailed,Could not change alerts. Please try again.,الرٹ تبدیل نہیں ہو سکے۔ براہِ کرم دوبارہ کوشش کریں۔,no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no
@@ -1329,6 +1347,25 @@ super,templates.retireTitle,Retire this template?,یہ ٹیمپلیٹ ہٹائی
 super,templates.retireBody,Admins can no longer pick it. Notices already published with it stay readable.,ایڈمن اسے مزید نہیں چن سکیں گے۔ اس سے پہلے بھیجی گئی اطلاعات پڑھی جا سکیں گی۔,no
 super,templates.retired,Template retired.,ٹیمپلیٹ ہٹا دیا گیا۔,no
 super,templates.reviewFirst,Review all four translations before activating.,فعال کرنے سے پہلے چاروں تراجم جانچیں۔,no
+super,push.title,Notifications (all masjids),اطلاعات (تمام مساجد),no
+super,push.pause,Pause all notifications,تمام اطلاعات روکیں,no
+super,push.pauseHint,Stops every notification at once. Posts still publish; notifications wait and go out when you resume.,ہر اطلاع ایک ساتھ رک جاتی ہے۔ پوسٹیں پھر بھی شائع ہوتی ہیں؛ اطلاعات انتظار کرتی ہیں اور دوبارہ شروع کرنے پر جاتی ہیں۔,no
+super,push.pausedBanner,All notifications are paused. Posts still publish; notifications wait until you resume.,تمام اطلاعات رکی ہوئی ہیں۔ پوسٹیں شائع ہوتی رہتی ہیں؛ اطلاعات دوبارہ شروع ہونے تک انتظار کرتی ہیں۔,no
+super,push.resume,Resume notifications,اطلاعات دوبارہ شروع کریں,no
+super,push.confirmTitle,Pause all notifications?,تمام اطلاعات روکیں؟,no
+super,push.confirmBody,No masjid's followers will be notified until you resume. Nothing is lost.,دوبارہ شروع کرنے تک کسی مسجد کے فالوورز کو اطلاع نہیں جائے گی۔ کچھ ضائع نہیں ہوگا۔,no
+super,push.confirm,Pause,روکیں,no
+super,push.pausedToast,Notifications paused,اطلاعات روک دی گئیں,no
+super,push.resumedToast,Notifications resumed,اطلاعات دوبارہ شروع ہو گئیں,no
+super,push.stats,Notifications in the last 24 hours,پچھلے 24 گھنٹوں کی اطلاعات,no
+super,push.statsLine,"{sent, number} sent · {failed, number} failed · {pruned, number} phones removed","{sent, number} بھیجی گئیں · {failed, number} ناکام · {pruned, number} فون ہٹائے گئے",no
+super,push.jobs,"{jobs, plural, one {# notification} other {# notifications}} · {running, number} sending · {failedJobs, number} stopped","{jobs, plural, one {# اطلاع} other {# اطلاعات}} · {running, number} بھیجی جا رہی ہیں · {failedJobs, number} رک گئیں",no
+super,push.rate,"Delivered: {rate, number, percent}","پہنچیں: {rate, number, percent}",no
+super,push.rateNone,Nothing sent yet,ابھی کچھ نہیں بھیجا گیا,no
+super,push.testAlert,Send a test alert,آزمائشی الرٹ بھیجیں,no
+super,push.testAlertHint,Sends an alert to your own phones that have alerts on (not in production).,آپ کے ان فونز پر الرٹ بھیجتا ہے جن پر الرٹ آن ہیں (پروڈکشن میں نہیں)۔,no
+super,push.testSent,Test alert sent. It should arrive within a minute.,آزمائشی الرٹ بھیج دیا گیا۔ ایک منٹ میں آ جانا چاہیے۔,no
+super,push.testFailed,The test alert could not be sent.,آزمائشی الرٹ نہیں بھیجا جا سکا۔,no
 templates,no_water_time_range.title,No water supply,پانی کی فراہمی بند,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} سے {hours_end} تک پانی دستیاب نہیں ہوگا۔,no
 templates,electricity_cut_time_range.title,Power cut,بجلی بند,no
