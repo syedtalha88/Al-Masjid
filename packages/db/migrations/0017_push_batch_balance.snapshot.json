@@ -1,0 +1,181 @@
+{
+  "collections": [
+    {
+      "name": "notification_jobs",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "item_id",
+          "masjid_id",
+          "status",
+          "audience",
+          "audience_targets",
+          "targeted",
+          "sent",
+          "failed",
+          "pruned",
+          "pending_batches",
+          "bypass_quota",
+          "created_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "item_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["pending", "running", "completed", "failed"]
+          },
+          "audience": {
+            "bsonType": "string",
+            "enum": ["everyone", "brothers", "sisters"]
+          },
+          "audience_targets": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "string",
+              "enum": ["brothers", "sisters"]
+            },
+            "maxItems": {
+              "$numberInt": "2"
+            },
+            "uniqueItems": true
+          },
+          "targeted": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "sent": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "failed": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "pruned": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "pending_batches": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "-2000000000"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "bypass_quota": {
+            "bsonType": "bool"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "started_at": {
+            "bsonType": "date"
+          },
+          "last_progress_at": {
+            "bsonType": "date"
+          },
+          "completed_at": {
+            "bsonType": "date"
+          },
+          "last_error": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "500"
+            }
+          },
+          "fanout_page": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "2000000000"
+            }
+          },
+          "fanout_cursor": {
+            "bsonType": "binData"
+          },
+          "fanout_done": {
+            "bsonType": "bool"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "status_created",
+          "key": {
+            "status": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "masjid_created",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "-1"
+            }
+          }
+        },
+        {
+          "name": "item",
+          "key": {
+            "item_id": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "status_progress",
+          "key": {
+            "status": {
+              "$numberInt": "1"
+            },
+            "last_progress_at": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "views": []
+}

@@ -14,6 +14,8 @@ export interface SendLedger {
   markSent(jobId: string, deviceIds: readonly string[]): Promise<void>;
   /** `true` exactly once per (job, batch): the caller then records the batch's result. */
   claimBatch(jobId: string, batchId: string): Promise<boolean>;
+  /** Undoes a claim whose result could not be recorded, so the batch's retry records it (DECISIONS #140). */
+  releaseBatch(jobId: string, batchId: string): Promise<void>;
 }
 
 /**
@@ -42,6 +44,9 @@ export function redisSendLedger(redis: Redis, prefix = 'push:'): SendLedger {
       const added = await redis.sadd(doneKey(jobId), batchId);
       await redis.expire(doneKey(jobId), LEDGER_TTL_S);
       return added === 1;
+    },
+    async releaseBatch(jobId, batchId) {
+      await redis.srem(doneKey(jobId), batchId);
     },
   };
 }

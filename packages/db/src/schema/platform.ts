@@ -145,7 +145,9 @@ const notificationJobs = documentSchema({
   sent: count(),
   failed: count(),
   pruned: count(),
-  pending_batches: count(),
+  // A balance, not a count: the fan-out enqueues a page's batches before it records `+batches`, so a fast batch may
+  // count off first and take it below 0 for a moment (DECISIONS #140). The job completes at ≤ 0 once `fanout_done`.
+  pending_batches: f.int(-2_000_000_000, 2_000_000_000),
   bypass_quota: f.bool(),
   created_at: f.instant(),
   started_at: opt(f.instant()),

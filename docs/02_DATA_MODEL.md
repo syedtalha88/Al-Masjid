@@ -174,7 +174,7 @@ State machine (enforced **only** by `packages/db/src/state/payment.ts` — §3):
 
 **admin_push_subscriptions**: `_id`, `admin_id`, `endpoint` unique, `p256dh`, `auth`, `created_at`, `last_ok_at`. Used for Super Admin SLA alerts and admin alerts such as "UPI change approved", "video ready/failed". Policy: admin find/insert/delete own.
 
-**notification_jobs** (the push **outbox**): `_id`, `item_id`, `masjid_id`, `status job_status`, `audience`, `audience_targets [audience_pref]`, `targeted int`, `sent int`, `failed int`, `pruned int`, `pending_batches int`, `bypass_quota bool`, `created_at`, `started_at`, `last_progress_at`, `completed_at`, `last_error ≤500`. Indexes: `{status:1, created_at:1}` · `{masjid_id:1, created_at:-1}` · `{item_id:1}`.
+**notification_jobs** (the push **outbox**): `_id`, `item_id`, `masjid_id`, `status job_status`, `audience`, `audience_targets [audience_pref]`, `targeted int`, `sent int`, `failed int`, `pruned int`, `pending_batches int` (a balance: batches may count off before the fan-out records their page, so it can dip below 0 for a moment — the job completes at ≤ 0 once `fanout_done`; migration 0017, DECISIONS #140), `bypass_quota bool`, `created_at`, `started_at`, `last_progress_at`, `completed_at`, `last_error ≤500`. Indexes: `{status:1, created_at:1}` · `{masjid_id:1, created_at:-1}` · `{item_id:1}`.
 **push_quota_usage**: `_id` = `"<masjidId>:<YYYY-MM-DD>"` (IST day), `masjid_id`, `day`, `count int`. Incremented with conditional update (`count < quota`) inside the publish transaction.
 
 ### Moderation, grievance, legal, audit

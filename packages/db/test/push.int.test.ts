@@ -271,6 +271,26 @@ describe('fan-out state (system scope, mc_system)', () => {
     expect(await failJob(sys(), SYSTEM, jobId, 'late', NOW)).toBe(false); // completed stays completed
   });
 
+  it('batches may count off before the fan-out records their page (the balance dips below 0; DECISIONS #140)', async () => {
+    const masjid = await emptyMasjid();
+    const jobId = await pendingJob(masjid);
+    await beginFanout(sys(), SYSTEM, jobId, NOW);
+    // The fan-out enqueued its last page's two batches; both finish before it records the page.
+    await recordBatchResult(sys(), SYSTEM, jobId, { sent: 3, failed: 0, pruned: 0 }, NOW);
+    await recordBatchResult(sys(), SYSTEM, jobId, { sent: 2, failed: 1, pruned: 0 }, NOW);
+    expect(await getFanoutJob(sys(), SYSTEM, jobId)).toMatchObject({ status: 'running', pendingBatches: -2 });
+    const last = { page: 0, cursor: newId(), batches: 2, targeted: 6, done: true };
+    expect(await recordFanoutPage(sys(), SYSTEM, jobId, last, NOW)).toBe(true);
+    expect(await completeIfDone(sys(), SYSTEM, jobId, NOW)).toBe(true); // the fan-out's own final check
+    expect(await raw('notification_jobs').findOne({ _id: jobId })).toMatchObject({
+      status: 'completed',
+      targeted: 6,
+      sent: 5,
+      failed: 1,
+      pending_batches: 0,
+    });
+  });
+
   it('subscriptions: only active ones are read; gone ones are marked dead only while the endpoint is unchanged', async () => {
     const masjid = await emptyMasjid();
     const a = await device(masjid);

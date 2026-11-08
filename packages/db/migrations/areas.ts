@@ -63,4 +63,6 @@ export const SCHEMA_AREAS: Readonly<
   '0015_ruqyah_view': { collections: [], views: ['v_pub_ruqyah'] },
   // PHASE_04 T4.4 (DECISIONS #138): resumable fan-out progress on the outbox, the stuck-job index.
   '0016_push_fanout': { collections: ['notification_jobs'] },
+  // PHASE_04 T4.9 (DECISIONS #140): `pending_batches` is a balance that may dip below 0 for a moment.
+  '0017_push_batch_balance': { collections: ['notification_jobs'] },
 };

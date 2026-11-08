@@ -17,6 +17,7 @@ import { Redis } from 'ioredis';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import webpush from 'web-push';
 
+import { processSendBatch } from '../src/jobs/push/send-batch.ts';
 import { processOutboxSweep } from '../src/jobs/push/sweeper.ts';
 import { runDevSeed } from '../src/jobs/seed.ts';
 import { type RunningJobWorkers, startJobWorkers } from '../src/jobs/worker.ts';
@@ -244,10 +245,15 @@ describe('push pipeline', () => {
     expect(payloadOf(en)).toMatchObject({ t: 'Test Masjid Push', l: 'en' });
     expect(payloadOf(ur)).toMatchObject({ t: 'ٹیسٹ مسجد پش', l: 'ur' });
     expect(en.headers).toMatchObject({ Urgency: 'normal', TTL: '86400', Topic: payloadOf(en).tag });
-    const batches = await running().queues.queue('push-send-batch').getJobs(['completed']);
-    const ours = batches
-      .map((entry) => entry.data as { jobId: string; locale: string }) // validated send-batch payloads
-      .filter((data) => data.jobId === jobId);
+    // The job document completes inside the last batch's processor, a moment before BullMQ moves that batch to its
+    // completed set — so wait for BullMQ instead of reading the set once.
+    const ours = await waitFor(async () => {
+      const batches = await running().queues.queue('push-send-batch').getJobs(['completed']);
+      const mine = batches
+        .map((entry) => entry.data as { jobId: string; locale: string }) // validated send-batch payloads
+        .filter((data) => data.jobId === jobId);
+      return mine.length >= 2 ? mine : undefined;
+    }, `both send batches of ${jobId} to complete`);
     expect(ours.map((data) => data.locale).sort()).toEqual(['en', 'ur']);
   });
 
@@ -375,5 +381,31 @@ describe('push pipeline', () => {
     expect(failed?.attemptsMade).toBe(1);
     expect(failed?.failedReason).toBe('invalid push-send-batch job payload');
     expect(service.requests).toHaveLength(0);
+  });
+
+  it('a batch whose counter write fails is counted by its retry — the ledger claim is released (DECISIONS #140)', async () => {
+    const id = await masjid();
+    const device = await follower(id);
+    const jobId = await published(id);
+    // A running job whose counters cannot take another send (at the validator's maximum): the write fails.
+    await raw('notification_jobs').updateOne(
+      { _id: idOf(jobId) },
+      { $set: { status: 'running', sent: 2_000_000_000, pending_batches: 1, fanout_page: 1, fanout_done: true } },
+    );
+    const deps = {
+      db: sys(),
+      ledger: redisSendLedger(testRedis().redis),
+      sender: createPushSender({ vapid: VAPID, transport: service.transport }),
+      clock: { now: () => NOW },
+      logger: silentLogger(),
+    };
+    const payload = { jobId, page: 0, locale: 'en' as const, deviceIds: [idText(device)] };
+    await expect(processSendBatch(deps, payload, { final: false })).rejects.toThrow(/validation/i);
+    expect(deliveredTo([device])).toHaveLength(1); // sent once, and recorded in the sent-set
+
+    await raw('notification_jobs').updateOne({ _id: idOf(jobId) }, { $set: { sent: 0 } });
+    expect(await processSendBatch(deps, payload, { final: false })).toMatchObject({ sent: 1, counted: true });
+    expect(deliveredTo([device])).toHaveLength(1); // the retry did not send again
+    expect(await job(jobId)).toMatchObject({ status: 'completed', sent: 1, pending_batches: 0 });
   });
 });

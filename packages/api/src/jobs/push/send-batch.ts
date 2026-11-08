@@ -66,6 +66,30 @@ async function eachLimited<T>(items: readonly T[], limit: number, task: (item: T
 }
 
 /**
+ * Records a batch's result exactly once: claims it in the ledger, then writes the job's counters. When the write fails
+ * the claim is released and the error rethrown, so BullMQ's retry records it — a lost claim would leave the job's
+ * balance above 0 for good (DECISIONS #140).
+ *
+ * @returns whether this call recorded the batch (false: an earlier run already had).
+ * @throws the database error of the counter write (the claim is released first).
+ */
+async function countOnce(
+  deps: Pick<SendBatchDeps, 'db' | 'ledger' | 'clock'>,
+  jobId: NonNullable<ReturnType<typeof parseId>>,
+  batch: { readonly jobKey: string; readonly batchId: string },
+  result: { readonly sent: number; readonly failed: number; readonly pruned: number },
+): Promise<boolean> {
+  if (!(await deps.ledger.claimBatch(batch.jobKey, batch.batchId))) return false;
+  try {
+    await recordBatchResult(deps.db, systemScope(), jobId, result, deps.clock.now());
+  } catch (error) {
+    await deps.ledger.releaseBatch(batch.jobKey, batch.batchId);
+    throw error;
+  }
+  return true;
+}
+
+/**
  * Sends one batch.
  *
  * @param attempt.final - BullMQ's last attempt: no retry is left, so unsent devices count as failed now.
@@ -88,8 +112,7 @@ export async function processSendBatch(
   const content = await getPushContent(deps.db, scope, job.itemId);
   if (!content?.published) {
     // Deleted or removed while sending: stop, and count the batch off so the job can finish.
-    const counted = await deps.ledger.claimBatch(payload.jobId, batchId);
-    if (counted) await recordBatchResult(deps.db, scope, jobId, { sent: 0, failed: 0, pruned: 0 }, deps.clock.now());
+    const counted = await countOnce(deps, jobId, { jobKey: payload.jobId, batchId }, { sent: 0, failed: 0, pruned: 0 });
     return { ...none, counted };
   }
   const message = JSON.stringify(pushMessage(content, payload.locale));
@@ -135,9 +158,8 @@ export async function processSendBatch(
   if (retry.length > 0 && !attempt.final) throw new PushRetryError(retry.length);
 
   // The batch's last run: count it once. Sent = every device of the batch in the sent-set (earlier runs included).
-  const counted = await deps.ledger.claimBatch(payload.jobId, batchId);
   const sent = already.size + sentNow;
   const failed = retry.length + rejected;
-  if (counted) await recordBatchResult(deps.db, scope, jobId, { sent, failed, pruned: 0 }, deps.clock.now());
+  const counted = await countOnce(deps, jobId, { jobKey: payload.jobId, batchId }, { sent, failed, pruned: 0 });
   return { sent, failed, pruned, counted };
 }
