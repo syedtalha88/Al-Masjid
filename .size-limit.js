@@ -18,9 +18,11 @@ import { join } from 'node:path';
  * chunks (+3.1 kB, mostly lost gzip context; owner 24 Oct 2026: "10–20 kB is fine, focus on quality" — DECISIONS #100);
  * 186 kB since T2.12 — the start-up sync of queued Settings changes / a queued "Clear all data" and the stored
  * Vibration choice (F16) run from the data layer in the entry (+1.1 kB — DECISIONS #101); 187 kB since T3.14 — Home's
- * "Adhkar after salah" card and its window (186.01 kB — DECISIONS #129).
+ * "Adhkar after salah" card and its window (186.01 kB — DECISIONS #129); 188 kB since T4.2 — the push bridge (a tapped
+ * notification opens its screen) and the soft-ask shell after the first follow (187.65 kB, +0.65 kB; the subscription
+ * code itself, `lib/push.ts`, and the ask sheet stay lazy — DECISIONS #140).
  */
-const APP_INITIAL_JS = '187 kB';
+const APP_INITIAL_JS = '188 kB';
 const ADMIN_INITIAL_JS = '220 kB';
 const INITIAL_CSS = '25 kB';
 const LAZY_CHUNK = '60 kB';
