@@ -2236,3 +2236,36 @@ only executable in the image is `node`. (Caddy's findings were fixable and are f
 `expired_at: 2026-11-15`; CI and the nightly pass it only for the server image (`mc-server:local`, deployed
 `al-masjid-server@…`). Checked with Trivy 0.75.0: the scan passes with the file and fails again with an expired date.
 Follow-up F61: new distroless digest, then delete the entries.
+
+### #142 — Phase 04 security review fixed: paused jobs never fail as stuck, revocations stop alerts, no Topic header, send-time follow check; warm Lighthouse score tolerance (PHASE_04) — ACCEPTED (Claude Code; M3 decided by the owner, 8 Nov 2026)
+
+**Context.** `security-reviewer` on `origin/main...feat/phase-04` (8 Nov 2026): 0 HIGH, 3 MEDIUM, 11 LOW. CI `64b0234`:
+image scan, e2e (254 passed, 1 flaky) and motion perf green; the musalli **warm** Lighthouse performance score 89 < 90
+(TBT 453 ms, LCP 665 ms, CLS 0.001, benchmarkIndex 2293); cold LCP 2485 ms passed.
+**Decision.**
+- **M1 — a pause or worker stop longer than 10 min no longer loses notifications.** The stuck-job detector does not run
+  while `push_paused`; a quiet running job whose fan-out or any send batch still waits in BullMQ (waiting / delayed /
+  active) only gets `last_progress_at` refreshed (`listStuckCandidates` + `touchJobProgress`, replacing
+  `failStuckJobs`); only a job with nothing left anywhere is failed + alerted. Test: a running job paused past the window
+  → no failure, no alert → completes on resume.
+- **M2 — revoking stops alerts.** `revokeAdminSessions`, `revokeAdminPasskeys` (Super Admin ★) and "sign out
+  everywhere" (`revokeSessions` without a session id) delete the admin's `admin_push_subscriptions` in the same
+  transaction. Kept on purpose: the counter-regression path (its alert must reach the real owner) and one-device logout
+  (the app removes its own subscription; no session ↔ subscription link exists — F65).
+- **M3 — no `Topic` header (owner's choice, of: keyed hash / drop / keep).** It reaches FCM / APNs unencrypted and the
+  public item id would reveal which masjid a phone follows. The service worker's `tag` still replaces an earlier
+  notification of the same item on the phone. 01 §5.3 updated.
+- **L1** push-pause route `auth: 'super_step_up'` (the state function still checks). **L5** a send batch reads only
+  devices that still follow the job's masjid unmuted, push on, targeted choice (unfollow / mute during a pause; a forged
+  batch cannot reach other devices). **L6** hook detector knows `/test/push-captured` and `e2e:push:captured`
+  (`check:image` OK). **L7** log redaction: `auth`, `push_*`, two levels deep (unit test). **L8** Trivy ignores carry the
+  zlib1g purl (verified: another package with the same ids still fails). **L9** "Clear all data" ends the browser push
+  subscription. **L10** failed send batches leave Redis after a day.
+- **Deferred with reason (follow-ups):** L2 timed-out send batch keeps running (duplicate at most one buzz, collapsed by
+  `tag` — F62); L3 `Retry-After` not honoured beyond BullMQ backoff (F63); L4 pause bites per batch, ≤ 4 × 1,000 sends
+  (F64); L11 `apk upgrade` makes the Caddy build non-reproducible — accepted while the Trivy gate and digest deploys
+  stand, removed with F24.
+- **Warm Lighthouse:** `WARM_BUDGETS.categoryTolerance.performance = 0.02` — up to two points under 90 is printed as a
+  note, not a failure (the score is weighted by the ungated service-worker TBT burst, #51 / F27; owner's standing rule
+  on small budget overruns, #116 / #136). Cold scores have no tolerance (unit-tested).
+**Consequences.** API int 345 (branches 85.3 %), db int 310 (lines 97.0 %), unit app 193 / api 181 / config 68.
