@@ -3,6 +3,7 @@ import { devices } from '@playwright/test';
 
 import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
 import { followByCode, registerDevice } from '../support/device.ts';
+import { awaitNewestJob, awaitPushes, capturedPushes, fakeSubscription, subscribeDevice } from '../support/push.ts';
 import {
   CSRF,
   HOOKS,
@@ -93,8 +94,10 @@ test.describe('B7 dua request creator (T3.8)', () => {
       const musalli = await page.context().newPage();
       await musalli.clock.install();
       await musalli.goto(APP_URL);
-      await registerDevice(musalli);
+      await registerDevice(musalli, { locale: 'hi' });
       await followByCode(musalli, APP_URL, [followCode]);
+      const subscription = fakeSubscription(); // notifications on for this phone (T4.9)
+      await subscribeDevice(musalli, subscription);
       await musalli.goto(`${APP_URL}/masjid/${masjidId}/duas`);
       await expect(musalli.locator('html')).toHaveAttribute('lang', 'hi');
 
@@ -134,6 +137,15 @@ test.describe('B7 dua request creator (T3.8)', () => {
       await admin.getByRole('button', { name: 'Done' }).click();
       await expect(admin).toHaveURL(`${ADMIN_URL}/`);
       await expect(admin.getByText('Notifications today: 1 of 8 used')).toBeVisible();
+      // T4.9: one notification for everyone, this follower targeted and sent — in Hindi, without the private name.
+      expect(await awaitNewestJob(admin.request, masjidId)).toMatchObject({
+        audience: 'everyone',
+        targeted: 1,
+        sent: 1,
+      });
+      const [pushed] = await awaitPushes(admin.request, subscription.endpoint, 1);
+      expect(JSON.parse(pushed?.payload ?? 'null')).toMatchObject({ v: 1, l: 'hi' });
+      expect(pushed?.payload).not.toContain(NAME);
 
       // One version poll later the Hindi musalli sees the request — with the Hindi message, without the name.
       await musalli.clock.fastForward('01:05');
@@ -162,6 +174,7 @@ test.describe('B7 dua request creator (T3.8)', () => {
       await admin.getByRole('button', { name: 'Publish', exact: true }).click();
       await expect(admin.getByText('Followers will see it in the app.')).toBeVisible();
       await admin.getByRole('button', { name: 'Done' }).click();
+      expect(await capturedPushes(admin.request, subscription.endpoint)).toHaveLength(1); // not notified
       await musalli.clock.fastForward('01:05');
       const inteqal = musalli.getByRole('listitem').filter({ hasText: /जनाज़ा: .*Test place/ });
       await expect(inteqal).toBeVisible();

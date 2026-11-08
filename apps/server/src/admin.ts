@@ -46,6 +46,7 @@ const pepper = Buffer.from(env.SESSION_PEPPER, 'base64'); // validated: ≥ 32 b
 const hooks = await loadTestHooks(env, 'api-admin', logger, undefined, {
   admin: { db: connections.db, pepper, adminOrigin: env.ADMIN_ORIGIN },
   resetRateLimits: () => clearRedisRateLimits(connections.redis, 'rl:adm:'),
+  redis: connections.redis,
 });
 const clock = hooks?.clock ?? systemClock;
 const { app } = createAdminApp({

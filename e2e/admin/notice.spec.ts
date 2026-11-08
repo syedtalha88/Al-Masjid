@@ -4,6 +4,14 @@ import { devices } from '@playwright/test';
 import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
 import { followByCode, registerDevice } from '../support/device.ts';
 import {
+  awaitNewestJob,
+  awaitPushes,
+  capturedPushes,
+  fakeSubscription,
+  notificationJobs,
+  subscribeDevice,
+} from '../support/push.ts';
+import {
   CSRF,
   HOOKS,
   registerWithInvite,
@@ -93,8 +101,10 @@ test.describe('B5 notice creator (T3.6)', () => {
       const musalli = await page.context().newPage();
       await musalli.clock.install();
       await musalli.goto(APP_URL);
-      await registerDevice(musalli);
+      await registerDevice(musalli, { locale: 'te' });
       await followByCode(musalli, APP_URL, [followCode]);
+      const subscription = fakeSubscription(); // notifications on for this phone (T4.9)
+      await subscribeDevice(musalli, subscription);
       await musalli.goto(`${APP_URL}/masjid/${masjidId}/announcements`);
       await expect(musalli.locator('html')).toHaveAttribute('lang', 'te');
 
@@ -152,6 +162,15 @@ test.describe('B5 notice creator (T3.6)', () => {
       await admin.getByRole('button', { name: 'Done' }).click();
       await expect(admin).toHaveURL(`${ADMIN_URL}/`);
       await expect(admin.getByText('Notifications today: 1 of 8 used')).toBeVisible();
+      // T4.9: one notification for everyone, the follower with notifications on targeted and sent — in Telugu.
+      expect(await awaitNewestJob(admin.request, masjidId)).toMatchObject({
+        audience: 'everyone',
+        targeted: 1,
+        sent: 1,
+      });
+      const [pushed] = await awaitPushes(admin.request, subscription.endpoint, 1);
+      expect(JSON.parse(pushed?.payload ?? 'null')).toMatchObject({ l: 'te', b: /^నీటి సరఫరా నిలిపివేత\n/ });
+      expect(pushed?.urgency).toBe('high'); // an important notice
 
       // One version poll later the Telugu musalli sees it in Telugu.
       await musalli.clock.fastForward('01:05');
@@ -174,6 +193,9 @@ test.describe('B5 notice creator (T3.6)', () => {
       await admin.getByRole('button', { name: 'Done' }).click();
       await musalli.clock.fastForward('01:05');
       await expect(musalli.getByRole('button', { name: /^పరీక్ష శీర్షిక/ })).toBeVisible();
+      // Not notified: no second notification, nothing more sent to the phone.
+      expect(await notificationJobs(admin.request, masjidId)).toHaveLength(1);
+      expect(await capturedPushes(admin.request, subscription.endpoint)).toHaveLength(1);
     } finally {
       await phone.close();
     }

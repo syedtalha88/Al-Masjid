@@ -3,6 +3,7 @@ import { devices, type Page } from '@playwright/test';
 
 import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
 import { followByCode, registerDevice } from '../support/device.ts';
+import { awaitNewestJob, awaitPushes, fakeSubscription, subscribeDevice } from '../support/push.ts';
 import {
   CSRF,
   HOOKS,
@@ -126,6 +127,8 @@ test.describe('B4 prayer timings editor (T3.2)', () => {
       await musalli.goto(APP_URL);
       await registerDevice(musalli);
       await followByCode(musalli, APP_URL, [followCode]);
+      const subscription = fakeSubscription(); // notifications on for this phone (T4.9)
+      await subscribeDevice(musalli, subscription);
       await musalli.goto(`${APP_URL}/masjid/${masjidId}/timings`);
       const isha = musalli.getByRole('row').filter({ hasText: 'Isha' });
       await expect(isha).toContainText(shown(await ishaJamaat(admin, masjidId)));
@@ -144,6 +147,19 @@ test.describe('B4 prayer timings editor (T3.2)', () => {
       await admin.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click();
       await admin.getByRole('button', { name: 'Done' }).click();
       const later = await ishaJamaat(admin, masjidId);
+      // T4.9: today's change notified — one notification for everyone, this follower targeted and sent.
+      expect(await awaitNewestJob(admin.request, masjidId)).toMatchObject({
+        audience: 'everyone',
+        targeted: 1,
+        sent: 1,
+      });
+      const [pushed] = await awaitPushes(admin.request, subscription.endpoint, 1);
+      expect(JSON.parse(pushed?.payload ?? 'null')).toMatchObject({
+        v: 1,
+        l: 'en',
+        u: expect.stringMatching(/^\/items\//),
+      });
+      expect(pushed?.ttl).toBe('43200'); // a timing update lives 12 hours at the push service (01 §5.3)
 
       // One version poll later (60 s on the musalli's clock) the timetable shows it.
       await musalli.clock.fastForward('01:05');

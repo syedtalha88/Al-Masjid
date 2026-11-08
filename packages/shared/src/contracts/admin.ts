@@ -581,7 +581,7 @@ export type AdhkarPut = z.infer<typeof adhkarPutSchema>;
 
 /**
  * Every publish answers with the item and, when it notifies, the notification about to go out (03 §4): `targeted` =
- * followers with notifications on for the item's audience, `quotaLeft` = notifications left today. Sending is Phase 4.
+ * followers with notifications on for the item's audience, `quotaLeft` = notifications left today; the worker sends it.
  */
 export const itemPublishedSchema = z
   .object({

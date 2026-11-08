@@ -8,7 +8,12 @@ import { createDbHandle } from '@mc/db';
 import { ShiftableClock } from '@mc/shared/clock';
 import { afterAll, describe, expect, it, vi } from 'vitest';
 
-import { loadTestHooks, type TestHookEnv, testHooksRequested } from '../src/test-hooks-loader.ts';
+import {
+  loadTestHooks,
+  loadWorkerPushTransport,
+  type TestHookEnv,
+  testHooksRequested,
+} from '../src/test-hooks-loader.ts';
 
 // 10 §3 / DECISIONS #31: hooks load only for APP_ENV=local + NODE_ENV=test AND when the build has the module.
 
@@ -58,10 +63,16 @@ describe('loadTestHooks', () => {
     const db = createDbHandle({ uri: 'mongodb://hooks.invalid', database: 'x', process: 'script', local: true });
     const admin = { db, pepper: Buffer.alloc(32), adminOrigin: 'https://admin.test' };
     const resetRateLimits = () => Promise.resolve(3);
-    const withAdmin = await loadTestHooks(TEST, 'api-admin', logger(), SOURCE_MODULE, { admin, resetRateLimits });
+    const redis = { lrange: () => Promise.resolve([]) };
+    const withAdmin = await loadTestHooks(TEST, 'api-admin', logger(), SOURCE_MODULE, {
+      admin,
+      resetRateLimits,
+      redis,
+    });
     expect(withAdmin?.routes.map((r) => r.path)).toEqual([
       '/test/super-admin-invite',
       '/test/rate-limits',
+      '/test/push-captured',
       '/test/clock',
       '/test/clock',
     ]);
@@ -105,6 +116,59 @@ describe('loadTestHooks', () => {
     writeFileSync(garbage, 'export const testHookRoutes = () => 42;\n');
     await expect(loadTestHooks(TEST, 'api-admin', logger(), pathToFileURL(garbage))).rejects.toThrow(
       'did not return a list',
+    );
+  });
+});
+
+describe('loadWorkerPushTransport (PHASE_04 T4.9)', () => {
+  const list = () => {
+    const rows: string[] = [];
+    return {
+      rows,
+      lpush: (_key: string, value: string) => Promise.resolve(rows.unshift(value)),
+      ltrim: () => Promise.resolve('OK'),
+    };
+  };
+
+  it('not requested, or no module in the build → undefined: the worker sends for real', async () => {
+    const missing = pathToFileURL(join(scratch, 'test-hooks.mjs'));
+    const production = { APP_ENV: 'production', NODE_ENV: 'production' } as const;
+    await expect(loadWorkerPushTransport(production, logger(), list(), SOURCE_MODULE)).resolves.toBeUndefined();
+    await expect(loadWorkerPushTransport(TEST, logger(), list(), missing)).resolves.toBeUndefined();
+  });
+
+  it('runtime-test: records endpoint, plaintext payload and headers; answers 201; never sends', async () => {
+    const redis = list();
+    const log = logger();
+    const transport = await loadWorkerPushTransport(TEST, log, redis, SOURCE_MODULE);
+    if (!transport) throw new Error('no transport');
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    const answer = await transport({
+      endpoint: 'https://fcm.googleapis.com/fcm/send/e2e',
+      headers: { TTL: '86400', Urgency: 'normal', Topic: 'abc' },
+      body: new Uint8Array(4),
+      plaintext: '{"v":1}',
+    });
+    expect(answer).toEqual({ status: 201, retryAfter: null });
+    expect(fetchSpy).not.toHaveBeenCalled();
+    fetchSpy.mockRestore();
+    expect(redis.rows.map((row) => JSON.parse(row) as unknown)).toEqual([
+      {
+        endpoint: 'https://fcm.googleapis.com/fcm/send/e2e',
+        payload: '{"v":1}',
+        ttl: '86400',
+        urgency: 'normal',
+        topic: 'abc',
+      },
+    ]);
+    expect(log.warn).toHaveBeenCalledOnce();
+  });
+
+  it('a module without capturePushTransport() is a broken build → throws', async () => {
+    const empty = join(scratch, 'empty-worker.mjs');
+    writeFileSync(empty, 'export const nothing = 1;\n');
+    await expect(loadWorkerPushTransport(TEST, logger(), list(), pathToFileURL(empty))).rejects.toThrow(
+      'no capturePushTransport',
     );
   });
 });

@@ -253,10 +253,10 @@ jobs:
         run: node scripts/compose.mjs stack-test up --build
       - name: runtime-test image has the hooks (only in test-hooks.mjs)
         run: pnpm check:image mc-server:test --expect-hooks
-      - name: Test hooks through Caddy + passkey flows and onboarding with a virtual authenticator (PHASE_01 T1.8, T1.11)
+      - name: Test hooks through Caddy + passkey flows, onboarding and push with a virtual authenticator (T1.8, T1.11, T4.9)
         env:
           E2E_TEST_HOOKS: '1'
-        run: pnpm exec playwright test e2e/smoke/test-hooks.spec.ts e2e/admin/ --project=pixel-7
+        run: pnpm exec playwright test e2e/smoke/test-hooks.spec.ts e2e/admin/ --project=pixel-7 --project=push
       # Pixel comparison only inside the pinned Playwright Linux image the baselines were made in (DECISIONS #103);
       # the script reseeds the database as of the baselines' fixed instant and the spec pins the API clock to it through
       # the test hooks (date windows such as "special dates of the last 7 days" follow the server clock — #112), so it

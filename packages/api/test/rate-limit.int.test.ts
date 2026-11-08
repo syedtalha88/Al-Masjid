@@ -74,7 +74,11 @@ describe('Redis rate limiter', () => {
 describe('Redis ACL users (04 §12.2): each process only reaches its own key prefixes', () => {
   const suffix = `t16-${randomBytes(4).toString('hex')}`;
   const USERS = [
-    { env: 'REDIS_URL_TEST_RL_PUBLIC', own: ['rl:pub:'], foreign: ['rl:adm:', 'chal:', 'bull:', 'push:', 'alert:'] },
+    {
+      env: 'REDIS_URL_TEST_RL_PUBLIC',
+      own: ['rl:pub:'],
+      foreign: ['rl:adm:', 'chal:', 'bull:', 'push:', 'alert:', 'e2e:'],
+    },
     { env: 'REDIS_URL_TEST_ADMIN', own: ['rl:adm:', 'chal:', 'bull:'], foreign: ['rl:pub:', 'push:', 'alert:'] },
     { env: 'REDIS_URL_TEST_WORKER', own: ['bull:', 'push:', 'alert:'], foreign: ['rl:pub:', 'rl:adm:', 'chal:'] },
   ] as const;
@@ -101,6 +105,17 @@ describe('Redis ACL users (04 §12.2): each process only reaches its own key pre
       }
     });
   }
+
+  it('local only (PHASE_04 T4.9): the worker writes e2e:* (captured pushes), api-admin only reads it', async () => {
+    const worker = await connect(urlOf('REDIS_URL_TEST_WORKER'));
+    const admin = await connect(urlOf('REDIS_URL_TEST_ADMIN'));
+    const key = `e2e:${suffix}`;
+    await worker.lpush(key, 'captured');
+    expect(await admin.lrange(key, 0, -1)).toEqual(['captured']);
+    await expect(admin.lpush(key, 'x')).rejects.toThrow(/NOPERM/);
+    await expect(admin.del(key)).rejects.toThrow(/NOPERM/);
+    await worker.del(key);
+  });
 
   it('rl_public can run the limiter itself under rl:pub: (EVAL allowed for its keys)', async () => {
     const client = await connect(urlOf('REDIS_URL_TEST_RL_PUBLIC'));

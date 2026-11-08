@@ -333,6 +333,23 @@ for (const locale of LOCALES) {
         await adminPage.waitForTimeout(400);
         await adminShot('b12-delete');
         await adminPage.keyboard.press('Escape');
+        // T4.5: the notification history (the quota pill opens it) with one notifying post.
+        const notifying = await adminPage.request.post(
+          `${ADMIN_URL}/api/admin/masjids/${masjidId}/items/announcement`,
+          {
+            headers: CSRF,
+            data: {
+              content: { kind: 'text', title: 'Test notified title', body: 'Test post body', locale },
+              category: 'general',
+              isImportant: false,
+              notify: true,
+            },
+          },
+        );
+        expect(notifying.status()).toBe(201);
+        await settled(adminPage, '/notifications');
+        await expect(adminPage.locator('[data-job][data-status="completed"]')).toHaveCount(1, { timeout: 30_000 });
+        await adminShot('b3-notifications');
         // T3.14 B16: adhkar after salah with two seed dhikr (API), the Home card preview; the "Add dhikr" sheet.
         const dhikr = await adminPage.request.get(`${ADMIN_URL}/api/admin/masjids/${masjidId}/library?kind=dhikr`);
         const dhikrIds = ((await dhikr.json()) as { entries: { id: string }[] }).entries.map((entry) => entry.id);

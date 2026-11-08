@@ -5,12 +5,16 @@ import { z } from 'zod';
 
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
 import { bootstrapSuperAdminInvite } from '../jobs/bootstrap-super-admin.ts';
+import type { PushTransport } from '../push/sender.ts';
 
 // `@mc/api/test-hooks` — e2e-only routes (10 §3). NEVER imported by the shipped server: tsdown builds this into
 // apps/server/dist-test/test-hooks.mjs, which only the `runtime-test` image contains (DECISIONS #31), and the
 // entrypoints load it only when APP_ENV=local AND NODE_ENV=test (apps/server/src/test-hooks-loader.ts). Routes
 // are mounted under each API's prefix (`/api/v1/test/*`, `/api/admin/test/*`) without OpenAPI registration.
 // Seed hooks: api-admin's Super Admin invite (PHASE_01 T1.8 e2e). Later phases add more seed / run-job hooks here.
+// Push (PHASE_04 T4.9): the runtime-test worker sends through `capturePushTransport` — nothing leaves the machine —
+// and api-admin's `GET /test/push-captured` hands the captured payloads to the e2e, which delivers them to the
+// browser's service worker (CDP). Only the local Redis ACL lets the worker write and api-admin read `e2e:*`.
 
 /** Present in every bundle that contains this module; the build/image checks search for it. */
 export const TEST_HOOKS_MARKER = 'mc-test-hooks-module' as const;
@@ -31,6 +35,50 @@ export interface TestHookContext {
   readonly admin?: AdminHookContext;
   /** Clears this process's rate-limit counters (several auth e2e specs share one client IP). */
   readonly resetRateLimits?: () => Promise<number>;
+  /** api-admin only: reads the pushes the runtime-test worker captured. */
+  readonly redis?: { lrange(key: string, start: number, stop: number): Promise<string[]> };
+}
+
+/** The runtime-test worker's captured pushes, newest first (a list key the local Redis ACL opens to e2e only). */
+export const CAPTURED_PUSH_KEY = 'e2e:push:captured';
+const CAPTURED_PUSH_MAX = 500;
+
+const CapturedPush = z.object({
+  endpoint: z.string(),
+  /** The payload before encryption — what the service worker decrypts. */
+  payload: z.string(),
+  ttl: z.string().optional(),
+  urgency: z.string().optional(),
+  topic: z.string().optional(),
+});
+
+/**
+ * The runtime-test worker's push service: records each request (endpoint, plaintext payload, TTL / Urgency / Topic
+ * headers) in Redis and answers 201 — no request leaves the machine, whatever endpoint a test registered.
+ *
+ * @param redis - the worker's connection (no key prefix).
+ * @returns a transport for `createPushSender`.
+ */
+export function capturePushTransport(redis: {
+  lpush(key: string, value: string): Promise<number>;
+  ltrim(key: string, start: number, stop: number): Promise<unknown>;
+}): PushTransport {
+  return async (request) => {
+    const header = (name: string) => request.headers[name] ?? request.headers[name.toLowerCase()];
+    const ttl = header('TTL');
+    const urgency = header('Urgency');
+    const topic = header('Topic');
+    const record: z.infer<typeof CapturedPush> = {
+      endpoint: request.endpoint,
+      payload: request.plaintext,
+      ...(ttl === undefined ? {} : { ttl }),
+      ...(urgency === undefined ? {} : { urgency }),
+      ...(topic === undefined ? {} : { topic }),
+    };
+    await redis.lpush(CAPTURED_PUSH_KEY, JSON.stringify(record));
+    await redis.ltrim(CAPTURED_PUSH_KEY, 0, CAPTURED_PUSH_MAX - 1);
+    return { status: 201, retryAfter: null };
+  };
 }
 
 const InviteRequest = z.strictObject({
@@ -57,7 +105,7 @@ const ClockChange = z.union([
  *
  * @returns route definitions for `AppDependencies.testRoutes`.
  */
-export function testHookRoutes({ service, clock, admin, resetRateLimits }: TestHookContext): RouteDefinition[] {
+export function testHookRoutes({ service, clock, admin, resetRateLimits, redis }: TestHookContext): RouteDefinition[] {
   const state = () => ({ now: clock.now().toISOString(), marker: TEST_HOOKS_MARKER });
   const adminHooks = admin
     ? [
@@ -94,9 +142,30 @@ export function testHookRoutes({ service, clock, admin, resetRateLimits }: TestH
         }),
       ]
     : [];
+  const pushHooks = redis
+    ? [
+        defineRoute({
+          method: 'get',
+          path: '/test/push-captured',
+          summary: `Test hook (${service}): the pushes the runtime-test worker captured for one endpoint, oldest first`,
+          auth: 'none',
+          request: { query: z.strictObject({ endpoint: z.url() }) },
+          responses: { 200: z.object({ pushes: z.array(CapturedPush) }) },
+          handler: async ({ query, reply }) => {
+            const rows = await redis.lrange(CAPTURED_PUSH_KEY, 0, -1);
+            const pushes = rows
+              .map((row) => CapturedPush.parse(JSON.parse(row)))
+              .filter((push) => push.endpoint === query.endpoint)
+              .reverse();
+            return reply(200, { pushes });
+          },
+        }),
+      ]
+    : [];
   return [
     ...adminHooks,
     ...rateLimitHooks,
+    ...pushHooks,
     defineRoute({
       method: 'get',
       path: '/test/clock',

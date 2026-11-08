@@ -9,6 +9,7 @@ import { Redis } from 'ioredis';
 import { startHeartbeat } from './heartbeat.ts';
 import { bootEnv, onShutdownSignal } from './lifecycle.ts';
 import { startServerSentry } from './sentry.ts';
+import { loadWorkerPushTransport } from './test-hooks-loader.ts';
 
 const env = bootEnv('worker', process);
 const logger = createLogger({ process: 'worker', level: env.LOG_LEVEL, release: env.RELEASE });
@@ -35,12 +36,15 @@ const db = createDbHandle({
   process: 'worker',
   local: env.APP_ENV === 'local',
 });
+// The runtime-test stack records pushes instead of sending them (PHASE_04 T4.9); everywhere else: the real service.
+const testTransport = await loadWorkerPushTransport(env, logger, redis);
 const jobs = await startJobWorkers({
   db,
   connection: redis,
   ledger: redisSendLedger(redis),
   sender: createPushSender({
     vapid: { subject: env.VAPID_SUBJECT, publicKey: env.VAPID_PUBLIC_KEY, privateKey: env.VAPID_PRIVATE_KEY },
+    ...(testTransport ? { transport: testTransport } : {}),
   }),
   logger,
   ...(sentry ? { report: sentry.report } : {}),
