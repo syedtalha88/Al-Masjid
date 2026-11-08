@@ -1,0 +1,19 @@
+{
+  "voice": "🎤 Voice message",
+  "fallbackTitle": "Masjid update",
+  "fallbackBody": "Open the app to see it.",
+  "alert": {
+    "credential_counter_regression": {
+      "title": "Security check needed",
+      "body": "A passkey reported an unexpected sign-in count. Check your passkeys and remove any you don't recognise."
+    },
+    "push_job_stuck": {
+      "title": "Notification delivery stuck",
+      "body": "A notification stopped sending for 10 minutes and was marked failed. Check the notification jobs."
+    },
+    "test": {
+      "title": "Test alert",
+      "body": "Alerts reach this phone."
+    }
+  }
+}

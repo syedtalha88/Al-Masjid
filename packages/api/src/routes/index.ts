@@ -13,7 +13,10 @@ import { type SuperRouteDeps, superRoutes } from './super.ts';
 import { superLibraryRoutes } from './super-library.ts';
 import { superTemplateRoutes } from './super-templates.ts';
 
-export type AdminRouteDeps = AdminAuthDeps & AdminPasskeyDeps & SuperRouteDeps & Pick<AdminMasjidRouteDeps, 'media'>;
+export type AdminRouteDeps = AdminAuthDeps &
+  AdminPasskeyDeps &
+  SuperRouteDeps &
+  Pick<AdminMasjidRouteDeps, 'media' | 'notifier'>;
 export type { PublicRouteDeps };
 
 /** api-public feature routes (03 §3, PHASE_02 T2.2). */

@@ -14,6 +14,7 @@
     "./runtime-message": "./src/runtime-message.ts",
     "./templates": "./src/templates.ts",
     "./dua-messages": "./src/dua-messages.ts",
+    "./push-text": "./src/push-text.ts",
     "./template-args": "./src/template-args.ts"
   },
   "scripts": {

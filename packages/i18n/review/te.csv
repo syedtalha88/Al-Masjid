@@ -979,6 +979,15 @@ onboarding,install.title,Keep the app on your phone,యాప్‌ను మీ
 onboarding,install.body,"Install it to open it from your home screen, even without internet.","హోమ్ స్క్రీన్ నుండి, ఇంటర్నెట్ లేకపోయినా తెరవడానికి దీన్ని ఇన్‌స్టాల్ చేయండి.",no
 onboarding,followed,You now follow {name}.,ఇప్పుడు మీరు {name}ను ఫాలో అవుతున్నారు.,no
 onboarding,followFailed,We couldn’t add that masjid right now. Open the link again when you’re online.,ఇప్పుడు ఆ మస్జిద్‌ను జోడించలేకపోయాము. ఆన్‌లైన్‌లో ఉన్నప్పుడు లింక్‌ను మళ్లీ తెరవండి.,no
+push,voice,🎤 Voice message,🎤 వాయిస్ సందేశం,no
+push,fallbackTitle,Masjid update,మసీదు సమాచారం,no
+push,fallbackBody,Open the app to see it.,చూడటానికి యాప్ తెరవండి.,no
+push,alert.credential_counter_regression.title,Security check needed,భద్రతా తనిఖీ అవసరం,no
+push,alert.credential_counter_regression.body,A passkey reported an unexpected sign-in count. Check your passkeys and remove any you don't recognise.,"ఒక పాస్‌కీ ఊహించని సైన్-ఇన్ లెక్కను చూపింది. మీ పాస్‌కీలను తనిఖీ చేసి, మీరు గుర్తించని వాటిని తీసివేయండి.",no
+push,alert.push_job_stuck.title,Notification delivery stuck,నోటిఫికేషన్ పంపడం ఆగిపోయింది,no
+push,alert.push_job_stuck.body,A notification stopped sending for 10 minutes and was marked failed. Check the notification jobs.,"ఒక నోటిఫికేషన్ 10 నిమిషాలు పంపబడలేదు, విఫలమైనదిగా గుర్తించబడింది. నోటిఫికేషన్ జాబ్‌లను చూడండి.",no
+push,alert.test.title,Test alert,పరీక్ష హెచ్చరిక,no
+push,alert.test.body,Alerts reach this phone.,హెచ్చరికలు ఈ ఫోన్‌కు వస్తాయి.,no
 settings,language,Language,భాష,no
 settings,languageSheet,Choose your language,మీ భాషను ఎంచుకోండి,no
 settings,audience,Brother / Sister,సోదరుడు / సోదరి,no

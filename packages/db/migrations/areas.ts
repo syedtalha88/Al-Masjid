@@ -61,4 +61,6 @@ export const SCHEMA_AREAS: Readonly<
   '0014_contacts': { collections: ['masjid_contacts'], views: ['v_pub_contacts'] },
   // DECISIONS #135 (security review L4): `v_pub_ruqyah` lists its public fields instead of hiding the private ones.
   '0015_ruqyah_view': { collections: [], views: ['v_pub_ruqyah'] },
+  // PHASE_04 T4.4 (DECISIONS #138): resumable fan-out progress on the outbox, the stuck-job index.
+  '0016_push_fanout': { collections: ['notification_jobs'] },
 };

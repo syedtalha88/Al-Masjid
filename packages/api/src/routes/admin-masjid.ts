@@ -71,11 +71,14 @@ import { ApiProblem } from '../http/problem.ts';
 import { AUDIO_MAX_BYTES, AudioRejected, keptDuration, sniffAudio } from '../media/audio.ts';
 import { IMAGE_MAX_BYTES, ImageRejected, sanitizeImage } from '../media/image.ts';
 import { type MediaStore, newAudioKey, newImageKey } from '../media/store.ts';
+import type { PushNotifier } from '../queue/queues.ts';
 
 export interface AdminMasjidRouteDeps {
   readonly db: DbHandle;
   /** Photo storage and the origin its delivery URLs are on (T3.6); absent → `POST /images` answers 503. */
   readonly media?: { readonly store: MediaStore; readonly origin: string } | undefined;
+  /** Hands a publish's outbox job to the worker after commit (T4.4); absent → the outbox sweeper does (≤ 2 min). */
+  readonly notifier?: PushNotifier | undefined;
 }
 
 const Params = z.object({ masjidId: z.string().max(64) });
@@ -162,6 +165,7 @@ function specialIdOf(text: string) {
  */
 export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[] {
   const { db, media } = deps;
+  const afterCommit = (jobId: string | null) => deps.notifier?.afterCommit(jobId) ?? Promise.resolve();
   const writes = [{ bucket: 'adminWrites', key: 'session' }] as const;
   // 03 §2: 30 uploads per hour per masjid (whichever admin uploads), and the session's write budget. The id is
   // lower-cased as `parseId` does, so another spelling of the same masjid shares its bucket (DECISIONS #135).
@@ -256,7 +260,9 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
           now: clock.now(),
           requestId,
         });
-        return reply(200, saved);
+        const { notificationJobId, ...result } = saved;
+        await afterCommit(notificationJobId);
+        return reply(200, result);
       },
     }),
     defineRoute({
@@ -325,7 +331,9 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
           now: clock.now(),
           requestId,
         });
-        return reply(201, saved);
+        const { notificationJobId, ...result } = saved;
+        await afterCommit(notificationJobId);
+        return reply(201, result);
       },
     }),
     defineRoute({
@@ -347,7 +355,9 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
           now: clock.now(),
           requestId,
         });
-        return reply(200, saved);
+        const { notificationJobId, ...result } = saved;
+        await afterCommit(notificationJobId);
+        return reply(200, result);
       },
     }),
     defineRoute({
@@ -429,6 +439,7 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
           now: clock.now(),
           requestId,
         });
+        await afterCommit(published.notificationJobId);
         const notification =
           published.quotaLeft === null
             ? null
@@ -459,6 +470,7 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
           now: clock.now(),
           requestId,
         });
+        await afterCommit(published.notificationJobId);
         const notification =
           published.quotaLeft === null
             ? null
@@ -490,6 +502,7 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
           now: clock.now(),
           requestId,
         });
+        await afterCommit(published.notificationJobId);
         const notification =
           published.quotaLeft === null
             ? null

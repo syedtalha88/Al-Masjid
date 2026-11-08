@@ -14,6 +14,7 @@
     "./browser": "./src/browser.ts",
     "./contracts": "./src/contracts/index.ts",
     "./contracts/public": "./src/contracts/public.ts",
+    "./contracts/push": "./src/contracts/push.ts",
     "./contracts/problem": "./src/contracts/problem.ts",
     "./contracts/library-schema": "./src/contracts/library-schema.ts",
     "./contracts/template-icons": "./src/contracts/template-icons.ts",

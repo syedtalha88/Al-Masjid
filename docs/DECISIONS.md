@@ -2092,4 +2092,56 @@ acceptable with an explicit, recorded tolerance — do not trade quality or spen
 **Consequences:** `packages/config/test/lighthouse.test.ts` covers the tolerance; e2e text checks allow the isolates;
 the owner sees the cold-LCP number in the Phase 03 report.
 
+### #137 — Phase 04 starts before Phase 03's owner verification (owner, 8 Nov 2026) — ACCEPTED (owner, 8 Nov 2026)
+**Context:** CLAUDE.md §3/§5 say the next phase starts only after the owner verified the last one. Phase 03 is built
+and closed on `feat/phase-03` (report, phase-verifier and security review done — #135, #136), but its staging deploy
+waits for the rest of O25 (Cloudinary templates + strict mode) and the owner's checks O26/O27.
+**Decision (owner, 8 Nov 2026):** "phase 3 is already done, now continue with the next phase and don't stop in
+subphases; don't ask for my permission; update progress at each milestone." Phase 04 is built on `feat/phase-04`,
+branched from `feat/phase-03`. Phase 03 keeps its open items (deploy, O25, O26, O27); its status becomes AWAITING
+OWNER VERIFICATION when deployed. Phase 04 is deployed together with or after Phase 03.
+**Consequences:** the two phases ship to staging in order (03 first); owner checks for both may be done in one sitting.
+
+### #138 — Push pipeline: adapter, queues, resumable fan-out, ledger, kill switch (PHASE_04 T4.1, T4.4, T4.7) — ACCEPTED (Claude Code, 8 Nov 2026)
+**Context:** 01 §5.3 / §5.8, 04 R7 / §6; `web-push` 4.0.0 was published 6 Nov 2026 — younger than the repo's
+`minimumReleaseAge` (3 days); BullMQ 6.3.11 refuses ":" in custom job ids ("Custom Id cannot contain :", read in its
+source).
+**Decision:**
+- **Adapter** (`packages/api/src/push/sender.ts`): `web-push` **3.6.7** (pinned; 4.x after its release age and a
+  changelog review — F60) only encrypts (RFC 8291 aes128gcm) and signs VAPID (RFC 8292) via `generateRequestDetails`;
+  we POST with `fetch` — no redirects followed, 10 s deadline, the endpoint re-checked against the 04 §6 allow-list
+  before every request. One classifier: 2xx sent · 404/410 gone (prune) · 429/5xx/network retry (Retry-After read,
+  capped at 1 h) · everything else rejected (counted failed, never pruned). TTL 86 400 s announcements / 43 200 s
+  others, `Urgency: high` for important notices and inteqal requests, `Topic` = the item's public id.
+- **Queues** (`packages/api/src/queue/`): one BullMQ queue per job (`push-fanout`, `push-send-batch`, `alert-send`,
+  `outbox-sweeper`), Zod payloads checked at enqueue **and** at process time (invalid → `UnrecoverableError`, no
+  retries); 5 attempts, exponential backoff; completed jobs kept a day (id dedup), failed a week. Batch job id
+  `<jobId>.<page>.<locale>` (01 §5.8 wrote ":", which BullMQ refuses). API code imports only `queue/`, never `jobs/`.
+- **Resumable fan-out** (migration `0016_push_fanout`): `notification_jobs.fanout_page / fanout_cursor / fanout_done`
+  and index `{status, last_progress_at}`. Each page is recorded conditionally on `fanout_page`, so a retried fan-out
+  never counts batches twice; the job completes when `fanout_done` and `pending_batches ≤ 0`.
+- **Ledger** (Redis, worker ACL `~push:*`, 24 h TTL): `push:sent:<job>` = devices already sent (a retried batch only
+  sends the rest; a duplicated fan-out sends nothing), `push:done:<job>` = batches already counted. A batch's final run
+  counts `sent` = its devices in the sent-set, `failed` = unsent after the last attempt; `pruned` grows inside the
+  prune transaction by the devices actually changed (a device that re-subscribed meanwhile is kept).
+- **Payload** = 01 §5.3 plus `l` (the text's locale → notification `lang` / `dir`); `i` dropped (the service worker
+  uses the app's own icon and badge). ≤ 3 KB enforced by shortening the body. Words: title = the masjid's name in the
+  reader's script, body = the item's title line (+ "🎤 Voice message") and its text; template notices rendered with
+  `@mc/i18n/runtime-message` + `template-args` like the apps; strings in `locales/*/push.json` (plain text, outside
+  i18next) and the apps' own item labels / prayer names (`@mc/i18n/push-text`).
+- **Kill switch** (T4.7): fan-out and send-batch read `app_settings.push_paused` before work and between pages; when on,
+  the job is moved to delayed for 60 s (`DelayedError` — no attempt used) and the outbox job stays `pending` /
+  `running`; it continues by itself after resume.
+- **Sweeper** (every minute, Asia/Kolkata): pending > 2 min → `push-fanout` again (a failed BullMQ job is retried, a
+  finished one removed and re-added); running without progress for 10 min → `failed` + `alert-send` `push_job_stuck`
+  to the Super Admin. An item no longer published at fan-out → `failed` ("item no longer published"), nothing sent;
+  deleted mid-send → the remaining batches count off without sending.
+- **Producers of jobs:** the publish routes (after commit, `PushNotifier.afterCommit` — a lost hand-over is the
+  sweeper's), the worker itself, and the Super Admin's own test alert outside production (T4.6). Route-table test:
+  no queue / job / worker route; the only jobs path is the read-only notification history.
+- **Subscriptions:** `setDevicePush` (device scope, follow mirror in one transaction); an endpoint another device
+  record holds → `409 PUSH_ENDPOINT_IN_USE` and the app makes a fresh subscription (same for admin subscriptions).
+**Consequences:** api +3 unit files, +1 integration file (10 scenarios on real Redis/BullMQ/MongoDB), db +11
+integration tests; publish state functions return `notificationJobId`.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._

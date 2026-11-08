@@ -13,7 +13,7 @@ import { adminScope, systemScope } from '../src/scope.ts';
 import { buildDevSeed, seedId, writeDevSeed } from '../src/seed/index.ts';
 import { type PrayerTimingInput, saveTimings, type TimingsInput } from '../src/state/index.ts';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '../src/testing/index.ts';
-import { newId } from '../src/values.ts';
+import { idText, newId } from '../src/values.ts';
 
 const NOW = new Date('2026-10-22T06:30:00Z'); // 12:00 IST
 const TODAY = '2026-10-22';
@@ -95,7 +95,7 @@ describe('saveTimings', () => {
       notify: false,
       now: NOW,
     });
-    expect(result).toEqual({ rev: rev + 1, item: null });
+    expect(result).toEqual({ rev: rev + 1, item: null, notificationJobId: null });
     const stored = await raw('masjid_timings').findOne({ _id: ALPHA });
     expect(stored).toMatchObject({
       rev: rev + 1,
@@ -224,6 +224,7 @@ describe('saveTimings', () => {
     });
     expect((item?.['published_version'] as Long).toNumber()).toBe(await version(ALPHA));
     const job = await raw('notification_jobs').findOne({ item_id: item?._id });
+    expect(result.notificationJobId).toBe(idText(job?._id as UUID)); // handed to the worker after commit (T4.4)
     expect(job).toMatchObject({
       masjid_id: ALPHA,
       status: 'pending',

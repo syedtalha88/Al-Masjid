@@ -174,6 +174,57 @@ export async function setDevicePrefs(
   });
 }
 
+/** A browser push subscription as stored (02 devices `push_endpoint`, `push_p256dh`, `push_auth`). */
+export interface DevicePushSubscription {
+  readonly endpoint: string;
+  readonly p256dh: string;
+  readonly auth: string;
+}
+
+const isDuplicateKey = (error: unknown) =>
+  typeof error === 'object' && error !== null && 'code' in error && error.code === 11000;
+
+/**
+ * Stores the device's push subscription (`push_status: 'active'`), or removes it (`null` → `'none'`), and mirrors
+ * `push_active` onto its follows in the same transaction (03 §3 `PUT` / `DELETE /devices/me/push`, 02 §5 device
+ * mirror). The endpoint was checked against the push-service allow-list by the API (04 §6).
+ *
+ * @throws StateError FORBIDDEN (not a device scope), DEVICE_NOT_FOUND, PUSH_ENDPOINT_IN_USE (another device record
+ *   holds this endpoint — the browser's old app id; the app makes a fresh subscription and retries).
+ */
+export async function setDevicePush(
+  handle: DbHandle,
+  scope: Scope,
+  subscription: DevicePushSubscription | null,
+  now: Date,
+): Promise<void> {
+  requireDevice(scope);
+  const update = subscription
+    ? {
+        $set: {
+          push_endpoint: subscription.endpoint,
+          push_p256dh: subscription.p256dh,
+          push_auth: subscription.auth,
+          push_status: 'active',
+          push_updated_at: now,
+        },
+      }
+    : {
+        $set: { push_status: 'none', push_updated_at: now },
+        $unset: { push_endpoint: '', push_p256dh: '', push_auth: '' },
+      };
+  try {
+    await withTransaction(handle, scope, async (ctx) => {
+      const policy = { scope, db: ctx.db, session: ctx.session };
+      if ((await scoped(policy, 'devices').updateOne({}, update)) !== 1) throw new StateError('DEVICE_NOT_FOUND');
+      await scoped(policy, 'device_follows').updateMany({}, { $set: { push_active: subscription !== null } });
+    });
+  } catch (error) {
+    if (isDuplicateKey(error)) throw new StateError('PUSH_ENDPOINT_IN_USE');
+    throw error;
+  }
+}
+
 /**
  * Mutes or unmutes push for one followed masjid (00 §4.1; content stays visible).
  *
@@ -241,9 +292,6 @@ export async function deleteDevice(handle: DbHandle, scope: Scope): Promise<'del
     return removed.deletedCount === 1 ? 'deleted' : 'not_found';
   });
 }
-
-const isDuplicateKey = (error: unknown) =>
-  typeof error === 'object' && error !== null && 'code' in error && error.code === 11000;
 
 /**
  * Records this device's Ameen on a published dua request (02 §5 "Ameen count"): the first one inserts into `ameens`

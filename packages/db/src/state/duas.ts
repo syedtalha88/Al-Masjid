@@ -40,6 +40,8 @@ export interface DuaRequestPublished {
   readonly item: { readonly id: string; readonly publicId: string };
   /** Notifications left today after this publish; `null` when it did not notify. */
   readonly quotaLeft: number | null;
+  /** The pending outbox job to hand to the worker after commit (01 §5.3 step 1); `null` when it did not notify. */
+  readonly notificationJobId: string | null;
 }
 
 /**
@@ -129,14 +131,14 @@ export async function publishDuaRequest(
         },
         now,
       );
-      if (!dua.notify) return { item, quotaLeft: null };
+      if (!dua.notify) return { item, quotaLeft: null, jobId: null };
       const limit = numberOf(masjid, 'push_daily_quota') ?? 0;
-      const { used } = await enqueueNotification(
+      const { jobId, used } = await enqueueNotification(
         store,
         { masjidId: input.masjidId, itemId: item.itemId, audience: 'everyone', limit },
         now,
       );
-      return { item, quotaLeft: Math.max(0, limit - used) };
+      return { item, quotaLeft: Math.max(0, limit - used), jobId };
     });
     await writeAudit(ctx, {
       action: 'item.publish',
@@ -149,6 +151,7 @@ export async function publishDuaRequest(
     return {
       item: { id: idText(published.item.itemId), publicId: published.item.publicId },
       quotaLeft: published.quotaLeft,
+      notificationJobId: published.jobId ? idText(published.jobId) : null,
     };
   });
 }

@@ -10,8 +10,8 @@
 | 00 | Foundation, tooling & design system | **Accepted by the owner** — closure: report final, V-31 done; waiting for owner 0.15/0.16 + #79 (DECISIONS #62) | [final](reports/PHASE_00_REPORT.md) | 16 Oct 2026 |
 | 01 | Database, security core, passkey auth, Super Admin | **DONE** (owner tested 1.1–1.12 on staging, 22 Oct 2026) | [final](reports/PHASE_01_REPORT.md) | 22 Oct 2026 |
 | 02 | Musalli app core (follow, timings, feed, offline, install) | **DONE** (owner tested the Phase 02 checks on staging `cdd39fa`, incl. a low-end device, 27 Oct 2026) | [final](reports/PHASE_02_REPORT.md) | 27 Oct 2026 |
-| 03 | Masjid Admin content tools | **IN PROGRESS** — all tasks T3.0–T3.17 done (5 Nov 2026); left: F56 (Lighthouse warm), then the phase close after the owner's pending tasks (branch `feat/phase-03`) | – | – |
-| 04 | Push notifications | NOT STARTED | – | – |
+| 03 | Masjid Admin content tools | **Built and closed on the branch** — all tasks done, report written, phase-verifier + security review fixed (#135, #136); left: staging deploy (needs O25 rest) and the owner's checks O26/O27 → then AWAITING OWNER VERIFICATION / DONE | [report](reports/PHASE_03_REPORT.md) | – |
+| 04 | Push notifications | **IN PROGRESS** — started 8 Nov 2026 on the owner's instruction ("phase 3 is done, continue with the next phase, don't stop between tasks") while Phase 03 waits for its staging deploy + owner checks (DECISIONS #137) | – | – |
 | 05 | Donations, chanda & UPI change-lock | NOT STARTED | – | – |
 | 06 | Bayan videos | NOT STARTED | – | – |
 | 07 | Qibla compass | NOT STARTED | – | – |
@@ -368,6 +368,27 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [x] T3.16 — Ilm contacts (B17 + A21) — **done 5 Nov 2026 (DECISIONS #131):** migration 0014 `masjid_contacts` (`consent_confirmed: true` required by the validator, one E.164 rule shared with `isE164`, `deleted_at` retention clock), policy cells + DB privileges (matrix now 45 namespaces), `v_pub_contacts`, admin `GET/POST/PATCH/DELETE /contacts`, bundle `contacts` (both audiences), audit without name or number, shared `IlmContactCard` + `whatsappChatUrl`, A21 screen + Masjid Detail row "Ask the masjid", B17 in B13 (list ≤ 10, editor with +91, brothers/sisters, consent tick cleared on a new name or number, preview, remove), seed: two contacts on alpha. **Acceptance:** API refuses a contact without `consentConfirmed: true` (`contacts-routes.int.test.ts`; also the validator, `contacts.int.test.ts`); sisters' contacts not on a brothers device and vice versa (`e2e/app/ilm.spec.ts` both audiences, `e2e/admin/contacts.spec.ts` B17 → A21); the number is not rendered as text or attribute (`packages/ui/test/ilm-contact-card.test.tsx`, 4 locales, + e2e). A21 + B17 screenshots in 4 locales, axe clean.
 - [x] T3.17 — Blood donation camp (B18 + A22) — **done 5 Nov 2026 (DECISIONS #132):** no new collection — a camp is an announcement from the `blood_donation_camp` template (T3.4/T3.5, draft translations; `phone` param); `bloodCampOf` / `upcomingCamps` + `istWindow` (IST hours, past midnight); shared `BloodCampCard` (Home — lazy chunk —, Masjid Detail, B5 preview) and `WhatsAppButton`; the notice detail offers "Contact on WhatsApp" for every phone param; phone params read "+91 98765 43210" in an LTR isolate; admin "Blood Camp" tile → B5 step 2 with the template (notify on by default). **Acceptance:** renders in 4 locales (ICU tests `packages/i18n/test/templates.test.ts`); card hidden after the end time (pinned clock, `e2e/admin/blood-camp.spec.ts`; unit `packages/ui/test/blood-camp.test.tsx` incl. past midnight); no new collection or personal data. B18 in the 4-locale screens spec.
 
+### Phase 04 — started 8 Nov 2026 (owner's instruction, DECISIONS #137; branch `feat/phase-04`)
+
+- [x] T4.1 — Push infrastructure (#138): `push/sender.ts` over web-push 3.6.7 (aes128gcm + VAPID, own `fetch`, allow-list
+  before every POST, one classifier), `queue/` (4 queues, Zod at enqueue + process, defaults, after-commit notifier),
+  Redis ledger, `jobs/worker.ts` (processors, deadlines, Asia/Kolkata scheduler), mock push service. Unit: classifier,
+  headers + body decrypted as a browser would, allow-list (property test), payloads refused at enqueue; integration:
+  a forged payload fails at process time without retries.
+- [ ] T4.2 — Musalli subscription UX — data layer `setDevicePush` done (+ follow mirror, `PUSH_ENDPOINT_IN_USE`)
+- [ ] T4.3 — Service worker push handling
+- [ ] T4.4 — Fan-out pipeline — processors, migration 0016, outbox sweeper + stuck detector, localized words, publish
+  routes hand over after commit; `push-pipeline.int.test.ts` 10 scenarios green (audience × mute × push, locale
+  batches, prune, retry + duplicate idempotency, lost enqueue → sweeper, deleted item, forged payload). Left: wire the
+  worker entrypoint (VAPID env), e2e journeys (T4.9)
+- [ ] T4.5 — Quotas & admin visibility
+- [ ] T4.6 — Admin push subscriptions & alerts — data layer + `alert-send` processor done; left: routes, admin SW, test
+  alert, counter-regression alert
+- [ ] T4.7 — Kill switch — worker side done (pipeline test: paused → 0 sends, resume continues); left: C10 switch UI
+  banner, admin notice
+- [ ] T4.8 — Fan-out load test
+- [ ] T4.9 — Quality gates
+
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
 | # | Found in | Description | Planned fix (phase/task) |
@@ -423,6 +444,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F57 | Phase 03 close (6 Nov 2026, DECISIONS #135) | T3.1 Admin Home inbox banner ("N new messages") not built: the inbox it points to does not exist yet (change-request replies Phase 5, reports Phase 8) | With the inbox (Phase 5 / Phase 8) |
 | F58 | Phase 03 close (6 Nov 2026, DECISIONS #136) | ~~Latin times inside Urdu sentences reordered by bidi ("PM 8:45"; camp hours scrambled; voice player times on the wrong ends)~~ — **fixed 6 Nov 2026**: times LTR-isolated in template params, camp card, khutbah line, Eid card; player labels follow the page direction; Urdu baselines regenerated | Closed |
 | F59 | CI 6 Nov 2026 (`2e5eda5`) | e2e `voice.spec`: on CI's Chromium the local file store's WAV sometimes fails to play ("Available when online"); passes locally. The playback assertion is skipped on CI only; upload, publish, badge and player checks stay | Investigate with Phase 4 (CI media logs); real playback = owner check 3.14 |
+| F60 | T4.1 (8 Nov 2026, DECISIONS #138) | `web-push` pinned at 3.6.7: 4.0.0 (6 Nov 2026) was younger than `minimumReleaseAge`. Review its changelog and move to 4.x (Renovate) — the adapter uses only `generateRequestDetails` | Phase 4 close or Phase 9 |
 | F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
 
 ## Session log (newest first, one line each)

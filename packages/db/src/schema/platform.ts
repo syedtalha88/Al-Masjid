@@ -152,6 +152,11 @@ const notificationJobs = documentSchema({
   last_progress_at: opt(f.instant()),
   completed_at: opt(f.instant()),
   last_error: opt(f.string(500)),
+  // Fan-out progress (PHASE_04 T4.4, DECISIONS #138): the next page to read and the last device id read, so a retried
+  // fan-out resumes instead of counting batches twice; `fanout_done` once every page was handed to send batches.
+  fanout_page: opt(count()),
+  fanout_cursor: opt(f.uuid()),
+  fanout_done: opt(f.bool()),
 });
 
 const pushQuotaUsage = documentSchema({
@@ -334,6 +339,8 @@ export const PLATFORM_COLLECTIONS: readonly CollectionSpec[] = [
       { name: 'status_created', key: { status: 1, created_at: 1 } },
       { name: 'masjid_created', key: { masjid_id: 1, created_at: -1 } },
       { name: 'item', key: { item_id: 1 } },
+      // The stuck-job detector (01 §5.3 step 7): running jobs by their last progress.
+      { name: 'status_progress', key: { status: 1, last_progress_at: 1 } },
     ],
   },
   { name: 'push_quota_usage', ...pushQuotaUsage, indexes: [] },

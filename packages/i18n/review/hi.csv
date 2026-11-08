@@ -979,6 +979,15 @@ onboarding,install.title,Keep the app on your phone,ऐप को अपने �
 onboarding,install.body,"Install it to open it from your home screen, even without internet.","इसे इंस्टॉल करें ताकि होम स्क्रीन से खोल सकें, इंटरनेट के बिना भी।",no
 onboarding,followed,You now follow {name}.,अब आप {name} को फ़ॉलो कर रहे हैं।,no
 onboarding,followFailed,We couldn’t add that masjid right now. Open the link again when you’re online.,अभी वह मस्जिद नहीं जुड़ सकी। ऑनलाइन होने पर लिंक फिर से खोलें।,no
+push,voice,🎤 Voice message,🎤 वॉइस मैसेज,no
+push,fallbackTitle,Masjid update,मस्जिद की ख़बर,no
+push,fallbackBody,Open the app to see it.,देखने के लिए ऐप खोलें।,no
+push,alert.credential_counter_regression.title,Security check needed,सुरक्षा जाँच ज़रूरी,no
+push,alert.credential_counter_regression.body,A passkey reported an unexpected sign-in count. Check your passkeys and remove any you don't recognise.,एक पासकी ने अनपेक्षित साइन-इन गिनती दिखाई। अपनी पासकी जाँचें और जिसे न पहचानें उसे हटा दें।,no
+push,alert.push_job_stuck.title,Notification delivery stuck,सूचना भेजना अटका,no
+push,alert.push_job_stuck.body,A notification stopped sending for 10 minutes and was marked failed. Check the notification jobs.,एक सूचना 10 मिनट तक नहीं भेजी गई और विफल मानी गई। सूचना जॉब देखें।,no
+push,alert.test.title,Test alert,परीक्षण अलर्ट,no
+push,alert.test.body,Alerts reach this phone.,अलर्ट इस फ़ोन पर आते हैं।,no
 settings,language,Language,भाषा,no
 settings,languageSheet,Choose your language,अपनी भाषा चुनें,no
 settings,audience,Brother / Sister,भाई / बहन,no
