@@ -375,17 +375,22 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   Redis ledger, `jobs/worker.ts` (processors, deadlines, Asia/Kolkata scheduler), mock push service. Unit: classifier,
   headers + body decrypted as a browser would, allow-list (property test), payloads refused at enqueue; integration:
   a forged payload fails at process time without retries.
-- [ ] T4.2 — Musalli subscription UX — data layer `setDevicePush` done (+ follow mirror, `PUSH_ENDPOINT_IN_USE`)
-- [ ] T4.3 — Service worker push handling
-- [ ] T4.4 — Fan-out pipeline — processors, migration 0016, outbox sweeper + stuck detector, localized words, publish
-  routes hand over after commit; `push-pipeline.int.test.ts` 10 scenarios green (audience × mute × push, locale
-  batches, prune, retry + duplicate idempotency, lost enqueue → sweeper, deleted item, forged payload). Left: wire the
-  worker entrypoint (VAPID env), e2e journeys (T4.9)
-- [ ] T4.5 — Quotas & admin visibility
-- [ ] T4.6 — Admin push subscriptions & alerts — data layer + `alert-send` processor done; left: routes, admin SW, test
-  alert, counter-regression alert
-- [ ] T4.7 — Kill switch — worker side done (pipeline test: paused → 0 sends, resume continues); left: C10 switch UI
-  banner, admin notice
+- [ ] T4.2 — Musalli subscription UX — built (`lib/push.ts`, Settings → Notifications, soft-ask after the first follow,
+  onboarding page 7, re-check on every open, 409 re-subscribe, mute per masjid; `PUT/DELETE /devices/me/push`); unit:
+  13 with a mocked PushManager; left: e2e + screenshots (T4.9)
+- [ ] T4.3 — Service worker push handling — built (`sw/push.ts`: Zod payload, generic fallback, tag, lang/dir, badge,
+  click → focus + navigate / open, `pushsubscriptionchange`); 17 unit tests; left: Chromium e2e via CDP push (T4.9)
+- [ ] T4.4 — Fan-out pipeline — processors, migration 0016, sweeper + stuck detector, localized words, publish routes
+  hand over after commit, worker entrypoint wired; `push-pipeline.int.test.ts` 10 scenarios green. Left: e2e journeys
+  (T4.9)
+- [ ] T4.5 — Quotas & admin visibility — API done (`quota` + `paused` + `reach`, `notifications/jobs`, dashboard push
+  stats; IST-midnight reset + counts-match-DB integration tests). Left: admin UI (quota pill, "Will notify N",
+  history screen, Super Admin stats card)
+- [ ] T4.6 — Admin push subscriptions & alerts — API done (`PUT/DELETE /auth/push`, alert service, counter-regression
+  and super-passkey-added alerts — F38 a, `POST /api/super/alerts/test` outside production). Left: admin SW push +
+  "Alerts on this phone" switch, owner check on staging
+- [ ] T4.7 — Kill switch — worker + API done (★ `POST /settings/push-pause`, audited). Left: C10 switch, C1 banner,
+  admin notice in the Publish bar
 - [ ] T4.8 — Fan-out load test
 - [ ] T4.9 — Quality gates
 
