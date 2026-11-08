@@ -2,6 +2,7 @@
 // and ICU body with arguments formatted for that locale (same renderer as the apps), free text as written, the voice
 // suffix, delivery hints, and the 3 KB payload budget. Texts are clearly fake placeholders (10 §Fixtures).
 import type { PushContent } from '@mc/db/state';
+import { itemLabel } from '@mc/i18n/push-text';
 import { pushPayloadSchema } from '@mc/shared/contracts/push';
 import { describe, expect, it } from 'vitest';
 
@@ -91,6 +92,37 @@ describe('pushMessage', () => {
       templateParams: undefined,
     };
     expect(pushMessage(daily, 'en').b).toBe('Today’s Ayah');
+  });
+
+  it('an item with no words of its own: the first body line, else the label the apps show for its type', () => {
+    const bare: PushContent = { ...BASE, templateKey: undefined, template: undefined, templateParams: undefined };
+    const cases: readonly [Partial<PushContent>, string][] = [
+      [{ type: 'announcement', category: undefined }, itemLabel('announcement', 'en')],
+      [{ type: 'announcement', category: 'general' }, itemLabel('announcement', 'en')],
+      [{ type: 'announcement', category: 'jumuah' }, itemLabel('jumuah', 'en')],
+      [{ type: 'timing_update', category: undefined }, itemLabel('timing', 'en')],
+      [{ type: 'daily_content', category: undefined }, itemLabel('hadith', 'en')],
+      [{ type: 'dua_request', category: 'illness' }, itemLabel('dua', 'en')],
+      [{ type: 'chanda_update', category: undefined }, itemLabel('chanda', 'en')],
+      [{ type: 'campaign', category: undefined }, itemLabel('campaign', 'en')],
+    ];
+    for (const [part, label] of cases) expect(pushMessage({ ...bare, ...part }, 'en').b).toBe(label);
+    // Free text without a title: its first non-empty line is the headline, the text follows.
+    expect(pushMessage({ ...bare, body: '\n  \nTest first line\nTest second line' }, 'en').b).toBe(
+      'Test first line\nTest first line\nTest second line',
+    );
+  });
+
+  it('a template without words in the reader’s language falls back to English; an empty one to the label', () => {
+    const template = BASE.template;
+    if (!template) throw new Error('BASE has a template');
+    const englishOnly: PushContent = {
+      ...BASE,
+      template: { ...template, title: { en: 'Test timing notice' }, body: { en: 'Test body: {prayer} at {time}.' } },
+    };
+    expect(pushMessage(englishOnly, 'te').b.split('\n')[0]).toBe('Test timing notice');
+    const empty: PushContent = { ...BASE, template: { ...template, title: { en: ' ' }, body: { en: ' ' } } };
+    expect(pushMessage(empty, 'en').b).toBe(itemLabel('announcement', 'en'));
   });
 
   it('a template whose params no longer fit still notifies with its title', () => {

@@ -338,6 +338,61 @@ describe('push pipeline', () => {
     for (const device of devices) expect(deliveredTo([device])).toHaveLength(1);
   });
 
+  it('sweeper: a finished BullMQ job under a pending id is replaced, a waiting one left alone, a stuck one failed + alerted', async () => {
+    const sweep = (minutes: number) =>
+      processOutboxSweep({
+        db: sys(),
+        queues: running().queues,
+        clock: { now: () => new Date(NOW.getTime() + minutes * 60_000) },
+        logger: silentLogger(),
+      });
+    const fanout = running().queues.queue('push-fanout');
+
+    // A fan-out that found its outbox job already finished completes in BullMQ; the outbox job is pending again later
+    // (e.g. restored) — the sweeper must remove the finished BullMQ job, or the re-add would be swallowed by its id.
+    const id = await masjid();
+    const device = await follower(id);
+    const finishedId = await published(id);
+    await raw('notification_jobs').updateOne({ _id: idOf(finishedId) }, { $set: { status: 'completed' } });
+    await enqueue(finishedId);
+    await waitFor(async () => (await (await fanout.getJob(finishedId))?.getState()) === 'completed', 'fan-out done');
+    await raw('notification_jobs').updateOne({ _id: idOf(finishedId) }, { $set: { status: 'pending' } });
+
+    // A job already waiting in the queue is on its way: the sweeper leaves it.
+    const waitingId = await published(id);
+    await fanout.pause();
+    await enqueue(waitingId);
+    await sweep(3);
+    expect(await (await fanout.getJob(waitingId))?.getState()).toBe('waiting');
+    await fanout.resume();
+    expect(await finished(finishedId)).toMatchObject({ status: 'completed', sent: 1 });
+    expect(await finished(waitingId)).toMatchObject({ status: 'completed', sent: 1 });
+    expect(deliveredTo([device])).toHaveLength(2);
+
+    // Running without progress for 10 minutes: failed, and the Super Admin gets a push_job_stuck alert.
+    const stuckId = await published(id);
+    await raw('notification_jobs').updateOne(
+      { _id: idOf(stuckId) },
+      { $set: { status: 'running', started_at: NOW, last_progress_at: NOW } },
+    );
+    expect((await sweep(20)).failedStuck).toBeGreaterThanOrEqual(1);
+    expect(await job(stuckId)).toMatchObject({ status: 'failed' });
+    expect(await running().queues.queue('alert-send').getJob(`alert.push_job_stuck.${stuckId}`)).toBeDefined();
+  });
+
+  it('ledger: nothing to look up or record for no devices; a batch is claimed once, and again after a release', async () => {
+    const ledger = redisSendLedger(testRedis().redis, 'push-ledger-test:');
+    const jobKey = idText(newId());
+    expect(await ledger.sentAlready(jobKey, [])).toEqual(new Set());
+    await ledger.markSent(jobKey, []);
+    await ledger.markSent(jobKey, ['a', 'b']);
+    expect(await ledger.sentAlready(jobKey, ['a', 'c'])).toEqual(new Set(['a']));
+    expect(await ledger.claimBatch(jobKey, `${jobKey}.0.en`)).toBe(true);
+    expect(await ledger.claimBatch(jobKey, `${jobKey}.0.en`)).toBe(false);
+    await ledger.releaseBatch(jobKey, `${jobKey}.0.en`);
+    expect(await ledger.claimBatch(jobKey, `${jobKey}.0.en`)).toBe(true);
+  });
+
   it('kill switch: nothing is sent while paused; on resume the same job continues', async () => {
     const id = await masjid();
     const devices = [await follower(id), await follower(id)];
