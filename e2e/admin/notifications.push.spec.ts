@@ -1,8 +1,8 @@
-import { APP_LOCALES, expect, test } from '@mc/config/playwright';
+import { APP_LOCALES, expect, seedOnboardedDevice, test } from '@mc/config/playwright';
 import { devices, type Page } from '@playwright/test';
 
 import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
-import { followByCode, registerDevice } from '../support/device.ts';
+import { awaitFollowsSynced, followByCode, registerDevice } from '../support/device.ts';
 import {
   awaitNewestJob,
   awaitPushes,
@@ -72,6 +72,18 @@ test.describe('push end to end (T4.9)', () => {
     await virtualAuthenticator(page);
     const token = await seedSuperAdminInvite(page.request, 'Test Owner', 'en');
     await registerWithInvite(page, `${ADMIN_URL}/invite#${token}`, 'Test Owner', 'en');
+    // The stack database outlives a run: a run that died while paused must not hold this one's notifications.
+    await page.goto(`${ADMIN_URL}/super/settings`);
+    const pauseSwitch = page.getByRole('switch', { name: /^Pause all notifications/ });
+    await expect(pauseSwitch).toBeVisible();
+    if (await pauseSwitch.isChecked()) {
+      await pauseSwitch.click();
+      await page
+        .getByRole('dialog', { name: label('en', 'super', 'stepUp.title') })
+        .getByRole('button', { name: label('en', 'super', 'stepUp.confirm') })
+        .click();
+      await expect(pauseSwitch).not.toBeChecked();
+    }
     const created = await page.request.post(`${ADMIN_URL}/api/super/masjids`, {
       headers: CSRF,
       data: {
@@ -123,18 +135,26 @@ test.describe('push end to end (T4.9)', () => {
       await musalli.goto(`${APP_URL}/settings/notifications`);
       const status = screen(musalli).locator('#push-heading').locator('..');
       await expect(status).toContainText(label('te', 'settings', 'push.status.off'));
+      // Subscribing waits for the service worker; on a first visit it may still be precaching the app shell.
+      await musalli.evaluate(async () => {
+        await navigator.serviceWorker.ready;
+      });
       await screen(musalli)
         .getByRole('button', { name: label('te', 'settings', 'push.turnOn') })
         .click();
       await expect(status).toContainText(label('te', 'settings', 'push.status.on'));
 
-      // The brother (Hindi) subscribes through the API.
+      // The brother (Hindi) subscribes through the API. His phone is onboarded like the fixture's own context — without
+      // the seed the app's first run writes its own device document over the stored credentials.
+      await seedOnboardedDevice(brotherPhone, 'hi', 'brothers');
       const brotherPage = await brotherPhone.newPage();
       await brotherPage.goto(APP_URL);
       await registerDevice(brotherPage, { locale: 'hi', audiencePref: 'brothers' });
       await followByCode(brotherPage, APP_URL, [followCode]);
       const brother = fakeSubscription();
       await subscribeDevice(brotherPage, brother);
+      await awaitFollowsSynced(musalli);
+      await awaitFollowsSynced(brotherPage);
 
       // A notifying notice: one job for everyone, both phones targeted and sent; each push in its phone's language.
       const notice = await admin.request.post(`${ADMIN_URL}/api/admin/masjids/${masjidId}/items/announcement`, {
@@ -186,10 +206,15 @@ test.describe('push end to end (T4.9)', () => {
       await page.goto(`${ADMIN_URL}/super/settings`);
       await page.getByRole('switch', { name: /^Pause all notifications/ }).click();
       await page.getByRole('alertdialog').getByRole('button', { name: 'Pause', exact: true }).click();
-      const stepUp = page.getByRole('dialog', { name: label('en', 'super', 'stepUp.title') });
-      await stepUp.getByRole('button', { name: label('en', 'super', 'stepUp.confirm') }).click();
-      await expect(page.getByText('Notifications paused')).toBeVisible();
-      paused = true;
+      paused = true; // before any assertion: the finally block must resume even when one fails
+      const stepUpConfirm = page
+        .getByRole('dialog', { name: label('en', 'super', 'stepUp.title') })
+        .getByRole('button', { name: label('en', 'super', 'stepUp.confirm') });
+      const pausedNote = page.getByRole('paragraph').filter({ hasText: 'Notifications paused' });
+      // A step-up made moments ago (clearing a leftover pause above) is still fresh — then nothing is asked.
+      await expect(stepUpConfirm.or(pausedNote)).toBeVisible();
+      if (await stepUpConfirm.isVisible()) await stepUpConfirm.click();
+      await expect(pausedNote).toBeVisible();
       const held = await admin.request.post(`${ADMIN_URL}/api/admin/masjids/${masjidId}/items/announcement`, {
         headers: CSRF,
         data: {
@@ -208,9 +233,10 @@ test.describe('push end to end (T4.9)', () => {
 
       // Resume (no confirmation, the step-up is still fresh): the waiting notification goes out.
       await page.getByRole('switch', { name: /^Pause all notifications/ }).click();
-      await expect(page.getByText('Notifications resumed')).toBeVisible();
+      await expect(page.getByRole('paragraph').filter({ hasText: 'Notifications resumed' })).toBeVisible();
       paused = false;
-      const pushes = await awaitPushes(page.request, brother.endpoint, 2);
+      // A paused job looks at the switch again every minute (PAUSE_RECHECK_MS) — so allow a full recheck.
+      const pushes = await awaitPushes(page.request, brother.endpoint, 2, 90_000);
       expect(pushes.at(-1)?.payload).toContain('Test held title');
       expect(await awaitNewestJob(admin.request, masjidId)).toMatchObject({ targeted: 2, sent: 2 });
     } finally {

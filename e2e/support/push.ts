@@ -81,14 +81,15 @@ export async function capturedPushes(request: APIRequestContext, endpoint: strin
   return ((await response.json()) as { pushes: CapturedPush[] }).pushes;
 }
 
-/** Waits until `count` pushes were captured for `endpoint`; returns them (oldest first). */
+/** Waits (up to `timeout` ms) until `count` pushes were captured for `endpoint`; returns them (oldest first). */
 export async function awaitPushes(
   request: APIRequestContext,
   endpoint: string,
   count: number,
+  timeout = 30_000,
 ): Promise<CapturedPush[]> {
   await expect
-    .poll(async () => (await capturedPushes(request, endpoint)).length, { timeout: 30_000 })
+    .poll(async () => (await capturedPushes(request, endpoint)).length, { timeout })
     .toBeGreaterThanOrEqual(count);
   return capturedPushes(request, endpoint);
 }

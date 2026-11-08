@@ -2,7 +2,7 @@ import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import AxeBuilder from '@axe-core/playwright';
-import { type CDPSession, expect, type Locator, type Page, test as base } from '@playwright/test';
+import { type BrowserContext, type CDPSession, expect, type Locator, type Page, test as base } from '@playwright/test';
 
 import { type AnalyzeOptions, analyzeTrace, describeLongTasks, parseTrace, type TraceReport } from './trace.ts';
 
@@ -109,53 +109,63 @@ export async function axeViolations(page: Page, { include, exclude = [], disable
   );
 }
 
+/**
+ * Seeds an onboarded musalli device (IndexedDB `mc-device` / `kv` / `device`, apps/app/src/lib/device) in every page of
+ * `context` — what the `appDevice: 'onboarded'` fixture does for the test's own context. Use it for extra phones made
+ * with `browser.newContext()`. The seeding transaction is created before the app's own read (its open request is first),
+ * so the app always sees the seeded document; an existing document is kept.
+ */
+export async function seedOnboardedDevice(
+  context: BrowserContext,
+  locale = 'en',
+  audiencePref: 'brothers' | 'sisters' = 'brothers',
+): Promise<void> {
+  await context.addInitScript(
+    ([seedLocale, seedAudience]: readonly [string, string]) => {
+      try {
+        const open = indexedDB.open('mc-device');
+        open.onupgradeneeded = () => {
+          open.result.createObjectStore('kv');
+        };
+        open.onsuccess = () => {
+          const db = open.result;
+          if (!db.objectStoreNames.contains('kv')) return;
+          const store = db.transaction('kv', 'readwrite').objectStore('kv');
+          const existing = store.get('device');
+          existing.onsuccess = () => {
+            if (existing.result !== undefined) return;
+            store.put(
+              {
+                version: 1,
+                locale: seedLocale,
+                audiencePref: seedAudience,
+                onboardedAt: '2026-01-01T00:00:00.000Z',
+                registrationPending: false,
+                follows: [],
+                saved: [],
+                ameens: [],
+                pendingAmeens: [],
+                settings: { vibration: true, arabicScale: 1, transliteration: true },
+              },
+              'device',
+            );
+          };
+        };
+      } catch {
+        // Opaque origins (about:blank) have no IndexedDB.
+      }
+    },
+    [locale, audiencePref] as const,
+  );
+}
+
 export const test = base.extend<McFixtures>({
   appLocale: [undefined, { option: true }],
   appDevice: ['onboarded', { option: true }],
   appAudience: ['brothers', { option: true }],
 
   context: async ({ context, appLocale, appDevice, appAudience }, use) => {
-    if (appDevice === 'onboarded') {
-      // IndexedDB `mc-device` / `kv` / `device` (apps/app/src/lib/device). This transaction is created before the app's
-      // own read (its open request is first), so the app always sees the seeded document.
-      await context.addInitScript(
-        ([locale, audiencePref]: readonly [string, string]) => {
-          try {
-            const open = indexedDB.open('mc-device');
-            open.onupgradeneeded = () => {
-              open.result.createObjectStore('kv');
-            };
-            open.onsuccess = () => {
-              const db = open.result;
-              if (!db.objectStoreNames.contains('kv')) return;
-              const store = db.transaction('kv', 'readwrite').objectStore('kv');
-              const existing = store.get('device');
-              existing.onsuccess = () => {
-                if (existing.result !== undefined) return;
-                store.put(
-                  {
-                    version: 1,
-                    locale,
-                    audiencePref,
-                    onboardedAt: '2026-01-01T00:00:00.000Z',
-                    registrationPending: false,
-                    follows: [],
-                    saved: [],
-                    ameens: [],
-                    pendingAmeens: [],
-                    settings: { vibration: true, arabicScale: 1, transliteration: true },
-                  },
-                  'device',
-                );
-              };
-            };
-          } catch {
-            // Opaque origins (about:blank) have no IndexedDB.
-          }
-        },
-        [appLocale ?? 'en', appAudience] as const,
-      );
-    }
+    if (appDevice === 'onboarded') await seedOnboardedDevice(context, appLocale ?? 'en', appAudience);
     if (appLocale !== undefined) {
       // Only when nothing is stored yet, so a test that switches language keeps its choice across reloads.
       await context.addInitScript(

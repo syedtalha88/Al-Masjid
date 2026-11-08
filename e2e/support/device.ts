@@ -1,3 +1,4 @@
+import { expect } from '@mc/config/playwright';
 import type { Page } from '@playwright/test';
 
 /** The device document the musalli app keeps in IndexedDB (`mc-device` / `kv` / `device`). */
@@ -23,6 +24,19 @@ export async function followedIds(page: Page): Promise<string[]> {
   return follows
     .filter((follow: { sync?: string }) => follow.sync !== 'unfollow')
     .map((follow: { masjidId: string }) => follow.masjidId);
+}
+
+/** Waits until every follow on this device reached the server (`sync: 'synced'`) — before publishing to followers. */
+export async function awaitFollowsSynced(page: Page): Promise<void> {
+  await expect
+    .poll(
+      async () => {
+        const follows = (await storedDevice(page))?.['follows'];
+        return Array.isArray(follows) && follows.every((follow: { sync?: string }) => follow.sync === 'synced');
+      },
+      { timeout: 30_000 },
+    )
+    .toBe(true);
 }
 
 /**

@@ -158,7 +158,7 @@ test.describe('B5 notice creator (T3.6)', () => {
       await expect(admin.getByRole('switch', { name: 'Notify followers' })).toHaveAttribute('aria-checked', 'true');
       await admin.getByRole('button', { name: 'Publish', exact: true }).click();
       await expect(admin.getByRole('heading', { name: 'Published' })).toBeVisible();
-      await expect(admin.getByText(/people will be notified\.$/)).toBeVisible();
+      await expect(admin.getByText('1 person will be notified.')).toBeVisible(); // the one follower with push on
       await admin.getByRole('button', { name: 'Done' }).click();
       await expect(admin).toHaveURL(`${ADMIN_URL}/`);
       await expect(admin.getByText('Notifications today: 1 of 8 used')).toBeVisible();
