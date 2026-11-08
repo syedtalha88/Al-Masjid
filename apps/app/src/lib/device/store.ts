@@ -54,6 +54,18 @@ const stateSchema = z.object({
   follows: z.array(followSchema).check(z.maxLength(MAX_FOLLOWS * 2)),
   /** Updates tab: items newer than this are unseen (07 A13). */
   updatesSeenAt: z.optional(instant),
+  /**
+   * Notifications (PHASE_04 T4.2): `wanted` — the person turned them on here (only then does the app re-subscribe by
+   * itself); `endpoint` — the subscription the server last accepted (a different one is sent again on app open).
+   */
+  push: z.optional(
+    z.object({
+      wanted: z.boolean(),
+      endpoint: z.optional(z.string().check(z.maxLength(1000))),
+    }),
+  ),
+  /** When the notifications soft-ask (sheet after the first follow, onboarding page 7) was answered — asked once. */
+  pushAskedAt: z.optional(instant),
   /** The "Adhkar after salah" window whose Home card was dismissed (07 A20): `<masjidId>/<date>/<HH:mm>`. */
   adhkarDismissed: z.optional(z.string().check(z.maxLength(64))),
   saved: z.array(z.object({ publicId: publicIdText, savedAt: instant })).check(z.maxLength(MAX_SAVED)),

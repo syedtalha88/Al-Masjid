@@ -26,6 +26,7 @@ import {
   SW_SOURCE_HEADER,
   type SwSource,
 } from '../lib/sw-protocol.ts';
+import { handleNotificationClick, handlePush, handleSubscriptionChange, type PushWorker } from './push.ts';
 
 declare const self: ServiceWorkerGlobalScope & { __WB_MANIFEST: (string | { url: string; revision: string | null })[] };
 
@@ -187,6 +188,49 @@ async function sendQueuedAmeens(): Promise<void> {
 
 self.addEventListener('sync', (event) => {
   if (isSyncEvent(event) && event.tag === AMEEN_SYNC_TAG) event.waitUntil(sendQueuedAmeens());
+});
+
+// --- push (T4.3, 01 §5.3) ---------------------------------------------------------------------------------------------
+const deviceStore = createStore(DEVICE_DB, DEVICE_DB_STORE);
+const configuredVapid: unknown = import.meta.env['VITE_PUBLIC_VAPID_PUBLIC_KEY'];
+const pushWorker: PushWorker = {
+  origin: self.location.origin,
+  showNotification: (title, options) => self.registration.showNotification(title, options),
+  notificationCount: async () => (await self.registration.getNotifications()).length,
+  ...('setAppBadge' in self.navigator
+    ? { setBadge: (count: number) => (count > 0 ? self.navigator.setAppBadge(count) : self.navigator.clearAppBadge()) }
+    : {}),
+  windows: () => self.clients.matchAll({ type: 'window', includeUncontrolled: true }),
+  openWindow: (url) => self.clients.openWindow(url),
+  readDevice: () => get<unknown>(DEVICE_KEY, deviceStore),
+};
+
+self.addEventListener('push', (event) => {
+  event.waitUntil(handlePush(pushWorker, event.data));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(handleNotificationClick(pushWorker, event.notification.data));
+});
+
+// `pushsubscriptionchange` (Firefox; Chromium and Safari rarely): the app's check on open covers the rest.
+self.addEventListener('pushsubscriptionchange', (event) => {
+  event.waitUntil(
+    handleSubscriptionChange(
+      { readDevice: () => pushWorker.readDevice(), fetch: (input, init) => fetch(input, init), apiBase },
+      {
+        newSubscription: event.newSubscription,
+        resubscribe: () =>
+          typeof configuredVapid === 'string' && configuredVapid !== ''
+            ? self.registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: configuredVapid,
+              })
+            : Promise.resolve(null),
+      },
+    ),
+  );
 });
 
 self.addEventListener('message', (event: ExtendableMessageEvent) => {

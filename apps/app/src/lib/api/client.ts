@@ -36,6 +36,7 @@ import {
   templateListSchema,
   type UpdateDeviceRequest,
 } from '@mc/shared/contracts/public';
+import type { PushSubscriptionInput } from '@mc/shared/contracts/push';
 import { NetworkError, ProblemError, requestJson, ResponseError } from '@mc/shared/http';
 import * as z from 'zod/mini';
 
@@ -175,6 +176,11 @@ export function createApiClient(options: ApiClientOptions) {
     /** Clear all data (05 §4); `as` deletes a former device whose deletion was queued offline. */
     deleteMe: (as?: DeviceCredentials): Promise<undefined> =>
       call('/devices/me', empty, { method: 'DELETE', device: true, ...(as ? { as } : {}) }),
+    /** Notifications on: this browser's subscription (T4.2). 409 PUSH_ENDPOINT_IN_USE → subscribe afresh. */
+    subscribePush: (body: PushSubscriptionInput): Promise<undefined> =>
+      call('/devices/me/push', empty, { method: 'PUT', body, device: true }),
+    /** Notifications off. */
+    unsubscribePush: (): Promise<undefined> => call('/devices/me/push', empty, { method: 'DELETE', device: true }),
     resolve: async (code: string, signal?: AbortSignal): Promise<MasjidSummary> =>
       (await call(`/masjids/resolve/${enc(code)}`, resolveMasjidResponseSchema, signal ? { signal } : {})).masjid,
     follows: (): Promise<FollowList> => call('/devices/me/follows', followListSchema, { device: true }),

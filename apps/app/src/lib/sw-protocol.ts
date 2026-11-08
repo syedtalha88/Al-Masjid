@@ -69,3 +69,47 @@ export function queuedAmeens(device: unknown): QueuedAmeens | null {
   if (publicIds.length === 0) return null;
   return { authorization: `Device ${deviceId}.${secret}`, publicIds };
 }
+
+/** The device's `Authorization` header from a stored device document (push re-subscription in the worker, T4.3). */
+export function deviceAuthorization(device: unknown): string | null {
+  const credentials = field(device, 'credentials');
+  const deviceId = field(credentials, 'deviceId');
+  const secret = field(credentials, 'secret');
+  if (typeof deviceId !== 'string' || !UUID.test(deviceId)) return null;
+  if (typeof secret !== 'string' || !SECRET.test(secret)) return null;
+  return `Device ${deviceId}.${secret}`;
+}
+
+/** The app language from a stored device document (the fallback notification's words), `en` when unknown. */
+export function deviceLocale(device: unknown): 'en' | 'hi' | 'ur' | 'te' {
+  const locale = field(device, 'locale');
+  return locale === 'hi' || locale === 'ur' || locale === 'te' ? locale : 'en';
+}
+
+/**
+ * Worker → page messages about notifications (T4.3): `PUSH_OPEN` — a notification was tapped while the app was open:
+ * open `url` (a same-origin item path) and refresh `masjidId`; `PUSH_RECEIVED` — a push arrived: refresh `masjidId`.
+ */
+export const PUSH_OPEN = 'PUSH_OPEN';
+export const PUSH_RECEIVED = 'PUSH_RECEIVED';
+export type PushMessage =
+  | { readonly type: typeof PUSH_OPEN; readonly url: string; readonly masjidId?: string }
+  | { readonly type: typeof PUSH_RECEIVED; readonly masjidId: string };
+
+/** A same-origin path a notification may open: an item, or the Updates tab (the fallback notification). */
+export const isNotificationPath = (value: unknown): value is string =>
+  typeof value === 'string' && (/^\/items\/[A-Za-z0-9_-]{12}$/.test(value) || value === '/updates');
+
+/** Reads a worker message (04 §11: never trusted unchecked). */
+export function pushMessageOf(data: unknown): PushMessage | null {
+  const type = field(data, 'type');
+  const masjidId = field(data, 'masjidId');
+  const masjid = typeof masjidId === 'string' && UUID.test(masjidId) ? masjidId : undefined;
+  if (type === PUSH_OPEN) {
+    const url = field(data, 'url');
+    if (!isNotificationPath(url)) return null;
+    return masjid ? { type, url, masjidId: masjid } : { type, url };
+  }
+  if (type === PUSH_RECEIVED && masjid) return { type, masjidId: masjid };
+  return null;
+}
