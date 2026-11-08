@@ -1,31 +1,31 @@
 // PHASE_04 T4.8 — fan-out load test: 50,000 devices follow one masjid; one notifying publish goes through the real
 // worker runtime (BullMQ on the local Redis, MongoDB as `mc_system`, web-push encryption + VAPID for every send)
-// against a mock push receiver answering in 50–300 ms with 0.5 % 410 Gone. Measures the total dispatch time, per-batch
-// durations, the worker's CPU and memory, Redis memory and MongoDB operations.
+// against a stand-in push service answering in 50–300 ms with 0.5 % 410 Gone. The worker runs in its own process
+// (push-worker.ts) so its CPU and memory are measured alone; this process seeds, watches the job and reports the total
+// dispatch time, per-batch durations, Redis memory and MongoDB operations.
 //
 // Run: `pnpm load:push` (needs `pnpm db:start` and `.env.local.test`; uses its own database and Redis prefix, removed
 // afterwards). Results: stdout and docs/reports/evidence/PHASE_04_T4.8_push-load.md.
+import { fork } from 'node:child_process';
 import { createECDH, randomBytes } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
 import { cpus, totalmem } from 'node:os';
 import { fileURLToPath } from 'node:url';
 
-import { createLogger, createPushSender, redisSendLedger } from '@mc/api';
-import { startJobWorkers } from '@mc/api/jobs/worker';
-import { createMockPushService, createTestRedis } from '@mc/api/testing';
+import { createTestRedis } from '@mc/api/testing';
 import { idText, newId, systemScope, toInt64 } from '@mc/db';
 import { runMigrations } from '@mc/db/migrate';
 import { MIGRATIONS } from '@mc/db/migrations';
 import { buildDevSeed, seedId, writeDevSeed } from '@mc/db/seed';
 import { createTestDatabase, processUserHandle } from '@mc/db/testing';
-import { Redis } from 'ioredis';
-import webpush from 'web-push';
+
+import type { ParentMessage, WorkerReady, WorkerResult } from './push-worker.ts';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 process.loadEnvFile(`${root}.env.local.test`);
 
 const DEVICES = Number(process.env['LOAD_DEVICES'] ?? 50_000);
-const GONE_SHARE = 0.005;
+const GONE_SHARE = 0.005; // push-worker.ts answers with it
 const LIMIT_MS = 3 * 60_000;
 const WORKER_CPU = 0.75; // infra/compose/docker-compose.vps.yml worker limits
 const WORKER_MEMORY_MB = 512;
@@ -42,7 +42,6 @@ const system = await processUserHandle(db, 'mc_system');
 await writeDevSeed(system.handle, systemScope(), buildDevSeed({ now: NOW, today: NOW.toISOString().slice(0, 10) }));
 const masjidId = seedId('masjid-alpha');
 const testRedis = await createTestRedis('push-load');
-const bull = new Redis(process.env['REDIS_URL_TEST'] ?? '', { maxRetriesPerRequest: null });
 
 // --- seed -----------------------------------------------------------------------------------------------------------
 const browser = createECDH('prime256v1');
@@ -131,25 +130,34 @@ await raw('notification_jobs').insertOne({
   created_at: NOW,
 });
 
-// --- the receiver: 50–300 ms, 0.5 % gone ----------------------------------------------------------------------------
-const receiver = createMockPushService();
-receiver.latency(() => 50 + Math.floor(Math.random() * 250));
-receiver.answerAll(() => (Math.random() < GONE_SHARE ? 410 : 201));
-
-const prefix = `${testRedis.prefix}bull`;
-const workers = await startJobWorkers({
-  db: system.handle,
-  connection: bull,
-  ledger: redisSendLedger(testRedis.redis),
-  sender: createPushSender({
-    vapid: { subject: 'mailto:load@example.test', ...webpush.generateVAPIDKeys() },
-    transport: receiver.transport,
-  }),
-  logger: createLogger({ process: 'worker', level: 'warn', release: 'load' }),
-  prefix,
-  schedulers: false,
+// --- the worker, in its own process ---------------------------------------------------------------------------------
+const child = fork(fileURLToPath(new URL('./push-worker.ts', import.meta.url)), {
+  env: {
+    ...process.env,
+    LOAD_MONGO_URI: system.uri,
+    LOAD_DATABASE: db.name,
+    LOAD_REDIS_PREFIX: testRedis.prefix,
+    LOAD_JOB_ID: idText(jobId),
+  },
 });
-await workers.ready();
+const exited = new Promise<number | null>((resolve) => child.once('exit', resolve));
+function fromChild(type: 'ready'): Promise<WorkerReady>;
+function fromChild(type: 'result'): Promise<WorkerResult>;
+function fromChild(type: (WorkerReady | WorkerResult)['type']): Promise<WorkerReady | WorkerResult> {
+  return new Promise((resolve, reject) => {
+    const onMessage = (message: WorkerReady | WorkerResult) => {
+      if (message.type !== type) return;
+      child.off('message', onMessage);
+      resolve(message);
+    };
+    child.on('message', onMessage);
+    void exited.then((code) => {
+      reject(new Error(`load test: the worker exited (${String(code)}) before "${type}"`));
+    });
+  });
+}
+const toChild = (message: ParentMessage) => child.send(message);
+const ready = await fromChild('ready');
 
 // --- run --------------------------------------------------------------------------------------------------------------
 const serverStatus = async () =>
@@ -158,13 +166,8 @@ const serverStatus = async () =>
     .command({ serverStatus: 1 })
     .catch(() => null)) as { opcounters?: Record<string, number> } | null;
 const before = await serverStatus();
-const cpuBefore = process.cpuUsage();
-let peakRss = 0;
-const sampler = setInterval(() => {
-  peakRss = Math.max(peakRss, process.memoryUsage().rss);
-}, 200);
 const started = performance.now();
-await workers.queues.enqueue('push-fanout', { jobId: idText(jobId) }, { jobId: idText(jobId) });
+toChild({ type: 'start' });
 const finished = async (): Promise<Record<string, unknown>> => {
   for (;;) {
     const doc = await db.db.collection('notification_jobs').findOne({ _id: jobId as never }); // a UUID id (driver typing)
@@ -175,24 +178,20 @@ const finished = async (): Promise<Record<string, unknown>> => {
 };
 const job = await finished();
 const totalMs = performance.now() - started;
-clearInterval(sampler);
-const cpu = process.cpuUsage(cpuBefore);
 const after = await serverStatus();
+const result = fromChild('result');
+toChild({ type: 'stop' });
+const worker = await result;
+await exited;
 
-const batches = await workers.queues.queue('push-send-batch').getJobs(['completed']);
-const durations = batches
-  .map((entry) => (entry.finishedOn ?? 0) - (entry.processedOn ?? 0))
-  .filter((value) => value > 0)
-  .sort((a, b) => a - b);
-const fanouts = await workers.queues.queue('push-fanout').getJobs(['completed']);
-const fanoutMs = fanouts[0] ? (fanouts[0].finishedOn ?? 0) - (fanouts[0].processedOn ?? 0) : 0;
-const redisInfo = await bull.info('memory').catch(() => '');
+const durations = worker.batchMs.filter((value) => value > 0).sort((a, b) => a - b);
+const redisInfo = await testRedis.redis.info('memory').catch(() => '');
 const redisPeak = /used_memory_peak_human:(\S+)/.exec(redisInfo)?.[1] ?? 'n/a';
 const ops = (key: string) =>
   before?.opcounters && after?.opcounters
     ? String((after.opcounters[key] ?? 0) - (before.opcounters[key] ?? 0))
     : 'n/a';
-const cpuSeconds = (cpu.user + cpu.system) / 1e6;
+const cpuSeconds = worker.cpuMicros / 1e6;
 const cpuBudget = (WORKER_CPU * Math.max(totalMs, 1)) / 1000;
 
 const rows: [string, string, string][] = [
@@ -204,24 +203,25 @@ const rows: [string, string, string][] = [
     '',
   ],
   ['Total dispatch time (enqueue → completed)', ms(totalMs), totalMs < LIMIT_MS ? 'PASS (< 3 min)' : 'FAIL (≥ 3 min)'],
-  ['Fan-out job', ms(fanoutMs), ''],
-  ['Send batches', String(batches.length), ''],
+  ['Fan-out job', ms(worker.fanoutMs), ''],
+  ['Send batches', String(durations.length), ''],
   [
     'Batch duration p50 / p95 / max',
     `${ms(percentile(durations, 0.5))} / ${ms(percentile(durations, 0.95))} / ${ms(durations.at(-1) ?? 0)}`,
     (durations.at(-1) ?? 0) < 240_000 ? 'PASS (< 240 s timeout)' : 'FAIL',
   ],
   [
-    'Worker CPU time (user + system)',
+    'Worker CPU time (user + system, worker process only)',
     `${cpuSeconds.toFixed(1)} s`,
     cpuSeconds < cpuBudget
       ? `PASS (< ${cpuBudget.toFixed(0)} s = 0.75 CPU × run time)`
       : `OVER 0.75 CPU (${cpuBudget.toFixed(0)} s)`,
   ],
+  ['Worker RSS idle (after start-up)', mb(ready.idleRss), ''],
   [
-    'Worker peak RSS',
-    mb(peakRss),
-    peakRss < WORKER_MEMORY_MB * 1024 * 1024 ? `PASS (< ${String(WORKER_MEMORY_MB)} MB)` : 'FAIL',
+    'Worker peak RSS / peak heap (worker process only)',
+    `${mb(worker.peakRss)} / ${mb(worker.peakHeap)}`,
+    worker.peakRss < WORKER_MEMORY_MB * 1024 * 1024 ? `PASS (< ${String(WORKER_MEMORY_MB)} MB)` : 'FAIL',
   ],
   ['Redis used memory (peak)', redisPeak, ''],
   [
@@ -229,8 +229,8 @@ const rows: [string, string, string][] = [
     `${ops('query')} / ${ops('insert')} / ${ops('update')} / ${ops('command')}`,
     '',
   ],
-  ['Push requests made', String(receiver.requests.length), ''],
-  ['Seeding time (not measured above)', ms(seedMs), ''],
+  ['Push requests made', String(worker.requests), ''],
+  ['Seeding time (this process, not measured above)', ms(seedMs), ''],
   [
     'Machine',
     `${String(cpus().length)} CPUs, ${mb(totalmem())} RAM, Node ${process.version}`,
@@ -240,20 +240,10 @@ const rows: [string, string, string][] = [
 const table = ['| Measure | Value | Check |', '|---|---|---|', ...rows.map((row) => `| ${row.join(' | ')} |`)].join(
   '\n',
 );
-const report = `# PHASE_04 T4.8 — push fan-out load test\n\nRun: ${new Date().toISOString()} (\`pnpm load:push\`). Receiver: in-process mock, 50–300 ms per request, ${String(GONE_SHARE * 100)} % 410. Every send is a real aes128gcm encryption + VAPID signature.\n\n${table}\n`;
+const report = `# PHASE_04 T4.8 — push fan-out load test\n\nRun: ${new Date().toISOString()} (\`pnpm load:push\`). The worker runs in its own process (\`scripts/load/push-worker.ts\`, the production worker runtime); push service stand-in: 50–300 ms per request, ${String(GONE_SHARE * 100)} % 410. Every send is a real aes128gcm encryption + VAPID signature; the stand-in replaces only the HTTPS request.\n\n${table}\n`;
 process.stdout.write(`${report}\n`);
 writeFileSync(`${root}docs/reports/evidence/PHASE_04_T4.8_push-load.md`, report);
 
-await workers.queues
-  .queue('push-fanout')
-  .obliterate({ force: true })
-  .catch(() => undefined);
-await workers.queues
-  .queue('push-send-batch')
-  .obliterate({ force: true })
-  .catch(() => undefined);
-await workers.close();
-await bull.quit();
 await testRedis.dispose();
 await system.dispose();
 await db.dispose();

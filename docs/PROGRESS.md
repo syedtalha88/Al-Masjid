@@ -409,14 +409,16 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   hand over after commit, worker entrypoint wired; `push-pipeline.int.test.ts` 10 scenarios green. Left: e2e journeys
   (T4.9)
 - [ ] T4.5 — Quotas & admin visibility — API done (`quota` + `paused` + `reach`, `notifications/jobs`, dashboard push
-  stats; IST-midnight reset + counts-match-DB integration tests). Left: admin UI (quota pill, "Will notify N",
-  history screen, Super Admin stats card)
+  stats; IST-midnight reset + counts-match-DB integration tests); admin UI done (quota pill → history screen,
+  "Will notify N" reach line, Super Admin 24 h stats card). Left: e2e + screenshots (T4.9)
 - [ ] T4.6 — Admin push subscriptions & alerts — API done (`PUT/DELETE /auth/push`, alert service, counter-regression
-  and super-passkey-added alerts — F38 a, `POST /api/super/alerts/test` outside production). Left: admin SW push +
-  "Alerts on this phone" switch, owner check on staging
-- [ ] T4.7 — Kill switch — worker + API done (★ `POST /settings/push-pause`, audited). Left: C10 switch, C1 banner,
-  admin notice in the Publish bar
-- [ ] T4.8 — Fan-out load test — run 8 Nov 2026: 50k in 57.5 s, see the handoff above; left: worker-only RSS
+  and super-passkey-added alerts — F38 a, `POST /api/super/alerts/test` outside production); admin SW alert push
+  (10 unit tests) + "Alerts on this phone" switch + test alert done. Left: owner check on staging (O38)
+- [ ] T4.7 — Kill switch — worker + API done (★ `POST /settings/push-pause`, audited); C10 switch, C1 banner and
+  the Publish-bar notice done. Left: e2e (T4.9)
+- [x] T4.8 — Fan-out load test — 8 Nov 2026: the worker runs in its own process (`scripts/load/push-worker.ts`);
+  50k → 57.3 s, 200 batches (max 2.0 s), worker CPU 26.7 s (< 0.75 CPU), worker peak RSS 409 MB (< 512 MB); 100k →
+  112.4 s with the same memory (bounded by batches in flight). `docs/reports/evidence/PHASE_04_T4.8_push-load.md`
 - [ ] T4.9 — Quality gates
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)

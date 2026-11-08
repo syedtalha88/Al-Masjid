@@ -47,7 +47,7 @@ export { createLogger } from './logger.ts';
 export { type MediaStore, mediaStoreFromEnv } from './media/store.ts';
 export { buildOpenApiDocument } from './openapi.ts';
 export { redisSendLedger, type SendLedger } from './push/ledger.ts';
-export { createPushSender, type PushSender, type VapidKeys } from './push/sender.ts';
+export { createPushSender, type PushSender, type PushTransport, type VapidKeys } from './push/sender.ts';
 export { type AlertService, alertService } from './queue/alerts.ts';
 export { QUEUE_PREFIX } from './queue/jobs.ts';
 export { createJobQueues, type JobQueues, type PushNotifier, pushNotifier } from './queue/queues.ts';

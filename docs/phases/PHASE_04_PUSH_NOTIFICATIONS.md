@@ -48,8 +48,8 @@ Notification categories/preferences (rejected — DECISIONS #16). Scheduled post
 **Acceptance:** [ ] Integration test: paused → zero sends; resume → pending jobs continue.
 
 ### T4.8 — Fan-out load test
-**Do:** `load/push-fanout.ts`: seed 50,000 devices following one masjid on a local/staging DB, mock push receiver that responds in 50–300 ms with 0.5% 410s, run a publish and measure total dispatch time, per-batch durations, worker CPU/memory, Redis memory, MongoDB load (Atlas metrics).
-**Acceptance:** [ ] 50k dispatched in < 3 min; no batch exceeds its processor timeout; worker stays within its container memory limit; results table in report.
+**Do:** `scripts/load/push-fanout.ts` (worker in `scripts/load/push-worker.ts`): seed 50,000 devices following one masjid on a local/staging DB, mock push receiver that responds in 50–300 ms with 0.5% 410s, run a publish and measure total dispatch time, per-batch durations, worker CPU/memory, Redis memory, MongoDB load (Atlas metrics).
+**Acceptance:** [x] 50k dispatched in < 3 min; no batch exceeds its processor timeout; worker stays within its container memory limit; results table in report.
 
 ### T4.9 — Quality gates
 **Do:** Update e2e journeys 6, 7, 8 to assert jobs enqueued with correct audience/targets; visual screenshots for new UI; Lighthouse/budget check (push code must not bloat initial bundle — subscription code lazy-loaded).
