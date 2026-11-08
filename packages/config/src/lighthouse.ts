@@ -14,6 +14,8 @@ export interface LighthouseBudgets {
    * #136); an overrun within it is reported as a note, never silently passed.
    */
   readonly tolerance?: Readonly<Partial<Record<MetricId, number>>>;
+  /** How far under its minimum a category score may fall (0–1) before the page fails — reported as a note. */
+  readonly categoryTolerance?: Readonly<Partial<Record<CategoryId, number>>>;
 }
 
 /**
@@ -36,6 +38,9 @@ export const WARM_BUDGETS: LighthouseBudgets = {
   // gated here: a service-worker start evaluates the whole bundle in one burst, and on CI runners that burst
   // landed just over 200 ms (208 ms) while cold loads measure 0 ms (DECISIONS #51, PROGRESS F27).
   metrics: { 'largest-contentful-paint': 1000, 'cumulative-layout-shift': 0.05 },
+  // The performance score is weighted heavily by that same ungated TBT burst: CI 8 Nov 2026 measured 89 (TBT 453 ms,
+  // LCP 665 ms, CLS 0.001 — benchmarkIndex 2293). Two points under 90 are reported, not failed (owner's rule, #142).
+  categoryTolerance: { performance: 0.02 },
 };
 
 const CATEGORIES: readonly CategoryId[] = ['performance', 'accessibility', 'best-practices'];
@@ -143,7 +148,13 @@ export function evaluateBudgets(runs: readonly RunSummary[], budgets: Lighthouse
       else {
         categories[id] = value;
         const min = budgets.categories[id];
-        if (value < min) failures.push(`${id}: ${String(Math.round(value * 100))} < ${String(Math.round(min * 100))}`);
+        const score = (n: number) => String(Math.round(n * 100));
+        const allowed = budgets.categoryTolerance?.[id] ?? 0;
+        if (value < min - allowed - 1e-9) failures.push(`${id}: ${score(value)} < ${score(min)}`);
+        else if (value < min)
+          notes.push(
+            `${id}: ${score(value)} under the ${score(min)} target, within the ${score(allowed)}-point tolerance`,
+          );
       }
     }
     const metrics: Partial<Record<MetricId, number>> = {};

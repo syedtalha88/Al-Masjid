@@ -153,6 +153,21 @@ describe('evaluateBudgets', () => {
     expect(evaluateBudgets([run('https://app/', {}, { lcp: 2400 })], COLD_BUDGETS)[0]?.notes).toEqual([]);
   });
 
+  it('warm performance: up to two points under 90 is a note; further under fails; cold has no such tolerance (#142)', () => {
+    const [near] = evaluateBudgets([run('https://app/', { performance: 0.89 }, { lcp: 600 })], WARM_BUDGETS);
+    expect(near?.failures).toEqual([]);
+    expect(near?.notes).toEqual(['performance: 89 under the 90 target, within the 2-point tolerance']);
+    expect(
+      evaluateBudgets([run('https://app/', { performance: 0.88 }, { lcp: 600 })], WARM_BUDGETS)[0]?.failures,
+    ).toEqual([]);
+    expect(
+      evaluateBudgets([run('https://app/', { performance: 0.87 }, { lcp: 600 })], WARM_BUDGETS)[0]?.failures,
+    ).toEqual(['performance: 87 < 90']);
+    expect(evaluateBudgets([run('https://app/', { performance: 0.89 })], COLD_BUDGETS)[0]?.failures).toEqual([
+      'performance: 89 < 90',
+    ]);
+  });
+
   it('warm budget: LCP ≤ 1.0 s', () => {
     expect(evaluateBudgets([run('https://app/', {}, { lcp: 1200 })], WARM_BUDGETS)[0]?.failures).toEqual([
       'largest-contentful-paint: 1200 ms > 1000 ms',
