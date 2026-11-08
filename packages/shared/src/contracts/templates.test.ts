@@ -80,7 +80,11 @@ describe('admin masjid contracts (T3.1)', () => {
   it('stats and quota are non-negative counts; schedules accept a masjid without timings', () => {
     expect(adminMasjidStatsSchema.safeParse({ followers: 3, itemsThisWeek: 0, ameenThisWeek: 1 }).success).toBe(true);
     expect(adminMasjidStatsSchema.safeParse({ followers: -1, itemsThisWeek: 0, ameenThisWeek: 0 }).success).toBe(false);
-    expect(pushQuotaSchema.safeParse({ used: 2, limit: 8, resetsAt: '2026-11-01T18:30:00.000Z' }).success).toBe(true);
+    const quota = { used: 2, limit: 8, resetsAt: '2026-11-01T18:30:00.000Z', paused: false };
+    const reach = { everyone: 5, brothers: 3, sisters: 2 };
+    expect(pushQuotaSchema.safeParse({ ...quota, reach }).success).toBe(true);
+    expect(pushQuotaSchema.safeParse(quota).success).toBe(false); // reach is required (T4.5)
+    expect(pushQuotaSchema.safeParse({ ...quota, reach: { ...reach, sisters: -1 } }).success).toBe(false);
     const masjid = { name: 'Test Masjid Alpha', lat: 17.385, lng: 78.4867, calcMethod: 'karachi', asrMadhab: 'hanafi' };
     expect(adminScheduleSchema.safeParse({ masjid, timings: null, rev: 0 }).success).toBe(true);
     expect(adminScheduleSchema.safeParse({ masjid, timings: null }).success).toBe(false); // rev is required
