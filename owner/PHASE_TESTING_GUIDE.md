@@ -152,6 +152,9 @@ an automatic test (`e2e/admin/usability.spec.ts`) — the tap counts below are t
 
 ## Phase 04 — Push notifications
 
+Before you start: **O37** must be done (the notification keys on staging match). Use Android A + iPhone as musallis
+(the iPhone only as the installed Home Screen app) and Android B as admin.
+
 | # | Check | How | Expected |
 |---|---|---|---|
 | 4.1 | Turn on (Android) | Musalli Android → follow masjid → "Turn on notifications" | Phone permission prompt; Settings → Notifications shows "On" |
@@ -161,9 +164,11 @@ an automatic test (`e2e/admin/usability.spec.ts`) — the tap counts below are t
 | 4.5 | Mute | Musalli: Masjid page → bell button (mute) → admin publishes | No notification from that masjid; content still visible in app |
 | 4.6 | Brothers/Sisters | Set iPhone as Sister, Android as Brother; admin publishes a dua (everyone) and (Phase 6) a sisters-only bayan | Everyone gets the dua; only Sister phone gets the sisters-only bayan |
 | 4.7 | Quota | Admin publishes with notify ON until quota ends | Admin sees "x of 8 used"; when finished, can still publish without notification |
-| 4.8 | Pause all | Super Admin → Settings → Pause all push → publish | No notifications; resume → works again |
+| 4.8 | Pause all | Super Admin → Settings → Pause all notifications → confirm → publish a notice | No notification; the admin sees "Notifications are temporarily paused". Resume → the waiting notification arrives by itself within about a minute |
 | 4.9 | Phone restart | Restart musalli phones; publish again | Notifications still arrive |
-| 4.10 | Load test result | Read the Phase 04 report table | 50,000 notifications dispatched in under 3 minutes |
+| 4.10 | Load test result | Read the Phase 04 report table | 50,000 notifications dispatched in under 3 minutes (measured: 57 s) |
+| 4.11 | Notification history | Admin Home → tap the "Notifications today" pill | Each notified post with when, for whom, and how many phones it reached |
+| 4.12 | Admin alerts | Admin (Android B) → Masjid Profile → My account → "Alerts on this phone" on. Super Admin → Settings → send a test alert (staging only) to your own Super Admin phone | The switch turns on after the permission prompt; the test alert arrives and opens the admin app |
 
 ---
 
