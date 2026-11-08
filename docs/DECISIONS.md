@@ -2145,3 +2145,29 @@ source).
 integration tests; publish state functions return `notificationJobId`.
 
 _None — every decision is ACCEPTED (23 Oct 2026)._
+
+### #139 — Push e2e: the runtime-test worker captures pushes; CDP delivers them; a full-Chromium `push` project (PHASE_04 T4.8, T4.9) — ACCEPTED (Claude Code, 8 Nov 2026)
+
+**Context.** Headless browsers cannot subscribe at a real push service (Chromium: "Registration failed — permission
+denied"), and Playwright's default headless shell also denies the notification permission, so a service worker cannot
+show a notification there. An e2e that let the worker POST to fcm.googleapis.com would send traffic to Google from
+tests. T4.8 measured the worker together with the seeding (472 MB) — not the worker alone.
+
+**Decision.**
+1. The **runtime-test** worker sends through `capturePushTransport` (in `@mc/api/test-hooks`, i.e. only in
+   `dist-test/test-hooks.mjs` → only the `runtime-test` image), loaded by `loadWorkerPushTransport` under the same gate
+   as the API hooks (APP_ENV=local AND NODE_ENV=test AND the module exists). It records endpoint, plaintext payload and
+   TTL/Urgency/Topic in the Redis list `e2e:push:captured` and answers 201 — nothing leaves the machine.
+2. api-admin's test hook `GET /api/admin/test/push-captured?endpoint=` reads them. Only the **local** Redis ACL has
+   `e2e:*` (worker read/write, api-admin `%R~` read-only); the VPS ACL has no such pattern, so even a misconfigured
+   deploy could not capture. ACL integration test added.
+3. Tests register fake FCM subscriptions with real P-256 keys (the worker really encrypts) — through the API, or through
+   the app with a stubbed `PushManager`. `ServiceWorker.deliverPushMessage` (CDP) hands a captured payload to the
+   musalli SW; `registration.getNotifications()` checks what it shows.
+4. New Playwright project `push` (`*.push.spec.ts`): Pixel 7 on `channel: 'chromium'` (new headless — notifications
+   work). CI runs it in the test-hook step (`--project=push`).
+5. T4.8: the load test forks the worker into its own process (`scripts/load/push-worker.ts`) with a counting stand-in
+   transport: 50k → 409 MB peak RSS; 100k → 404 MB (bounded by batches in flight).
+
+**Consequences.** Real subscription creation and real push-service delivery are covered only by the owner's device
+checks (O38). The global kill switch in the push spec is always reset in `finally`; run hook specs with one worker.
