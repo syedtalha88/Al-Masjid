@@ -2214,3 +2214,21 @@ send batch failing with `Document failed validation`.
 **Consequences.** Staging/production need migration 0017 (applied by the normal deploy migrate step). Hook specs that
 open a second musalli phone use `seedOnboardedDevice`; specs that publish to followers wait for
 `awaitFollowsSynced` first.
+
+### #141 — mc-server: two HIGH zlib CVEs in the distroless base that our process never loads (Trivy, 8 Nov 2026) — OPEN (asked the owner, 8 Nov 2026)
+
+**Context.** CI `1ebba4b` failed the image scan: `zlib1g 1:1.3.dfsg+really1.3.1-1+b1` in
+`gcr.io/distroless/nodejs24-debian13` (CVE-2026-76844, CVE-2026-85091; fixed in Debian `+deb13u1`). The newest
+distroless digest (`b8cec4b2…`, pulled 8 Nov 2026) still ships the old package — Google has not rebuilt yet. Distroless
+has no package manager, so the image cannot be patched in place. **Evidence of exposure:** the official Node binary
+does not link the system zlib (`ldd node` in node:24.21.0-trixie-slim: no `libz`); Node uses its bundled zlib
+(`process.versions.zlib` = 1.3.2.1-motley); a running distroless Node process maps no `libz` (`/proc/self/maps`). The
+only executable in the image is `node`. (Caddy's findings were fixable and are fixed — `ee106d5`.)
+**Options.**
+- **A (recommended):** a time-boxed ignore for exactly these two CVE ids, for the `mc-server` scan only
+  (`infra/trivy/mc-server.trivyignore.yaml` with `expired_at` 7 days out + this evidence), and move to the new
+  distroless digest as soon as it carries `+deb13u1` (Renovate). Every other finding still fails CI.
+- **B:** wait for the upstream rebuild. CI stays red at the image scan; e2e, perf and Lighthouse do not run on CI until
+  then (Phase 04 cannot be verified there).
+- **C:** graft the patched `libz.so.1` + dpkg status into the distroless image in a build stage — brittle, hides the
+  package from future scans; not recommended.
