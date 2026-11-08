@@ -165,17 +165,33 @@ export interface PushSubscriptionRow {
 }
 
 /**
- * The active subscriptions of `deviceIds` (01 §5.3 step 3: one `$in` query); devices without one are left out.
+ * The active subscriptions of a send batch's devices (01 §5.3 step 3) — only those that, right now, still follow the
+ * job's masjid unmuted with push on and a Brother / Sister choice the job targets: a batch delayed by a pause or
+ * retries never reaches someone who unfollowed or muted meanwhile, and a forged batch cannot reach other devices
+ * (security review L5, DECISIONS #142). Devices without a subscription are left out.
  */
 export async function getPushSubscriptions(
   handle: DbHandle,
   scope: Scope,
-  deviceIds: readonly UUID[],
+  input: {
+    readonly deviceIds: readonly UUID[];
+    readonly masjidId: UUID;
+    readonly targets: readonly ('brothers' | 'sisters')[];
+  },
 ): Promise<PushSubscriptionRow[]> {
   requireSystem(scope);
-  if (deviceIds.length === 0) return [];
-  const docs = await scoped({ scope, db: await handle.db() }, 'devices').find({
-    _id: { $in: [...deviceIds] },
+  if (input.deviceIds.length === 0 || input.targets.length === 0) return [];
+  const db = await handle.db();
+  const follows = await scoped({ scope, db }, 'device_follows').find({
+    masjid_id: input.masjidId,
+    device_id: { $in: [...input.deviceIds] },
+    muted: false,
+    push_active: true,
+    audience_pref: { $in: [...input.targets] },
+  });
+  if (follows.length === 0) return [];
+  const docs = await scoped({ scope, db }, 'devices').find({
+    _id: { $in: follows.map((follow) => follow['device_id'] as UUID) },
     push_status: 'active',
   });
   return docs.flatMap((doc) => {
@@ -293,27 +309,50 @@ export async function listStalledPendingJobs(
   return docs.map((doc) => doc['_id'] as UUID);
 }
 
+/** A running job without recent progress — a candidate for the stuck-job detector. */
+export interface StuckCandidate {
+  readonly jobId: UUID;
+  readonly masjidId: UUID;
+  /** Fan-out pages recorded so far: its send batches are `<job>.<page>.<locale>` for page < this. */
+  readonly fanoutPages: number;
+}
+
 /**
- * Fails running jobs without progress since `noProgressSince` (the stuck-job detector — 01 §5.3 step 7).
- *
- * @returns the failed jobs (for the Super Admin alert).
+ * Running jobs without progress since `noProgressSince` (the stuck-job detector — 01 §5.3 step 7), oldest first. The
+ * caller fails only those with no work left in the queues ({@link failJob}); one still waiting there (paused, or the
+ * worker was down) gets {@link touchJobProgress} instead (DECISIONS #142).
  */
-export async function failStuckJobs(
+export async function listStuckCandidates(
   handle: DbHandle,
   scope: Scope,
   noProgressSince: Date,
-  now: Date,
-): Promise<{ readonly jobId: UUID; readonly masjidId: UUID }[]> {
+  limit = 100,
+): Promise<StuckCandidate[]> {
   requireSystem(scope);
-  const jobs = scoped({ scope, db: await handle.db() }, 'notification_jobs');
-  const stuck = await jobs.find({ status: 'running', last_progress_at: { $lt: noProgressSince } }, { limit: 100 });
-  const failed: { jobId: UUID; masjidId: UUID }[] = [];
-  for (const doc of stuck) {
-    const jobId = doc['_id'] as UUID;
-    if (await failJob(handle, scope, jobId, 'no progress for 10 minutes', now))
-      failed.push({ jobId, masjidId: doc['masjid_id'] as UUID });
-  }
-  return failed;
+  const docs = await scoped({ scope, db: await handle.db() }, 'notification_jobs').find(
+    { status: 'running', last_progress_at: { $lt: noProgressSince } },
+    { sort: { last_progress_at: 1 }, limit },
+  );
+  return docs.map((doc) => ({
+    jobId: doc['_id'] as UUID,
+    masjidId: doc['masjid_id'] as UUID,
+    fanoutPages: numberOf(doc, 'fanout_page') ?? 0,
+  }));
+}
+
+/**
+ * Notes that a running job is still on its way (its work waits in the queues), so the detector looks again only after
+ * another quiet period.
+ *
+ * @returns whether the job was running.
+ */
+export async function touchJobProgress(handle: DbHandle, scope: Scope, jobId: UUID, now: Date): Promise<boolean> {
+  requireSystem(scope);
+  const matched = await scoped({ scope, db: await handle.db() }, 'notification_jobs').updateOne(
+    { _id: jobId, status: 'running' },
+    { $set: { last_progress_at: now } },
+  );
+  return matched === 1;
 }
 
 /** `app_settings.push_paused` — the Super Admin's kill switch (T4.7). */

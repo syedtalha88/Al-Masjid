@@ -112,6 +112,10 @@ export async function revokeAdminSessions(
         { $set: { revoked_at: now, revoked_reason: 'revoked_by_super_admin' } },
         { session: ctx.session },
       );
+    // Alerts stop with the sessions: a revoked phone must not keep receiving them (security review M2, #142).
+    await ctx.db
+      .collection<{ admin_id: UUID }>('admin_push_subscriptions')
+      .deleteMany({ admin_id: input.adminId }, { session: ctx.session });
     await writeAudit(ctx, {
       action: 'session.revoke',
       targetType: 'admin',
@@ -150,6 +154,10 @@ export async function revokeAdminPasskeys(
         { $set: { revoked_at: now, revoked_reason: 'credential_revoked' } },
         session,
       );
+    // Alerts stop with the sessions: a revoked phone must not keep receiving them (security review M2, #142).
+    await ctx.db
+      .collection<{ admin_id: UUID }>('admin_push_subscriptions')
+      .deleteMany({ admin_id: input.adminId }, session);
     const requestId = input.requestId ? { requestId: input.requestId } : {};
     await writeAudit(ctx, {
       action: 'credential.revoke',

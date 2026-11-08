@@ -103,7 +103,6 @@ export {
   beginFanout,
   completeIfDone,
   failJob,
-  failStuckJobs,
   type FanoutJob,
   fanoutPage,
   type FanoutRecipient,
@@ -112,12 +111,15 @@ export {
   getPushSubscriptions,
   isPushPaused,
   listStalledPendingJobs,
+  listStuckCandidates,
   markSubscriptionsDead,
   type PushContent,
   type PushLocale,
   type PushSubscriptionRow,
   recordBatchResult,
   recordFanoutPage,
+  type StuckCandidate,
+  touchJobProgress,
 } from './push.ts';
 export {
   addRuqyahEntry,

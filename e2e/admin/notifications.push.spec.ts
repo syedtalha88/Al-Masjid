@@ -187,7 +187,8 @@ test.describe('push end to end (T4.9)', () => {
       const words = { t: expect.stringMatching(/^Test Masjid Push/), b: 'Test push title\nTest push body' };
       expect(sisterPayload).toMatchObject({ ...words, v: 1, l: 'te', u: `/items/${publicId}`, tag: publicId });
       expect(brotherPayload).toMatchObject({ ...words, v: 1, l: 'hi', u: `/items/${publicId}`, tag: publicId });
-      expect(toSister).toMatchObject({ ttl: '86400', urgency: 'normal', topic: publicId }); // 01 §5.3 step 3
+      expect(toSister).toMatchObject({ ttl: '86400', urgency: 'normal' }); // 01 §5.3 step 3
+      expect(toSister?.topic).toBeUndefined(); // no item id for the push service (DECISIONS #142)
 
       // The push service hands the sister's push to her phone: her service worker shows it, in Telugu.
       await deliverPush(musalli, toSister?.payload ?? '');

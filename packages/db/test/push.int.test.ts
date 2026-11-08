@@ -15,17 +15,18 @@ import {
   beginFanout,
   completeIfDone,
   failJob,
-  failStuckJobs,
   fanoutPage,
   getFanoutJob,
   getPushContent,
   getPushSubscriptions,
   isPushPaused,
   listStalledPendingJobs,
+  listStuckCandidates,
   markSubscriptionsDead,
   recordBatchResult,
   recordFanoutPage,
   setDevicePush,
+  touchJobProgress,
 } from '../src/state/index.ts';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '../src/testing/index.ts';
 import { newId, newPublicId } from '../src/values.ts';
@@ -291,12 +292,41 @@ describe('fan-out state (system scope, mc_system)', () => {
     });
   });
 
+  it('subscriptions are read only for devices that still follow unmuted, with push on and a targeted choice (#142)', async () => {
+    const masjid = await emptyMasjid();
+    const other = await emptyMasjid();
+    const brother = await device(masjid);
+    const sister = await device(masjid, { pref: 'sisters' });
+    const mutedLater = await device(masjid);
+    const unfollowedLater = await device(masjid);
+    const elsewhere = await device(other);
+    // After the fan-out picked them: one muted the masjid, one unfollowed it.
+    await raw('device_follows').updateOne({ device_id: mutedLater }, { $set: { muted: true } });
+    await raw('device_follows').deleteOne({ device_id: unfollowedLater });
+    const batch = [brother, sister, mutedLater, unfollowedLater, elsewhere, newId()];
+    const ids = async (targets: readonly ('brothers' | 'sisters')[]) =>
+      (await getPushSubscriptions(sys(), SYSTEM, { deviceIds: batch, masjidId: masjid, targets }))
+        .map((row) => row.deviceId.toHexString())
+        .sort();
+    expect(await ids(['brothers', 'sisters'])).toEqual([brother, sister].map((id) => id.toHexString()).sort());
+    expect(await ids(['sisters'])).toEqual([sister.toHexString()]);
+    expect(await ids([])).toEqual([]);
+    expect(
+      await getPushSubscriptions(sys(), SYSTEM, { deviceIds: [], masjidId: masjid, targets: ['brothers'] }),
+    ).toEqual([]);
+  });
+
   it('subscriptions: only active ones are read; gone ones are marked dead only while the endpoint is unchanged', async () => {
     const masjid = await emptyMasjid();
     const a = await device(masjid);
     const b = await device(masjid);
     const off = await device(masjid, { push: false });
-    const rows = await getPushSubscriptions(sys(), SYSTEM, [a, b, off]);
+    const everyone = ['brothers', 'sisters'] as const;
+    const rows = await getPushSubscriptions(sys(), SYSTEM, {
+      deviceIds: [a, b, off],
+      masjidId: masjid,
+      targets: everyone,
+    });
     expect(rows.map((row) => row.deviceId.toHexString()).sort()).toEqual([a, b].map((id) => id.toHexString()).sort());
 
     const marked = await markSubscriptionsDead(
@@ -315,7 +345,7 @@ describe('fan-out state (system scope, mc_system)', () => {
     expect(await raw('device_follows').findOne({ device_id: b })).toMatchObject({ push_active: true });
   });
 
-  it('the sweeper sees old pending jobs; the detector fails running jobs without progress', async () => {
+  it('the sweeper sees old pending jobs; the detector lists quiet running jobs; a touch or a fail settles them', async () => {
     const masjid = await emptyMasjid();
     const old = await pendingJob(masjid, ['brothers', 'sisters'], new Date(NOW.getTime() - 5 * 60_000));
     const fresh = await pendingJob(masjid, ['brothers', 'sisters'], NOW);
@@ -325,12 +355,23 @@ describe('fan-out state (system scope, mc_system)', () => {
 
     await beginFanout(sys(), SYSTEM, old, new Date(NOW.getTime() - 20 * 60_000));
     await beginFanout(sys(), SYSTEM, fresh, NOW);
-    const failed = await failStuckJobs(sys(), SYSTEM, new Date(NOW.getTime() - 10 * 60_000), NOW);
-    expect(failed.map((row) => row.jobId.toHexString())).toEqual([old.toHexString()]);
+    const quietSince = new Date(NOW.getTime() - 10 * 60_000);
+    const candidates = await listStuckCandidates(sys(), SYSTEM, quietSince);
+    expect(candidates).toEqual([{ jobId: old, masjidId: masjid, fanoutPages: 0 }]);
+
+    // Still queued somewhere: a touch moves it out of the detector's window for another quiet period.
+    expect(await touchJobProgress(sys(), SYSTEM, old, NOW)).toBe(true);
+    expect(await listStuckCandidates(sys(), SYSTEM, quietSince)).toEqual([]);
+
+    // Nothing left anywhere: the caller fails it.
+    const later = new Date(NOW.getTime() + 11 * 60_000);
+    expect(await listStuckCandidates(sys(), SYSTEM, new Date(later.getTime() - 10 * 60_000))).toHaveLength(2);
+    expect(await failJob(sys(), SYSTEM, old, 'no progress for 10 minutes', later)).toBe(true);
     expect(await raw('notification_jobs').findOne({ _id: old })).toMatchObject({
       status: 'failed',
       last_error: 'no progress for 10 minutes',
     });
+    expect(await touchJobProgress(sys(), SYSTEM, old, later)).toBe(false); // failed stays failed
     expect((await getFanoutJob(sys(), SYSTEM, fresh))?.status).toBe('running');
   });
 
@@ -384,5 +425,7 @@ describe('fan-out state (system scope, mc_system)', () => {
     const admin = adminScope({ adminId: newId(), masjids: [{ id: ALPHA, role: 'owner' }] });
     expect(await code(getFanoutJob(sys(), admin, newId()))).toBe('FORBIDDEN');
     expect(await code(isPushPaused(sys(), deviceScope(newId())))).toBe('FORBIDDEN');
+    expect(await code(listStuckCandidates(sys(), admin, NOW))).toBe('FORBIDDEN');
+    expect(await code(touchJobProgress(sys(), admin, newId(), NOW))).toBe('FORBIDDEN');
   });
 });

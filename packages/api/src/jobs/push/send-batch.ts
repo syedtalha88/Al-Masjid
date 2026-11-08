@@ -122,7 +122,11 @@ export async function processSendBatch(
     const id = parseId(text);
     return id ? [id] : [];
   });
-  const subscriptions = await getPushSubscriptions(deps.db, scope, deviceIds);
+  const subscriptions = await getPushSubscriptions(deps.db, scope, {
+    deviceIds,
+    masjidId: job.masjidId,
+    targets: job.audienceTargets,
+  });
   const already = await deps.ledger.sentAlready(
     payload.jobId,
     subscriptions.map((row) => row.deviceId.toHexString(true)),

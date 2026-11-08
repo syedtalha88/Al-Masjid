@@ -113,12 +113,15 @@ export function pushMessage(content: PushContent, locale: Locale): PushPayload {
 const TTL_ANNOUNCEMENT_S = 86_400;
 const TTL_OTHER_S = 43_200;
 
-/** Delivery hints: `Urgency: high` for important notices and inteqal requests; `Topic` = the item (collapses). */
+/**
+ * Delivery hints: `Urgency: high` for important notices and inteqal requests. No `Topic`: it travels unencrypted to the
+ * push service, and an item id there would tell Google / Apple which masjid a phone follows — the service worker's
+ * `tag` already replaces an earlier notification of the same item on the phone (owner, DECISIONS #142).
+ */
 export function pushOptions(content: PushContent): PushOptions {
   const urgent = content.isImportant || (content.type === 'dua_request' && content.category === 'inteqal');
   return {
     ttlS: content.type === 'announcement' ? TTL_ANNOUNCEMENT_S : TTL_OTHER_S,
     urgency: urgent ? 'high' : 'normal',
-    topic: content.publicId,
   };
 }

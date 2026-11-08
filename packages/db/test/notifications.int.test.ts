@@ -25,6 +25,9 @@ import {
   MAX_ADMIN_PUSH_SUBSCRIPTIONS,
   recordAlertDelivery,
   removeAdminPushSubscription,
+  revokeAdminPasskeys,
+  revokeAdminSessions,
+  revokeSessions,
   saveAdminPushSubscription,
 } from '../src/state/index.ts';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '../src/testing/index.ts';
@@ -280,6 +283,50 @@ describe('admin push subscriptions (mc_admin) and alert targets (mc_system)', ()
     expect(await code(recordAlertDelivery(adm(), owner(ALPHA, first), { delivered: [], gone: [] }, NOW))).toBe(
       'FORBIDDEN',
     );
+  });
+
+  it('revoked sessions or passkeys, or signing out everywhere, stop alerts to every phone of the admin (#142)', async () => {
+    const session = async (adminId: UUID) => {
+      const id = newId();
+      await raw('admin_sessions').insertOne(
+        {
+          _id: id,
+          admin_id: adminId,
+          token_hash: new Binary(randomBytes(32)),
+          created_at: NOW,
+          last_seen_at: NOW,
+          idle_expires_at: new Date(NOW.getTime() + 3_600_000),
+          absolute_expires_at: new Date(NOW.getTime() + 7_200_000),
+        },
+        { bypassDocumentValidation: true },
+      );
+      return id;
+    };
+    const phones = (adminId: UUID) => raw('admin_push_subscriptions').countDocuments({ admin_id: adminId });
+    const owner2 = superScope(newId(), NOW); // the Super Admin acting, step-up fresh
+    const subscribe = async (adminId: UUID, label: string) => {
+      await saveAdminPushSubscription(adm(), owner(ALPHA, adminId), subscription(`${label}-a`), NOW);
+      await saveAdminPushSubscription(adm(), owner(ALPHA, adminId), subscription(`${label}-b`), NOW);
+    };
+
+    const lostPhone = await admin('masjid_admin', 'en');
+    await subscribe(lostPhone, `lost-${lostPhone.toHexString()}`);
+    await revokeAdminSessions(adm(), owner2, { adminId: lostPhone, now: NOW });
+    expect(await phones(lostPhone)).toBe(0);
+
+    const stolen = await admin('masjid_admin', 'en');
+    await subscribe(stolen, `stolen-${stolen.toHexString()}`);
+    await revokeAdminPasskeys(adm(), owner2, { adminId: stolen, now: NOW });
+    expect(await phones(stolen)).toBe(0);
+
+    const self = await admin('masjid_admin', 'en');
+    await subscribe(self, `self-${self.toHexString()}`);
+    const one = await session(self);
+    await session(self);
+    await revokeSessions(adm(), owner(ALPHA, self), { sessionId: one, reason: 'revoked_by_admin', now: NOW });
+    expect(await phones(self)).toBe(2); // one device signed out: that app removes its own subscription
+    await revokeSessions(adm(), owner(ALPHA, self), { reason: 'revoked_by_admin', now: NOW });
+    expect(await phones(self)).toBe(0); // everywhere
   });
 
   it('targets: active Super Admins or the named active admins, each in its app language; delivery noted, gone pruned', async () => {

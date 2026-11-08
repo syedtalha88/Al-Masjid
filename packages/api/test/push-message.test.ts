@@ -155,8 +155,8 @@ describe('pushMessage', () => {
 });
 
 describe('pushOptions', () => {
-  it('important notices and inteqal requests are urgent; announcements live a day, others 12 h; topic = item', () => {
-    expect(pushOptions(BASE)).toEqual({ ttlS: 86_400, urgency: 'normal', topic: 'seedA0000001' });
+  it('important notices and inteqal requests are urgent; announcements live a day, others 12 h; never a Topic', () => {
+    expect(pushOptions(BASE)).toEqual({ ttlS: 86_400, urgency: 'normal' }); // no item id for the push service (#142)
     expect(pushOptions({ ...BASE, isImportant: true }).urgency).toBe('high');
     expect(pushOptions({ ...BASE, type: 'dua_request', category: 'inteqal' })).toMatchObject({
       ttlS: 43_200,

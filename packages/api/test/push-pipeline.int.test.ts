@@ -232,7 +232,7 @@ describe('push pipeline', () => {
     expect(deliveredTo([brother])).toHaveLength(0);
   });
 
-  it('one batch per locale, each with the text in its language; urgency and topic headers', async () => {
+  it('one batch per locale, each with the text in its language; urgency header, never a Topic', async () => {
     const id = await masjid();
     const english = await follower(id, { locale: 'en' });
     const urdu = await follower(id, { locale: 'ur' });
@@ -244,7 +244,8 @@ describe('push pipeline', () => {
     if (!en || !ur) throw new Error('missing deliveries');
     expect(payloadOf(en)).toMatchObject({ t: 'Test Masjid Push', l: 'en' });
     expect(payloadOf(ur)).toMatchObject({ t: 'ٹیسٹ مسجد پش', l: 'ur' });
-    expect(en.headers).toMatchObject({ Urgency: 'normal', TTL: '86400', Topic: payloadOf(en).tag });
+    expect(en.headers).toMatchObject({ Urgency: 'normal', TTL: '86400' });
+    expect(en.headers).not.toHaveProperty('Topic'); // the item id would reveal the masjid to the push service (#142)
     // The job document completes inside the last batch's processor, a moment before BullMQ moves that batch to its
     // completed set — so wait for BullMQ instead of reading the set once.
     const ours = await waitFor(async () => {
@@ -378,6 +379,38 @@ describe('push pipeline', () => {
     expect((await sweep(20)).failedStuck).toBeGreaterThanOrEqual(1);
     expect(await job(stuckId)).toMatchObject({ status: 'failed' });
     expect(await running().queues.queue('alert-send').getJob(`alert.push_job_stuck.${stuckId}`)).toBeDefined();
+  });
+
+  it('a pause longer than the stuck window loses nothing: no stuck failure, no alert; the job finishes on resume', async () => {
+    const id = await masjid();
+    const device = await follower(id);
+    const jobId = await published(id);
+    // A fan-out that was running when the Super Admin paused (its BullMQ job now waits for the switch).
+    await raw('notification_jobs').updateOne(
+      { _id: idOf(jobId) },
+      { $set: { status: 'running', started_at: NOW, last_progress_at: NOW, fanout_page: 0 } },
+    );
+    await raw('app_settings').updateOne({ _id: 'global' }, { $set: { push_paused: true } });
+    try {
+      await enqueue(jobId);
+      const sweep = (minutes: number) =>
+        processOutboxSweep({
+          db: sys(),
+          queues: running().queues,
+          clock: { now: () => new Date(NOW.getTime() + minutes * 60_000) },
+          logger: silentLogger(),
+        });
+      expect((await sweep(20)).failedStuck).toBe(0); // paused: the detector does not run
+      expect(await job(jobId)).toMatchObject({ status: 'running' });
+      // Resumed, the fan-out still waits in the queue: noted as on its way, not failed.
+      await raw('app_settings').updateOne({ _id: 'global' }, { $set: { push_paused: false } });
+      expect((await sweep(40)).failedStuck).toBe(0);
+      expect(await finished(jobId)).toMatchObject({ status: 'completed', sent: 1 });
+      expect(deliveredTo([device])).toHaveLength(1);
+      expect(await running().queues.queue('alert-send').getJob(`alert.push_job_stuck.${jobId}`)).toBeUndefined();
+    } finally {
+      await raw('app_settings').updateOne({ _id: 'global' }, { $set: { push_paused: false } });
+    }
   });
 
   it('ledger: nothing to look up or record for no devices; a batch is claimed once, and again after a release', async () => {
