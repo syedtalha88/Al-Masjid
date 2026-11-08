@@ -18,6 +18,7 @@ type Logger = ReturnType<typeof createLogger>;
 /** Where each alert opens in the admin app. */
 const ALERT_PATH: Readonly<Record<AdminAlertPayload['type'], string>> = {
   credential_counter_regression: '/account',
+  super_passkey_added: '/account',
   push_job_stuck: '/super',
   test: '/',
 };

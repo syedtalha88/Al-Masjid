@@ -34,6 +34,7 @@
     "@sentry/node": "11.6.0",
     "bullmq": "6.3.11",
     "ioredis": "6.0.0",
-    "sharp": "0.35.5"
+    "sharp": "0.35.5",
+    "web-push": "3.6.7"
   }
 }

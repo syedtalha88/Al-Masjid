@@ -75,16 +75,6 @@ export async function removeAdminPushSubscription(handle: DbHandle, scope: Scope
   await scoped({ scope, db: await handle.db() }, 'admin_push_subscriptions').deleteOne({ admin_id: adminId, endpoint });
 }
 
-/** Whether the signed-in admin has a subscription for `endpoint` (the admin app's alert switch). */
-export async function hasAdminPushSubscription(handle: DbHandle, scope: Scope, endpoint: string): Promise<boolean> {
-  const adminId = requireAdmin(scope);
-  const found = await scoped({ scope, db: await handle.db() }, 'admin_push_subscriptions').findOne({
-    admin_id: adminId,
-    endpoint,
-  });
-  return found !== null;
-}
-
 /** One phone an alert goes to, with the language the admin uses the app in. */
 export interface AlertTarget {
   readonly id: UUID;

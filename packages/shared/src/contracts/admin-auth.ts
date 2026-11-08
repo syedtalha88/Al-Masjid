@@ -170,3 +170,9 @@ export const registerVerifyRequestSchema = registerOptionsRequestSchema.extend({
 export const assertionVerifyRequestSchema = z.object({ response: authenticationResponseSchema });
 export type CreationOptionsJSON = z.infer<typeof creationOptionsSchema>;
 export type RequestOptionsJSON = z.infer<typeof requestOptionsSchema>;
+
+/** `DELETE /auth/push` — which of the admin's subscriptions to remove (this browser's). */
+export const adminPushRemoveSchema = z.strictObject({ endpoint: z.string().min(1).max(1000) });
+
+/** `POST /api/super/alerts/test` — the dev-only test alert to the signed-in Super Admin (T4.6). */
+export const testAlertResponseSchema = z.object({ queued: z.boolean() });

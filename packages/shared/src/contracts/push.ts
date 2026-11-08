@@ -71,7 +71,12 @@ export const pushPayloadSchema = z.object({
 export type PushPayload = z.infer<typeof pushPayloadSchema>;
 
 /** Admin alert types (T4.6; payment, moderation and SLA alerts join in Phases 5 and 8). */
-export const ADMIN_ALERT_TYPES = ['credential_counter_regression', 'push_job_stuck', 'test'] as const;
+export const ADMIN_ALERT_TYPES = [
+  'credential_counter_regression',
+  'super_passkey_added',
+  'push_job_stuck',
+  'test',
+] as const;
 
 /**
  * An admin / Super Admin alert (03 §4 `PUT /auth/push`, 01 §5.8 `alert-send`): `t` / `b` the words, `u` the admin app

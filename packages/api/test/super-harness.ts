@@ -16,7 +16,7 @@ import { sessionAuthenticator } from '../src/auth/session.ts';
 import { type FieldKeyRing, hashToken, newToken } from '../src/crypto/field.ts';
 import { memoryRateLimiter } from '../src/http/rate-limit.ts';
 import { bootstrapSuperAdminInvite } from '../src/jobs/bootstrap-super-admin.ts';
-import { adminRoutes } from '../src/routes/index.ts';
+import { type AdminRouteDeps, adminRoutes } from '../src/routes/index.ts';
 import { passkeyDeps, silentLogger } from './helpers.ts';
 
 export const ORIGIN = 'https://admin.test';
@@ -27,7 +27,12 @@ export const CSRF = { Origin: ORIGIN, 'X-MC-CSRF': '1' };
  *
  * @param name - test database name prefix (one per test file).
  */
-export function superHarness(name: string, now = new Date('2026-10-28T08:00:00Z')) {
+export function superHarness(
+  name: string,
+  now = new Date('2026-10-28T08:00:00Z'),
+  /** Extra route dependencies (alerts, the test-alert switch — T4.6); read on every request, so tests may change them. */
+  extra: Partial<Pick<AdminRouteDeps, 'alerts' | 'testAlerts' | 'notifier'>> = {},
+) {
   const pepper = randomBytes(32);
   const keyRing: FieldKeyRing = { currentId: 'k1', keys: new Map([['k1', randomBytes(32)]]) };
   const clock = new ManualClock(now);
@@ -45,7 +50,14 @@ export function superHarness(name: string, now = new Date('2026-10-28T08:00:00Z'
     return test;
   };
   const app = () => {
-    const built = adminRoutes({ db: h(), pepper, adminOrigin: ORIGIN, keyRing, ...passkeyDeps(ORIGIN, clock) });
+    const built = adminRoutes({
+      db: h(),
+      pepper,
+      adminOrigin: ORIGIN,
+      keyRing,
+      ...passkeyDeps(ORIGIN, clock),
+      ...extra,
+    });
     return createAdminApp({
       logger: silentLogger(),
       release: 't',
@@ -90,7 +102,7 @@ export function superHarness(name: string, now = new Date('2026-10-28T08:00:00Z'
       );
 
   /** A request to `/api/super<path>` as the Super Admin (unsafe methods with Origin + CSRF). */
-  const asSuper = (method: 'get' | 'post' | 'patch', path: string) => {
+  const asSuper = (method: 'get' | 'post' | 'patch' | 'put' | 'delete', path: string) => {
     const call = request(app())[method](`/api/super${path}`).set('Cookie', superCookie);
     return method === 'get' ? call : call.set(CSRF);
   };
@@ -115,5 +127,11 @@ export function superHarness(name: string, now = new Date('2026-10-28T08:00:00Z'
     await test?.dispose();
   });
 
-  return { app, asSuper, stepUp, register, db: () => t().db, testDatabase: t, clock };
+  /** A request to `/api/admin<path>` with the Super Admin's session (unsafe methods with Origin + CSRF). */
+  const asSuperOnAdmin = (method: 'get' | 'post' | 'put' | 'delete', path: string) => {
+    const call = request(app())[method](`/api/admin${path}`).set('Cookie', superCookie);
+    return method === 'get' ? call : call.set(CSRF);
+  };
+
+  return { app, asSuper, asSuperOnAdmin, stepUp, register, db: () => t().db, testDatabase: t, clock };
 }

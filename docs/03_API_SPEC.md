@@ -41,7 +41,7 @@ Exceeded → 429 with `Retry-After`.
 | `GET /config` | – | public settings: `{globalHijriOffset, maintenanceBanner, legalVersions, minClientVersion}` | s-maxage=60 |
 | `POST /devices` | Turnstile | Register: body `{locale, audiencePref, platform, turnstileToken}` → `{deviceId, secret}` (secret returned once) | no-store |
 | `PATCH /devices/me` | Device | Update `{locale?, audiencePref?}` | no-store |
-| `PUT /devices/me/push` | Device | `{endpoint, keys:{p256dh, auth}}` (endpoint must be https and on an allow-listed push service host) | no-store |
+| `PUT /devices/me/push` | Device | `{endpoint, keys:{p256dh, auth}}` (endpoint must be https and on an allow-listed push service host) → 204 (follows get `push_active`); another device record holding the endpoint → `409 PUSH_ENDPOINT_IN_USE` (the app makes a fresh subscription — DECISIONS #138) | no-store |
 | `DELETE /devices/me/push` | Device | Remove subscription | no-store |
 | `DELETE /devices/me` | Device | Delete device + follows (Clear all data) | no-store |
 | `GET /masjids/resolve/:code` | – (device optional) | Normalize code → `{masjid summary}` or 404 `MASJID_NOT_FOUND` (same response for suspended/pending) | s-maxage=300 |
@@ -84,7 +84,7 @@ Non-API routes on the app origin: `/m/:code` (SPA route — landing/follow), `/p
 | `GET /auth/me` | `{admin, masjids[{id, name, role}], undertakingRequired}` |
 | `POST /auth/undertaking` | `{version}` accept |
 | `GET /auth/sessions` / `DELETE /auth/sessions/:id` | Own sessions |
-| `PUT /auth/push` / `DELETE /auth/push` | Admin's own push subscription (status alerts; SLA alerts for super admin) |
+| `PUT /auth/push` / `DELETE /auth/push` | Admin's own push subscription (status alerts; SLA alerts for super admin): `PUT` body = the device subscription shape (allow-listed host; ≤ 5 phones per admin, oldest dropped; another admin's endpoint → `409 PUSH_ENDPOINT_IN_USE`), `DELETE` body `{endpoint}` (T4.6) |
 | `GET /auth/passkeys` / `PATCH /auth/passkeys/:id` (label) | Own passkeys (cannot delete last one) |
 
 ### Masjid-scoped (`/masjids/:masjidId/...`, membership enforced)
@@ -105,7 +105,7 @@ Non-API routes on the app origin: `/m/:code` (SPA route — landing/follow), `/p
 | Ilm contacts | `GET /contacts` (`{contacts}`, brothers first) · `POST /contacts` → 201 `{id}` · `PATCH /contacts/:id` (the whole contact; a role or topics left out is removed) · `DELETE /contacts/:id` → 204 (soft). Body `{name ≤80, role? ≤60, topics? ≤120, whatsapp (E.164), audience: brothers|sisters, consentConfirmed: true}` — `consentConfirmed: true` required on every save. Errors: `VALIDATION_FAILED` 400 (no consent, not E.164), `CONTACT_NOT_FOUND` 404, `CONTACT_LIMIT_REACHED` 409 (10) (#104, #131) |
 | Needy people (Phase 5) | `GET /beneficiaries?status=` · `POST /beneficiaries` (`consentConfirmed: true` required) · `PATCH /beneficiaries/:id` · `POST /beneficiaries/:id/received` `{receivedPaise}` · `POST /beneficiaries/:id/close` · `GET /beneficiaries/:id/private` (decrypts phone/note for own masjid admins; audited) (#104) |
 | Library/templates (read) | `GET /library?kind=&q=&category=&cursor=` · `GET /library/suggestion?kind=` · `GET /templates` |
-| Notifications | `GET /notifications/quota` `{used, limit, resetsAt}` · `GET /notifications/jobs?cursor=` |
+| Notifications | `GET /notifications/quota` `{used, limit, resetsAt, paused, reach: {everyone, brothers, sisters}}` (`paused` = the Super Admin's kill switch; `reach` = followers a notification reaches per audience — "Will notify N people", T4.5) · `GET /notifications/jobs?cursor=` → `{jobs: [{id, status, audience, createdAt, completedAt?, targeted, sent, failed, pruned, item?: {id, type, status, category?, title?, templateKey?}}], next}` (30 a page, newest first) |
 | Stats | `GET /stats` `{followers, itemsThisWeek, ameenThisWeek}` (`ameenThisWeek` from `masjid_stats.ameens_7d`, up to 1 h old) |
 | Uploads | `POST /images` (multipart, purpose ∈ announcement/campaign) → `{imageKey, urls}` |
 
@@ -128,7 +128,7 @@ Voice notes (T3.13, DECISIONS #126): `POST /masjids/:id/audio?rightsConfirmed=tr
 ## 5. Super Admin API — `admin.<domain>/api/super` (role super_admin; ★ = step-up required)
 | Area | Endpoints |
 |---|---|
-| Dashboard | `GET /dashboard` (SLA breaches/at-risk first, pending approvals, stats) |
+| Dashboard | `GET /dashboard` (SLA breaches/at-risk first, pending approvals, stats; `push` = the last 24 h: jobs, running, failed jobs, sent, failed, pruned, success rate, paused — T4.5) |
 | Masjids | `GET /masjids?q=&status=&cursor=` · `POST /masjids` · `GET/PATCH /masjids/:id` · `POST /masjids/:id/activate` · ★`POST /masjids/:id/suspend` `{reason}` · `POST /masjids/:id/unsuspend` · ★`DELETE /masjids/:id` · `PATCH /masjids/:id/quotas` |
 | Admins | `POST /admins` `{displayName, phone?, uiLocale, masjidId, role}` → `{inviteUrl}` · `GET /admins?masjidId=` · ★`POST /admins/:id/invites` `{purpose}` · ★`POST /admins/:id/revoke-sessions` · ★`POST /admins/:id/revoke-passkeys` · ★`DELETE /admins/:id/masjids/:masjidId` · ★`GET /admins/:id/phone` (decrypt, audited) |
 | Payments | `GET /payments/pending` · ★`POST /payments/:id/approve` · `POST /payments/:id/reject` `{reason}` |
@@ -137,7 +137,7 @@ Voice notes (T3.13, DECISIONS #126): `POST /masjids/:id/audio?rightsConfirmed=tr
 | Legal orders | `GET/POST /legal-orders` · `PATCH /legal-orders/:id` · `POST /legal-orders/:id/document` |
 | Library | `GET /library?status=&kind=&category=&tag=&q=&cursor=` · `GET /library/:id` · `POST /library/import/dry-run` (multipart JSON file → report) · ★`POST /library/import` (same file; all or nothing, as `draft`) · `PATCH /library/:id` · `POST /library/:id/verify` `{verifiedBy}` · `POST /library/:id/retire` (DECISIONS #108) |
 | Templates | `GET /templates` · `GET /templates/:key` · `POST /templates` (always `draft`) · `PATCH /templates/:key` (edits; `status` active/retired — active needs reviewed translations; params only while draft) · `POST /templates/starters` (adds missing starters as drafts) — ICU checked in all 4 languages (DECISIONS #111) |
-| Settings | `GET/PATCH /settings` |
+| Settings | `GET/PATCH /settings` (`GET` includes `pushPaused`) · ★`POST /settings/push-pause` `{paused}` → `{paused, changed}` (kill switch, T4.7; audited `push.pause` / `push.resume`) · `POST /alerts/test` → `{queued}` — a test alert to your own phones; 404 in production (T4.6) |
 | Audit | `GET /audit?actor=&masjid=&action=&from=&to=&cursor=` · `GET /audit/export.csv` |
 | Posters | `GET /masjids/:id/poster-data` (follow code, deep link, names) — poster rendered client-side |
 | Stats | `GET /stats` |

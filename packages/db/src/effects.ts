@@ -115,6 +115,9 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'credential.revoke': ['reason', 'credential'],
   'session.revoke': ['reason', 'count'],
   'settings.update': ['fields'],
+  // The push kill switch (C10 ★, PHASE_04 T4.7).
+  'push.pause': [],
+  'push.resume': [],
   'library.import': ['batch', 'entries'],
   'library.update': ['fields', 'back_to_draft'],
   'library.verify': [],

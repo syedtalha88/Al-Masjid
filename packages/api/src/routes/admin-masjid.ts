@@ -7,9 +7,10 @@ import {
   getAdminSchedule,
   getMasjidProfile,
   getMasjidStats,
-  getPushQuota,
+  getNotificationStatus,
   getRamadan,
   listItemsForAdmin,
+  listNotificationJobs,
   listSpecialDates,
   listTemplatesForAdmin,
   requireOwnMasjid,
@@ -53,6 +54,8 @@ import {
   masjidChangeRequestSchema,
   masjidPhotoQuerySchema,
   masjidProfilePatchSchema,
+  notificationJobListSchema,
+  notificationJobQuerySchema,
   pushQuotaSchema,
   ramadanSaveSchema,
   ramadanSchema,
@@ -226,8 +229,23 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
       request: { params: Params },
       responses: { 200: pushQuotaSchema },
       handler: async ({ auth, params, clock, reply }) => {
-        const quota = await getPushQuota(db, auth.scope, masjidIdOf(params.masjidId), clock.now());
-        return reply(200, { used: quota.used, limit: quota.limit, resetsAt: quota.resetsAt.toISOString() });
+        const status = await getNotificationStatus(db, auth.scope, masjidIdOf(params.masjidId), clock.now());
+        return reply(200, { ...status, resetsAt: status.resetsAt.toISOString() });
+      },
+    }),
+    defineRoute({
+      method: 'get',
+      path: '/masjids/:masjidId/notifications/jobs',
+      summary: "The masjid's notifications, newest first, with how many were sent and failed (T4.5)",
+      tags: ['masjid'],
+      auth: 'session',
+      request: { params: Params, query: notificationJobQuerySchema },
+      responses: { 200: notificationJobListSchema },
+      handler: async ({ auth, params, query, reply }) => {
+        const page = await listNotificationJobs(db, auth.scope, masjidIdOf(params.masjidId), {
+          cursor: query.cursor,
+        });
+        return reply(200, { jobs: page.rows, next: page.next });
       },
     }),
     defineRoute({

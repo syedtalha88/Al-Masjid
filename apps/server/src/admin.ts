@@ -1,11 +1,14 @@
 // Entrypoint: api-admin (admin.<domain>/api/admin/*, /api/super/*, /api/hooks/*). No business logic here.
 import {
   adminRoutes,
+  alertService,
   clearRedisRateLimits,
   createAdminApp,
+  createJobQueues,
   createLogger,
   keyRingFromEnv,
   mediaStoreFromEnv,
+  pushNotifier,
   redisChallengeStore,
   sessionAuthenticator,
   startHttpServer,
@@ -36,6 +39,8 @@ const connections = openApiConnections(
   },
   logger,
 );
+// The API only enqueues (after a publish commits); the worker sends (T4.4, 04 R7).
+const queues = createJobQueues(connections.redis);
 const pepper = Buffer.from(env.SESSION_PEPPER, 'base64'); // validated: ≥ 32 bytes (env.ts)
 // e2e hooks only for APP_ENV=local + NODE_ENV=test AND a runtime-test build (10 §3, DECISIONS #31).
 const hooks = await loadTestHooks(env, 'api-admin', logger, undefined, {
@@ -57,6 +62,10 @@ const { app } = createAdminApp({
     logger,
     // T3.6: Cloudinary on staging/production, a local directory locally (MEDIA_STORE).
     media: { store: mediaStoreFromEnv(env), origin: env.MEDIA_ORIGIN },
+    notifier: pushNotifier(queues, logger),
+    // T4.6: alerts are enqueued here, sent by the worker; the Super Admin's test alert exists outside production only.
+    alerts: alertService(queues, logger),
+    testAlerts: env.APP_ENV !== 'production',
   }),
   rateLimiter: connections.rateLimiter,
   health: connections.health,
@@ -72,6 +81,7 @@ logger.info({ port: server.port, appEnv: env.APP_ENV }, 'api-admin listening');
 onShutdownSignal(async (signal) => {
   logger.info({ signal }, 'shutting down: draining in-flight requests');
   await server.shutdown();
+  await queues.close();
   await connections.close();
   await sentry?.flush();
   logger.info('api-admin stopped');

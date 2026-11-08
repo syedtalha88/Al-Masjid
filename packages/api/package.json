@@ -9,7 +9,8 @@
     "./testing": "./src/testing/index.ts",
     "./test-hooks": "./src/test-hooks/index.ts",
     "./jobs/bootstrap-super-admin": "./src/jobs/bootstrap-super-admin.ts",
-    "./jobs/seed": "./src/jobs/seed.ts"
+    "./jobs/seed": "./src/jobs/seed.ts",
+    "./jobs/worker": "./src/jobs/worker.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

@@ -26,6 +26,7 @@ import {
   recordAmeen,
   registerDevice,
   setDevicePrefs,
+  setDevicePush,
   setFollowMuted,
   unfollowMasjid,
 } from '@mc/db/state';
@@ -45,6 +46,7 @@ import {
   masjidBundleSchema,
   masjidVersionsSchema,
   publicConfigSchema,
+  pushSubscriptionSchema,
   registerDeviceRequestSchema,
   registerDeviceResponseSchema,
   resolveMasjidResponseSchema,
@@ -216,6 +218,38 @@ export function publicRoutes(deps: PublicRouteDeps): RouteDefinition[] {
       responses: { 204: z.object({}) },
       handler: async ({ auth, reply }) => {
         await deleteDevice(db, auth.scope);
+        return reply(204, {});
+      },
+    }),
+    defineRoute({
+      method: 'put',
+      path: '/devices/me/push',
+      summary: 'Store this device’s push subscription (an allow-listed push service only — 04 §6) and turn push on',
+      tags: ['devices'],
+      auth: 'device',
+      rateLimit: [{ bucket: 'deviceSelf', key: 'device' }],
+      request: { body: pushSubscriptionSchema },
+      responses: { 204: z.object({}) },
+      handler: async ({ auth, body, clock, reply }) => {
+        await setDevicePush(
+          db,
+          auth.scope,
+          { endpoint: body.endpoint, p256dh: body.keys.p256dh, auth: body.keys.auth },
+          clock.now(),
+        );
+        return reply(204, {});
+      },
+    }),
+    defineRoute({
+      method: 'delete',
+      path: '/devices/me/push',
+      summary: 'Remove this device’s push subscription (notifications off)',
+      tags: ['devices'],
+      auth: 'device',
+      rateLimit: [{ bucket: 'deviceSelf', key: 'device' }],
+      responses: { 204: z.object({}) },
+      handler: async ({ auth, clock, reply }) => {
+        await setDevicePush(db, auth.scope, null, clock.now());
         return reply(204, {});
       },
     }),

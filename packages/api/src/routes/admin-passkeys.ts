@@ -2,7 +2,7 @@
 // step-up on the current session. Options come with a one-time challenge (Redis GETDEL, 5 min, bound to the invite /
 // the `__Host-mc_chal` cookie / the session); verification failures of every kind answer the same 401 PASSKEY_FAILED
 // (no admin enumeration — 04 §3). Sessions are created, rotated and revoked by the data layer (DECISIONS #69).
-import { type DbHandle, parseAaguid, publicScope, StateError } from '@mc/db';
+import { type DbHandle, idText, parseAaguid, publicScope, StateError } from '@mc/db';
 import {
   completeAssertion,
   credentialLabel,
@@ -37,6 +37,7 @@ import { hashToken, newToken } from '../crypto/field.ts';
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
 import { ApiProblem } from '../http/problem.ts';
 import { consumeInHandler, type RateLimitRule } from '../http/rate-limit.ts';
+import type { AlertService } from '../queue/alerts.ts';
 
 export interface AdminPasskeyDeps {
   readonly db: DbHandle;
@@ -46,6 +47,8 @@ export interface AdminPasskeyDeps {
   readonly rp: RelyingParty;
   readonly challenges: ChallengeStore;
   readonly logger: Logger;
+  /** Super Admin alerts (T4.6): a possible cloned passkey, a passkey added to a Super Admin account (04 R4). */
+  readonly alerts?: AlertService | undefined;
 }
 
 const Empty = z.object({}).meta({ id: 'Empty' });
@@ -114,11 +117,17 @@ export function adminPasskeyRoutes(deps: AdminPasskeyDeps): RouteDefinition[] {
     if (!(error instanceof StateError)) throw error;
     if (error.code === 'COUNTER_REGRESSION') {
       // 04 §3: possible cloned authenticator — the credential and every session of its admin are revoked and audited
-      // (credential.revoke). The Super Admin alert (push) lands in Phase 4; until then this warning + the audit entry.
+      // (credential.revoke), and the Super Admin gets a push alert (T4.6) once per credential.
+      const label = credentialLabel(credentialId);
       logger.warn(
-        { event: 'passkey.counter_regression', credential: credentialLabel(credentialId) },
+        { event: 'passkey.counter_regression', credential: label },
         'passkey sign counter went backwards: credential revoked',
       );
+      void deps.alerts?.raise({
+        type: 'credential_counter_regression',
+        to: { kind: 'super' },
+        key: Buffer.from(credentialId).toString('base64url').slice(0, 64),
+      });
       return failed();
     }
     if (['CREDENTIAL_REVOKED', 'SESSION_INVALID'].includes(error.code)) return failed();
@@ -192,6 +201,13 @@ export function adminPasskeyRoutes(deps: AdminPasskeyDeps): RouteDefinition[] {
             now: clock.now(),
           });
           setSession(res, sessionToken, session.role);
+          // 04 R4 (F38 a): a passkey added to a Super Admin account alerts every Super Admin's phones.
+          if (session.role === 'super_admin')
+            void deps.alerts?.raise({
+              type: 'super_passkey_added',
+              to: { kind: 'super' },
+              key: `${idText(session.adminId)}.${String(clock.now().getTime())}`,
+            });
         } catch (error) {
           if (error instanceof StateError && error.code === 'CREDENTIAL_EXISTS') throw failed();
           throw error; // INVITE_INVALID → the uniform 404 (http/errors.ts)
@@ -239,6 +255,13 @@ export function adminPasskeyRoutes(deps: AdminPasskeyDeps): RouteDefinition[] {
             now: clock.now(),
           });
           setSession(res, sessionToken, session.role);
+          // 04 R4 (F38 a): a passkey added to a Super Admin account alerts every Super Admin's phones.
+          if (session.role === 'super_admin')
+            void deps.alerts?.raise({
+              type: 'super_passkey_added',
+              to: { kind: 'super' },
+              key: `${idText(session.adminId)}.${String(clock.now().getTime())}`,
+            });
         } catch (error) {
           throw assertionRefusal(error, credential.id);
         }
@@ -291,6 +314,13 @@ export function adminPasskeyRoutes(deps: AdminPasskeyDeps): RouteDefinition[] {
             now: clock.now(),
           });
           setSession(res, sessionToken, session.role);
+          // 04 R4 (F38 a): a passkey added to a Super Admin account alerts every Super Admin's phones.
+          if (session.role === 'super_admin')
+            void deps.alerts?.raise({
+              type: 'super_passkey_added',
+              to: { kind: 'super' },
+              key: `${idText(session.adminId)}.${String(clock.now().getTime())}`,
+            });
         } catch (error) {
           throw assertionRefusal(error, credential.id);
         }
