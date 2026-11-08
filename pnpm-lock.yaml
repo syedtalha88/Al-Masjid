@@ -190,12 +190,18 @@ importers:
       '@types/node':
         specifier: 24.19.1
         version: 24.19.1
+      '@types/web-push':
+        specifier: 3.6.4
+        version: 3.6.4
       chrome-launcher:
         specifier: 1.2.2
         version: 1.2.2(supports-color@8.1.1)
       eslint:
         specifier: 10.12.0
         version: 10.12.0(jiti@2.7.0)(supports-color@8.1.1)
+      ioredis:
+        specifier: 6.0.0
+        version: 6.0.0(supports-color@8.1.1)
       lefthook:
         specifier: 2.1.17
         version: 2.1.17
@@ -214,6 +220,9 @@ importers:
       typescript:
         specifier: 6.0.3
         version: 6.0.3
+      web-push:
+        specifier: 3.6.7
+        version: 3.6.7(supports-color@8.1.1)
       zxing-wasm:
         specifier: 3.1.6
         version: 3.1.6(@types/emscripten@1.41.6)

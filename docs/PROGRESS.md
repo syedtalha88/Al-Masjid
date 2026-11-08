@@ -18,6 +18,31 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
+## ▶ Next session — start here (8 Nov 2026 — Phase 04 in progress, stopped at the owner's usage limit)
+
+**State:** branch `feat/phase-04` (from `feat/phase-03`, pushed). Phase 04 started on the owner's instruction
+(DECISIONS #137, #138). Done and committed: T4.1 (push adapter, queues, worker runtime), T4.4 core (fan-out, send
+batches, sweeper, stuck detector, migration 0016, publish routes hand over after commit), T4.5–T4.7 API + admin UI
+(reach line, notification history, quota pill, Alerts on this phone, ★ kill switch, dashboard banner + 24 h stats,
+test alert), T4.2/T4.3 musalli client (Settings → Notifications, soft-ask, onboarding page 7, push bridge, SW push /
+click / subscription change). **T4.8 load test run:** `pnpm load:push` (`scripts/load/push-fanout.ts` — moved from
+`load/` so the existing systemScope lint rules apply unchanged): 50,000 devices → completed in 57.5 s (< 3 min),
+200 batches, max 2.0 s, CPU 27 s (< 0.75 CPU budget), peak RSS 472 MB (whole test process incl. seeding — close to the
+512 MB worker limit; re-measure the worker alone), results in `docs/reports/evidence/PHASE_04_T4.8_push-load.md`.
+
+**Do next:**
+1. Commit check: `pnpm verify:quick` was last green before the admin UI + load script; run it again, fix anything.
+2. T4.8: measure the worker process alone (RSS) — e.g. run the seed separately; tick T4.8 with the table in the report.
+3. T4.9: e2e — journeys 6/7/8 assert the outbox job (audience/targets), Settings → Notifications + soft-ask screens
+   ×4 locales + axe, Chromium SW push via CDP `ServiceWorker.deliverPushMessage` → `registration.getNotifications()`;
+   admin screens (history, alerts switch, Super Admin settings/dashboard) ×4 locales; `pnpm size` (push code must stay
+   out of the musalli initial JS); Lighthouse.
+4. Docs: 01 §5.3 / §5.8 (batch id `.`, payload `l`), 07 (history screen, alerts switch), 05 audit actions
+   `push.pause`/`push.resume`; update `owner/MY_PENDING_TASKS.md`: **O37** — compare the GitHub `staging` variable
+   `VITE_PUBLIC_VAPID_PUBLIC_KEY` with `VAPID_PUBLIC_KEY` in `/etc/masjid-connect/staging/worker.env` (must match) and
+   back up the VAPID private key (password manager); O38 — real-device push checks (Android + installed iPhone).
+5. Phase close (CLAUDE.md §5) after Phase 03's staging deploy.
+
 ## ▶ Next session — start here (5 Nov 2026, night — Phase 03: all tasks done, closing work left)
 
 **State:** branch `feat/phase-03` pushed — **all Phase 03 tasks T3.0–T3.17 are done** (#105–#133), F54 code and F55
@@ -391,7 +416,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   "Alerts on this phone" switch, owner check on staging
 - [ ] T4.7 — Kill switch — worker + API done (★ `POST /settings/push-pause`, audited). Left: C10 switch, C1 banner,
   admin notice in the Publish bar
-- [ ] T4.8 — Fan-out load test
+- [ ] T4.8 — Fan-out load test — run 8 Nov 2026: 50k in 57.5 s, see the handoff above; left: worker-only RSS
 - [ ] T4.9 — Quality gates
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)

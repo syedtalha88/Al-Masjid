@@ -18,6 +18,7 @@
     "db:migrate": "node scripts/db-migrate.ts",
     "bootstrap:super-admin": "node scripts/bootstrap-super-admin.ts",
     "db:test": "pnpm --filter @mc/db test:int",
+    "load:push": "node scripts/load/push-fanout.ts",
     "db:schema:check": "node scripts/db-migrate.ts --check",
     "db:verify-roles": "node -e \"console.log('The read-only privilege check of a remote environment runs ON the VPS: sudo /usr/local/lib/masjid-connect/deploy.sh <staging|production> --verify-roles (docs/runbooks/DEPLOY.md). Locally, pnpm db:test covers the same checks.')\"",
     "test": "turbo run test",
@@ -49,7 +50,7 @@
     "setup:local": "node scripts/setup-local.mjs",
     "db:stop": "node scripts/compose.mjs dev down",
     "stack:down": "node scripts/compose.mjs stack down",
-    "typecheck:root": "tsc --noEmit -p tsconfig.json",
+    "typecheck:root": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p scripts/load/tsconfig.json",
     "i18n:review": "pnpm --filter @mc/i18n i18n:review",
     "db:roles:atlas": "node scripts/db-roles-atlas.ts",
     "db:migration:snapshot": "node scripts/db-migration-snapshot.ts"
@@ -63,14 +64,17 @@
     "@playwright/test": "1.63.0",
     "@size-limit/file": "14.2.0",
     "@types/node": "24.19.1",
+    "@types/web-push": "3.6.4",
     "chrome-launcher": "1.2.2",
     "eslint": "10.12.0",
+    "ioredis": "6.0.0",
     "lefthook": "2.1.17",
     "lighthouse": "13.5.0",
     "prettier": "3.9.9",
     "size-limit": "14.2.0",
     "turbo": "2.11.7",
     "typescript": "6.0.3",
+    "web-push": "3.6.7",
     "zxing-wasm": "3.1.6"
   }
 }

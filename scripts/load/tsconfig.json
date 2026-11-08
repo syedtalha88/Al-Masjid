@@ -1,0 +1,5 @@
+{
+  // Load tests run in Node against the server packages (no DOM lib — PHASE_04 T4.8).
+  "extends": "../../packages/config/tsconfig.node.json",
+  "include": ["**/*.ts"]
+}
