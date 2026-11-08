@@ -563,7 +563,9 @@ describe('login verification (04 §3)', () => {
 
   it('"new passkey on a Super Admin account" is raised once for a Super Admin passkey — never on login or step-up', async () => {
     const { token, adminId } = await invitedAdmin();
-    await raw('admin_users').updateOne({ _id: adminId }, { $set: { role: 'super_admin' } });
+    await t()
+      .db.collection<{ _id: typeof adminId; role: string }>('admin_users')
+      .updateOne({ _id: adminId }, { $set: { role: 'super_admin' } });
     const before = raisedAlerts.filter((alert) => alert.type === 'super_passkey_added').length;
     const { credential, cookie } = await register(token);
     const added = () => raisedAlerts.filter((alert) => alert.type === 'super_passkey_added').length - before;

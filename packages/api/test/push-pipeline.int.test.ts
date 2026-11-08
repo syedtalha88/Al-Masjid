@@ -413,6 +413,43 @@ describe('push pipeline', () => {
     }
   });
 
+  it('brothers only reach Brother phones; a phone pruned as gone is not targeted by the next notification', async () => {
+    const id = await masjid();
+    const brother = await follower(id, { pref: 'brothers' });
+    const gone = await follower(id, { pref: 'brothers' });
+    const sister = await follower(id, { pref: 'sisters' });
+    service.answer(endpointOf(gone), 410);
+    const first = await published(id, 'brothers');
+    await enqueue(first);
+    expect(await finished(first)).toMatchObject({ status: 'completed', targeted: 2, sent: 1, pruned: 1 });
+    expect(deliveredTo([sister])).toHaveLength(0);
+
+    const second = await published(id, 'brothers');
+    await enqueue(second);
+    expect(await finished(second)).toMatchObject({ status: 'completed', targeted: 1, sent: 1, pruned: 0 });
+    expect(deliveredTo([brother])).toHaveLength(2);
+    expect(service.requests.filter((entry) => entry.endpoint === endpointOf(gone))).toHaveLength(1); // never again
+  });
+
+  it('the outbox sweeper is scheduled every minute in India time (01 §5.8)', async () => {
+    const scheduled = await startJobWorkers({
+      db: sys(),
+      connection: bull ?? new Redis(testRedisUrl(), { maxRetriesPerRequest: null }),
+      ledger: redisSendLedger(testRedis().redis),
+      sender: createPushSender({ vapid: VAPID, transport: service.transport }),
+      logger: silentLogger(),
+      prefix: `${prefix}-schedulers`,
+      schedulers: true,
+      concurrency: { 'push-fanout': 1, 'push-send-batch': 1, 'alert-send': 1, 'outbox-sweeper': 1 },
+    });
+    try {
+      const schedulers = await scheduled.queues.queue('outbox-sweeper').getJobSchedulers();
+      expect(schedulers).toEqual([expect.objectContaining({ pattern: '* * * * *', tz: 'Asia/Kolkata' })]);
+    } finally {
+      await scheduled.close();
+    }
+  });
+
   it('ledger: nothing to look up or record for no devices; a batch is claimed once, and again after a release', async () => {
     const ledger = redisSendLedger(testRedis().redis, 'push-ledger-test:');
     const jobKey = idText(newId());
