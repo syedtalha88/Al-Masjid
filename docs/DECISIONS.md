@@ -2215,7 +2215,7 @@ send batch failing with `Document failed validation`.
 open a second musalli phone use `seedOnboardedDevice`; specs that publish to followers wait for
 `awaitFollowsSynced` first.
 
-### #141 — mc-server: two HIGH zlib CVEs in the distroless base that our process never loads (Trivy, 8 Nov 2026) — OPEN (asked the owner, 8 Nov 2026)
+### #141 — mc-server: two HIGH zlib CVEs in the distroless base that our process never loads (Trivy, 8 Nov 2026) — ACCEPTED: option A (owner, 8 Nov 2026)
 
 **Context.** CI `1ebba4b` failed the image scan: `zlib1g 1:1.3.dfsg+really1.3.1-1+b1` in
 `gcr.io/distroless/nodejs24-debian13` (CVE-2026-76844, CVE-2026-85091; fixed in Debian `+deb13u1`). The newest
@@ -2232,3 +2232,7 @@ only executable in the image is `node`. (Caddy's findings were fixable and are f
   then (Phase 04 cannot be verified there).
 - **C:** graft the patched `libz.so.1` + dpkg status into the distroless image in a build stage — brittle, hides the
   package from future scans; not recommended.
+**Decision (owner, 8 Nov 2026): A.** `infra/trivy/mc-server.trivyignore.yaml` lists exactly the two CVE ids with
+`expired_at: 2026-11-15`; CI and the nightly pass it only for the server image (`mc-server:local`, deployed
+`al-masjid-server@…`). Checked with Trivy 0.75.0: the scan passes with the file and fails again with an expired date.
+Follow-up F61: new distroless digest, then delete the entries.
