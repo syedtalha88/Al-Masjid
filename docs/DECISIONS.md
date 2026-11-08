@@ -2269,3 +2269,26 @@ image scan, e2e (254 passed, 1 flaky) and motion perf green; the musalli **warm*
   note, not a failure (the score is weighted by the ungated service-worker TBT burst, #51 / F27; owner's standing rule
   on small budget overruns, #116 / #136). Cold scores have no tolerance (unit-tested).
 **Consequences.** API int 345 (branches 85.3 %), db int 310 (lines 97.0 %), unit app 193 / api 181 / config 68.
+
+### #143 — phase-verifier (8 Nov 2026): Super Admin passkey alert only on a new passkey; push stats on C1; F59 / F60 timing; test gaps tracked under T4.9 (PHASE_04) — ACCEPTED (Claude Code, 8 Nov 2026)
+
+**Context.** `phase-verifier` on `feat/phase-04` @ 9e2d734: FAIL — the unit gate red (a `#142` in a test title matched
+the raw-colour check), a bug, doc gaps in 02, and missing tests for some client code.
+**Decision.**
+- **Bug fixed:** `super_passkey_added` ("New passkey on a Super Admin account") was raised on every Super Admin
+  sign-in and step-up as well as on registration; now only `/auth/register/verify` raises it (a new passkey arrives only
+  there — first registration or "add another phone"). Integration test: once on registration, never on login or
+  step-up. F38 (a) done.
+- **Unit gate:** the test title cites `DECISIONS #142` (the check skips references written that way).
+- **02 updated:** `notification_jobs.fanout_page / fanout_cursor / fanout_done` and the `status_progress` index
+  (migration 0016); `admin_push_subscriptions` — the ★ revoke functions delete any admin's subscriptions (#142).
+- **Push stats live on the C1 dashboard** (the 24 h success card next to the kill-switch banner), not on C12 Stats: the
+  owner sees them on opening the Super Admin app, and C12 is a Phase 9 screen. 03 already documents the endpoint.
+- **F59** (CI-only skip of the voice playback assertion) → Phase 9: CI `64b0234` had no voice.spec failure; keep the
+  skip until media logs exist. **F60** (web-push 4.x) → Phase 9 hardening after its changelog review; 3.6.7 has no
+  known advisory.
+- **Tests still to add before T4.9 is ticked** (the staging preview goes ahead on the owner's instruction, 8 Nov 2026):
+  push-bridge (PUSH_OPEN → navigate / Updates, versions refreshed on any push); admin `use-alerts` (enable, disable,
+  409 re-subscribe, sign-out); A15 blocked / install-first states; onboarding page 7 with 4-locale screenshots; C1 paused
+  banner (assertion + screenshot); Publish bar "Will notify N" = DB reach; the outbox-sweeper scheduler in
+  `Asia/Kolkata`; brothers-only audience and dead-status recipients in `push-pipeline.int`.

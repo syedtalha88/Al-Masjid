@@ -159,7 +159,7 @@ describe('clear all data (05 §4, journey 12)', () => {
     await wipeCachedContent({ caches: { delete: () => Promise.reject(new Error('blocked')) }, queryCache });
   });
 
-  it('ends the browser push subscription too — online and while the deletion waits offline (review L9, #142)', async () => {
+  it('ends the browser push subscription too — online and while the deletion waits offline (review L9, DECISIONS #142)', async () => {
     let unsubscribed = 0;
     const unsubscribe = () => {
       unsubscribed += 1;
