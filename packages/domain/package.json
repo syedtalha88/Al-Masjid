@@ -19,7 +19,8 @@
     "./special": "./src/special.ts",
     "./thumbhash": "./src/thumbhash.ts",
     "./time": "./src/time.ts",
-    "./timings": "./src/timings.ts"
+    "./timings": "./src/timings.ts",
+    "./upi": "./src/upi.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

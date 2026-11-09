@@ -12,7 +12,7 @@
 | 02 | Musalli app core (follow, timings, feed, offline, install) | **DONE** (owner tested the Phase 02 checks on staging `cdd39fa`, incl. a low-end device, 27 Oct 2026) | [final](reports/PHASE_02_REPORT.md) | 27 Oct 2026 |
 | 03 | Masjid Admin content tools | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`, with Phase 04); owner: O25 rest (photos / voice), O39, then O27 + O26 | [report](reports/PHASE_03_REPORT.md) | – |
 | 04 | Push notifications | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`); T4.6 acceptance = the owner's O38 (real phones) | [report](reports/PHASE_04_REPORT.md) | – |
-| 05 | Donations, chanda & UPI change-lock | NOT STARTED | – | – |
+| 05 | Donations, chanda & UPI change-lock | **IN PROGRESS** — started 9 Nov 2026 on `feat/phase-05` while Phases 03 + 04 await the owner's checks (DECISIONS #145) | – | – |
 | 06 | Bayan videos | NOT STARTED | – | – |
 | 07 | Qibla compass | NOT STARTED | – | – |
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
@@ -471,6 +471,22 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   2505 ms in Phase 03, #136). CI 8 Nov: cold LCP 2485 ms PASS; warm score tolerance #142. Security review + phase-verifier
   fixed (#142, #143). **Done 9 Nov 2026:** CI green on `660c950` (`ci/phase-04`) and on `main` `863e064` after two
   CI-only e2e races were fixed in the tests (`dd2a557` onboarding page 7, `660c950` mute toast); the tests listed in DECISIONS #143
+
+### Phase 05 — started 9 Nov 2026 (owner's instruction, DECISIONS #145; branch `feat/phase-05`)
+
+- [x] T5.1 — UPI domain module (test-first) — `packages/domain/src/upi.ts`: `isValidVpa` (= the DB validator + ≤ 100;
+  agreement test in `db/test/schema.test.ts`), `normalizeVpa`, `buildUpiUri` (RFC 3986 incl. `!'()*`, UTF-8, control /
+  bidi characters dropped, joiners kept, ≤ 50 code points cut between graphemes, never `am`), `parseUpiUri` (`upi://pay`
+  only, exactly one valid `pa`, `pn`/`tn` cleaned ≤ 100, ≤ 2048 chars, never throws); 19 tests incl. fast-check
+  round-trip + injection; 100 % lines/branches; mutation-checked (duplicate `pa`, invisible strip)
+- [ ] T5.2 — Payment profile workflow (R1 change-lock)
+- [ ] T5.3 — Campaigns (admin)
+- [ ] T5.4 — Campaigns (musalli)
+- [ ] T5.5 — Chanda
+- [ ] T5.6 — Integration polish
+- [ ] T5.8 — Needy people (B19 + A23)
+- [ ] T5.9 — My zakat (A24, device only)
+- [ ] T5.7 — Quality gates
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 

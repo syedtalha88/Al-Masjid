@@ -1,5 +1,6 @@
 // The Zod half of the schema (what the data layer accepts) and the snapshot helpers (PHASE_01 T1.2). The database
 // half (validators) is proven by migrations.int.test.ts.
+import { isValidVpa } from '@mc/domain/upi';
 import { Binary, Long, UUID } from 'mongodb';
 import { describe, expect, it } from 'vitest';
 
@@ -8,6 +9,7 @@ import { MIGRATIONS } from '../migrations/index.ts';
 import { COLLECTIONS } from '../src/collections.ts';
 import { currentSnapshot, parseSnapshot, snapshotChecksum, snapshotText } from '../src/migrate/index.ts';
 import { f, SCHEMAS, VIEWS } from '../src/schema/index.ts';
+import { VPA_PATTERN } from '../src/schema/platform.ts';
 
 const now = new Date('2026-10-16T05:00:00Z');
 const prayer = (overrides: Record<string, unknown> = {}) => ({
@@ -111,6 +113,27 @@ describe('Zod rules mirror the validators', () => {
     expect(f.bytes(32).zod.safeParse(new Binary(Buffer.alloc(32))).success).toBe(true);
     expect(f.bytes(32).zod.safeParse(new Binary(Buffer.alloc(31))).success).toBe(false);
     expect(f.long().zod.safeParse(1.5).success).toBe(false);
+  });
+
+  it('the VPA validator and @mc/domain isValidVpa agree (T5.1: the app never offers a VPA the database refuses)', () => {
+    const pattern = new RegExp(VPA_PATTERN);
+    const samples = [
+      'ab@ybl',
+      'a@ybl',
+      'ab@1bank',
+      'ab@y',
+      'MASJID-01_x@paytm',
+      'a.b-c_d@oksbi.in',
+      'ab@ybl&am=1',
+      'ab@@ybl',
+      ' ab@ybl',
+      'ab-@x-y',
+      `${'a'.repeat(96)}@ybl`,
+      `${'a'.repeat(97)}@ybl`,
+    ];
+    for (const value of samples) {
+      expect(isValidVpa(value), value).toBe(pattern.test(value) && value.length <= 100);
+    }
   });
 });
 

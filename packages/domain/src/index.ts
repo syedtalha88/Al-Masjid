@@ -10,3 +10,4 @@ export * from './rotation.ts';
 export * from './search.ts';
 export * from './thumbhash.ts';
 export * from './time.ts';
+export * from './upi.ts';

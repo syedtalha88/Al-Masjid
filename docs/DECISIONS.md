@@ -2315,3 +2315,12 @@ showing Home's cached reach (fixed in `4392293`).
   coming; the default (no service worker) is tested.
 - **L-R5 fixed — `*.*.push_endpoint | push_p256dh | push_auth`** redacted too (unit test).
 **Consequences.** 02 `admin_push_subscriptions` lists the recovery / regression deletes; F65 re-planned.
+
+### #145 — Phase 05 starts before the owner verifies Phases 03 + 04 (owner, 9 Nov 2026) — ACCEPTED (owner, 9 Nov 2026)
+**Context:** Phases 03 + 04 are on staging (`863e064`, 9 Nov 2026) and AWAITING OWNER VERIFICATION (O39, O25 rest,
+O27, O26, O38). CLAUDE.md §3 says the next phase waits for that verification; #137 made the same exception once.
+**Decision (owner, 9 Nov 2026):** asked "start Phase 05 now anyway, like #137?" → **"Start Phase 05 now"**. Phase 05
+is built on `feat/phase-05`, branched from `feat/phase-04` = `main` (`863e064` + docs). Whatever the owner's 03/04
+checks find is fixed first (on `feat/phase-04` → `main`, then merged into `feat/phase-05`); Phases 03 + 04 are marked
+DONE only on the owner's word.
+**Consequences:** Phase 05 deploys to staging only after Phases 03 + 04 are verified, or with the owner's OK.
