@@ -146,6 +146,11 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'payment.approve': ['hold_minutes'],
   'payment.reject': ['from'],
   'payment.activate': [],
+  // Donation campaigns (T5.3): amounts are in the item and its history, not in the audit meta.
+  'campaign.create': ['purpose', 'notify'],
+  'campaign.update': ['fields', 'target_raised'],
+  'campaign.received': ['notify'],
+  'campaign.complete': [],
   'item.publish': ['type', 'template', 'notify', 'image'],
   'item.edit': ['type'],
   'item.delete': ['type'],

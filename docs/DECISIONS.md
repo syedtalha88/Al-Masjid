@@ -2365,3 +2365,18 @@ WebAssembly reader (#94), which needs CSP `script-src 'wasm-unsafe-eval'` — to
 **Decision (owner, 9 Nov 2026):** "Android-only scan for now" — option B as built: the admin CSP is unchanged; the
 admin app imports only `@mc/ui/scanner` (native detector), never `@mc/ui/scanner/fallback`, so the WebAssembly reader
 is neither bundled nor precached there. Revisit if iPhone admins ask.
+
+### #148 — Donation campaigns: the data layer (PHASE_05 T5.3) — ACCEPTED (Claude Code, 9 Nov 2026)
+**Context:** 00 §4.3 campaign rules; 02 items.campaign + campaign_amount_history.
+**Decision:**
+- `state/campaigns.ts`: `createCampaign` (needs the masjid's **active** UPI details — their id is recorded as
+  `payment_profile_id`; target ≥ ₹1,000; ≤ 3 active — creates that race are serialized by the version bump on the
+  masjid document, test with three parallel creates), `updateCampaign` (title, description, cover, end date; the target
+  **only upward**, audited `target_raised`), `setCampaignReceived` ("Update amount": an append-only history row with who
+  and when; allowed while active **or completed**; not once closed; notify optional), `completeCampaign`,
+  `closeEndedCampaigns` (system: `ends_on < today` → closed, one transaction per masjid).
+- **"Completed" is the admin's choice, not automatic at the target** (00 §4.3 lists both; amounts often keep coming,
+  and the bar caps at 100 % while the text shows the real figure). A completed campaign keeps Donate Now until it
+  closes.
+- Audit meta carries no amounts (`campaign.create` {purpose, notify}, `.update` {fields, target_raised},
+  `.received` {notify}, `.complete`).

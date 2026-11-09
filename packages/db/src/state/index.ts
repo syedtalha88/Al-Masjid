@@ -45,6 +45,20 @@ export {
   SESSION_LIFETIMES,
 } from './auth.ts';
 export { bootstrapSuperAdmin } from './bootstrap.ts';
+export {
+  CAMPAIGN_PURPOSES,
+  CAMPAIGN_TARGET_MIN_PAISE,
+  type CampaignCover,
+  type CampaignInput,
+  type CampaignPatch,
+  type CampaignPurpose,
+  CAMPAIGNS_ACTIVE_MAX,
+  closeEndedCampaigns,
+  completeCampaign,
+  createCampaign,
+  setCampaignReceived,
+  updateCampaign,
+} from './campaigns.ts';
 export { addContact, type ContactInput, deleteContact, updateContact } from './contacts.ts';
 export { type DailyContentInput, type DailyContentPublished, publishDailyContent } from './daily.ts';
 export {
