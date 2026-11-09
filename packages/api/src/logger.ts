@@ -29,6 +29,9 @@ export const REDACT_PATHS = [
   '*.push_endpoint',
   '*.push_p256dh',
   '*.push_auth',
+  '*.*.push_endpoint', // a device document inside an error's cause (security re-review L-R5, DECISIONS #144)
+  '*.*.push_p256dh',
+  '*.*.push_auth',
   '*.auth',
   // Passkey material and other never-log fields (CLAUDE.md §6; WebAuthn arrives in Phase 1).
   'email',

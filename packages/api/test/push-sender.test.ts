@@ -70,16 +70,15 @@ describe('classifyPushResponse (01 §5.3 step 3)', () => {
 });
 
 describe('buildPushRequest', () => {
-  it('builds TTL / Urgency / Topic / aes128gcm / VAPID headers and an encrypted body the browser can read', () => {
+  it('builds TTL / Urgency / aes128gcm / VAPID headers and an encrypted body the browser can read', () => {
     const { ecdh, auth, target } = browserSubscription();
     const payload = JSON.stringify({ v: 1, t: 'Masjid', b: 'नोटिस — test' });
-    const request = buildPushRequest(target, payload, { ttlS: 86_400, urgency: 'high', topic: 'seedA0000001' }, VAPID);
+    const request = buildPushRequest(target, payload, { ttlS: 86_400, urgency: 'high' }, VAPID);
 
     expect(request.endpoint).toBe(target.endpoint);
     expect(request.headers).toMatchObject({
       TTL: '86400',
       Urgency: 'high',
-      Topic: 'seedA0000001',
       'Content-Encoding': 'aes128gcm',
       'Content-Type': 'application/octet-stream',
       'Content-Length': String(request.body.length),
@@ -95,19 +94,11 @@ describe('buildPushRequest', () => {
     expect(decrypt(request.body, ecdh, auth)).toBe(payload);
   });
 
-  it('normal urgency and no Topic header when none is given', () => {
+  it('normal urgency, and never a Topic header — it would reveal the masjid to the push service (DECISIONS #142 M3)', () => {
     const { target } = browserSubscription();
     const request = buildPushRequest(target, '{}', { ttlS: 43_200, urgency: 'normal' }, VAPID);
     expect(request.headers).toMatchObject({ TTL: '43200', Urgency: 'normal' });
-    expect(request.headers).not.toHaveProperty('Topic');
-  });
-
-  it('refuses a topic that is not URL-safe base64 of at most 32 characters', () => {
-    const { target } = browserSubscription();
-    expect(() => buildPushRequest(target, '{}', { ttlS: 60, urgency: 'normal', topic: 'a+b' }, VAPID)).toThrow();
-    expect(() =>
-      buildPushRequest(target, '{}', { ttlS: 60, urgency: 'normal', topic: 'a'.repeat(33) }, VAPID),
-    ).toThrow();
+    expect(Object.keys(request.headers).map((name) => name.toLowerCase())).not.toContain('topic');
   });
 });
 

@@ -2292,3 +2292,26 @@ the raw-colour check), a bug, doc gaps in 02, and missing tests for some client 
   409 re-subscribe, sign-out); A15 blocked / install-first states; onboarding page 7 with 4-locale screenshots; C1 paused
   banner (assertion + screenshot); Publish bar "Will notify N" = DB reach; the outbox-sweeper scheduler in
   `Asia/Kolkata`; brothers-only audience and dead-status recipients in `push-pipeline.int`.
+
+### #144 — Phase 04 security re-review (9 Nov 2026): recovery and counter regression stop alert phones; stuck check covers the page in flight; no `topic` option (PHASE_04) — ACCEPTED (Claude Code, 9 Nov 2026)
+
+**Context.** `security-reviewer` on `64b0234..4392293` (the #142 / #143 fixes and the commits after them): 0 HIGH,
+1 MEDIUM, 6 LOW. M1, M3, L1, L5–L10 and the #143 fix verified; M2 partly. CI on `bd4845b` was red in the visual
+baselines only (the new Settings row — fixed in `1eae71c`); e2e journey 7's new reach assertion found the Publish bar
+showing Home's cached reach (fixed in `4392293`).
+**Decision.**
+- **M-R1 fixed — redeeming a `recovery` invite deletes the admin's alert subscriptions** in the registration
+  transaction, next to revoking every session: recovery means the old phone is lost (04 R3 makes revoking its passkeys
+  optional, so the subscription was the one thing left reaching it). `add_device` keeps them. db int test.
+- **L-R2 fixed for masjid admins — a passkey counter regression deletes a masjid admin's subscriptions** (the clone's
+  phone may hold one). A Super Admin keeps theirs: the regression alert goes to the Super Admins and the affected one
+  may be the only one. Session expiry still leaves subscriptions — **F65 moves before Phase 5's first alert to masjid
+  admins** (today they receive only test alerts).
+- **L-R1 fixed — the stuck-job detector also checks the page being fanned out** (`page <= fanout_page`: the fan-out
+  enqueues a page's batches before it records the page). **L-R6:** the lookups run in parallel. Integration test: a
+  waiting batch of page `fanout_page` keeps the job running.
+- **L-R3 fixed — `PushOptions.topic` removed**; a unit test checks no `Topic` header in any case.
+- **L-R4 fixed — "Clear all data" ends the push subscription first**, so a failing wipe cannot leave notifications
+  coming; the default (no service worker) is tested.
+- **L-R5 fixed — `*.*.push_endpoint | push_p256dh | push_auth`** redacted too (unit test).
+**Consequences.** 02 `admin_push_subscriptions` lists the recovery / regression deletes; F65 re-planned.

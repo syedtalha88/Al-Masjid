@@ -19,8 +19,8 @@ export interface PushOptions {
   /** Seconds the push service keeps an undelivered message. */
   readonly ttlS: number;
   readonly urgency: PushUrgency;
-  /** Collapses undelivered messages with the same topic (URL-safe base64, ≤ 32 characters — the item's public id). */
-  readonly topic?: string;
+  // No `topic`: the `Topic` header reaches FCM / APNs unencrypted, and an item id would reveal which masjid a phone
+  // follows (DECISIONS #142 M3). The service worker's notification `tag` collapses on the phone instead.
 }
 
 /** What one send came to. */
@@ -86,10 +86,10 @@ function parseRetryAfter(value: string | null | undefined, now: Date): number | 
 }
 
 /**
- * The encrypted body and headers of one push (`TTL`, `Urgency`, `Topic`, `Content-Encoding: aes128gcm`, VAPID
- * `Authorization`). Pure apart from the random key material of the encryption.
+ * The encrypted body and headers of one push (`TTL`, `Urgency`, `Content-Encoding: aes128gcm`, VAPID
+ * `Authorization`; never `Topic` — #142). Pure apart from the random key material of the encryption.
  *
- * @throws Error for a subscription whose keys do not decode, or a topic that is not URL-safe base64 ≤ 32.
+ * @throws Error for a subscription whose keys do not decode.
  */
 export function buildPushRequest(
   target: PushTarget,
@@ -105,7 +105,6 @@ export function buildPushRequest(
       TTL: options.ttlS,
       urgency: options.urgency,
       contentEncoding: 'aes128gcm',
-      ...(options.topic === undefined ? {} : { topic: options.topic }),
     },
   );
   const headers: Record<string, string> = {};

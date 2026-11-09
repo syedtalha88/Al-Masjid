@@ -81,15 +81,18 @@ export async function processOutboxSweep(deps: SweeperDeps): Promise<SweepResult
 /** BullMQ states in which a job will still run. */
 const LIVE_STATES: ReadonlySet<string> = new Set(['waiting', 'delayed', 'active', 'prioritized', 'waiting-children']);
 
-/** Whether the job's fan-out or any of its send batches still waits in (or runs from) the queues. */
-async function hasQueuedWork(queues: JobQueues, jobId: string, fanoutPages: number): Promise<boolean> {
+/**
+ * Whether the job's fan-out or any of its send batches still waits in (or runs from) the queues. `fanoutPage` is the
+ * next page to read, but the fan-out enqueues a page's batches before it records the page — so that page counts too
+ * (#144). The lookups run together: up to 100 candidates must fit the sweeper's timeout.
+ */
+async function hasQueuedWork(queues: JobQueues, jobId: string, fanoutPage: number): Promise<boolean> {
   const live = async (queue: 'push-fanout' | 'push-send-batch', id: string) => {
     const job = await queues.queue(queue).getJob(id);
     return job !== undefined && LIVE_STATES.has(await job.getState());
   };
-  if (await live('push-fanout', jobId)) return true;
-  for (let page = 0; page < fanoutPages; page += 1)
-    for (const locale of PUSH_LOCALES)
-      if (await live('push-send-batch', sendBatchJobId(jobId, page, locale))) return true;
-  return false;
+  const checks = [live('push-fanout', jobId)];
+  for (let page = 0; page <= fanoutPage; page += 1)
+    for (const locale of PUSH_LOCALES) checks.push(live('push-send-batch', sendBatchJobId(jobId, page, locale)));
+  return (await Promise.all(checks)).some(Boolean);
 }

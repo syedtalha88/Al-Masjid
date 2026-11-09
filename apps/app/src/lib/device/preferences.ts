@@ -143,9 +143,9 @@ export async function clearAllData(
       }
     }
   }
+  await unsubscribePush(); // first (it never throws): a wipe that fails must not leave notifications coming
   await deps.store.clear();
   await wipeCachedContent(cached);
-  await unsubscribePush();
   if (queued && credentials) {
     await deps.store.update((current) => ({ ...current, pendingDeletion: credentials }));
   }

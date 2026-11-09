@@ -161,6 +161,7 @@ describe('logger', () => {
         err: { cause: { endpoint: 'EP-2', auth: 'AU-2' } },
         device: { push_endpoint: 'EP-3', push_p256dh: 'PK-3', push_auth: 'AU-3' },
         auth: 'AU-4',
+        err2: { doc: { push_endpoint: 'EP-5', push_p256dh: 'PK-5', push_auth: 'AU-5' } }, // two levels (L-R5)
       },
       'push',
     );

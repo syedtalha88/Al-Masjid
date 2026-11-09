@@ -23,6 +23,7 @@ import { runDevSeed } from '../src/jobs/seed.ts';
 import { type RunningJobWorkers, startJobWorkers } from '../src/jobs/worker.ts';
 import { redisSendLedger } from '../src/push/ledger.ts';
 import { createPushSender } from '../src/push/sender.ts';
+import { sendBatchJobId } from '../src/queue/jobs.ts';
 import { pushNotifier } from '../src/queue/queues.ts';
 import { createMockPushService } from '../src/testing/mock-push.ts';
 import { testRedisUrl } from '../src/testing/redis.ts';
@@ -374,9 +375,21 @@ describe('push pipeline', () => {
     const stuckId = await published(id);
     await raw('notification_jobs').updateOne(
       { _id: idOf(stuckId) },
-      { $set: { status: 'running', started_at: NOW, last_progress_at: NOW } },
+      { $set: { status: 'running', started_at: NOW, last_progress_at: NOW, fanout_page: 0 } },
     );
-    expect((await sweep(20)).failedStuck).toBeGreaterThanOrEqual(1);
+    // …unless a batch of the page being fanned out (page = fanout_page, not yet recorded) still waits: the fan-out
+    // enqueues a page's batches before it records the page (#144, re-review L-R1).
+    const batches = running().queues.queue('push-send-batch');
+    await batches.pause();
+    const batch = await batches.add('send', {}, { jobId: sendBatchJobId(stuckId, 0, 'te') });
+    try {
+      await sweep(20);
+      expect(await job(stuckId)).toMatchObject({ status: 'running' });
+    } finally {
+      await batch.remove();
+      await batches.resume();
+    }
+    expect((await sweep(40)).failedStuck).toBeGreaterThanOrEqual(1);
     expect(await job(stuckId)).toMatchObject({ status: 'failed' });
     expect(await running().queues.queue('alert-send').getJob(`alert.push_job_stuck.${stuckId}`)).toBeDefined();
   });
