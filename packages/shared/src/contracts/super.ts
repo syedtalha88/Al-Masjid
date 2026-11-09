@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { livePaymentSchema, paymentRequestRowSchema } from './admin.ts';
 import { inviteLinkSchema } from './admin-auth.ts';
 import { safeText } from './text.ts';
 
@@ -252,3 +253,24 @@ export const superDashboardSchema = z
 export type SuperDashboard = z.infer<typeof superDashboardSchema>;
 
 export { inviteLinkSchema as superInviteSchema };
+
+// --- Payment approvals (C4, 04 R1, PHASE_05 T5.2) ----------------------------------------------------------------------
+
+export const superPaymentRowSchema = paymentRequestRowSchema
+  .extend({
+    masjid: z.object({ id: z.string(), name: z.string(), city: z.string() }),
+    requestedBy: z.object({ id: z.string(), displayName: z.string() }),
+    /** The details live now (old vs new side by side); `null` for a masjid's first UPI details. */
+    current: livePaymentSchema.nullable(),
+  })
+  .meta({ id: 'SuperPaymentRow' });
+export type SuperPaymentRow = z.infer<typeof superPaymentRowSchema>;
+
+/** `GET /payments/pending`: open requests (pending, and on hold — which can still be stopped), oldest first. */
+export const superPaymentListSchema = z
+  .object({ requests: z.array(superPaymentRowSchema) })
+  .meta({ id: 'SuperPaymentList' });
+export type SuperPaymentList = z.infer<typeof superPaymentListSchema>;
+
+/** `POST /payments/:id/approve` (★): when the details go live. */
+export const paymentApprovedSchema = z.object({ effectiveAt: z.string() }).meta({ id: 'PaymentApproved' });

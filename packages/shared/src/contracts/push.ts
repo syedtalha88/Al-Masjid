@@ -76,6 +76,11 @@ export const ADMIN_ALERT_TYPES = [
   'super_passkey_added',
   'push_job_stuck',
   'test',
+  // The UPI change-lock (04 R1, T5.2): Super Admin on every request; the requesting admin on each decision.
+  'payment_request',
+  'payment_approved',
+  'payment_rejected',
+  'payment_active',
 ] as const;
 
 /**

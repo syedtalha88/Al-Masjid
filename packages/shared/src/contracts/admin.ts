@@ -730,3 +730,50 @@ export const adminContactListSchema = z
 export type AdminContactList = z.infer<typeof adminContactListSchema>;
 
 export const contactSavedSchema = z.object({ id: z.string() }).meta({ id: 'ContactSaved' });
+
+// --- UPI payment details (B8, 04 R1, PHASE_05 T5.2) ----------------------------------------------------------------------
+
+/**
+ * Body of `POST /masjids/:masjidId/payment/requests`: the UPI details the masjid wants shown. Nothing goes live until
+ * the Super Admin approves and the hold has passed. The VPA is checked by the data layer exactly as the database
+ * accepts it (`@mc/domain/upi`, 400 `PAYMENT_INVALID`); here only its size is bounded.
+ */
+export const paymentRequestSchema = z
+  .strictObject({
+    vpa: z.string().min(3).max(256),
+    payeeName: safeText(100, { min: 1 }),
+    note: safeText(300, { multiline: true }).optional(),
+  })
+  .meta({ id: 'PaymentRequest' });
+export type PaymentRequest = z.infer<typeof paymentRequestSchema>;
+
+export const livePaymentSchema = z
+  .object({ vpa: z.string(), payeeName: z.string(), effectiveAt: z.string() })
+  .meta({ id: 'LivePayment' });
+export type LivePayment = z.infer<typeof livePaymentSchema>;
+
+export const PAYMENT_REQUEST_STATUSES = ['pending', 'approved_on_hold', 'rejected'] as const;
+
+export const paymentRequestRowSchema = z
+  .object({
+    id: z.string(),
+    status: z.enum(PAYMENT_REQUEST_STATUSES),
+    vpa: z.string(),
+    payeeName: z.string(),
+    note: z.string().optional(),
+    requestedAt: z.string(),
+    reviewedAt: z.string().optional(),
+    /** When approved: the moment the details go live (approval + hold). */
+    effectiveAt: z.string().optional(),
+    rejectReason: z.string().optional(),
+  })
+  .meta({ id: 'PaymentRequestRow' });
+export type PaymentRequestRow = z.infer<typeof paymentRequestRowSchema>;
+
+/** `GET /masjids/:masjidId/payment`: what followers see now, and the request in progress (or the latest rejection). */
+export const adminPaymentSchema = z
+  .object({ active: livePaymentSchema.nullable(), request: paymentRequestRowSchema.nullable() })
+  .meta({ id: 'AdminPayment' });
+export type AdminPayment = z.infer<typeof adminPaymentSchema>;
+
+export const paymentRequestedSchema = z.object({ id: z.string() }).meta({ id: 'PaymentRequested' });

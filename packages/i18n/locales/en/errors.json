@@ -62,5 +62,12 @@
   "CONTACT_INVALID": "Please tick that this person agreed, and check the WhatsApp number.",
   "CONTACT_NOT_FOUND": "This contact was removed. Please go back to the list.",
   "CONTACT_LIMIT_REACHED": "You can list up to 10 contacts. Remove one to add another.",
-  "PUSH_ENDPOINT_IN_USE": "Notifications could not be turned on on this phone. Please try again."
+  "PUSH_ENDPOINT_IN_USE": "Notifications could not be turned on on this phone. Please try again.",
+  "PAYMENT_INVALID": "Check the UPI ID and the payee name, then try again.",
+  "PAYMENT_UNCHANGED": "These are already the payment details shown to everyone.",
+  "PAYMENT_REQUEST_OPEN": "A change is already waiting. You can ask again once it is decided.",
+  "PAYMENT_NOT_FOUND": "This payment request no longer exists.",
+  "PAYMENT_NOT_PENDING": "This request was already decided.",
+  "PAYMENT_NOT_OPEN": "This request is already live or closed.",
+  "ITEM_LOCKED": "This notice was sent by the app and cannot be changed or deleted."
 }

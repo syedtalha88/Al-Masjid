@@ -11,7 +11,7 @@ import type { DbHandle } from '../src/client.ts';
 import { StateError } from '../src/effects.ts';
 import { runMigrations } from '../src/migrate/index.ts';
 import { PolicyDeniedError } from '../src/policy.ts';
-import { getMasjidBundle } from '../src/repos/index.ts';
+import { getAdminPayment, getMasjidBundle, listOpenPayments } from '../src/repos/index.ts';
 import { adminScope, superScope, systemScope } from '../src/scope.ts';
 import { scoped } from '../src/scoped.ts';
 import { buildDevSeed, seedId, writeDevSeed } from '../src/seed/index.ts';
@@ -364,5 +364,42 @@ describe('activation (system job)', () => {
       ),
     ).toBe('ITEM_LOCKED');
     expect((await raw('items').findOne({ _id: notice._id }))?.['status']).toBe('published');
+  });
+});
+
+describe('reads (B8 status, C4 queue)', () => {
+  it('the admin sees the live details and the open request; a later rejection stays visible until a new request', async () => {
+    const admin = adminOf(GAMMA);
+    const later = new Date(NOW.getTime() + 8 * HOLD * MINUTE); // after the second profile went live
+    const { id } = await request(GAMMA, 'gamma.third@okbank', admin, later);
+    const open = await getAdminPayment(as('admin'), admin, GAMMA);
+    expect(open.active).toMatchObject({ vpa: 'gamma.second@okbank', payeeName: 'Test Masjid Committee' });
+    expect(open.request).toMatchObject({
+      id,
+      status: 'pending',
+      vpa: 'gamma.third@okbank',
+      note: 'New committee account',
+    });
+    await rejectPaymentChange(as('admin'), superScope(SUPER), {
+      profileId: idOf(id),
+      reason: 'Wrong account',
+      now: later,
+    });
+    const rejected = await getAdminPayment(as('admin'), admin, GAMMA);
+    expect(rejected.request).toMatchObject({ id, status: 'rejected', rejectReason: 'Wrong account' });
+    expect(await code(getAdminPayment(as('admin'), adminOf(BETA), GAMMA))).toBe('MASJID_NOT_FOUND');
+  });
+
+  it('the Super Admin queue lists open requests with masjid, requester and the live details; nobody else reads it', async () => {
+    const { requests } = await listOpenPayments(as('admin'), superScope(SUPER));
+    const beta = requests.find((row) => row.masjid.id === idText(BETA));
+    expect(beta).toMatchObject({
+      status: 'pending',
+      vpa: 'beta.again@okbank',
+      masjid: { name: expect.any(String) as string },
+      current: null,
+    });
+    expect(requests.every((row) => row.status === 'pending' || row.status === 'approved_on_hold')).toBe(true);
+    expect(await code(listOpenPayments(as('admin'), adminOf(BETA)))).toBe('FORBIDDEN');
   });
 });

@@ -3159,6 +3159,126 @@
         ],
         "additionalProperties": false
       },
+      "AdminPayment": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "$ref": "#/components/schemas/LivePayment"
+          },
+          "request": {
+            "$ref": "#/components/schemas/PaymentRequestRow"
+          }
+        },
+        "required": [
+          "active",
+          "request"
+        ]
+      },
+      "LivePayment": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "vpa": {
+            "type": "string"
+          },
+          "payeeName": {
+            "type": "string"
+          },
+          "effectiveAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "vpa",
+          "payeeName",
+          "effectiveAt"
+        ]
+      },
+      "PaymentRequestRow": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved_on_hold",
+              "rejected"
+            ]
+          },
+          "vpa": {
+            "type": "string"
+          },
+          "payeeName": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "requestedAt": {
+            "type": "string"
+          },
+          "reviewedAt": {
+            "type": "string"
+          },
+          "effectiveAt": {
+            "type": "string"
+          },
+          "rejectReason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "vpa",
+          "payeeName",
+          "requestedAt"
+        ]
+      },
+      "PaymentRequested": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "PaymentRequest": {
+        "type": "object",
+        "properties": {
+          "vpa": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 256
+          },
+          "payeeName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "note": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "vpa",
+          "payeeName"
+        ],
+        "additionalProperties": false
+      },
       "SuperDashboard": {
         "type": "object",
         "properties": {
@@ -4187,6 +4307,115 @@
         },
         "required": [
           "added"
+        ]
+      },
+      "SuperPaymentList": {
+        "type": "object",
+        "properties": {
+          "requests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuperPaymentRow"
+            }
+          }
+        },
+        "required": [
+          "requests"
+        ]
+      },
+      "SuperPaymentRow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved_on_hold",
+              "rejected"
+            ]
+          },
+          "vpa": {
+            "type": "string"
+          },
+          "payeeName": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "requestedAt": {
+            "type": "string"
+          },
+          "reviewedAt": {
+            "type": "string"
+          },
+          "effectiveAt": {
+            "type": "string"
+          },
+          "rejectReason": {
+            "type": "string"
+          },
+          "masjid": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "city"
+            ]
+          },
+          "requestedBy": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "displayName"
+            ]
+          },
+          "current": {
+            "$ref": "#/components/schemas/LivePayment"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "vpa",
+          "payeeName",
+          "requestedAt",
+          "masjid",
+          "requestedBy",
+          "current"
+        ]
+      },
+      "PaymentApproved": {
+        "type": "object",
+        "properties": {
+          "effectiveAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "effectiveAt"
         ]
       }
     },
@@ -10761,6 +10990,78 @@
         }
       }
     },
+    "/api/admin/masjids/{masjidId}/payment": {
+      "get": {
+        "summary": "UPI details shown to followers now, and the change request in progress (B8)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPayment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/payment/requests": {
+      "post": {
+        "summary": "Ask to set or change the UPI details — live only after Super Admin approval and the hold (04 R1)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequested"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/super/dashboard": {
       "get": {
         "summary": "Pending activations, masjid counts, passkey clone alerts and admins' change requests (C1)",
@@ -12887,6 +13188,112 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/super/payments/pending": {
+      "get": {
+        "summary": "Open UPI change requests — pending and on hold — oldest first, with the live details (C4)",
+        "tags": [
+          "super"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperPaymentList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/payments/{id}/approve": {
+      "post": {
+        "summary": "★ Approve a UPI change — it goes live after the hold (PAYMENT_HOLD_MINUTES, ≥ 24 h in production)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentApproved"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/payments/{id}/reject": {
+      "post": {
+        "summary": "Turn down a UPI change — while pending, or during the hold to stop it (DECISIONS #146)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 300
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
           }
         }
       }

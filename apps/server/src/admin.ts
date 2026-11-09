@@ -67,6 +67,8 @@ const { app } = createAdminApp({
     // T4.6: alerts are enqueued here, sent by the worker; the Super Admin's test alert exists outside production only.
     alerts: alertService(queues, logger),
     testAlerts: env.APP_ENV !== 'production',
+    // T5.2: the UPI change-lock hold (env.ts refuses < 1440 in production).
+    paymentHoldMinutes: env.PAYMENT_HOLD_MINUTES,
   }),
   rateLimiter: connections.rateLimiter,
   health: connections.health,

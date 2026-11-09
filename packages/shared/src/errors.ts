@@ -75,6 +75,13 @@ export const API_ERRORS = {
   CONTACT_NOT_FOUND: 404, // unknown or deleted Ilm contact (T3.16)
   CONTACT_LIMIT_REACHED: 409, // 10 active contacts (00 §4.12, T3.16)
   PUSH_ENDPOINT_IN_USE: 409, // this browser's subscription belongs to another app id; the app re-subscribes (T4.2)
+  PAYMENT_INVALID: 400, // VPA not as the database accepts it, payee name 1–100, note ≤ 300, reason 1–300 (T5.2)
+  PAYMENT_UNCHANGED: 409, // the requested details are the live ones (T5.2)
+  PAYMENT_REQUEST_OPEN: 409, // one pending / on-hold request per masjid (04 R1, T5.2)
+  PAYMENT_NOT_FOUND: 404, // unknown payment request (T5.2)
+  PAYMENT_NOT_PENDING: 409, // approve: already approved, rejected or live (T5.2)
+  PAYMENT_NOT_OPEN: 409, // reject: already live, rejected or superseded (T5.2)
+  ITEM_LOCKED: 409, // the "Payment details updated" notice cannot be edited or deleted (04 R1, T5.2)
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

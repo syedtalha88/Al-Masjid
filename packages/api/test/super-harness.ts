@@ -31,7 +31,7 @@ export function superHarness(
   name: string,
   now = new Date('2026-10-28T08:00:00Z'),
   /** Extra route dependencies (alerts, the test-alert switch — T4.6); read on every request, so tests may change them. */
-  extra: Partial<Pick<AdminRouteDeps, 'alerts' | 'testAlerts' | 'notifier'>> = {},
+  extra: Partial<Pick<AdminRouteDeps, 'alerts' | 'testAlerts' | 'notifier' | 'paymentHoldMinutes'>> = {},
 ) {
   const pepper = randomBytes(32);
   const keyRing: FieldKeyRing = { currentId: 'k1', keys: new Map([['k1', randomBytes(32)]]) };

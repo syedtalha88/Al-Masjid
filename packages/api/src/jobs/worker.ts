@@ -20,6 +20,7 @@ import {
 } from '../queue/jobs.ts';
 import { createJobQueues, type JobQueues } from '../queue/queues.ts';
 import { processAlertSend } from './alerts/send.ts';
+import { processPaymentActivate } from './payments/activate.ts';
 import { processFanout, PushPausedError } from './push/fanout.ts';
 import { processSendBatch } from './push/send-batch.ts';
 import { processOutboxSweep } from './push/sweeper.ts';
@@ -34,10 +35,12 @@ export const DEFAULT_CONCURRENCY: Readonly<Record<JobName, number>> = {
   'push-send-batch': 4,
   'alert-send': 2,
   'outbox-sweeper': 1,
+  'payment-activate': 1,
 };
 /** Schedulers (01 §5.8), cron in India time. */
 export const SCHEDULES: readonly { readonly job: JobName; readonly pattern: string }[] = [
   { job: 'outbox-sweeper', pattern: '* * * * *' },
+  { job: 'payment-activate', pattern: '*/10 * * * *' },
 ];
 export const SCHEDULE_TIME_ZONE = 'Asia/Kolkata';
 
@@ -115,6 +118,9 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
       case 'outbox-sweeper':
         parseJobPayload(name, data);
         return processOutboxSweep({ ...common, queues });
+      case 'payment-activate':
+        parseJobPayload(name, data);
+        return processPaymentActivate({ ...common, queues });
     }
   };
 

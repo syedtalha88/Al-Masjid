@@ -21,6 +21,10 @@ const ALERT_PATH: Readonly<Record<AdminAlertPayload['type'], string>> = {
   super_passkey_added: '/account',
   push_job_stuck: '/super',
   test: '/',
+  payment_request: '/super/payments',
+  payment_approved: '/payment',
+  payment_rejected: '/payment',
+  payment_active: '/payment',
 };
 
 /** Alerts live four hours at the push service and always arrive at once. */

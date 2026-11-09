@@ -18,6 +18,22 @@
     "super_passkey_added": {
       "title": "New passkey on a Super Admin account",
       "body": "A passkey was just added to a Super Admin account. If this wasn't you, remove it in Account now."
+    },
+    "payment_request": {
+      "title": "UPI change requested",
+      "body": "A masjid asked to change its UPI payment details. Review it in Payment approvals."
+    },
+    "payment_approved": {
+      "title": "UPI change approved",
+      "body": "Your new UPI details were approved. They go live after the waiting period."
+    },
+    "payment_rejected": {
+      "title": "UPI change not approved",
+      "body": "Your UPI change was not approved. Open Payment to see why."
+    },
+    "payment_active": {
+      "title": "New UPI details are live",
+      "body": "Your new UPI details are now shown to everyone. Followers were told."
     }
   }
 }
