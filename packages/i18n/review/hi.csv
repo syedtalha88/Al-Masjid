@@ -597,6 +597,62 @@ admin,payment.status.rejected,Not approved: {reason},मंज़ूर नह�
 admin,payment.step.requested,Requested,अनुरोध,no
 admin,payment.step.approved,Approved,मंज़ूर,no
 admin,payment.step.live,Live,लागू,no
+admin,donation.title,Donation Drive,दान अभियान,no
+admin,donation.intro,Run a drive and keep the amount updated. Followers pay the masjid's UPI directly.,अभियान चलाएँ और राशि अपडेट रखें। फ़ॉलोअर्स सीधे मस्जिद के UPI पर भेजते हैं।,no
+admin,donation.noUpi,Set up your masjid's UPI first,पहले अपनी मस्जिद का UPI सेट करें,no
+admin,donation.noUpiBody,Donations go straight to the masjid's verified UPI ID. Add it in Masjid Profile.,दान सीधे मस्जिद की सत्यापित UPI ID पर जाता है। इसे मस्जिद प्रोफ़ाइल में जोड़ें।,no
+admin,donation.setUpUpi,Set up UPI,UPI सेट करें,no
+admin,donation.new,New drive,नया अभियान,no
+admin,donation.limit,Up to 3 drives at a time. Mark one completed to start another.,एक साथ 3 अभियान तक। नया शुरू करने के लिए किसी एक को पूरा करें।,no
+admin,donation.empty,No drives yet,अभी कोई अभियान नहीं,no
+admin,donation.emptyBody,"Start one for repairs, renovation, bills or helping people.","मरम्मत, नवीनीकरण, बिल या लोगों की मदद के लिए एक शुरू करें।",no
+admin,donation.status.active,Active,चालू,no
+admin,donation.status.completed,Completed,पूरा,no
+admin,donation.status.closed,Closed,बंद,no
+admin,donation.amounts,{received} of {target},{target} में से {received},no
+admin,donation.receivedLabel,Received (reported by masjid),प्राप्त (मस्जिद द्वारा बताया गया),no
+admin,donation.updateAmount,Update amount,राशि अपडेट करें,no
+admin,donation.updateTitle,Received so far,अब तक प्राप्त,no
+admin,donation.notify,Notify followers,फ़ॉलोअर्स को सूचना दें,no
+admin,donation.notifyHint,Off unless it is news worth a notification.,"बंद रखें, जब तक सूचना देने लायक ख़बर न हो।",no
+admin,donation.save,Save,सेव करें,no
+admin,donation.saved,Amount saved,राशि सेव हो गई,no
+admin,donation.complete,Mark completed,पूरा चिह्नित करें,no
+admin,donation.completeTitle,Mark this drive completed?,इस अभियान को पूरा चिह्नित करें?,no
+admin,donation.completeBody,"Followers still see it until it closes, and you can still update the amount.","बंद होने तक फ़ॉलोअर्स इसे देखते रहेंगे, और आप राशि अपडेट कर सकते हैं।",no
+admin,donation.completed,Marked completed,पूरा चिह्नित किया,no
+admin,donation.newTitle,New donation drive,नया दान अभियान,no
+admin,donation.purposeQuestion,What is it for?,यह किस लिए है?,no
+admin,donation.purpose.renovation,Renovation,नवीनीकरण,no
+admin,donation.purpose.repair,Repair,मरम्मत,no
+admin,donation.purpose.utilities,Bills & utilities,बिल और सुविधाएँ,no
+admin,donation.purpose.welfare,Helping people,लोगों की मदद,no
+admin,donation.purpose.other,Other,अन्य,no
+admin,donation.titleLabel,Title,शीर्षक,no
+admin,donation.suggestions,Suggestions,सुझाव,no
+admin,donation.suggest.renovation.a,Masjid renovation,मस्जिद का नवीनीकरण,no
+admin,donation.suggest.renovation.b,New carpets,नए कालीन,no
+admin,donation.suggest.repair.a,Roof repair,छत की मरम्मत,no
+admin,donation.suggest.repair.b,Wudu area repair,वुज़ू की जगह की मरम्मत,no
+admin,donation.suggest.utilities.a,Electricity bill,बिजली का बिल,no
+admin,donation.suggest.utilities.b,Water tank,पानी की टंकी,no
+admin,donation.suggest.welfare.a,Ration kits for families,परिवारों के लिए राशन किट,no
+admin,donation.suggest.welfare.b,Help for families in need,ज़रूरतमंद परिवारों की मदद,no
+admin,donation.suggest.other.a,Masjid fund,मस्जिद फ़ंड,no
+admin,donation.suggest.other.b,Masjid development,मस्जिद का विकास,no
+admin,donation.description,About this drive,इस अभियान के बारे में,no
+admin,donation.target,Target amount,लक्ष्य राशि,no
+admin,donation.targetHint,"At least ₹1,000","कम से कम ₹1,000",no
+admin,donation.startsOn,Starts,शुरू,no
+admin,donation.endsOn,Ends (optional),ख़त्म (वैकल्पिक),no
+admin,donation.preview,Preview,पूर्वावलोकन,no
+admin,donation.publish,Publish,प्रकाशित करें,no
+admin,donation.published,Drive published,अभियान प्रकाशित हुआ,no
+admin,donation.missing,Still needed: {fields},अभी चाहिए: {fields},no
+admin,donation.issue.purpose,what it is for,यह किस लिए है,no
+admin,donation.issue.title,a title,शीर्षक,no
+admin,donation.issue.target,"a target of at least ₹1,000","कम से कम ₹1,000 का लक्ष्य",no
+admin,donation.issue.dates,an end date after the start,शुरू के बाद की ख़त्म तारीख़,no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no

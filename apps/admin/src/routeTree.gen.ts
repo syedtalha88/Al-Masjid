@@ -23,6 +23,8 @@ import { Route as ContactsIdRouteImport } from './routes/contacts.$id'
 import { Route as DailyIndexRouteImport } from './routes/daily.index'
 import { Route as DailyNoteRouteImport } from './routes/daily.note'
 import { Route as DailyPreviewRouteImport } from './routes/daily.preview'
+import { Route as DonationIndexRouteImport } from './routes/donation.index'
+import { Route as DonationNewRouteImport } from './routes/donation.new'
 import { Route as DuaIndexRouteImport } from './routes/dua.index'
 import { Route as DuaAttachRouteImport } from './routes/dua.attach'
 import { Route as DuaDetailsRouteImport } from './routes/dua.details'
@@ -118,6 +120,16 @@ const DailyNoteRoute = DailyNoteRouteImport.update({
 const DailyPreviewRoute = DailyPreviewRouteImport.update({
   id: '/daily/preview',
   path: '/daily/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DonationIndexRoute = DonationIndexRouteImport.update({
+  id: '/donation/',
+  path: '/donation/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DonationNewRoute = DonationNewRouteImport.update({
+  id: '/donation/new',
+  path: '/donation/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DuaIndexRoute = DuaIndexRouteImport.update({
@@ -265,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/contacts/$id': typeof ContactsIdRoute
   '/daily/note': typeof DailyNoteRoute
   '/daily/preview': typeof DailyPreviewRoute
+  '/donation/new': typeof DonationNewRoute
   '/dua/attach': typeof DuaAttachRoute
   '/dua/details': typeof DuaDetailsRoute
   '/dua/preview': typeof DuaPreviewRoute
@@ -277,6 +290,7 @@ export interface FileRoutesByFullPath {
   '/super/payments': typeof SuperPaymentsRoute
   '/super/settings': typeof SuperSettingsRoute
   '/daily/': typeof DailyIndexRoute
+  '/donation/': typeof DonationIndexRoute
   '/dua/': typeof DuaIndexRoute
   '/notice/': typeof NoticeIndexRoute
   '/ruqyah/': typeof RuqyahIndexRoute
@@ -307,6 +321,7 @@ export interface FileRoutesByTo {
   '/contacts/$id': typeof ContactsIdRoute
   '/daily/note': typeof DailyNoteRoute
   '/daily/preview': typeof DailyPreviewRoute
+  '/donation/new': typeof DonationNewRoute
   '/dua/attach': typeof DuaAttachRoute
   '/dua/details': typeof DuaDetailsRoute
   '/dua/preview': typeof DuaPreviewRoute
@@ -319,6 +334,7 @@ export interface FileRoutesByTo {
   '/super/payments': typeof SuperPaymentsRoute
   '/super/settings': typeof SuperSettingsRoute
   '/daily': typeof DailyIndexRoute
+  '/donation': typeof DonationIndexRoute
   '/dua': typeof DuaIndexRoute
   '/notice': typeof NoticeIndexRoute
   '/ruqyah': typeof RuqyahIndexRoute
@@ -350,6 +366,7 @@ export interface FileRoutesById {
   '/contacts/$id': typeof ContactsIdRoute
   '/daily/note': typeof DailyNoteRoute
   '/daily/preview': typeof DailyPreviewRoute
+  '/donation/new': typeof DonationNewRoute
   '/dua/attach': typeof DuaAttachRoute
   '/dua/details': typeof DuaDetailsRoute
   '/dua/preview': typeof DuaPreviewRoute
@@ -362,6 +379,7 @@ export interface FileRoutesById {
   '/super/payments': typeof SuperPaymentsRoute
   '/super/settings': typeof SuperSettingsRoute
   '/daily/': typeof DailyIndexRoute
+  '/donation/': typeof DonationIndexRoute
   '/dua/': typeof DuaIndexRoute
   '/notice/': typeof NoticeIndexRoute
   '/ruqyah/': typeof RuqyahIndexRoute
@@ -394,6 +412,7 @@ export interface FileRouteTypes {
     | '/contacts/$id'
     | '/daily/note'
     | '/daily/preview'
+    | '/donation/new'
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
@@ -406,6 +425,7 @@ export interface FileRouteTypes {
     | '/super/payments'
     | '/super/settings'
     | '/daily/'
+    | '/donation/'
     | '/dua/'
     | '/notice/'
     | '/ruqyah/'
@@ -436,6 +456,7 @@ export interface FileRouteTypes {
     | '/contacts/$id'
     | '/daily/note'
     | '/daily/preview'
+    | '/donation/new'
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
@@ -448,6 +469,7 @@ export interface FileRouteTypes {
     | '/super/payments'
     | '/super/settings'
     | '/daily'
+    | '/donation'
     | '/dua'
     | '/notice'
     | '/ruqyah'
@@ -478,6 +500,7 @@ export interface FileRouteTypes {
     | '/contacts/$id'
     | '/daily/note'
     | '/daily/preview'
+    | '/donation/new'
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
@@ -490,6 +513,7 @@ export interface FileRouteTypes {
     | '/super/payments'
     | '/super/settings'
     | '/daily/'
+    | '/donation/'
     | '/dua/'
     | '/notice/'
     | '/ruqyah/'
@@ -521,6 +545,7 @@ export interface RootRouteChildren {
   ContactsIdRoute: typeof ContactsIdRoute
   DailyNoteRoute: typeof DailyNoteRoute
   DailyPreviewRoute: typeof DailyPreviewRoute
+  DonationNewRoute: typeof DonationNewRoute
   DuaAttachRoute: typeof DuaAttachRoute
   DuaDetailsRoute: typeof DuaDetailsRoute
   DuaPreviewRoute: typeof DuaPreviewRoute
@@ -533,6 +558,7 @@ export interface RootRouteChildren {
   SuperPaymentsRoute: typeof SuperPaymentsRoute
   SuperSettingsRoute: typeof SuperSettingsRoute
   DailyIndexRoute: typeof DailyIndexRoute
+  DonationIndexRoute: typeof DonationIndexRoute
   DuaIndexRoute: typeof DuaIndexRoute
   NoticeIndexRoute: typeof NoticeIndexRoute
   RuqyahIndexRoute: typeof RuqyahIndexRoute
@@ -647,6 +673,20 @@ declare module '@tanstack/react-router' {
       path: '/daily/preview'
       fullPath: '/daily/preview'
       preLoaderRoute: typeof DailyPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donation/': {
+      id: '/donation/'
+      path: '/donation'
+      fullPath: '/donation/'
+      preLoaderRoute: typeof DonationIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donation/new': {
+      id: '/donation/new'
+      path: '/donation/new'
+      fullPath: '/donation/new'
+      preLoaderRoute: typeof DonationNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dua/': {
@@ -860,6 +900,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactsIdRoute: ContactsIdRoute,
   DailyNoteRoute: DailyNoteRoute,
   DailyPreviewRoute: DailyPreviewRoute,
+  DonationNewRoute: DonationNewRoute,
   DuaAttachRoute: DuaAttachRoute,
   DuaDetailsRoute: DuaDetailsRoute,
   DuaPreviewRoute: DuaPreviewRoute,
@@ -872,6 +913,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuperPaymentsRoute: SuperPaymentsRoute,
   SuperSettingsRoute: SuperSettingsRoute,
   DailyIndexRoute: DailyIndexRoute,
+  DonationIndexRoute: DonationIndexRoute,
   DuaIndexRoute: DuaIndexRoute,
   NoticeIndexRoute: NoticeIndexRoute,
   RuqyahIndexRoute: RuqyahIndexRoute,

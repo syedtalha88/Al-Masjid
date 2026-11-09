@@ -597,6 +597,62 @@ admin,payment.status.rejected,Not approved: {reason},منظور نہیں: {reaso
 admin,payment.step.requested,Requested,درخواست,no
 admin,payment.step.approved,Approved,منظور,no
 admin,payment.step.live,Live,نافذ,no
+admin,donation.title,Donation Drive,عطیہ مہم,no
+admin,donation.intro,Run a drive and keep the amount updated. Followers pay the masjid's UPI directly.,مہم چلائیں اور رقم اپ ڈیٹ رکھیں۔ فالوورز سیدھے مسجد کے UPI پر بھیجتے ہیں۔,no
+admin,donation.noUpi,Set up your masjid's UPI first,پہلے اپنی مسجد کا UPI سیٹ کریں,no
+admin,donation.noUpiBody,Donations go straight to the masjid's verified UPI ID. Add it in Masjid Profile.,عطیات سیدھے مسجد کی تصدیق شدہ UPI ID پر جاتے ہیں۔ اسے مسجد پروفائل میں شامل کریں۔,no
+admin,donation.setUpUpi,Set up UPI,UPI سیٹ کریں,no
+admin,donation.new,New drive,نئی مہم,no
+admin,donation.limit,Up to 3 drives at a time. Mark one completed to start another.,ایک وقت میں 3 مہمات تک۔ نئی شروع کرنے کے لیے کسی ایک کو مکمل کریں۔,no
+admin,donation.empty,No drives yet,ابھی کوئی مہم نہیں,no
+admin,donation.emptyBody,"Start one for repairs, renovation, bills or helping people.",مرمت، تزئین، بلوں یا لوگوں کی مدد کے لیے ایک شروع کریں۔,no
+admin,donation.status.active,Active,جاری,no
+admin,donation.status.completed,Completed,مکمل,no
+admin,donation.status.closed,Closed,بند,no
+admin,donation.amounts,{received} of {target},{target} میں سے {received},no
+admin,donation.receivedLabel,Received (reported by masjid),موصول (مسجد کے مطابق),no
+admin,donation.updateAmount,Update amount,رقم اپ ڈیٹ کریں,no
+admin,donation.updateTitle,Received so far,اب تک موصول,no
+admin,donation.notify,Notify followers,فالوورز کو اطلاع دیں,no
+admin,donation.notifyHint,Off unless it is news worth a notification.,بند رکھیں، جب تک اطلاع کے لائق خبر نہ ہو۔,no
+admin,donation.save,Save,محفوظ کریں,no
+admin,donation.saved,Amount saved,رقم محفوظ ہو گئی,no
+admin,donation.complete,Mark completed,مکمل نشان زد کریں,no
+admin,donation.completeTitle,Mark this drive completed?,اس مہم کو مکمل نشان زد کریں؟,no
+admin,donation.completeBody,"Followers still see it until it closes, and you can still update the amount.",بند ہونے تک فالوورز اسے دیکھتے رہیں گے، اور آپ رقم اپ ڈیٹ کر سکتے ہیں۔,no
+admin,donation.completed,Marked completed,مکمل نشان زد کیا,no
+admin,donation.newTitle,New donation drive,نئی عطیہ مہم,no
+admin,donation.purposeQuestion,What is it for?,یہ کس لیے ہے؟,no
+admin,donation.purpose.renovation,Renovation,تزئین,no
+admin,donation.purpose.repair,Repair,مرمت,no
+admin,donation.purpose.utilities,Bills & utilities,بل اور سہولیات,no
+admin,donation.purpose.welfare,Helping people,لوگوں کی مدد,no
+admin,donation.purpose.other,Other,دیگر,no
+admin,donation.titleLabel,Title,عنوان,no
+admin,donation.suggestions,Suggestions,تجاویز,no
+admin,donation.suggest.renovation.a,Masjid renovation,مسجد کی تزئین,no
+admin,donation.suggest.renovation.b,New carpets,نئے قالین,no
+admin,donation.suggest.repair.a,Roof repair,چھت کی مرمت,no
+admin,donation.suggest.repair.b,Wudu area repair,وضو خانے کی مرمت,no
+admin,donation.suggest.utilities.a,Electricity bill,بجلی کا بل,no
+admin,donation.suggest.utilities.b,Water tank,پانی کی ٹنکی,no
+admin,donation.suggest.welfare.a,Ration kits for families,خاندانوں کے لیے راشن کٹ,no
+admin,donation.suggest.welfare.b,Help for families in need,ضرورت مند خاندانوں کی مدد,no
+admin,donation.suggest.other.a,Masjid fund,مسجد فنڈ,no
+admin,donation.suggest.other.b,Masjid development,مسجد کی ترقی,no
+admin,donation.description,About this drive,اس مہم کے بارے میں,no
+admin,donation.target,Target amount,ہدف کی رقم,no
+admin,donation.targetHint,"At least ₹1,000","کم از کم ₹1,000",no
+admin,donation.startsOn,Starts,شروع,no
+admin,donation.endsOn,Ends (optional),ختم (اختیاری),no
+admin,donation.preview,Preview,پیش منظر,no
+admin,donation.publish,Publish,شائع کریں,no
+admin,donation.published,Drive published,مہم شائع ہو گئی,no
+admin,donation.missing,Still needed: {fields},ابھی چاہیے: {fields},no
+admin,donation.issue.purpose,what it is for,یہ کس لیے ہے,no
+admin,donation.issue.title,a title,عنوان,no
+admin,donation.issue.target,"a target of at least ₹1,000","کم از کم ₹1,000 کا ہدف",no
+admin,donation.issue.dates,an end date after the start,شروع کے بعد کی ختم تاریخ,no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no

@@ -694,5 +694,81 @@
       "approved": "Approved",
       "live": "Live"
     }
+  },
+  "donation": {
+    "title": "Donation Drive",
+    "intro": "Run a drive and keep the amount updated. Followers pay the masjid's UPI directly.",
+    "noUpi": "Set up your masjid's UPI first",
+    "noUpiBody": "Donations go straight to the masjid's verified UPI ID. Add it in Masjid Profile.",
+    "setUpUpi": "Set up UPI",
+    "new": "New drive",
+    "limit": "Up to 3 drives at a time. Mark one completed to start another.",
+    "empty": "No drives yet",
+    "emptyBody": "Start one for repairs, renovation, bills or helping people.",
+    "status": {
+      "active": "Active",
+      "completed": "Completed",
+      "closed": "Closed"
+    },
+    "amounts": "{received} of {target}",
+    "receivedLabel": "Received (reported by masjid)",
+    "updateAmount": "Update amount",
+    "updateTitle": "Received so far",
+    "notify": "Notify followers",
+    "notifyHint": "Off unless it is news worth a notification.",
+    "save": "Save",
+    "saved": "Amount saved",
+    "complete": "Mark completed",
+    "completeTitle": "Mark this drive completed?",
+    "completeBody": "Followers still see it until it closes, and you can still update the amount.",
+    "completed": "Marked completed",
+    "newTitle": "New donation drive",
+    "purposeQuestion": "What is it for?",
+    "purpose": {
+      "renovation": "Renovation",
+      "repair": "Repair",
+      "utilities": "Bills & utilities",
+      "welfare": "Helping people",
+      "other": "Other"
+    },
+    "titleLabel": "Title",
+    "suggestions": "Suggestions",
+    "suggest": {
+      "renovation": {
+        "a": "Masjid renovation",
+        "b": "New carpets"
+      },
+      "repair": {
+        "a": "Roof repair",
+        "b": "Wudu area repair"
+      },
+      "utilities": {
+        "a": "Electricity bill",
+        "b": "Water tank"
+      },
+      "welfare": {
+        "a": "Ration kits for families",
+        "b": "Help for families in need"
+      },
+      "other": {
+        "a": "Masjid fund",
+        "b": "Masjid development"
+      }
+    },
+    "description": "About this drive",
+    "target": "Target amount",
+    "targetHint": "At least ₹1,000",
+    "startsOn": "Starts",
+    "endsOn": "Ends (optional)",
+    "preview": "Preview",
+    "publish": "Publish",
+    "published": "Drive published",
+    "missing": "Still needed: {fields}",
+    "issue": {
+      "purpose": "what it is for",
+      "title": "a title",
+      "target": "a target of at least ₹1,000",
+      "dates": "an end date after the start"
+    }
   }
 }

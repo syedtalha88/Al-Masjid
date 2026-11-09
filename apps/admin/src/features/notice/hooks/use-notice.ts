@@ -16,7 +16,7 @@ export function useNoticeTemplates(masjidId: string | undefined) {
 }
 
 /** Uploading a notice photo. */
-export function usePhotoUpload(masjidId: string | undefined) {
+export function usePhotoUpload(masjidId: string | undefined, purpose: 'announcement' | 'campaign' = 'announcement') {
   const id = masjidId ?? '';
-  return useMutation({ mutationFn: (file: Blob) => masjidApi.uploadImage(id, file) });
+  return useMutation({ mutationFn: (file: Blob) => masjidApi.uploadImage(id, file, purpose) });
 }

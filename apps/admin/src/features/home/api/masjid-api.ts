@@ -2,6 +2,7 @@
 import {
   type AdhkarPut,
   adminAdhkarSchema,
+  adminCampaignListSchema,
   adminContactListSchema,
   adminItemListSchema,
   type AdminItemStatus,
@@ -14,6 +15,10 @@ import {
   adminSpecialDatesSchema,
   type AnnouncementPublish,
   audioUploadedSchema,
+  type CampaignCreate,
+  type CampaignPatchBody,
+  type CampaignReceived,
+  campaignReceivedResultSchema,
   type ContactSave,
   contactSavedSchema,
   type DailyContentPublish,
@@ -83,10 +88,10 @@ export const masjidApi = {
   templates: (masjidId: string, signal?: AbortSignal) =>
     call(`${base(masjidId)}/templates`, templateListSchema, withSignal(signal)),
   /** A notice photo (multipart `file`); the caller has the ownership tick (it is sent as `rightsConfirmed`). */
-  uploadImage: (masjidId: string, file: Blob) => {
+  uploadImage: (masjidId: string, file: Blob, purpose: 'announcement' | 'campaign' = 'announcement') => {
     const form = new FormData();
     form.append('file', file);
-    return call(`${base(masjidId)}/images?purpose=announcement&rightsConfirmed=true`, imageUploadedSchema, {
+    return call(`${base(masjidId)}/images?purpose=${purpose}&rightsConfirmed=true`, imageUploadedSchema, {
       method: 'POST',
       form,
     });
@@ -161,6 +166,24 @@ export const masjidApi = {
   /** Ask to set or change the UPI details — live only after Super Admin approval and the hold (04 R1). */
   requestPayment: (masjidId: string, body: PaymentRequest) =>
     call(`${base(masjidId)}/payment/requests`, paymentRequestedSchema, { method: 'POST', body }),
+  /** B8 donation drives (T5.3): active, then completed, then closed. */
+  campaigns: (masjidId: string, signal?: AbortSignal) =>
+    call(`${base(masjidId)}/campaigns`, adminCampaignListSchema, withSignal(signal)),
+  createCampaign: (masjidId: string, body: CampaignCreate) =>
+    call(`${base(masjidId)}/campaigns`, itemPublishedSchema, { method: 'POST', body }),
+  updateCampaign: (masjidId: string, campaignId: string, body: CampaignPatchBody) =>
+    call(`${base(masjidId)}/campaigns/${encodeURIComponent(campaignId)}`, noContentSchema, { method: 'PATCH', body }),
+  /** "Update amount" — what the masjid reports received (a history row each time). */
+  campaignReceived: (masjidId: string, campaignId: string, body: CampaignReceived) =>
+    call(`${base(masjidId)}/campaigns/${encodeURIComponent(campaignId)}/received`, campaignReceivedResultSchema, {
+      method: 'POST',
+      body,
+    }),
+  completeCampaign: (masjidId: string, campaignId: string) =>
+    call(`${base(masjidId)}/campaigns/${encodeURIComponent(campaignId)}/complete`, noContentSchema, {
+      method: 'POST',
+      body: {},
+    }),
   /** B13 (T3.10): the masjid profile. */
   profile: (masjidId: string, signal?: AbortSignal) =>
     call(base(masjidId), adminMasjidProfileSchema, withSignal(signal)),
@@ -217,6 +240,7 @@ export const masjidKeys = {
   ruqyah: (masjidId: string) => ['masjid', masjidId, 'ruqyah'] as const,
   contacts: (masjidId: string) => ['masjid', masjidId, 'contacts'] as const,
   payment: (masjidId: string) => ['masjid', masjidId, 'payment'] as const,
+  campaigns: (masjidId: string) => ['masjid', masjidId, 'campaigns'] as const,
   suggestion: (masjidId: string, kind: 'hadith' | 'ayah') => ['masjid', masjidId, 'suggestion', kind] as const,
   library: (masjidId: string, kind: string, q: string, tag: string, category: string) =>
     ['masjid', masjidId, 'library', kind, q, tag, category] as const,

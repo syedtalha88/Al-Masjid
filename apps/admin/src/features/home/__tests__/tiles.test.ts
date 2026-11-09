@@ -7,10 +7,11 @@ import { CURRENT_PHASE, TILES, visibleTiles } from '../tiles.tsx';
 describe('Admin Home tiles', () => {
   it('production shows only tiles of phases built so far; dev/staging shows all, in order', () => {
     const production = visibleTiles(false).map((tile) => tile.key);
-    expect(production).not.toContain('donation');
-    expect(production).not.toContain('needy');
+    expect(production).toContain('donation'); // T5.3
+    expect(production).not.toContain('needy'); // not built yet: no route
+    expect(production).not.toContain('chanda');
     expect(production).toContain('prayerTimes');
-    expect(visibleTiles(false).every((tile) => tile.phase <= CURRENT_PHASE)).toBe(true);
+    expect(visibleTiles(false).every((tile) => tile.phase <= CURRENT_PHASE && tile.route !== null)).toBe(true);
     expect(visibleTiles(true).map((tile) => tile.key)).toEqual(TILES.map((tile) => tile.key));
   });
 

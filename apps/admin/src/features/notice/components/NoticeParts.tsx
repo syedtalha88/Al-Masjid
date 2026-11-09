@@ -371,6 +371,8 @@ export interface PhotoFieldProps {
   readonly masjidId: string | undefined;
   readonly photo: NoticePhoto | null;
   readonly onPhoto: (photo: NoticePhoto | null) => void;
+  /** What the photo is for (`POST /images?purpose=`); a donation drive's cover is `campaign`. */
+  readonly purpose?: 'announcement' | 'campaign';
 }
 
 /**
@@ -378,11 +380,11 @@ export interface PhotoFieldProps {
  * upload (sanitized by the server), a thumbnail and "Remove photo". JPEG / PNG / WebP / AVIF: an iPhone converts HEIC
  * to JPEG for this picker.
  */
-export function PhotoField({ masjidId, photo, onPhoto }: PhotoFieldProps) {
+export function PhotoField({ masjidId, photo, onPhoto, purpose = 'announcement' }: PhotoFieldProps) {
   const { t } = useTranslation('admin');
   const toast = useToast();
   const errorText = useErrorText();
-  const upload = usePhotoUpload(masjidId);
+  const upload = usePhotoUpload(masjidId, purpose);
   const [rights, setRights] = useState(photo !== null);
   const input = useRef<HTMLInputElement>(null);
 
