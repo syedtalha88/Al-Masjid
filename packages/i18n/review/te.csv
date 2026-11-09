@@ -565,6 +565,38 @@ admin,push.alertsBlocked,Notifications are blocked for this app in the phone set
 admin,push.alertsUnsupported,This browser cannot show alerts.,ఈ బ్రౌజర్ హెచ్చరికలను చూపించలేదు.,no
 admin,push.alertsInstallFirst,"On iPhone, alerts work only in the installed app.",iPhoneలో హెచ్చరికలు ఇన్‌స్టాల్ చేసిన యాప్‌లో మాత్రమే వస్తాయి.,no
 admin,push.alertsFailed,Could not change alerts. Please try again.,హెచ్చరికలను మార్చలేకపోయాం. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+admin,payment.title,UPI payment details,UPI చెల్లింపు వివరాలు,no
+admin,payment.formTitle,UPI setup,UPI సెటప్,no
+admin,payment.intro,Followers pay donations straight to this UPI ID. The app never touches the money.,అనుచరులు విరాళాలను నేరుగా ఈ UPI IDకి పంపుతారు. యాప్ డబ్బును ఎప్పుడూ తాకదు.,no
+admin,payment.notSet,Not set up yet,ఇంకా సెట్ చేయలేదు,no
+admin,payment.current,Shown to followers now,ఇప్పుడు అనుచరులకు కనిపిస్తోంది,no
+admin,payment.vpa,UPI ID,UPI ID,no
+admin,payment.payee,Payee name,స్వీకర్త పేరు,no
+admin,payment.payeeHint,As your bank shows it — UPI apps show this name before paying.,మీ బ్యాంక్ చూపినట్లే — UPI యాప్‌లు చెల్లించే ముందు ఈ పేరునే చూపుతాయి.,no
+admin,payment.note,Note for the Super Admin,సూపర్ అడ్మిన్ కోసం గమనిక,no
+admin,payment.noteHint,For example: new committee account,ఉదా: కమిటీ కొత్త ఖాతా,no
+admin,payment.setUp,Set up UPI,UPI సెట్ చేయండి,no
+admin,payment.change,Change UPI,UPI మార్చండి,no
+admin,payment.scan,Scan the masjid’s UPI QR,మసీదు UPI QR స్కాన్ చేయండి,no
+admin,payment.scanHint,Point the camera at the masjid’s own UPI QR.,కెమెరాను మసీదు స్వంత UPI QR వైపు చూపండి.,no
+admin,payment.scanNotUpi,This is not a UPI payment QR.,ఇది UPI చెల్లింపు QR కాదు.,no
+admin,payment.scanFilled,UPI ID filled from the QR. Check the name.,QR నుండి UPI ID నింపబడింది. పేరును తనిఖీ చేయండి.,no
+admin,payment.scanUnavailable,The camera cannot be used here. Type the UPI ID instead.,ఇక్కడ కెమెరా ఉపయోగించలేరు. UPI ID టైప్ చేయండి.,no
+admin,payment.scanStart,Allow camera,కెమెరాకు అనుమతి ఇవ్వండి,no
+admin,payment.scanClose,Close,మూసివేయండి,no
+admin,payment.warning,"For safety, changes take 24 hours after approval. Followers will be told the payment details changed.",భద్రత కోసం మార్పులు ఆమోదం తర్వాత 24 గంటలకు అమలులోకి వస్తాయి. చెల్లింపు వివరాలు మారాయని అనుచరులకు తెలియజేస్తాం.,no
+admin,payment.submit,Send for approval,ఆమోదం కోసం పంపండి,no
+admin,payment.sent,Sent. The Super Admin will check it.,పంపాం. సూపర్ అడ్మిన్ దీన్ని తనిఖీ చేస్తారు.,no
+admin,payment.missing,Still needed: {fields},ఇంకా కావాలి: {fields},no
+admin,payment.issue.vpa,a valid UPI ID,సరైన UPI ID,no
+admin,payment.issue.payee,the payee name,స్వీకర్త పేరు,no
+admin,payment.waiting,A change is waiting. You can ask again once it is decided.,ఒక మార్పు వేచి ఉంది. దానిపై నిర్ణయం వచ్చాక మళ్ళీ అడగవచ్చు.,no
+admin,payment.status.pending,Requested — waiting for approval,అభ్యర్థించారు — ఆమోదం కోసం వేచి ఉంది,no
+admin,payment.status.approved_on_hold,Approved — goes live {time},ఆమోదించబడింది — {time} నుండి అమలు,no
+admin,payment.status.rejected,Not approved: {reason},ఆమోదించబడలేదు: {reason},no
+admin,payment.step.requested,Requested,అభ్యర్థన,no
+admin,payment.step.approved,Approved,ఆమోదం,no
+admin,payment.step.live,Live,అమలు,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -882,6 +914,13 @@ errors,CONTACT_INVALID,"Please tick that this person agreed, and check the Whats
 errors,CONTACT_NOT_FOUND,This contact was removed. Please go back to the list.,ఈ పరిచయం తీసివేయబడింది. దయచేసి జాబితాకు తిరిగి వెళ్ళండి.,no
 errors,CONTACT_LIMIT_REACHED,You can list up to 10 contacts. Remove one to add another.,మీరు గరిష్ఠంగా 10 పరిచయాలు ఉంచవచ్చు. కొత్తది చేర్చడానికి ఒకటి తీసివేయండి.,no
 errors,PUSH_ENDPOINT_IN_USE,Notifications could not be turned on on this phone. Please try again.,ఈ ఫోన్‌లో నోటిఫికేషన్‌లను ఆన్ చేయలేకపోయాం. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+errors,PAYMENT_INVALID,"Check the UPI ID and the payee name, then try again.","UPI ID మరియు స్వీకర్త పేరును తనిఖీ చేసి, మళ్ళీ ప్రయత్నించండి.",no
+errors,PAYMENT_UNCHANGED,These are already the payment details shown to everyone.,ఇవే చెల్లింపు వివరాలు ఇప్పటికే అందరికీ కనిపిస్తున్నాయి.,no
+errors,PAYMENT_REQUEST_OPEN,A change is already waiting. You can ask again once it is decided.,ఒక మార్పు ఇప్పటికే వేచి ఉంది. దానిపై నిర్ణయం వచ్చాక మళ్ళీ అడగండి.,no
+errors,PAYMENT_NOT_FOUND,This payment request no longer exists.,ఈ చెల్లింపు అభ్యర్థన ఇప్పుడు లేదు.,no
+errors,PAYMENT_NOT_PENDING,This request was already decided.,ఈ అభ్యర్థనపై ఇప్పటికే నిర్ణయం జరిగింది.,no
+errors,PAYMENT_NOT_OPEN,This request is already live or closed.,ఈ అభ్యర్థన ఇప్పటికే అమలులో ఉంది లేదా ముగిసింది.,no
+errors,ITEM_LOCKED,This notice was sent by the app and cannot be changed or deleted.,"ఈ ప్రకటనను యాప్ పంపింది, దీన్ని మార్చలేరు లేదా తొలగించలేరు.",no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no
@@ -1012,6 +1051,14 @@ push,alert.test.title,Test alert,పరీక్ష హెచ్చరిక,no
 push,alert.test.body,Alerts reach this phone.,హెచ్చరికలు ఈ ఫోన్‌కు వస్తాయి.,no
 push,alert.super_passkey_added.title,New passkey on a Super Admin account,సూపర్ అడ్మిన్ ఖాతాలో కొత్త పాస్‌కీ,no
 push,alert.super_passkey_added.body,"A passkey was just added to a Super Admin account. If this wasn't you, remove it in Account now.","ఇప్పుడే ఒక సూపర్ అడ్మిన్ ఖాతాకు పాస్‌కీ జోడించబడింది. ఇది మీరు కాకపోతే, ఇప్పుడే ఖాతాలో దాన్ని తీసివేయండి.",no
+push,alert.payment_request.title,UPI change requested,UPI మార్పు అభ్యర్థన,no
+push,alert.payment_request.body,A masjid asked to change its UPI payment details. Review it in Payment approvals.,ఒక మసీదు తన UPI చెల్లింపు వివరాలను మార్చమని అడిగింది. చెల్లింపు ఆమోదాలలో చూడండి.,no
+push,alert.payment_approved.title,UPI change approved,UPI మార్పు ఆమోదించబడింది,no
+push,alert.payment_approved.body,Your new UPI details were approved. They go live after the waiting period.,మీ కొత్త UPI వివరాలు ఆమోదించబడ్డాయి. వేచి ఉండే సమయం తర్వాత అవి అమలులోకి వస్తాయి.,no
+push,alert.payment_rejected.title,UPI change not approved,UPI మార్పు ఆమోదించబడలేదు,no
+push,alert.payment_rejected.body,Your UPI change was not approved. Open Payment to see why.,మీ UPI మార్పు ఆమోదించబడలేదు. కారణం చూడటానికి చెల్లింపు తెరవండి.,no
+push,alert.payment_active.title,New UPI details are live,కొత్త UPI వివరాలు అమలులో ఉన్నాయి,no
+push,alert.payment_active.body,Your new UPI details are now shown to everyone. Followers were told.,మీ కొత్త UPI వివరాలు ఇప్పుడు అందరికీ కనిపిస్తున్నాయి. అనుచరులకు తెలియజేశాం.,no
 settings,language,Language,భాష,no
 settings,languageSheet,Choose your language,మీ భాషను ఎంచుకోండి,no
 settings,audience,Brother / Sister,సోదరుడు / సోదరి,no
@@ -1110,6 +1157,7 @@ super,nav.settings,Settings,సెట్టింగ్స్,no
 super,nav.audit,Audit log,ఆడిట్ లాగ్,no
 super,nav.library,Content Library,కంటెంట్ లైబ్రరీ,no
 super,nav.templates,Notice templates,నోటీసు టెంప్లేట్‌లు,no
+super,nav.payments,Payment approvals,చెల్లింపు ఆమోదాలు,no
 super,status.pending,Pending,పెండింగ్,no
 super,status.active,Active,యాక్టివ్,no
 super,status.suspended,Suspended,నిలిపివేయబడింది,no
@@ -1366,6 +1414,24 @@ super,push.testAlert,Send a test alert,పరీక్ష హెచ్చరి�
 super,push.testAlertHint,Sends an alert to your own phones that have alerts on (not in production).,హెచ్చరికలు ఆన్‌లో ఉన్న మీ ఫోన్‌లకు ఒక హెచ్చరిక పంపుతుంది (ప్రొడక్షన్‌లో కాదు).,no
 super,push.testSent,Test alert sent. It should arrive within a minute.,పరీక్ష హెచ్చరిక పంపబడింది. ఒక నిమిషంలో రావాలి.,no
 super,push.testFailed,The test alert could not be sent.,పరీక్ష హెచ్చరికను పంపలేకపోయాం.,no
+super,payments.title,Payment approvals,చెల్లింపు ఆమోదాలు,no
+super,payments.empty,No UPI changes waiting,వేచి ఉన్న UPI మార్పులు లేవు,no
+super,payments.requestedBy,Requested by {name} · {when},{name} అభ్యర్థించారు · {when},no
+super,payments.now,Now,ఇప్పుడు,no
+super,payments.new,Requested,అభ్యర్థించినది,no
+super,payments.none,Not set up,సెట్ కాలేదు,no
+super,payments.note,Note from the masjid,మసీదు గమనిక,no
+super,payments.pending,Waiting for review,సమీక్ష కోసం వేచి ఉంది,no
+super,payments.onHold,On hold — goes live {time},నిలిపివేయబడింది — {time} నుండి అమలు,no
+super,payments.checkCommittee,I phoned the committee and they confirmed this change,"నేను కమిటీకి ఫోన్ చేశాను, వారు ఈ మార్పును ధృవీకరించారు",no
+super,payments.checkName,The payee name matches the masjid or committee account,స్వీకర్త పేరు మసీదు లేదా కమిటీ ఖాతాతో సరిపోతుంది,no
+super,payments.approve,Approve,ఆమోదించండి,no
+super,payments.approved,Approved — goes live {time},ఆమోదించబడింది — {time} నుండి అమలు,no
+super,payments.reject,Reject,తిరస్కరించండి,no
+super,payments.stop,Stop this change,ఈ మార్పును ఆపండి,no
+super,payments.rejectTitle,Turn down this change?,ఈ మార్పును తిరస్కరించాలా?,no
+super,payments.rejectReason,Reason (the masjid sees it),కారణం (మసీదు దీన్ని చూస్తుంది),no
+super,payments.rejected,Turned down. The masjid was told.,తిరస్కరించాం. మసీదుకు తెలియజేశాం.,no
 templates,no_water_time_range.title,No water supply,నీటి సరఫరా నిలిపివేత,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.,no
 templates,electricity_cut_time_range.title,Power cut,విద్యుత్ నిలిపివేత,no

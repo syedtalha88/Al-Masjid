@@ -7,7 +7,6 @@ import {
   CameraError,
   cameraPermission,
   closeCamera,
-  loadQrDetector,
   openCamera,
   type QrDetector,
   setTorch,
@@ -37,16 +36,11 @@ export interface ScannerOptions {
   readonly paused: boolean;
   /** Every QR text seen in a frame (the caller validates it). */
   readonly onText: (text: string) => void;
-  /** For tests. */
-  readonly detector?: () => Promise<QrDetector | null>;
+  /** The detector loader: `loadQrDetector` (`@mc/ui/scanner/fallback`, with the WebAssembly reader) or `nativeQrDetector`. */
+  readonly detector: () => Promise<QrDetector | null>;
 }
 
-export function useScanner({
-  video,
-  paused,
-  onText,
-  detector: loadDetector = loadQrDetector,
-}: ScannerOptions): Scanner {
+export function useScanner({ video, paused, onText, detector: loadDetector }: ScannerOptions): Scanner {
   const [state, setState] = useState<ScannerState>('checking');
   const [torchAvailable, setTorchAvailable] = useState(false);
   const [torchOn, setTorchOn] = useState(false);

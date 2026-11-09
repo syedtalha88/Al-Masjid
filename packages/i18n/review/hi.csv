@@ -565,6 +565,38 @@ admin,push.alertsBlocked,Notifications are blocked for this app in the phone set
 admin,push.alertsUnsupported,This browser cannot show alerts.,यह ब्राउज़र अलर्ट नहीं दिखा सकता।,no
 admin,push.alertsInstallFirst,"On iPhone, alerts work only in the installed app.",iPhone पर अलर्ट सिर्फ़ इंस्टॉल किए गए ऐप में आते हैं।,no
 admin,push.alertsFailed,Could not change alerts. Please try again.,अलर्ट नहीं बदल सके। कृपया फिर से कोशिश करें।,no
+admin,payment.title,UPI payment details,UPI भुगतान विवरण,no
+admin,payment.formTitle,UPI setup,UPI सेटअप,no
+admin,payment.intro,Followers pay donations straight to this UPI ID. The app never touches the money.,फ़ॉलोअर्स दान सीधे इसी UPI ID पर भेजते हैं। ऐप पैसे को कभी नहीं छूता।,no
+admin,payment.notSet,Not set up yet,अभी सेट नहीं है,no
+admin,payment.current,Shown to followers now,अभी फ़ॉलोअर्स को दिख रहा है,no
+admin,payment.vpa,UPI ID,UPI ID,no
+admin,payment.payee,Payee name,प्राप्तकर्ता का नाम,no
+admin,payment.payeeHint,As your bank shows it — UPI apps show this name before paying.,जैसा आपका बैंक दिखाता है — UPI ऐप भुगतान से पहले यही नाम दिखाते हैं।,no
+admin,payment.note,Note for the Super Admin,सुपर एडमिन के लिए नोट,no
+admin,payment.noteHint,For example: new committee account,जैसे: कमेटी का नया खाता,no
+admin,payment.setUp,Set up UPI,UPI सेट करें,no
+admin,payment.change,Change UPI,UPI बदलें,no
+admin,payment.scan,Scan the masjid’s UPI QR,मस्जिद का UPI QR स्कैन करें,no
+admin,payment.scanHint,Point the camera at the masjid’s own UPI QR.,कैमरा मस्जिद के अपने UPI QR पर रखें।,no
+admin,payment.scanNotUpi,This is not a UPI payment QR.,यह UPI भुगतान का QR नहीं है।,no
+admin,payment.scanFilled,UPI ID filled from the QR. Check the name.,QR से UPI ID भर दी गई। नाम जाँच लें।,no
+admin,payment.scanUnavailable,The camera cannot be used here. Type the UPI ID instead.,यहाँ कैमरा इस्तेमाल नहीं हो सकता। UPI ID टाइप करें।,no
+admin,payment.scanStart,Allow camera,कैमरा की अनुमति दें,no
+admin,payment.scanClose,Close,बंद करें,no
+admin,payment.warning,"For safety, changes take 24 hours after approval. Followers will be told the payment details changed.",सुरक्षा के लिए बदलाव मंज़ूरी के 24 घंटे बाद लागू होते हैं। फ़ॉलोअर्स को बताया जाएगा कि भुगतान विवरण बदले हैं।,no
+admin,payment.submit,Send for approval,मंज़ूरी के लिए भेजें,no
+admin,payment.sent,Sent. The Super Admin will check it.,भेज दिया। सुपर एडमिन इसे जाँचेंगे।,no
+admin,payment.missing,Still needed: {fields},अभी चाहिए: {fields},no
+admin,payment.issue.vpa,a valid UPI ID,सही UPI ID,no
+admin,payment.issue.payee,the payee name,प्राप्तकर्ता का नाम,no
+admin,payment.waiting,A change is waiting. You can ask again once it is decided.,एक बदलाव इंतज़ार में है। उसका फ़ैसला होने के बाद फिर माँग सकते हैं।,no
+admin,payment.status.pending,Requested — waiting for approval,अनुरोध भेजा — मंज़ूरी का इंतज़ार,no
+admin,payment.status.approved_on_hold,Approved — goes live {time},मंज़ूर — {time} से लागू,no
+admin,payment.status.rejected,Not approved: {reason},मंज़ूर नहीं: {reason},no
+admin,payment.step.requested,Requested,अनुरोध,no
+admin,payment.step.approved,Approved,मंज़ूर,no
+admin,payment.step.live,Live,लागू,no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no
@@ -882,6 +914,13 @@ errors,CONTACT_INVALID,"Please tick that this person agreed, and check the Whats
 errors,CONTACT_NOT_FOUND,This contact was removed. Please go back to the list.,यह संपर्क हटा दिया गया है। कृपया सूची पर वापस जाएँ।,no
 errors,CONTACT_LIMIT_REACHED,You can list up to 10 contacts. Remove one to add another.,आप अधिकतम 10 संपर्क जोड़ सकते हैं। नया जोड़ने के लिए एक हटाएँ।,no
 errors,PUSH_ENDPOINT_IN_USE,Notifications could not be turned on on this phone. Please try again.,इस फ़ोन पर सूचनाएँ चालू नहीं हो सकीं। कृपया फिर से कोशिश करें।,no
+errors,PAYMENT_INVALID,"Check the UPI ID and the payee name, then try again.","UPI ID और प्राप्तकर्ता का नाम जाँचें, फिर से कोशिश करें।",no
+errors,PAYMENT_UNCHANGED,These are already the payment details shown to everyone.,यही भुगतान विवरण पहले से सबको दिख रहे हैं।,no
+errors,PAYMENT_REQUEST_OPEN,A change is already waiting. You can ask again once it is decided.,एक बदलाव पहले से इंतज़ार में है। उसका फ़ैसला होने के बाद फिर से माँगें।,no
+errors,PAYMENT_NOT_FOUND,This payment request no longer exists.,यह भुगतान अनुरोध अब मौजूद नहीं है।,no
+errors,PAYMENT_NOT_PENDING,This request was already decided.,इस अनुरोध पर पहले ही फ़ैसला हो चुका है।,no
+errors,PAYMENT_NOT_OPEN,This request is already live or closed.,यह अनुरोध पहले से लागू है या बंद हो चुका है।,no
+errors,ITEM_LOCKED,This notice was sent by the app and cannot be changed or deleted.,"यह सूचना ऐप ने भेजी है, इसे बदला या हटाया नहीं जा सकता।",no
 follow,scan.title,Scan masjid QR,मस्जिद का QR स्कैन करें,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,अपना कैमरा मस्जिद के पोस्टर पर लगे QR कोड की ओर करें।,no
 follow,scan.torch,Flashlight,टॉर्च,no
@@ -1012,6 +1051,14 @@ push,alert.test.title,Test alert,परीक्षण अलर्ट,no
 push,alert.test.body,Alerts reach this phone.,अलर्ट इस फ़ोन पर आते हैं।,no
 push,alert.super_passkey_added.title,New passkey on a Super Admin account,सुपर एडमिन खाते पर नई पासकी,no
 push,alert.super_passkey_added.body,"A passkey was just added to a Super Admin account. If this wasn't you, remove it in Account now.","अभी एक सुपर एडमिन खाते में पासकी जोड़ी गई। अगर यह आप नहीं थे, तो अभी अकाउंट में इसे हटा दें।",no
+push,alert.payment_request.title,UPI change requested,UPI बदलाव का अनुरोध,no
+push,alert.payment_request.body,A masjid asked to change its UPI payment details. Review it in Payment approvals.,एक मस्जिद ने अपने UPI भुगतान विवरण बदलने का अनुरोध किया है। भुगतान मंज़ूरी में देखें।,no
+push,alert.payment_approved.title,UPI change approved,UPI बदलाव मंज़ूर,no
+push,alert.payment_approved.body,Your new UPI details were approved. They go live after the waiting period.,आपके नए UPI विवरण मंज़ूर हो गए। प्रतीक्षा अवधि के बाद ये लागू होंगे।,no
+push,alert.payment_rejected.title,UPI change not approved,UPI बदलाव मंज़ूर नहीं,no
+push,alert.payment_rejected.body,Your UPI change was not approved. Open Payment to see why.,आपका UPI बदलाव मंज़ूर नहीं हुआ। कारण देखने के लिए भुगतान खोलें।,no
+push,alert.payment_active.title,New UPI details are live,नए UPI विवरण लागू,no
+push,alert.payment_active.body,Your new UPI details are now shown to everyone. Followers were told.,आपके नए UPI विवरण अब सबको दिख रहे हैं। फ़ॉलोअर्स को सूचना भेज दी गई।,no
 settings,language,Language,भाषा,no
 settings,languageSheet,Choose your language,अपनी भाषा चुनें,no
 settings,audience,Brother / Sister,भाई / बहन,no
@@ -1110,6 +1157,7 @@ super,nav.settings,Settings,सेटिंग,no
 super,nav.audit,Audit log,ऑडिट लॉग,no
 super,nav.library,Content Library,सामग्री लाइब्रेरी,no
 super,nav.templates,Notice templates,सूचना टेम्पलेट,no
+super,nav.payments,Payment approvals,भुगतान मंज़ूरी,no
 super,status.pending,Pending,बाक़ी,no
 super,status.active,Active,चालू,no
 super,status.suspended,Suspended,रोकी गई,no
@@ -1366,6 +1414,24 @@ super,push.testAlert,Send a test alert,परीक्षण अलर्ट भ
 super,push.testAlertHint,Sends an alert to your own phones that have alerts on (not in production).,आपके उन फ़ोन पर अलर्ट भेजता है जिन पर अलर्ट चालू हैं (प्रोडक्शन में नहीं)।,no
 super,push.testSent,Test alert sent. It should arrive within a minute.,परीक्षण अलर्ट भेजा गया। एक मिनट में आ जाना चाहिए।,no
 super,push.testFailed,The test alert could not be sent.,परीक्षण अलर्ट नहीं भेजा जा सका।,no
+super,payments.title,Payment approvals,भुगतान मंज़ूरी,no
+super,payments.empty,No UPI changes waiting,कोई UPI बदलाव इंतज़ार में नहीं,no
+super,payments.requestedBy,Requested by {name} · {when},{name} ने अनुरोध किया · {when},no
+super,payments.now,Now,अभी,no
+super,payments.new,Requested,अनुरोधित,no
+super,payments.none,Not set up,सेट नहीं,no
+super,payments.note,Note from the masjid,मस्जिद का नोट,no
+super,payments.pending,Waiting for review,जाँच का इंतज़ार,no
+super,payments.onHold,On hold — goes live {time},रुका हुआ — {time} से लागू,no
+super,payments.checkCommittee,I phoned the committee and they confirmed this change,मैंने कमेटी को फ़ोन किया और उन्होंने यह बदलाव पक्का किया,no
+super,payments.checkName,The payee name matches the masjid or committee account,प्राप्तकर्ता का नाम मस्जिद या कमेटी के खाते से मिलता है,no
+super,payments.approve,Approve,मंज़ूर करें,no
+super,payments.approved,Approved — goes live {time},मंज़ूर — {time} से लागू,no
+super,payments.reject,Reject,नामंज़ूर करें,no
+super,payments.stop,Stop this change,यह बदलाव रोकें,no
+super,payments.rejectTitle,Turn down this change?,यह बदलाव नामंज़ूर करें?,no
+super,payments.rejectReason,Reason (the masjid sees it),कारण (मस्जिद इसे देखेगी),no
+super,payments.rejected,Turned down. The masjid was told.,नामंज़ूर किया। मस्जिद को बता दिया गया।,no
 templates,no_water_time_range.title,No water supply,पानी की आपूर्ति बंद,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} से {hours_end} तक पानी उपलब्ध नहीं रहेगा।,no
 templates,electricity_cut_time_range.title,Power cut,बिजली कटौती,no

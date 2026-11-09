@@ -654,5 +654,45 @@
     "alertsUnsupported": "This browser cannot show alerts.",
     "alertsInstallFirst": "On iPhone, alerts work only in the installed app.",
     "alertsFailed": "Could not change alerts. Please try again."
+  },
+  "payment": {
+    "title": "UPI payment details",
+    "formTitle": "UPI setup",
+    "intro": "Followers pay donations straight to this UPI ID. The app never touches the money.",
+    "notSet": "Not set up yet",
+    "current": "Shown to followers now",
+    "vpa": "UPI ID",
+    "payee": "Payee name",
+    "payeeHint": "As your bank shows it — UPI apps show this name before paying.",
+    "note": "Note for the Super Admin",
+    "noteHint": "For example: new committee account",
+    "setUp": "Set up UPI",
+    "change": "Change UPI",
+    "scan": "Scan the masjid’s UPI QR",
+    "scanHint": "Point the camera at the masjid’s own UPI QR.",
+    "scanNotUpi": "This is not a UPI payment QR.",
+    "scanFilled": "UPI ID filled from the QR. Check the name.",
+    "scanUnavailable": "The camera cannot be used here. Type the UPI ID instead.",
+    "scanStart": "Allow camera",
+    "scanClose": "Close",
+    "warning": "For safety, changes take 24 hours after approval. Followers will be told the payment details changed.",
+    "submit": "Send for approval",
+    "sent": "Sent. The Super Admin will check it.",
+    "missing": "Still needed: {fields}",
+    "issue": {
+      "vpa": "a valid UPI ID",
+      "payee": "the payee name"
+    },
+    "waiting": "A change is waiting. You can ask again once it is decided.",
+    "status": {
+      "pending": "Requested — waiting for approval",
+      "approved_on_hold": "Approved — goes live {time}",
+      "rejected": "Not approved: {reason}"
+    },
+    "step": {
+      "requested": "Requested",
+      "approved": "Approved",
+      "live": "Live"
+    }
   }
 }

@@ -10,6 +10,8 @@ import { Button, IconButton } from '@mc/ui/components';
 import { CameraIcon, FlashlightIcon, KeyboardIcon, WarningIcon } from '@mc/ui/icons';
 import { breathe, haptic, shake, snapTo, sweep, useMotionPrefs } from '@mc/ui/motion';
 import { CloseIcon, useNavigator, useScreen } from '@mc/ui/navigation';
+import { useScanner } from '@mc/ui/scanner';
+import { loadQrDetector } from '@mc/ui/scanner/fallback';
 import { useQueryClient } from '@tanstack/react-query';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 
@@ -17,7 +19,6 @@ import { useAppData } from '../../lib/data.tsx';
 import { EnterCodeSheet } from './EnterCodeSheet.tsx';
 import { FollowSheet } from './FollowSheet.tsx';
 import { lookupFailure, resolveKey } from './lookup.ts';
-import { useScanner } from './useScanner.ts';
 
 /**
  * A QR just handled — refused, not found, or its sheet cancelled — is ignored this long while it stays in view, so the
@@ -100,7 +101,12 @@ function Scanner() {
   /** The QR text behind the open preview (cancelling cools it down). */
   const lastScanned = useRef<string | null>(null);
 
-  const scanner = useScanner({ video, paused: found || codeOpen || preview !== null, onText });
+  const scanner = useScanner({
+    video,
+    paused: found || codeOpen || preview !== null,
+    onText,
+    detector: loadQrDetector,
+  });
 
   // Breathing brackets + sweeping line while scanning (off with reduced motion); snap in + green when found.
   useEffect(() => {

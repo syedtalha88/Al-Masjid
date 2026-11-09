@@ -10,6 +10,7 @@ import {
   type LIBRARY_STATUSES,
   libraryImportReportSchema,
   noContentSchema,
+  paymentApprovedSchema,
   problemSchema,
   pushPauseResponseSchema,
   starterTemplatesAddedSchema,
@@ -23,6 +24,7 @@ import {
   superMasjidDetailSchema,
   superMasjidListSchema,
   type SuperMasjidPatch,
+  superPaymentListSchema,
   type SuperSettingsPatch,
   superSettingsSchema,
   type SuperTemplateCreate,
@@ -93,6 +95,15 @@ export const superApi = {
   /** ★ The push kill switch (T4.7). */
   setPushPaused: (paused: boolean) =>
     call(`${SUPER_API}/settings/push-pause`, pushPauseResponseSchema, { method: 'POST', body: { paused } }),
+  /** C4 (T5.2): open UPI change requests, oldest first. */
+  payments: (signal?: AbortSignal) =>
+    call(`${SUPER_API}/payments/pending`, superPaymentListSchema, signal ? { signal } : {}),
+  /** ★ Approve a UPI change — live after the hold. */
+  approvePayment: (profileId: string) =>
+    call(`${SUPER_API}/payments/${id(profileId)}/approve`, paymentApprovedSchema, { method: 'POST', body: {} }),
+  /** Turn a UPI change down — while pending, or during the hold. */
+  rejectPayment: (profileId: string, reason: string) =>
+    call(`${SUPER_API}/payments/${id(profileId)}/reject`, noContentSchema, { method: 'POST', body: { reason } }),
   /** A test alert to the signed-in Super Admin's phones (404 in production — T4.6). */
   testAlert: () => call(`${SUPER_API}/alerts/test`, testAlertResponseSchema, { method: 'POST' }),
   audit: (params: AuditQuery, signal?: AbortSignal) =>

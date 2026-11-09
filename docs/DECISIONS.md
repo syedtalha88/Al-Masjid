@@ -2348,3 +2348,17 @@ DONE only on the owner's word.
 - Bundle `payment` = `v_pub_payment_profiles` (active only, public masjids only) `{vpa, payeeName, effectiveAt}`.
 **Consequences:** 18 starter templates (texts in 4 locales, drafts for review — O31); the template must be active in
 each environment (Super Admin "Add starter templates", as for `timings_updated`).
+
+### #147 — Admin UPI-QR scan: allow the WebAssembly QR reader on the admin origin? (PHASE_05 T5.2, B8) — OPEN (asked 9 Nov 2026)
+**Context:** B8 lets the admin scan the masjid's existing UPI QR (`parseUpiUri`). The QR camera code moved from the app
+to `@mc/ui/scanner` (shared). Phones without a native `BarcodeDetector` (every iPhone, desktop) need the self-hosted
+WebAssembly reader (#94), which needs CSP `script-src 'wasm-unsafe-eval'` — today only on the app origin. #94 said
+"admin unchanged until it scans UPI QRs (Phase 5)". Loosening the admin CSP is an owner decision (CLAUDE.md §4).
+**Options:**
+- **A — add `'wasm-unsafe-eval'` to the admin CSP** (compiling WebAssembly only; JS `eval` stays blocked, Trusted
+  Types unchanged — the same as the app since #94). Scan works on every phone.
+- **B — native detector only on admin (built now, no CSP change).** Android Chrome scans; on iPhone / desktop the
+  "Scan UPI QR" button is not offered and the admin types the UPI ID (the payee name is still checked by the Super
+  Admin and shown by every UPI app before paying).
+- C — no scan at all; typing only.
+**Recommendation:** B for now (nothing loosened; most masjid admins use Android); A later if iPhone admins ask.

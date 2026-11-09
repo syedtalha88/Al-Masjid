@@ -8,6 +8,7 @@ import {
   adminLibraryListSchema,
   adminMasjidProfileSchema,
   adminMasjidStatsSchema,
+  adminPaymentSchema,
   adminRuqyahListSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
@@ -24,6 +25,8 @@ import {
   librarySuggestionSchema,
   noContentSchema,
   notificationJobListSchema,
+  type PaymentRequest,
+  paymentRequestedSchema,
   pushQuotaSchema,
   type RamadanSave,
   ramadanSchema,
@@ -152,6 +155,12 @@ export const masjidApi = {
     call(`${base(masjidId)}/contacts/${encodeURIComponent(contactId)}`, contactSavedSchema, { method: 'PATCH', body }),
   deleteContact: (masjidId: string, contactId: string) =>
     call(`${base(masjidId)}/contacts/${encodeURIComponent(contactId)}`, noContentSchema, { method: 'DELETE' }),
+  /** B8 UPI setup (T5.2): the live details and the change request in progress. */
+  payment: (masjidId: string, signal?: AbortSignal) =>
+    call(`${base(masjidId)}/payment`, adminPaymentSchema, withSignal(signal)),
+  /** Ask to set or change the UPI details — live only after Super Admin approval and the hold (04 R1). */
+  requestPayment: (masjidId: string, body: PaymentRequest) =>
+    call(`${base(masjidId)}/payment/requests`, paymentRequestedSchema, { method: 'POST', body }),
   /** B13 (T3.10): the masjid profile. */
   profile: (masjidId: string, signal?: AbortSignal) =>
     call(base(masjidId), adminMasjidProfileSchema, withSignal(signal)),
@@ -207,6 +216,7 @@ export const masjidKeys = {
   adhkar: (masjidId: string) => ['masjid', masjidId, 'adhkar'] as const,
   ruqyah: (masjidId: string) => ['masjid', masjidId, 'ruqyah'] as const,
   contacts: (masjidId: string) => ['masjid', masjidId, 'contacts'] as const,
+  payment: (masjidId: string) => ['masjid', masjidId, 'payment'] as const,
   suggestion: (masjidId: string, kind: 'hadith' | 'ayah') => ['masjid', masjidId, 'suggestion', kind] as const,
   library: (masjidId: string, kind: string, q: string, tag: string, category: string) =>
     ['masjid', masjidId, 'library', kind, q, tag, category] as const,
