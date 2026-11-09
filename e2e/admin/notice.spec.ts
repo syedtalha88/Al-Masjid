@@ -2,7 +2,15 @@ import { expect, test } from '@mc/config/playwright';
 import { devices } from '@playwright/test';
 
 import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
-import { followByCode, registerDevice } from '../support/device.ts';
+import { awaitFollowsSynced, followByCode, registerDevice } from '../support/device.ts';
+import {
+  awaitNewestJob,
+  awaitPushes,
+  capturedPushes,
+  fakeSubscription,
+  notificationJobs,
+  subscribeDevice,
+} from '../support/push.ts';
 import {
   CSRF,
   HOOKS,
@@ -93,8 +101,11 @@ test.describe('B5 notice creator (T3.6)', () => {
       const musalli = await page.context().newPage();
       await musalli.clock.install();
       await musalli.goto(APP_URL);
-      await registerDevice(musalli);
+      await registerDevice(musalli, { locale: 'te' });
       await followByCode(musalli, APP_URL, [followCode]);
+      const subscription = fakeSubscription(); // notifications on for this phone (T4.9)
+      await subscribeDevice(musalli, subscription);
+      await awaitFollowsSynced(musalli); // the reach line and the job count only synced follows
       await musalli.goto(`${APP_URL}/masjid/${masjidId}/announcements`);
       await expect(musalli.locator('html')).toHaveAttribute('lang', 'te');
 
@@ -146,12 +157,23 @@ test.describe('B5 notice creator (T3.6)', () => {
       await expect(admin.locator('[data-preview-locale="te"]').getByText('నీటి సరఫరా నిలిపివేత')).toBeVisible();
       await expect(admin.getByText('Followers see the photo when they open the notice.')).toBeVisible();
       await expect(admin.getByRole('switch', { name: 'Notify followers' })).toHaveAttribute('aria-checked', 'true');
+      // The Publish bar's reach = the followers with notifications on (one here) and today's quota (#143).
+      await expect(admin.getByText('Will notify 1 person · 8 of 8 left today')).toBeVisible();
       await admin.getByRole('button', { name: 'Publish', exact: true }).click();
       await expect(admin.getByRole('heading', { name: 'Published' })).toBeVisible();
-      await expect(admin.getByText(/people will be notified\.$/)).toBeVisible();
+      await expect(admin.getByText('1 person will be notified.')).toBeVisible(); // the one follower with push on
       await admin.getByRole('button', { name: 'Done' }).click();
       await expect(admin).toHaveURL(`${ADMIN_URL}/`);
       await expect(admin.getByText('Notifications today: 1 of 8 used')).toBeVisible();
+      // T4.9: one notification for everyone, the follower with notifications on targeted and sent — in Telugu.
+      expect(await awaitNewestJob(admin.request, masjidId)).toMatchObject({
+        audience: 'everyone',
+        targeted: 1,
+        sent: 1,
+      });
+      const [pushed] = await awaitPushes(admin.request, subscription.endpoint, 1);
+      expect(JSON.parse(pushed?.payload ?? 'null')).toMatchObject({ l: 'te', b: /^నీటి సరఫరా నిలిపివేత\n/ });
+      expect(pushed?.urgency).toBe('high'); // an important notice
 
       // One version poll later the Telugu musalli sees it in Telugu.
       await musalli.clock.fastForward('01:05');
@@ -174,6 +196,9 @@ test.describe('B5 notice creator (T3.6)', () => {
       await admin.getByRole('button', { name: 'Done' }).click();
       await musalli.clock.fastForward('01:05');
       await expect(musalli.getByRole('button', { name: /^పరీక్ష శీర్షిక/ })).toBeVisible();
+      // Not notified: no second notification, nothing more sent to the phone.
+      expect(await notificationJobs(admin.request, masjidId)).toHaveLength(1);
+      expect(await capturedPushes(admin.request, subscription.endpoint)).toHaveLength(1);
     } finally {
       await phone.close();
     }

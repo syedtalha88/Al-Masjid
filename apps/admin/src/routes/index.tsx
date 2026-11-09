@@ -5,7 +5,7 @@ import { CaretDownIcon, MasjidTile, ShieldCheckIcon, UserCircleIcon } from '@mc/
 import { Pressable } from '@mc/ui/motion';
 import { Screen, useNavigator } from '@mc/ui/navigation';
 import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { SHOW_COMING_SOON } from '../app/build.ts';
 import { useSignedInAdmin } from '../features/auth/hooks/use-session.ts';
@@ -32,6 +32,12 @@ function Home() {
   const { t } = useTranslation('admin');
   const navigator = useNavigator();
   const me = useSignedInAdmin();
+  // T4.6: this phone's alert subscription is sent again after each sign-in / open (never prompts; lazy module).
+  useEffect(() => {
+    void import('../features/alerts/use-alerts.ts')
+      .then((alerts) => alerts.refreshAlertSubscription())
+      .catch(() => undefined);
+  }, [me.admin.id]);
   const { masjid, select } = useSelectedMasjid(me.masjids);
   const [switching, setSwitching] = useState(false);
   const several = me.masjids.length > 1;
@@ -113,7 +119,16 @@ function Home() {
               </li>
             ))}
           </ul>
-          {quota.data ? <QuotaPill used={quota.data.used} limit={quota.data.limit} /> : null}
+          {quota.data ? (
+            <QuotaPill
+              used={quota.data.used}
+              limit={quota.data.limit}
+              paused={quota.data.paused}
+              onPress={() => {
+                navigator.push('/notifications');
+              }}
+            />
+          ) : null}
           <div className="pb-8" />
         </>
       ) : isSuper ? null : (

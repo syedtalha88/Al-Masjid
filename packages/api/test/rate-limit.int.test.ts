@@ -1,10 +1,12 @@
 import { randomBytes } from 'node:crypto';
 
+import { Worker } from 'bullmq';
 import { Redis } from 'ioredis';
 import { afterAll, describe, expect, it } from 'vitest';
 
 import { redisChallengeStore } from '../src/auth/challenges.ts';
 import { clearRedisRateLimits, redisRateLimiter } from '../src/http/rate-limit.ts';
+import { createJobQueues } from '../src/queue/queues.ts';
 import { useTestRedis } from '../src/testing/vitest.ts';
 
 // PHASE_01 T1.6 against the Docker Redis: the Redis limiter (atomic Lua under the ACL users' rights), its in-memory
@@ -72,7 +74,11 @@ describe('Redis rate limiter', () => {
 describe('Redis ACL users (04 §12.2): each process only reaches its own key prefixes', () => {
   const suffix = `t16-${randomBytes(4).toString('hex')}`;
   const USERS = [
-    { env: 'REDIS_URL_TEST_RL_PUBLIC', own: ['rl:pub:'], foreign: ['rl:adm:', 'chal:', 'bull:', 'push:', 'alert:'] },
+    {
+      env: 'REDIS_URL_TEST_RL_PUBLIC',
+      own: ['rl:pub:'],
+      foreign: ['rl:adm:', 'chal:', 'bull:', 'push:', 'alert:', 'e2e:'],
+    },
     { env: 'REDIS_URL_TEST_ADMIN', own: ['rl:adm:', 'chal:', 'bull:'], foreign: ['rl:pub:', 'push:', 'alert:'] },
     { env: 'REDIS_URL_TEST_WORKER', own: ['bull:', 'push:', 'alert:'], foreign: ['rl:pub:', 'rl:adm:', 'chal:'] },
   ] as const;
@@ -99,6 +105,17 @@ describe('Redis ACL users (04 §12.2): each process only reaches its own key pre
       }
     });
   }
+
+  it('local only (PHASE_04 T4.9): the worker writes e2e:* (captured pushes), api-admin only reads it', async () => {
+    const worker = await connect(urlOf('REDIS_URL_TEST_WORKER'));
+    const admin = await connect(urlOf('REDIS_URL_TEST_ADMIN'));
+    const key = `e2e:${suffix}`;
+    await worker.lpush(key, 'captured');
+    expect(await admin.lrange(key, 0, -1)).toEqual(['captured']);
+    await expect(admin.lpush(key, 'x')).rejects.toThrow(/NOPERM/);
+    await expect(admin.del(key)).rejects.toThrow(/NOPERM/);
+    await worker.del(key);
+  });
 
   it('rl_public can run the limiter itself under rl:pub: (EVAL allowed for its keys)', async () => {
     const client = await connect(urlOf('REDIS_URL_TEST_RL_PUBLIC'));
@@ -152,5 +169,41 @@ describe('clearing counters (e2e test hooks only)', () => {
     expect(await clearRedisRateLimits(admin, 'rl:adm:')).toBeGreaterThanOrEqual(1);
     expect(await limiter.consume('adminLoginIp', key)).toEqual({ allowed: true });
     expect(await challenges.take('login', `keep-${suffixOf()}`)).toBe(challenge); // chal:* untouched
+  });
+});
+
+describe('BullMQ under the real ACL users (PHASE_04 T4.1, 04 R7)', () => {
+  it('api-admin enqueues under bull:, the worker processes it, api-public cannot reach the queues', async () => {
+    const prefix = `bull:acl-${randomBytes(4).toString('hex')}`; // apart from the dev worker's own `bull` queues
+    const admin = await connect(urlOf('REDIS_URL_TEST_ADMIN'));
+    const queues = createJobQueues(admin, prefix);
+    const jobId = '6f1c2a3b-4d5e-4f60-8a7b-9c0d1e2f3a4b';
+    await queues.enqueue('push-fanout', { jobId }, { jobId });
+    await queues.enqueue('push-fanout', { jobId }, { jobId }); // dedup by id
+
+    const workerClient = new Redis(urlOf('REDIS_URL_TEST_WORKER'), { maxRetriesPerRequest: null });
+    opened.push(workerClient);
+    const seen: unknown[] = [];
+    const done = new Promise<void>((resolve) => {
+      const worker = new Worker(
+        'push-fanout',
+        (job) => {
+          seen.push(job.data);
+          return Promise.resolve();
+        },
+        { connection: workerClient, prefix },
+      );
+      worker.on('completed', () => {
+        void worker.close().then(resolve);
+      });
+    });
+    await done;
+    expect(seen).toEqual([{ jobId }]);
+
+    const pub = await connect(urlOf('REDIS_URL_TEST_RL_PUBLIC'));
+    await expect(createJobQueues(pub, prefix).enqueue('push-fanout', { jobId })).rejects.toThrow(/NOPERM/);
+
+    await queues.queue('push-fanout').obliterate({ force: true });
+    await queues.close();
   });
 });

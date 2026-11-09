@@ -10,6 +10,8 @@ import { cleanupOutdatedCaches, createHandlerBoundToURL, matchPrecache, precache
 import { NavigationRoute, registerRoute, setCatchHandler } from 'workbox-routing';
 import { CacheFirst } from 'workbox-strategies';
 
+import { type AlertWorker, handleAlertClick, handleAlertPush } from './alerts.ts';
+
 declare const self: ServiceWorkerGlobalScope & { __WB_MANIFEST: (string | { url: string; revision: string | null })[] };
 
 const ASSETS_CACHE = 'mc-admin-assets-v1';
@@ -57,4 +59,21 @@ self.addEventListener('message', (event: ExtendableMessageEvent) => {
     );
     event.waitUntil(caches.open(ASSETS_CACHE).then((cache) => cache.addAll(urls)));
   }
+});
+
+// --- alert pushes (T4.6) -----------------------------------------------------------------------------------------------
+const alertWorker: AlertWorker = {
+  origin: self.location.origin,
+  showNotification: (title, options) => self.registration.showNotification(title, options),
+  windows: () => self.clients.matchAll({ type: 'window', includeUncontrolled: true }),
+  openWindow: (url) => self.clients.openWindow(url),
+};
+
+self.addEventListener('push', (event) => {
+  event.waitUntil(handleAlertPush(alertWorker, event.data));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(handleAlertClick(alertWorker, event.notification.data));
 });

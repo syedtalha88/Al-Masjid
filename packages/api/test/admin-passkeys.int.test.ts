@@ -24,6 +24,7 @@ import { hashToken, newToken } from '../src/crypto/field.ts';
 import { defineRoute } from '../src/http/define-route.ts';
 import { memoryRateLimiter } from '../src/http/rate-limit.ts';
 import { bootstrapSuperAdminInvite } from '../src/jobs/bootstrap-super-admin.ts';
+import type { AlertService } from '../src/queue/alerts.ts';
 import { adminSessionRoutes } from '../src/routes/admin-auth.ts';
 import { adminPasskeyRoutes } from '../src/routes/admin-passkeys.ts';
 import { testHookRoutes } from '../src/test-hooks/index.ts';
@@ -35,6 +36,14 @@ const CSRF = { Origin: ORIGIN, 'X-MC-CSRF': '1' };
 const pepper = randomBytes(32);
 const clock = new ManualClock(new Date('2026-10-20T06:00:00Z'));
 const authenticator = new SoftAuthenticator(ORIGIN);
+/** Alerts the routes raise (T4.6): recorded, never sent. */
+const raisedAlerts: Parameters<AlertService['raise']>[0][] = [];
+const alerts: AlertService = {
+  raise: (input) => {
+    raisedAlerts.push(input);
+    return Promise.resolve(true);
+  },
+};
 const log = captureLogger();
 
 let test: TestDatabase | undefined;
@@ -76,7 +85,7 @@ const app = () => {
     authenticate: sessionAuthenticator({ db: h(), pepper, clock }),
     routes: [
       ...adminSessionRoutes({ db: h(), pepper, adminOrigin: ORIGIN }),
-      ...adminPasskeyRoutes({ db: h(), pepper, ...passkeyDeps(ORIGIN, clock, log.logger) }),
+      ...adminPasskeyRoutes({ db: h(), pepper, ...passkeyDeps(ORIGIN, clock, log.logger), alerts }),
       probe,
     ],
   }).app;
@@ -542,10 +551,31 @@ describe('login verification (04 §3)', () => {
     expect((await me(cookie)).status).toBe(401); // the registration session is revoked too
     credential.counter = 9;
     expect((await login(credential)).res.status).toBe(401); // revoked for good
-    expect(await alerts()).toBe(alertsBefore + 1); // C1 dashboard flag (the push alert is Phase 4)
+    expect(await alerts()).toBe(alertsBefore + 1); // C1 dashboard flag
+    // and the Super Admin's push alert (T4.6), once per credential
+    expect(raisedAlerts.filter((alert) => alert.type === 'credential_counter_regression')).toEqual([
+      expect.objectContaining({ to: { kind: 'super' } }),
+    ]);
     expect(
       log.lines().some((l) => l['event'] === 'passkey.counter_regression' && typeof l['credential'] === 'string'),
     ).toBe(true);
+  });
+
+  it('"new passkey on a Super Admin account" is raised once for a Super Admin passkey — never on login or step-up', async () => {
+    const { token, adminId } = await invitedAdmin();
+    await t()
+      .db.collection<{ _id: typeof adminId; role: string }>('admin_users')
+      .updateOne({ _id: adminId }, { $set: { role: 'super_admin' } });
+    const before = raisedAlerts.filter((alert) => alert.type === 'super_passkey_added').length;
+    const { credential, cookie } = await register(token);
+    const added = () => raisedAlerts.filter((alert) => alert.type === 'super_passkey_added').length - before;
+    expect(added()).toBe(1);
+    credential.counter = 2;
+    const signedIn = await login(credential);
+    expect(signedIn.res.status).toBe(204);
+    credential.counter = 3;
+    expect((await stepUp(cookie, credential)).res.status).toBe(204);
+    expect(added()).toBe(1); // a sign-in or a step-up adds no passkey (verifier finding, DECISIONS #143)
   });
 
   it('a FORGED assertion with a low counter does not revoke anything (the rule runs only after the signature)', async () => {

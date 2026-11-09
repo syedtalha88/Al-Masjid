@@ -127,7 +127,7 @@ const print = (title: string, results: readonly PageResult[]) => {
     out(`  ${page.failures.length === 0 ? 'PASS' : 'FAIL'} ${page.url} (median of ${String(page.runs)})`);
     out(`       ${scores}\n       ${metrics}`);
     for (const failure of page.failures) out(`       ✗ ${failure}`);
-    for (const note of page.notes) out(`       ~ ${note} (DECISIONS #136)`);
+    for (const note of page.notes) out(`       ~ ${note} (DECISIONS #136, #142)`);
     // In GitHub Actions, failures also become annotations (readable without signing in — DECISIONS #49).
     if (process.env['GITHUB_ACTIONS'] === 'true' && page.failures.length > 0) {
       const property = `Lighthouse ${title} ${page.url}`.replace(/:/g, '%3A').replace(/,/g, '%2C');

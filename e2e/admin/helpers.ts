@@ -12,7 +12,11 @@ export const HOOKS = process.env['E2E_TEST_HOOKS'] === '1';
 export type Locale = 'en' | 'hi' | 'ur' | 'te';
 
 /** A UI string from the app's own locale files (`namespace`, dotted `key`) — so specs work in every language. */
-export function label(locale: Locale, namespace: 'admin' | 'super' | 'common', key: string): string {
+export function label(
+  locale: Locale,
+  namespace: 'admin' | 'super' | 'common' | 'settings' | 'onboarding',
+  key: string,
+): string {
   const json: unknown = JSON.parse(
     readFileSync(new URL(`../../packages/i18n/locales/${locale}/${namespace}.json`, import.meta.url), 'utf8'),
   );

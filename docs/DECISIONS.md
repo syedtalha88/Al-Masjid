@@ -2092,4 +2092,226 @@ acceptable with an explicit, recorded tolerance — do not trade quality or spen
 **Consequences:** `packages/config/test/lighthouse.test.ts` covers the tolerance; e2e text checks allow the isolates;
 the owner sees the cold-LCP number in the Phase 03 report.
 
+### #137 — Phase 04 starts before Phase 03's owner verification (owner, 8 Nov 2026) — ACCEPTED (owner, 8 Nov 2026)
+**Context:** CLAUDE.md §3/§5 say the next phase starts only after the owner verified the last one. Phase 03 is built
+and closed on `feat/phase-03` (report, phase-verifier and security review done — #135, #136), but its staging deploy
+waits for the rest of O25 (Cloudinary templates + strict mode) and the owner's checks O26/O27.
+**Decision (owner, 8 Nov 2026):** "phase 3 is already done, now continue with the next phase and don't stop in
+subphases; don't ask for my permission; update progress at each milestone." Phase 04 is built on `feat/phase-04`,
+branched from `feat/phase-03`. Phase 03 keeps its open items (deploy, O25, O26, O27); its status becomes AWAITING
+OWNER VERIFICATION when deployed. Phase 04 is deployed together with or after Phase 03.
+**Consequences:** the two phases ship to staging in order (03 first); owner checks for both may be done in one sitting.
+
+### #138 — Push pipeline: adapter, queues, resumable fan-out, ledger, kill switch (PHASE_04 T4.1, T4.4, T4.7) — ACCEPTED (Claude Code, 8 Nov 2026)
+**Context:** 01 §5.3 / §5.8, 04 R7 / §6; `web-push` 4.0.0 was published 6 Nov 2026 — younger than the repo's
+`minimumReleaseAge` (3 days); BullMQ 6.3.11 refuses ":" in custom job ids ("Custom Id cannot contain :", read in its
+source).
+**Decision:**
+- **Adapter** (`packages/api/src/push/sender.ts`): `web-push` **3.6.7** (pinned; 4.x after its release age and a
+  changelog review — F60) only encrypts (RFC 8291 aes128gcm) and signs VAPID (RFC 8292) via `generateRequestDetails`;
+  we POST with `fetch` — no redirects followed, 10 s deadline, the endpoint re-checked against the 04 §6 allow-list
+  before every request. One classifier: 2xx sent · 404/410 gone (prune) · 429/5xx/network retry (Retry-After read,
+  capped at 1 h) · everything else rejected (counted failed, never pruned). TTL 86 400 s announcements / 43 200 s
+  others, `Urgency: high` for important notices and inteqal requests, `Topic` = the item's public id.
+- **Queues** (`packages/api/src/queue/`): one BullMQ queue per job (`push-fanout`, `push-send-batch`, `alert-send`,
+  `outbox-sweeper`), Zod payloads checked at enqueue **and** at process time (invalid → `UnrecoverableError`, no
+  retries); 5 attempts, exponential backoff; completed jobs kept a day (id dedup), failed a week. Batch job id
+  `<jobId>.<page>.<locale>` (01 §5.8 wrote ":", which BullMQ refuses). API code imports only `queue/`, never `jobs/`.
+- **Resumable fan-out** (migration `0016_push_fanout`): `notification_jobs.fanout_page / fanout_cursor / fanout_done`
+  and index `{status, last_progress_at}`. Each page is recorded conditionally on `fanout_page`, so a retried fan-out
+  never counts batches twice; the job completes when `fanout_done` and `pending_batches ≤ 0`.
+- **Ledger** (Redis, worker ACL `~push:*`, 24 h TTL): `push:sent:<job>` = devices already sent (a retried batch only
+  sends the rest; a duplicated fan-out sends nothing), `push:done:<job>` = batches already counted. A batch's final run
+  counts `sent` = its devices in the sent-set, `failed` = unsent after the last attempt; `pruned` grows inside the
+  prune transaction by the devices actually changed (a device that re-subscribed meanwhile is kept).
+- **Payload** = 01 §5.3 plus `l` (the text's locale → notification `lang` / `dir`); `i` dropped (the service worker
+  uses the app's own icon and badge). ≤ 3 KB enforced by shortening the body. Words: title = the masjid's name in the
+  reader's script, body = the item's title line (+ "🎤 Voice message") and its text; template notices rendered with
+  `@mc/i18n/runtime-message` + `template-args` like the apps; strings in `locales/*/push.json` (plain text, outside
+  i18next) and the apps' own item labels / prayer names (`@mc/i18n/push-text`).
+- **Kill switch** (T4.7): fan-out and send-batch read `app_settings.push_paused` before work and between pages; when on,
+  the job is moved to delayed for 60 s (`DelayedError` — no attempt used) and the outbox job stays `pending` /
+  `running`; it continues by itself after resume.
+- **Sweeper** (every minute, Asia/Kolkata): pending > 2 min → `push-fanout` again (a failed BullMQ job is retried, a
+  finished one removed and re-added); running without progress for 10 min → `failed` + `alert-send` `push_job_stuck`
+  to the Super Admin. An item no longer published at fan-out → `failed` ("item no longer published"), nothing sent;
+  deleted mid-send → the remaining batches count off without sending.
+- **Producers of jobs:** the publish routes (after commit, `PushNotifier.afterCommit` — a lost hand-over is the
+  sweeper's), the worker itself, and the Super Admin's own test alert outside production (T4.6). Route-table test:
+  no queue / job / worker route; the only jobs path is the read-only notification history.
+- **Subscriptions:** `setDevicePush` (device scope, follow mirror in one transaction); an endpoint another device
+  record holds → `409 PUSH_ENDPOINT_IN_USE` and the app makes a fresh subscription (same for admin subscriptions).
+**Consequences:** api +3 unit files, +1 integration file (10 scenarios on real Redis/BullMQ/MongoDB), db +11
+integration tests; publish state functions return `notificationJobId`.
+
 _None — every decision is ACCEPTED (23 Oct 2026)._
+
+### #139 — Push e2e: the runtime-test worker captures pushes; CDP delivers them; a full-Chromium `push` project (PHASE_04 T4.8, T4.9) — ACCEPTED (Claude Code, 8 Nov 2026)
+
+**Context.** Headless browsers cannot subscribe at a real push service (Chromium: "Registration failed — permission
+denied"), and Playwright's default headless shell also denies the notification permission, so a service worker cannot
+show a notification there. An e2e that let the worker POST to fcm.googleapis.com would send traffic to Google from
+tests. T4.8 measured the worker together with the seeding (472 MB) — not the worker alone.
+
+**Decision.**
+1. The **runtime-test** worker sends through `capturePushTransport` (in `@mc/api/test-hooks`, i.e. only in
+   `dist-test/test-hooks.mjs` → only the `runtime-test` image), loaded by `loadWorkerPushTransport` under the same gate
+   as the API hooks (APP_ENV=local AND NODE_ENV=test AND the module exists). It records endpoint, plaintext payload and
+   TTL/Urgency/Topic in the Redis list `e2e:push:captured` and answers 201 — nothing leaves the machine.
+2. api-admin's test hook `GET /api/admin/test/push-captured?endpoint=` reads them. Only the **local** Redis ACL has
+   `e2e:*` (worker read/write, api-admin `%R~` read-only); the VPS ACL has no such pattern, so even a misconfigured
+   deploy could not capture. ACL integration test added.
+3. Tests register fake FCM subscriptions with real P-256 keys (the worker really encrypts) — through the API, or through
+   the app with a stubbed `PushManager`. `ServiceWorker.deliverPushMessage` (CDP) hands a captured payload to the
+   musalli SW; `registration.getNotifications()` checks what it shows.
+4. New Playwright project `push` (`*.push.spec.ts`): Pixel 7 on `channel: 'chromium'` (new headless — notifications
+   work). CI runs it in the test-hook step (`--project=push`).
+5. T4.8: the load test forks the worker into its own process (`scripts/load/push-worker.ts`) with a counting stand-in
+   transport: 50k → 409 MB peak RSS; 100k → 404 MB (bounded by batches in flight).
+
+**Consequences.** Real subscription creation and real push-service delivery are covered only by the owner's device
+checks (O38). The global kill switch in the push spec is always reset in `finally`; run hook specs with one worker.
+
+### #140 — T4.9 run: a send-batch counting race fixed (migration 0017), test defects fixed, a readable disabled Switch, musalli initial JS 188 kB (PHASE_04 T4.4, T4.9) — ACCEPTED (Claude Code under the owner's standing rule, 8 Nov 2026)
+
+**Context.** The first run of the T4.9 specs on the local stack (after the WSL hang was cleared by a real reboot — the PC
+had not restarted since 24 Oct 2026 because Fast Startup turns "Shut down" into hibernation). The worker log showed one
+send batch failing with `Document failed validation`.
+
+**Decision.**
+1. **Product bug — a fast batch could leave its job unfinishable.** The fan-out enqueues a page's batches *before* it
+   records `pending_batches += n` (so a crash in between re-enqueues instead of losing batches, #138). A batch that
+   finished first took `pending_batches` to -1, which the validator (`int ≥ 0`) refused — after the Redis ledger had
+   already marked the batch counted, so its retry skipped the count and the job could never reach 0 (it would end as
+   "stuck" after 10 min). Fixed twice: (a) `pending_batches` is a **balance** (validator `int` ±2·10⁹, migration
+   `0017_push_batch_balance`, 02 updated); completion stays "≤ 0 and `fanout_done`", and the fan-out's own final
+   `completeIfDone` covers the case where every batch counted off before the last page was recorded; (b) the
+   send-batch claims the batch, writes the counters, and **releases the claim when the write fails**
+   (`SendLedger.releaseBatch`) so the retry records it — any transient MongoDB error after the claim had the same
+   effect. Tests: db "batches may count off before the fan-out records their page"; api "a batch whose counter write
+   fails is counted by its retry" (fails without the release — checked).
+2. **Disabled `Switch` (packages/ui):** only the track dims (`disabled:opacity-40` on the control); the label and
+   description stay at full contrast. axe flagged the dimmed description of "Alerts on this phone" (WCAG 1.4.3) when
+   the browser cannot show alerts; the row says why it is off, so it must stay readable.
+3. **Test defects fixed.** (a) `push-pipeline.int`: the job completes inside the last batch's processor, a moment
+   before BullMQ moves that batch to its completed set — the test waits for BullMQ. (b) `admin-masjid.int`: the quota
+   expectation gains `paused` + `reach` (T4.5). (c) The push e2e taps "Turn on" only after
+   `navigator.serviceWorker.ready` (on a first visit the SW may still be precaching). (d) A second musalli phone made
+   with `browser.newContext()` is seeded like the fixture's own context — `seedOnboardedDevice` (exported from
+   `@mc/config/playwright`, the fixture uses it too); without it the app's first run wrote its own device document over
+   the stored credentials. Both phones' follows must be `synced` (`awaitFollowsSynced`) before publishing. (e) Kill
+   switch in the push e2e: `paused` is set before any assertion (a failed assertion had left the global pause on), a
+   leftover pause is cleared through C10 at the start (a fresh session needs the step-up — 403 through the API), the
+   step-up is optional when one was just made, and the resumed job is awaited for 90 s — a paused job looks at the
+   switch again every 60 s (`PAUSE_RECHECK_MS`, #138; T4.7 asks only that jobs continue). (f) Journey 7 expects
+   "1 person will be notified." (one follower has push on now; the app pluralises correctly). (g) The admin screens
+   spec activates its masjid (with timings) before the notification-history shot — a pending masjid's posts are not
+   public, so the worker correctly ended that notification ("item no longer published").
+4. **Musalli initial JS 187 → 188 kB** (187.65 kB, +0.65 kB): the push bridge (a tapped notification opens its screen)
+   and the soft-ask shell. The subscription code (`lib/push.ts` → `push-*.js`) and the ask sheet stay lazy — checked:
+   none of the 12 initial files contains it. Owner's standing rule: a few kB over a budget is fine when recorded.
+
+**Consequences.** Staging/production need migration 0017 (applied by the normal deploy migrate step). Hook specs that
+open a second musalli phone use `seedOnboardedDevice`; specs that publish to followers wait for
+`awaitFollowsSynced` first.
+
+### #141 — mc-server: two HIGH zlib CVEs in the distroless base that our process never loads (Trivy, 8 Nov 2026) — ACCEPTED: option A (owner, 8 Nov 2026)
+
+**Context.** CI `1ebba4b` failed the image scan: `zlib1g 1:1.3.dfsg+really1.3.1-1+b1` in
+`gcr.io/distroless/nodejs24-debian13` (CVE-2026-76844, CVE-2026-85091; fixed in Debian `+deb13u1`). The newest
+distroless digest (`b8cec4b2…`, pulled 8 Nov 2026) still ships the old package — Google has not rebuilt yet. Distroless
+has no package manager, so the image cannot be patched in place. **Evidence of exposure:** the official Node binary
+does not link the system zlib (`ldd node` in node:24.21.0-trixie-slim: no `libz`); Node uses its bundled zlib
+(`process.versions.zlib` = 1.3.2.1-motley); a running distroless Node process maps no `libz` (`/proc/self/maps`). The
+only executable in the image is `node`. (Caddy's findings were fixable and are fixed — `ee106d5`.)
+**Options.**
+- **A (recommended):** a time-boxed ignore for exactly these two CVE ids, for the `mc-server` scan only
+  (`infra/trivy/mc-server.trivyignore.yaml` with `expired_at` 7 days out + this evidence), and move to the new
+  distroless digest as soon as it carries `+deb13u1` (Renovate). Every other finding still fails CI.
+- **B:** wait for the upstream rebuild. CI stays red at the image scan; e2e, perf and Lighthouse do not run on CI until
+  then (Phase 04 cannot be verified there).
+- **C:** graft the patched `libz.so.1` + dpkg status into the distroless image in a build stage — brittle, hides the
+  package from future scans; not recommended.
+**Decision (owner, 8 Nov 2026): A.** `infra/trivy/mc-server.trivyignore.yaml` lists exactly the two CVE ids with
+`expired_at: 2026-11-15`; CI and the nightly pass it only for the server image (`mc-server:local`, deployed
+`al-masjid-server@…`). Checked with Trivy 0.75.0: the scan passes with the file and fails again with an expired date.
+Follow-up F61: new distroless digest, then delete the entries.
+
+### #142 — Phase 04 security review fixed: paused jobs never fail as stuck, revocations stop alerts, no Topic header, send-time follow check; warm Lighthouse score tolerance (PHASE_04) — ACCEPTED (Claude Code; M3 decided by the owner, 8 Nov 2026)
+
+**Context.** `security-reviewer` on `origin/main...feat/phase-04` (8 Nov 2026): 0 HIGH, 3 MEDIUM, 11 LOW. CI `64b0234`:
+image scan, e2e (254 passed, 1 flaky) and motion perf green; the musalli **warm** Lighthouse performance score 89 < 90
+(TBT 453 ms, LCP 665 ms, CLS 0.001, benchmarkIndex 2293); cold LCP 2485 ms passed.
+**Decision.**
+- **M1 — a pause or worker stop longer than 10 min no longer loses notifications.** The stuck-job detector does not run
+  while `push_paused`; a quiet running job whose fan-out or any send batch still waits in BullMQ (waiting / delayed /
+  active) only gets `last_progress_at` refreshed (`listStuckCandidates` + `touchJobProgress`, replacing
+  `failStuckJobs`); only a job with nothing left anywhere is failed + alerted. Test: a running job paused past the window
+  → no failure, no alert → completes on resume.
+- **M2 — revoking stops alerts.** `revokeAdminSessions`, `revokeAdminPasskeys` (Super Admin ★) and "sign out
+  everywhere" (`revokeSessions` without a session id) delete the admin's `admin_push_subscriptions` in the same
+  transaction. Kept on purpose: the counter-regression path (its alert must reach the real owner) and one-device logout
+  (the app removes its own subscription; no session ↔ subscription link exists — F65).
+- **M3 — no `Topic` header (owner's choice, of: keyed hash / drop / keep).** It reaches FCM / APNs unencrypted and the
+  public item id would reveal which masjid a phone follows. The service worker's `tag` still replaces an earlier
+  notification of the same item on the phone. 01 §5.3 updated.
+- **L1** push-pause route `auth: 'super_step_up'` (the state function still checks). **L5** a send batch reads only
+  devices that still follow the job's masjid unmuted, push on, targeted choice (unfollow / mute during a pause; a forged
+  batch cannot reach other devices). **L6** hook detector knows `/test/push-captured` and `e2e:push:captured`
+  (`check:image` OK). **L7** log redaction: `auth`, `push_*`, two levels deep (unit test). **L8** Trivy ignores carry the
+  zlib1g purl (verified: another package with the same ids still fails). **L9** "Clear all data" ends the browser push
+  subscription. **L10** failed send batches leave Redis after a day.
+- **Deferred with reason (follow-ups):** L2 timed-out send batch keeps running (duplicate at most one buzz, collapsed by
+  `tag` — F62); L3 `Retry-After` not honoured beyond BullMQ backoff (F63); L4 pause bites per batch, ≤ 4 × 1,000 sends
+  (F64); L11 `apk upgrade` makes the Caddy build non-reproducible — accepted while the Trivy gate and digest deploys
+  stand, removed with F24.
+- **Warm Lighthouse:** `WARM_BUDGETS.categoryTolerance.performance = 0.02` — up to two points under 90 is printed as a
+  note, not a failure (the score is weighted by the ungated service-worker TBT burst, #51 / F27; owner's standing rule
+  on small budget overruns, #116 / #136). Cold scores have no tolerance (unit-tested).
+**Consequences.** API int 345 (branches 85.3 %), db int 310 (lines 97.0 %), unit app 193 / api 181 / config 68.
+
+### #143 — phase-verifier (8 Nov 2026): Super Admin passkey alert only on a new passkey; push stats on C1; F59 / F60 timing; test gaps tracked under T4.9 (PHASE_04) — ACCEPTED (Claude Code, 8 Nov 2026)
+
+**Context.** `phase-verifier` on `feat/phase-04` @ 9e2d734: FAIL — the unit gate red (a `#142` in a test title matched
+the raw-colour check), a bug, doc gaps in 02, and missing tests for some client code.
+**Decision.**
+- **Bug fixed:** `super_passkey_added` ("New passkey on a Super Admin account") was raised on every Super Admin
+  sign-in and step-up as well as on registration; now only `/auth/register/verify` raises it (a new passkey arrives only
+  there — first registration or "add another phone"). Integration test: once on registration, never on login or
+  step-up. F38 (a) done.
+- **Unit gate:** the test title cites `DECISIONS #142` (the check skips references written that way).
+- **02 updated:** `notification_jobs.fanout_page / fanout_cursor / fanout_done` and the `status_progress` index
+  (migration 0016); `admin_push_subscriptions` — the ★ revoke functions delete any admin's subscriptions (#142).
+- **Push stats live on the C1 dashboard** (the 24 h success card next to the kill-switch banner), not on C12 Stats: the
+  owner sees them on opening the Super Admin app, and C12 is a Phase 9 screen. 03 already documents the endpoint.
+- **F59** (CI-only skip of the voice playback assertion) → Phase 9: CI `64b0234` had no voice.spec failure; keep the
+  skip until media logs exist. **F60** (web-push 4.x) → Phase 9 hardening after its changelog review; 3.6.7 has no
+  known advisory.
+- **Tests still to add before T4.9 is ticked** (the staging preview goes ahead on the owner's instruction, 8 Nov 2026):
+  push-bridge (PUSH_OPEN → navigate / Updates, versions refreshed on any push); admin `use-alerts` (enable, disable,
+  409 re-subscribe, sign-out); A15 blocked / install-first states; onboarding page 7 with 4-locale screenshots; C1 paused
+  banner (assertion + screenshot); Publish bar "Will notify N" = DB reach; the outbox-sweeper scheduler in
+  `Asia/Kolkata`; brothers-only audience and dead-status recipients in `push-pipeline.int`.
+
+### #144 — Phase 04 security re-review (9 Nov 2026): recovery and counter regression stop alert phones; stuck check covers the page in flight; no `topic` option (PHASE_04) — ACCEPTED (Claude Code, 9 Nov 2026)
+
+**Context.** `security-reviewer` on `64b0234..4392293` (the #142 / #143 fixes and the commits after them): 0 HIGH,
+1 MEDIUM, 6 LOW. M1, M3, L1, L5–L10 and the #143 fix verified; M2 partly. CI on `bd4845b` was red in the visual
+baselines only (the new Settings row — fixed in `1eae71c`); e2e journey 7's new reach assertion found the Publish bar
+showing Home's cached reach (fixed in `4392293`).
+**Decision.**
+- **M-R1 fixed — redeeming a `recovery` invite deletes the admin's alert subscriptions** in the registration
+  transaction, next to revoking every session: recovery means the old phone is lost (04 R3 makes revoking its passkeys
+  optional, so the subscription was the one thing left reaching it). `add_device` keeps them. db int test.
+- **L-R2 fixed for masjid admins — a passkey counter regression deletes a masjid admin's subscriptions** (the clone's
+  phone may hold one). A Super Admin keeps theirs: the regression alert goes to the Super Admins and the affected one
+  may be the only one. Session expiry still leaves subscriptions — **F65 moves before Phase 5's first alert to masjid
+  admins** (today they receive only test alerts).
+- **L-R1 fixed — the stuck-job detector also checks the page being fanned out** (`page <= fanout_page`: the fan-out
+  enqueues a page's batches before it records the page). **L-R6:** the lookups run in parallel. Integration test: a
+  waiting batch of page `fanout_page` keeps the job running.
+- **L-R3 fixed — `PushOptions.topic` removed**; a unit test checks no `Topic` header in any case.
+- **L-R4 fixed — "Clear all data" ends the push subscription first**, so a failing wipe cannot leave notifications
+  coming; the default (no service worker) is tested.
+- **L-R5 fixed — `*.*.push_endpoint | push_p256dh | push_auth`** redacted too (unit test).
+**Consequences.** 02 `admin_push_subscriptions` lists the recovery / regression deletes; F65 re-planned.

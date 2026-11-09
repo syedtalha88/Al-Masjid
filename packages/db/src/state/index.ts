@@ -1,6 +1,15 @@
 // `@mc/db/state` — the only way to perform sensitive changes (02 §3); each runs in one transaction with its audit entry.
 export { type AdhkarInput, setAdhkar } from './adhkar.ts';
 export {
+  type AdminPushSubscription,
+  type AlertTarget,
+  getAlertTargets,
+  MAX_ADMIN_PUSH_SUBSCRIPTIONS,
+  recordAlertDelivery,
+  removeAdminPushSubscription,
+  saveAdminPushSubscription,
+} from './admin-push.ts';
+export {
   addAdminToMasjid,
   consumeInvite,
   createAdmin,
@@ -45,6 +54,7 @@ export {
   type DeviceCredential,
   type DeviceLocale,
   type DevicePlatform,
+  type DevicePushSubscription,
   type DeviceRecordView,
   findDeviceCredential,
   type FollowView,
@@ -53,6 +63,7 @@ export {
   recordAmeen,
   registerDevice,
   setDevicePrefs,
+  setDevicePush,
   setFollowMuted,
   touchDevice,
 } from './devices.ts';
@@ -89,6 +100,28 @@ export {
   publishTimingUpdate,
 } from './publish.ts';
 export {
+  beginFanout,
+  completeIfDone,
+  failJob,
+  type FanoutJob,
+  fanoutPage,
+  type FanoutRecipient,
+  getFanoutJob,
+  getPushContent,
+  getPushSubscriptions,
+  isPushPaused,
+  listStalledPendingJobs,
+  listStuckCandidates,
+  markSubscriptionsDead,
+  type PushContent,
+  type PushLocale,
+  type PushSubscriptionRow,
+  recordBatchResult,
+  recordFanoutPage,
+  type StuckCandidate,
+  touchJobProgress,
+} from './push.ts';
+export {
   addRuqyahEntry,
   deleteRuqyahEntry,
   orderRuqyahEntries,
@@ -111,6 +144,7 @@ export {
   recordAuditExport,
   revokeAdminPasskeys,
   revokeAdminSessions,
+  setPushPaused,
   type SettingsPatch,
   updateMasjid,
   updateSettings,

@@ -16,6 +16,7 @@ import {
   noContentSchema,
   requestOptionsSchema,
 } from '@mc/shared/contracts';
+import type { PushSubscriptionInput } from '@mc/shared/contracts/push';
 import { type HttpMethod, requestJson, type RequestJsonOptions } from '@mc/shared/http';
 
 export const ADMIN_API = '/api/admin';
@@ -52,6 +53,11 @@ export const authApi = {
     call(`${ADMIN_API}/auth/invite/${encodeURIComponent(token)}`, inviteInfoSchema, signal ? { signal } : {}),
   acceptUndertaking: (version: string): Promise<undefined> =>
     call(`${ADMIN_API}/auth/undertaking`, noContent, { method: 'POST', body: { version } }),
+  /** Alerts on this phone (T4.6): the browser subscription; 409 PUSH_ENDPOINT_IN_USE → subscribe afresh. */
+  savePush: (body: PushSubscriptionInput): Promise<undefined> =>
+    call(`${ADMIN_API}/auth/push`, noContent, { method: 'PUT', body }),
+  removePush: (endpoint: string): Promise<undefined> =>
+    call(`${ADMIN_API}/auth/push`, noContent, { method: 'DELETE', body: { endpoint } }),
   logout: (): Promise<undefined> => call(`${ADMIN_API}/auth/logout`, noContent, { method: 'POST' }),
   logoutAll: (): Promise<undefined> => call(`${ADMIN_API}/auth/sessions`, noContent, { method: 'DELETE' }),
   sessions: (signal?: AbortSignal): Promise<AdminSessionList> =>

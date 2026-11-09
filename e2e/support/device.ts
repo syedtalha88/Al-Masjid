@@ -1,3 +1,4 @@
+import { expect } from '@mc/config/playwright';
 import type { Page } from '@playwright/test';
 
 /** The device document the musalli app keeps in IndexedDB (`mc-device` / `kv` / `device`). */
@@ -23,6 +24,19 @@ export async function followedIds(page: Page): Promise<string[]> {
   return follows
     .filter((follow: { sync?: string }) => follow.sync !== 'unfollow')
     .map((follow: { masjidId: string }) => follow.masjidId);
+}
+
+/** Waits until every follow on this device reached the server (`sync: 'synced'`) — before publishing to followers. */
+export async function awaitFollowsSynced(page: Page): Promise<void> {
+  await expect
+    .poll(
+      async () => {
+        const follows = (await storedDevice(page))?.['follows'];
+        return Array.isArray(follows) && follows.every((follow: { sync?: string }) => follow.sync === 'synced');
+      },
+      { timeout: 30_000 },
+    )
+    .toBe(true);
 }
 
 /**
@@ -88,41 +102,48 @@ export async function followByCode(page: Page, appUrl: string, codes: readonly s
 /**
  * Registers this device through the app's own origin (Cloudflare's test Turnstile key locally — DECISIONS #93) and
  * stores the credentials in the device document, so follow changes reach the server. Call before `followByCode`.
+ * `locale` / `audiencePref` are the server record's (the language of its notifications; default en, brothers).
  */
-export async function registerDevice(page: Page): Promise<string> {
-  return page.evaluate(async () => {
-    const response = await fetch('/api/v1/devices', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        locale: 'en',
-        audiencePref: 'brothers',
-        platform: 'android',
-        privacyVersion: 'draft-1',
-        turnstileToken: 'XXXX.DUMMY.TOKEN.XXXX',
-      }),
-    });
-    const credentials = (await response.json()) as { deviceId: string; secret: string };
-    await new Promise<void>((resolve, reject) => {
-      const open = indexedDB.open('mc-device');
-      open.onsuccess = () => {
-        const store = open.result.transaction('kv', 'readwrite').objectStore('kv');
-        const get = store.get('device');
-        get.onsuccess = () => {
-          const device = get.result as Record<string, unknown>;
-          const put = store.put(
-            { ...device, credentials, privacyVersion: 'draft-1', registrationPending: false },
-            'device',
-          );
-          put.onsuccess = () => {
-            resolve();
-          };
-          put.onerror = () => {
-            reject(new Error('could not store credentials'));
+export async function registerDevice(
+  page: Page,
+  { locale = 'en', audiencePref = 'brothers' }: { locale?: string; audiencePref?: 'brothers' | 'sisters' } = {},
+): Promise<string> {
+  return page.evaluate(
+    async ({ locale, audiencePref }) => {
+      const response = await fetch('/api/v1/devices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          locale,
+          audiencePref,
+          platform: 'android',
+          privacyVersion: 'draft-1',
+          turnstileToken: 'XXXX.DUMMY.TOKEN.XXXX',
+        }),
+      });
+      const credentials = (await response.json()) as { deviceId: string; secret: string };
+      await new Promise<void>((resolve, reject) => {
+        const open = indexedDB.open('mc-device');
+        open.onsuccess = () => {
+          const store = open.result.transaction('kv', 'readwrite').objectStore('kv');
+          const get = store.get('device');
+          get.onsuccess = () => {
+            const device = get.result as Record<string, unknown>;
+            const put = store.put(
+              { ...device, credentials, privacyVersion: 'draft-1', registrationPending: false },
+              'device',
+            );
+            put.onsuccess = () => {
+              resolve();
+            };
+            put.onerror = () => {
+              reject(new Error('could not store credentials'));
+            };
           };
         };
-      };
-    });
-    return credentials.deviceId;
-  });
+      });
+      return credentials.deviceId;
+    },
+    { locale, audiencePref },
+  );
 }

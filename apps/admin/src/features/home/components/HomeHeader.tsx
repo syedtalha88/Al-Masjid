@@ -2,6 +2,7 @@ import { Time, useLocale, useTranslation } from '@mc/i18n/react';
 import type { AdminSchedule } from '@mc/shared/contracts';
 import { Button, Card, Skeleton } from '@mc/ui/components';
 import { ClockIcon } from '@mc/ui/icons';
+import { Pressable } from '@mc/ui/motion';
 import { useMemo } from 'react';
 
 import { todayStrip } from '../lib/today.ts';
@@ -61,12 +62,29 @@ export function TodayStrip({
 }
 
 /** "Notifications today: 2 of 8 used" (07 B3 bottom). */
-export function QuotaPill({ used, limit }: { readonly used: number; readonly limit: number }) {
+/**
+ * "Notifications today: 2 of 8 used" (07 B3) — opens the notification history (T4.5); while the Super Admin paused
+ * notifications it says so instead (T4.7).
+ */
+export function QuotaPill({
+  used,
+  limit,
+  paused,
+  onPress,
+}: {
+  readonly used: number;
+  readonly limit: number;
+  readonly paused: boolean;
+  readonly onPress: () => void;
+}) {
   const { t } = useTranslation('admin');
   const { format } = useLocale();
   return (
-    <p className="mx-auto w-fit rounded-full bg-surface-muted px-4 py-2 text-center type-footnote text-text-secondary">
-      {t('home.quota', { used: format.number(used), limit: format.number(limit) })}
-    </p>
+    <Pressable
+      onPress={onPress}
+      className="mx-auto flex min-h-14 w-fit items-center rounded-full bg-surface-muted px-5 text-center type-footnote text-text-secondary"
+    >
+      {paused ? t('push.paused') : t('home.quota', { used: format.number(used), limit: format.number(limit) })}
+    </Pressable>
   );
 }

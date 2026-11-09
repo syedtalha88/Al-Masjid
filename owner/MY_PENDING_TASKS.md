@@ -2,7 +2,7 @@
 
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
-> Last updated: 3 Nov 2026.
+> Last updated: 8 Nov 2026.
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
 > Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.
@@ -61,6 +61,13 @@
 |---|---|---|---|
 | O26 | **Usability check (T3.12)** — sit with a real masjid person (imam / mutawalli) and let them do the 5 tasks without help. The script is ready: `owner/PHASE_TESTING_GUIDE.md` → Phase 03 → "The 5-task usability script" (each task 3–6 taps, no typing). Tell Claude Code where they hesitated | 30 min | end of Phase 03, on staging |
 | O27 | **Phase 03 checks on staging** — `owner/PHASE_TESTING_GUIDE.md` → Phase 03, on your phones | 45 min | when Claude Code says "Phase 03 is ready" |
+
+### Phase 04 — notifications
+
+| # | What | Time | When |
+|---|---|---|---|
+| O37 | **Notification keys on staging** — on the server, compare `VAPID_PUBLIC_KEY` in `/etc/masjid-connect/staging/worker.env` with the GitHub `staging` environment variable `VITE_PUBLIC_VAPID_PUBLIC_KEY` (they must be the same text — both are public keys, fine to compare on screen). Then **back up the VAPID private key** (`VAPID_PRIVATE_KEY` in the same file) into your password manager — never into chat. If it is ever lost, every phone must turn notifications on again | 10 min | before the Phase 04 staging deploy |
+| O38 | **Real-phone notification checks** — on the Poco F7 (any browser mode) and on the iPhone (only in the installed Home Screen app): Settings → Notifications → Turn on; publish a notice from the admin app; the notification arrives in the phone's language and opens the notice. Also the admin "Alerts on this phone" switch (Masjid Profile → My account) and the Super Admin's test alert. Steps will be in `owner/PHASE_TESTING_GUIDE.md` → Phase 04 | 20 min | when Claude Code says "Phase 04 is ready" |
 
 ### Later phases (Claude Code reminds you)
 

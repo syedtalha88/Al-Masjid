@@ -21,6 +21,8 @@ import s0012 from './0012_masjid_adhkar.snapshot.json' with { type: 'json' };
 import s0013 from './0013_ruqyah.snapshot.json' with { type: 'json' };
 import s0014 from './0014_contacts.snapshot.json' with { type: 'json' };
 import s0015 from './0015_ruqyah_view.snapshot.json' with { type: 'json' };
+import s0016 from './0016_push_fanout.snapshot.json' with { type: 'json' };
+import s0017 from './0017_push_batch_balance.snapshot.json' with { type: 'json' };
 
 /** A schema migration from its snapshot file (canonical EJSON → exact BSON types). */
 function schema(id: string, file: unknown): Migration {
@@ -77,4 +79,6 @@ export const MIGRATIONS: readonly Migration[] = [
   schema('0013_ruqyah', s0013),
   schema('0014_contacts', s0014),
   schema('0015_ruqyah_view', s0015),
+  schema('0016_push_fanout', s0016),
+  schema('0017_push_batch_balance', s0017),
 ];

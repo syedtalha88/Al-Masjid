@@ -12,12 +12,13 @@ ARG CADDY_BUILDER_IMAGE=caddy:2.11.7-builder-alpine@sha256:d718a1d1431403c4a4669
 # Caddy 2.11.7 compiled from source (DECISIONS #49): the official 2.11.7 binary is built with Go 1.26.8 and
 # golang.org/x/net 0.59.0, which carry HIGH HTTP/2 + Range-header DoS CVEs (Trivy, 14 Oct 2026). The builder
 # image ships Go 1.27.3 (re-pinned 22 Oct 2026: Go 1.27.2 has CVE-2026-111943, crypto/x509); x/net is raised to the
-# fixed 0.60.0, and go-jose to 4.1.6 (CVE-2026-116587, JWK RSA parsing DoS — Trivy, 28 Oct 2026). Back to the official
-# binary once a Caddy release includes the fixes (PROGRESS F24).
+# fixed 0.62.0 (0.60.0 for the HTTP/2 CVEs; 0.62.0 for CVE-2026-78661, x/net/html DoS — Trivy, 8 Nov 2026), and go-jose
+# to 4.1.6 (CVE-2026-116587, JWK RSA parsing DoS — Trivy, 28 Oct 2026). Back to the official binary once a Caddy release
+# includes the fixes (PROGRESS F24).
 FROM ${CADDY_BUILDER_IMAGE} AS caddy-build
 RUN xcaddy build v2.11.7 \
       --output /usr/bin/caddy \
-      --replace golang.org/x/net=golang.org/x/net@v0.60.0 \
+      --replace golang.org/x/net=golang.org/x/net@v0.62.0 \
       --replace github.com/go-jose/go-jose/v4=github.com/go-jose/go-jose/v4@v4.1.6
 
 FROM ${CADDY_IMAGE} AS base
@@ -27,9 +28,11 @@ COPY --from=caddy-build /usr/bin/caddy /usr/bin/caddy
 # permitted"), and we listen on high ports anyway — so strip it. libcap is a build-time tool removed in the same
 # layer, so its version isn't pinned (Alpine drops old package versions); the base image is pinned by digest.
 # curl (+ libcurl, brotli, nghttp2, c-ares, …) is removed: nothing here uses it — healthchecks use busybox wget —
-# and it was the only path for CVE-2026-111497 (brotli-libs, Trivy 24 Oct 2026).
-# hadolint ignore=DL3018
-RUN apk add --no-cache --virtual .setcap libcap && \
+# and it was the only path for CVE-2026-111497 (brotli-libs, Trivy 24 Oct 2026). `apk upgrade` takes Alpine's security
+# fixes the pinned base image predates (musl CVE-2026-107891, zlib CVE-2026-85091 — Trivy, 8 Nov 2026).
+# hadolint ignore=DL3017,DL3018
+RUN apk upgrade --no-cache && \
+    apk add --no-cache --virtual .setcap libcap && \
     setcap -r /usr/bin/caddy && \
     apk del .setcap curl && \
     addgroup -S -g 1000 caddy && adduser -S -u 1000 -G caddy -H -s /sbin/nologin caddy

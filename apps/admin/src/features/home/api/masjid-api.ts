@@ -23,6 +23,7 @@ import {
   itemPublishedSchema,
   librarySuggestionSchema,
   noContentSchema,
+  notificationJobListSchema,
   pushQuotaSchema,
   type RamadanSave,
   ramadanSchema,
@@ -45,6 +46,13 @@ export const masjidApi = {
     call(`${base(masjidId)}/stats`, adminMasjidStatsSchema, withSignal(signal)),
   quota: (masjidId: string, signal?: AbortSignal) =>
     call(`${base(masjidId)}/notifications/quota`, pushQuotaSchema, withSignal(signal)),
+  /** The masjid's notifications, newest first (T4.5). */
+  notificationJobs: (masjidId: string, cursor: string | undefined, signal?: AbortSignal) =>
+    call(
+      `${base(masjidId)}/notifications/jobs${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`,
+      notificationJobListSchema,
+      withSignal(signal),
+    ),
   schedule: (masjidId: string, signal?: AbortSignal) =>
     call(`${base(masjidId)}/timings`, adminScheduleSchema, withSignal(signal)),
   /** `PUT /timings` at the edited revision (412 `PRECONDITION_FAILED` when someone saved in between). */
@@ -189,6 +197,7 @@ export const masjidKeys = {
   all: (masjidId: string) => ['masjid', masjidId] as const,
   stats: (masjidId: string) => ['masjid', masjidId, 'stats'] as const,
   quota: (masjidId: string) => ['masjid', masjidId, 'quota'] as const,
+  notifications: (masjidId: string) => ['masjid', masjidId, 'notifications'] as const,
   schedule: (masjidId: string) => ['masjid', masjidId, 'schedule'] as const,
   special: (masjidId: string) => ['masjid', masjidId, 'special'] as const,
   ramadan: (masjidId: string) => ['masjid', masjidId, 'ramadan'] as const,

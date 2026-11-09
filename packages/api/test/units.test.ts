@@ -147,6 +147,27 @@ describe('logger', () => {
     });
   });
 
+  it('redacts push subscriptions at any depth the worker passes them (security review L7, #142)', () => {
+    const chunks: string[] = [];
+    const logger = createLogger({
+      process: 'worker',
+      level: 'info',
+      release: 'abc123',
+      destination: { write: (chunk: string) => chunks.push(chunk) },
+    });
+    logger.info(
+      {
+        target: { endpoint: 'EP-1', p256dh: 'PK-1', auth: 'AU-1' },
+        err: { cause: { endpoint: 'EP-2', auth: 'AU-2' } },
+        device: { push_endpoint: 'EP-3', push_p256dh: 'PK-3', push_auth: 'AU-3' },
+        auth: 'AU-4',
+        err2: { doc: { push_endpoint: 'EP-5', push_p256dh: 'PK-5', push_auth: 'AU-5' } }, // two levels (L-R5)
+      },
+      'push',
+    );
+    expect(chunks.join('')).not.toMatch(/EP-\d|PK-\d|AU-\d/);
+  });
+
   it('redacts passkey material, emails, UPI ids and peppers (CLAUDE.md §6 never-log list)', () => {
     const chunks: string[] = [];
     const logger = createLogger({

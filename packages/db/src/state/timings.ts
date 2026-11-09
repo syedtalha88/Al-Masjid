@@ -13,6 +13,7 @@ import { numberOf, oneOf } from '../repos/read.ts';
 import { ASR_MADHAB, CALC_METHOD, PRAYER } from '../schema/enums.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
+import { idText } from '../values.ts';
 import { publishTimingUpdate } from './publish.ts';
 
 export const PRAYER_KEYS = PRAYER;
@@ -79,7 +80,7 @@ export async function saveTimings(
     readonly requestId?: string;
     readonly now?: Date;
   },
-): Promise<{ rev: number; item: { publicId: string } | null }> {
+): Promise<{ rev: number; item: { publicId: string } | null; notificationJobId: string | null }> {
   requireOwnMasjid(scope, input.masjidId);
   if (scope.kind !== 'admin') throw new StateError('FORBIDDEN');
   const adminId = scope.adminId;
@@ -150,6 +151,10 @@ export async function saveTimings(
       meta: { rev, notify: input.notify },
       ...(input.requestId ? { requestId: input.requestId } : {}),
     });
-    return { rev, item };
+    return {
+      rev,
+      item: item ? { publicId: item.publicId } : null,
+      notificationJobId: item ? idText(item.jobId) : null,
+    };
   });
 }

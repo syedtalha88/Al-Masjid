@@ -18,21 +18,24 @@ const PROCESS_OF: Readonly<Record<DbUser, DbProcess>> = {
 /**
  * Creates a temporary login with `user`'s privileges on the test database and a handle that uses it.
  *
- * @returns the handle and `dispose` (closes it and drops the login).
+ * @returns the handle, its connection string (`uri`, for a child process — the T4.8 load test's worker) and `dispose`
+ *   (closes the handle and drops the login).
  */
 export async function processUserHandle(
   test: TestDatabase,
   user: DbUser,
-): Promise<{ handle: DbHandle; dispose(): Promise<void> }> {
+): Promise<{ handle: DbHandle; uri: string; dispose(): Promise<void> }> {
   const login = `${user}_t${randomBytes(3).toString('hex')}`;
   const password = randomBytes(24).toString('base64url');
   await applyLocalRoles(test.client, test.name, [{ user, login, password }]);
   const url = new URL(testMongoUri());
   url.username = login;
   url.password = password;
-  const handle = createDbHandle({ uri: url.toString(), database: test.name, process: PROCESS_OF[user], local: true });
+  const uri = url.toString();
+  const handle = createDbHandle({ uri, database: test.name, process: PROCESS_OF[user], local: true });
   return {
     handle,
+    uri,
     async dispose() {
       await handle.close();
       await dropLocalRoles(test.client, test.name, [login]);

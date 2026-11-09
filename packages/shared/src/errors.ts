@@ -74,6 +74,7 @@ export const API_ERRORS = {
   CONTACT_INVALID: 400, // no consent, or a number not in E.164 (T3.16)
   CONTACT_NOT_FOUND: 404, // unknown or deleted Ilm contact (T3.16)
   CONTACT_LIMIT_REACHED: 409, // 10 active contacts (00 §4.12, T3.16)
+  PUSH_ENDPOINT_IN_USE: 409, // this browser's subscription belongs to another app id; the app re-subscribes (T4.2)
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

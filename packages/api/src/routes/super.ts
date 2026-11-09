@@ -7,6 +7,7 @@ import {
   type AdminOfMasjid,
   getDashboard,
   getMasjidDetail,
+  getPushStats,
   getSettings,
   listAudit,
   listChangeRequests,
@@ -23,6 +24,7 @@ import {
   removeAdminFromMasjid,
   revokeAdminPasskeys,
   revokeAdminSessions,
+  setPushPaused,
   updateMasjid,
   updateSettings,
 } from '@mc/db/state';
@@ -39,6 +41,8 @@ import {
   invitePurposeSchema,
   MASJID_STATUSES,
   nameI18nSchema,
+  pushPauseRequestSchema,
+  pushPauseResponseSchema,
   reasonSchema,
   superAdminCreatedSchema,
   superAdminCreateSchema,
@@ -52,12 +56,14 @@ import {
   superQuotaSchema,
   superSettingsPatchSchema,
   superSettingsSchema,
+  testAlertResponseSchema,
 } from '@mc/shared/contracts';
 import { z } from 'zod';
 
 import { decryptField, encryptField, type FieldKeyRing, hashToken, newToken } from '../crypto/field.ts';
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
 import { ApiProblem } from '../http/problem.ts';
+import type { AlertService } from '../queue/alerts.ts';
 
 export interface SuperRouteDeps {
   readonly db: DbHandle;
@@ -67,11 +73,16 @@ export interface SuperRouteDeps {
   readonly adminOrigin: string;
   /** Field encryption keys (admin phone numbers). */
   readonly keyRing: FieldKeyRing;
+  /** Alert pushes (T4.6). */
+  readonly alerts?: AlertService | undefined;
+  /** `POST /alerts/test` answers only outside production (the dev-only trigger, T4.6). */
+  readonly testAlerts?: boolean | undefined;
 }
 
 const PHONE_CONTEXT = 'admin_users.phone_enc';
 const Id = z.string().max(64);
 const Empty = z.object({});
+const DAY_MS = 24 * 60 * 60 * 1000;
 const NameI18n = nameI18nSchema;
 const Reason = reasonSchema;
 const AuditQuery = auditQuerySchema;
@@ -156,10 +167,12 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       handler: async ({ auth, clock, reply }) => {
         const dashboard = await getDashboard(db, auth.scope, { now: clock.now() });
         const changeRequests = await listChangeRequests(db, auth.scope, { now: clock.now() });
+        const push = await getPushStats(db, auth.scope, new Date(clock.now().getTime() - DAY_MS));
         return reply(200, {
           pending: dashboard.pending.map(rowOut),
           counts: { ...dashboard.counts },
           passkeyAlerts: dashboard.passkeyAlerts,
+          push,
           changeRequests,
         });
       },
@@ -499,6 +512,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
           undertakingVersion: String(s['undertaking_version']),
           privacyVersion: String(s['privacy_version']),
           termsVersion: String(s['terms_version']),
+          pushPaused: s['push_paused'] === true,
           updatedAt: (s['updated_at'] as Date).toISOString(), // validator-enforced date
         });
       },
@@ -521,6 +535,39 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
           requestId,
         });
         return reply(200, { changed: [...changed] });
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/settings/push-pause',
+      summary: '★ Pause or resume every notification (kill switch, C10 — jobs wait and continue on resume)',
+      tags: ['super'],
+      auth: 'super_step_up', // ★ at the route too (04 §5); setPushPaused checks it again
+      rateLimit: writes,
+      request: { body: pushPauseRequestSchema },
+      responses: { 200: pushPauseResponseSchema },
+      handler: async ({ auth, body, clock, requestId, reply }) => {
+        const changed = await setPushPaused(db, auth.scope, { paused: body.paused, now: clock.now(), requestId });
+        return reply(200, { paused: body.paused, changed });
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/alerts/test',
+      summary: 'A test alert to your own subscribed phones (staging and local only — T4.6)',
+      tags: ['super'],
+      auth: 'super',
+      rateLimit: writes,
+      responses: { 200: testAlertResponseSchema },
+      handler: async ({ auth, clock, reply }) => {
+        if (!deps.testAlerts || auth.scope.kind !== 'super') throw new ApiProblem(404, 'NOT_FOUND');
+        const queued =
+          (await deps.alerts?.raise({
+            type: 'test',
+            to: { kind: 'admins', adminIds: [idText(auth.scope.adminId)] },
+            key: `${idText(auth.scope.adminId)}.${String(clock.now().getTime())}`,
+          })) ?? false;
+        return reply(200, { queued });
       },
     }),
     defineRoute({

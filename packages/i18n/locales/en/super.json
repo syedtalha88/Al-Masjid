@@ -291,5 +291,26 @@
     "retireBody": "Admins can no longer pick it. Notices already published with it stay readable.",
     "retired": "Template retired.",
     "reviewFirst": "Review all four translations before activating."
+  },
+  "push": {
+    "title": "Notifications (all masjids)",
+    "pause": "Pause all notifications",
+    "pauseHint": "Stops every notification at once. Posts still publish; notifications wait and go out when you resume.",
+    "pausedBanner": "All notifications are paused. Posts still publish; notifications wait until you resume.",
+    "resume": "Resume notifications",
+    "confirmTitle": "Pause all notifications?",
+    "confirmBody": "No masjid's followers will be notified until you resume. Nothing is lost.",
+    "confirm": "Pause",
+    "pausedToast": "Notifications paused",
+    "resumedToast": "Notifications resumed",
+    "stats": "Notifications in the last 24 hours",
+    "statsLine": "{sent, number} sent · {failed, number} failed · {pruned, number} phones removed",
+    "jobs": "{jobs, plural, one {# notification} other {# notifications}} · {running, number} sending · {failedJobs, number} stopped",
+    "rate": "Delivered: {rate, number, percent}",
+    "rateNone": "Nothing sent yet",
+    "testAlert": "Send a test alert",
+    "testAlertHint": "Sends an alert to your own phones that have alerts on (not in production).",
+    "testSent": "Test alert sent. It should arrive within a minute.",
+    "testFailed": "The test alert could not be sent."
   }
 }

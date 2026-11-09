@@ -57,7 +57,7 @@ for (const locale of LOCALES) {
 
     test('every screen: screenshot + axe clean', async ({ page, browser, browserName, capture, expectAxeClean }) => {
       test.skip(browserName !== 'chromium', 'the virtual authenticator is a Chromium DevTools feature');
-      test.setTimeout(120_000);
+      test.setTimeout(240_000); // every admin + super screen in one journey (grows per phase; ~2 min here)
       await resetRateLimits(page.request);
       const dir = locale === 'ur' ? 'rtl' : 'ltr';
       const shot = async (name: string) => {
@@ -333,6 +333,42 @@ for (const locale of LOCALES) {
         await adminPage.waitForTimeout(400);
         await adminShot('b12-delete');
         await adminPage.keyboard.press('Escape');
+        // T4.5: the notification history (the quota pill opens it) with one notifying post. The masjid goes live first:
+        // a pending masjid's posts are not public, so the worker ends their notification ("item no longer published").
+        // Going live needs complete timings (409 without them).
+        const schedule = await adminPage.request.get(`${ADMIN_URL}/api/admin/masjids/${masjidId}/timings`);
+        const auto = { adhanMode: 'auto', adhanAdjustMin: 0, jamaatMode: 'offset', jamaatOffsetMin: 15 };
+        expect(
+          (
+            await adminPage.request.put(`${ADMIN_URL}/api/admin/masjids/${masjidId}/timings`, {
+              headers: { ...CSRF, 'If-Match': schedule.headers()['etag'] ?? '"0"' },
+              data: {
+                prayers: { fajr: auto, dhuhr: auto, asr: auto, maghrib: auto, isha: auto },
+                jumuah: [{ seq: 1, jamaatTime: '13:30' }],
+                notify: false,
+              },
+            })
+          ).status(),
+        ).toBe(200);
+        expect(
+          (await page.request.post(`${ADMIN_URL}/api/super/masjids/${masjidId}/activate`, { headers: CSRF })).status(),
+        ).toBe(204);
+        const notifying = await adminPage.request.post(
+          `${ADMIN_URL}/api/admin/masjids/${masjidId}/items/announcement`,
+          {
+            headers: CSRF,
+            data: {
+              content: { kind: 'text', title: 'Test notified title', body: 'Test post body', locale },
+              category: 'general',
+              isImportant: false,
+              notify: true,
+            },
+          },
+        );
+        expect(notifying.status()).toBe(201);
+        await settled(adminPage, '/notifications');
+        await expect(adminPage.locator('[data-job][data-status="completed"]')).toHaveCount(1, { timeout: 30_000 });
+        await adminShot('b3-notifications');
         // T3.14 B16: adhkar after salah with two seed dhikr (API), the Home card preview; the "Add dhikr" sheet.
         const dhikr = await adminPage.request.get(`${ADMIN_URL}/api/admin/masjids/${masjidId}/library?kind=dhikr`);
         const dhikrIds = ((await dhikr.json()) as { entries: { id: string }[] }).entries.map((entry) => entry.id);

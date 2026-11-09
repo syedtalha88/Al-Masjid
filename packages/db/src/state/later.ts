@@ -37,7 +37,3 @@ export const setShowChanda: (handle: DbHandle, scope: Scope, masjidId: UUID, sho
   'setShowChanda',
   'Phase 5',
 );
-export const setDevicePush: (handle: DbHandle, scope: Scope, input: Record<string, unknown>) => Promise<void> = later(
-  'setDevicePush',
-  'Phase 4',
-);

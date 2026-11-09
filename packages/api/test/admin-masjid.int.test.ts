@@ -179,7 +179,13 @@ describe('masjid-scoped Admin Home reads (T3.1)', () => {
 
     const quota = await get(`/${own}/notifications/quota`);
     expect(quota.status).toBe(200);
-    expect(pushQuotaSchema.parse(quota.body)).toEqual({ used: 0, limit: 8, resetsAt: '2026-10-16T18:30:00.000Z' });
+    expect(pushQuotaSchema.parse(quota.body)).toEqual({
+      used: 0,
+      limit: 8,
+      resetsAt: '2026-10-16T18:30:00.000Z',
+      paused: false,
+      reach: { everyone: 0, brothers: 0, sisters: 0 },
+    });
 
     const schedule = await get(`/${own}/timings`);
     expect(schedule.status).toBe(200);

@@ -61,5 +61,6 @@
   "RUQYAH_ORDER_INVALID": "The Ruqyah list changed meanwhile. Please open it again and reorder.",
   "CONTACT_INVALID": "Please tick that this person agreed, and check the WhatsApp number.",
   "CONTACT_NOT_FOUND": "This contact was removed. Please go back to the list.",
-  "CONTACT_LIMIT_REACHED": "You can list up to 10 contacts. Remove one to add another."
+  "CONTACT_LIMIT_REACHED": "You can list up to 10 contacts. Remove one to add another.",
+  "PUSH_ENDPOINT_IN_USE": "Notifications could not be turned on on this phone. Please try again."
 }

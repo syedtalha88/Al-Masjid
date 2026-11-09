@@ -17,7 +17,8 @@ export interface SwitchProps {
 /**
  * iOS-style switch row (06 §6): label (+ description) at the start, 51×31 track at the end — primary-700
  * when on; the thumb slides on the compositor. `role="switch"`; the label toggles it too. Haptic selection
- * tick on Android (08 §7).
+ * tick on Android (08 §7). Disabled: only the track dims — the label and description stay readable (WCAG 1.4.3;
+ * the row usually says why it is off).
  */
 export function Switch({ checked, onChange, label, description, disabled = false, className }: SwitchProps) {
   const id = useId();
@@ -27,7 +28,7 @@ export function Switch({ checked, onChange, label, description, disabled = false
     onChange(!checked);
   };
   return (
-    <div className={`flex min-h-(--mc-hit) items-center gap-4 ${disabled ? 'opacity-40' : ''} ${className ?? ''}`}>
+    <div className={`flex min-h-(--mc-hit) items-center gap-4 ${className ?? ''}`}>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5 py-2">
         <label htmlFor={id} className="type-body text-text">
           {label}
@@ -46,7 +47,7 @@ export function Switch({ checked, onChange, label, description, disabled = false
         aria-describedby={description ? `${id}-description` : undefined}
         disabled={disabled}
         onClick={toggle}
-        className={`relative inline-flex h-[31px] w-[51px] shrink-0 items-center rounded-full p-0.5 transition-state ${
+        className={`relative inline-flex h-[31px] w-[51px] shrink-0 items-center rounded-full p-0.5 transition-state disabled:opacity-40 ${
           checked ? 'bg-primary-700' : 'bg-text-tertiary/80'
         }`}
       >

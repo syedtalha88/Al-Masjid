@@ -9,6 +9,7 @@ import { Dialog, useToast } from '@mc/ui/components';
 import { useState } from 'react';
 
 import { useErrorText } from '../auth/hooks/use-session.ts';
+import { useNotifyLine } from './notify-line.ts';
 import { type ItemEditing, useEditItem, usePublishItem, useQuota } from './use-publish.ts';
 
 export interface PublishStepProps<Body> {
@@ -28,6 +29,8 @@ export function PublishStep<Body>({ masjidId, bodyFor, send, onPublished }: Publ
   const [notifyChoice, setNotifyChoice] = useState(true);
 
   const left = quota.data ? Math.max(quota.data.limit - quota.data.used, 0) : null;
+
+  const notifyText = useNotifyLine(quota.data);
   const notify = left === 0 ? false : notifyChoice;
 
   const submit = (withNotify: boolean) => {
@@ -50,7 +53,7 @@ export function PublishStep<Body>({ masjidId, bodyFor, send, onPublished }: Publ
           checked: notify,
           onChange: setNotifyChoice,
           label: t('notice.notify'),
-          quota: quota.data && left !== null ? t('notice.quota', { left, limit: quota.data.limit }) : undefined,
+          quota: notifyText,
           disabled: left === 0,
         }}
         actionLabel={t('notice.publish')}

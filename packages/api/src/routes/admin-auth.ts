@@ -7,16 +7,20 @@ import {
   listPasskeys,
   listSessions,
   readInvite,
+  removeAdminPushSubscription,
   renamePasskey,
   revokeSessions,
+  saveAdminPushSubscription,
 } from '@mc/db/state';
 import {
   adminMeSchema,
   adminPasskeyListSchema,
+  adminPushRemoveSchema,
   adminSessionListSchema,
   inviteInfoSchema,
   inviteLinkSchema,
   passkeyLabelSchema,
+  pushSubscriptionSchema,
   undertakingAcceptSchema,
 } from '@mc/shared/contracts';
 import { z } from 'zod';
@@ -267,6 +271,42 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
           requestId,
         });
         clearCookie(res, SESSION_COOKIE);
+        return reply(204, {});
+      },
+    }),
+    defineRoute({
+      method: 'put',
+      path: '/auth/push',
+      summary:
+        "Save this phone's push subscription for the signed-in admin's alerts (an allow-listed push service only)",
+      tags: ['auth'],
+      auth: 'session',
+      undertaking: 'exempt',
+      rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
+      request: { body: pushSubscriptionSchema },
+      responses: { 204: Empty },
+      handler: async ({ auth, body, clock, reply }) => {
+        await saveAdminPushSubscription(
+          deps.db,
+          auth.scope,
+          { endpoint: body.endpoint, p256dh: body.keys.p256dh, auth: body.keys.auth },
+          clock.now(),
+        );
+        return reply(204, {});
+      },
+    }),
+    defineRoute({
+      method: 'delete',
+      path: '/auth/push',
+      summary: "Stop alerts on this phone (removes the signed-in admin's subscription for this endpoint)",
+      tags: ['auth'],
+      auth: 'session',
+      undertaking: 'exempt',
+      rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
+      request: { body: adminPushRemoveSchema },
+      responses: { 204: Empty },
+      handler: async ({ auth, body, reply }) => {
+        await removeAdminPushSubscription(deps.db, auth.scope, body.endpoint);
         return reply(204, {});
       },
     }),

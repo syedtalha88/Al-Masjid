@@ -112,6 +112,10 @@ export async function revokeAdminSessions(
         { $set: { revoked_at: now, revoked_reason: 'revoked_by_super_admin' } },
         { session: ctx.session },
       );
+    // Alerts stop with the sessions: a revoked phone must not keep receiving them (security review M2, #142).
+    await ctx.db
+      .collection<{ admin_id: UUID }>('admin_push_subscriptions')
+      .deleteMany({ admin_id: input.adminId }, { session: ctx.session });
     await writeAudit(ctx, {
       action: 'session.revoke',
       targetType: 'admin',
@@ -150,6 +154,10 @@ export async function revokeAdminPasskeys(
         { $set: { revoked_at: now, revoked_reason: 'credential_revoked' } },
         session,
       );
+    // Alerts stop with the sessions: a revoked phone must not keep receiving them (security review M2, #142).
+    await ctx.db
+      .collection<{ admin_id: UUID }>('admin_push_subscriptions')
+      .deleteMany({ admin_id: input.adminId }, session);
     const requestId = input.requestId ? { requestId: input.requestId } : {};
     await writeAudit(ctx, {
       action: 'credential.revoke',
@@ -312,4 +320,35 @@ export async function updateSettings(
     });
   });
   return fields;
+}
+
+/**
+ * The push kill switch (C10 ★, PHASE_04 T4.7): pauses or resumes every notification. Paused jobs wait in the queue
+ * (nothing is lost) and continue on resume. Needs a step-up within the last 5 minutes.
+ *
+ * @returns whether the value changed.
+ * @throws StateError FORBIDDEN (not super), STEP_UP_REQUIRED.
+ */
+export async function setPushPaused(
+  handle: DbHandle,
+  scope: Scope,
+  input: { readonly paused: boolean; readonly requestId?: string; readonly now?: Date },
+): Promise<boolean> {
+  const now = input.now ?? new Date();
+  const actor = requireSuper(scope, { stepUp: true, now });
+  return withTransaction(handle, scope, async (ctx) => {
+    const changed = await scoped(ctx, 'app_settings').updateOne(
+      { _id: 'global', push_paused: { $ne: input.paused } },
+      { $set: { push_paused: input.paused, updated_by: actor.adminId, updated_at: now } },
+    );
+    if (changed === 1)
+      await writeAudit(ctx, {
+        action: input.paused ? 'push.pause' : 'push.resume',
+        targetType: 'settings',
+        targetId: 'global',
+        meta: {},
+        ...(input.requestId ? { requestId: input.requestId } : {}),
+      });
+    return changed === 1;
+  });
 }

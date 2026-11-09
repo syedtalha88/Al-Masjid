@@ -490,12 +490,153 @@
           "resetsAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "paused": {
+            "type": "boolean"
+          },
+          "reach": {
+            "type": "object",
+            "properties": {
+              "everyone": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "brothers": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "sisters": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "everyone",
+              "brothers",
+              "sisters"
+            ]
           }
         },
         "required": [
           "used",
           "limit",
-          "resetsAt"
+          "resetsAt",
+          "paused",
+          "reach"
+        ]
+      },
+      "NotificationJobList": {
+        "type": "object",
+        "properties": {
+          "jobs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "running",
+                    "completed",
+                    "failed"
+                  ]
+                },
+                "audience": {
+                  "type": "string",
+                  "enum": [
+                    "everyone",
+                    "brothers",
+                    "sisters"
+                  ]
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "completedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "targeted": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "sent": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "failed": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "pruned": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "item": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "announcement",
+                        "daily_content",
+                        "dua_request",
+                        "campaign",
+                        "chanda_update",
+                        "video",
+                        "timing_update"
+                      ]
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "category": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "templateKey": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type",
+                    "status"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "status",
+                "audience",
+                "createdAt",
+                "targeted",
+                "sent",
+                "failed",
+                "pruned"
+              ]
+            }
+          },
+          "next": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "jobs",
+          "next"
         ]
       },
       "AdminSchedule": {
@@ -3054,6 +3195,56 @@
             "type": "integer",
             "minimum": 0
           },
+          "push": {
+            "type": "object",
+            "properties": {
+              "jobs": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "running": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "failedJobs": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "sent": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "failed": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "pruned": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "successRate": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 1
+              },
+              "paused": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "jobs",
+              "running",
+              "failedJobs",
+              "sent",
+              "failed",
+              "pruned",
+              "successRate",
+              "paused"
+            ]
+          },
           "changeRequests": {
             "type": "array",
             "items": {
@@ -3090,6 +3281,7 @@
           "pending",
           "counts",
           "passkeyAlerts",
+          "push",
           "changeRequests"
         ]
       },
@@ -3500,6 +3692,9 @@
           "termsVersion": {
             "type": "string"
           },
+          "pushPaused": {
+            "type": "boolean"
+          },
           "updatedAt": {
             "type": "string",
             "format": "date-time"
@@ -3512,6 +3707,7 @@
           "undertakingVersion",
           "privacyVersion",
           "termsVersion",
+          "pushPaused",
           "updatedAt"
         ]
       },
@@ -4374,6 +4570,68 @@
       },
       "delete": {
         "summary": "Clear all data: delete the device, its follows and Ameens",
+        "tags": [
+          "devices"
+        ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/v1/devices/me/push": {
+      "put": {
+        "summary": "Store this device’s push subscription (an allow-listed push service only — 04 §6) and turn push on",
+        "tags": [
+          "devices"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "endpoint": {
+                    "type": "string"
+                  },
+                  "keys": {
+                    "type": "object",
+                    "properties": {
+                      "p256dh": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_-]{86,87}={0,2}$"
+                      },
+                      "auth": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_-]{21,22}={0,2}$"
+                      }
+                    },
+                    "required": [
+                      "p256dh",
+                      "auth"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "endpoint",
+                  "keys"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove this device’s push subscription (notifications off)",
         "tags": [
           "devices"
         ],
@@ -7755,6 +8013,89 @@
         }
       }
     },
+    "/api/admin/auth/push": {
+      "put": {
+        "summary": "Save this phone's push subscription for the signed-in admin's alerts (an allow-listed push service only)",
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "endpoint": {
+                    "type": "string"
+                  },
+                  "keys": {
+                    "type": "object",
+                    "properties": {
+                      "p256dh": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_-]{86,87}={0,2}$"
+                      },
+                      "auth": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_-]{21,22}={0,2}$"
+                      }
+                    },
+                    "required": [
+                      "p256dh",
+                      "auth"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "endpoint",
+                  "keys"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Stop alerts on this phone (removes the signed-in admin's subscription for this endpoint)",
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "endpoint": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000
+                  }
+                },
+                "required": [
+                  "endpoint"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
     "/api/admin/auth/register/options": {
       "post": {
         "summary": "Passkey creation options for an invite (uniform 404 when the invite is invalid)",
@@ -8168,6 +8509,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PushQuota"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/notifications/jobs": {
+      "get": {
+        "summary": "The masjid's notifications, newest first, with how many were sent and failed (T4.5)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationJobList"
                 }
               }
             }
@@ -11398,6 +11779,85 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SuperChanged"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/settings/push-pause": {
+      "post": {
+        "summary": "★ Pause or resume every notification (kill switch, C10 — jobs wait and continue on resume)",
+        "tags": [
+          "super"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "paused": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "paused"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "paused": {
+                      "type": "boolean"
+                    },
+                    "changed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "paused",
+                    "changed"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/alerts/test": {
+      "post": {
+        "summary": "A test alert to your own subscribed phones (staging and local only — T4.6)",
+        "tags": [
+          "super"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "queued": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "queued"
+                  ]
                 }
               }
             }

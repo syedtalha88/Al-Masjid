@@ -158,9 +158,16 @@ export const superSettingsSchema = z
     undertakingVersion: z.string(),
     privacyVersion: z.string(),
     termsVersion: z.string(),
+    /** The push kill switch (C10 ★, T4.7). */
+    pushPaused: z.boolean(),
     updatedAt: z.iso.datetime(),
   })
   .meta({ id: 'SuperSettings' });
+
+/** `POST /settings/push-pause` ★ — pause or resume every notification (T4.7). */
+export const pushPauseRequestSchema = z.strictObject({ paused: z.boolean() });
+/** The answer: whether the switch moved. */
+export const pushPauseResponseSchema = z.object({ paused: z.boolean(), changed: z.boolean() });
 export type SuperSettings = z.infer<typeof superSettingsSchema>;
 
 export const superSettingsPatchSchema = z.object({
@@ -219,6 +226,17 @@ export const superDashboardSchema = z
     counts: z.object({ pending: z.number(), active: z.number(), suspended: z.number(), deleted: z.number() }),
     /** Passkeys revoked in the last 30 days because their sign counter went backwards (possible clone, 04 §3). */
     passkeyAlerts: z.number().int().min(0),
+    /** Push delivery over the last 24 hours and the kill switch (C1 Stats, T4.5 / T4.7). */
+    push: z.object({
+      jobs: z.number().int().min(0),
+      running: z.number().int().min(0),
+      failedJobs: z.number().int().min(0),
+      sent: z.number().int().min(0),
+      failed: z.number().int().min(0),
+      pruned: z.number().int().min(0),
+      successRate: z.number().min(0).max(1).nullable(),
+      paused: z.boolean(),
+    }),
     /** Admins' open "Request change" notes (B13, T3.10) — closed by the next edit of that masjid. */
     changeRequests: z.array(
       z.object({

@@ -228,9 +228,11 @@ writeFileSync(
     'user default off',
     // -scan / -randomkey: ACL key patterns filter neither, so they would reveal other users' key names (security
     // review L6, L-5). `admin` keeps SCAN locally only: the e2e rate-limit reset hook needs it (the VPS ACL drops it).
+    // `e2e:*` is local only too (PHASE_04 T4.9): the runtime-test worker records pushes there, api-admin's test hook
+    // only reads them (%R~) — on the VPS neither user has the pattern, so nothing could be captured there.
     `user rl_public on >${compose.REDIS_RL_PUBLIC_PASSWORD} resetchannels ~rl:pub:* ${safe} -scan -randomkey`,
-    `user admin on >${compose.REDIS_ADMIN_PASSWORD} resetchannels ~rl:adm:* ~chal:* ~bull:* &bull:* ${safe} -randomkey`,
-    `user worker on >${compose.REDIS_WORKER_PASSWORD} resetchannels ~bull:* ~push:* ~alert:* &bull:* ${safe}`,
+    `user admin on >${compose.REDIS_ADMIN_PASSWORD} resetchannels ~rl:adm:* ~chal:* ~bull:* %R~e2e:* &bull:* ${safe} -randomkey`,
+    `user worker on >${compose.REDIS_WORKER_PASSWORD} resetchannels ~bull:* ~push:* ~alert:* ~e2e:* &bull:* ${safe}`,
     `user health on >${compose.REDIS_HEALTH_PASSWORD} resetkeys resetchannels -@all +ping`,
     // Integration tests (T0.12): only `test:*` keys/channels; each test file uses its own `test:<id>:` prefix.
     `user test on >${compose.REDIS_TEST_PASSWORD} resetchannels ~test:* &test:* ${safe}`,

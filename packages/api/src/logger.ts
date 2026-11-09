@@ -17,6 +17,22 @@ export const REDACT_PATHS = [
   'phone',
   'contact',
   'whatsapp', // Ilm contact numbers (T3.16)
+  'endpoint', // push subscriptions (T4.2): a capability URL
+  'p256dh',
+  'auth', // the push subscription's auth secret (security review L7, #142)
+  'push_endpoint',
+  'push_p256dh',
+  'push_auth',
+  '*.*.endpoint',
+  '*.*.p256dh',
+  '*.*.auth',
+  '*.push_endpoint',
+  '*.push_p256dh',
+  '*.push_auth',
+  '*.*.push_endpoint', // a device document inside an error's cause (security re-review L-R5, DECISIONS #144)
+  '*.*.push_p256dh',
+  '*.*.push_auth',
+  '*.auth',
   // Passkey material and other never-log fields (CLAUDE.md §6; WebAuthn arrives in Phase 1).
   'email',
   'pepper',
@@ -38,6 +54,8 @@ export const REDACT_PATHS = [
   '*.phone',
   '*.contact',
   '*.whatsapp',
+  '*.endpoint',
+  '*.p256dh',
   '*.email',
   '*.pepper',
   '*.vpa',

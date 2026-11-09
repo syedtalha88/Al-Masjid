@@ -233,8 +233,19 @@ describe('registration (one transaction)', () => {
     expect(await raw('admin_users').findOne({ _id: other.adminId })).toMatchObject({ status: 'invited' });
   });
 
-  it('add_device adds a second passkey (excluded on the next registration); recovery revokes old sessions', async () => {
+  it('add_device adds a second passkey (excluded on the next registration); recovery revokes old sessions and alert phones', async () => {
     const r = await registeredAdmin();
+    // The (possibly lost) phone's alert subscription (T4.6).
+    await raw('admin_push_subscriptions').insertOne(
+      {
+        _id: newId(),
+        admin_id: r.adminId,
+        endpoint: `https://fcm.googleapis.com/fcm/send/lost-${r.adminId.toHexString()}`,
+        created_at: new Date(),
+      },
+      { bypassDocumentValidation: true },
+    );
+    const alertPhones = () => raw('admin_push_subscriptions').countDocuments({ admin_id: r.adminId });
     const addHash = randomBytes(32);
     await createInvite(h(), superNow(superId), { adminId: r.adminId, purpose: 'add_device', tokenHash: addHash });
     const view = await readInvite(h(), publicScope(), { tokenHash: addHash });
@@ -248,6 +259,7 @@ describe('registration (one transaction)', () => {
     });
     expect(await raw('webauthn_credentials').countDocuments({ admin_id: r.adminId })).toBe(2);
     expect(await raw('admin_sessions').countDocuments({ admin_id: r.adminId, revoked_at: { $exists: false } })).toBe(2);
+    expect(await alertPhones()).toBe(1); // adding a phone keeps the first phone's alerts
 
     const recoveryHash = randomBytes(32);
     await createInvite(h(), superNow(superId), { adminId: r.adminId, purpose: 'recovery', tokenHash: recoveryHash });
@@ -260,6 +272,8 @@ describe('registration (one transaction)', () => {
       .find({ admin_id: r.adminId, revoked_at: { $exists: false } })
       .toArray();
     expect(live.map((s) => s._id.toHexString())).toEqual([recovered.sessionId.toHexString()]);
+    // Recovery = the old phone is lost: it no longer receives alerts either (security re-review M-R1, #144).
+    expect(await alertPhones()).toBe(0);
   });
 });
 
@@ -323,6 +337,33 @@ describe('login and the sign counter (04 §3)', () => {
     ).toMatchObject({ actor_type: 'system', meta: { reason: 'counter_regression' } });
     expect(await findLoginCredential(h(), publicScope(), r.cred.id)).toBeNull();
     expect(await resolveSession(h(), publicScope(), { tokenHash: r.sessionHash })).toBeNull();
+  });
+
+  it('a counter regression stops a masjid admin’s alert phones, keeps a Super Admin’s (DECISIONS #144, L-R2)', async () => {
+    const regress = async (role: 'masjid_admin' | 'super_admin') => {
+      const r = await registeredAdmin();
+      await raw('admin_users').updateOne({ _id: r.adminId }, { $set: { role } });
+      await raw('admin_push_subscriptions').insertOne(
+        {
+          _id: newId(),
+          admin_id: r.adminId,
+          endpoint: `https://fcm.googleapis.com/fcm/send/cloned-${r.adminId.toHexString()}`,
+          created_at: new Date(),
+        },
+        { bypassDocumentValidation: true },
+      );
+      const assert = (newCounter: number) =>
+        completeAssertion(h(), publicScope(), {
+          credentialDocId: r.credentialDocId,
+          newCounter,
+          sessionTokenHash: randomBytes(32),
+        });
+      await assert(10);
+      expect(await code(assert(10))).toBe('COUNTER_REGRESSION');
+      return raw('admin_push_subscriptions').countDocuments({ admin_id: r.adminId });
+    };
+    expect(await regress('masjid_admin')).toBe(0); // the clone's phone may hold it; alerts to admins come later
+    expect(await regress('super_admin')).toBe(1); // its alert goes to the Super Admins — maybe only this one
   });
 
   it('disabled admins cannot log in; failures are audited by credential hash only', async () => {

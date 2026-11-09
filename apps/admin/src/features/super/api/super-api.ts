@@ -11,6 +11,7 @@ import {
   libraryImportReportSchema,
   noContentSchema,
   problemSchema,
+  pushPauseResponseSchema,
   starterTemplatesAddedSchema,
   type SuperAdminCreate,
   superAdminCreatedSchema,
@@ -28,6 +29,7 @@ import {
   superTemplateListSchema,
   type SuperTemplatePatch,
   superTemplateResponseSchema,
+  testAlertResponseSchema,
 } from '@mc/shared/contracts';
 import { ProblemError, ResponseError } from '@mc/shared/http';
 
@@ -88,6 +90,11 @@ export const superApi = {
   adminPhone: (adminId: string) => call(`${SUPER_API}/admins/${id(adminId)}/phone`, adminPhoneSchema),
   settings: (signal?: AbortSignal) => call(`${SUPER_API}/settings`, superSettingsSchema, signal ? { signal } : {}),
   updateSettings: (body: SuperSettingsPatch) => call(`${SUPER_API}/settings`, changedSchema, { method: 'PATCH', body }),
+  /** ★ The push kill switch (T4.7). */
+  setPushPaused: (paused: boolean) =>
+    call(`${SUPER_API}/settings/push-pause`, pushPauseResponseSchema, { method: 'POST', body: { paused } }),
+  /** A test alert to the signed-in Super Admin's phones (404 in production — T4.6). */
+  testAlert: () => call(`${SUPER_API}/alerts/test`, testAlertResponseSchema, { method: 'POST' }),
   audit: (params: AuditQuery, signal?: AbortSignal) =>
     call(`${SUPER_API}/audit${query(params)}`, auditPageSchema, signal ? { signal } : {}),
   library: (

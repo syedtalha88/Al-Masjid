@@ -68,9 +68,9 @@ Seed masjids use obviously fake names ("Test Masjid Alpha", "Test Masjid Beta"),
 3. Follow 2 masjids → Updates merges feeds in time order → filter chips.
 4. Offline: load, go offline, reload → Home/timings/feed render from cache; offline banner.
 5. Locale switch to Urdu → RTL mirrored; screenshots match baseline.
-6. Admin: invite → register passkey → undertaking → set timings → musalli sees update after version poll.
-7. Admin notice from template → musalli in Telugu sees Telugu text.
-8. Dua request → musalli Ameen (count increments once).
+6. Admin: invite → register passkey → undertaking → set timings → musalli sees update after version poll; the change notified — one notification job for everyone, the follower targeted and sent, the captured push asserted (Phase 4, DECISIONS #139).
+7. Admin notice from template → musalli in Telugu sees Telugu text; its push is in Telugu (job + captured push asserted).
+8. Dua request → musalli Ameen (count increments once); the push is in Hindi and never carries the private name.
 9. Campaign → UPI deep link has correct params; QR sheet shows payee name; VPA change request → super approve → hold → activation (clock-advanced) → followers' bundle updated.
 10. Bayan from a YouTube link (mock oEmbed) → published with copied thumbnail → sisters-only hidden for brothers; no request to YouTube before Play is tapped.
 11. Report → moderation remove → item gone for musalli within one version poll.

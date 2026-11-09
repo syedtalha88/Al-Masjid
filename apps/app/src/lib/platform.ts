@@ -32,3 +32,17 @@ export function isStandalone(
   if (!win) return false;
   return win.matchMedia?.('(display-mode: standalone)').matches === true || win.navigator?.standalone === true;
 }
+
+/**
+ * The notification prompt can still be offered here (PHASE_04 T4.2): push exists, the browser was never answered, and
+ * this is not an iPhone browser tab (iOS offers push only inside the installed app — 00 §4.4).
+ */
+export function pushPromptPossible(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    'Notification' in window &&
+    'PushManager' in window &&
+    Notification.permission === 'default' &&
+    (platformKind() !== 'ios' || isStandalone())
+  );
+}

@@ -197,6 +197,54 @@ describe('devices', () => {
   });
 });
 
+describe('push subscription (T4.2): PUT / DELETE /devices/me/push', () => {
+  const KEYS = { p256dh: `B${'A'.repeat(86)}`, auth: 'A'.repeat(22) };
+  const put = (auth: string, body: object) =>
+    request(app()).put('/api/v1/devices/me/push').set('Authorization', auth).send(body);
+
+  it('stores an allow-listed subscription and turns push on for the follows; DELETE turns it off', async () => {
+    const device = await register();
+    await request(app()).put(`/api/v1/devices/me/follows/${ALPHA}`).set('Authorization', device.auth);
+    const endpoint = `https://fcm.googleapis.com/fcm/send/test-${device.deviceId}`;
+    const saved = await put(device.auth, { endpoint, keys: KEYS });
+    expect(saved.status).toBe(204);
+    expect(saved.headers['cache-control']).toBe('no-store');
+    const me = await request(app()).get('/api/v1/devices/me').set('Authorization', device.auth);
+    expect(me.body).toMatchObject({ pushEnabled: true });
+    const follow = await t()
+      .db.collection<Raw>('device_follows')
+      .findOne({ device_id: parseId(device.deviceId) });
+    expect(follow).toMatchObject({ push_active: true });
+
+    expect((await request(app()).delete('/api/v1/devices/me/push').set('Authorization', device.auth)).status).toBe(204);
+    expect((await request(app()).get('/api/v1/devices/me').set('Authorization', device.auth)).body).toMatchObject({
+      pushEnabled: false,
+    });
+  });
+
+  it.each([
+    ['another host (SSRF)', { endpoint: 'https://169.254.169.254/latest', keys: KEYS }],
+    ['plain http', { endpoint: 'http://fcm.googleapis.com/fcm/send/x', keys: KEYS }],
+    ['a look-alike host', { endpoint: 'https://fcm.googleapis.com.evil.example/x', keys: KEYS }],
+    ['malformed keys', { endpoint: 'https://fcm.googleapis.com/fcm/send/x', keys: { p256dh: 'x', auth: 'y' } }],
+    ['extra fields', { endpoint: 'https://fcm.googleapis.com/fcm/send/x', keys: KEYS, expirationTime: null }],
+  ])('refuses %s with 400', async (_label, body) => {
+    const device = await register();
+    expect((await put(device.auth, body)).status).toBe(400);
+  });
+
+  it('an endpoint another app id holds is 409 PUSH_ENDPOINT_IN_USE; no device → 401', async () => {
+    const first = await register();
+    const second = await register();
+    const endpoint = `https://web.push.apple.com/test-${first.deviceId}`;
+    expect((await put(first.auth, { endpoint, keys: KEYS })).status).toBe(204);
+    const taken = await put(second.auth, { endpoint, keys: KEYS });
+    expect(taken.status).toBe(409);
+    expect(taken.body).toMatchObject({ code: 'PUSH_ENDPOINT_IN_USE' });
+    expect((await request(app()).put('/api/v1/devices/me/push').send({ endpoint, keys: KEYS })).status).toBe(401);
+  });
+});
+
 describe('GET /masjids/resolve/:code', () => {
   it('normalizes the code and returns the summary (cacheable 5 minutes)', async () => {
     for (const code of ['TESTA001', 'testa001', 'TEST-AOO1', 'test a001']) {

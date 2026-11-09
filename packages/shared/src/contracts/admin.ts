@@ -19,9 +19,49 @@ export type AdminMasjidStats = z.infer<typeof adminMasjidStatsSchema>;
 
 /** `GET /masjids/:masjidId/notifications/quota` — notifying publishes today (IST) against the daily quota. */
 export const pushQuotaSchema = z
-  .object({ used: count, limit: count, resetsAt: z.iso.datetime() })
+  .object({
+    used: count,
+    limit: count,
+    resetsAt: z.iso.datetime(),
+    /** The Super Admin paused all notifications (T4.7): publishing works, notifications wait. */
+    paused: z.boolean(),
+    /** Followers a notification reaches now per item audience — "Will notify N people" (T4.5). */
+    reach: z.object({ everyone: count, brothers: count, sisters: count }),
+  })
   .meta({ id: 'PushQuota' });
 export type PushQuota = z.infer<typeof pushQuotaSchema>;
+
+/** `GET /masjids/:masjidId/notifications/jobs?cursor=` — the masjid's notifications, newest first (T4.5). */
+export const notificationJobListSchema = z
+  .object({
+    jobs: z.array(
+      z.object({
+        id: z.string(),
+        status: z.enum(['pending', 'running', 'completed', 'failed']),
+        audience: z.enum(['everyone', 'brothers', 'sisters']),
+        createdAt: z.iso.datetime(),
+        completedAt: z.iso.datetime().optional(),
+        targeted: count,
+        sent: count,
+        failed: count,
+        pruned: count,
+        item: z
+          .object({
+            id: z.string(),
+            type: z.enum(ITEM_TYPE_VALUES),
+            status: z.string(),
+            category: z.string().optional(),
+            title: z.string().optional(),
+            templateKey: z.string().optional(),
+          })
+          .optional(),
+      }),
+    ),
+    next: z.string().nullable(),
+  })
+  .meta({ id: 'NotificationJobList' });
+export type NotificationJobList = z.infer<typeof notificationJobListSchema>;
+export const notificationJobQuerySchema = z.object({ cursor: z.string().max(200).optional() });
 
 /** One prayer's raw configuration — the same shape as the musalli bundle's (`prayerConfigSchema`). */
 export const adminPrayerConfigSchema = z.object({
@@ -541,7 +581,7 @@ export type AdhkarPut = z.infer<typeof adhkarPutSchema>;
 
 /**
  * Every publish answers with the item and, when it notifies, the notification about to go out (03 §4): `targeted` =
- * followers with notifications on for the item's audience, `quotaLeft` = notifications left today. Sending is Phase 4.
+ * followers with notifications on for the item's audience, `quotaLeft` = notifications left today; the worker sends it.
  */
 export const itemPublishedSchema = z
   .object({

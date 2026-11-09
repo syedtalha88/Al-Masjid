@@ -10,13 +10,58 @@
 | 00 | Foundation, tooling & design system | **Accepted by the owner** — closure: report final, V-31 done; waiting for owner 0.15/0.16 + #79 (DECISIONS #62) | [final](reports/PHASE_00_REPORT.md) | 16 Oct 2026 |
 | 01 | Database, security core, passkey auth, Super Admin | **DONE** (owner tested 1.1–1.12 on staging, 22 Oct 2026) | [final](reports/PHASE_01_REPORT.md) | 22 Oct 2026 |
 | 02 | Musalli app core (follow, timings, feed, offline, install) | **DONE** (owner tested the Phase 02 checks on staging `cdd39fa`, incl. a low-end device, 27 Oct 2026) | [final](reports/PHASE_02_REPORT.md) | 27 Oct 2026 |
-| 03 | Masjid Admin content tools | **IN PROGRESS** — all tasks T3.0–T3.17 done (5 Nov 2026); left: F56 (Lighthouse warm), then the phase close after the owner's pending tasks (branch `feat/phase-03`) | – | – |
-| 04 | Push notifications | NOT STARTED | – | – |
+| 03 | Masjid Admin content tools | **Built and closed on the branch** — all tasks done, report written, phase-verifier + security review fixed (#135, #136); left: staging deploy (needs O25 rest) and the owner's checks O26/O27 → then AWAITING OWNER VERIFICATION / DONE | [report](reports/PHASE_03_REPORT.md) | – |
+| 04 | Push notifications | **IN PROGRESS** — started 8 Nov 2026 on the owner's instruction ("phase 3 is done, continue with the next phase, don't stop between tasks") while Phase 03 waits for its staging deploy + owner checks (DECISIONS #137) | – | – |
 | 05 | Donations, chanda & UPI change-lock | NOT STARTED | – | – |
 | 06 | Bayan videos | NOT STARTED | – | – |
 | 07 | Qibla compass | NOT STARTED | – | – |
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
+
+## ▶ Next session — start here (9 Nov 2026 — Phase 04: merge to main when CI on `f2d31af` is green)
+
+**Done 9 Nov 2026:** CI `bd4845b` red in visual baselines only → the Settings Notifications row squeezed its title (status
+now the subtitle, baselines updated, `1eae71c`). Hand-off e2e run: push spec 13/13 (C1 paused banner OK); journey 7's
+new reach assertion found a real bug — the Publish bar showed Home's cached reach (`refetchOnMount`, `4392293`).
+Security re-review of #142/#143: 1 MEDIUM + 6 LOW, all fixed with failing-first tests (#144). **Note:** the #144 code
+fixes went into the commit titled `docs: DECISIONS #144 …` (`f2d31af`) — the fix commit's subject was too long for
+commitlint and its staged files rode along; not rewritten (would need a force push). Local: unit 1,542, db int 311,
+api int 347, visual 16/16. Phase 04 report drafted (`docs/reports/PHASE_04_REPORT.md`).
+**Local only:** `e2e/app/settings.spec.ts` on iphone-14 fails 2 tests on this PC with and without the 9 Nov change
+(WebKit navigation + "style-src-elem blocked inline at ?:5", WebKit's own error page) — CI passes them.
+
+**Do next:**
+1. CI on `f2d31af` green → **merge `feat/phase-04` into `main` and push** (staging deploy, migrations 0013–0017).
+   Red → fix first.
+2. Tick T4.9; fill the deployed release into the report; status → AWAITING OWNER VERIFICATION once deployed (Phase 03 +
+   04 checks; owner needs O37 first, then O38 — T4.6's acceptance).
+
+## ▶ Previous hand-off (8 Nov 2026, late — Phase 04: deploy to staging pending CI)
+
+**Owner asked (8 Nov 2026): deploy Phase 03 + 04 to staging now; the owner tests on the phone** (guide given:
+`owner/PHASE_TESTING_GUIDE.md` → Phase 03 + Phase 04). Owner must do **O37** (VAPID keys) before push works and **O25**
+for photos / voice.
+
+**State:** `feat/phase-04` pushed (HEAD = the progress commit after `fde9e4f`). `ci/phase-04` = `bd4845b` — its CI run was
+in progress at hand-off (check: `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-04`; the
+anonymous API limit is 60/h — poll sparingly). Previous run `64b0234`: Trivy, e2e (254 + 1 flaky), perf green;
+integration (db coverage) and warm Lighthouse red — both fixed since (#142, #143). Security review + phase-verifier done
+and fixed (DECISIONS #141 owner-approved Trivy ignore to 15 Nov — F61; #142 M1–M3 + lows, Topic dropped by the owner;
+#143 Super Admin passkey alert bug, docs, F38/F59/F60).
+
+**Do next:**
+1. If CI on `bd4845b` is green: push `feat/phase-04` to `ci/phase-04` once more (newer test commits) and, when green,
+   **merge `feat/phase-04` into `main` and push** — `release-staging` builds, the server's deploy timer installs it and
+   runs migrations 0013–0017. Tell the owner "staging is live". If red: fix first.
+2. **Unverified at hand-off** (written, lint + typecheck clean, not yet run): e2e C1 paused banner shot in
+   `notifications.push.spec.ts` and the Publish-bar reach assertion + `awaitFollowsSynced` in `notice.spec.ts`. Run:
+   `pnpm stack:up:test` → `git checkout -- apps/admin/src/routeTree.gen.ts` → push spec (`--project=push`) and
+   notice/timings/dua (`--project=pixel-7`), `--workers=1`, `E2E_TEST_HOOKS=1 NODE_OPTIONS=--require <scratchpad>/localhost-shim.cjs`.
+3. Then tick T4.9 (all #143 test gaps are now written), write `docs/reports/PHASE_04_REPORT.md` (T4.8 table from the
+   evidence file), re-run `security-reviewer` on the #142/#143 fixes. T4.6 waits for the owner's O38.
+
+**Local notes:** the Windows Vitest worker crash (exit 3221226505) hits a random int file — re-run; run db and api
+`test:int` one after the other (parallel load times MongoDB out). Heredocs with backslashes break in Git Bash — use Edit.
 
 ## ▶ Next session — start here (5 Nov 2026, night — Phase 03: all tasks done, closing work left)
 
@@ -294,6 +339,8 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O33 | **Grievance Officer details** in Super Admin → Settings | launch (#101) | 5 min | before launch |
 | O36 | **Atlas roles update** — re-run `atlas-users.sh staging` (it updates the four custom roles from the new `infra/mongo/atlas-roles.json`; same steps as 16 Oct 2026), then `deploy.sh staging --verify-roles` and send Claude Code the output | New collections `ruqyah_entries` (T3.15) and `masjid_contacts` (T3.16): without it api-admin cannot read/write them on staging | 15 min | **due now** (both collections are in the file since T3.16) — before Phase 03 is deployed |
 | O34 | **Legal checklist** `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md` | pilot | — | before pilot |
+| O37 | **VAPID keys on staging** — `VAPID_PUBLIC_KEY` in `/etc/masjid-connect/staging/worker.env` must equal the GitHub `staging` variable `VITE_PUBLIC_VAPID_PUBLIC_KEY`; back up `VAPID_PRIVATE_KEY` (password manager; F31) | Phase 04 staging deploy — a mismatch means no push reaches any phone | 10 min | before the Phase 04 deploy |
+| O38 | **Real-device push checks** — Android + installed iPhone: turn on, receive a notice in the phone's language, tap opens it; admin "Alerts on this phone" + Super Admin test alert | Real subscription + push-service delivery (headless e2e cannot cover them — DECISIONS #139); T4.6 owner check | 20 min | Phase 04 owner verification |
 
 ## Current phase task checklist
 
@@ -368,6 +415,42 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [x] T3.16 — Ilm contacts (B17 + A21) — **done 5 Nov 2026 (DECISIONS #131):** migration 0014 `masjid_contacts` (`consent_confirmed: true` required by the validator, one E.164 rule shared with `isE164`, `deleted_at` retention clock), policy cells + DB privileges (matrix now 45 namespaces), `v_pub_contacts`, admin `GET/POST/PATCH/DELETE /contacts`, bundle `contacts` (both audiences), audit without name or number, shared `IlmContactCard` + `whatsappChatUrl`, A21 screen + Masjid Detail row "Ask the masjid", B17 in B13 (list ≤ 10, editor with +91, brothers/sisters, consent tick cleared on a new name or number, preview, remove), seed: two contacts on alpha. **Acceptance:** API refuses a contact without `consentConfirmed: true` (`contacts-routes.int.test.ts`; also the validator, `contacts.int.test.ts`); sisters' contacts not on a brothers device and vice versa (`e2e/app/ilm.spec.ts` both audiences, `e2e/admin/contacts.spec.ts` B17 → A21); the number is not rendered as text or attribute (`packages/ui/test/ilm-contact-card.test.tsx`, 4 locales, + e2e). A21 + B17 screenshots in 4 locales, axe clean.
 - [x] T3.17 — Blood donation camp (B18 + A22) — **done 5 Nov 2026 (DECISIONS #132):** no new collection — a camp is an announcement from the `blood_donation_camp` template (T3.4/T3.5, draft translations; `phone` param); `bloodCampOf` / `upcomingCamps` + `istWindow` (IST hours, past midnight); shared `BloodCampCard` (Home — lazy chunk —, Masjid Detail, B5 preview) and `WhatsAppButton`; the notice detail offers "Contact on WhatsApp" for every phone param; phone params read "+91 98765 43210" in an LTR isolate; admin "Blood Camp" tile → B5 step 2 with the template (notify on by default). **Acceptance:** renders in 4 locales (ICU tests `packages/i18n/test/templates.test.ts`); card hidden after the end time (pinned clock, `e2e/admin/blood-camp.spec.ts`; unit `packages/ui/test/blood-camp.test.tsx` incl. past midnight); no new collection or personal data. B18 in the 4-locale screens spec.
 
+### Phase 04 — started 8 Nov 2026 (owner's instruction, DECISIONS #137; branch `feat/phase-04`)
+
+- [x] T4.1 — Push infrastructure (#138): `push/sender.ts` over web-push 3.6.7 (aes128gcm + VAPID, own `fetch`, allow-list
+  before every POST, one classifier), `queue/` (4 queues, Zod at enqueue + process, defaults, after-commit notifier),
+  Redis ledger, `jobs/worker.ts` (processors, deadlines, Asia/Kolkata scheduler), mock push service. Unit: classifier,
+  headers + body decrypted as a browser would, allow-list (property test), payloads refused at enqueue; integration:
+  a forged payload fails at process time without retries.
+- [x] T4.2 — Musalli subscription UX — `lib/push.ts`, Settings → Notifications, soft-ask after the first follow,
+  onboarding page 7, re-check on every open, 409 re-subscribe, mute per masjid; `PUT/DELETE /devices/me/push`; unit 13
+  (mocked PushManager); e2e 8 Nov 2026: Settings → on through the app (stubbed PushManager), soft-ask + A15 off/on ×4
+  locales with axe + screenshots (`e2e/admin/notifications.push.spec.ts`). Real devices: O38
+- [x] T4.3 — Service worker push handling — `sw/push.ts` (Zod payload, generic fallback, tag, lang/dir, badge, click →
+  focus + navigate / open, `pushsubscriptionchange`); 17 unit tests; e2e: a captured payload delivered through CDP shows
+  the Telugu notification (title, body, tag, lang, dir) that opens the notice
+- [x] T4.4 — Fan-out pipeline — processors, migration 0016, sweeper + stuck detector, localized words, publish routes
+  hand over after commit, worker entrypoint wired; `push-pipeline.int.test.ts` 11 scenarios; journeys 6/7/8 assert job
+  + captured push. **8 Nov 2026 fix (#140):** a batch counting off before the fan-out recorded its page stranded the job
+  — `pending_batches` is a balance (migration 0017) and a failed counter write releases the ledger claim
+- [x] T4.5 — Quotas & admin visibility — `quota` + `paused` + `reach`, `notifications/jobs`, dashboard push stats
+  (IST-midnight reset + counts-match-DB integration tests); quota pill → history screen, "Will notify N" reach line,
+  Super Admin 24 h stats card; history screen `b3-notifications` ×4 locales in the screens spec
+- [ ] T4.6 — Admin push subscriptions & alerts — API done (`PUT/DELETE /auth/push`, alert service, counter-regression
+  and super-passkey-added alerts — F38 a, `POST /api/super/alerts/test` outside production); admin SW alert push
+  (10 unit tests) + "Alerts on this phone" switch + test alert done. Left: owner check on staging (O38)
+- [x] T4.7 — Kill switch — ★ `POST /settings/push-pause` (audited `push.pause` / `push.resume`), C10 switch, C1
+  banner, Publish-bar notice; integration: paused → zero sends, resume → the same job continues; e2e: a notice published
+  while paused waits (admin sees "paused"), goes out after Resume
+- [x] T4.8 — Fan-out load test — 8 Nov 2026: the worker runs in its own process (`scripts/load/push-worker.ts`);
+  50k → 57.3 s, 200 batches (max 2.0 s), worker CPU 26.7 s (< 0.75 CPU), worker peak RSS 409 MB (< 512 MB); 100k →
+  112.4 s with the same memory (bounded by batches in flight). `docs/reports/evidence/PHASE_04_T4.8_push-load.md`
+- [ ] T4.9 — Quality gates — run locally 8 Nov 2026 (#140): integration api 335 / db 302, push spec 5, admin journeys
+  6/7/8 + screens ×4 locales green; `pnpm size` green (musalli initial 187.65 / 188 kB — subscription code lazy);
+  Lighthouse: warm both PASS, admin cold PASS, musalli cold LCP 2689 ms locally (the known local-Docker miss — CI measured
+  2505 ms in Phase 03, #136). CI 8 Nov: cold LCP 2485 ms PASS; warm score tolerance #142. Security review + phase-verifier
+  fixed (#142, #143). **Left:** CI green on `ci/phase-04`; the tests listed in DECISIONS #143
+
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
 | # | Found in | Description | Planned fix (phase/task) |
@@ -402,7 +485,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F40 | Phase-verifier (22 Oct 2026, DECISIONS #83) | ~~`log-archive.sh` skips one-off containers + archives the host journal~~ — **done 22 Oct 2026** (on the server with O22) | – (done) |
 | F36 | O20 (20 Oct 2026) | ~~`deploy.sh` logs `deploying` in every mode~~ — **done 22 Oct 2026** (on the server with O22; the verify-roles output shows no deploy line) | – (done) |
 | F37 | Review L6 (20 Oct 2026) | ~~VPS Redis ACL drops SCAN (and RANDOMKEY, L-5) for the API users~~ — **done 22 Oct 2026** (O22: `make-env.sh staging --force` rewrote the ACL, Redis restarted, both APIs `redis: ok`) | – (done) |
-| F38 | Review H1 (20 Oct 2026, DECISIONS #80) | (a) Push alert to the Super Admin when a passkey is added to a Super Admin account (04 R4); (b) self-service "remove this passkey" on B13 (step-up, never the last one) | (a) Phase 4 push; (b) Phase 3 (B13) |
+| F38 | Review H1 (20 Oct 2026, DECISIONS #80) | (a) Push alert to the Super Admin when a passkey is added to a Super Admin account (04 R4); (b) self-service "remove this passkey" on B13 (step-up, never the last one)  | (a) **done 8 Nov 2026** — raised only on a Super Admin passkey registration (DECISIONS #143); (b) Phase 3 (B13) |
 | F39 | Review L-9 (22 Oct 2026, DECISIONS #82) | Item delete / undelete must go through a state function that sets / clears `purge_after` together with `status` / `deleted_at` (today the generic gateway update can set `deleted_at` but never touches the purge marker) | Phase 3 (first item writes) |
 | F41 | Local verify (22 Oct 2026, DECISIONS #87) | Windows dev PC only: ≈ 1 in 5 local `test:int` runs of api (once db) loses a forked Vitest worker to a native abort (exit 0xC0000409 = 3221226505) — different files, no stderr, no Node diagnostic report (`--report-on-fatalerror`), no Windows Error Reporting event; `--pool=threads` kills the whole run instead; 4 workers still crashed (1/8). Linux CI never. Workaround: re-run the package | Re-check after the Node 26 move (F1); if it persists, a minimal repro for Node/libuv |
 | F42 | DECISIONS #85 (22 Oct 2026) | Flatten the musalli start chain (start i18n + the first route in parallel from `main.tsx`, `modulepreload` the active locale's chunks from `/boot.js`); the admin shell paints the last-known screen from the device while `/auth/me` revalidates; then remove `LHCI_REPORT_ONLY` from the Nightly (staging gated with the 01 §9 budgets again) | **Deferred to Phase 9 hardening (DECISIONS #103)** with the staging Lighthouse gate (also waits for O23); CI Lighthouse on the built stack is the gate meanwhile |
@@ -422,13 +505,20 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F56 | CI 5 Nov 2026 (`a0954df`, `4cc10d4`) | ~~Lighthouse warm load misses the performance category gate (app 87, admin 89)~~ — **fixed 6 Nov 2026 (#134)**: the 300–500 ms t≈8 ms task was Lighthouse's JS-coverage start walking the previous visit's heap in a reused tab; `pnpm lhci` now opens the warm visit in a freshly started browser on the cold run's profile. Also cut: Intl formatters built on first use, the onboarding pager no longer forces a style recalculation. Local warm: app 95 / admin 97. **Confirm on CI** | Closed when CI is green |
 | F57 | Phase 03 close (6 Nov 2026, DECISIONS #135) | T3.1 Admin Home inbox banner ("N new messages") not built: the inbox it points to does not exist yet (change-request replies Phase 5, reports Phase 8) | With the inbox (Phase 5 / Phase 8) |
 | F58 | Phase 03 close (6 Nov 2026, DECISIONS #136) | ~~Latin times inside Urdu sentences reordered by bidi ("PM 8:45"; camp hours scrambled; voice player times on the wrong ends)~~ — **fixed 6 Nov 2026**: times LTR-isolated in template params, camp card, khutbah line, Eid card; player labels follow the page direction; Urdu baselines regenerated | Closed |
-| F59 | CI 6 Nov 2026 (`2e5eda5`) | e2e `voice.spec`: on CI's Chromium the local file store's WAV sometimes fails to play ("Available when online"); passes locally. The playback assertion is skipped on CI only; upload, publish, badge and player checks stay | Investigate with Phase 4 (CI media logs); real playback = owner check 3.14 |
+| F59 | CI 6 Nov 2026 (`2e5eda5`) | e2e `voice.spec`: on CI's Chromium the local file store's WAV sometimes fails to play ("Available when online"); passes locally. The playback assertion is skipped on CI only; upload, publish, badge and player checks stay  | Deferred to Phase 9 (DECISIONS #143): CI run `64b0234` (8 Nov) had no voice.spec failure; the CI-only skip stays until media logs are added |
+| F60 | T4.1 (8 Nov 2026, DECISIONS #138) | `web-push` pinned at 3.6.7: 4.0.0 (6 Nov 2026) was younger than `minimumReleaseAge`. Review its changelog and move to 4.x (Renovate) — the adapter uses only `generateRequestDetails`  | Phase 9 hardening (DECISIONS #143): 4.x after its changelog review; 3.6.7 has no known advisory |
+| F61 | CI 8 Nov 2026 (DECISIONS #141) | Trivy ignores for the two distroless `zlib1g` CVEs (CVE-2026-76844, CVE-2026-85091) in `infra/trivy/mc-server.trivyignore.yaml` expire **15 Nov 2026**. Move `RUNTIME_IMAGE` (server.Dockerfile) to the first distroless digest with `zlib1g +deb13u1` and delete the entries (and the file if empty) | By 15 Nov 2026 (CI fails again after it) |
+| F62 | Review L2 (8 Nov 2026, DECISIONS #142) | Job timeouts race the run but do not cancel it: pass an `AbortSignal` into the push processors and stop between sends / pages | Phase 9 hardening |
+| F63 | Review L3 (DECISIONS #142) | Honour the push service `Retry-After` (move the batch to delayed by the largest value) instead of only BullMQ backoff | Before pilot (peak traffic) |
+| F64 | Review L4 (DECISIONS #142) | Kill switch takes effect per batch (up to ~4,000 sends after pause): re-check every send round | Phase 8 (moderation incidents) |
+| F65 | Review M2 rest (DECISIONS #142, #144) | Link each admin push subscription to its session (or have `getAlertTargets` require a live session), so revoking one session (another device) **or a session expiring** stops that phone's alerts too | **Before Phase 5's first alert to masjid admins** ("UPI change approved"); today masjid admins receive only test alerts (#144) |
 | F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-08 | 04 / T4.9, T4.4 | T4.9 run locally after the WSL fix (a real Restart): push spec 5, journeys 6/7/8 + admin screens ×4 green; integration api 335 / db 302. **Bug fixed (#140):** send-batch counting race stranded a job (`pending_batches` balance, migration 0017, ledger claim released on a failed write) — db +1, api +1 tests (mutation-checked). Disabled `Switch` text readable (axe). Musalli initial 188 kB. Lighthouse: musalli cold LCP 2689 ms locally (known local miss) → CI on `ci/phase-04`. T4.2–T4.5, T4.7 ticked. |
 | 2026-11-05 | 03 / T3.17, T3.12, F54, F55 | Blood camp (#132): `BloodCampCard` (lazy on Home), `WhatsAppButton`, `istWindow`, `formatPhone`, B18 tile, e2e with a pinned clock; usability (#133): tap counts 6/6/4/5/3 measured by e2e, quick jamaat offsets, one-sheet time ranges; F55: library status changes bump using masjids (db +3); F54: voice badge, A8 player, pause when covered, fake-mic e2e. Local: db 289, API int green (one Windows worker crash — the file passes alone), ui 304, app 162, admin 120, i18n 199; e2e of every touched spec green. CI `4cc10d4`: e2e green (the voice flake did not repeat), **Lighthouse warm red → F56**. All Phase 03 tasks done. |
 | 2026-11-05 | 03 / T3.16 | Ilm contacts (#131): migration 0014, policy + roles (Atlas file regenerated → O36 due), admin CRUD, bundle `contacts`, `IlmContactCard` + `whatsappChatUrl`, A21 + B17; db 286 incl. 9 new, API int +4, ui +6, admin +5, domain +2, app +1; e2e B17 flow + A21 ×2 audiences ×4 locales + B17 ×4 green locally. CI on `dae7c7c` (T3.15) red at admin e2e (`voice.spec.ts`, not reproducible locally) — re-run on this push; Ruqyah spec axe settle fixed. |
 | 2026-11-05 | 03 / T3.15 | Ruqyah (#130): migration 0013, policy + roles (Atlas file regenerated → O36), admin CRUD/order, public list, bundle sections, `RuqyahCard`, A19 + B15; db 277 incl. 12 new, API int 261, ui +6, admin +8; e2e flow + A19 ×4 + B15 ×4 green locally. CI on `a0954df` (T3.14) red at Lighthouse only (Home perf 87 < 90) — re-measured on this push. |

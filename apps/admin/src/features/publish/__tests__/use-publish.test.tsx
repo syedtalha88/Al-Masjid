@@ -29,7 +29,13 @@ afterEach(() => {
 // 07 B5–B7: the quota read and the publish moment every flow shares (and its quota refusal), and the flow draft store.
 describe('publish hooks', () => {
   it('reads the quota of the masjid, nothing without one', async () => {
-    vi.mocked(masjidApi.quota).mockResolvedValue({ used: 1, limit: 8, resetsAt: '2026-11-04T18:30:00.000Z' });
+    vi.mocked(masjidApi.quota).mockResolvedValue({
+      used: 1,
+      limit: 8,
+      resetsAt: '2026-11-04T18:30:00.000Z',
+      paused: false,
+      reach: { everyone: 3, brothers: 1, sisters: 2 },
+    });
     const idle = renderHook(() => useQuota(undefined), { wrapper: wrapper(client()) });
     expect(idle.result.current.fetchStatus).toBe('idle');
     const { result } = renderHook(() => useQuota('m1'), { wrapper: wrapper(client()) });
@@ -37,6 +43,29 @@ describe('publish hooks', () => {
       expect(result.current.data?.used).toBe(1);
     });
     expect(masjidApi.quota).toHaveBeenCalledWith('m1', expect.any(AbortSignal));
+  });
+
+  it('reads the reach afresh when the Publish bar appears, even when Home read the quota a moment ago', async () => {
+    const status = (everyone: number) => ({
+      used: 0,
+      limit: 8,
+      resetsAt: '2026-11-04T18:30:00.000Z',
+      paused: false,
+      reach: { everyone, brothers: everyone, sisters: 0 },
+    });
+    vi.mocked(masjidApi.quota).mockResolvedValueOnce(status(0)).mockResolvedValueOnce(status(1));
+    const queries = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 60_000 } } });
+    const home = renderHook(() => useQuota('m1'), { wrapper: wrapper(queries) });
+    await waitFor(() => {
+      expect(home.result.current.data?.reach.everyone).toBe(0);
+    });
+    home.unmount();
+    // A follower turned notifications on meanwhile; the cached answer is still "fresh" by the app's staleTime.
+    const { result } = renderHook(() => useQuota('m1'), { wrapper: wrapper(queries) });
+    await waitFor(() => {
+      expect(result.current.data?.reach.everyone).toBe(1);
+    });
+    expect(masjidApi.quota).toHaveBeenCalledTimes(2);
   });
 
   it('publishes with the given call and refreshes the masjid queries', async () => {

@@ -68,9 +68,10 @@ export function mcLocaleBoot(options: LocaleBootOptions = {}): Plugin {
 const CATALOGUE = /[\\/]packages[\\/]i18n[\\/]locales[\\/][a-z]{2}[\\/][\w.-]+\.json$/;
 /**
  * Locale files read as plain text, never through i18next: the ready-made dua messages (`dua-messages.ts` — no ICU
- * arguments, checked by its test) fill a text box as they are.
+ * arguments, checked by its test) fill a text box as they are; the push words (`push-text.ts`) go into notifications
+ * as they are (the musalli service worker's fallback text).
  */
-const PLAIN_TEXT = /[\\/]dua-messages\.json$/;
+const PLAIN_TEXT = /[\\/](dua-messages|push)\.json$/;
 
 /** Replaces every string leaf of a catalogue with the result of `convert`. */
 export function mapCatalogueStrings(value: unknown, convert: (message: string) => string): unknown {

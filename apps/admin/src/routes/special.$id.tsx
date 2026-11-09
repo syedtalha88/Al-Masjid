@@ -24,6 +24,7 @@ import { useErrorText, useSignedInAdmin } from '../features/auth/hooks/use-sessi
 import { masjidApi, masjidKeys } from '../features/home/api/masjid-api.ts';
 import { useMinute } from '../features/home/hooks/use-minute.ts';
 import { useSelectedMasjid } from '../features/home/hooks/use-selected-masjid.ts';
+import { useNotifyLine } from '../features/publish/notify-line.ts';
 import {
   IssueTags,
   PICK_FUTURE_DAYS,
@@ -127,6 +128,7 @@ function Editor({
 
   const issues = entryIssues(draft, today);
   const left = quota.data ? Math.max(quota.data.limit - quota.data.used, 0) : null;
+  const notifyText = useNotifyLine(quota.data);
   const notify = left === 0 ? false : (notifyChoice ?? entryNotifyDefault(draft, today));
   const complete = entryBody(draft, false) !== null;
   const canSave = complete && issues.length === 0 && entryDirty(saved, draft);
@@ -273,7 +275,7 @@ function Editor({
             checked: notify,
             onChange: setNotifyChoice,
             label: t('special.notify'),
-            quota: quota.data && left !== null ? t('special.quota', { left, limit: quota.data.limit }) : undefined,
+            quota: notifyText,
             disabled: left === 0,
           }}
           actionLabel={t('special.save')}

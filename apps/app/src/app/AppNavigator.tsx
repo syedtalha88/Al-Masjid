@@ -15,8 +15,10 @@ import { useRouter } from '@tanstack/react-router';
 import { useEffect, useMemo } from 'react';
 
 import { useLaunchLinks } from '../lib/launch.ts';
+import { usePushBridge } from '../lib/push-bridge.ts';
 import { useUnseenCount } from '../lib/unseen.ts';
 import { NotFoundScreen } from './NotFoundScreen.tsx';
+import { PushAsk } from './PushAsk.tsx';
 import { RouteError } from './RouteError.tsx';
 import { RoutePending } from './RoutePending.tsx';
 
@@ -73,21 +75,26 @@ export function AppNavigator() {
 function MusalliTabBar({ api }: { readonly api: NavigatorApi }) {
   const { t } = useTranslation();
   const unseen = useUnseenCount();
-  // The tab bar lives as long as the navigator and holds its api: links that launch the open app land here (T2.13).
+  // The tab bar lives as long as the navigator and holds its api: links that launch the open app land here (T2.13),
+  // and so do tapped notifications (T4.3).
   useLaunchLinks(api, NAV_CONFIG);
+  usePushBridge(api, unseen);
   return (
-    <TabBar
-      api={api}
-      label={t('tabs.label')}
-      start={[
-        { id: 'home', label: t('tabs.home'), Icon: HomeIcon },
-        { id: 'masjids', label: t('tabs.myMasjids'), Icon: MasjidsIcon },
-      ]}
-      end={[
-        { id: 'updates', label: t('tabs.updates'), Icon: UpdatesIcon, ...(unseen > 0 ? { badge: unseen } : {}) },
-        { id: 'settings', label: t('tabs.settings'), Icon: SettingsIcon },
-      ]}
-      scan={{ label: t('tabs.scan'), href: '/scan' }}
-    />
+    <>
+      <PushAsk />
+      <TabBar
+        api={api}
+        label={t('tabs.label')}
+        start={[
+          { id: 'home', label: t('tabs.home'), Icon: HomeIcon },
+          { id: 'masjids', label: t('tabs.myMasjids'), Icon: MasjidsIcon },
+        ]}
+        end={[
+          { id: 'updates', label: t('tabs.updates'), Icon: UpdatesIcon, ...(unseen > 0 ? { badge: unseen } : {}) },
+          { id: 'settings', label: t('tabs.settings'), Icon: SettingsIcon },
+        ]}
+        scan={{ label: t('tabs.scan'), href: '/scan' }}
+      />
+    </>
   );
 }

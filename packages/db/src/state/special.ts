@@ -83,7 +83,7 @@ export async function saveSpecialDate(
   handle: DbHandle,
   scope: Scope,
   input: WriteOptions & { readonly id?: UUID; readonly entry: SpecialDateInput; readonly notify: boolean },
-): Promise<{ id: string; item: { publicId: string } | null }> {
+): Promise<{ id: string; item: { publicId: string } | null; notificationJobId: string | null }> {
   const adminId = adminOf(scope, input.masjidId);
   const now = input.now ?? new Date();
   if (validateSpecialDate(input.entry, calendarDateInZone(now)).length > 0)
@@ -137,7 +137,11 @@ export async function saveSpecialDate(
       meta: { type: input.entry.type, notify: input.notify },
       ...(input.requestId ? { requestId: input.requestId } : {}),
     });
-    return { id: idText(id), item };
+    return {
+      id: idText(id),
+      item: item ? { publicId: item.publicId } : null,
+      notificationJobId: item ? idText(item.jobId) : null,
+    };
   });
 }
 

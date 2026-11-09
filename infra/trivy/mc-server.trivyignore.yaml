@@ -1,0 +1,15 @@
+# Trivy ignores for the mc-server image ONLY (CI "Trivy (images…)" step) — DECISIONS #141, owner-approved 8 Nov 2026.
+# Every entry is time-boxed: after `expired_at` the finding fails CI again. Remove an entry as soon as the pinned
+# distroless digest (infra/docker/server.Dockerfile RUNTIME_IMAGE) carries the fix.
+vulnerabilities:
+  # zlib1g 1:1.3.dfsg+really1.3.1-1+b1 in gcr.io/distroless/nodejs24-debian13 (fixed in Debian +deb13u1; no rebuilt
+  # distroless digest yet). Not loaded by our process: the official Node binary does not link the system zlib (it uses
+  # its bundled zlib 1.3.2.1) and a running distroless Node process maps no libz; `node` is the image's only executable.
+  - id: CVE-2026-76844
+    purls: ['pkg:deb/debian/zlib1g@1.3.dfsg%2Breally1.3.1-1%2Bb1'] # this package version only (review L8)
+    statement: system zlib1g in the distroless base is never loaded by node (DECISIONS #141)
+    expired_at: 2026-11-15
+  - id: CVE-2026-85091
+    purls: ['pkg:deb/debian/zlib1g@1.3.dfsg%2Breally1.3.1-1%2Bb1'] # this package version only (review L8)
+    statement: system zlib1g in the distroless base is never loaded by node (DECISIONS #141)
+    expired_at: 2026-11-15

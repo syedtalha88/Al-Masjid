@@ -194,7 +194,7 @@ export interface NewCredential {
 /**
  * Completes a registration (`POST /auth/register/verify`) in ONE transaction: consumes the invite, stores the
  * credential, activates an invited admin, creates the session, audits. A `recovery` invite also revokes the admin's
- * existing sessions (the lost device may still hold one).
+ * existing sessions (the lost device may still hold one) and deletes the admin's alert subscriptions.
  *
  * @throws StateError INVITE_INVALID (uniform — 04 R3), CREDENTIAL_EXISTS (credential id already registered).
  */
@@ -249,7 +249,13 @@ export async function registerCredential(
         },
         session,
       );
-      if (invite.purpose === 'recovery') await revokeAllSessions(ctx, admin._id, 'recovery', now);
+      if (invite.purpose === 'recovery') {
+        await revokeAllSessions(ctx, admin._id, 'recovery', now);
+        // The lost phone stops receiving alerts too; the new phone subscribes again (#144, re-review M-R1).
+        await ctx.db
+          .collection<{ admin_id: UUID }>('admin_push_subscriptions')
+          .deleteMany({ admin_id: admin._id }, session);
+      }
       await admins.updateOne(
         { _id: admin._id },
         { $set: { status: 'active', last_login_at: now, updated_at: now } },
@@ -384,6 +390,12 @@ export async function completeAssertion(
     if (!counterAdvances(Long.fromValue(credential.sign_count).toNumber(), input.newCounter)) {
       await credentials.updateOne({ _id: credential._id }, { $set: { revoked_at: now } }, session);
       const count = await revokeAllSessions(ctx, admin._id, 'credential_revoked', now);
+      // A cloned passkey's phone may hold this admin's alert subscription. A Super Admin keeps theirs: the
+      // regression alert goes to the Super Admins, and this may be the only one (#144, re-review L-R2).
+      if (admin.role !== 'super_admin')
+        await ctx.db
+          .collection<{ admin_id: UUID }>('admin_push_subscriptions')
+          .deleteMany({ admin_id: admin._id }, session);
       await writeAudit(
         ctx,
         {
@@ -581,6 +593,11 @@ export async function revokeSessions(
         { $set: { revoked_at: now, revoked_reason: input.reason } },
         { session: ctx.session },
       );
+    // Signing out everywhere also stops alerts on every phone (one session: the app removes its own subscription).
+    if (!input.sessionId && result.modifiedCount > 0)
+      await ctx.db
+        .collection<{ admin_id: UUID }>('admin_push_subscriptions')
+        .deleteMany({ admin_id: adminId }, { session: ctx.session });
     const requestId = input.requestId ? { requestId: input.requestId } : {};
     if (result.modifiedCount > 0) {
       await writeAudit(

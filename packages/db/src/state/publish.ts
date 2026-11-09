@@ -195,7 +195,7 @@ export async function enqueueNotification(
  *
  * @param input.version - the masjid's `content_version` after this transaction's bump.
  * @param input.limit - the masjid's `push_daily_quota`.
- * @returns the item's public id.
+ * @returns the item's public id and its pending outbox job.
  * @throws StateError NOTIFY_QUOTA_EXCEEDED (the whole save rolls back).
  */
 export async function publishTimingUpdate(
@@ -209,7 +209,7 @@ export async function publishTimingUpdate(
     readonly limit: number;
   },
   now: Date,
-): Promise<{ publicId: string }> {
+): Promise<{ publicId: string; jobId: UUID }> {
   const item = await insertPublishedItem(
     content,
     {
@@ -226,10 +226,10 @@ export async function publishTimingUpdate(
     },
     now,
   );
-  await enqueueNotification(
+  const { jobId } = await enqueueNotification(
     content,
     { masjidId: content.contentMasjidId, itemId: item.itemId, audience: 'everyone', limit: input.limit },
     now,
   );
-  return { publicId: item.publicId };
+  return { publicId: item.publicId, jobId };
 }

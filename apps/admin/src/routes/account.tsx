@@ -8,6 +8,7 @@ import {
   SectionHeader,
   Sheet,
   SkeletonText,
+  Switch,
   TextField,
   useToast,
 } from '@mc/ui/components';
@@ -17,6 +18,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 
+import { stopAlertsOnSignOut, useAlerts } from '../features/alerts/use-alerts.ts';
 import { authApi } from '../features/auth/api/auth-api.ts';
 import { LanguagePicker } from '../features/auth/components/LanguagePicker.tsx';
 import { StepUpCancelled, StepUpProvider, useStepUp } from '../features/auth/components/StepUpProvider.tsx';
@@ -81,8 +83,23 @@ function AccountContent() {
       if (!(error instanceof StepUpCancelled)) onError(error);
     },
   });
-  const logout = useMutation({ mutationFn: authApi.logout, onSuccess: signedOut, onError });
-  const logoutAll = useMutation({ mutationFn: authApi.logoutAll, onSuccess: signedOut, onError });
+  // Alerts stop on this phone first (the session that may remove the subscription is about to end — T4.6).
+  const logout = useMutation({
+    mutationFn: async () => {
+      await stopAlertsOnSignOut();
+      await authApi.logout();
+    },
+    onSuccess: signedOut,
+    onError,
+  });
+  const logoutAll = useMutation({
+    mutationFn: async () => {
+      await stopAlertsOnSignOut();
+      await authApi.logoutAll();
+    },
+    onSuccess: signedOut,
+    onError,
+  });
 
   return (
     <Screen title={t('account.title')}>
@@ -134,6 +151,8 @@ function AccountContent() {
             {t('account.addDevice')}
           </Button>
         </section>
+
+        <AlertsSection />
 
         <section className="flex flex-col gap-3">
           <SectionHeader title={t('account.sessions')} />
@@ -287,5 +306,41 @@ function AccountContent() {
         }}
       />
     </Screen>
+  );
+}
+
+/** "Alerts on this phone" (T4.6): security and job alerts for this admin, on the phones they choose. */
+function AlertsSection() {
+  const { t } = useTranslation('admin');
+  const alerts = useAlerts();
+  const note =
+    alerts.status === 'blocked'
+      ? t('push.alertsBlocked')
+      : alerts.status === 'install-first'
+        ? t('push.alertsInstallFirst')
+        : alerts.status === 'unsupported'
+          ? t('push.alertsUnsupported')
+          : undefined;
+  return (
+    <section className="flex flex-col gap-3">
+      <SectionHeader title={t('push.alerts')} />
+      <div className="rounded-md bg-surface px-4 py-1 shadow-e1">
+        <Switch
+          checked={alerts.status === 'on'}
+          label={t('push.alerts')}
+          description={alerts.status === 'on' ? t('push.alertsOn') : t('push.alertsHint')}
+          disabled={alerts.busy || note !== undefined}
+          onChange={(on) => {
+            void (on ? alerts.enable() : alerts.disable());
+          }}
+        />
+      </div>
+      {note ? <InfoNote>{note}</InfoNote> : null}
+      {alerts.failed ? (
+        <p role="alert" className="type-footnote text-danger-700">
+          {t('push.alertsFailed')}
+        </p>
+      ) : null}
+    </section>
   );
 }

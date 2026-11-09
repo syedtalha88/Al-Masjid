@@ -35,12 +35,12 @@ export default defineConfig({
       // Caddy's local CA is not trusted by the test browser; Chromium refuses service workers on certificate
       // errors even with ignoreHTTPSErrors, so the PWA specs need this flag (local/CI test browsers only).
       use: { ...devices['Pixel 7'], launchOptions: { args: ['--ignore-certificate-errors'] } },
-      testIgnore: /\.(perf|scan|visual)\.spec\.ts$/,
+      testIgnore: /\.(perf|scan|visual|push)\.spec\.ts$/,
     },
     {
       name: 'iphone-14',
       use: { ...devices['iPhone 14'] },
-      testIgnore: /\.(perf|scan|visual)\.spec\.ts$/,
+      testIgnore: /\.(perf|scan|visual|push)\.spec\.ts$/,
       // Playwright's WebKit on Windows fetches one resource at a time (~200 ms each, measured T2.7), so a screen that
       // needs a few lazy chunks takes seconds to appear locally; real Safari multiplexes over HTTP/2.
       expect: { timeout: 15_000 },
@@ -62,6 +62,14 @@ export default defineConfig({
         },
       },
       testMatch: /\.scan\.spec\.ts$/,
+    },
+    // Push (PHASE_04 T4.9): the full Chromium build in its new headless mode — the default headless shell denies the
+    // notification permission, so a service worker could not show a notification. Pushes arrive through CDP
+    // (`ServiceWorker.deliverPushMessage`); the runtime-test worker captures them instead of sending (test hooks).
+    {
+      name: 'push',
+      use: { ...devices['Pixel 7'], channel: 'chromium', launchOptions: { args: ['--ignore-certificate-errors'] } },
+      testMatch: /\.push\.spec\.ts$/,
     },
     // Performance traces (08 §8): Chromium with CPU throttling, run alone (`pnpm test:perf`, one worker) —
     // parallel workers compete for the CPU and make timings meaningless.
