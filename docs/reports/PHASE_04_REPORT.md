@@ -1,16 +1,16 @@
 # PHASE 04 REPORT — Push notifications
 
-> **Status: built; staging deploy next** — the checks are in `owner/PHASE_TESTING_GUIDE.md` → Phase 04.
+> **Status: AWAITING OWNER VERIFICATION** (on staging since 9 Nov 2026) — the checks are in `owner/PHASE_TESTING_GUIDE.md` → Phase 04.
 >
 > Two things the owner should know first:
-> - Notifications on staging need **O37** first: the public notification key in the worker's env file must match the
->   GitHub `staging` variable. Please also keep the private key backed up — losing it ends every phone's subscription.
+> - **O37 is done** (9 Nov 2026): the notification keys match on the server and in GitHub. Keep the private key backed
+>   up — losing it ends every phone's subscription.
 > - Real phones are checked only by you (**O38**, checks 4.1–4.4 and 4.12). Headless test browsers cannot subscribe
 >   at Google's or Apple's push service, so the e2e tests stop just before it (§5).
 
 **Date:** 9 Nov 2026 · **Commit range:** `d6a6980..HEAD` on `feat/phase-04` (Phase 04 started 8 Nov 2026) ·
 **Staging URLs:** app https://app-staging.almasjids.com · admin https://admin-staging.almasjids.com ·
-**Deployed release:** _filled in after the staging deploy_
+**Deployed release:** `863e064` (`main`, CI run 42638983698 green incl. "Release to staging"; live 9 Nov 2026 ~21:10 IST — both `/health` report `863e064`, db + redis ok; migrations 0013–0017 applied by the deploy)
 
 ## 1. Summary
 

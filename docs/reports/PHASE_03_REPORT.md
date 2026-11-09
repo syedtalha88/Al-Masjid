@@ -10,7 +10,7 @@
 
 **Date:** 6 Nov 2026 · **Commit range:** `cdd39fa..HEAD` on `feat/phase-03` (123 commits; Phase 03 started
 27 Oct 2026) · **Staging URLs:** app https://app-staging.almasjids.com · admin https://admin-staging.almasjids.com ·
-**Deployed release:** _filled in after the staging deploy_
+**Deployed release:** `863e064` (`main`, CI run 42638983698 green incl. "Release to staging"; live 9 Nov 2026 ~21:10 IST — both `/health` report `863e064`, db + redis ok; migrations 0013–0017 applied by the deploy) — deployed together with Phase 04
 
 ## 1. Summary
 
