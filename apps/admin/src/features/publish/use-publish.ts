@@ -13,6 +13,10 @@ export function useQuota(masjidId: string | undefined) {
     queryKey: masjidKeys.quota(id),
     queryFn: ({ signal }) => masjidApi.quota(id, signal),
     enabled: masjidId !== undefined,
+    // "Will notify N people" is the last thing read before notifying: read it again when the Publish bar appears,
+    // not Home's answer from up to a minute ago (followers turn notifications on and off meanwhile). The cached
+    // value shows until the new one arrives.
+    refetchOnMount: 'always',
   });
 }
 

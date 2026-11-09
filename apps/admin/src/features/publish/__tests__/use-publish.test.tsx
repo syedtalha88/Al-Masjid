@@ -45,6 +45,29 @@ describe('publish hooks', () => {
     expect(masjidApi.quota).toHaveBeenCalledWith('m1', expect.any(AbortSignal));
   });
 
+  it('reads the reach afresh when the Publish bar appears, even when Home read the quota a moment ago', async () => {
+    const status = (everyone: number) => ({
+      used: 0,
+      limit: 8,
+      resetsAt: '2026-11-04T18:30:00.000Z',
+      paused: false,
+      reach: { everyone, brothers: everyone, sisters: 0 },
+    });
+    vi.mocked(masjidApi.quota).mockResolvedValueOnce(status(0)).mockResolvedValueOnce(status(1));
+    const queries = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 60_000 } } });
+    const home = renderHook(() => useQuota('m1'), { wrapper: wrapper(queries) });
+    await waitFor(() => {
+      expect(home.result.current.data?.reach.everyone).toBe(0);
+    });
+    home.unmount();
+    // A follower turned notifications on meanwhile; the cached answer is still "fresh" by the app's staleTime.
+    const { result } = renderHook(() => useQuota('m1'), { wrapper: wrapper(queries) });
+    await waitFor(() => {
+      expect(result.current.data?.reach.everyone).toBe(1);
+    });
+    expect(masjidApi.quota).toHaveBeenCalledTimes(2);
+  });
+
   it('publishes with the given call and refreshes the masjid queries', async () => {
     const send = vi.fn().mockResolvedValue(PUBLISHED);
     const queries = client();
