@@ -372,17 +372,26 @@ for (const locale of APP_LOCALES) {
     }) => {
       const current = page.locator('[data-page][aria-hidden="false"]');
       const primary = () => current.locator('section').getByRole('button').last();
+      // Taps the current page's primary action and waits until the pager has moved on. Without the wait the next
+      // lookup can grab the same button again (privacy "Continue" saves first, then advances): Playwright keeps a
+      // resolved element while it stays attached, and the pager keeps every page mounted — the click then retries on
+      // an off-screen page until the timeout (CI f2d31af).
+      const tapPrimary = async () => {
+        const from = await current.getAttribute('data-page');
+        await primary().click();
+        await expect(current).not.toHaveAttribute('data-page', from ?? '');
+      };
       const title = label(locale, 'onboarding', 'notifications.title');
       await page.goto(`${APP_URL}/m/TESTA001`);
       await page.getByRole('button', { name: 'Get started' }).click();
       await page.locator('label').filter({ hasText: NATIVE[locale] }).click();
       await expect(page.locator('html')).toHaveAttribute('lang', locale);
-      await primary().click(); // → brother / sister
+      await tapPrimary(); // → brother / sister
       await current.locator('label').first().click();
-      await primary().click(); // → privacy
+      await tapPrimary(); // → privacy
       for (let step = 0; step < 4; step += 1) {
         if (await current.getByRole('heading', { name: title }).isVisible()) break;
-        await primary().click(); // privacy → Continue; install (when shown) → its last action
+        await tapPrimary(); // privacy → Continue; install (when shown) → its last action
       }
       await expect(current.getByRole('heading', { name: title })).toBeVisible();
       await expect(current.getByText(label(locale, 'onboarding', 'notifications.body'))).toBeVisible();

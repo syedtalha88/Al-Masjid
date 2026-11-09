@@ -66,7 +66,7 @@
 
 | # | What | Time | When |
 |---|---|---|---|
-| O37 | **Notification keys on staging** — on the server, compare `VAPID_PUBLIC_KEY` in `/etc/masjid-connect/staging/worker.env` with the GitHub `staging` environment variable `VITE_PUBLIC_VAPID_PUBLIC_KEY` (they must be the same text — both are public keys, fine to compare on screen). Then **back up the VAPID private key** (`VAPID_PRIVATE_KEY` in the same file) into your password manager — never into chat. If it is ever lost, every phone must turn notifications on again | 10 min | before the Phase 04 staging deploy |
+| O37 | ✅ **Done 9 Nov 2026** (keys match on the server and in GitHub) — **Notification keys on staging** — on the server, compare `VAPID_PUBLIC_KEY` in `/etc/masjid-connect/staging/worker.env` with the GitHub `staging` environment variable `VITE_PUBLIC_VAPID_PUBLIC_KEY` (they must be the same text — both are public keys, fine to compare on screen). Then **back up the VAPID private key** (`VAPID_PRIVATE_KEY` in the same file) into your password manager — never into chat. If it is ever lost, every phone must turn notifications on again | 10 min | before the Phase 04 staging deploy |
 | O38 | **Real-phone notification checks** — on the Poco F7 (any browser mode) and on the iPhone (only in the installed Home Screen app): Settings → Notifications → Turn on; publish a notice from the admin app; the notification arrives in the phone's language and opens the notice. Also the admin "Alerts on this phone" switch (Masjid Profile → My account) and the Super Admin's test alert. Steps will be in `owner/PHASE_TESTING_GUIDE.md` → Phase 04 | 20 min | when Claude Code says "Phase 04 is ready" |
 
 ### Later phases (Claude Code reminds you)

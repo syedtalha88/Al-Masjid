@@ -79,8 +79,10 @@ test('Notifications mutes this masjid on the server; unfollow from the menu', as
       return bell.getAttribute('aria-pressed');
     })
     .toBe('false');
-  expect((await (await patched).response())?.status()).toBe(204);
+  // The toast comes with the local change; the PATCH may follow only when the queued follow syncs — on a slow runner
+  // after the toast has gone (CI dd2a557). So the toast first, then the server.
   await expect(page.getByRole('status').filter({ hasText: 'Notifications are off for this masjid' })).toBeVisible();
+  expect((await (await patched).response())?.status()).toBe(204);
 
   await page.getByRole('button', { name: 'More options' }).click();
   await page.getByRole('dialog', { name: 'Test Masjid Alpha' }).getByRole('button', { name: 'Unfollow' }).click();
