@@ -119,7 +119,9 @@ function Settings() {
       icon: <BellIcon />,
       tone: 'sun' as const,
       title: t('notifications'),
-      value: t(PUSH_STATUS_KEY[push.status]),
+      // A sentence, not a short value: under the title it wraps (Telugu "blocked in phone settings" squeezed the title
+      // to nothing as a trailing value — visual baselines, 9 Nov 2026).
+      subtitle: t(PUSH_STATUS_KEY[push.status]),
       onPress: go('/settings/notifications'),
     },
   ];
