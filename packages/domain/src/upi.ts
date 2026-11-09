@@ -37,8 +37,12 @@ export function normalizeVpa(value: string): string {
   return at < 0 ? trimmed : `${trimmed.slice(0, at)}@${trimmed.slice(at + 1).toLowerCase()}`;
 }
 
-/** Printable single-line text: breaks → spaces, control / bidi characters dropped, spaces collapsed, trimmed. */
-function clean(value: string): string {
+/**
+ * Printable single-line text, as a payee name or note is kept: breaks → spaces, control / bidi characters dropped,
+ * spaces collapsed, trimmed (joiners kept). The admin's typed payee name is stored this way, so the link shows exactly
+ * what the Super Admin approved.
+ */
+export function cleanUpiText(value: string): string {
   return value.replace(BREAKS, ' ').replace(INVISIBLE, '').replace(/\s+/g, ' ').trim();
 }
 
@@ -78,9 +82,9 @@ export interface UpiPayee {
 export function buildUpiUri({ vpa, payeeName, note }: UpiPayee): string {
   const pa = normalizeVpa(vpa);
   if (!isValidVpa(pa)) throw new RangeError('buildUpiUri(): invalid VPA');
-  const pn = cut(clean(payeeName), UPI_TEXT_MAX);
+  const pn = cut(cleanUpiText(payeeName), UPI_TEXT_MAX);
   if (pn === '') throw new RangeError('buildUpiUri(): empty payee name');
-  const tn = note === undefined ? '' : cut(clean(note), UPI_TEXT_MAX);
+  const tn = note === undefined ? '' : cut(cleanUpiText(note), UPI_TEXT_MAX);
   return `upi://pay?pa=${pa}&pn=${encode(pn)}${tn === '' ? '' : `&tn=${encode(tn)}`}&cu=INR`;
 }
 
@@ -129,7 +133,7 @@ export function parseUpiUri(text: string): ScannedUpi | null {
   const vpa = normalizeVpa(pa);
   if (!isValidVpa(vpa)) return null;
   const text_ = (key: string) => {
-    const cleaned = cut(clean(found.get(key)?.[0] ?? ''), SCANNED_TEXT_MAX);
+    const cleaned = cut(cleanUpiText(found.get(key)?.[0] ?? ''), SCANNED_TEXT_MAX);
     return cleaned === '' ? null : cleaned;
   };
   return { vpa, payeeName: text_('pn'), note: text_('tn') };

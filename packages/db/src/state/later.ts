@@ -10,21 +10,6 @@ const later = (name: string, phase: string) => (): never => {
   throw new NotImplementedError(name, phase);
 };
 
-export const requestPaymentChange: (
-  handle: DbHandle,
-  scope: Scope,
-  input: { masjidId: UUID; vpa: string; payeeName: string; note?: string },
-) => Promise<UUID> = later('requestPaymentChange', 'Phase 5');
-export const approvePaymentChange: (handle: DbHandle, scope: Scope, profileId: UUID) => Promise<void> = later(
-  'approvePaymentChange',
-  'Phase 5',
-);
-export const rejectPaymentChange: (handle: DbHandle, scope: Scope, profileId: UUID, reason: string) => Promise<void> =
-  later('rejectPaymentChange', 'Phase 5');
-export const activateDuePaymentProfiles: (handle: DbHandle, scope: Scope) => Promise<number> = later(
-  'activateDuePaymentProfiles',
-  'Phase 5',
-);
 export const removeItem: (handle: DbHandle, scope: Scope, itemId: UUID, reason: string) => Promise<void> = later(
   'removeItem',
   'Phase 8',

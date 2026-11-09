@@ -91,6 +91,15 @@ export {
   type NewMasjid,
 } from './masjids.ts';
 export { type ImagePurpose, recordAudioUpload, recordImageUpload } from './media.ts';
+export {
+  activateDuePaymentProfiles,
+  approvePaymentChange,
+  PAYMENT_HOLD_MIN_PRODUCTION,
+  PAYMENT_NOTICE_TEMPLATE,
+  type PaymentActivation,
+  rejectPaymentChange,
+  requestPaymentChange,
+} from './payment.ts';
 export { type MasjidProfilePatch, requestMasjidChange, updateMasjidProfile } from './profile.ts';
 export {
   enqueueNotification,

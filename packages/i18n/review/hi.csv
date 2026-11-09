@@ -1400,3 +1400,5 @@ templates,timings_updated.title,Prayer timings updated,नमाज़ के �
 templates,timings_updated.body,The prayer timings of this masjid have been updated. Please check the new times.,इस मस्जिद की नमाज़ के समय अपडेट किए गए हैं। कृपया नए समय देख लें।,no
 templates,special_timings.title,Special timings,ख़ास समय,no
 templates,special_timings.body,This masjid has special timings for {date}. Please see Special Dates for the times.,इस मस्जिद में {date} के लिए ख़ास समय हैं। समय देखने के लिए कृपया ख़ास तारीख़ें देखें।,no
+templates,payment_details_updated.title,Payment details updated,भुगतान विवरण बदला गया,no
+templates,payment_details_updated.body,This masjid's UPI payment details have changed. Please check the payee name before you donate.,इस मस्जिद के UPI भुगतान विवरण बदल गए हैं। दान करने से पहले कृपया प्राप्तकर्ता का नाम जाँच लें।,no

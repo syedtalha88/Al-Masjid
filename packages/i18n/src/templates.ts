@@ -155,6 +155,15 @@ const STRUCTURE: readonly Omit<StarterTemplate, 'title' | 'body'>[] = [
     system: true,
     params: [p('date', 'date')],
   },
+  // Published by the app when new UPI details go live after the change-lock hold (04 R1, T5.2) — important, locked.
+  {
+    key: 'payment_details_updated',
+    category: 'general',
+    icon: 'warning',
+    important: true,
+    system: true,
+    params: [],
+  },
 ];
 
 type LocaleFile = Readonly<Record<string, { readonly title: string; readonly body: string }>>;

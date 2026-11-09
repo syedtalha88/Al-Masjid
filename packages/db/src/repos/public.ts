@@ -158,8 +158,8 @@ const SPECIAL_DATES_MAX = 100;
 
 /**
  * `GET /masjids/:id/bundle`: the masjid's profile, raw timings, special dates from `fromDate` on, Ramadan settings,
- * the adhkar set, the Ilm contacts (both audiences) and the section counts (Masjid Detail rows without loading the lists); payment, campaigns, chanda and
- * needy people stay empty until Phase 5 (03 §3).
+ * the adhkar set, the Ilm contacts (both audiences), the live UPI details and the section counts (Masjid Detail rows
+ * without loading the lists); campaigns, chanda and needy people arrive with their Phase 5 tasks (03 §3).
  *
  * @param fromDate - "YYYY-MM-DD" (today − 7 days in IST: the timetable's DateStepper range).
  * @returns `null` for unknown, pending and deleted masjids; `{status: 'suspended', v}` for a suspended one.
@@ -213,9 +213,27 @@ export async function getMasjidBundle(handle: DbHandle, id: UUID, fromDate: stri
     adhkar: await adhkarEntries(handle, masjid),
     contacts: await getPublicContacts(handle, id),
     sections: { ruqyah: await (await view(handle, 'v_pub_ruqyah')).count({ masjid_id: id }), needy: 0 },
-    payment: null,
+    payment: await activePayment(handle, id),
     campaigns: [],
     chanda: null,
+  };
+}
+
+/**
+ * The masjid's live UPI details (`v_pub_payment_profiles`: only `active`, only for a public masjid — never a pending,
+ * on-hold or rejected request; 04 R1). `effectiveAt` drives "changed recently" (A10 QR sheet).
+ */
+async function activePayment(
+  handle: DbHandle,
+  masjidId: UUID,
+): Promise<{ vpa: string; payeeName: string; effectiveAt: string } | null> {
+  const doc = await (await view(handle, 'v_pub_payment_profiles')).findOne({ masjid_id: masjidId });
+  if (!doc) return null;
+  const effectiveAt: unknown = doc['effective_at'];
+  return {
+    vpa: need(doc, 'vpa'),
+    payeeName: need(doc, 'payee_name'),
+    effectiveAt: effectiveAt instanceof Date ? effectiveAt.toISOString() : new Date(0).toISOString(),
   };
 }
 

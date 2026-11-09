@@ -141,6 +141,11 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'contact.create': ['audience', 'consent_confirmed'],
   'contact.update': ['audience', 'consent_confirmed'],
   'contact.delete': [],
+  // The UPI change-lock (04 R1, T5.2): never the VPA or payee name in meta — the profile documents are the history.
+  'payment.request': [],
+  'payment.approve': ['hold_minutes'],
+  'payment.reject': ['from'],
+  'payment.activate': [],
   'item.publish': ['type', 'template', 'notify', 'image'],
   'item.edit': ['type'],
   'item.delete': ['type'],

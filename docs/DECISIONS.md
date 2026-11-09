@@ -2324,3 +2324,27 @@ is built on `feat/phase-05`, branched from `feat/phase-04` = `main` (`863e064` +
 checks find is fixed first (on `feat/phase-04` → `main`, then merged into `feat/phase-05`); Phases 03 + 04 are marked
 DONE only on the owner's word.
 **Consequences:** Phase 05 deploys to staging only after Phases 03 + 04 are verified, or with the owner's OK.
+
+### #146 — UPI change-lock: the data layer (PHASE_05 T5.2) — ACCEPTED (Claude Code, 9 Nov 2026)
+**Context:** 02 `payment_profiles` (state machine `pending → approved_on_hold → active`, `pending → rejected`), 04 R1.
+**Decision:**
+- `packages/db/src/state/payment.ts` is the only writer: the policy layer keeps **no** write cell for
+  `payment_profiles` (proven again in `payment.int.test.ts`); state functions write inside one transaction with the
+  audit entry (`payment.request` / `.approve` {hold_minutes} / `.reject` {from} / `.activate` — **never the VPA or payee
+  name in meta**: the profile documents are the history).
+- **Reject also during the hold** (`approved_on_hold → rejected`), a deviation from 02's diagram: the 24 h hold exists
+  so that a wrong or malicious change can be stopped before it goes live (Super Admin alert on every request) — without
+  this transition the hold could not do that. 02 updated.
+- The admin request normalizes the VPA (`@mc/domain/upi`) and cleans the payee name exactly like the link builder
+  (`cleanUpiText`), so the approved text is the text in every `upi://` link. One open request per masjid: checked, and
+  enforced by the partial unique index (a mutation without the check still passes — the index holds).
+  `PAYMENT_UNCHANGED` refuses a request equal to the active details. Suspended / deleted masjids cannot request.
+- **Activation** (system job, ≤ 50 per run, one transaction each, idempotent): previous active → `superseded`, then
+  active; version bump; when the masjid is public an **important** announcement from the **system template
+  `payment_details_updated`** (category general, audience everyone) with an outbox job `bypass_quota: true`. A masjid
+  that is not public gets no notice (nobody can see it; it is hidden with the masjid).
+- That notice is **locked**: `editItem` / `deleteItem` refuse it (`ITEM_LOCKED`) — a compromised admin account must not
+  be able to hide the change from followers.
+- Bundle `payment` = `v_pub_payment_profiles` (active only, public masjids only) `{vpa, payeeName, effectiveAt}`.
+**Consequences:** 18 starter templates (texts in 4 locales, drafts for review — O31); the template must be active in
+each environment (Super Admin "Add starter templates", as for `timings_updated`).
