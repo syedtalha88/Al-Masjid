@@ -921,6 +921,13 @@ errors,PAYMENT_NOT_FOUND,This payment request no longer exists.,ఈ చెల్
 errors,PAYMENT_NOT_PENDING,This request was already decided.,ఈ అభ్యర్థనపై ఇప్పటికే నిర్ణయం జరిగింది.,no
 errors,PAYMENT_NOT_OPEN,This request is already live or closed.,ఈ అభ్యర్థన ఇప్పటికే అమలులో ఉంది లేదా ముగిసింది.,no
 errors,ITEM_LOCKED,This notice was sent by the app and cannot be changed or deleted.,"ఈ ప్రకటనను యాప్ పంపింది, దీన్ని మార్చలేరు లేదా తొలగించలేరు.",no
+errors,CAMPAIGN_INVALID,"Check the title, the target (at least ₹1,000) and the dates, then try again.","శీర్షిక, లక్ష్యం (కనీసం ₹1,000) మరియు తేదీలను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.",no
+errors,CAMPAIGN_NO_PAYMENT,Set up your masjid's UPI first (Masjid Profile → UPI payment details).,ముందు మీ మసీదు UPI సెట్ చేయండి (మసీదు ప్రొఫైల్ → UPI చెల్లింపు వివరాలు).,no
+errors,CAMPAIGN_LIMIT_REACHED,You can run up to 3 donation drives at once. Mark one completed first.,ఒకేసారి 3 విరాళ ప్రచారాల వరకు నడపవచ్చు. ముందు ఒకదాన్ని పూర్తయినట్లు గుర్తించండి.,no
+errors,CAMPAIGN_NOT_FOUND,This donation drive no longer exists.,ఈ విరాళ ప్రచారం ఇప్పుడు లేదు.,no
+errors,CAMPAIGN_NOT_ACTIVE,This donation drive is already completed or closed.,ఈ విరాళ ప్రచారం ఇప్పటికే పూర్తయింది లేదా ముగిసింది.,no
+errors,CAMPAIGN_CLOSED,This donation drive has closed. The amount can no longer be changed.,ఈ విరాళ ప్రచారం ముగిసింది. మొత్తాన్ని ఇక మార్చలేరు.,no
+errors,CAMPAIGN_TARGET_LOWER,"The target can only be raised, not lowered.","లక్ష్యాన్ని పెంచవచ్చు మాత్రమే, తగ్గించలేరు.",no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no

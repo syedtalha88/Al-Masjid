@@ -82,6 +82,13 @@ export const API_ERRORS = {
   PAYMENT_NOT_PENDING: 409, // approve: already approved, rejected or live (T5.2)
   PAYMENT_NOT_OPEN: 409, // reject: already live, rejected or superseded (T5.2)
   ITEM_LOCKED: 409, // the "Payment details updated" notice cannot be edited or deleted (04 R1, T5.2)
+  CAMPAIGN_INVALID: 400, // title 1–120, description ≤ 1,500, target ≥ ₹1,000, dates, another masjid's cover (T5.3)
+  CAMPAIGN_NO_PAYMENT: 409, // no active UPI details yet (00 §4.3, T5.3)
+  CAMPAIGN_LIMIT_REACHED: 409, // 3 active campaigns (00 §4.3, T5.3)
+  CAMPAIGN_NOT_FOUND: 404, // unknown or deleted campaign (T5.3)
+  CAMPAIGN_NOT_ACTIVE: 409, // edit / complete: already completed or closed (T5.3)
+  CAMPAIGN_CLOSED: 409, // "Update amount" after the end date (T5.3)
+  CAMPAIGN_TARGET_LOWER: 409, // the target only goes up (00 §4.3, T5.3)
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

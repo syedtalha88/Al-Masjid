@@ -9,6 +9,7 @@ import { MIGRATIONS } from '../migrations/index.ts';
 import type { DbHandle } from '../src/client.ts';
 import { StateError } from '../src/effects.ts';
 import { runMigrations } from '../src/migrate/index.ts';
+import { listCampaignsForAdmin } from '../src/repos/index.ts';
 import { adminScope, systemScope } from '../src/scope.ts';
 import { buildDevSeed, seedId, writeDevSeed } from '../src/seed/index.ts';
 import {
@@ -237,5 +238,24 @@ describe('update amount, edit, complete, close', () => {
     expect((await raw('items').findOne({ _id: itemId }))?.['campaign']).toMatchObject({ status: 'closed' });
     expect(await code(received(14_000_000))).toBe('CAMPAIGN_CLOSED');
     expect(await closeEndedCampaigns(as('system'), systemScope(), { today: '2026-11-21' })).toBe(0); // idempotent
+  });
+});
+
+describe('admin list (B8)', () => {
+  it('active first, then completed, then closed; amounts as numbers; other masjids refused', async () => {
+    const { campaigns } = await listCampaignsForAdmin(as('admin'), alpha, ALPHA);
+    const statuses = campaigns.map((row) => row.status);
+    expect(statuses).toEqual(
+      [...statuses].sort(
+        (a, b) => ['active', 'completed', 'closed'].indexOf(a) - ['active', 'completed', 'closed'].indexOf(b),
+      ),
+    );
+    expect(campaigns.find((row) => row.title === 'Test water tank (bigger)')).toMatchObject({
+      status: 'closed',
+      targetPaise: 20_000_000,
+      receivedPaise: 13_000_000,
+      endsOn: '2026-11-20',
+    });
+    expect(await code(listCampaignsForAdmin(as('admin'), adminOf(BETA), ALPHA))).toBe('MASJID_NOT_FOUND');
   });
 });

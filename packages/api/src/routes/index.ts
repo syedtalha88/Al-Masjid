@@ -7,6 +7,7 @@ import { adminLibraryRoutes } from './admin-library.ts';
 import { type AdminMasjidRouteDeps, adminMasjidRoutes } from './admin-masjid.ts';
 import { type AdminPasskeyDeps, adminPasskeyRoutes } from './admin-passkeys.ts';
 import { adminRuqyahRoutes } from './admin-ruqyah.ts';
+import { adminCampaignRoutes } from './campaigns.ts';
 import { linkPreviewRoutes } from './link-preview.ts';
 import { adminPaymentRoutes, type PaymentRouteDeps, superPaymentRoutes } from './payments.ts';
 import { type PublicRouteDeps, publicRoutes } from './public.ts';
@@ -40,6 +41,7 @@ export function adminRoutes(deps: AdminRouteDeps): { routes: RouteDefinition[]; 
       ...adminRuqyahRoutes(deps),
       ...adminContactRoutes(deps),
       ...adminPaymentRoutes(deps),
+      ...adminCampaignRoutes(deps),
     ],
     superRoutes: [
       ...superRoutes(deps),

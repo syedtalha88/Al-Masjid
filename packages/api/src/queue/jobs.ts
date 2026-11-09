@@ -41,6 +41,8 @@ export const JOB_SCHEMAS = {
   'outbox-sweeper': z.strictObject({}),
   /** Scheduled every 10 minutes: approved UPI details whose hold has passed go live (04 R1, T5.2). */
   'payment-activate': z.strictObject({}),
+  /** Scheduled daily 00:10 IST: donation drives whose end date has passed close (00 §4.3, T5.3). */
+  'campaign-close': z.strictObject({}),
 } as const;
 
 export type JobName = keyof typeof JOB_SCHEMAS;
@@ -68,6 +70,7 @@ export const JOB_DEFAULTS: Readonly<Record<JobName, JobsOptions>> = {
   'outbox-sweeper': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
   // Idempotent and scheduled: a failed run is simply the next run's work.
   'payment-activate': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
+  'campaign-close': { attempts: 3, backoff: { type: 'exponential', delay: 60_000 }, ...REMOVAL },
 };
 
 /** The longest one run of a job may take before it counts as failed (BullMQ has no job timeout of its own). */
@@ -78,6 +81,7 @@ export const JOB_TIMEOUT_MS: Readonly<Record<JobName, number>> = {
   'alert-send': 60_000,
   'outbox-sweeper': 50_000,
   'payment-activate': 120_000,
+  'campaign-close': 120_000,
 };
 
 /** The BullMQ job id of a send batch — dedups a duplicated fan-out (01 §5.8; "." instead of ":", which BullMQ refuses). */

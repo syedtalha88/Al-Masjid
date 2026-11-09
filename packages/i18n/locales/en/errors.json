@@ -69,5 +69,12 @@
   "PAYMENT_NOT_FOUND": "This payment request no longer exists.",
   "PAYMENT_NOT_PENDING": "This request was already decided.",
   "PAYMENT_NOT_OPEN": "This request is already live or closed.",
-  "ITEM_LOCKED": "This notice was sent by the app and cannot be changed or deleted."
+  "ITEM_LOCKED": "This notice was sent by the app and cannot be changed or deleted.",
+  "CAMPAIGN_INVALID": "Check the title, the target (at least ₹1,000) and the dates, then try again.",
+  "CAMPAIGN_NO_PAYMENT": "Set up your masjid's UPI first (Masjid Profile → UPI payment details).",
+  "CAMPAIGN_LIMIT_REACHED": "You can run up to 3 donation drives at once. Mark one completed first.",
+  "CAMPAIGN_NOT_FOUND": "This donation drive no longer exists.",
+  "CAMPAIGN_NOT_ACTIVE": "This donation drive is already completed or closed.",
+  "CAMPAIGN_CLOSED": "This donation drive has closed. The amount can no longer be changed.",
+  "CAMPAIGN_TARGET_LOWER": "The target can only be raised, not lowered."
 }

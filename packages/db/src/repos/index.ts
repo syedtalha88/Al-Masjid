@@ -9,6 +9,7 @@ export {
   quotaUsageId,
   requireOwnMasjid,
 } from './admin.ts';
+export { type AdminCampaignRow, campaignRowOf, type CampaignStatus, listCampaignsForAdmin } from './campaigns.ts';
 export { type ContactRow, getPublicContacts, listContactsForAdmin } from './contacts.ts';
 export { type AdminItemRow, type AdminItemStatus, listItemsForAdmin } from './items.ts';
 export {

@@ -3279,6 +3279,281 @@
         ],
         "additionalProperties": false
       },
+      "AdminCampaignList": {
+        "type": "object",
+        "properties": {
+          "campaigns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCampaign"
+            }
+          }
+        },
+        "required": [
+          "campaigns"
+        ]
+      },
+      "AdminCampaign": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "publicId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "renovation",
+              "repair",
+              "utilities",
+              "welfare",
+              "other"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "completed",
+              "closed"
+            ]
+          },
+          "targetPaise": {
+            "type": "number"
+          },
+          "receivedPaise": {
+            "type": "number"
+          },
+          "receivedUpdatedAt": {
+            "type": "string"
+          },
+          "startsOn": {
+            "type": "string"
+          },
+          "endsOn": {
+            "type": "string"
+          },
+          "cover": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "thumbhash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "key",
+              "thumbhash"
+            ]
+          },
+          "publishedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "publicId",
+          "title",
+          "purpose",
+          "status",
+          "targetPaise",
+          "receivedPaise",
+          "startsOn",
+          "publishedAt"
+        ]
+      },
+      "CampaignCreate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1500
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "renovation",
+              "repair",
+              "utilities",
+              "welfare",
+              "other"
+            ]
+          },
+          "targetPaise": {
+            "type": "integer",
+            "minimum": 100000,
+            "maximum": 1000000000000
+          },
+          "startsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "endsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "cover": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^m\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              "thumbhash": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+              },
+              "rightsConfirmed": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              }
+            },
+            "required": [
+              "key",
+              "thumbhash",
+              "rightsConfirmed"
+            ],
+            "additionalProperties": false
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "title",
+          "purpose",
+          "targetPaise",
+          "startsOn",
+          "notify"
+        ],
+        "additionalProperties": false
+      },
+      "CampaignPatch": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1500
+          },
+          "endsOn": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "targetPaise": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000000
+          },
+          "cover": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^m\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              "thumbhash": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+              },
+              "rightsConfirmed": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              }
+            },
+            "required": [
+              "key",
+              "thumbhash",
+              "rightsConfirmed"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "CampaignReceivedResult": {
+        "type": "object",
+        "properties": {
+          "notification": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "queued": {
+                "type": "boolean"
+              },
+              "targeted": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "quotaLeft": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "queued",
+              "targeted",
+              "quotaLeft"
+            ]
+          }
+        },
+        "required": [
+          "notification"
+        ]
+      },
+      "CampaignReceived": {
+        "type": "object",
+        "properties": {
+          "receivedPaise": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000000
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "receivedPaise",
+          "notify"
+        ],
+        "additionalProperties": false
+      },
       "SuperDashboard": {
         "type": "object",
         "properties": {
@@ -11058,6 +11333,213 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/campaigns": {
+      "get": {
+        "summary": "Donation drives — active, then completed, then closed (B8)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCampaignList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Start a donation drive — needs the masjid's active UPI details; at most 3 active (00 §4.3)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemPublished"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/campaigns/{id}": {
+      "patch": {
+        "summary": "Edit a donation drive — title, description, cover, end date; the target only upward (audited)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/campaigns/{id}/received": {
+      "post": {
+        "summary": "\"Update amount\": what the masjid reports received (a history row each time; notify optional)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignReceived"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignReceivedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/campaigns/{id}/complete": {
+      "post": {
+        "summary": "Mark a donation drive completed (it stays visible until it closes)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
           }
         }
       }

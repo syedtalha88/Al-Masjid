@@ -921,6 +921,13 @@ errors,PAYMENT_NOT_FOUND,This payment request no longer exists.,یہ ادائی�
 errors,PAYMENT_NOT_PENDING,This request was already decided.,اس درخواست کا فیصلہ پہلے ہی ہو چکا ہے۔,no
 errors,PAYMENT_NOT_OPEN,This request is already live or closed.,یہ درخواست پہلے سے نافذ ہے یا بند ہو چکی ہے۔,no
 errors,ITEM_LOCKED,This notice was sent by the app and cannot be changed or deleted.,یہ اطلاع ایپ نے بھیجی ہے، اسے بدلا یا ہٹایا نہیں جا سکتا۔,no
+errors,CAMPAIGN_INVALID,"Check the title, the target (at least ₹1,000) and the dates, then try again.","عنوان، ہدف (کم از کم ₹1,000) اور تاریخیں چیک کریں، پھر کوشش کریں۔",no
+errors,CAMPAIGN_NO_PAYMENT,Set up your masjid's UPI first (Masjid Profile → UPI payment details).,پہلے اپنی مسجد کا UPI سیٹ کریں (مسجد پروفائل ← UPI ادائیگی کی تفصیلات)۔,no
+errors,CAMPAIGN_LIMIT_REACHED,You can run up to 3 donation drives at once. Mark one completed first.,ایک وقت میں 3 عطیہ مہمات تک چلا سکتے ہیں۔ پہلے کسی ایک کو مکمل کریں۔,no
+errors,CAMPAIGN_NOT_FOUND,This donation drive no longer exists.,یہ عطیہ مہم اب موجود نہیں ہے۔,no
+errors,CAMPAIGN_NOT_ACTIVE,This donation drive is already completed or closed.,یہ عطیہ مہم پہلے ہی مکمل یا بند ہو چکی ہے۔,no
+errors,CAMPAIGN_CLOSED,This donation drive has closed. The amount can no longer be changed.,یہ عطیہ مہم بند ہو گئی ہے۔ رقم اب بدلی نہیں جا سکتی۔,no
+errors,CAMPAIGN_TARGET_LOWER,"The target can only be raised, not lowered.",ہدف صرف بڑھایا جا سکتا ہے، گھٹایا نہیں۔,no
 follow,scan.title,Scan masjid QR,مسجد کا QR اسکین کریں,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,اپنا کیمرا مسجد کے پوسٹر پر لگے QR کوڈ کی طرف کریں۔,no
 follow,scan.torch,Flashlight,ٹارچ,no

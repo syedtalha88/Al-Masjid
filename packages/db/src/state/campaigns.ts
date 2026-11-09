@@ -114,7 +114,7 @@ export async function createCampaign(
   handle: DbHandle,
   scope: Scope,
   input: WriteOptions & { readonly campaign: CampaignInput; readonly notify: boolean },
-): Promise<{ item: { id: string; publicId: string }; notificationJobId: string | null }> {
+): Promise<{ item: { id: string; publicId: string }; notificationJobId: string | null; quotaLeft: number | null }> {
   const adminId = adminOf(scope, input.masjidId);
   checkInput(input.masjidId, input.campaign);
   const now = input.now ?? new Date();
@@ -160,18 +160,14 @@ export async function createCampaign(
         },
         now,
       );
-      if (!input.notify) return { item, jobId: null };
-      const { jobId } = await enqueueNotification(
+      if (!input.notify) return { item, jobId: null, quotaLeft: null };
+      const limit = numberOf(masjid, 'push_daily_quota') ?? 0;
+      const { jobId, used } = await enqueueNotification(
         content,
-        {
-          masjidId: input.masjidId,
-          itemId: item.itemId,
-          audience: 'everyone',
-          limit: numberOf(masjid, 'push_daily_quota') ?? 0,
-        },
+        { masjidId: input.masjidId, itemId: item.itemId, audience: 'everyone', limit },
         now,
       );
-      return { item, jobId };
+      return { item, jobId, quotaLeft: Math.max(0, limit - used) };
     });
     await writeAudit(ctx, {
       action: 'campaign.create',
@@ -184,6 +180,7 @@ export async function createCampaign(
     return {
       item: { id: idText(result.item.itemId), publicId: result.item.publicId },
       notificationJobId: result.jobId ? idText(result.jobId) : null,
+      quotaLeft: result.quotaLeft,
     };
   });
 }
@@ -288,7 +285,7 @@ export async function setCampaignReceived(
   handle: DbHandle,
   scope: Scope,
   input: WriteOptions & { readonly itemId: UUID; readonly receivedPaise: number; readonly notify: boolean },
-): Promise<{ notificationJobId: string | null }> {
+): Promise<{ notificationJobId: string | null; quotaLeft: number | null }> {
   const adminId = adminOf(scope, input.masjidId);
   if (!validPaise(input.receivedPaise)) throw new StateError('CAMPAIGN_INVALID');
   const now = input.now ?? new Date();
@@ -296,7 +293,7 @@ export async function setCampaignReceived(
     const masjid = await ownMasjid(ctx, input.masjidId);
     const item = await ownCampaign(ctx, input.masjidId, input.itemId);
     if (campaignOf(item)['status'] === 'closed') throw new StateError('CAMPAIGN_CLOSED');
-    const jobId = await contentWrite(ctx, input.masjidId, async (content) => {
+    const job = await contentWrite(ctx, input.masjidId, async (content) => {
       const matched = await scoped(content, 'items').updateOne(
         { _id: input.itemId, status: 'published', 'campaign.status': { $in: ['active', 'completed'] } },
         {
@@ -318,17 +315,13 @@ export async function setCampaignReceived(
         created_at: now,
       });
       if (!input.notify) return null;
+      const limit = numberOf(masjid, 'push_daily_quota') ?? 0;
       const job = await enqueueNotification(
         content,
-        {
-          masjidId: input.masjidId,
-          itemId: input.itemId,
-          audience: 'everyone',
-          limit: numberOf(masjid, 'push_daily_quota') ?? 0,
-        },
+        { masjidId: input.masjidId, itemId: input.itemId, audience: 'everyone', limit },
         now,
       );
-      return job.jobId;
+      return { jobId: job.jobId, quotaLeft: Math.max(0, limit - job.used) };
     });
     await writeAudit(ctx, {
       action: 'campaign.received',
@@ -338,7 +331,7 @@ export async function setCampaignReceived(
       meta: { notify: input.notify },
       ...audit(input.requestId),
     });
-    return { notificationJobId: jobId ? idText(jobId) : null };
+    return { notificationJobId: job ? idText(job.jobId) : null, quotaLeft: job?.quotaLeft ?? null };
   });
 }
 

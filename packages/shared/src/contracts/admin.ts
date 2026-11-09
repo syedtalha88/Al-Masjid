@@ -777,3 +777,90 @@ export const adminPaymentSchema = z
 export type AdminPayment = z.infer<typeof adminPaymentSchema>;
 
 export const paymentRequestedSchema = z.object({ id: z.string() }).meta({ id: 'PaymentRequested' });
+
+// --- Donation campaigns (B8, 00 §4.3, PHASE_05 T5.3) ---------------------------------------------------------------
+
+export const CAMPAIGN_PURPOSES = ['renovation', 'repair', 'utilities', 'welfare', 'other'] as const;
+export type CampaignPurpose = (typeof CAMPAIGN_PURPOSES)[number];
+export const CAMPAIGN_STATUSES = ['active', 'completed', 'closed'] as const;
+/** 00 §4.3: at most 3 active campaigns; a target of at least ₹1,000 (mirrors `@mc/db/state`). */
+export const CAMPAIGNS_ACTIVE_MAX = 3;
+export const CAMPAIGN_TARGET_MIN_PAISE = 100_000;
+export const CAMPAIGN_TITLE_MAX = 120;
+export const CAMPAIGN_DESCRIPTION_MAX = 1500;
+
+/** Integer paise, 0 … 10^12 (CLAUDE.md §6 money). */
+const paise = z.int().min(0).max(1_000_000_000_000);
+
+const campaignCoverSchema = z.strictObject({
+  key: z.string().regex(IMAGE_KEY),
+  thumbhash: z
+    .string()
+    .max(64)
+    .regex(/^[A-Za-z0-9+/]+={0,2}$/),
+  /** The B8 ownership checkbox: the masjid may publish this photo (05 §9). */
+  rightsConfirmed: z.literal(true),
+});
+
+/** Body of `POST /masjids/:masjidId/campaigns` (B8 create flow → Publish). */
+export const campaignCreateSchema = z
+  .strictObject({
+    title: safeText(CAMPAIGN_TITLE_MAX, { min: 1 }),
+    description: safeText(CAMPAIGN_DESCRIPTION_MAX, { multiline: true }).optional(),
+    purpose: z.enum(CAMPAIGN_PURPOSES),
+    targetPaise: paise.min(CAMPAIGN_TARGET_MIN_PAISE),
+    startsOn: z.iso.date(),
+    endsOn: z.iso.date().optional(),
+    cover: campaignCoverSchema.optional(),
+    notify: z.boolean(),
+  })
+  .meta({ id: 'CampaignCreate' });
+export type CampaignCreate = z.infer<typeof campaignCreateSchema>;
+
+/** Body of `PATCH /masjids/:masjidId/campaigns/:id`: what may change; the target only upward. */
+export const campaignPatchSchema = z
+  .strictObject({
+    title: safeText(CAMPAIGN_TITLE_MAX, { min: 1 }).optional(),
+    description: safeText(CAMPAIGN_DESCRIPTION_MAX, { multiline: true }).optional(),
+    endsOn: z.iso.date().nullable().optional(),
+    targetPaise: paise.optional(),
+    cover: campaignCoverSchema.nullable().optional(),
+  })
+  .meta({ id: 'CampaignPatch' });
+export type CampaignPatchBody = z.infer<typeof campaignPatchSchema>;
+
+/** Body of `POST /masjids/:masjidId/campaigns/:id/received` ("Update amount"; "Notify followers" off by default). */
+export const campaignReceivedSchema = z
+  .strictObject({ receivedPaise: paise, notify: z.boolean() })
+  .meta({ id: 'CampaignReceived' });
+export type CampaignReceived = z.infer<typeof campaignReceivedSchema>;
+
+export const adminCampaignSchema = z
+  .object({
+    id: z.string(),
+    publicId: z.string(),
+    title: z.string(),
+    description: z.string().optional(),
+    purpose: z.enum(CAMPAIGN_PURPOSES),
+    status: z.enum(CAMPAIGN_STATUSES),
+    targetPaise: z.number(),
+    receivedPaise: z.number(),
+    receivedUpdatedAt: z.string().optional(),
+    startsOn: z.string(),
+    endsOn: z.string().optional(),
+    cover: z.object({ key: z.string(), thumbhash: z.string() }).optional(),
+    publishedAt: z.string(),
+  })
+  .meta({ id: 'AdminCampaign' });
+export type AdminCampaign = z.infer<typeof adminCampaignSchema>;
+
+/** `GET /masjids/:masjidId/campaigns`: active, then completed, then closed; newest first in each. */
+export const adminCampaignListSchema = z
+  .object({ campaigns: z.array(adminCampaignSchema) })
+  .meta({ id: 'AdminCampaignList' });
+export type AdminCampaignList = z.infer<typeof adminCampaignListSchema>;
+
+/** "Update amount" result: the notification when it notifies. */
+export const campaignReceivedResultSchema = z
+  .object({ notification: z.object({ queued: z.boolean(), targeted: count, quotaLeft: count }).nullable() })
+  .meta({ id: 'CampaignReceivedResult' });
