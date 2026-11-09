@@ -491,14 +491,15 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   T5.7. #147 decided by the owner: Android-only scan on admin (no CSP change). Journey 9 part 2 is written with T5.4
   (the followers' side of the new VPA — A10 + its QR sheet with "changed recently" — arrives there); it needs a worker
   activation trigger in the runtime-test stack.
-- [ ] T5.3 — Campaigns (admin) — **data layer done (9 Nov 2026, #148):** `state/campaigns.ts` (create needs active UPI
-  details, ≤ 3 active incl. racing creates, target only up, "Update amount" + append-only history, complete, daily
-  close); `campaigns.int` 8 tests (mutation-checked). **Next:** error codes (CAMPAIGN_INVALID 400, _NO_PAYMENT 409,
-  _LIMIT_REACHED 409, _NOT_FOUND 404, _NOT_ACTIVE 409, _CLOSED 409, _TARGET_LOWER 409) + texts ×4; admin read (list
-  with status / amounts); contracts + routes (`POST /campaigns`, `PATCH /campaigns/:id`, `POST /:id/received`,
-  `POST /:id/complete`); worker `campaign-close` daily 00:10 IST; admin UI B8 (list + "Update amount", create flow:
-  purpose cards → title/description → NumberPad target + dates → cover with ownership tick → Preview → Publish; blocked
-  with "Set up your masjid's UPI first" without active details); integration tests for every validation rule.
+- [ ] T5.3 — Campaigns (admin) — **data + API + worker done (9 Nov 2026, #148):** `state/campaigns.ts`, `repos/campaigns.ts`
+  (list: active → completed → closed), routes `routes/campaigns.ts` (GET/POST `/masjids/:id/campaigns`, PATCH `/:id`,
+  POST `/:id/received`, POST `/:id/complete`), worker `campaign-close` 00:10 IST; 7 error codes + texts ×4. Tests: db
+  `campaigns.int` 9 (mutation-checked), api `campaign-routes.int` 6 (every validation rule); append-only history =
+  existing T1.3 privilege test. **Next: admin UI B8** — Home "Donation Drive" tile → list (progress + "Update amount"
+  big button each, NumberPad sheet with live %, "Notify followers" off, Mark completed) and create flow (purpose 5 icon
+  cards → title (suggestions per purpose) + description → NumberPad target + dates → cover with ownership tick → Preview
+  → Publish); blocked with "Set up your masjid's UPI first" (→ `/payment`) when `GET /payment` has no active details;
+  strings ×4; unit tests for the flow logic.
 - [ ] T5.4 — Campaigns (musalli)
 - [ ] T5.5 — Chanda
 - [ ] T5.6 — Integration polish
