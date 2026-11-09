@@ -2,7 +2,8 @@
 
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
-> Last updated: 9 Nov 2026 — **Phases 03 + 04 are on staging** (release `863e064`). Order: O39 → O25 rest → O27 → O26 → O38.
+> Last updated: 9 Nov 2026 (night) — **Phases 03 + 04 are on staging** (release `863e064`). Order: O39 → O25 rest → O27 → O26 → O38.
+> Phase 05 is being built meanwhile (DECISIONS #145) — nothing new needed from you yet; O28 (a UPI ID for the ₹1 test) when Phase 05 reaches staging.
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
 > Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.

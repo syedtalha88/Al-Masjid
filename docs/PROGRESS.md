@@ -18,7 +18,43 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (9 Nov 2026, evening — Phases 03 + 04 on staging, AWAITING OWNER VERIFICATION)
+## ▶ Next session — start here (9 Nov 2026, night — Phase 05 in progress on `feat/phase-05`; 03 + 04 await the owner)
+
+**State:** `main` = staging = `863e064` (+ docs commits) — Phases 03 + 04 live, **AWAITING OWNER VERIFICATION**.
+Phase 05 started early on the owner's instruction (**DECISIONS #145**) on branch **`feat/phase-05`** (pushed; branched
+from `feat/phase-04` = `main`). Nothing of Phase 05 is merged or deployed — it goes to staging only after 03 + 04 are
+verified, or with the owner's OK.
+
+**Phase 05 so far (details in the checklist below):** T5.1 done · T5.2 built (change-lock: data, API, worker
+`payment-activate`, admin B8 `/payment` + C4 `/super/payments`; #146; #147 owner: Android-only UPI-QR scan, admin CSP
+unchanged) — left: e2e journey 9 part 2, written with T5.4 · T5.3 done (#148: campaigns data, API, worker
+`campaign-close`, admin `/donation` + `/donation/new`, Home tile live). Tests green at hand-off: domain 211, db int 324
+(+ `campaigns.int` 9, `payment.int` 14), api int 352 (+ `campaign-routes.int` 6, `payment-routes.int` 5), api unit
+180, shared 193, admin unit (payment 6, campaign 5, tiles). i18n check passes (review CSVs regenerated, ~1,530 draft
+strings per locale for O31). OpenAPI regenerated. **Not yet run in a browser:** admin `/payment`, `/super/payments`,
+`/donation`, `/donation/new` — no e2e / screenshots yet (planned in T5.7 with journey 9).
+
+**Do next:**
+1. Session start protocol (CLAUDE.md §3); ask the owner whether any Phase 03/04 check (O39, O25, O27, O26, O38) found
+   something — those fixes come first (on `feat/phase-04` → `main`, then merge `main` into `feat/phase-05`).
+2. Check the Nightly runs since 9 Nov (Trivy + staging headers on `863e064` — expected green now).
+3. **T5.4 — Campaigns (musalli):** A10 list + detail per spec and refs ref-3/4 + ref-2/3 (hero, status pill,
+   AmountPair "Received (reported by masjid)", ProgressBar fill-on-view, count-up, last-updated line, MetaRow, About,
+   Donate Now → `buildUpiUri` (fallback to the QR sheet when no UPI app: `visibilitychange` not within 1.5 s), Show UPI
+   QR sheet (payee, VPA copy, QR, Save QR — iOS Web Share file / Android download, hints, "changed recently" from
+   `bundle.payment.effectiveAt`), disclaimer ×4, closed state (visible 30 days); public campaign reads (bundle
+   `campaigns` is still `[]` — wire it) + Masjid Detail row + Home/Updates entries; QR generator lazy (budget). Then
+   journey 9 part 2 (needs a way to trigger `payment-activate` in the runtime-test stack — e.g. a worker test hook or a
+   1-minute schedule under E2E_TEST_HOOKS; api-admin's clock is settable via `PUT /test/clock`).
+4. Then T5.5 chanda (`setShowChanda` is still a stub in `state/later.ts`), T5.6, T5.8 needy people, T5.9 My zakat,
+   T5.7 quality gates (security-reviewer focused on R1; admin e2e + screenshots ×4 locales; phase-verifier).
+
+**Local notes:** one-off edits of non-ASCII files: write the Python script to the scratchpad and run it with
+`python -I` (Git Bash heredocs mangle backslash-u escapes; the console cannot print Indic text). The Write tool turns a
+backslash-u2028 escape into a raw character inside regex literals — escape such characters afterwards (scratchpad
+`escape_invisible.py` did it). `apps/admin/src/routeTree.gen.ts` regenerates on `vite build`.
+
+## ▶ Previous hand-off (9 Nov 2026, evening — Phases 03 + 04 on staging, AWAITING OWNER VERIFICATION)
 
 **Done 9 Nov 2026 (evening):** CI on `f2d31af` was red in the e2e push step only — onboarding page 7 ×4 locales: the
 loop re-read privacy "Continue" before the async consent save advanced the pager, and Playwright keeps a still-attached
@@ -35,7 +71,7 @@ app + admin `/health` = `863e064`, db + redis ok; admin Permissions-Policy has `
 2. Wait for the owner: **O39** (`deploy.sh staging --verify-roles` — must PASS now), O25 rest (Cloudinary templates +
    strict mode, before photos / voice), then **O27** (Phase 03 checks), **O26** (usability), **O38** (Phase 04 real
    phones; T4.6 acceptance). Fix whatever they find; on their OK mark Phases 03 + 04 DONE.
-3. Do **not** start Phase 05 until the owner confirms (CLAUDE.md §3).
+3. ~~Do not start Phase 05 until the owner confirms~~ — the owner said start it (DECISIONS #145, 9 Nov 2026).
 
 ## ▶ Previous hand-off (9 Nov 2026, morning — Phase 04: merge to main when CI on `f2d31af` is green)
 
@@ -574,6 +610,8 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-09 | 05 / T5.1–T5.3 | Phase 05 started on the owner's word (#145). T5.1 UPI domain module (100 %, fast-check, mutation-checked). T5.2 change-lock built end to end (#146 reject during hold, locked notice; #147 owner: Android-only admin QR scan; scanner moved to `@mc/ui/scanner`, WebAssembly fallback app-only). T5.3 campaigns done (#148). Journey 9 part 2 moved to T5.4; admin screens not yet run in a browser. |
+| 2026-11-09 | 03 + 04 / deploy | Two CI-only e2e races fixed in tests (`dd2a557`, `660c950`); merged `863e064` to `main`; staging live ~21:10 IST; owner checks O39, O25, O27, O26, O38 pending. |
 | 2026-11-08 | 04 / T4.9, T4.4 | T4.9 run locally after the WSL fix (a real Restart): push spec 5, journeys 6/7/8 + admin screens ×4 green; integration api 335 / db 302. **Bug fixed (#140):** send-batch counting race stranded a job (`pending_batches` balance, migration 0017, ledger claim released on a failed write) — db +1, api +1 tests (mutation-checked). Disabled `Switch` text readable (axe). Musalli initial 188 kB. Lighthouse: musalli cold LCP 2689 ms locally (known local miss) → CI on `ci/phase-04`. T4.2–T4.5, T4.7 ticked. |
 | 2026-11-05 | 03 / T3.17, T3.12, F54, F55 | Blood camp (#132): `BloodCampCard` (lazy on Home), `WhatsAppButton`, `istWindow`, `formatPhone`, B18 tile, e2e with a pinned clock; usability (#133): tap counts 6/6/4/5/3 measured by e2e, quick jamaat offsets, one-sheet time ranges; F55: library status changes bump using masjids (db +3); F54: voice badge, A8 player, pause when covered, fake-mic e2e. Local: db 289, API int green (one Windows worker crash — the file passes alone), ui 304, app 162, admin 120, i18n 199; e2e of every touched spec green. CI `4cc10d4`: e2e green (the voice flake did not repeat), **Lighthouse warm red → F56**. All Phase 03 tasks done. |
 | 2026-11-05 | 03 / T3.16 | Ilm contacts (#131): migration 0014, policy + roles (Atlas file regenerated → O36 due), admin CRUD, bundle `contacts`, `IlmContactCard` + `whatsappChatUrl`, A21 + B17; db 286 incl. 9 new, API int +4, ui +6, admin +5, domain +2, app +1; e2e B17 flow + A21 ×2 audiences ×4 locales + B17 ×4 green locally. CI on `dae7c7c` (T3.15) red at admin e2e (`voice.spec.ts`, not reproducible locally) — re-run on this push; Ruqyah spec axe settle fixed. |
