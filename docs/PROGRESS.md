@@ -18,7 +18,25 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (8 Nov 2026, late — Phase 04: deploy to staging pending CI)
+## ▶ Next session — start here (9 Nov 2026 — Phase 04: merge to main when CI on `f2d31af` is green)
+
+**Done 9 Nov 2026:** CI `bd4845b` red in visual baselines only → the Settings Notifications row squeezed its title (status
+now the subtitle, baselines updated, `1eae71c`). Hand-off e2e run: push spec 13/13 (C1 paused banner OK); journey 7's
+new reach assertion found a real bug — the Publish bar showed Home's cached reach (`refetchOnMount`, `4392293`).
+Security re-review of #142/#143: 1 MEDIUM + 6 LOW, all fixed with failing-first tests (#144). **Note:** the #144 code
+fixes went into the commit titled `docs: DECISIONS #144 …` (`f2d31af`) — the fix commit's subject was too long for
+commitlint and its staged files rode along; not rewritten (would need a force push). Local: unit 1,542, db int 311,
+api int 347, visual 16/16. Phase 04 report drafted (`docs/reports/PHASE_04_REPORT.md`).
+**Local only:** `e2e/app/settings.spec.ts` on iphone-14 fails 2 tests on this PC with and without the 9 Nov change
+(WebKit navigation + "style-src-elem blocked inline at ?:5", WebKit's own error page) — CI passes them.
+
+**Do next:**
+1. CI on `f2d31af` green → **merge `feat/phase-04` into `main` and push** (staging deploy, migrations 0013–0017).
+   Red → fix first.
+2. Tick T4.9; fill the deployed release into the report; status → AWAITING OWNER VERIFICATION once deployed (Phase 03 +
+   04 checks; owner needs O37 first, then O38 — T4.6's acceptance).
+
+## ▶ Previous hand-off (8 Nov 2026, late — Phase 04: deploy to staging pending CI)
 
 **Owner asked (8 Nov 2026): deploy Phase 03 + 04 to staging now; the owner tests on the phone** (guide given:
 `owner/PHASE_TESTING_GUIDE.md` → Phase 03 + Phase 04). Owner must do **O37** (VAPID keys) before push works and **O25**
