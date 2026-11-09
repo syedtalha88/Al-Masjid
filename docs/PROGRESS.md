@@ -10,15 +10,34 @@
 | 00 | Foundation, tooling & design system | **Accepted by the owner** — closure: report final, V-31 done; waiting for owner 0.15/0.16 + #79 (DECISIONS #62) | [final](reports/PHASE_00_REPORT.md) | 16 Oct 2026 |
 | 01 | Database, security core, passkey auth, Super Admin | **DONE** (owner tested 1.1–1.12 on staging, 22 Oct 2026) | [final](reports/PHASE_01_REPORT.md) | 22 Oct 2026 |
 | 02 | Musalli app core (follow, timings, feed, offline, install) | **DONE** (owner tested the Phase 02 checks on staging `cdd39fa`, incl. a low-end device, 27 Oct 2026) | [final](reports/PHASE_02_REPORT.md) | 27 Oct 2026 |
-| 03 | Masjid Admin content tools | **Built and closed on the branch** — all tasks done, report written, phase-verifier + security review fixed (#135, #136); left: staging deploy (needs O25 rest) and the owner's checks O26/O27 → then AWAITING OWNER VERIFICATION / DONE | [report](reports/PHASE_03_REPORT.md) | – |
-| 04 | Push notifications | **IN PROGRESS** — started 8 Nov 2026 on the owner's instruction ("phase 3 is done, continue with the next phase, don't stop between tasks") while Phase 03 waits for its staging deploy + owner checks (DECISIONS #137) | – | – |
+| 03 | Masjid Admin content tools | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`, with Phase 04); owner: O25 rest (photos / voice), O39, then O27 + O26 | [report](reports/PHASE_03_REPORT.md) | – |
+| 04 | Push notifications | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`); T4.6 acceptance = the owner's O38 (real phones) | [report](reports/PHASE_04_REPORT.md) | – |
 | 05 | Donations, chanda & UPI change-lock | NOT STARTED | – | – |
 | 06 | Bayan videos | NOT STARTED | – | – |
 | 07 | Qibla compass | NOT STARTED | – | – |
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (9 Nov 2026 — Phase 04: merge to main when CI on `f2d31af` is green)
+## ▶ Next session — start here (9 Nov 2026, evening — Phases 03 + 04 on staging, AWAITING OWNER VERIFICATION)
+
+**Done 9 Nov 2026 (evening):** CI on `f2d31af` was red in the e2e push step only — onboarding page 7 ×4 locales: the
+loop re-read privacy "Continue" before the async consent save advanced the pager, and Playwright keeps a still-attached
+element, so the click retried on an off-screen page (test fix `dd2a557`). The next run found a second CI-only race: the
+mute toast shows at once, the PATCH waits for the queued follow, so the toast had gone (`660c950`, toast asserted first).
+Both test-only; the app is unchanged. CI green on `660c950`, merged into `main` (`863e064`; `main` had an earlier merge
+`4040103` whose CI was red, so nothing was released then), CI + "Release to staging" green, **staging live ~21:10 IST:
+app + admin `/health` = `863e064`, db + redis ok; admin Permissions-Policy has `microphone=(self)`**. The Nightly of
+9 Nov (on `d6a6980` / the old staging images) failed Trivy (no #141 ignore file there yet) and the admin headers check
+(old Caddy) — both expected to pass on tonight's Nightly; check it.
+
+**Do next:**
+1. Check tonight's Nightly (Trivy + staging headers/ZAP/Lighthouse against `863e064`). Red → fix.
+2. Wait for the owner: **O39** (`deploy.sh staging --verify-roles` — must PASS now), O25 rest (Cloudinary templates +
+   strict mode, before photos / voice), then **O27** (Phase 03 checks), **O26** (usability), **O38** (Phase 04 real
+   phones; T4.6 acceptance). Fix whatever they find; on their OK mark Phases 03 + 04 DONE.
+3. Do **not** start Phase 05 until the owner confirms (CLAUDE.md §3).
+
+## ▶ Previous hand-off (9 Nov 2026, morning — Phase 04: merge to main when CI on `f2d31af` is green)
 
 **Done 9 Nov 2026:** CI `bd4845b` red in visual baselines only → the Settings Notifications row squeezed its title (status
 now the subtitle, baselines updated, `1eae71c`). Hand-off e2e run: push spec 13/13 (C1 paused banner OK); journey 7's
@@ -341,6 +360,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O34 | **Legal checklist** `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md` | pilot | — | before pilot |
 | O37 | ✅ **Done 9 Nov 2026** (owner: the keys match) — **VAPID keys on staging** — `VAPID_PUBLIC_KEY` in `/etc/masjid-connect/staging/worker.env` must equal the GitHub `staging` variable `VITE_PUBLIC_VAPID_PUBLIC_KEY`; back up `VAPID_PRIVATE_KEY` (password manager; F31) | Phase 04 staging deploy — a mismatch means no push reaches any phone | 10 min | before the Phase 04 deploy |
 | O38 | **Real-device push checks** — Android + installed iPhone: turn on, receive a notice in the phone's language, tap opens it; admin "Alerts on this phone" + Super Admin test alert | Real subscription + push-service delivery (headless e2e cannot cover them — DECISIONS #139); T4.6 owner check | 20 min | Phase 04 owner verification |
+| O39 | **Database privilege check after the Phase 03 + 04 deploy** — on the server: `sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles`; send Claude Code the whole output (no secrets in it) | The new collections / views of migrations 0013–0017 must now PASS (O36 showed only the expected `extra` lines on the old release) | 5 min | now (staging live 9 Nov 2026) |
 
 ## Current phase task checklist
 
@@ -445,11 +465,12 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [x] T4.8 — Fan-out load test — 8 Nov 2026: the worker runs in its own process (`scripts/load/push-worker.ts`);
   50k → 57.3 s, 200 batches (max 2.0 s), worker CPU 26.7 s (< 0.75 CPU), worker peak RSS 409 MB (< 512 MB); 100k →
   112.4 s with the same memory (bounded by batches in flight). `docs/reports/evidence/PHASE_04_T4.8_push-load.md`
-- [ ] T4.9 — Quality gates — run locally 8 Nov 2026 (#140): integration api 335 / db 302, push spec 5, admin journeys
+- [x] T4.9 — Quality gates — run locally 8 Nov 2026 (#140): integration api 335 / db 302, push spec 5, admin journeys
   6/7/8 + screens ×4 locales green; `pnpm size` green (musalli initial 187.65 / 188 kB — subscription code lazy);
   Lighthouse: warm both PASS, admin cold PASS, musalli cold LCP 2689 ms locally (the known local-Docker miss — CI measured
   2505 ms in Phase 03, #136). CI 8 Nov: cold LCP 2485 ms PASS; warm score tolerance #142. Security review + phase-verifier
-  fixed (#142, #143). **Left:** CI green on `ci/phase-04`; the tests listed in DECISIONS #143
+  fixed (#142, #143). **Done 9 Nov 2026:** CI green on `660c950` (`ci/phase-04`) and on `main` `863e064` after two
+  CI-only e2e races were fixed in the tests (`dd2a557` onboarding page 7, `660c950` mute toast); the tests listed in DECISIONS #143
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 

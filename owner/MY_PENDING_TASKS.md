@@ -2,7 +2,7 @@
 
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
-> Last updated: 8 Nov 2026.
+> Last updated: 9 Nov 2026 — **Phases 03 + 04 are on staging** (release `863e064`). Order: O39 → O25 rest → O27 → O26 → O38.
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
 > Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.
@@ -47,11 +47,17 @@
 > Nothing here blocks Claude Code's work right now (3 Nov 2026). Do them whenever you have time — the "When" column
 > says by when each one is needed. Tell Claude Code "O<n> done" and it checks.
 
-### Needed before Phase 03 goes to staging
+### Now — staging has Phases 03 + 04 (9 Nov 2026)
 
 | # | What | Time | When |
 |---|---|---|---|
-| O25 | **Cloudinary for staging — rest (keys are done)** — in the Cloudinary console (Image → Studio): create the 7 transformation **templates** `mc_480_avif`, `mc_480_webp`, `mc_960_avif`, `mc_960_webp`, `mc_1440_avif`, `mc_1440_webp` (text `c_limit,w_<size>,f_<avif or webp>,q_auto`) and `audio_m4a` (text `ac_aac,br_48k`), each **allowed for strict transformations**; then Settings → Security → **Strict transformations** on; check the **`media-staging`** DNS record in Cloudflare (A, Proxied, same IP as `app-staging`). The app's keys may not create them (Cloudinary answered 403 "missing permissions (create)"), so this is done by hand. Ask Claude Code for the click-by-click steps again | 15 min | before the Phase 03 staging deploy (photos and voice notes need it) |
+| O39 | **Database privilege check** — connect the WireGuard tunnel, `ssh talha@10.66.0.1`, then run `sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles` and send Claude Code the whole output (no secrets in it). It must PASS now that the new collections exist | 5 min | now, before testing |
+
+### Needed for photos and voice notes on staging
+
+| # | What | Time | When |
+|---|---|---|---|
+| O25 | **Cloudinary for staging — rest (keys are done)** — in the Cloudinary console (Image → Studio): create the 7 transformation **templates** `mc_480_avif`, `mc_480_webp`, `mc_960_avif`, `mc_960_webp`, `mc_1440_avif`, `mc_1440_webp` (text `c_limit,w_<size>,f_<avif or webp>,q_auto`) and `audio_m4a` (text `ac_aac,br_48k`), each **allowed for strict transformations**; then Settings → Security → **Strict transformations** on; check the **`media-staging`** DNS record in Cloudflare (A, Proxied, same IP as `app-staging`). The app's keys may not create them (Cloudinary answered 403 "missing permissions (create)"), so this is done by hand. Ask Claude Code for the click-by-click steps again | 15 min | now — before checks 3.7 (photos) and 3.14 (voice notes) |
 | O23 | **Cloudflare cache rule for the app API** — open rule "App API (origin)" and compare it field by field: Hostname **equals** `app-staging.almasjids.com`, URI Path **starts with** `/api/v1/`, Method `GET`, action **Eligible for cache**, Edge TTL "Use cache-control header if present", rule **Deployed**. Staging still answers `DYNAMIC` (25 Oct 2026). Then tell Claude Code to check again | 5 min | any time (open since 25 Oct) |
 | O8 | **Turnstile switch-over** — GitHub `staging` environment variable `VITE_PUBLIC_TURNSTILE_SITE_KEY` = your site key **and** the secret into `TURNSTILE_SECRET` of the staging API env files — both together, never via chat | 5 min | any time |
 
@@ -60,14 +66,14 @@
 | # | What | Time | When |
 |---|---|---|---|
 | O26 | **Usability check (T3.12)** — sit with a real masjid person (imam / mutawalli) and let them do the 5 tasks without help. The script is ready: `owner/PHASE_TESTING_GUIDE.md` → Phase 03 → "The 5-task usability script" (each task 3–6 taps, no typing). Tell Claude Code where they hesitated | 30 min | end of Phase 03, on staging |
-| O27 | **Phase 03 checks on staging** — `owner/PHASE_TESTING_GUIDE.md` → Phase 03, on your phones | 45 min | when Claude Code says "Phase 03 is ready" |
+| O27 | **Phase 03 checks on staging** — `owner/PHASE_TESTING_GUIDE.md` → Phase 03, on your phones | 45 min | **now — Phase 03 is ready (9 Nov 2026)** |
 
 ### Phase 04 — notifications
 
 | # | What | Time | When |
 |---|---|---|---|
 | O37 | ✅ **Done 9 Nov 2026** (keys match on the server and in GitHub) — **Notification keys on staging** — on the server, compare `VAPID_PUBLIC_KEY` in `/etc/masjid-connect/staging/worker.env` with the GitHub `staging` environment variable `VITE_PUBLIC_VAPID_PUBLIC_KEY` (they must be the same text — both are public keys, fine to compare on screen). Then **back up the VAPID private key** (`VAPID_PRIVATE_KEY` in the same file) into your password manager — never into chat. If it is ever lost, every phone must turn notifications on again | 10 min | before the Phase 04 staging deploy |
-| O38 | **Real-phone notification checks** — on the Poco F7 (any browser mode) and on the iPhone (only in the installed Home Screen app): Settings → Notifications → Turn on; publish a notice from the admin app; the notification arrives in the phone's language and opens the notice. Also the admin "Alerts on this phone" switch (Masjid Profile → My account) and the Super Admin's test alert. Steps will be in `owner/PHASE_TESTING_GUIDE.md` → Phase 04 | 20 min | when Claude Code says "Phase 04 is ready" |
+| O38 | **Real-phone notification checks** — on the Poco F7 (any browser mode) and on the iPhone (only in the installed Home Screen app): Settings → Notifications → Turn on; publish a notice from the admin app; the notification arrives in the phone's language and opens the notice. Also the admin "Alerts on this phone" switch (Masjid Profile → My account) and the Super Admin's test alert. Steps: `owner/PHASE_TESTING_GUIDE.md` → Phase 04 (4.1–4.4, 4.12) | 20 min | **now — Phase 04 is ready (9 Nov 2026)** |
 
 ### Later phases (Claude Code reminds you)
 
