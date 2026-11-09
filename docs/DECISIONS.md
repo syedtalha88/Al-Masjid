@@ -2349,7 +2349,7 @@ DONE only on the owner's word.
 **Consequences:** 18 starter templates (texts in 4 locales, drafts for review — O31); the template must be active in
 each environment (Super Admin "Add starter templates", as for `timings_updated`).
 
-### #147 — Admin UPI-QR scan: allow the WebAssembly QR reader on the admin origin? (PHASE_05 T5.2, B8) — OPEN (asked 9 Nov 2026)
+### #147 — Admin UPI-QR scan: allow the WebAssembly QR reader on the admin origin? (PHASE_05 T5.2, B8) — ACCEPTED: option B (owner, 9 Nov 2026)
 **Context:** B8 lets the admin scan the masjid's existing UPI QR (`parseUpiUri`). The QR camera code moved from the app
 to `@mc/ui/scanner` (shared). Phones without a native `BarcodeDetector` (every iPhone, desktop) need the self-hosted
 WebAssembly reader (#94), which needs CSP `script-src 'wasm-unsafe-eval'` — today only on the app origin. #94 said
@@ -2362,3 +2362,6 @@ WebAssembly reader (#94), which needs CSP `script-src 'wasm-unsafe-eval'` — to
   Admin and shown by every UPI app before paying).
 - C — no scan at all; typing only.
 **Recommendation:** B for now (nothing loosened; most masjid admins use Android); A later if iPhone admins ask.
+**Decision (owner, 9 Nov 2026):** "Android-only scan for now" — option B as built: the admin CSP is unchanged; the
+admin app imports only `@mc/ui/scanner` (native detector), never `@mc/ui/scanner/fallback`, so the WebAssembly reader
+is neither bundled nor precached there. Revisit if iPhone admins ask.

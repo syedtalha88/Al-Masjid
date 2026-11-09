@@ -488,7 +488,9 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   only). Tests: domain 19, db `payment.int` 14 (mutation-checked), api `payment-routes.int` 5, admin unit 6; db int
   324, api int 352 green. **Left:** e2e journey 9 part 2 (clock control: request → approve → +23 h old → +24 h new +
   notice), owner guide 5.1–5.3 (hold on staging = `PAYMENT_HOLD_MINUTES` e.g. 15), security-reviewer R1 re-check at
-  T5.7. **OPEN #147** (admin CSP `'wasm-unsafe-eval'` for iPhone scanning) — asked the owner; option B built.
+  T5.7. #147 decided by the owner: Android-only scan on admin (no CSP change). Journey 9 part 2 is written with T5.4
+  (the followers' side of the new VPA — A10 + its QR sheet with "changed recently" — arrives there); it needs a worker
+  activation trigger in the runtime-test stack.
 - [ ] T5.3 — Campaigns (admin)
 - [ ] T5.4 — Campaigns (musalli)
 - [ ] T5.5 — Chanda
