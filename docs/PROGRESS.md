@@ -491,15 +491,15 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   T5.7. #147 decided by the owner: Android-only scan on admin (no CSP change). Journey 9 part 2 is written with T5.4
   (the followers' side of the new VPA — A10 + its QR sheet with "changed recently" — arrives there); it needs a worker
   activation trigger in the runtime-test stack.
-- [ ] T5.3 — Campaigns (admin) — **data + API + worker done (9 Nov 2026, #148):** `state/campaigns.ts`, `repos/campaigns.ts`
-  (list: active → completed → closed), routes `routes/campaigns.ts` (GET/POST `/masjids/:id/campaigns`, PATCH `/:id`,
-  POST `/:id/received`, POST `/:id/complete`), worker `campaign-close` 00:10 IST; 7 error codes + texts ×4. Tests: db
-  `campaigns.int` 9 (mutation-checked), api `campaign-routes.int` 6 (every validation rule); append-only history =
-  existing T1.3 privilege test. **Next: admin UI B8** — Home "Donation Drive" tile → list (progress + "Update amount"
-  big button each, NumberPad sheet with live %, "Notify followers" off, Mark completed) and create flow (purpose 5 icon
-  cards → title (suggestions per purpose) + description → NumberPad target + dates → cover with ownership tick → Preview
-  → Publish); blocked with "Set up your masjid's UPI first" (→ `/payment`) when `GET /payment` has no active details;
-  strings ×4; unit tests for the flow logic.
+- [x] T5.3 — Campaigns (admin) — 9 Nov 2026 (#148): `state/campaigns.ts` + `repos/campaigns.ts`, routes
+  `routes/campaigns.ts`, worker `campaign-close` 00:10 IST, 7 error codes ×4; admin B8: Home "Donation Drive" tile
+  (shown in production now — tiles show when built: `route !== null`, `CURRENT_PHASE = 5`) → `/donation` (progress,
+  "Update amount" NumberPad sheet with live %, notify off, Mark completed, "New drive" ≤ 3 active, "Set up your
+  masjid's UPI first" → `/payment`) and `/donation/new` (purpose cards, title suggestions, description, NumberPad
+  target, dates, cover with ownership tick, preview, notify, Publish). Acceptance: ≤ 3 active (db race test + API 409),
+  history append-only (T1.3 privilege test), every validation rule (api `campaign-routes.int` 6, db `campaigns.int` 9,
+  mutation-checked), admin unit 5 + tiles. **Not yet run in a browser:** the admin B8 / `/payment` / C4 screens get their
+  e2e + 4-locale screenshots at T5.7 (with journey 9).
 - [ ] T5.4 — Campaigns (musalli)
 - [ ] T5.5 — Chanda
 - [ ] T5.6 — Integration polish
