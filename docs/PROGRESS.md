@@ -479,7 +479,16 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   bidi characters dropped, joiners kept, ≤ 50 code points cut between graphemes, never `am`), `parseUpiUri` (`upi://pay`
   only, exactly one valid `pa`, `pn`/`tn` cleaned ≤ 100, ≤ 2048 chars, never throws); 19 tests incl. fast-check
   round-trip + injection; 100 % lines/branches; mutation-checked (duplicate `pa`, invisible strip)
-- [ ] T5.2 — Payment profile workflow (R1 change-lock)
+- [ ] T5.2 — Payment profile workflow (R1 change-lock) — **built (9 Nov 2026), e2e + owner guide left.** Data layer
+  `state/payment.ts` (#146: reject also during the hold; the "Payment details updated" notice locked against edit /
+  delete; audit without VPA), reads `repos/payments.ts`, bundle `payment` live; API `routes/payments.ts` (admin GET /
+  POST requests → Super Admin alert; super GET pending, ★ approve → alert, reject → alert); worker `payment-activate`
+  every 10 min (fan-out + `payment_active` alert); admin B8 (Profile → UPI payment details + `/payment` form) and C4
+  (`/super/payments`); QR camera moved to `@mc/ui/scanner` (WebAssembly fallback = `@mc/ui/scanner/fallback`, app
+  only). Tests: domain 19, db `payment.int` 14 (mutation-checked), api `payment-routes.int` 5, admin unit 6; db int
+  324, api int 352 green. **Left:** e2e journey 9 part 2 (clock control: request → approve → +23 h old → +24 h new +
+  notice), owner guide 5.1–5.3 (hold on staging = `PAYMENT_HOLD_MINUTES` e.g. 15), security-reviewer R1 re-check at
+  T5.7. **OPEN #147** (admin CSP `'wasm-unsafe-eval'` for iPhone scanning) — asked the owner; option B built.
 - [ ] T5.3 — Campaigns (admin)
 - [ ] T5.4 — Campaigns (musalli)
 - [ ] T5.5 — Chanda
