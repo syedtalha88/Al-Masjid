@@ -2,7 +2,7 @@
 
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
-> Last updated: 9 Nov 2026 (night) — **Phases 03 + 04 are on staging** (release `863e064`). Order: O39 → O25 rest → O27 → O26 → O38.
+> Last updated: 10 Nov 2026 — **Phases 03 + 04 are on staging** (release `863e064`). O39 ✅ and O27 ✅ done. Left: O25 rest → O26 (closes Phase 03) and O38 (closes Phase 04).
 > Phase 05 is being built meanwhile (DECISIONS #145) — nothing new needed from you yet; O28 (a UPI ID for the ₹1 test) when Phase 05 reaches staging. On staging, the demo masjid **TESTD004** (Test Masjid Delta) will show donation campaigns with a fake UPI ID — never pay to it.
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
@@ -52,7 +52,7 @@
 
 | # | What | Time | When |
 |---|---|---|---|
-| O39 | **Database privilege check** — connect the WireGuard tunnel, `ssh talha@10.66.0.1`, then run `sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles` and send Claude Code the whole output (no secrets in it). It must PASS now that the new collections exist | 5 min | now, before testing |
+| ~~O39~~ | ✅ **Done 10 Nov 2026 — PASS.** **Database privilege check** — connect the WireGuard tunnel, `ssh talha@10.66.0.1`, then run `sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles` and send Claude Code the whole output (no secrets in it). It must PASS now that the new collections exist | 5 min | now, before testing |
 
 ### Needed for photos and voice notes on staging
 
@@ -67,7 +67,7 @@
 | # | What | Time | When |
 |---|---|---|---|
 | O26 | **Usability check (T3.12)** — sit with a real masjid person (imam / mutawalli) and let them do the 5 tasks without help. The script is ready: `owner/PHASE_TESTING_GUIDE.md` → Phase 03 → "The 5-task usability script" (each task 3–6 taps, no typing). Tell Claude Code where they hesitated | 30 min | end of Phase 03, on staging |
-| O27 | **Phase 03 checks on staging** — `owner/PHASE_TESTING_GUIDE.md` → Phase 03, on your phones | 45 min | **now — Phase 03 is ready (9 Nov 2026)** |
+| ~~O27~~ | ✅ **Done 10 Nov 2026 — OK** (photos 3.7 / voice 3.14 come with O25). **Phase 03 checks on staging** — `owner/PHASE_TESTING_GUIDE.md` → Phase 03, on your phones | 45 min | **now — Phase 03 is ready (9 Nov 2026)** |
 
 ### Phase 04 — notifications
 
@@ -88,7 +88,7 @@
 | # | What | Time | When |
 |---|---|---|---|
 | O30 | **Notice templates** — Super Admin → Notice templates → **Add starter templates**; have someone check each one in all 4 languages (or send `packages/i18n/review/*.csv` to translators), tick **Translations reviewed**, **Activate** | 1–2 h | before pilot |
-| O31 | **All app translations reviewed** — send the review files `packages/i18n/review/hi.csv`, `ur.csv`, `te.csv` (about 1,575 strings each, all drafts — updated 10 Nov 2026 with the donation screens) to translators; Claude Code puts their answers back | depends on translators | before pilot |
+| O31 | **All app translations reviewed** (how — DECISIONS #150: Claude Code first checks every draft for consistency at the start of Phase 09; then one native speaker per language, volunteers fine, legal + money texts first, then admin, then the app) — send the review files `packages/i18n/review/hi.csv`, `ur.csv`, `te.csv` (about 1,575 strings each, all drafts — updated 10 Nov 2026 with the donation screens) to translators; Claude Code puts their answers back | depends on translators | before pilot |
 | O32 | **Verified Content Library file** — hadith / ayah / duas / adhkar (kind `dhikr` with `repeat` and `occasions: ["after_salah"]` — masjids pick them in "Adhkar after salah" since T3.14) / ruqyah from licensed, scholar-checked sources in the format of `docs/content-library-format.md` | — | before pilot |
 | O33 | **Grievance Officer details** — name, email and address in Super Admin → Settings (the app hides the contact link while the "NOT SET" placeholders are there) | 5 min | before launch |
 | O34 | **Legal checklist** — `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md` (lawyer review of the privacy policy and terms, etc.) | — | before pilot |
@@ -100,13 +100,14 @@
 |---|---|---|---|
 | O7 | **Design notes** — the minor improvements you noticed (list or screenshots) | — | when ready |
 | O16 | **Low-end Android phone** (≈ ₹8,000) for a measured check — optional; you said it looks good (27 Oct 2026) | — | optional |
-| O6 | **GitHub checks 0.15 + 0.16** (branch ruleset + the failing-PR test, steps below) — after this, `main` changes only through pull requests | 15 min | **do last** |
+| ~~O6~~ | ~~GitHub checks 0.15 + 0.16~~ — **skipped by me 10 Nov 2026** (DECISIONS #150: no branch ruleset while I work alone; revisit if a second developer joins) | – | – |
 | O6 | 0.18 Sentry error reporting (steps below) | 15 min | optional |
 
 ### Done since the last update
 
 - ~~O21, O22~~ (22 Oct 2026) · ~~O24 bundle sizes~~ (24 Oct: a few kB is fine) · ~~Cloudinary keys on this PC~~ (1 Nov 2026)
 - **T3.0 accepted with a small tolerance** (3 Nov 2026, DECISIONS #116) · **Simple Qibla page** (3 Nov 2026, DECISIONS #118)
+- **10 Nov 2026:** #79 re-confirmed (≈ 9 ms is fine) · **Phase 00 DONE** (0.15/0.16 skipped) · O39 PASS · O27 OK · O28 later (#150)
 
 ---
 

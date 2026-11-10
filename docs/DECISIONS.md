@@ -2413,3 +2413,23 @@ is neither bundled nor precached there. Revisit if iPhone admins ask.
   (someone may try the change-lock there).
 **Consequences:** `e2e/app/campaigns.spec.ts` (9 on Pixel 7 locally; WebKit runs in CI — this PC's WebKit cannot load
 these screens reliably, the known "style-src-elem … ?:5" error page). Visual baselines for A10 come with T5.6/T5.7.
+
+### #150 — Owner answers of 10 Nov 2026: Phase 00 closed without branch protection; O39 / O27 passed; how translations get reviewed (O31) — ACCEPTED (owner + Claude Code, 10 Nov 2026)
+**Owner, 10 Nov 2026:**
+- **#79 re-confirmed** — ≈ 9 ms VPS → Atlas on staging "works, no issue"; production (M10) is still re-measured in Phase 9.
+- **0.15 / 0.16 skipped** — no GitHub branch ruleset for now (the owner works alone). `main` stays directly pushable;
+  Claude Code still merges only after CI is green on the branch (as for Phases 02–04), and production keeps the 0.17
+  protection (required reviewer + deploy branch `main`). This was the last Phase 00 closure item → **Phase 00 DONE**.
+  Revisit when a second developer joins (then 0.15 + 0.16 as written in `owner/MY_PENDING_TASKS.md` → O6).
+- **O39 PASS** (staging privilege check after the Phase 03 + 04 deploy) and **O27 OK** (Phase 03 checks on staging).
+  Phase 03 stays AWAITING OWNER VERIFICATION until **O25** (Cloudinary templates + strict mode → checks 3.7 photos and
+  3.14 voice notes) and **O26** (usability with a real masjid person) are done; Phase 04 until **O38**.
+- **O28** (UPI ID for the ₹1 test) later, when Phase 05 is on staging.
+- **O31 — "whichever you think is better"** → Claude Code's choice:
+  1. Before the review files go out, Claude Code runs a consistency pass over all hi / ur / te drafts (glossary terms of
+     `packages/i18n/glossary.md`, placeholders, lengths from `meta/`, one style per language) — at Phase 09 start, so
+     every phase's strings are included once.
+  2. Then **one native speaker per language** (community volunteers are fine — no paid service) reviews the CSVs, in
+     this order: legal and money texts first (the "no money through us" note, UPI hints, privacy / consent, grievance —
+     05 §8 needs them exact), then admin screens (low-literacy admins rely on them), then the musalli app.
+  3. Their answers go back through `pnpm i18n:review`; strings stay marked draft until reviewed.

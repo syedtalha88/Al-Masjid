@@ -7,10 +7,10 @@
 
 | Phase | Title | Status | Report | Owner verified on |
 |---|---|---|---|---|
-| 00 | Foundation, tooling & design system | **Accepted by the owner** — closure: report final, V-31 done; waiting for owner 0.15/0.16 + #79 (DECISIONS #62) | [final](reports/PHASE_00_REPORT.md) | 16 Oct 2026 |
+| 00 | Foundation, tooling & design system | **DONE** — closure complete 10 Nov 2026: #79 re-confirmed, 0.15/0.16 skipped by the owner (DECISIONS #62, #150) | [final](reports/PHASE_00_REPORT.md) | 16 Oct 2026 |
 | 01 | Database, security core, passkey auth, Super Admin | **DONE** (owner tested 1.1–1.12 on staging, 22 Oct 2026) | [final](reports/PHASE_01_REPORT.md) | 22 Oct 2026 |
 | 02 | Musalli app core (follow, timings, feed, offline, install) | **DONE** (owner tested the Phase 02 checks on staging `cdd39fa`, incl. a low-end device, 27 Oct 2026) | [final](reports/PHASE_02_REPORT.md) | 27 Oct 2026 |
-| 03 | Masjid Admin content tools | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`, with Phase 04); owner: O25 rest (photos / voice), O39, then O27 + O26 | [report](reports/PHASE_03_REPORT.md) | – |
+| 03 | Masjid Admin content tools | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`, with Phase 04); O39 PASS + O27 OK (10 Nov 2026); left: O25 rest (photos 3.7 / voice 3.14) + O26 (usability) — #150 | [report](reports/PHASE_03_REPORT.md) | – |
 | 04 | Push notifications | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`); T4.6 acceptance = the owner's O38 (real phones) | [report](reports/PHASE_04_REPORT.md) | – |
 | 05 | Donations, chanda & UPI change-lock | **IN PROGRESS** — started 9 Nov 2026 on `feat/phase-05` while Phases 03 + 04 await the owner's checks (DECISIONS #145) | – | – |
 | 06 | Bayan videos | NOT STARTED | – | – |
@@ -28,8 +28,8 @@ with the 1.5 s no-UPI-app fallback, bundle `campaigns`, seed masjid Delta `TESTD
 campaigns). Details in the checklist. Not yet CI-verified on WebKit (this PC's WebKit cannot run these screens).
 
 **Do next:**
-1. Session start protocol; ask the owner whether any Phase 03/04 check (O39, O25, O27, O26, O38) found something —
-   those fixes come first (on `feat/phase-04` → `main`, then merge `main` into `feat/phase-05`).
+1. Session start protocol. Owner 10 Nov (#150): O39 PASS, O27 OK; still open O25 rest, O26, O38 — ask whether they
+   found something; those fixes come first (on `feat/phase-04` → `main`, then merge `main` into `feat/phase-05`).
 2. Check CI on `feat/phase-05` (iphone-14 project for `e2e/app/campaigns.spec.ts`) and the Nightly runs since 9 Nov.
 3. **Journey 9 part 2 (T5.2 left-over):** request → approve → +23 h old → +24 h new + notice → followers' bundle / QR
    sheet show the new UPI ID ("changed on …"). Needs a `payment-activate` trigger in the runtime-test stack (e.g. an
@@ -391,7 +391,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O3 | **Log-archive key**: `age-keygen` on the PC, public key → `/etc/masjid-connect/log-archive.pub` (T0.14 plan step 3) | The daily log archive (CERT-In 180 days) fails until it exists | 5 min | **done 16 Oct 2026** (hourly archive runs with the key) |
 | O4 | **DECISIONS #58** — showcase on staging: yes (recommended) / no | Owner checks 0.3–0.5 on the phone | 1 answer | **answered 15 Oct 2026: yes (option A)** — implemented 16 Oct 2026 (DECISIONS #58 accepted) |
 | O5 | **F27** — web-font strategy (warm-start re-layout) | Warm-start smoothness on low-end phones | 1 answer | **answered 15 Oct 2026: keep `swap`** |
-| O6 | Owner checks **0.15** (branch ruleset), **0.16** (failing PR is blocked), **0.17** (production reviewer); 0.18 Sentry optional | Phase 00 closure (DECISIONS #62) | 15 min | **0.17 done 20 Oct 2026** (production: required reviewer + branch `main` + "Allow administrators to bypass" unticked — review L8 closed). **0.15/0.16 pending — do last** (after that, `main` changes only via PRs) |
+| O6 | Owner checks **0.15** (branch ruleset), **0.16** (failing PR is blocked), **0.17** (production reviewer); 0.18 Sentry optional | Phase 00 closure (DECISIONS #62) | 15 min | **0.17 done 20 Oct 2026** (production: required reviewer + branch `main` + "Allow administrators to bypass" unticked — review L8 closed). **0.15/0.16 skipped by the owner 10 Nov 2026 (#150)** — no branch ruleset for now; merges to `main` only after green CI |
 | O7 | Phone checks **0.1–0.14** incl. **F17** (iPhone swipe-back) | Phase 00 owner verification | 30 min | **passed** (16 Oct 2026: 0.1, 0.3–0.12, 0.14 on iPhone + Poco F7; 0.2/0.13 verified in T0.14; 20 Oct 2026 owner: "mobile testing is working fine" — incl. F17). **Still open: design notes** — owner: "minor improvements, I'll tell later" (incl. the black top strip and the Scan-button ring from PHASE_00_REPORT §4.1) |
 | O8 | **Phase 1 accounts** (F31): MongoDB Atlas `mc-staging` + DB users, real Turnstile widget; later Cloudinary API keys (Phase 3), Cloudflare purge token (Phase 3/8) | Replace the staging placeholders when those phases need them | per phase | **Atlas done 16 Oct 2026**. **Turnstile widget created 20 Oct 2026** (`app-staging.almasjids.com`, Managed); site key (public) `0x4AAAAAAFch5ViHreqwA9Mu`; the secret is in the owner's password manager. **Switch over together, when Phase 2 first verifies tokens:** owner sets the GitHub `staging` environment variable `VITE_PUBLIC_TURNSTILE_SITE_KEY` to that key **and** puts the secret into `TURNSTILE_SECRET` of the staging api env files on the server (never via chat) — not one without the other. Cloudinary / purge token: later phases |
 | O9 | **Latency test** VPS → Atlas Mumbai | Phase 00 closure V-21 (T0.14 step 5) | 1 min | **done 20 Oct 2026.** curl `time_connect` per shard ×3: 0.200/0.170/0.179 · 0.009/0.181/0.174 · 0.182/0.009/0.171 s. `time_connect` includes the DNS lookup, so the two 9 ms runs (name cached) show the network round trip ≈ **9 ms** and the ~170 ms runs are DNS. Target in PHASE_00 T0.14 is ≤ 5 ms → see V-21 (drivers keep pooled connections, so DNS is paid once per connection, not per query). Optional confirmation: the same loop with `-w "$h dns %{time_namelookup}s connect %{time_connect}s\n"` |
@@ -412,7 +412,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O22 | ~~Host-layer update on the VPS~~ | F36, F37, F40, L-5, #86 L5 | – | **done 22 Oct 2026** — `provision.sh host aa2d1ac` (checksum confirmed), `make-env.sh staging --force`, Redis restarted; `--verify-roles` 17/17, `check.sh` 114 PASS · 0 FAIL · 2 WARN (evidence `docs/reports/evidence/PHASE_01_T1.1_verify-roles_2026-10-22.txt`, `PHASE_01_T1.12_check-sh_2026-10-22.txt`) |
 | O25 | **Cloudinary for staging** (strict transformations, 6 image + 1 audio named transformations, 2 API keys into the VPS env files, `media-staging` DNS) — steps at T3.6 | Phase 03 staging deploy (images, voice notes) | 20 min | open — not blocking local work |
 | O26 | **Usability check T3.12** with a real masjid person (5-task script) | T3.12 / Phase 03 exit | 30 min | end of Phase 03 |
-| O27 | **Phase 03 checks on staging** (`owner/PHASE_TESTING_GUIDE.md` → Phase 03) | Phase 03 DONE | 45 min | end of Phase 03 |
+| O27 | **Phase 03 checks on staging** (`owner/PHASE_TESTING_GUIDE.md` → Phase 03) | Phase 03 DONE | 45 min | **OK — owner, 10 Nov 2026** (photos / voice wait for O25) |
 | O28 | **UPI ID for a ₹1 test** | Phase 05 exit | 5 min | Phase 05 |
 | O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | Phase 07 (map-tile decision dropped — #118) |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
@@ -423,7 +423,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O34 | **Legal checklist** `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md` | pilot | — | before pilot |
 | O37 | ✅ **Done 9 Nov 2026** (owner: the keys match) — **VAPID keys on staging** — `VAPID_PUBLIC_KEY` in `/etc/masjid-connect/staging/worker.env` must equal the GitHub `staging` variable `VITE_PUBLIC_VAPID_PUBLIC_KEY`; back up `VAPID_PRIVATE_KEY` (password manager; F31) | Phase 04 staging deploy — a mismatch means no push reaches any phone | 10 min | before the Phase 04 deploy |
 | O38 | **Real-device push checks** — Android + installed iPhone: turn on, receive a notice in the phone's language, tap opens it; admin "Alerts on this phone" + Super Admin test alert | Real subscription + push-service delivery (headless e2e cannot cover them — DECISIONS #139); T4.6 owner check | 20 min | Phase 04 owner verification |
-| O39 | **Database privilege check after the Phase 03 + 04 deploy** — on the server: `sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles`; send Claude Code the whole output (no secrets in it) | The new collections / views of migrations 0013–0017 must now PASS (O36 showed only the expected `extra` lines on the old release) | 5 min | now (staging live 9 Nov 2026) |
+| O39 | **Database privilege check after the Phase 03 + 04 deploy** — on the server: `sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles`; send Claude Code the whole output (no secrets in it) | The new collections / views of migrations 0013–0017 must now PASS (O36 showed only the expected `extra` lines on the old release) | 5 min | **PASS — owner, 10 Nov 2026** |
 
 ## Current phase task checklist
 
