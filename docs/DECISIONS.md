@@ -2380,3 +2380,36 @@ is neither bundled nor precached there. Revisit if iPhone admins ask.
   closes.
 - Audit meta carries no amounts (`campaign.create` {purpose, notify}, `.update` {fields, target_raised},
   `.received` {notify}, `.complete`).
+
+### #149 — Donation campaigns for musallis: QR library, Donate Now, list rules, the Delta seed masjid (PHASE_05 T5.4) — ACCEPTED (Claude Code, 10 Nov 2026)
+**Context:** 07 A10, 08 §5.7, 01 §4 (QR generate: `qrcode`), CLAUDE.md §6 dependencies (no package without a release in
+18 months; a runtime dependency of the apps needs an entry with its bundle cost).
+**Decision:**
+- **QR generator `lean-qr` 2.7.4 (MIT, no dependencies, released 7 Sep 2026) instead of `qrcode`** — `qrcode`'s last
+  release is 1.5.4 (5 Aug 2024, > 18 months) and it pulls `yargs` + `pngjs`. We use the nano encoder (a UPI link is ASCII
+  once percent-encoded) at error correction ≥ M and `toSvgPath` (one React `<path>` — no `innerHTML`, Trusted Types
+  untouched). It lives in `@mc/ui/qr` and loads only with the UPI QR sheet: the sheet chunk is **4.2 kB gzip**; the
+  musalli initial JS is 187.85 / 188 kB (+0.2 kB: the shared bundle hook and donation components). Proven by decoding
+  every generated code with the ZXing reader we already ship (`packages/ui/test/qr.test.tsx`, offline .wasm), incl.
+  non-Latin payee names (fast-check sample). 01 §4 updated.
+- **Donate Now** clicks a temporary `<a href="upi://pay?…">` inside the tap (the link from `buildUpiUri` with the
+  masjid's **live** bundle `payment`, note = campaign title), shows "Opening your UPI app…", and opens the QR sheet when
+  the page was neither hidden nor blurred within 1.5 s. An anchor (not `location.href`) so e2e can intercept the exact
+  link in every engine (a capture-phase listener; custom schemes never reach `page.route`). No UPI details in a cached
+  bundle → no buttons, "UPI details are not available right now".
+- **Closed campaigns stay listed 30 days after their end date** — a display rule in the app (`campaignsForList`), not a
+  server filter: the feed is immutable per content version, so a date-dependent server filter would serve stale pages.
+  The detail still opens from a link. List order: active → completed → closed, newest first in each.
+- **"Payment details changed on …"** shows in the QR sheet for 30 days after `bundle.payment.effectiveAt` (also after a
+  masjid's first activation — the bundle cannot tell; harmless) plus a standing "your UPI app shows the name before you
+  pay — make sure it says <payee>" hint (04 R1: the name is the last line of defence).
+- Bundle `campaigns` = the active campaigns' public ids, newest first (≤ 3; 03 "active campaigns summary").
+- The item detail now takes a cached item from the **newest** content version that lists it (a campaign's amount
+  changes under the same public id).
+- **Dev seed: a 4th masjid "Test Masjid Delta" (`TESTD004`)** with active fake UPI details (10 §5 `testmasjid@okexample`,
+  payee "Test Masjid Delta Committee", changed 10 days before the seed time) and five campaigns (2 active, completed
+  above goal, closed 10 days ago, closed 40 days ago). No earlier spec or visual baseline follows it, so they are
+  unchanged; staging gets demo data. The re-seed writes the UPI details only while no other profile is active for Delta
+  (someone may try the change-lock there).
+**Consequences:** `e2e/app/campaigns.spec.ts` (9 on Pixel 7 locally; WebKit runs in CI — this PC's WebKit cannot load
+these screens reliably, the known "style-src-elem … ?:5" error page). Visual baselines for A10 come with T5.6/T5.7.

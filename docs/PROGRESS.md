@@ -18,7 +18,34 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (9 Nov 2026, night — Phase 05 in progress on `feat/phase-05`; 03 + 04 await the owner)
+## ▶ Next session — start here (10 Nov 2026 — Phase 05 on `feat/phase-05`: T5.1, T5.3, T5.4 done; 03 + 04 await the owner)
+
+**State:** `main` = staging = `863e064` (+ docs) — Phases 03 + 04 **AWAITING OWNER VERIFICATION**. Phase 05 on
+`feat/phase-05` (DECISIONS #145), not merged or deployed (staging only after 03 + 04 are verified, or with the owner's OK).
+
+**Done 10 Nov 2026:** T5.4 musalli campaigns (#149 — A10 list + detail, lazy UPI QR sheet with `lean-qr`, Donate Now
+with the 1.5 s no-UPI-app fallback, bundle `campaigns`, seed masjid Delta `TESTD004` with fake UPI details and five
+campaigns). Details in the checklist. Not yet CI-verified on WebKit (this PC's WebKit cannot run these screens).
+
+**Do next:**
+1. Session start protocol; ask the owner whether any Phase 03/04 check (O39, O25, O27, O26, O38) found something —
+   those fixes come first (on `feat/phase-04` → `main`, then merge `main` into `feat/phase-05`).
+2. Check CI on `feat/phase-05` (iphone-14 project for `e2e/app/campaigns.spec.ts`) and the Nightly runs since 9 Nov.
+3. **Journey 9 part 2 (T5.2 left-over):** request → approve → +23 h old → +24 h new + notice → followers' bundle / QR
+   sheet show the new UPI ID ("changed on …"). Needs a `payment-activate` trigger in the runtime-test stack (e.g. an
+   api-admin test hook that runs `activateDuePaymentProfiles` as of the hook clock, or a 1-minute schedule under
+   E2E_TEST_HOOKS); admin e2e create masjids through `/api/super/masjids` (see `e2e/admin/dua.spec.ts`).
+4. T5.5 chanda (`setShowChanda` still a stub in `state/later.ts`; A11 ChandaChart), T5.6 (Updates chips, push texts,
+   Stats, **visual baselines incl. A10 in `pnpm test:visual`**), T5.8 needy people (reuse the T5.4 QR sheet + Donate
+   flow), T5.9 My zakat, T5.7 quality gates (admin B8 / `/payment` / C4 e2e + screenshots ×4, security-reviewer on R1,
+   phase-verifier).
+
+**Local notes:** one-off edits of non-ASCII files: write a Python script to the scratchpad and run it with `python -I`.
+`apps/*/src/routeTree.gen.ts` regenerates on `vite build`. After app/UI changes run `pnpm stack:up:test` (rebuilds the
+web image) and `pnpm db:seed` before e2e. WebKit e2e on this PC: unreliable for item screens — use pixel-7 locally, CI
+for iphone-14. If Docker says "unable to start": `docker desktop restart` worked (10 Nov).
+
+## ▶ Previous hand-off (9 Nov 2026, night — Phase 05 T5.1–T5.3)
 
 **State:** `main` = staging = `863e064` (+ docs commits) — Phases 03 + 04 live, **AWAITING OWNER VERIFICATION**.
 Phase 05 started early on the owner's instruction (**DECISIONS #145**) on branch **`feat/phase-05`** (pushed; branched
@@ -536,7 +563,19 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   history append-only (T1.3 privilege test), every validation rule (api `campaign-routes.int` 6, db `campaigns.int` 9,
   mutation-checked), admin unit 5 + tiles. **Not yet run in a browser:** the admin B8 / `/payment` / C4 screens get their
   e2e + 4-locale screenshots at T5.7 (with journey 9).
-- [ ] T5.4 — Campaigns (musalli)
+- [x] T5.4 — Campaigns (musalli) — 10 Nov 2026 (#149): A10 list (`/masjid/:id/campaigns`, CampaignCards active →
+  completed → closed, closed ones 30 days) and detail (in `/items/:publicId` — so Updates, Home, pushes and `/p/` links
+  open it): cover + status pill, overlapping sheet, count-up "Received (reported by masjid)" vs Goal, bar fills on view
+  + %, "Last updated … by masjid admin", Started · Ends · Purpose, About, Donate Now (exact `upi://pay` link of the live
+  bundle `payment`; no UPI app within 1.5 s → QR sheet), Show UPI QR Code (lazy 4.2 kB sheet: payee, UPI ID + Copy, QR
+  via `lean-qr` fading/scaling in, Save QR — iOS share sheet / download, gallery hint, "Payment details changed on …"
+  for 30 days, check-the-name hint), closed banner, the "no money through us" note ×4. Bundle `campaigns` wired (active
+  ids). Seed masjid Delta `TESTD004` (#149). Tests: ui `qr` 4 (ZXing decode round-trip), `campaign-view` 5,
+  `campaign-card` 6; app `upi-actions` 6; domain `daysBetween` (+ property); db `campaigns.int` public reads; e2e
+  `campaigns.spec.ts` 9/9 Pixel 7 (exact link intercepted, QR fallback, Save QR PNG, closed, 4 locales + axe). Side-by-
+  side with ref-3/4 + ref-2/3: captures `test-results/screens/pixel-7/<locale>/campaign*.png` (report at phase close).
+  **Left for CI:** iphone-14 (this PC's WebKit shows its error page for these screens, as for settings.spec — known).
+  Visual baselines (`pnpm test:visual`) for A10 with T5.6.
 - [ ] T5.5 — Chanda
 - [ ] T5.6 — Integration polish
 - [ ] T5.8 — Needy people (B19 + A23)
@@ -610,6 +649,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-10 | 05 / T5.4 | Musalli campaigns done (#149): A10 list + detail + lazy UPI QR sheet, `lean-qr` instead of the unmaintained `qrcode`, Donate Now with the 1.5 s no-app fallback, Delta seed masjid. Fixed on the way: MetaRow `<dl>` structure (axe), Urdu "PM 10:10" (LTR isolate), a T5.3 admin unit test left behind (`uploadImage` purpose). Unit: domain 213, ui 325, app 204, admin 154; db int 336, api int 358; e2e campaigns 9/9 (Pixel 7), app suite on Pixel 7 green (2 parallel-load flakes pass serially). Musalli initial JS 187.85 / 188 kB. Docker Desktop stopped mid-session; `docker desktop restart` brought it back. |
 | 2026-11-09 | 05 / T5.1–T5.3 | Phase 05 started on the owner's word (#145). T5.1 UPI domain module (100 %, fast-check, mutation-checked). T5.2 change-lock built end to end (#146 reject during hold, locked notice; #147 owner: Android-only admin QR scan; scanner moved to `@mc/ui/scanner`, WebAssembly fallback app-only). T5.3 campaigns done (#148). Journey 9 part 2 moved to T5.4; admin screens not yet run in a browser. |
 | 2026-11-09 | 03 + 04 / deploy | Two CI-only e2e races fixed in tests (`dd2a557`, `660c950`); merged `863e064` to `main`; staging live ~21:10 IST; owner checks O39, O25, O27, O26, O38 pending. |
 | 2026-11-08 | 04 / T4.9, T4.4 | T4.9 run locally after the WSL fix (a real Restart): push spec 5, journeys 6/7/8 + admin screens ×4 green; integration api 335 / db 302. **Bug fixed (#140):** send-batch counting race stranded a job (`pending_batches` balance, migration 0017, ledger claim released on a failed write) — db +1, api +1 tests (mutation-checked). Disabled `Switch` text readable (axe). Musalli initial 188 kB. Lighthouse: musalli cold LCP 2689 ms locally (known local miss) → CI on `ci/phase-04`. T4.2–T4.5, T4.7 ticked. |

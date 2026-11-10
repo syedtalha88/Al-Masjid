@@ -3,7 +3,7 @@
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
 > Last updated: 9 Nov 2026 (night) — **Phases 03 + 04 are on staging** (release `863e064`). Order: O39 → O25 rest → O27 → O26 → O38.
-> Phase 05 is being built meanwhile (DECISIONS #145) — nothing new needed from you yet; O28 (a UPI ID for the ₹1 test) when Phase 05 reaches staging.
+> Phase 05 is being built meanwhile (DECISIONS #145) — nothing new needed from you yet; O28 (a UPI ID for the ₹1 test) when Phase 05 reaches staging. On staging, the demo masjid **TESTD004** (Test Masjid Delta) will show donation campaigns with a fake UPI ID — never pay to it.
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
 > Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.
@@ -88,7 +88,7 @@
 | # | What | Time | When |
 |---|---|---|---|
 | O30 | **Notice templates** — Super Admin → Notice templates → **Add starter templates**; have someone check each one in all 4 languages (or send `packages/i18n/review/*.csv` to translators), tick **Translations reviewed**, **Activate** | 1–2 h | before pilot |
-| O31 | **All app translations reviewed** — send the review files `packages/i18n/review/hi.csv`, `ur.csv`, `te.csv` (about 1,200 strings each, all drafts — 5 Nov 2026) to translators; Claude Code puts their answers back | depends on translators | before pilot |
+| O31 | **All app translations reviewed** — send the review files `packages/i18n/review/hi.csv`, `ur.csv`, `te.csv` (about 1,575 strings each, all drafts — updated 10 Nov 2026 with the donation screens) to translators; Claude Code puts their answers back | depends on translators | before pilot |
 | O32 | **Verified Content Library file** — hadith / ayah / duas / adhkar (kind `dhikr` with `repeat` and `occasions: ["after_salah"]` — masjids pick them in "Adhkar after salah" since T3.14) / ruqyah from licensed, scholar-checked sources in the format of `docs/content-library-format.md` | — | before pilot |
 | O33 | **Grievance Officer details** — name, email and address in Super Admin → Settings (the app hides the contact link while the "NOT SET" placeholders are there) | 5 min | before launch |
 | O34 | **Legal checklist** — `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md` (lawyer review of the privacy policy and terms, etc.) | — | before pilot |
