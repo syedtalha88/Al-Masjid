@@ -1,19 +1,16 @@
 // Masjid Detail data (07 A5): the masjid's bundle (from the followed masjids' data, or its own lookup when it is not
 // followed), its follow entry (mute state, follow date) and the first feed page of each section type.
-import type { ActiveMasjidBundle, FeedItem, ItemType } from '@mc/shared/contracts/public';
-import { useQueries, useQuery } from '@tanstack/react-query';
+import type { FeedItem, ItemType } from '@mc/shared/contracts/public';
+import { useQueries } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { bundleQuery, feedQuery, previousBundle, versionsQuery } from '../../../lib/api/queries.ts';
+import { feedQuery } from '../../../lib/api/queries.ts';
 import { useAppData, useDeviceSelector } from '../../../lib/data.tsx';
 import type { LocalFollow } from '../../../lib/device/store.ts';
-import { useHomeData } from '../../home/hooks/useHomeData.ts';
 import { SECTION_TYPES } from '../lib/detail-view.ts';
+import { type BundleState, useMasjidBundle } from './useMasjidBundle.ts';
 
-export type DetailState =
-  | { readonly state: 'loading' | 'failed' | 'gone' }
-  | { readonly state: 'suspended' }
-  | { readonly state: 'active'; readonly bundle: ActiveMasjidBundle };
+export type DetailState = BundleState;
 
 export interface MasjidDetailData {
   readonly masjid: DetailState;
@@ -26,32 +23,11 @@ export interface MasjidDetailData {
 }
 
 export function useMasjidDetail(masjidId: string): MasjidDetailData {
-  const { api, queryClient } = useAppData();
+  const { api } = useAppData();
   const follows = useDeviceSelector((state) => state.follows);
   const audiencePref = useDeviceSelector((state) => state.audiencePref);
-  const home = useHomeData();
-  const followed = home.masjids.find((entry) => entry.id === masjidId);
   const follow = follows.find((entry) => entry.masjidId === masjidId && entry.sync !== 'unfollow') ?? null;
-
-  // Not followed (opened from a link): its own version + bundle.
-  const versions = useQuery({ ...versionsQuery(api, [masjidId]), enabled: followed === undefined });
-  const ownVersion = versions.data?.[masjidId];
-  const own = useQuery({
-    ...bundleQuery(api, masjidId, ownVersion?.v ?? 0),
-    enabled: followed === undefined && ownVersion !== undefined,
-    placeholderData: () => previousBundle(queryClient, masjidId, ownVersion?.v ?? 0),
-  });
-
-  const masjid: DetailState = (() => {
-    if (followed) {
-      if (followed.state === 'active') return { state: 'active', bundle: followed.bundle };
-      return { state: followed.state };
-    }
-    if (versions.data && !ownVersion) return { state: 'gone' };
-    if (own.data?.status === 'active') return { state: 'active', bundle: own.data };
-    if (own.data?.status === 'suspended') return { state: 'suspended' };
-    return { state: versions.isError || own.isError ? 'failed' : 'loading' };
-  })();
+  const { masjid, retry } = useMasjidBundle(masjidId);
 
   const active = masjid.state === 'active' ? masjid.bundle : null;
   const audience = audiencePref ?? 'brothers';
@@ -77,9 +53,6 @@ export function useMasjidDetail(masjidId: string): MasjidDetailData {
     follow,
     pages,
     audience,
-    retry: () => {
-      void home.refresh();
-      void versions.refetch();
-    },
+    retry,
   };
 }

@@ -897,6 +897,49 @@ content,emptyIlm,No contacts yet,ابھی کوئی رابطہ نہیں,no
 content,emptyIlmBody,"When the masjid lists people you can ask, they will appear here.",جب مسجد اُن لوگوں کو شامل کرے گی جن سے آپ پوچھ سکتے ہیں، وہ یہاں نظر آئیں گے۔,no
 content,ruqyahFailed,Ruqyah could not be loaded,رقیہ لوڈ نہیں ہو سکا,no
 content,ruqyahFailedBody,"Check your connection and try again. Once opened, it stays available offline.",اپنا کنکشن دیکھیں اور دوبارہ کوشش کریں۔ ایک بار کھلنے کے بعد یہ آف لائن بھی دستیاب رہے گا۔,no
+content,campaign.title,Donation Campaigns,عطیہ مہمات,no
+content,campaign.detailTitle,Donation Campaign,عطیہ مہم,no
+content,campaign.status.active,Active,جاری,no
+content,campaign.status.completed,Completed,مکمل,no
+content,campaign.status.closed,Closed,بند,no
+content,campaign.purpose.renovation,Renovation,تزئین,no
+content,campaign.purpose.repair,Repair,مرمت,no
+content,campaign.purpose.utilities,Bills & utilities,بل اور سہولیات,no
+content,campaign.purpose.welfare,Helping people,لوگوں کی مدد,no
+content,campaign.purpose.other,Other,دیگر,no
+content,campaign.raisedOf,{received} raised of {target},{target} میں سے {received} جمع,no
+content,campaign.received,Received (reported by masjid),موصول (مسجد کے مطابق),no
+content,campaign.goal,Goal,ہدف,no
+content,campaign.progressLabel,Received so far,اب تک موصول,no
+content,campaign.percent,{percent}%,{percent}%,no
+content,campaign.lastUpdated,Last updated {when} by masjid admin,آخری اپ ڈیٹ {when}، مسجد ایڈمن کی طرف سے,no
+content,campaign.started,Started,شروع ہوئی,no
+content,campaign.starts,Starts,شروع ہوگی,no
+content,campaign.ends,Ends,اختتام,no
+content,campaign.noEnd,No end date,کوئی آخری تاریخ نہیں,no
+content,campaign.purposeLabel,Purpose,مقصد,no
+content,campaign.daysLeft,"{count, plural, =0 {Ends today} one {# day left} other {# days left}}","{count, plural, =0 {آج آخری دن} one {# دن باقی} other {# دن باقی}}",no
+content,campaign.endedOn,Ended {date},{date} کو ختم ہوئی,no
+content,campaign.about,About this campaign,اس مہم کے بارے میں,no
+content,campaign.donateNow,Donate Now,ابھی عطیہ دیں,no
+content,campaign.showQr,Show UPI QR Code,UPI QR کوڈ دکھائیں,no
+content,campaign.opening,Opening your UPI app…,آپ کی UPI ایپ کھل رہی ہے…,no
+content,campaign.disclaimer,Payments go directly to the masjid’s verified UPI account. {app} does not receive or handle any money.,ادائیگی سیدھی مسجد کے تصدیق شدہ UPI اکاؤنٹ میں جاتی ہے۔ {app} نہ کوئی رقم وصول کرتا ہے نہ سنبھالتا ہے۔,no
+content,campaign.closedBanner,This campaign has ended. JazakAllah Khair to everyone who contributed.,یہ مہم ختم ہو گئی ہے۔ حصہ لینے والے سب لوگوں کو جزاک اللہ خیر۔,no
+content,campaign.noUpi,The masjid’s UPI details are not available right now. Please try again later.,مسجد کی UPI تفصیلات ابھی دستیاب نہیں۔ براہِ کرم بعد میں دوبارہ کوشش کریں۔,no
+content,campaign.empty,No donation campaigns yet,ابھی کوئی عطیہ مہم نہیں,no
+content,campaign.emptyBody,"When the masjid starts a donation campaign, you will see it here.",جب مسجد کوئی عطیہ مہم شروع کرے گی تو وہ یہاں نظر آئے گی۔,no
+content,campaign.qr.title,Pay with UPI,UPI سے ادائیگی,no
+content,campaign.qr.copy,Copy UPI ID,UPI ID کاپی کریں,no
+content,campaign.qr.copied,UPI ID copied,UPI ID کاپی ہو گئی,no
+content,campaign.qr.label,UPI QR code for {payee},{payee} کا UPI QR کوڈ,no
+content,campaign.qr.scanHint,Scan with any UPI app from another phone,دوسرے فون کی کسی بھی UPI ایپ سے اسکین کریں,no
+content,campaign.qr.save,Save QR to gallery,QR گیلری میں محفوظ کریں,no
+content,campaign.qr.saveHint,Or save it and use “Scan from gallery” in your UPI app.,یا اسے محفوظ کر کے اپنی UPI ایپ میں ”گیلری سے اسکین کریں“ استعمال کریں۔,no
+content,campaign.qr.saved,QR code saved,QR کوڈ محفوظ ہو گیا,no
+content,campaign.qr.saveFailed,Couldn’t save the QR code. Take a screenshot instead.,QR کوڈ محفوظ نہیں ہو سکا۔ اس کی جگہ اسکرین شاٹ لے لیں۔,no
+content,campaign.qr.changed,Payment details changed on {date},ادائیگی کی تفصیلات {date} کو بدلی گئیں,no
+content,campaign.qr.checkName,Your UPI app shows the name before you pay — make sure it says {payee}.,ادائیگی سے پہلے آپ کی UPI ایپ نام دکھاتی ہے — دیکھ لیں کہ اس میں {payee} لکھا ہو۔,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,ہماری برادری کے ایک رکن بیمار ہیں۔ براہِ کرم انہیں اپنی دعاؤں میں یاد رکھیں۔,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,ہماری برادری کے ایک رکن اسپتال میں ہیں۔ براہِ کرم ان کی صحت یابی کے لیے دعا کریں۔,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,ہماری برادری کے ایک رکن کا آپریشن ہے۔ براہِ کرم دعا کریں کہ سب خیریت سے ہو۔,no

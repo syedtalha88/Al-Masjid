@@ -85,5 +85,56 @@
   "emptyIlm": "No contacts yet",
   "emptyIlmBody": "When the masjid lists people you can ask, they will appear here.",
   "ruqyahFailed": "Ruqyah could not be loaded",
-  "ruqyahFailedBody": "Check your connection and try again. Once opened, it stays available offline."
+  "ruqyahFailedBody": "Check your connection and try again. Once opened, it stays available offline.",
+  "campaign": {
+    "title": "Donation Campaigns",
+    "detailTitle": "Donation Campaign",
+    "status": {
+      "active": "Active",
+      "completed": "Completed",
+      "closed": "Closed"
+    },
+    "purpose": {
+      "renovation": "Renovation",
+      "repair": "Repair",
+      "utilities": "Bills & utilities",
+      "welfare": "Helping people",
+      "other": "Other"
+    },
+    "raisedOf": "{received} raised of {target}",
+    "received": "Received (reported by masjid)",
+    "goal": "Goal",
+    "progressLabel": "Received so far",
+    "percent": "{percent}%",
+    "lastUpdated": "Last updated {when} by masjid admin",
+    "started": "Started",
+    "starts": "Starts",
+    "ends": "Ends",
+    "noEnd": "No end date",
+    "purposeLabel": "Purpose",
+    "daysLeft": "{count, plural, =0 {Ends today} one {# day left} other {# days left}}",
+    "endedOn": "Ended {date}",
+    "about": "About this campaign",
+    "donateNow": "Donate Now",
+    "showQr": "Show UPI QR Code",
+    "opening": "Opening your UPI app…",
+    "disclaimer": "Payments go directly to the masjid’s verified UPI account. {app} does not receive or handle any money.",
+    "closedBanner": "This campaign has ended. JazakAllah Khair to everyone who contributed.",
+    "noUpi": "The masjid’s UPI details are not available right now. Please try again later.",
+    "empty": "No donation campaigns yet",
+    "emptyBody": "When the masjid starts a donation campaign, you will see it here.",
+    "qr": {
+      "title": "Pay with UPI",
+      "copy": "Copy UPI ID",
+      "copied": "UPI ID copied",
+      "label": "UPI QR code for {payee}",
+      "scanHint": "Scan with any UPI app from another phone",
+      "save": "Save QR to gallery",
+      "saveHint": "Or save it and use “Scan from gallery” in your UPI app.",
+      "saved": "QR code saved",
+      "saveFailed": "Couldn’t save the QR code. Take a screenshot instead.",
+      "changed": "Payment details changed on {date}",
+      "checkName": "Your UPI app shows the name before you pay — make sure it says {payee}."
+    }
+  }
 }

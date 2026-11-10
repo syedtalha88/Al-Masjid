@@ -22,13 +22,18 @@ export const itemQuery = (api: ApiClient, publicId: string, aud: 'brothers' | 's
     retry: false,
   });
 
-/** The item from any cached feed page (newest version first is not needed: a public id is one item). */
+/**
+ * The item from the cached feed pages, taken from the newest content version that lists it: a campaign's amount and
+ * status change while its public id stays (older versions linger until the next versions poll prunes them).
+ */
 export function findCachedItem(client: QueryClient, publicId: string): FeedItem | undefined {
-  for (const [, page] of client.getQueriesData<FeedPage>({ queryKey: ['feed'] })) {
+  let best: { readonly v: number; readonly item: FeedItem } | undefined;
+  for (const [key, page] of client.getQueriesData<FeedPage>({ queryKey: ['feed'] })) {
     const found = page?.items.find((entry) => entry.publicId === publicId);
-    if (found) return found;
+    const v = typeof key[2] === 'number' ? key[2] : 0;
+    if (found && (best === undefined || v > best.v)) best = { v, item: found };
   }
-  return undefined;
+  return best?.item;
 }
 
 /** A masjid opened from a link (not followed) has its own cached bundle (Masjid Detail loaded it). */

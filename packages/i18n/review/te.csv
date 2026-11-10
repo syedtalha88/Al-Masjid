@@ -897,6 +897,49 @@ content,emptyIlm,No contacts yet,ఇంకా పరిచయాలు లేవ
 content,emptyIlmBody,"When the masjid lists people you can ask, they will appear here.","మీరు అడగగల వ్యక్తులను మస్జిద్ చేర్చినప్పుడు, వారు ఇక్కడ కనిపిస్తారు.",no
 content,ruqyahFailed,Ruqyah could not be loaded,రుఖ్యా లోడ్ కాలేదు,no
 content,ruqyahFailedBody,"Check your connection and try again. Once opened, it stays available offline.","మీ కనెక్షన్ తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి. ఒకసారి తెరిచాక, ఇది ఆఫ్‌లైన్‌లో కూడా అందుబాటులో ఉంటుంది.",no
+content,campaign.title,Donation Campaigns,విరాళాల ప్రచారాలు,no
+content,campaign.detailTitle,Donation Campaign,విరాళ ప్రచారం,no
+content,campaign.status.active,Active,కొనసాగుతోంది,no
+content,campaign.status.completed,Completed,పూర్తయింది,no
+content,campaign.status.closed,Closed,ముగిసింది,no
+content,campaign.purpose.renovation,Renovation,పునరుద్ధరణ,no
+content,campaign.purpose.repair,Repair,మరమ్మతు,no
+content,campaign.purpose.utilities,Bills & utilities,బిల్లులు & సౌకర్యాలు,no
+content,campaign.purpose.welfare,Helping people,ప్రజలకు సహాయం,no
+content,campaign.purpose.other,Other,ఇతర,no
+content,campaign.raisedOf,{received} raised of {target},{target}లో {received} వచ్చింది,no
+content,campaign.received,Received (reported by masjid),అందినది (మస్జిద్ తెలిపినది),no
+content,campaign.goal,Goal,లక్ష్యం,no
+content,campaign.progressLabel,Received so far,ఇప్పటివరకు అందినది,no
+content,campaign.percent,{percent}%,{percent}%,no
+content,campaign.lastUpdated,Last updated {when} by masjid admin,"చివరి నవీకరణ {when}, మస్జిద్ అడ్మిన్ ద్వారా",no
+content,campaign.started,Started,ప్రారంభమైంది,no
+content,campaign.starts,Starts,ప్రారంభం,no
+content,campaign.ends,Ends,ముగింపు,no
+content,campaign.noEnd,No end date,ముగింపు తేదీ లేదు,no
+content,campaign.purposeLabel,Purpose,ఉద్దేశ్యం,no
+content,campaign.daysLeft,"{count, plural, =0 {Ends today} one {# day left} other {# days left}}","{count, plural, =0 {ఈరోజే చివరి రోజు} one {# రోజు మిగిలి ఉంది} other {# రోజులు మిగిలి ఉన్నాయి}}",no
+content,campaign.endedOn,Ended {date},{date}న ముగిసింది,no
+content,campaign.about,About this campaign,ఈ ప్రచారం గురించి,no
+content,campaign.donateNow,Donate Now,ఇప్పుడే విరాళం ఇవ్వండి,no
+content,campaign.showQr,Show UPI QR Code,UPI QR కోడ్ చూపించు,no
+content,campaign.opening,Opening your UPI app…,మీ UPI యాప్ తెరుచుకుంటోంది…,no
+content,campaign.disclaimer,Payments go directly to the masjid’s verified UPI account. {app} does not receive or handle any money.,"చెల్లింపులు నేరుగా మస్జిద్ ధృవీకరించిన UPI ఖాతాకు వెళ్తాయి. {app} ఎలాంటి డబ్బునూ తీసుకోదు, నిర్వహించదు.",no
+content,campaign.closedBanner,This campaign has ended. JazakAllah Khair to everyone who contributed.,ఈ ప్రచారం ముగిసింది. సహకరించిన అందరికీ జజాకల్లాహ్ ఖైర్.,no
+content,campaign.noUpi,The masjid’s UPI details are not available right now. Please try again later.,మస్జిద్ UPI వివరాలు ప్రస్తుతం అందుబాటులో లేవు. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి.,no
+content,campaign.empty,No donation campaigns yet,ఇంకా విరాళ ప్రచారాలు లేవు,no
+content,campaign.emptyBody,"When the masjid starts a donation campaign, you will see it here.","మస్జిద్ విరాళ ప్రచారం ప్రారంభించినప్పుడు, అది ఇక్కడ కనిపిస్తుంది.",no
+content,campaign.qr.title,Pay with UPI,UPIతో చెల్లించండి,no
+content,campaign.qr.copy,Copy UPI ID,UPI ID కాపీ చేయండి,no
+content,campaign.qr.copied,UPI ID copied,UPI ID కాపీ అయింది,no
+content,campaign.qr.label,UPI QR code for {payee},{payee} UPI QR కోడ్,no
+content,campaign.qr.scanHint,Scan with any UPI app from another phone,మరో ఫోన్‌లోని ఏ UPI యాప్‌తోనైనా స్కాన్ చేయండి,no
+content,campaign.qr.save,Save QR to gallery,QRను గ్యాలరీలో సేవ్ చేయండి,no
+content,campaign.qr.saveHint,Or save it and use “Scan from gallery” in your UPI app.,"లేదా దీన్ని సేవ్ చేసి, మీ UPI యాప్‌లో “గ్యాలరీ నుండి స్కాన్” ఉపయోగించండి.",no
+content,campaign.qr.saved,QR code saved,QR కోడ్ సేవ్ అయింది,no
+content,campaign.qr.saveFailed,Couldn’t save the QR code. Take a screenshot instead.,QR కోడ్ సేవ్ కాలేదు. బదులుగా స్క్రీన్‌షాట్ తీసుకోండి.,no
+content,campaign.qr.changed,Payment details changed on {date},చెల్లింపు వివరాలు {date}న మారాయి,no
+content,campaign.qr.checkName,Your UPI app shows the name before you pay — make sure it says {payee}.,చెల్లించే ముందు మీ UPI యాప్ పేరు చూపిస్తుంది — అందులో {payee} అని ఉందో లేదో చూసుకోండి.,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,మన సమాజంలోని ఒకరు అనారోగ్యంతో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,మన సమాజంలోని ఒకరు ఆసుపత్రిలో ఉన్నారు. దయచేసి వారు కోలుకోవాలని దువా చేయండి.,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,మన సమాజంలోని ఒకరికి ఆపరేషన్ జరుగుతోంది. అంతా బాగా జరగాలని దయచేసి దువా చేయండి.,no

@@ -1,8 +1,9 @@
 // `/items/:publicId` (07 Navigation map: any item detail). Announcement detail (07 A7: icon + title, masjid row, full
 // body, photo → full-screen pinch-zoom viewer, event date with "Add to calendar" (.ics), Share, "edited"), the Read
 // Full reader for hadith / ayah (07 A8: Arabic size A−/A+ remembered, transliteration toggle, translation, reference,
-// source + licence, copy, Share, Save) and the dua detail (07 A9: full message, full dua, large Ameen, janaza). Other
-// types (campaigns, videos, chanda — Phases 5/6) show their title and text for now. Report ("…") arrives with Phase 8.
+// source + licence, copy, Share, Save), the dua detail (07 A9: full message, full dua, large Ameen, janaza) and the
+// donation campaign (07 A10, `../campaigns/CampaignDetail.tsx`). Other types (videos, chanda — Phases 5/6) show their
+// title and text for now. Report ("…") arrives with Phase 8.
 import { useLocale, useTranslation } from '@mc/i18n/react';
 import type { FeedItem, MasjidSummary } from '@mc/shared/contracts/public';
 import { MosqueIllustration } from '@mc/ui';
@@ -49,6 +50,7 @@ import { now as correctedNow, useNow } from '../../lib/clock.ts';
 import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
 import { masjidName } from '../../lib/masjid.ts';
 import { audioUrl, mediaUrl } from '../../lib/media.ts';
+import { CampaignDetail } from '../campaigns/CampaignDetail.tsx';
 import { ShareSheet } from '../masjid/components/ShareSheet.tsx';
 import { ContentGate } from './components/ContentGate.tsx';
 import { useAmeen } from './hooks/useAmeen.ts';
@@ -138,6 +140,7 @@ function ItemDetail({ publicId }: { readonly publicId: string }) {
   const { item, masjid } = state;
   if (item.type === 'daily_content' && item.daily?.library) return <Reader item={item} masjid={masjid} />;
   if (item.type === 'dua_request' && item.dua) return <DuaDetail item={item} masjid={masjid} />;
+  if (item.type === 'campaign' && item.campaign) return <CampaignItemDetail item={item} masjid={masjid} />;
   return <NoticeDetail item={item} masjid={masjid} />;
 }
 
@@ -190,6 +193,19 @@ function ShareButton({ item, masjid }: DetailProps) {
       </Button>
       <ShareSheet target={share.target} title={t('share')} onClose={share.close} />
     </>
+  );
+}
+
+/** A10 campaign detail with this screen's Share and the landing's actions. */
+function CampaignItemDetail({ item, masjid }: DetailProps) {
+  const name = useMasjidLabel(masjid);
+  return (
+    <CampaignDetail
+      item={item}
+      masjidName={name}
+      share={<ShareButton item={item} masjid={masjid} />}
+      footer={<LandingFooter />}
+    />
   );
 }
 

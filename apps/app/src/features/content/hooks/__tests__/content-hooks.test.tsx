@@ -187,6 +187,13 @@ describe('useItem', () => {
     });
     data.queryClient.setQueryData(queryKeys.feed(A, 1, 'brothers'), { items: [NOTICE], next: null });
     expect(findCachedItem(data.queryClient, NOTICE.publicId)).toEqual(NOTICE);
+    // A newer version's copy wins (a campaign's amount changes under the same public id), whatever the cache order.
+    const edited = { ...NOTICE, title: 'Test notice (edited)' };
+    data.queryClient.setQueryData(queryKeys.feed(A, 3, 'brothers', 'announcement'), { items: [edited], next: null });
+    data.queryClient.setQueryData(queryKeys.feed(A, 2, 'brothers'), { items: [NOTICE], next: null });
+    expect(findCachedItem(data.queryClient, NOTICE.publicId)).toEqual(edited);
+    data.queryClient.removeQueries({ queryKey: queryKeys.feed(A, 3, 'brothers', 'announcement') });
+    data.queryClient.removeQueries({ queryKey: queryKeys.feed(A, 2, 'brothers') });
     const { result } = renderHook(() => useItem(NOTICE.publicId), { wrapper });
     await waitFor(() => {
       expect(result.current).toMatchObject({ state: 'ready', item: NOTICE, masjid: { name: 'Test Masjid Alpha' } });
