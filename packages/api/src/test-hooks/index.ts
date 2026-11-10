@@ -5,7 +5,10 @@ import { z } from 'zod';
 
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
 import { bootstrapSuperAdminInvite } from '../jobs/bootstrap-super-admin.ts';
+import { processPaymentActivate } from '../jobs/payments/activate.ts';
+import type { createLogger } from '../logger.ts';
 import type { PushTransport } from '../push/sender.ts';
+import type { JobQueues } from '../queue/queues.ts';
 
 // `@mc/api/test-hooks` — e2e-only routes (10 §3). NEVER imported by the shipped server: tsdown builds this into
 // apps/server/dist-test/test-hooks.mjs, which only the `runtime-test` image contains (DECISIONS #31), and the
@@ -25,6 +28,12 @@ export interface AdminHookContext {
   /** `SESSION_PEPPER` bytes. */
   readonly pepper: Buffer;
   readonly adminOrigin: string;
+  /**
+   * api-admin's queues and logger: `POST /test/payment-activate` runs one `payment-activate` job here, as of this
+   * process's settable clock (e2e journey 9 — the 24 h hold of 04 R1 without waiting a day).
+   */
+  readonly queues?: JobQueues;
+  readonly logger?: ReturnType<typeof createLogger>;
 }
 
 export interface TestHookContext {
@@ -130,6 +139,22 @@ export function testHookRoutes({ service, clock, admin, resetRateLimits, redis }
         }),
       ]
     : [];
+  const { queues, logger } = admin ?? {};
+  const paymentHooks =
+    admin && queues && logger
+      ? [
+          defineRoute({
+            method: 'post',
+            path: '/test/payment-activate',
+            summary:
+              'Test hook (api-admin): one run of the payment-activate job as of this process clock (e2e journey 9)',
+            auth: 'none',
+            responses: { 200: z.object({ activated: z.int().min(0) }) },
+            handler: async ({ reply }) =>
+              reply(200, await processPaymentActivate({ db: admin.db, queues, clock, logger })),
+          }),
+        ]
+      : [];
   const rateLimitHooks = resetRateLimits
     ? [
         defineRoute({
@@ -164,6 +189,7 @@ export function testHookRoutes({ service, clock, admin, resetRateLimits, redis }
     : [];
   return [
     ...adminHooks,
+    ...paymentHooks,
     ...rateLimitHooks,
     ...pushHooks,
     defineRoute({

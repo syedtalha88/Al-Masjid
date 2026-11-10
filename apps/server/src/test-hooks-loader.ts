@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-import type { PushTransport, RouteDefinition } from '@mc/api';
+import type { createLogger, JobQueues, PushTransport, RouteDefinition } from '@mc/api';
 import type { DbHandle } from '@mc/db';
 import { ShiftableClock } from '@mc/shared/clock';
 
@@ -59,11 +59,16 @@ export interface TestHookExtras {
   readonly redis?: CapturedPushReader;
 }
 
-/** api-admin's seed hooks get its own DB handle and pepper (same shape as @mc/api's AdminHookContext). */
+/**
+ * api-admin's seed hooks get its own DB handle and pepper, and its queues + logger for the `payment-activate` hook (same
+ * shape as @mc/api's AdminHookContext).
+ */
 export interface AdminHookContext {
   readonly db: DbHandle;
   readonly pepper: Buffer;
   readonly adminOrigin: string;
+  readonly queues?: JobQueues;
+  readonly logger?: ReturnType<typeof createLogger>;
 }
 
 const isTestHookModule = (value: unknown): value is TestHookModule =>

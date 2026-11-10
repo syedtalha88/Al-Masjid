@@ -12,10 +12,19 @@ x-test-server: &test-server
   environment:
     NODE_ENV: test
 
+# The UPI change-lock e2e (journey 9) checks the real 24 h hold with the api-admin clock hook; with the 2-minute local
+# hold the worker's own 10-minute schedule could put the new details live in the middle of the test. (A service's
+# `environment` replaces the anchor's, so NODE_ENV is repeated.)
+x-test-env-hold: &test-env-hold
+  NODE_ENV: test
+  PAYMENT_HOLD_MINUTES: '1440'
+
 services:
   api-public:
     <<: *test-server
   api-admin:
     <<: *test-server
+    environment: *test-env-hold
   worker:
     <<: *test-server
+    environment: *test-env-hold

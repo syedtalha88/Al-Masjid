@@ -44,7 +44,7 @@ const queues = createJobQueues(connections.redis);
 const pepper = Buffer.from(env.SESSION_PEPPER, 'base64'); // validated: ≥ 32 bytes (env.ts)
 // e2e hooks only for APP_ENV=local + NODE_ENV=test AND a runtime-test build (10 §3, DECISIONS #31).
 const hooks = await loadTestHooks(env, 'api-admin', logger, undefined, {
-  admin: { db: connections.db, pepper, adminOrigin: env.ADMIN_ORIGIN },
+  admin: { db: connections.db, pepper, adminOrigin: env.ADMIN_ORIGIN, queues, logger },
   resetRateLimits: () => clearRedisRateLimits(connections.redis, 'rl:adm:'),
   redis: connections.redis,
 });
