@@ -180,14 +180,15 @@ Before you start: **O37** must be done (the notification keys on staging match).
 |---|---|---|---|
 | 5.1 | Set up UPI | Admin → Masjid Profile → UPI payment details → Set up UPI → on Android "Scan the masjid's UPI QR" with the camera (on iPhone type the UPI ID — DECISIONS #147) → payee name → Send for approval | UPI ID and name filled from the QR; Profile shows "Requested — waiting for approval"; your Super Admin phone gets an alert |
 | 5.2 | Approve | Super Admin → Payment approvals → tick both checks → Approve ★ (screen lock asked). Also try "Reject" on a second request, and "Stop this change" on one that is on hold | Admin sees "Approved — goes live <time>" and gets an alert; a rejected request shows its reason on the admin's Profile |
-| 5.3 | 24-hour hold | On staging the hold is 10 minutes (`PAYMENT_HOLD_MINUTES`, set by `make-env.sh`; production is always ≥ 24 h); check just before and after it ends — the worker checks every 10 minutes, so allow up to 10 minutes more | Old details stay until the hold ends (24 h in production); then new ones go live and followers get "Payment details updated" notice |
+| 5.3 | 24-hour hold | On staging the hold is 10 minutes (`PAYMENT_HOLD_MINUTES`, set by `make-env.sh`; production is always ≥ 24 h); check just before and after it ends — the worker checks every 10 minutes, so allow up to 10 minutes more | Old details stay until the hold ends (24 h in production); then new ones go live, followers get a "Payment details updated" notice, and a campaign's QR sheet says "Payment details changed on <date>" (for 30 days) |
 | 5.4 | Create campaign | Admin → Donation Drive → Renovation → target ₹1,00,000 → photo → Publish | Musalli screen looks like reference 3, screen 4 (big image, progress bar, Donate Now, Show UPI QR) |
 | 5.5 | Donate Now (Android) | Tap Donate Now | Your UPI app opens with the masjid name/UPI filled; pay **₹1** to complete the test |
 | 5.6 | Donate Now (iPhone) | Same on iPhone | UPI app opens (or app chooser); pay ₹1 |
-| 5.7 | QR sheet | Show UPI QR Code → scan it with **another** phone's UPI app; also "Save QR" → in UPI app use "scan from gallery" | Both work; payee name shown matches |
+| 5.7 | QR sheet | Show UPI QR Code → scan it with **another** phone's UPI app; also "Save QR to gallery" (iPhone: the share sheet opens → **Save Image**; Android: saved to Downloads) → in the UPI app use "scan from gallery"; tap the copy button next to the UPI ID | Both payments open with the right payee name; the saved picture shows the QR with the payee name and UPI ID under it; "UPI ID copied" |
 | 5.8 | Update amount | Admin → Update amount → ₹72,000 | Musalli progress bar animates to 72%; "Received (reported by masjid)" + "Last updated … by masjid admin" |
 | 5.9 | Disclaimer | Read the bottom of the campaign page in all 4 languages | "Payments go directly to the masjid's verified UPI account…" |
 | 5.10 | Chanda | Admin → Chanda → enter week amount, turn "Show to followers" ON | Musalli masjid page shows Weekly Chanda with bar chart; turning OFF hides it |
+| 5.12 | Demo masjid | Musalli → Enter code **TESTD004** (Test Masjid Delta) → Donation Campaigns | Two active, one completed (124 %), one closed with "This campaign has ended…"; its UPI ID is fake (`testmasjid@okexample`) — **never pay to it** |
 | 5.11 | Personal vs business UPI | If the UPI app shows a warning or blocks the payment from Donate Now, note it | (Expected for some personal UPI IDs — the QR path still works; use business UPI for real masjids) |
 
 ---

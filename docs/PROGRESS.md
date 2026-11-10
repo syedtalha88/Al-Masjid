@@ -31,10 +31,7 @@ campaigns). Details in the checklist. Not yet CI-verified on WebKit (this PC's W
 1. Session start protocol. Owner 10 Nov (#150): O39 PASS, O27 OK; still open O25 rest, O26, O38 — ask whether they
    found something; those fixes come first (on `feat/phase-04` → `main`, then merge `main` into `feat/phase-05`).
 2. Check CI on `feat/phase-05` (iphone-14 project for `e2e/app/campaigns.spec.ts`) and the Nightly runs since 9 Nov.
-3. **Journey 9 part 2 (T5.2 left-over):** request → approve → +23 h old → +24 h new + notice → followers' bundle / QR
-   sheet show the new UPI ID ("changed on …"). Needs a `payment-activate` trigger in the runtime-test stack (e.g. an
-   api-admin test hook that runs `activateDuePaymentProfiles` as of the hook clock, or a 1-minute schedule under
-   E2E_TEST_HOOKS); admin e2e create masjids through `/api/super/masjids` (see `e2e/admin/dua.spec.ts`).
+3. ~~Journey 9 part 2~~ — done 10 Nov 2026 (#151, `e2e/admin/payment.spec.ts`).
 4. T5.5 chanda (`setShowChanda` still a stub in `state/later.ts`; A11 ChandaChart), T5.6 (Updates chips, push texts,
    Stats, **visual baselines incl. A10 in `pnpm test:visual`**), T5.8 needy people (reuse the T5.4 QR sheet + Donate
    flow), T5.9 My zakat, T5.7 quality gates (admin B8 / `/payment` / C4 e2e + screenshots ×4, security-reviewer on R1,
@@ -542,18 +539,14 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   bidi characters dropped, joiners kept, ≤ 50 code points cut between graphemes, never `am`), `parseUpiUri` (`upi://pay`
   only, exactly one valid `pa`, `pn`/`tn` cleaned ≤ 100, ≤ 2048 chars, never throws); 19 tests incl. fast-check
   round-trip + injection; 100 % lines/branches; mutation-checked (duplicate `pa`, invisible strip)
-- [ ] T5.2 — Payment profile workflow (R1 change-lock) — **built (9 Nov 2026), e2e + owner guide left.** Data layer
-  `state/payment.ts` (#146: reject also during the hold; the "Payment details updated" notice locked against edit /
-  delete; audit without VPA), reads `repos/payments.ts`, bundle `payment` live; API `routes/payments.ts` (admin GET /
-  POST requests → Super Admin alert; super GET pending, ★ approve → alert, reject → alert); worker `payment-activate`
-  every 10 min (fan-out + `payment_active` alert); admin B8 (Profile → UPI payment details + `/payment` form) and C4
-  (`/super/payments`); QR camera moved to `@mc/ui/scanner` (WebAssembly fallback = `@mc/ui/scanner/fallback`, app
-  only). Tests: domain 19, db `payment.int` 14 (mutation-checked), api `payment-routes.int` 5, admin unit 6; db int
-  324, api int 352 green. **Left:** e2e journey 9 part 2 (clock control: request → approve → +23 h old → +24 h new +
-  notice), security-reviewer R1 re-check at
-  T5.7. #147 decided by the owner: Android-only scan on admin (no CSP change). Journey 9 part 2 is written with T5.4
-  (the followers' side of the new VPA — A10 + its QR sheet with "changed recently" — arrives there); it needs a worker
-  activation trigger in the runtime-test stack.
+- [x] T5.2 — Payment profile workflow (R1 change-lock) — **done 10 Nov 2026** (built 9 Nov; #146, #147, #151). Data layer
+  `state/payment.ts` (#146: reject also during the hold; the "Payment details updated" notice locked; audit without
+  VPA), reads `repos/payments.ts`, bundle `payment`; API `routes/payments.ts`; worker `payment-activate` every 10 min;
+  admin B8 (`/payment`) and C4 (`/super/payments`); QR camera in `@mc/ui/scanner` (Android-only on admin — #147).
+  Tests: domain 19, db `payment.int` 14, api `payment-routes.int` 5, admin unit 6, **e2e journey 9 part 2**
+  (`e2e/admin/payment.spec.ts` — two requests through B8, two ★ approvals through C4, +23 h old / +24 h new on
+  api-admin's clock via the `payment-activate` test hook, the follower's QR sheet + notice; mutation-checked).
+  Owner guide Phase 05 rows 5.1–5.3, 5.7, 5.12. **At T5.7:** security-reviewer re-checks R1 (acceptance item).
 - [x] T5.3 — Campaigns (admin) — 9 Nov 2026 (#148): `state/campaigns.ts` + `repos/campaigns.ts`, routes
   `routes/campaigns.ts`, worker `campaign-close` 00:10 IST, 7 error codes ×4; admin B8: Home "Donation Drive" tile
   (shown in production now — tiles show when built: `route !== null`, `CURRENT_PHASE = 5`) → `/donation` (progress,
@@ -649,6 +642,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-10 | 05 / T5.2 | Journey 9 part 2 e2e (#151): api-admin `payment-activate` test hook on its clock, test stack holds 24 h; passes on Pixel 7 and fails when activated early. T5.2 ticked (R1 security re-check at T5.7). Owner answers recorded (#150): Phase 00 DONE, O39 PASS, O27 OK. |
 | 2026-11-10 | 05 / T5.4 | Musalli campaigns done (#149): A10 list + detail + lazy UPI QR sheet, `lean-qr` instead of the unmaintained `qrcode`, Donate Now with the 1.5 s no-app fallback, Delta seed masjid. Fixed on the way: MetaRow `<dl>` structure (axe), Urdu "PM 10:10" (LTR isolate), a T5.3 admin unit test left behind (`uploadImage` purpose). Unit: domain 213, ui 325, app 204, admin 154; db int 336, api int 358; e2e campaigns 9/9 (Pixel 7), app suite on Pixel 7 green (2 parallel-load flakes pass serially). Musalli initial JS 187.85 / 188 kB. Docker Desktop stopped mid-session; `docker desktop restart` brought it back. |
 | 2026-11-09 | 05 / T5.1–T5.3 | Phase 05 started on the owner's word (#145). T5.1 UPI domain module (100 %, fast-check, mutation-checked). T5.2 change-lock built end to end (#146 reject during hold, locked notice; #147 owner: Android-only admin QR scan; scanner moved to `@mc/ui/scanner`, WebAssembly fallback app-only). T5.3 campaigns done (#148). Journey 9 part 2 moved to T5.4; admin screens not yet run in a browser. |
 | 2026-11-09 | 03 + 04 / deploy | Two CI-only e2e races fixed in tests (`dd2a557`, `660c950`); merged `863e064` to `main`; staging live ~21:10 IST; owner checks O39, O25, O27, O26, O38 pending. |

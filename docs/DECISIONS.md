@@ -2433,3 +2433,18 @@ these screens reliably, the known "style-src-elem … ?:5" error page). Visual b
      this order: legal and money texts first (the "no money through us" note, UPI hints, privacy / consent, grievance —
      05 §8 needs them exact), then admin screens (low-literacy admins rely on them), then the musalli app.
   3. Their answers go back through `pnpm i18n:review`; strings stay marked draft until reviewed.
+
+### #151 — UPI change-lock e2e: an api-admin hook runs `payment-activate` on its settable clock; the test stack holds 24 h (PHASE_05 T5.2) — ACCEPTED (Claude Code, 10 Nov 2026)
+**Context:** 10 §6 journey 9 part 2 needs "request → approve → +23 h still old → +24 h new". The worker runs
+`payment-activate` every 10 minutes on the real clock; local/CI env files use a 2-minute hold (`setup-local.mjs`).
+**Decision:**
+- `POST /api/admin/test/payment-activate` (test-hook module only — the shipped image has none, DECISIONS #31) runs one
+  `processPaymentActivate` with api-admin's own DB handle, queues and logger, **as of api-admin's settable clock**
+  (`PUT /test/clock`). The e2e reads the approved request's `effectiveAt` and runs the job at `effectiveAt − 1 h` and
+  `effectiveAt + 1 min`.
+- The runtime-test stack (`docker-compose.stack-test.yml`) pins **`PAYMENT_HOLD_MINUTES=1440`** for api-admin and the
+  worker: approvals then go live a real day later, so the worker's own schedule can never activate them mid-test. The
+  dev stack keeps the 2-minute hold for manual tries.
+**Consequences:** `e2e/admin/payment.spec.ts` (Pixel 7: request ×2 through B8, approve ×2 through C4 with the ★ step-up,
+both holds, the follower's QR sheet before / after, the "Payment details updated" notice; mutation-checked: activating
+early fails it). The security review at T5.7 re-checks R1 incl. this hook's gating.
