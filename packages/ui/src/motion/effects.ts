@@ -154,6 +154,33 @@ export function snapTo(element: HTMLElement, scale: number): Effect {
   };
 }
 
+/** Content that appears inside a sheet starts this much smaller (08 §5.7 QR sheet: 0.96 → 1). */
+const SETTLE_FROM_SCALE = 0.96;
+
+/**
+ * Fades and scales an element in (0.96 → 1, `spring.smooth`) once a sheet opening with `spring.smooth` has settled —
+ * the UPI QR code (08 §5.7). Transform/opacity only; callers skip it with reduced motion.
+ */
+export function settleIn(element: HTMLElement): Effect {
+  element.style.opacity = '0';
+  element.style.transform = `scale(${String(SETTLE_FROM_SCALE)})`;
+  const controls = animate(0, 1, {
+    ...spring.smooth,
+    delay: spring.smooth.visualDuration,
+    onUpdate: (progress) => {
+      element.style.opacity = String(Math.min(progress, 1));
+      element.style.transform = `scale(${String(SETTLE_FROM_SCALE + (1 - SETTLE_FROM_SCALE) * progress)})`;
+    },
+  });
+  return {
+    stop() {
+      controls.stop();
+      element.style.opacity = '';
+      element.style.transform = '';
+    },
+  };
+}
+
 /** How far content slides in when stepping between days (08 §5.5 date stepper), px. */
 const SLIDE_PX = 40;
 

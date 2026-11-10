@@ -5,6 +5,7 @@ import {
   addDays,
   addMonths,
   compareCalendarDates,
+  daysBetween,
   daysInMonth,
   isCalendarDate,
   monthGrid,
@@ -25,6 +26,14 @@ describe('calendar properties', () => {
         const moved = addDays(start, days);
         expect(isCalendarDate(moved)).toBe(true);
         expect(addDays(moved, -days)).toBe(start);
+      }),
+    );
+  });
+
+  it('daysBetween undoes addDays', () => {
+    fc.assert(
+      fc.property(date, offset, (start, days) => {
+        expect(daysBetween(start, addDays(start, days))).toBe(days);
       }),
     );
   });

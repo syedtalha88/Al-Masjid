@@ -99,6 +99,15 @@ export function compareCalendarDates(a: string, b: string): number {
   return toUtc(a) - toUtc(b);
 }
 
+/**
+ * Whole calendar days from `from` to `to` (negative when `to` is earlier) — "12 days left" (A10).
+ *
+ * @throws RangeError when either date is invalid.
+ */
+export function daysBetween(from: string, to: string): number {
+  return Math.round((toUtc(to) - toUtc(from)) / 86_400_000);
+}
+
 /** Day of the week, 0 = Sunday … 6 = Saturday. Throws on an invalid date. */
 export function weekdayOf(value: string): number {
   return new Date(toUtc(value)).getUTCDay();

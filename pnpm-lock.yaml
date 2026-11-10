@@ -793,6 +793,9 @@ importers:
       barcode-detector:
         specifier: 3.2.3
         version: 3.2.3(@types/emscripten@1.41.6)
+      lean-qr:
+        specifier: 2.7.4
+        version: 2.7.4
       motion:
         specifier: 14.0.0
         version: 14.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -4443,6 +4446,10 @@ packages:
   language-tags@1.0.9:
     resolution: {integrity: sha512-MbjN408fEndfiQXbFQ1vnd+1NoLDsnQW41410oQBXiyXDMYH5z505juWa4KUE1LqxRC7DgOgZDbKLxHIwm27hA==}
     engines: {node: '>=0.10'}
+
+  lean-qr@2.7.4:
+    resolution: {integrity: sha512-tlMPFfqhAAZN7+j/djRSvl/2+AYT2+7RRuyq8bvcbV8gMiENiscquQ9WTfCSyeEdxsVaEB+tU7e9nFZC63BFnQ==}
+    hasBin: true
 
   lefthook-darwin-arm64@2.1.17:
     resolution: {integrity: sha512-BHF3rD0qmwBulLLe5EdPYQVGvPibZZqHnSPpWT+LgPyYk2+GxtScLJvSD/NgCOFU49Fzs6XgOHg/zlfXcdKFfQ==}
@@ -9569,6 +9576,8 @@ snapshots:
   language-tags@1.0.9:
     dependencies:
       language-subtag-registry: 0.3.23
+
+  lean-qr@2.7.4: {}
 
   lefthook-darwin-arm64@2.1.17:
     optional: true

@@ -218,7 +218,7 @@ describe('ProgressBar (08 §5.7)', () => {
     const bar = screen.getByRole('progressbar', { name: 'Raised so far' });
     expect(bar.getAttribute('aria-valuenow')).toBe('72');
     expect(bar.getAttribute('aria-valuetext')).toBe('72%');
-    const fill = container.querySelector<HTMLElement>('[role="progressbar"] > div');
+    const fill = container.querySelector<HTMLElement>('[role="progressbar"] > span');
     // jsdom has no IntersectionObserver → starts at once, springs from 0 to 0.72.
     await vi.waitFor(
       () => {
@@ -231,7 +231,7 @@ describe('ProgressBar (08 §5.7)', () => {
   it('reduced motion shows the value immediately; values are clamped', async () => {
     const { container } = await renderUi(<ProgressBar value={1.4} label="Raised" />, { reduced: true });
     expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('100');
-    const fill = container.querySelector<HTMLElement>('[role="progressbar"] > div');
+    const fill = container.querySelector<HTMLElement>('[role="progressbar"] > span');
     expect(fill?.style.getPropertyValue('--mc-progress')).toBe('1');
   });
 
@@ -245,7 +245,7 @@ describe('ProgressBar (08 §5.7)', () => {
     });
     vi.stubGlobal('IntersectionObserver', Observer);
     const { container } = await renderUi(<ProgressBar value={0.5} label="Raised" />);
-    const fill = container.querySelector<HTMLElement>('[role="progressbar"] > div');
+    const fill = container.querySelector<HTMLElement>('[role="progressbar"] > span');
     await new Promise((resolve) => setTimeout(resolve, 100));
     expect(fill?.style.getPropertyValue('--mc-progress')).toBe('0');
     act(() => {

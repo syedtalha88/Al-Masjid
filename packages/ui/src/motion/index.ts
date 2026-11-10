@@ -7,6 +7,7 @@ export {
   crossfadeIn,
   drawStrokesIn,
   type Effect,
+  settleIn,
   shake,
   slideIn,
   snapTo,
