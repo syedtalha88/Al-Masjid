@@ -41,7 +41,7 @@ export const PLACEHOLDER = {
 } as const;
 
 /** The seed masjids' follow codes (Crockford Base32, canonical) — e2e journeys and the owner guide use them. */
-export const SEED_FOLLOW_CODES = { alpha: 'TESTA001', beta: 'TESTB002', gamma: 'TESTC003' } as const;
+export const SEED_FOLLOW_CODES = { alpha: 'TESTA001', beta: 'TESTB002', gamma: 'TESTC003', delta: 'TESTD004' } as const;
 export type SeedMasjidKey = keyof typeof SEED_FOLLOW_CODES;
 
 const SEED_ADMIN = seedId('admin');
@@ -86,6 +86,10 @@ export const SEED_PHOTO_GRADIENTS: Readonly<Record<SeedMasjidKey, readonly [read
   gamma: [
     [61, 52, 139],
     [242, 132, 130],
+  ],
+  delta: [
+    [22, 78, 99],
+    [244, 211, 94],
   ],
 };
 
@@ -148,6 +152,19 @@ const MASJIDS: readonly SeedMasjid[] = [
     lat: 13.0588,
     lng: 80.2756,
   },
+  // Donations (PHASE_05 T5.4): active UPI details and campaigns in every state. No other e2e spec follows it, so the
+  // earlier screens' baselines stay as they are.
+  {
+    key: 'delta',
+    name: 'Test Masjid Delta',
+    nameI18n: { hi: 'टेस्ट मस्जिद डेल्टा', ur: 'ٹیسٹ مسجد ڈیلٹا', te: 'టెస్ట్ మస్జిద్ డెల్టా' },
+    area: 'Mohammed Ali Road',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    address: 'Test Road (test address), Mohammed Ali Road, Mumbai, Maharashtra',
+    lat: 18.9535,
+    lng: 72.8336,
+  },
 ];
 
 type Prayer = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
@@ -193,6 +210,16 @@ const TIMINGS: Readonly<Record<SeedMasjidKey, { prayers: Record<Prayer, Document
       { seq: 1, jamaat_time: '13:15' },
       { seq: 2, jamaat_time: '14:15' },
     ],
+  },
+  delta: {
+    prayers: {
+      fajr: auto(offset(20)),
+      dhuhr: auto(offset(15)),
+      asr: auto(offset(15)),
+      maghrib: auto(offset(5)),
+      isha: auto(offset(15)),
+    },
+    jumuah: [{ seq: 1, khutbah_time: '13:30', jamaat_time: '13:45' }],
   },
 };
 
@@ -258,9 +285,26 @@ type ItemSpec =
       janaza?: { place: string };
       /** Archived by the 30-day rule (07 A9 "Older"). */
       archived?: boolean;
+    }
+  | {
+      kind: 'campaign';
+      title: string;
+      body: string;
+      purpose: 'renovation' | 'repair' | 'utilities' | 'welfare' | 'other';
+      targetRupees: number;
+      receivedRupees: number;
+      /** When the masjid last reported the amount (none: never). */
+      receivedHoursAgo?: number;
+      /** Calendar days from today (negative = in the past). */
+      startsInDays: number;
+      endsInDays?: number;
+      status: 'active' | 'completed' | 'closed';
     };
 
-/** 31 items, 10 per masjid + one archived dua request (Gamma); `hoursAgo` spreads them over the last three weeks. */
+/**
+ * 31 items, 10 per masjid + one archived dua request (Gamma), and Delta's 5 donation campaigns; `hoursAgo` spreads them
+ * over the last weeks.
+ */
 const ITEMS: Readonly<Record<SeedMasjidKey, readonly (ItemSpec & { hoursAgo: number })[]>> = {
   alpha: [
     {
@@ -427,7 +471,83 @@ const ITEMS: Readonly<Record<SeedMasjidKey, readonly (ItemSpec & { hoursAgo: num
       archived: true,
     },
   ],
+  // Donation campaigns (07 A10): two active (one without an end date), one completed above its goal, one closed 10 days
+  // ago (still listed) and one closed 40 days ago (no longer listed — 00 §4.3). Fake data: never donate to it.
+  delta: [
+    {
+      hoursAgo: 72,
+      kind: 'campaign',
+      title: 'Test Masjid Renovation Fund',
+      body: 'Sample campaign description for development — roof, lights and wudu area. Fake data: do not donate.',
+      purpose: 'renovation',
+      targetRupees: 100_000,
+      receivedRupees: 72_000,
+      receivedHoursAgo: 20,
+      startsInDays: -3,
+      endsInDays: 21,
+      status: 'active',
+    },
+    {
+      hoursAgo: 30,
+      kind: 'campaign',
+      title: 'Test electricity bills',
+      body: 'Sample description for development. Fake data: do not donate.',
+      purpose: 'utilities',
+      targetRupees: 50_000,
+      receivedRupees: 12_500,
+      receivedHoursAgo: 6,
+      startsInDays: -1,
+      status: 'active',
+    },
+    {
+      hoursAgo: 24 * 12,
+      kind: 'campaign',
+      title: 'Test roof repair',
+      body: 'Sample description for development. Fake data: do not donate.',
+      purpose: 'repair',
+      targetRupees: 25_000,
+      receivedRupees: 31_000,
+      receivedHoursAgo: 24 * 2,
+      startsInDays: -12,
+      endsInDays: 10,
+      status: 'completed',
+    },
+    {
+      hoursAgo: 24 * 40,
+      kind: 'campaign',
+      title: 'Test winter blankets',
+      body: 'Sample description for development. Fake data: do not donate.',
+      purpose: 'welfare',
+      targetRupees: 60_000,
+      receivedRupees: 40_000,
+      receivedHoursAgo: 24 * 11,
+      startsInDays: -40,
+      endsInDays: -10,
+      status: 'closed',
+    },
+    {
+      hoursAgo: 24 * 70,
+      kind: 'campaign',
+      title: 'Test old drive',
+      body: 'Sample description for development. Fake data: do not donate.',
+      purpose: 'other',
+      targetRupees: 10_000,
+      receivedRupees: 10_000,
+      startsInDays: -70,
+      endsInDays: -40,
+      status: 'closed',
+    },
+  ],
 };
+
+/** The delta masjid's live UPI details — the 10 §5 fixture VPA (an invalid bank handle on purpose). */
+const SEED_PAYMENT = {
+  id: seedId('payment-delta'),
+  vpa: 'testmasjid@okexample',
+  payeeName: 'Test Masjid Delta Committee',
+  /** Changed 10 days ago: the QR sheet shows "Payment details changed on …" (07 A10). */
+  effectiveDaysAgo: 10,
+} as const;
 
 /** `public_id` of the n-th item of a seed masjid (12 URL-safe characters). */
 export const seedPublicId = (masjid: SeedMasjidKey, index: number): string =>
@@ -445,6 +565,7 @@ export interface DevSeed {
   readonly items: readonly Document[];
   readonly ruqyah: readonly Document[];
   readonly contacts: readonly Document[];
+  readonly payments: readonly Document[];
 }
 
 const replaceDate = (value: unknown, today: string): unknown => {
@@ -658,6 +779,28 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
               ...(spec.archived ? { archived_at: at(spec.hoursAgo - 30 * 24) } : {}),
             },
           };
+        case 'campaign':
+          return {
+            ...base,
+            type: 'campaign',
+            audience: 'everyone',
+            title: spec.title,
+            body: spec.body,
+            content_locale: 'en',
+            is_important: false,
+            campaign: {
+              purpose: spec.purpose,
+              target_paise: Long.fromNumber(spec.targetRupees * 100),
+              received_paise: Long.fromNumber(spec.receivedRupees * 100),
+              ...(spec.receivedHoursAgo === undefined
+                ? {}
+                : { received_updated_at: at(spec.receivedHoursAgo), received_updated_by: SEED_ADMIN }),
+              starts_on: shiftDate(today, spec.startsInDays),
+              ...(spec.endsInDays === undefined ? {} : { ends_on: shiftDate(today, spec.endsInDays) }),
+              status: spec.status,
+              payment_profile_id: SEED_PAYMENT.id,
+            },
+          };
       }
     }),
   );
@@ -714,7 +857,25 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
     consent_confirmed: true,
     sort,
   }));
-  return { masjids, masjidStats, timings, specialTimings, library, templates, items, ruqyah, contacts };
+  const effective = at(24 * SEED_PAYMENT.effectiveDaysAgo);
+  const payments = [
+    {
+      _id: SEED_PAYMENT.id,
+      masjid_id: masjidId('delta'),
+      vpa: SEED_PAYMENT.vpa,
+      payee_name: SEED_PAYMENT.payeeName,
+      status: 'active',
+      open: false,
+      requested_by: SEED_ADMIN,
+      reviewed_by: SEED_ADMIN,
+      reviewed_at: new Date(effective.getTime() - 24 * 3_600_000),
+      effective_at: effective,
+      masjid_visible: true,
+      created_at: new Date(effective.getTime() - 48 * 3_600_000),
+      updated_at: effective,
+    },
+  ];
+  return { masjids, masjidStats, timings, specialTimings, library, templates, items, ruqyah, contacts, payments };
 }
 
 /** A seed document: string ids for templates, UUIDs elsewhere. */
@@ -764,6 +925,16 @@ export async function writeDevSeed(handle: DbHandle, scope: Scope, seed: DevSeed
   await put('items', seed.items);
   await put('ruqyah_entries', seed.ruqyah);
   await put('masjid_contacts', seed.contacts);
+  // UPI details: only while no other profile is live for that masjid (someone may have tried the change-lock on
+  // staging — a second active profile would break the unique index and the daily re-seed with it).
+  for (const payment of seed.payments) {
+    const masjid: unknown = payment['masjid_id'];
+    if (!(masjid instanceof UUID)) throw new Error('seed payment profile without a masjid id');
+    const live = await db
+      .collection<SeedDoc>('payment_profiles')
+      .countDocuments({ masjid_id: masjid, status: 'active', _id: { $ne: idOf(payment) } });
+    if (live === 0) await put('payment_profiles', [payment]);
+  }
   for (const stats of seed.masjidStats) {
     await db
       .collection<SeedDoc>('masjid_stats')

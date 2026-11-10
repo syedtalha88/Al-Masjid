@@ -9,7 +9,7 @@ import { MIGRATIONS } from '../migrations/index.ts';
 import type { DbHandle } from '../src/client.ts';
 import { StateError } from '../src/effects.ts';
 import { runMigrations } from '../src/migrate/index.ts';
-import { listCampaignsForAdmin } from '../src/repos/index.ts';
+import { getMasjidBundle, listCampaignsForAdmin, listFeed } from '../src/repos/index.ts';
 import { adminScope, systemScope } from '../src/scope.ts';
 import { buildDevSeed, seedId, writeDevSeed } from '../src/seed/index.ts';
 import {
@@ -30,12 +30,12 @@ const BETA = seedId('masjid-beta');
 const GAMMA = seedId('masjid-gamma');
 
 let test: TestDatabase | undefined;
-const handles: Partial<Record<'admin' | 'system', Awaited<ReturnType<typeof processUserHandle>>>> = {};
+const handles: Partial<Record<'admin' | 'system' | 'public', Awaited<ReturnType<typeof processUserHandle>>>> = {};
 const t = () => {
   if (!test) throw new Error('no test database');
   return test;
 };
-const as = (user: 'admin' | 'system'): DbHandle => {
+const as = (user: 'admin' | 'system' | 'public'): DbHandle => {
   const entry = handles[user];
   if (!entry) throw new Error(`no ${user} handle`);
   return entry.handle;
@@ -76,6 +76,7 @@ beforeAll(async () => {
   await runMigrations(t().db, MIGRATIONS);
   handles.admin = await processUserHandle(t(), 'mc_admin');
   handles.system = await processUserHandle(t(), 'mc_system');
+  handles.public = await processUserHandle(t(), 'mc_public');
   await writeDevSeed(as('system'), systemScope(), buildDevSeed({ now: NOW, today: TODAY }));
   // Active UPI details for Alpha and Gamma (the change-lock itself is payment.int.test.ts).
   for (const [masjid, id] of [
@@ -233,7 +234,8 @@ describe('update amount, edit, complete, close', () => {
     expect(await code(closeEndedCampaigns(as('admin'), alpha, { today: '2026-11-21' }))).toBe('FORBIDDEN');
     expect(await closeEndedCampaigns(as('system'), systemScope(), { today: '2026-11-20' })).toBe(0); // ends today: open
     const before = await version(ALPHA);
-    expect(await closeEndedCampaigns(as('system'), systemScope(), { today: '2026-11-21' })).toBe(1);
+    // This one and the dev seed's completed Delta campaign (it ends 10 days after the seed's today).
+    expect(await closeEndedCampaigns(as('system'), systemScope(), { today: '2026-11-21' })).toBe(2);
     expect(await version(ALPHA)).toBe(before + 1);
     expect((await raw('items').findOne({ _id: itemId }))?.['campaign']).toMatchObject({ status: 'closed' });
     expect(await code(received(14_000_000))).toBe('CAMPAIGN_CLOSED');
@@ -257,5 +259,40 @@ describe('admin list (B8)', () => {
       endsOn: '2026-11-20',
     });
     expect(await code(listCampaignsForAdmin(as('admin'), adminOf(BETA), ALPHA))).toBe('MASJID_NOT_FOUND');
+  });
+});
+
+describe('public reads (A10, T5.4)', () => {
+  it('the bundle lists the active campaigns only, newest first, with the live UPI details; the feed has them all', async () => {
+    const later = await createCampaign(as('admin'), alpha, {
+      masjidId: ALPHA,
+      campaign: campaign({ title: 'Test fans' }),
+      notify: false,
+      now: new Date(NOW.getTime() + 3_600_000),
+    });
+    const bundle = await getMasjidBundle(as('public'), ALPHA, TODAY);
+    if (bundle?.status !== 'active') throw new Error('expected an active bundle');
+    const { items } = await listFeed(as('public'), ALPHA, { type: 'campaign', audiences: ['everyone', 'brothers'] });
+    const byTitle = new Map(items.map((item) => [item.title, item]));
+    const roof = byTitle.get('Test roof repair');
+    // Active, newest first; the closed "water tank" is not in the summary.
+    expect(bundle.campaigns).toEqual([{ publicId: later.item.publicId }, { publicId: roof?.publicId }]);
+    expect(bundle.payment).toEqual({
+      vpa: 'test.masjid@okbank',
+      payeeName: 'Test Masjid Committee',
+      effectiveAt: NOW.toISOString(),
+    });
+    expect(byTitle.get('Test water tank (bigger)')?.campaign).toMatchObject({
+      status: 'closed',
+      purpose: 'repair',
+      targetPaise: 20_000_000,
+      receivedPaise: 13_000_000,
+      startsOn: TODAY,
+      endsOn: '2026-11-20',
+    });
+    // The admin who updated the amount and the UPI snapshot id stay inside.
+    const json = JSON.stringify(items);
+    expect(json).not.toContain('received_updated_by');
+    expect(json).not.toContain('payment_profile_id');
   });
 });

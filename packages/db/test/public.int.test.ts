@@ -103,12 +103,17 @@ afterAll(async () => {
 });
 
 describe('dev seed (T2.2)', () => {
-  it('writes 3 active masjids, 13 placeholder library entries, 18 templates and 31 items — idempotently', async () => {
-    expect(await raw('masjids').countDocuments({ status: 'active' })).toBe(3);
+  it('writes 4 active masjids, 13 placeholder library entries, 18 templates and 36 items — idempotently', async () => {
+    expect(await raw('masjids').countDocuments({ status: 'active' })).toBe(4);
     expect(await raw('content_library').countDocuments({ status: 'verified' })).toBe(13);
     expect(await raw('notice_templates').countDocuments({ status: 'active' })).toBe(SEED_TEMPLATES.length);
     expect(SEED_TEMPLATES).toHaveLength(18);
-    expect(await raw('items').countDocuments({ status: 'published' })).toBe(31);
+    expect(await raw('items').countDocuments({ status: 'published' })).toBe(36);
+    // T5.4: Delta's fake UPI details (the 10 §5 fixture VPA) and its campaigns in every state.
+    expect(await raw('payment_profiles').countDocuments({ status: 'active', vpa: 'testmasjid@okexample' })).toBe(1);
+    const statuses = await raw('items').distinct('campaign.status', { type: 'campaign' });
+    expect(statuses.sort()).toEqual(['active', 'closed', 'completed']);
+    expect(await raw('items').countDocuments({ type: 'campaign' })).toBe(5);
     // T2.11: a notice photo (seed key → the app paints its ThumbHash) and an archived dua request (07 A9 "Older").
     expect(await raw('items').countDocuments({ image_key: 'seed/notice-alpha' })).toBe(1);
     expect(await raw('items').countDocuments({ 'dua.archived_at': { $exists: true } })).toBe(1);
@@ -116,8 +121,9 @@ describe('dev seed (T2.2)', () => {
     const before = (await raw('masjids').findOne({ _id: ALPHA }))?.['content_version'];
     if (!asSystem) throw new Error('no system handle');
     await writeDevSeed(asSystem.handle, systemScope(), buildDevSeed({ now: NOW, today: TODAY }));
-    expect(await raw('items').countDocuments({})).toBe(31);
-    expect(await raw('masjids').countDocuments({})).toBe(3);
+    expect(await raw('items').countDocuments({})).toBe(36);
+    expect(await raw('masjids').countDocuments({})).toBe(4);
+    expect(await raw('payment_profiles').countDocuments({})).toBe(1);
     const after = (await raw('masjids').findOne({ _id: ALPHA }))?.['content_version'];
     expect(Number(after)).toBe(Number(before) + 1);
   });

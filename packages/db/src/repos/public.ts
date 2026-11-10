@@ -158,8 +158,9 @@ const SPECIAL_DATES_MAX = 100;
 
 /**
  * `GET /masjids/:id/bundle`: the masjid's profile, raw timings, special dates from `fromDate` on, Ramadan settings,
- * the adhkar set, the Ilm contacts (both audiences), the live UPI details and the section counts (Masjid Detail rows
- * without loading the lists); campaigns, chanda and needy people arrive with their Phase 5 tasks (03 §3).
+ * the adhkar set, the Ilm contacts (both audiences), the live UPI details, the active donation campaigns (newest first)
+ * and the section counts (Masjid Detail rows without loading the lists); chanda and needy people arrive with their
+ * Phase 5 tasks (03 §3).
  *
  * @param fromDate - "YYYY-MM-DD" (today − 7 days in IST: the timetable's DateStepper range).
  * @returns `null` for unknown, pending and deleted masjids; `{status: 'suspended', v}` for a suspended one.
@@ -214,7 +215,7 @@ export async function getMasjidBundle(handle: DbHandle, id: UUID, fromDate: stri
     contacts: await getPublicContacts(handle, id),
     sections: { ruqyah: await (await view(handle, 'v_pub_ruqyah')).count({ masjid_id: id }), needy: 0 },
     payment: await activePayment(handle, id),
-    campaigns: [],
+    campaigns: await activeCampaigns(handle, id),
     chanda: null,
   };
 }
@@ -235,6 +236,20 @@ async function activePayment(
     payeeName: need(doc, 'payee_name'),
     effectiveAt: effectiveAt instanceof Date ? effectiveAt.toISOString() : new Date(0).toISOString(),
   };
+}
+
+/** 00 §4.3: at most 3 campaigns are active at once (`state/campaigns.ts` enforces it; the read never lists more). */
+const ACTIVE_CAMPAIGNS_MAX = 3;
+
+/**
+ * The bundle's "active campaigns summary" (03 §3): the public ids of the masjid's active campaigns, newest first.
+ * Completed and closed ones stay in the feed (A10 shows them with their status), not here.
+ */
+async function activeCampaigns(handle: DbHandle, masjidId: UUID): Promise<{ publicId: string }[]> {
+  const docs = await (
+    await view(handle, 'v_pub_items')
+  ).find({ masjid_id: masjidId, type: 'campaign', 'campaign.status': 'active' }, { limit: ACTIVE_CAMPAIGNS_MAX }); // the view sorts newest first
+  return docs.map((doc) => ({ publicId: need(doc, 'public_id') }));
 }
 
 /**
