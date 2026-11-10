@@ -55,7 +55,7 @@ describe('notice hooks', () => {
     const { result } = renderHook(() => usePhotoUpload('m1'), { wrapper: wrapper(client()) });
     const file = new Blob(['x'], { type: 'image/png' });
     await act(() => result.current.mutateAsync(file));
-    expect(masjidApi.uploadImage).toHaveBeenCalledWith('m1', file);
+    expect(masjidApi.uploadImage).toHaveBeenCalledWith('m1', file, 'announcement');
   });
 });
 
