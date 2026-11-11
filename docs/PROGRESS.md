@@ -20,6 +20,12 @@
 
 ## ▶ Next session — start here (12 Nov 2026, evening — T5.7: all our fixes in; waiting for CI + the owner's O46)
 
+**Blocked on GitHub (O47):** CI run 43097793481 on `main` `1f051fa`: unit ✅, typecheck/lint ✅, build · budgets ·
+Lighthouse · e2e · visual ✅ — but Security scans, Integration tests and CodeQL never started (stayed *queued*) and the
+run was marked failed; `ci/phase-05` runs 43095626682 / 43097520749 queued for hours. githubstatus green, repo
+public. Only the owner can see why (Billing / Actions notice) and re-run. When jobs start again: re-run `main`'s
+failed jobs (or push an empty commit) → "Release to staging" → F61; then push `feat/phase-05` to `ci/phase-05`.
+
 **State:** `main` = **`1f051fa`** — run 43089866763 on `a30f9f8` passed every gate (unit, integration, security
 scans incl. the VPS deploy test, budgets, Lighthouse, e2e, visual) but its *report upload* failed, which failed the
 job and skipped "Release to staging". `1f051fa` makes that upload `continue-on-error` (actionlint clean); its CI run
@@ -547,6 +553,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O27 | **Phase 03 checks on staging** (`owner/PHASE_TESTING_GUIDE.md` → Phase 03) | Phase 03 DONE | 45 min | **OK — owner, 10 Nov 2026** (photos / voice wait for O25) |
 | O28 | **UPI ID for a ₹1 test** | Phase 05 exit | 5 min | Phase 05 |
 | O44 | **Two answers (12 Nov 2026):** (a) #159 — the Super Admin's phone keeps getting alerts for **30 days** after the admin app was last used on it (sign-out stops them at once): OK, or shorter? (b) #158 — "Log this in My zakat?" is asked only after paying a person the masjid marked **zakat-eligible**: OK, or ask for everyone? | F65 / T5.9 defaults stand until answered | 2 answers | open — not blocking |
+| O47 | **GitHub Actions jobs not starting** (12 Nov 2026): `main` `1f051fa` — unit, typecheck/lint and the build/e2e/Lighthouse/visual job passed; Security scans, Integration tests and CodeQL never left *queued*, run marked failed; `ci/phase-05` runs queued for hours; githubstatus green; repo public. Owner checks Billing / Actions notices, then **Re-run failed jobs** on `main` | F61 to staging (by 15 Nov) and every CI result | 5 min | open — asked 12 Nov 2026 |
 | O46 | **Phase 05 security decisions** (#160): (a) UPI change requests by owners only + alert every owner (L2 / F69); (b) refuse photos with a QR code (M2 image / F68); (c) live UPI details writable only by the worker, Phase 9 (L5 / F70); (d) acknowledge consent → 400 not 422 (#156) | R1 exit criterion | 5 min | open — asked 12 Nov 2026 |
 | O45 | **Open the admin app once on each phone that should get alerts** (after Phase 05 is on staging) | F65: older alert subscriptions are no longer used; opening the app links the phone again | 1 min | before O38's alert checks on the Phase 05 build |
 | O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | Phase 07 (map-tile decision dropped — #118) |
