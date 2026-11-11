@@ -24,7 +24,9 @@
 `feat/phase-05` (DECISIONS #145), not merged or deployed (staging only after 03 + 04 are verified, or with the owner's OK).
 
 **Done 11 Nov 2026:** T5.6 (#154) — details in the checklist. CI on `ci/phase-05`: `061830b` (T5.5 + docs) **green**;
-the run for `e7fda43` (T5.6, id 42978081459) was still running at hand-off — check it first.
+each newer push cancels the running CI, so **T5.6 + F61 have not had a full run yet** — the run for `b19dd83` (id
+42979146713) and the `main`-based one on `ci/f61-base-image` (`de50397`, id 42979141183) were running at hand-off —
+check both first.
 
 **F61 done on the branch (#155):** the server image is on the patched distroless base (Debian 13.7, `zlib1g
 …+deb13u1`); Trivy 0 HIGH/CRITICAL without ignores; local e2e 12/12 on the new base. The same commit is on
