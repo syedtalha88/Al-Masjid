@@ -18,7 +18,25 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (12 Nov 2026 — Phase 05: every build task done, F65 closed; left: T5.7 quality gates; `main` CI is RED → F61 not on staging)
+## ▶ Next session — start here (12 Nov 2026, later — T5.7 half done: screens ×4 + security review fixed; `main` CI re-run for F61)
+
+**Update since the hand-off below:**
+- **`main` = `a30f9f8`** (test-only: the deploy-test annotation + voice spec fix, built on `de50397` with a temporary
+  index — the commit hook breaks in a worktree whose path has a space). Its CI run (43089866763) was still in the e2e
+  job at this hand-off. **Green → "Release to staging" ships F61**; check `/health` on both origins, then remove the
+  Trivy ignore file + the Nightly `--ignorefile` (#155) before 15 Nov. Red → read the job annotations.
+- **`feat/phase-05` = `ci/phase-05` = `d3c4379`**: T5.7 admin screens ×4 (`eeae856`), security review fixes
+  (`242ff05`, DECISIONS #160 — M1, M3, M4, M2 text, L1, L6, L8; migration 0021), docs (`d3c4379`). CI started for it.
+- **Running at hand-off:** `phase-verifier` on Phase 05 (its findings are not yet recorded — re-run it if lost).
+- **Owner:** new **O46** (three security decisions — the R1 exit criterion depends on them), plus O44, O45.
+- **T5.7 left:** owner answers (O46 → F68 / F69 work if accepted), phase-verifier findings, `pnpm verify`, the
+  Phase 05 report (`docs/reports/PHASE_05_REPORT.md`; the A10 vs ref-3 comparison is noted: same structure; no seed
+  cover photo, "Received (reported by masjid)" + "Last updated" per spec, heart icon instead of a UPI-app logo).
+- Local notes: an api `test:int` run can lose one worker (exit 3221226505) — re-run that file alone. Raw bidi
+  characters in source: run the scratchpad `escape_bidi.py` (Prettier / the editor turn `⁦` escapes into raw
+  characters).
+
+## ▶ Hand-off (12 Nov 2026 — Phase 05: every build task done, F65 closed; left: T5.7 quality gates; `main` CI is RED → F61 not on staging)
 
 **State:** `feat/phase-05` = `ci/phase-05` = this hand-off commit (after `e1ba603`). Phases 03 + 04 **AWAITING OWNER
 VERIFICATION**. Phase 05 not deployed. **Staging runs `13d1031`** (app `/health` checked 12 Nov) — **not** `de50397`.
