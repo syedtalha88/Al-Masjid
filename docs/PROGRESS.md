@@ -18,22 +18,26 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (10 Nov 2026 — Phase 05 on `feat/phase-05`: T5.1, T5.3, T5.4 done; 03 + 04 await the owner)
+## ▶ Next session — start here (10 Nov 2026 — Phase 05 on `feat/phase-05`: T5.1 – T5.5 done; 03 + 04 await the owner)
 
 **State:** `main` = staging = `863e064` (+ docs) — Phases 03 + 04 **AWAITING OWNER VERIFICATION**. Phase 05 on
 `feat/phase-05` (DECISIONS #145), not merged or deployed (staging only after 03 + 04 are verified, or with the owner's OK).
 
 **Done 10 Nov 2026:** T5.4 musalli campaigns (#149 — A10 list + detail, lazy UPI QR sheet with `lean-qr`, Donate Now
 with the 1.5 s no-UPI-app fallback, bundle `campaigns`, seed masjid Delta `TESTD004` with fake UPI details and five
-campaigns). Details in the checklist. Not yet CI-verified on WebKit (this PC's WebKit cannot run these screens).
+campaigns). Journey 9 part 2 (#151). **T5.5 weekly chanda (#152** — migration `0018_chanda_items`, B9 `/chanda`,
+A11 `/masjid/:id/chanda` with ChandaChart, hidden chanda never public). Details in the checklist. CI for the branch
+runs on `ci/phase-05` (push it together with `feat/phase-05`).
 
 **Do next:**
 1. Session start protocol. Owner 10 Nov (#150): O39 PASS, O27 OK; still open O25 rest, O26, O38 — ask whether they
    found something; those fixes come first (on `feat/phase-04` → `main`, then merge `main` into `feat/phase-05`).
-2. Check CI on `feat/phase-05` (iphone-14 project for `e2e/app/campaigns.spec.ts`) and the Nightly runs since 9 Nov.
+2. Check CI on `ci/phase-05` (iphone-14 project for `e2e/app/campaigns.spec.ts`; no `gh` on this PC — use
+   `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-05`) and the Nightly runs since 9 Nov.
 3. ~~Journey 9 part 2~~ — done 10 Nov 2026 (#151, `e2e/admin/payment.spec.ts`).
-4. T5.5 chanda (`setShowChanda` still a stub in `state/later.ts`; A11 ChandaChart), T5.6 (Updates chips, push texts,
-   Stats, **visual baselines incl. A10 in `pnpm test:visual`**), T5.8 needy people (reuse the T5.4 QR sheet + Donate
+4. ~~T5.5 chanda~~ — done 10 Nov 2026 (#152). **Next: T5.6** (Updates chips Donations / Chanda, the "₹… collected"
+   line on chanda cards, push texts, Stats, **visual baselines incl. A10, A11, B9 in `pnpm test:visual`**), T5.8
+   needy people (reuse the T5.4 QR sheet + Donate
    flow), T5.9 My zakat, T5.7 quality gates (admin B8 / `/payment` / C4 e2e + screenshots ×4, security-reviewer on R1,
    phase-verifier).
 
@@ -569,7 +573,19 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   side with ref-3/4 + ref-2/3: captures `test-results/screens/pixel-7/<locale>/campaign*.png` (report at phase close).
   **Left for CI:** iphone-14 (this PC's WebKit shows its error page for these screens, as for settings.spec — known).
   Visual baselines (`pnpm test:visual`) for A10 with T5.6.
-- [ ] T5.5 — Chanda
+- [x] T5.5 — Chanda — 10 Nov 2026 (#152): `@mc/domain/chanda` (week maths, 8-week window), migration
+  `0018_chanda_items` (item `chanda {chanda_week_id, week_start, amount_paise, visible}`; `v_pub_items` drops hidden
+  chanda items), `state/chanda.ts` (`setChandaWeek` — one item per week, `setChandaSettings`, `setShowChanda` with
+  both mirrors; the `later.ts` stub is gone), `repos/chanda.ts`, bundle `chanda` (null while hidden, else ≤ 8
+  weeks), admin API `GET /masjids/:id/chanda`, `PUT …/chanda/:weekStart`, `PATCH …/chanda/settings` (OpenAPI
+  regenerated; errors `CHANDA_INVALID` 400, `CHANDA_HIDDEN` 409 ×4 locales). Admin B9 `/chanda` (Home tile live):
+  show switch with its explanation, week start Friday / Monday, week choices, NumberPad, note, notify (off; disabled
+  while hidden), history. Musalli A11 `/masjid/:id/chanda`: this / latest week card with CountUp, note, ChandaChart
+  (HTML bars as buttons, mirrored by the page direction), "Reported by masjid admin."; Masjid Detail row only while
+  shown; `chanda_update` item detail links to A11. **Acceptance:** hidden chanda never public — db int 8 (both views,
+  bundle, mirror both ways; mutation-checked) + api int 3 (public API as `mc_public`); chart 0 – 8 weeks — ui
+  component test 3 + app view test 3. e2e `e2e/admin/chanda.spec.ts` green on Pixel 7 (axe on B9 and A11).
+  With T5.6: "₹… collected" on Updates / Home cards, push text, visual baselines A11 / B9 ×4 locales.
 - [ ] T5.6 — Integration polish
 - [ ] T5.8 — Needy people (B19 + A23)
 - [ ] T5.9 — My zakat (A24, device only)
@@ -642,6 +658,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-10 | 05 / T5.5 | Weekly chanda done (#152): migration 0018 (item `chanda.visible` mirror, `v_pub_items` filter), `setChandaWeek` / `setChandaSettings`, admin routes, B9, A11 + ChandaChart (HTML bars instead of SVG). Unit: domain 218, shared 193, ui 328, app 207, admin 158, api 181; db int 344 (37 files), api int 362; e2e chanda green on Pixel 7. Musalli initial JS 187.97 / 188 kB, admin 215.32 / 220 kB. `db:schema:check` clean. |
 | 2026-11-10 | 05 / T5.2 | Journey 9 part 2 e2e (#151): api-admin `payment-activate` test hook on its clock, test stack holds 24 h; passes on Pixel 7 and fails when activated early. T5.2 ticked (R1 security re-check at T5.7). Owner answers recorded (#150): Phase 00 DONE, O39 PASS, O27 OK. |
 | 2026-11-10 | 05 / T5.4 | Musalli campaigns done (#149): A10 list + detail + lazy UPI QR sheet, `lean-qr` instead of the unmaintained `qrcode`, Donate Now with the 1.5 s no-app fallback, Delta seed masjid. Fixed on the way: MetaRow `<dl>` structure (axe), Urdu "PM 10:10" (LTR isolate), a T5.3 admin unit test left behind (`uploadImage` purpose). Unit: domain 213, ui 325, app 204, admin 154; db int 336, api int 358; e2e campaigns 9/9 (Pixel 7), app suite on Pixel 7 green (2 parallel-load flakes pass serially). Musalli initial JS 187.85 / 188 kB. Docker Desktop stopped mid-session; `docker desktop restart` brought it back. |
 | 2026-11-09 | 05 / T5.1–T5.3 | Phase 05 started on the owner's word (#145). T5.1 UPI domain module (100 %, fast-check, mutation-checked). T5.2 change-lock built end to end (#146 reject during hold, locked notice; #147 owner: Android-only admin QR scan; scanner moved to `@mc/ui/scanner`, WebAssembly fallback app-only). T5.3 campaigns done (#148). Journey 9 part 2 moved to T5.4; admin screens not yet run in a browser. |

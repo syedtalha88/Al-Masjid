@@ -2448,3 +2448,31 @@ these screens reliably, the known "style-src-elem … ?:5" error page). Visual b
 **Consequences:** `e2e/admin/payment.spec.ts` (Pixel 7: request ×2 through B8, approve ×2 through C4 with the ★ step-up,
 both holds, the follower's QR sheet before / after, the "Payment details updated" notice; mutation-checked: activating
 early fails it). The security review at T5.7 re-checks R1 incl. this hook's gating.
+
+### #152 — Weekly chanda: one feed item per week, a `visible` mirror on the item, HTML bars for the chart (PHASE_05 T5.5) — ACCEPTED (Claude Code, 10 Nov 2026)
+**Context:** 00 §4.3 / 07 A11, B9: the masjid enters one total per week; followers see it only while the masjid shows
+its chanda. `chanda_update` feed items would otherwise leak a hidden masjid's totals through `v_pub_items`.
+**Decision:**
+- **Data (migration `0018_chanda_items`):** an item's `chanda` detail is `{chanda_week_id, week_start, amount_paise
+  (long), visible}`. `visible` mirrors the masjid's `show_chanda`; **`v_pub_items` now drops items with
+  `chanda.visible = false`**, next to `v_pub_chanda_weeks`, which already filtered on the week's `visible`.
+  `setChandaSettings` / `setShowChanda` flip both mirrors (weeks + items) in the same transaction as the masjid field.
+- **One item per week.** `setChandaWeek` creates the week and its item the first time; saving the week again updates
+  the amount / note and the item's `chanda.amount_paise` + `edited_at` — no second card in Updates.
+- **Rules:** the week must start on the masjid's week-start day and not be in the future; the amount is whole paise,
+  0 … ₹10^10; the note ≤ 200 characters (`CHANDA_INVALID`, 400). **Notify is refused while chanda is hidden**
+  (`CHANDA_HIDDEN`, 409) — a push about a figure nobody can open would be noise; B9 disables the switch and says why.
+  Notify defaults to off and uses the masjid's daily push quota like every publish.
+- **Week start** offered in B9: Friday (default) or Monday — the two the spec names; the API accepts 1–7.
+- **Public bundle:** `chanda` is `null` while hidden, else the last 8 entered weeks (oldest first, with the note). The
+  Masjid Detail row and A11 follow from that; a feed item carries `chanda {weekStart, amountPaise}`.
+- **ChandaChart is HTML, not SVG** (06 §6 said "custom SVG"): eight flex columns whose bars are real buttons
+  ("6 Nov: ₹18,500", ≥ 44 px, focus ring, `aria-pressed`); a tap shows the week and amount above the chart. The flex
+  row follows the page direction, so Urdu mirrors without extra code, and text scales with the user's font size. No
+  chart library. A week that was not entered is a flat stub; 0 – 8 weeks render (component test).
+- **Audit:** `chanda.save {week_start, notify}`, `chanda.settings {show, week_start}` — never the amount.
+**Consequences:** tests — `packages/db/test/chanda.int.test.ts` (8: hidden weeks and items absent from both public
+views and the bundle, the mirror both ways, one item per week, notify refused while hidden; mutation-checked by
+removing the view filter), `packages/api/test/chanda-routes.int.test.ts` (3, incl. the public API as `mc_public`),
+`e2e/admin/chanda.spec.ts` (B9 → hidden → shown → A11 chart → hidden, axe on both screens). Left for T5.6: the
+"₹… collected" line on Updates / Home cards, the localized push text, visual baselines for A11 / B9 in 4 locales.
