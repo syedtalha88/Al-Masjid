@@ -8,7 +8,17 @@
 set -uo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
-apt-get update -qq >/dev/null && apt-get install -y -qq openssh-client jq curl python3 >/dev/null || exit 1
+# A failure is also printed as a GitHub Actions annotation (label + the last lines deploy.sh wrote), so a red CI step
+# says why in the run summary; outside Actions it is one more log line.
+annotate() { # <label> [file with the output]
+  local tail_text=''
+  if [ -n "${2:-}" ] && [ -e "$2" ]; then tail_text=$(tail -n 6 "$2" | tr -d '\r' | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}'); fi
+  echo "::error title=deploy-verify.test.sh::$1%0A$tail_text"
+}
+if ! { apt-get update -qq >/dev/null && apt-get install -y -qq openssh-client jq curl python3 >/dev/null; }; then
+  annotate "apt-get could not install the test tools (network / mirror)"
+  exit 1
+fi
 
 root=$(mktemp -d)
 mkdir -p "$root/config" "$root/state" "$root/www/ok" "$root/www/bad"
@@ -38,7 +48,7 @@ expect() { # <label> <expected exit> <case dir> <environment>
   MC_RELEASE_BASE_URL="http://127.0.0.1:8999/$3" MC_CONFIG_DIR="$root/config" MC_STATE_DIR="$root/state" \
     MC_LOCK_FILE="$root/lock" bash /vps/deploy.sh "$4" --check-only >"$root/out" 2>&1
   local got=$?
-  if [ "$got" -eq "$2" ]; then echo "PASS  $1"; else echo "FAIL  $1 (exit $got)"; sed 's/^/      /' "$root/out"; failures=$((failures + 1)); fi
+  if [ "$got" -eq "$2" ]; then echo "PASS  $1"; else echo "FAIL  $1 (exit $got)"; sed 's/^/      /' "$root/out"; annotate "$1 (exit $got)" "$root/out"; failures=$((failures + 1)); fi
 }
 case_dir() { rm -rf "$root/www/$1"; mkdir -p "$root/www/$1"; echo "$root/www/$1"; }
 
@@ -153,7 +163,7 @@ run() { # <case dir> [deploy.sh option]
     bash /vps/deploy.sh staging "$@" >"$root/out" 2>&1
 }
 check() { # <label> <condition>
-  if eval "$2"; then echo "PASS  $1"; else echo "FAIL  $1"; sed 's/^/      /' "$root/out"; failures=$((failures + 1)); fi
+  if eval "$2"; then echo "PASS  $1"; else echo "FAIL  $1"; sed 's/^/      /' "$root/out"; annotate "$1" "$root/out"; failures=$((failures + 1)); fi
 }
 rel() { printf '%040d' "$1"; }
 running() { tail -n 1 "$state/releases.log" 2>/dev/null | awk '{print $2}'; }
