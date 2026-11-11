@@ -83,6 +83,8 @@ const STATE_CODES: Readonly<Record<string, ApiErrorCode>> = {
   CAMPAIGN_NOT_ACTIVE: 'CAMPAIGN_NOT_ACTIVE',
   CAMPAIGN_CLOSED: 'CAMPAIGN_CLOSED',
   CAMPAIGN_TARGET_LOWER: 'CAMPAIGN_TARGET_LOWER',
+  CHANDA_INVALID: 'CHANDA_INVALID',
+  CHANDA_HIDDEN: 'CHANDA_HIDDEN',
   // The authenticated device was deleted meanwhile (Clear all data on another tab): the app registers again.
   DEVICE_NOT_FOUND: 'DEVICE_AUTH_REQUIRED',
 };

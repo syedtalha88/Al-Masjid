@@ -3554,6 +3554,139 @@
         ],
         "additionalProperties": false
       },
+      "AdminChanda": {
+        "type": "object",
+        "properties": {
+          "show": {
+            "type": "boolean"
+          },
+          "weekStart": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 7
+          },
+          "weeks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "weekStart": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "amountPaise": {
+                  "type": "integer"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "weekStart",
+                "amountPaise",
+                "updatedAt"
+              ]
+            }
+          }
+        },
+        "required": [
+          "show",
+          "weekStart",
+          "weeks"
+        ]
+      },
+      "ChandaWeekSaved": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "publicId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "publicId"
+            ]
+          },
+          "created": {
+            "type": "boolean"
+          },
+          "notification": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "queued": {
+                "type": "boolean"
+              },
+              "targeted": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "quotaLeft": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "queued",
+              "targeted",
+              "quotaLeft"
+            ]
+          }
+        },
+        "required": [
+          "item",
+          "created",
+          "notification"
+        ]
+      },
+      "ChandaWeekSave": {
+        "type": "object",
+        "properties": {
+          "amountPaise": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000000
+          },
+          "note": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 200
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "amountPaise",
+          "notify"
+        ],
+        "additionalProperties": false
+      },
+      "ChandaSettings": {
+        "type": "object",
+        "properties": {
+          "show": {
+            "type": "boolean"
+          },
+          "weekStart": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 7
+          }
+        },
+        "additionalProperties": false
+      },
       "SuperDashboard": {
         "type": "object",
         "properties": {
@@ -6209,6 +6342,9 @@
                                     "type": "integer",
                                     "minimum": -9007199254740991,
                                     "maximum": 9007199254740991
+                                  },
+                                  "note": {
+                                    "type": "string"
                                   }
                                 },
                                 "required": [
@@ -6826,6 +6962,25 @@
                               "receivedPaise",
                               "startsOn",
                               "status"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "chanda": {
+                            "type": "object",
+                            "properties": {
+                              "weekStart": {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                              },
+                              "amountPaise": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "weekStart",
+                              "amountPaise"
                             ],
                             "additionalProperties": false
                           },
@@ -7689,6 +7844,25 @@
                             "receivedPaise",
                             "startsOn",
                             "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "chanda": {
+                          "type": "object",
+                          "properties": {
+                            "weekStart": {
+                              "type": "string",
+                              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                            },
+                            "amountPaise": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "weekStart",
+                            "amountPaise"
                           ],
                           "additionalProperties": false
                         },
@@ -10254,6 +10428,25 @@
                                 ],
                                 "additionalProperties": false
                               },
+                              "chanda": {
+                                "type": "object",
+                                "properties": {
+                                  "weekStart": {
+                                    "type": "string",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                  },
+                                  "amountPaise": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "weekStart",
+                                  "amountPaise"
+                                ],
+                                "additionalProperties": false
+                              },
                               "video": {
                                 "type": "object",
                                 "properties": {
@@ -11533,6 +11726,121 @@
               "schema": {
                 "type": "object",
                 "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/chanda": {
+      "get": {
+        "summary": "Weekly chanda — settings and the latest weeks, newest first (B9)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminChanda"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/chanda/{weekStart}": {
+      "put": {
+        "summary": "Save a week's chanda total — the masjid's week-start day, not a future week; one feed item per week",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 10
+            },
+            "required": true,
+            "name": "weekStart",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChandaWeekSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChandaWeekSaved"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/chanda/settings": {
+      "patch": {
+        "summary": "\"Show chanda to followers\" (mirrored onto every week) and the day the week starts",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChandaSettings"
               }
             }
           }
