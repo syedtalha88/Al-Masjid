@@ -765,9 +765,9 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   LTR-isolates the time; unit test for Urdu), journey 9 part 2 re-run on the #160 code — green (with screens ×4 and
   journey 7: 10/10), T5.4 written comparison with ref-2 + ref-3 and all deviations in the report draft, stale test
   header / title fixed. **Left:** owner answers (O46 incl. the 400-vs-422 note), `pnpm verify` (lhci, perf,
-  check:dist, `db:schema:check`), CI green on Pixel 7 + iPhone 14, then O43 → staging → O28. Recommended, not
-  blocking: scheduler tests for `payment-activate` / `campaign-close` / `retention`; a campaign PATCH test with a
-  disallowed field; `/items/:publicId`, `/templates`, `/library/:id` in the `private_enc` sweep.
+  check:dist, `db:schema:check`), CI green on Pixel 7 + iPhone 14, then O43 → staging → O28. The verifier's
+  non-blocking recommendations are done: scheduler test for `payment-activate` / `campaign-close` / `retention`
+  (`push-pipeline.int`), campaign PATCH with fixed fields → 400, templates + item pages in the `private_enc` sweep.
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 

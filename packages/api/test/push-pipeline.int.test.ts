@@ -458,6 +458,16 @@ describe('push pipeline', () => {
     try {
       const schedulers = await scheduled.queues.queue('outbox-sweeper').getJobSchedulers();
       expect(schedulers).toEqual([expect.objectContaining({ pattern: '* * * * *', tz: 'Asia/Kolkata' })]);
+      // Phase 05: the UPI change-lock every 10 minutes, drives closed at 00:10 IST, retention at 03:00 IST (01 §5.8).
+      for (const [job, pattern] of [
+        ['payment-activate', '*/10 * * * *'],
+        ['campaign-close', '10 0 * * *'],
+        ['retention', '0 3 * * *'],
+      ] as const) {
+        expect(await scheduled.queues.queue(job).getJobSchedulers(), job).toEqual([
+          expect.objectContaining({ pattern, tz: 'Asia/Kolkata' }),
+        ]);
+      }
     } finally {
       await scheduled.close();
     }
