@@ -18,7 +18,61 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (11 Nov 2026, night — Phase 05 on `feat/phase-05`: T5.1 – T5.6 + T5.8 done; F61 is on `main`; 03 + 04 await the owner)
+## ▶ Next session — start here (12 Nov 2026 — Phase 05: every build task done, F65 closed; left: T5.7 quality gates; `main` CI is RED → F61 not on staging)
+
+**State:** `feat/phase-05` = `ci/phase-05` = this hand-off commit (after `e1ba603`). Phases 03 + 04 **AWAITING OWNER
+VERIFICATION**. Phase 05 not deployed. **Staging runs `13d1031`** (app `/health` checked 12 Nov) — **not** `de50397`.
+
+**Done this session:**
+- Last night's red CI on `ci/phase-05` fixed in tests (`2df8d6d`): the needy spec's axe read two CSS state fades (Save
+  button, chip), the voice spec hung on a Play button that turned disabled (F59 family). Both passed locally after.
+- **T5.9 My zakat** (`2f11990`, #158) — ticked; details in the checklist.
+- **F65 closed** (`e1ba603`, #159) — admin alerts stop with the session; migration `0020_admin_push_session`.
+  Local: db int 368, api int 372, `db:schema:check` clean, app unit 228, visual 24/24, `pnpm size` green.
+
+**Check first (in this order):**
+1. **`main` `de50397` CI run 43050725455 FAILED** in "Security scans" → step "VPS deploy — verification, rolling,
+   rollback…" (`infra/vps/test/deploy-verify.test.sh`), so "Release to staging" was skipped and **F61 is not on staging;
+   the Trivy ignore expires 15 Nov.** The last hand-off wrongly said this run was green. The same step failed on two
+   `ci/phase-05` runs that evening and **passed** on `2df8d6d` the next day with no change to that code; the test also
+   passes locally (50/50) — so the cause was outside the repo (most likely `apt-get` inside the test container). The
+   test now prints its failure as a GitHub annotation (readable without a login). **Do:** get `main` green — merge
+   `feat/phase-05`'s commit `2df8d6d` is not on `main`, so the simplest is a new commit on `main` (cherry-pick
+   `2df8d6d`, test-only) and push → CI → "Release to staging" → `/health` shows the new release on both origins. Then
+   delete `infra/trivy/mc-server.trivyignore.yaml` and the Nightly deployed-image job's `--ignorefile` + sparse
+   checkout (#155). If the step fails again, read the annotation (`check-runs/<job id>/annotations`).
+2. CI of `ci/phase-05` for this hand-off commit (run 43084043680 on `2df8d6d` was still in its e2e step at hand-off:
+   Security scans, unit, integration, typecheck already green). Red → fix first. Known flaky under load, passes
+   alone: `packages/ui/test/admin-publish.test.tsx` (PreviewFrame language switch) — if CI shows it, raise its wait.
+3. Nightly: "CDN caches versioned API responses" fails — that is the owner's O23 (Cloudflare cache rule), not code.
+
+**Do next:**
+1. Owner (#150): O25 rest, O26 (Phase 03), O38 (Phase 04), O23 — ask whether they found something; those fixes come
+   first. **New for the owner:** confirm #159's 30 days (Super Admin alert window) and #158's "ask only for
+   zakat-eligible people"; before O38 open the admin app once on each phone (re-links its alert subscription).
+2. **T5.7 quality gates** (the only Phase 05 task left):
+   - `e2e/admin/screens.spec.ts`: add the Phase 05 admin screens × 4 locales before the `/account` shot — plan worked
+     out: `/payment` (`[data-payment-form]`) → request via `POST …/payment/requests {vpa, payeeName, note}` →
+     `[data-payment-waiting]`; Super `/super` (`[data-change-requests]`) and `/super/payments` (`[data-payment-row]`,
+     approve with the `payments.checkCommittee` / `checkName` / `approve` labels + step-up, poll the admin
+     `GET …/payment` for `approved_on_hold`); activate with the test hook as `payment.spec.ts` does (`PUT /test/clock`
+     + `POST /test/payment-activate`, inside a `toPass` — parallel locales share api-admin's clock); `/donation` empty →
+     `POST …/campaigns` → `[data-drive]`, the Update amount sheet (`donation.updateAmount`), `/donation/new`
+     (`[data-drive-editor]`); `/chanda` (`[data-chanda]`) → `PUT …/chanda/<latest Friday>` → `[data-chanda-row]`;
+     `/needy` (`[data-needy]`) → `POST …/beneficiaries` → `[data-person]`, `/needy/new` (`[data-needy-editor]`).
+   - Full e2e journey 9 + T5.8 / T5.9 journeys on CI (Pixel 7 local: zakat 6/6, needy, voice green); budgets; axe.
+   - `security-reviewer` on the Phase 05 diff — focus R1 (payment flow; exit criterion: no finding of any severity)
+     and R13 (needy people), plus F65 (#159). `phase-verifier` on `PHASE_05_DONATIONS_CHANDA.md`. Fix findings.
+   - `pnpm verify`, then `docs/reports/PHASE_05_REPORT.md` (side-by-side vs ref-3/4 + ref-2/3 for T5.4).
+3. Phase 05 to staging only after 03 + 04 are verified or with the owner's OK; **O43** (Atlas roles) first — the roles
+   file did not change with F65. Migrations 0018–0020 run on deploy.
+
+**Local notes (new):** a command that pipes the VPS test container's output (`docker run … | tail`) never ends — the
+test's background HTTP server keeps the pipe open; redirect to a file inside the container. Git Bash heredocs break on
+quotes in Python code — write the script to the scratchpad with the Write tool and run `python -I <file>`. The local
+stack was rebuilt with T5.9 (not with F65 — rebuild before admin e2e: `pnpm stack:up:test`, `pnpm db:seed`).
+
+## ▶ Previous hand-off (11 Nov 2026, night — T5.8 done; its "F61 is on `main`, CI green" was wrong: see above)
 
 **State:** `main` = `de50397` (= `863e064` + the F61 base-image fix, fast-forwarded 11 Nov night after its CI run was
 green; pushed → "Release to staging" redeploys the same app on the patched base image). Phases 03 + 04 **AWAITING OWNER
@@ -457,6 +511,8 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O26 | **Usability check T3.12** with a real masjid person (5-task script) | T3.12 / Phase 03 exit | 30 min | end of Phase 03 |
 | O27 | **Phase 03 checks on staging** (`owner/PHASE_TESTING_GUIDE.md` → Phase 03) | Phase 03 DONE | 45 min | **OK — owner, 10 Nov 2026** (photos / voice wait for O25) |
 | O28 | **UPI ID for a ₹1 test** | Phase 05 exit | 5 min | Phase 05 |
+| O44 | **Two answers (12 Nov 2026):** (a) #159 — the Super Admin's phone keeps getting alerts for **30 days** after the admin app was last used on it (sign-out stops them at once): OK, or shorter? (b) #158 — "Log this in My zakat?" is asked only after paying a person the masjid marked **zakat-eligible**: OK, or ask for everyone? | F65 / T5.9 defaults stand until answered | 2 answers | open — not blocking |
+| O45 | **Open the admin app once on each phone that should get alerts** (after Phase 05 is on staging) | F65: older alert subscriptions are no longer used; opening the app links the phone again | 1 min | before O38's alert checks on the Phase 05 build |
 | O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | Phase 07 (map-tile decision dropped — #118) |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
 | O31 | **Translation review** of `packages/i18n/review/{hi,ur,te}.csv` (≈ 920 draft strings each) | pilot | translators | before pilot |
