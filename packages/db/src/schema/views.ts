@@ -57,8 +57,15 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
     { $project: keep('masjid_id', 'type', 'date', 'label', 'times', 'note') },
   ],
   v_pub_items: [
-    // A chanda update of a masjid that hides its chanda is never public (00 §4.3, DECISIONS #152).
-    { $match: { status: 'published', masjid_visible: true, 'chanda.visible': { $ne: false } } },
+    // A chanda update of a masjid that hides its chanda is never public (00 §4.3, DECISIONS #152) — and one without the
+    // flag is not public either: the filter fails closed (DECISIONS #160, security review L6).
+    {
+      $match: {
+        status: 'published',
+        masjid_visible: true,
+        $or: [{ type: { $ne: 'chanda_update' } }, { 'chanda.visible': true }],
+      },
+    },
     // Newest first = the feed indexes' order (see v_pub_special_timings).
     { $sort: { published_at: -1, _id: -1 } },
     {

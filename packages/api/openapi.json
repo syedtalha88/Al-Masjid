@@ -7603,7 +7603,7 @@
     },
     "/api/v1/masjids/{id}/beneficiaries": {
       "get": {
-        "summary": "Needy people a masjid lists, least-funded first — public fields only; `zakat=1` keeps the zakat-eligible (A23; immutable per version)",
+        "summary": "Needy people a masjid lists, least-funded first — public fields only; `zakat=1` keeps the zakat-eligible (A23; per version, cached one day)",
         "tags": [
           "masjids"
         ],

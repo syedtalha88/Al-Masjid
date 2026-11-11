@@ -74,4 +74,7 @@ export const SCHEMA_AREAS: Readonly<
   },
   // F65 (DECISIONS #159): an admin alert subscription belongs to the session that saved it (`session_id`, indexed).
   '0020_admin_push_session': { collections: ['admin_push_subscriptions'] },
+  // DECISIONS #160 (security review M3, L6): a needy person's UPI old → new record moves into their purged history;
+  // the chanda filter of v_pub_items fails closed.
+  '0021_beneficiary_upi_history': { collections: ['beneficiary_amount_history'], views: ['v_pub_items'] },
 };

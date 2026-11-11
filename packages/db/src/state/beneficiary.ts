@@ -4,7 +4,7 @@
 // hold under parallel requests) and an audit entry. `setBeneficiaryReceived` keeps `funded_permille`, the status and
 // the append-only history row together. We never touch money (CLAUDE.md §2.2): "received" is what the masjid reports.
 // There is no change-lock on a person's UPI details (owner, #104) — every create / change is audited old → new (R13).
-import { isValidVpa, normalizeVpa } from '@mc/domain/upi';
+import { isValidVpa, mentionsPaymentAddress, normalizeVpa } from '@mc/domain/upi';
 import type { UUID } from 'mongodb';
 
 import { type DbHandle, type TxContext, withTransaction } from '../client.ts';
@@ -78,6 +78,9 @@ function adminOf(scope: Scope, masjidId: UUID): UUID {
 function fieldsOf(input: BeneficiaryInput) {
   const displayName = input.displayName.trim();
   const reason = input.reason.trim();
+  // The person's UPI ID belongs in its own field (audited, shown with the payee name) — never in the reason.
+  if (mentionsPaymentAddress(reason) || mentionsPaymentAddress(displayName))
+    throw new StateError('PAYMENT_DETAILS_IN_TEXT'); // 04 R1, DECISIONS #160
   const payeeName = input.payeeName.trim();
   const vpa = normalizeVpa(input.vpa);
   const ok =
@@ -176,6 +179,15 @@ export async function createBeneficiary(
         created_at: now,
         updated_at: now,
       });
+      // 04 R13: the UPI details the person starts with, in their own history (purged with them — #160).
+      await scoped(content, 'beneficiary_amount_history').insertOne({
+        _id: newId(),
+        beneficiary_id: id,
+        masjid_id: input.masjidId,
+        upi: { vpa_new: fields.vpa, payee_new: fields.payee_name },
+        updated_by: adminId,
+        created_at: now,
+      });
     });
     await writeAudit(ctx, {
       action: 'beneficiary.create',
@@ -186,8 +198,6 @@ export async function createBeneficiary(
         category: fields.category,
         zakat_eligible: fields.zakat_eligible,
         consent_confirmed: true,
-        vpa_new: fields.vpa,
-        payee_new: fields.payee_name,
       },
       ...audit(input.requestId),
     });
@@ -213,7 +223,7 @@ export async function updateBeneficiary(
     readonly privateEnc?: string | null | undefined;
   },
 ): Promise<{ status: BeneficiaryStatus }> {
-  adminOf(scope, input.masjidId);
+  const adminId = adminOf(scope, input.masjidId);
   const fields = fieldsOf(input.person);
   checkPrivate(input.privateEnc);
   const now = input.now ?? new Date();
@@ -230,6 +240,7 @@ export async function updateBeneficiary(
       ...(numberOf(before, 'cap_paise') === input.person.capPaise ? [] : ['cap_paise']),
       ...(input.privateEnc === undefined ? [] : ['private']),
     ];
+    const upiChanged = before['vpa'] !== fields.vpa || before['payee_name'] !== fields.payee_name;
     await contentWrite(ctx, input.masjidId, async (content) => {
       const matched = await scoped(content, 'beneficiaries').updateOne(
         { _id: input.id, masjid_id: input.masjidId, status: 'active' },
@@ -245,8 +256,23 @@ export async function updateBeneficiary(
         },
       );
       if (matched !== 1) throw new StateError('BENEFICIARY_NOT_FOUND');
+      if (upiChanged) {
+        // 04 R13: old → new, in the person's own history (purged with them — #160); the audit says only "changed".
+        await scoped(content, 'beneficiary_amount_history').insertOne({
+          _id: newId(),
+          beneficiary_id: input.id,
+          masjid_id: input.masjidId,
+          upi: {
+            ...(text(before, 'vpa') === undefined ? {} : { vpa_old: text(before, 'vpa') }),
+            vpa_new: fields.vpa,
+            ...(text(before, 'payee_name') === undefined ? {} : { payee_old: text(before, 'payee_name') }),
+            payee_new: fields.payee_name,
+          },
+          updated_by: adminId,
+          created_at: now,
+        });
+      }
     });
-    const upiChanged = before['vpa'] !== fields.vpa || before['payee_name'] !== fields.payee_name;
     await writeAudit(ctx, {
       action: 'beneficiary.update',
       masjidId: input.masjidId,
@@ -254,14 +280,7 @@ export async function updateBeneficiary(
       targetId: idText(input.id),
       meta: {
         fields: fieldNames,
-        ...(upiChanged
-          ? {
-              vpa_old: text(before, 'vpa') ?? '',
-              vpa_new: fields.vpa,
-              payee_old: text(before, 'payee_name') ?? '',
-              payee_new: fields.payee_name,
-            }
-          : {}),
+        ...(upiChanged ? { upi_changed: true } : {}),
         ...(fulfilled ? { fulfilled: true } : {}),
       },
       ...audit(input.requestId),
@@ -370,6 +389,8 @@ export async function endBeneficiary(
             ...(before['purge_after'] instanceof Date ? {} : { purge_after: purgeAt(now) }),
             updated_at: now,
           },
+          // Review L8: removed on request (or by mistake) — the encrypted phone / note go now, not in 90 days.
+          ...(input.as === 'deleted' ? { $unset: { private_enc: '' } } : {}),
         },
       );
       if (matched !== 1) throw new StateError('BENEFICIARY_NOT_FOUND');
@@ -400,9 +421,11 @@ export async function readBeneficiaryPrivate(
   return withTransaction(handle, scope, async (ctx) => {
     await ownMasjid(ctx, input.masjidId);
     // Raw read of the one hidden field, confined to the caller's own masjid (checked above and in the filter).
-    const person = await ctx.db
-      .collection<{ _id: UUID; private_enc?: string }>('beneficiaries')
-      .findOne({ _id: input.id, masjid_id: input.masjidId }, { session: ctx.session, projection: { private_enc: 1 } });
+    const person = await ctx.db.collection<{ _id: UUID; private_enc?: string }>('beneficiaries').findOne(
+      // Review L8: only while the masjid still lists the person (active or fulfilled) — never after close / delete.
+      { _id: input.id, masjid_id: input.masjidId, status: { $in: ['active', 'fulfilled'] } },
+      { session: ctx.session, projection: { private_enc: 1 } },
+    );
     if (!person) throw new StateError('BENEFICIARY_NOT_FOUND');
     await writeAudit(ctx, {
       action: 'beneficiary.private_view',

@@ -78,6 +78,8 @@ export const API_ERRORS = {
   PAYMENT_INVALID: 400, // VPA not as the database accepts it, payee name 1–100, note ≤ 300, reason 1–300 (T5.2)
   PAYMENT_UNCHANGED: 409, // the requested details are the live ones (T5.2)
   PAYMENT_REQUEST_OPEN: 409, // one pending / on-hold request per masjid (04 R1, T5.2)
+  PAYMENT_DETAILS_IN_TEXT: 400, // a UPI ID or upi: link in free text (04 R1, #160)
+  PAYMENT_NOTICE_UNAVAILABLE: 409, // the "Payment details updated" template is not active (#160)
   PAYMENT_NOT_FOUND: 404, // unknown payment request (T5.2)
   PAYMENT_NOT_PENDING: 409, // approve: already approved, rejected or live (T5.2)
   PAYMENT_NOT_OPEN: 409, // reject: already live, rejected or superseded (T5.2)

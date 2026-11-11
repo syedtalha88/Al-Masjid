@@ -85,11 +85,25 @@ const beneficiaries = {
   }),
 };
 
+/**
+ * A person's history (append-only for `mc_admin`, deleted with the person by `retention`): each "received so far"
+ * update, and each set / change of their UPI details — old → new (04 R13). The UPI record lives here, not in the
+ * 2-year audit log, so it goes with the person after 90 days (DECISIONS #160, security review M3). One of the two per
+ * entry (the state functions write exactly one).
+ */
 const beneficiaryAmountHistory = documentSchema({
   _id: f.uuid(),
   beneficiary_id: f.uuid(),
   masjid_id: f.uuid(),
-  received_paise: f.long(0, MAX_PAISE),
+  received_paise: opt(f.long(0, MAX_PAISE)),
+  upi: opt(
+    f.object({
+      vpa_old: opt(f.string(100, { pattern: VPA_PATTERN })),
+      vpa_new: f.string(100, { pattern: VPA_PATTERN }),
+      payee_old: opt(f.string(100, { minLength: 1 })),
+      payee_new: f.string(100, { minLength: 1 }),
+    }),
+  ),
   updated_by: f.uuid(),
   created_at: f.instant(),
 });

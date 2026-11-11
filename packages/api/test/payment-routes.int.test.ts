@@ -29,7 +29,7 @@ const extra = {
   paymentHoldMinutes: HOLD,
 };
 const harness = superHarness('payment_routes', new Date('2026-11-10T06:30:00Z'), extra);
-const { app, asSuper, stepUp, register, testDatabase, clock } = harness;
+const { app, asSuper, stepUp, register, testDatabase, clock, activatePaymentNotice } = harness;
 
 let masjidId = '';
 let adminCookie = '';
@@ -75,6 +75,7 @@ async function runActivation() {
 }
 
 beforeAll(async () => {
+  await activatePaymentNotice(); // approval needs it (DECISIONS #160)
   const masjid = await asSuper('post', '/masjids').send({
     name: 'Test Masjid Pay',
     area: 'Test Area',

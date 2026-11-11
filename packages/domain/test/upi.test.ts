@@ -1,7 +1,15 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 
-import { buildUpiUri, isValidVpa, normalizeVpa, parseUpiUri, UPI_TEXT_MAX, VPA_MAX_LENGTH } from '../src/upi.ts';
+import {
+  buildUpiUri,
+  isValidVpa,
+  mentionsPaymentAddress,
+  normalizeVpa,
+  parseUpiUri,
+  UPI_TEXT_MAX,
+  VPA_MAX_LENGTH,
+} from '../src/upi.ts';
 
 // PHASE_05 T5.1 · 01 §5.7 · 04 R1 / §6: a VPA as the database accepts it (02 payment_profiles: the pattern and ≤ 100
 // characters); `upi://pay?pa=…&pn=…&tn=…&cu=INR` with RFC 3986 percent-encoding, payee name and note ≤ 50 characters,
@@ -212,5 +220,30 @@ describe('parseUpiUri', () => {
         return parsed === null || isValidVpa(parsed.vpa);
       }),
     );
+  });
+});
+
+describe('mentionsPaymentAddress (DECISIONS #160)', () => {
+  it('finds a UPI ID or a upi: link anywhere in the text', () => {
+    for (const text of [
+      'Please pay to test.person@okexample',
+      'Send your chanda: testmasjid@ybl.',
+      'UPI: someone@paytm, thank you',
+      'Scan upi://pay?pa=x@ybl',
+      'Line one\nTEST-PERSON_9@okicici',
+      'UPI://PAY',
+    ])
+      expect(mentionsPaymentAddress(text), text).toBe(true);
+  });
+
+  it('lets ordinary text and email addresses through', () => {
+    for (const text of [
+      'Roof repairs before the rains',
+      'Write to info@masjid.org or admin@example.co.in.',
+      'Meet at 5 @ the gate',
+      'a@b',
+      '',
+    ])
+      expect(mentionsPaymentAddress(text), text).toBe(false);
   });
 });

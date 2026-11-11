@@ -156,8 +156,8 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'campaign.complete': [],
   // Needy people (T5.8, 04 R13): a person's UPI details have no change-lock, so every create / change records them
   // old → new for the Super Admin's review. Never the phone or note (`private_enc`), the name or the reason.
-  'beneficiary.create': ['category', 'zakat_eligible', 'consent_confirmed', 'vpa_new', 'payee_new'],
-  'beneficiary.update': ['fields', 'vpa_old', 'vpa_new', 'payee_old', 'payee_new', 'fulfilled'],
+  'beneficiary.create': ['category', 'zakat_eligible', 'consent_confirmed'],
+  'beneficiary.update': ['fields', 'upi_changed', 'fulfilled'],
   'beneficiary.received': ['fulfilled'],
   'beneficiary.close': [],
   'beneficiary.delete': [],

@@ -66,6 +66,8 @@
   "PAYMENT_INVALID": "Check the UPI ID and the payee name, then try again.",
   "PAYMENT_UNCHANGED": "These are already the payment details shown to everyone.",
   "PAYMENT_REQUEST_OPEN": "A change is already waiting. You can ask again once it is decided.",
+  "PAYMENT_NOTICE_UNAVAILABLE": "Activate the “Payment details updated” notice template first, so followers are told about the change.",
+  "PAYMENT_DETAILS_IN_TEXT": "Please remove the UPI ID or payment link from the text. Followers pay only to the masjid's verified UPI details.",
   "PAYMENT_NOT_FOUND": "This payment request no longer exists.",
   "PAYMENT_NOT_PENDING": "This request was already decided.",
   "PAYMENT_NOT_OPEN": "This request is already live or closed.",

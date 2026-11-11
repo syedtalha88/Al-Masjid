@@ -189,7 +189,8 @@ describe('admin: /beneficiaries', () => {
     expect((await list(call)).map((person) => person.displayName)).toEqual(['Test Edited']); // deleted: not listed
     expect((await call('delete', '/not-an-id')).body).toMatchObject({ status: 404, code: 'BENEFICIARY_NOT_FOUND' });
 
-    // The audit trail: the UPI details at create and old → new at the change (04 R13) — never the name or reason.
+    // The audit trail: what happened, never the UPI details, name or reason (those stay in the person's history and go
+    // with them — 04 R13, DECISIONS #160).
     const audit = await db()
       .collection('audit_log')
       .find({ action: { $regex: '^beneficiary\\.' }, masjid_id: uuid(masjidId) })
@@ -204,13 +205,10 @@ describe('admin: /beneficiaries', () => {
       'beneficiary.create',
       'beneficiary.delete',
     ]);
-    expect(audit[1]?.['meta']).toMatchObject({
-      vpa_old: 'testperson@okexample',
-      vpa_new: 'other@okexample',
-      payee_old: 'Test Person A',
-      payee_new: 'Other Name',
-    });
-    expect(JSON.stringify(audit)).not.toMatch(/Test Edited|Test Mistake|Sample reason/);
+    expect(audit[1]?.['meta']).toMatchObject({ upi_changed: true });
+    expect(JSON.stringify(audit)).not.toMatch(
+      /Test Edited|Test Mistake|Sample reason|okexample|Test Person A|Other Name/,
+    );
   });
 
   it('the private phone / note: encrypted at rest, only for this masjid’s admin, every view audited', async () => {
@@ -289,7 +287,7 @@ describe('admin: /beneficiaries', () => {
 });
 
 describe('musalli: GET /masjids/:id/beneficiaries', () => {
-  it('least-funded first, the zakat filter, immutable per version — and the private part in NO public response', async () => {
+  it('least-funded first, the zakat filter, cached one day per version — and the private part in NO public response', async () => {
     const { masjidId, call } = await activeMasjid('Test Masjid Needy Public');
     const add = async (over: Record<string, unknown>) =>
       ((await call('post').send(personBody(over))).body as { id: string; publicId: string }).id;
@@ -318,7 +316,12 @@ describe('musalli: GET /masjids/:id/beneficiaries', () => {
         const target = (first.headers['location'] ?? '').replace(/^https?:\/\/[^/]+/, '');
         const response = await request(publicApp).get(target);
         expect(response.status, target).toBe(200);
-        expect(response.headers['cache-control']).toContain('immutable');
+        // The list of people is cached one day, never a year (DECISIONS #160, review M4); the bundle stays immutable.
+        expect(response.headers['cache-control']).toBe(
+          path.includes('/beneficiaries')
+            ? 'public, max-age=86400, s-maxage=86400'
+            : 'public, max-age=31536000, immutable',
+        );
         bodies.push(first.text, JSON.stringify(first.headers), response.text, JSON.stringify(response.headers));
         return response;
       };
@@ -386,7 +389,7 @@ describe('worker: retention', () => {
     const history = (id: string) =>
       db()
         .collection('beneficiary_amount_history')
-        .countDocuments({ beneficiary_id: uuid(id) });
+        .countDocuments({ beneficiary_id: uuid(id), received_paise: { $exists: true } }); // amounts (UPI rows: #160)
     expect(await left()).toBe(4);
     expect(await history(fulfilled)).toBe(1);
 

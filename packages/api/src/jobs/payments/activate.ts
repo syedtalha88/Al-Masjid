@@ -22,7 +22,13 @@ export interface PaymentActivateDeps {
  *   a lost fan-out is re-enqueued by the outbox sweeper).
  */
 export async function processPaymentActivate(deps: PaymentActivateDeps): Promise<{ activated: number }> {
-  const activated = await activateDuePaymentProfiles(deps.db, systemScope(), { now: deps.clock.now() });
+  const { activated, heldBack } = await activateDuePaymentProfiles(deps.db, systemScope(), {
+    now: deps.clock.now(),
+  });
+  // Masjid suspended, or the notice template not active (DECISIONS #160): they wait for a later run. Ids only.
+  if (heldBack.length > 0) {
+    deps.logger.warn({ heldBack: heldBack.map((id) => idText(id)) }, 'payment profiles due but held back');
+  }
   for (const entry of activated) {
     const profileId = idText(entry.profileId);
     if (entry.noticeJobId) {

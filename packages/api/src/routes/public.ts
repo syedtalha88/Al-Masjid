@@ -82,8 +82,15 @@ export const CACHE = {
   library: 'public, s-maxage=86400',
   templates: 'public, s-maxage=3600',
   ameens: 'public, s-maxage=30, stale-while-revalidate=60',
+  /**
+   * Needy people (DECISIONS #160, security review M4): a person who is removed or withdraws consent must not stay
+   * readable at an old `?v=` for a year. A day at most, in the CDN and on the phone, until the CDN purge job (Phase 8,
+   * F67) removes the masjid's tag the moment a person is closed or removed.
+   */
+  needy: 'public, max-age=86400, s-maxage=86400',
 } as const;
 const versioned = (status: number) => (status === 302 ? CACHE.redirect : CACHE.immutable);
+const versionedNeedy = (status: number) => (status === 302 ? CACHE.redirect : CACHE.needy);
 
 const IdText = z.string().max(64);
 const VersionText = z.string().regex(/^\d{1,15}$/);
@@ -446,10 +453,10 @@ export function publicRoutes(deps: PublicRouteDeps): RouteDefinition[] {
       method: 'get',
       path: '/masjids/:id/beneficiaries',
       summary:
-        'Needy people a masjid lists, least-funded first — public fields only; `zakat=1` keeps the zakat-eligible (A23; immutable per version)',
+        'Needy people a masjid lists, least-funded first — public fields only; `zakat=1` keeps the zakat-eligible (A23; per version, cached one day)',
       tags: ['masjids'],
       auth: 'none',
-      cacheControl: versioned,
+      cacheControl: versionedNeedy,
       request: {
         params: z.object({ id: IdText }),
         query: z.object({ v: VersionText.optional(), zakat: z.enum(['1']).optional() }),

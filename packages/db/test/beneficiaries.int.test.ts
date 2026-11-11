@@ -142,14 +142,14 @@ describe('create', () => {
     const audit = await raw('audit_log').findOne({ action: 'beneficiary.create', target_id: id });
     expect(audit).toMatchObject({
       request_id: 'req-needy-1',
-      meta: {
-        category: 'widow',
-        consent_confirmed: true,
-        vpa_new: 'TestPerson@okexample',
-        payee_new: 'Test Person A',
-      },
+      meta: { category: 'widow', consent_confirmed: true },
     });
-    expect(JSON.stringify(audit)).not.toMatch(/Test A\.|Sample reason|v1:k1/);
+    // The UPI details are personal data: never in the 2-year audit log, but in the person's own (purged) history
+    // (DECISIONS #160, security review M3).
+    expect(JSON.stringify(audit)).not.toMatch(/Test A\.|Sample reason|v1:k1|okexample|Test Person A/);
+    expect(
+      await raw('beneficiary_amount_history').findOne({ beneficiary_id: idOf(id), upi: { $exists: true } }),
+    ).toMatchObject({ upi: { vpa_new: 'TestPerson@okexample', payee_new: 'Test Person A' } });
   });
 
   it('refuses a person without consent or with bad details; other masjids are out of reach; nothing is written', async () => {
@@ -297,7 +297,10 @@ describe('update received', () => {
       status: 'active',
     });
     const history = await raw('beneficiary_amount_history')
-      .find({ beneficiary_id: idOf(id) }, { sort: { created_at: 1 }, promoteLongs: false })
+      .find(
+        { beneficiary_id: idOf(id), received_paise: { $exists: true } },
+        { sort: { created_at: 1 }, promoteLongs: false },
+      )
       .toArray();
     expect(history.map((row) => (row['received_paise'] as Long).toNumber())).toEqual([120_000, 120_050]);
     expect(history.every((row) => (row['updated_by'] as UUID).equals(scope.adminId))).toBe(true);
@@ -350,7 +353,7 @@ describe('update received', () => {
     expect(results.every((result) => result === 'ok')).toBe(true);
     const doc = await raw('beneficiaries').findOne({ _id: idOf(id) }, { promoteLongs: false });
     const history = await raw('beneficiary_amount_history')
-      .find({ beneficiary_id: idOf(id) }, { promoteLongs: false })
+      .find({ beneficiary_id: idOf(id), received_paise: { $exists: true } }, { promoteLongs: false })
       .toArray();
     expect(history).toHaveLength(amounts.length); // every update left its row
     const final = (doc?.['received_paise'] as Long).toNumber();
@@ -363,7 +366,7 @@ describe('update received', () => {
 });
 
 describe('edit', () => {
-  it('replaces the details; a changed UPI ID or payee name is audited old → new (04 R13)', async () => {
+  it('replaces the details; a changed UPI ID or payee name is kept old → new in the person’s history (04 R13)', async () => {
     const { id } = await add(ALPHA, person({ displayName: 'Test Edit' }));
     const save = (input: BeneficiaryInput, privateEnc?: string | null) =>
       updateBeneficiary(as('admin'), alpha, { masjidId: ALPHA, id: idOf(id), person: input, privateEnc, now: NOW });
@@ -378,13 +381,23 @@ describe('edit', () => {
     const audits = await raw('audit_log')
       .find({ action: 'beneficiary.update', target_id: id }, { sort: { at: 1 } })
       .toArray();
-    expect(audits.at(-1)?.['meta']).toEqual({
-      fields: ['vpa', 'payee_name'],
-      vpa_old: 'testperson@okexample',
-      vpa_new: 'other@okexample',
-      payee_old: 'Test Person A',
-      payee_new: 'Other Name',
-    });
+    expect(audits.at(-1)?.['meta']).toEqual({ fields: ['vpa', 'payee_name'], upi_changed: true });
+    const upi = await raw('beneficiary_amount_history')
+      .find({ beneficiary_id: idOf(id), upi: { $exists: true } }, { sort: { created_at: 1, _id: 1 } })
+      .toArray();
+    // Same instant (the test clock), random ids: compare as a set.
+    expect(upi).toHaveLength(2);
+    expect(upi.map((entry) => entry['upi'])).toEqual(
+      expect.arrayContaining([
+        { vpa_new: 'testperson@okexample', payee_new: 'Test Person A' },
+        {
+          vpa_old: 'testperson@okexample',
+          vpa_new: 'other@okexample',
+          payee_old: 'Test Person A',
+          payee_new: 'Other Name',
+        },
+      ]),
+    );
     expect(await raw('beneficiaries').findOne({ _id: idOf(id) })).toMatchObject({
       display_name: 'Test Edited',
       zakat_eligible: true,
@@ -422,7 +435,15 @@ describe('close and delete', () => {
   it('are final: hidden at once, purge in 90 days, no further writes — also not through the policy gateway', async () => {
     for (const end of ['closed', 'deleted'] as const) {
       const { id, publicId } = await add(ALPHA, person({ displayName: `Test ${end}` }));
+      await raw('beneficiaries').updateOne({ _id: idOf(id) }, { $set: { private_enc: PRIVATE_ENC } });
       await endBeneficiary(as('admin'), alpha, { masjidId: ALPHA, id: idOf(id), as: end, now: NOW });
+      // Review L8 (#160): a removed person's encrypted phone / note go at once; after close or delete nobody reads them.
+      const stored = await raw('beneficiaries').findOne({ _id: idOf(id) });
+      if (end === 'deleted') expect(stored).not.toHaveProperty('private_enc');
+      else expect(stored?.['private_enc']).toBe(PRIVATE_ENC);
+      expect(await code(readBeneficiaryPrivate(as('admin'), alpha, { masjidId: ALPHA, id: idOf(id) }))).toBe(
+        'BENEFICIARY_NOT_FOUND',
+      );
       expect(await raw('beneficiaries').findOne({ _id: idOf(id) })).toMatchObject({
         status: end,
         closed_at: NOW,
@@ -542,7 +563,7 @@ describe('retention (02 §6)', () => {
     await received(ALPHA, id, 50_000, NOW);
     await received(ALPHA, id, 100_000, NOW); // fulfilled at NOW
     const history = () => raw('beneficiary_amount_history').countDocuments({ beneficiary_id: idOf(id) });
-    expect(await history()).toBe(2);
+    expect(await history()).toBe(3); // the UPI details at create (#160) + two amounts — all purged with the person
     const others = await raw('beneficiaries').countDocuments({ _id: { $ne: idOf(id) } });
     const dueAt = new Date(NOW.getTime() + BENEFICIARY_PURGE_DAYS * DAY_MS);
     expect(await code(purgeBeneficiaries(as('admin'), alpha, { now: dueAt }))).toBe('FORBIDDEN');

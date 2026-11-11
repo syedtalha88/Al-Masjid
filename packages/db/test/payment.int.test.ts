@@ -78,7 +78,8 @@ const request = (masjid: UUID, vpa = 'masjid.test@okbank', admin = adminOf(masji
   });
 const approve = (id: string, at = NOW) =>
   approvePaymentChange(as('admin'), fresh(at), { profileId: idOf(id), holdMinutes: HOLD, now: at });
-const activate = (at: Date) => activateDuePaymentProfiles(as('system'), systemScope(), { now: at });
+const run = (at: Date) => activateDuePaymentProfiles(as('system'), systemScope(), { now: at });
+const activate = async (at: Date) => (await run(at)).activated;
 
 beforeAll(async () => {
   test = await createTestDatabase('payment-state');
@@ -401,5 +402,55 @@ describe('reads (B8 status, C4 queue)', () => {
     });
     expect(requests.every((row) => row.status === 'pending' || row.status === 'approved_on_hold')).toBe(true);
     expect(await code(listOpenPayments(as('admin'), adminOf(BETA)))).toBe('FORBIDDEN');
+  });
+});
+
+describe('followers are always told (DECISIONS #160, security review M1 + L1)', () => {
+  const template = () => t().db.collection<{ _id: string }>('notice_templates'); // string ids
+  const setTemplate = (status: 'active' | 'draft' | 'retired') =>
+    template().updateOne({ _id: PAYMENT_NOTICE_TEMPLATE }, { $set: { status } });
+  const setMasjid = (status: 'active' | 'suspended') => raw('masjids').updateOne({ _id: BETA }, { $set: { status } });
+
+  it('approval is refused while the "Payment details updated" template is not active', async () => {
+    const pending = await raw('payment_profiles').findOne({ masjid_id: BETA, open: true });
+    if (!pending) throw new Error('no open request on Beta');
+    const at = new Date(NOW.getTime() + 10 * HOLD * MINUTE);
+    await setTemplate('draft');
+    try {
+      expect(await code(approve(pending._id.toString(), at))).toBe('PAYMENT_NOTICE_UNAVAILABLE');
+      expect((await raw('payment_profiles').findOne({ _id: pending._id }))?.['status']).toBe('pending');
+    } finally {
+      await setTemplate('active');
+    }
+    await approve(pending._id.toString(), at);
+    expect((await raw('payment_profiles').findOne({ _id: pending._id }))?.['status']).toBe('approved_on_hold');
+  });
+
+  it('due but the masjid is suspended, or the template was retired: held back, live with the notice on a later run', async () => {
+    const onHold = await raw('payment_profiles').findOne({ masjid_id: BETA, status: 'approved_on_hold' });
+    if (!onHold) throw new Error('no approved request on Beta');
+    const due = new Date(NOW.getTime() + 12 * HOLD * MINUTE);
+    const status = async () => (await raw('payment_profiles').findOne({ _id: onHold._id }))?.['status'];
+    const notices = () => raw('items').countDocuments({ masjid_id: BETA, template_key: PAYMENT_NOTICE_TEMPLATE });
+
+    await setMasjid('suspended');
+    try {
+      expect((await run(due)).heldBack.map((id) => id.toString())).toEqual([onHold._id.toString()]);
+      expect(await status()).toBe('approved_on_hold');
+    } finally {
+      await setMasjid('active');
+    }
+    await setTemplate('retired');
+    try {
+      expect((await run(due)).heldBack).toHaveLength(1);
+      expect(await status()).toBe('approved_on_hold');
+      expect(await notices()).toBe(0);
+    } finally {
+      await setTemplate('active');
+    }
+    const live = await run(due);
+    expect(live).toMatchObject({ heldBack: [], activated: [{ masjidId: BETA }] });
+    expect(await status()).toBe('active');
+    expect(await notices()).toBe(1);
   });
 });

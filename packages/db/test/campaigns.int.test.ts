@@ -160,6 +160,31 @@ describe('create', () => {
     expect(await code(create(ALPHA, campaign(), adminOf(BETA)))).toBe('MASJID_NOT_FOUND');
   });
 
+  it('a drive never names another payee: a UPI ID or upi: link in its text is refused (04 R1, DECISIONS #160)', async () => {
+    const before = await raw('items').countDocuments({ masjid_id: ALPHA, type: 'campaign' });
+    for (const bad of [
+      campaign({ title: 'Pay test.person@okexample' }),
+      campaign({ description: 'Scan upi://pay?pa=test@okexample or send to test.other@ybl.' }),
+    ]) {
+      expect(await code(create(ALPHA, bad)), JSON.stringify(bad)).toBe('PAYMENT_DETAILS_IN_TEXT');
+    }
+    expect(await raw('items').countDocuments({ masjid_id: ALPHA, type: 'campaign' })).toBe(before);
+    // An email address is not a payee.
+    const ok = campaign({ title: 'Test lights', description: 'Questions: info@example.org' });
+    const { item } = await create(ALPHA, ok);
+    expect(
+      await code(
+        updateCampaign(as('admin'), alpha, {
+          masjidId: ALPHA,
+          itemId: idOf(item.id),
+          patch: { description: 'Now pay test.person@okexample instead' },
+          now: NOW,
+        }),
+      ),
+    ).toBe('PAYMENT_DETAILS_IN_TEXT');
+    await completeCampaign(as('admin'), alpha, { masjidId: ALPHA, itemId: idOf(item.id), now: NOW });
+  });
+
   it('at most 3 active per masjid — also when creates race', async () => {
     // Gamma has none: one first, then three at once → exactly two more succeed.
     expect(await code(create(GAMMA))).toBe('ok');

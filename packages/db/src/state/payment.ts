@@ -113,6 +113,17 @@ export async function requestPaymentChange(
   return { id: idText(id) };
 }
 
+/**
+ * Is the "Payment details updated" system template active (DECISIONS #160, review M1)? Without it the followers'
+ * notice would show no text — the change would be silent, against 04 R1.
+ */
+async function noticeTemplateActive(ctx: TxContext): Promise<boolean> {
+  const template = await ctx.db
+    .collection<{ _id: string }>('notice_templates')
+    .findOne({ _id: PAYMENT_NOTICE_TEMPLATE, status: 'active' }, { ...session(ctx), projection: { _id: 1 } });
+  return template !== null;
+}
+
 /** Why an open-state update matched nothing: the profile is unknown, or in another state. */
 async function missOf(ctx: TxContext, profileId: UUID, wrongState: string): Promise<never> {
   const exists = await profiles(ctx).findOne({ _id: profileId }, session(ctx));
@@ -124,7 +135,8 @@ async function missOf(ctx: TxContext, profileId: UUID, wrongState: string): Prom
  *
  * @param input.holdMinutes - env `PAYMENT_HOLD_MINUTES` (≥ 1440 in production, checked at boot).
  * @returns the masjid, the requesting admin (for the alert) and when the details go live.
- * @throws StateError FORBIDDEN (not the Super Admin), STEP_UP_REQUIRED, PAYMENT_NOT_FOUND, PAYMENT_NOT_PENDING;
+ * @throws StateError FORBIDDEN (not the Super Admin), STEP_UP_REQUIRED, PAYMENT_NOT_FOUND, PAYMENT_NOT_PENDING,
+ *   PAYMENT_NOTICE_UNAVAILABLE (the "Payment details updated" template is not active — followers would not be told);
  *   RangeError for a hold that is not a positive whole number of minutes.
  */
 export async function approvePaymentChange(
@@ -144,6 +156,7 @@ export async function approvePaymentChange(
   }
   const effectiveAt = new Date(now.getTime() + input.holdMinutes * 60_000);
   return withTransaction(handle, scope, async (ctx) => {
+    if (!(await noticeTemplateActive(ctx))) throw new StateError('PAYMENT_NOTICE_UNAVAILABLE');
     const doc = await profiles(ctx).findOneAndUpdate(
       { _id: input.profileId, status: 'pending' },
       {
@@ -232,20 +245,32 @@ export interface PaymentActivation {
 
 /** Thrown inside an activation transaction when another run got there first: abort, skip. */
 class AlreadyActivated extends Error {}
+/** Thrown inside an activation transaction when the profile must wait: abort, leave it on hold, try next run. */
+class HeldBack extends Error {}
+
+export interface PaymentActivationRun {
+  readonly activated: PaymentActivation[];
+  /**
+   * Due but kept on hold (DECISIONS #160): the masjid is suspended (followers could not be told now), or the notice
+   * template is not active. They go live, with the notice, on a later run.
+   */
+  readonly heldBack: UUID[];
+}
 
 /**
  * The `payment-activate` job (every 10 minutes, `mc_system`): every profile on hold whose `effective_at` has come goes
  * live, one transaction each — previous active → superseded, this one active, version bump, and (when the masjid is
  * public) the important "Payment details updated" notice to everyone with a quota-free outbox job.
  *
- * @returns what was activated (the worker raises the admin alerts and enqueues the fan-outs). Idempotent.
+ * @returns what was activated (the worker raises the admin alerts and enqueues the fan-outs) and what was held back.
+ *   Idempotent.
  * @throws StateError FORBIDDEN outside the system scope.
  */
 export async function activateDuePaymentProfiles(
   handle: DbHandle,
   scope: Scope,
   input: { readonly now?: Date | undefined } = {},
-): Promise<PaymentActivation[]> {
+): Promise<PaymentActivationRun> {
   if (scope.kind !== 'system') throw new StateError('FORBIDDEN');
   const now = input.now ?? new Date();
   const due = await (
@@ -258,20 +283,26 @@ export async function activateDuePaymentProfiles(
     )
     .toArray();
   const done: PaymentActivation[] = [];
+  const heldBack: UUID[] = [];
   for (const profile of due) {
     try {
       done.push(await withTransaction(handle, scope, (ctx) => activateOne(ctx, profile, now)));
     } catch (error) {
-      if (!(error instanceof AlreadyActivated)) throw error;
+      if (error instanceof HeldBack) heldBack.push(profile._id);
+      else if (!(error instanceof AlreadyActivated)) throw error;
     }
   }
-  return done;
+  return { activated: done, heldBack };
 }
 
 async function activateOne(ctx: TxContext, profile: ProfileDoc, now: Date): Promise<PaymentActivation> {
   const masjidId = profile['masjid_id'] as UUID; // a UUID by schema
   const masjid = await ctx.db.collection<ProfileDoc>('masjids').findOne({ _id: masjidId }, session(ctx));
+  // Review L1: a suspended masjid's followers cannot be told now — and would see the new UPI ID without a notice once
+  // it is restored. Wait. (A pending masjid has no followers yet: it goes live quietly, as before.)
+  if (masjid?.['status'] === 'suspended') throw new HeldBack();
   const visible = masjid?.['status'] === 'active';
+  if (visible && !(await noticeTemplateActive(ctx))) throw new HeldBack(); // review M1: never a silent change
   await profiles(ctx).updateMany(
     { masjid_id: masjidId, status: 'active' },
     { $set: { status: 'superseded', updated_at: now } },

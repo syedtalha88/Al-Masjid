@@ -138,3 +138,23 @@ export function parseUpiUri(text: string): ScannedUpi | null {
   };
   return { vpa, payeeName: text_('pn'), note: text_('tn') };
 }
+
+// A UPI-ID-shaped token: user part, "@", then the handle (bank handles have no dot: `@ybl`, `@okaxis`, `@paytm`).
+const ADDRESS_LIKE = /[a-zA-Z0-9._-]{2,256}@([a-zA-Z][a-zA-Z0-9.-]{1,64})/g;
+
+/**
+ * Does free text name a payee — a `upi:` link or a UPI ID ("pay to someone@ybl")? Masjid donation texts and notices
+ * must not: followers pay only the masjid's change-locked UPI details (04 R1, DECISIONS #160 — security review M2).
+ * An email address (`info@masjid.org`: its domain has a dot) is not a UPI ID; a sentence's full stop after a UPI ID
+ * does not hide it.
+ *
+ * @returns true when the text should be refused.
+ */
+export function mentionsPaymentAddress(text: string): boolean {
+  if (/upi:/i.test(text)) return true;
+  for (const match of text.matchAll(ADDRESS_LIKE)) {
+    const handle = String(match[1]).replace(/[.-]+$/, ''); // group 1 always takes part
+    if (!handle.includes('.')) return true;
+  }
+  return false;
+}

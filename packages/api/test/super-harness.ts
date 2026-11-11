@@ -5,6 +5,7 @@ import { randomBytes } from 'node:crypto';
 import { type DbHandle, publicScope } from '@mc/db';
 import { runMigrations } from '@mc/db/migrate';
 import { MIGRATIONS } from '@mc/db/migrations';
+import { buildDevSeed } from '@mc/db/seed';
 import { registerCredential } from '@mc/db/state';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '@mc/db/testing';
 import { ManualClock } from '@mc/shared/clock';
@@ -133,5 +134,29 @@ export function superHarness(
     return method === 'get' ? call : call.set(CSRF);
   };
 
-  return { app, asSuper, asSuperOnAdmin, stepUp, register, db: () => t().db, testDatabase: t, clock };
+  /**
+   * Puts the "Payment details updated" system template in the database, active (as the dev / staging seed has it):
+   * a UPI change can be approved only while followers can be told (DECISIONS #160).
+   */
+  const activatePaymentNotice = async () => {
+    const notice = buildDevSeed({ now: clock.now(), today: '2026-10-28' }).templates.find(
+      (template) => template['_id'] === 'payment_details_updated',
+    );
+    if (!notice) throw new Error('no payment notice template in the seed');
+    await t()
+      .db.collection<{ _id: string }>('notice_templates')
+      .replaceOne({ _id: 'payment_details_updated' }, { ...notice, status: 'active' }, { upsert: true });
+  };
+
+  return {
+    app,
+    asSuper,
+    asSuperOnAdmin,
+    stepUp,
+    register,
+    db: () => t().db,
+    testDatabase: t,
+    clock,
+    activatePaymentNotice,
+  };
 }

@@ -4,6 +4,7 @@
 // completed, and the daily close of ended campaigns. One transaction each, version bump, audited. We never touch money
 // (CLAUDE.md §2.2): "received" is what the masjid reports.
 import { isCalendarDate } from '@mc/domain/time';
+import { mentionsPaymentAddress } from '@mc/domain/upi';
 import type { UUID } from 'mongodb';
 
 import { type DbHandle, type TxContext, withTransaction } from '../client.ts';
@@ -67,6 +68,9 @@ function checkCover(masjidId: UUID, cover: CampaignCover | undefined): void {
 
 function checkInput(masjidId: UUID, input: CampaignInput): void {
   const title = input.title.trim();
+  // Followers pay only the masjid's change-locked UPI details: a drive's text never names another payee.
+  if (mentionsPaymentAddress(title) || mentionsPaymentAddress(input.description))
+    throw new StateError('PAYMENT_DETAILS_IN_TEXT'); // 04 R1, DECISIONS #160
   const ok =
     title.length >= 1 &&
     title.length <= 120 &&
@@ -228,6 +232,8 @@ export async function updateCampaign(
         (isCalendarDate(patch.endsOn) && patch.endsOn >= startsOn)) &&
       (patch.targetPaise === undefined || validPaise(patch.targetPaise));
     if (!valid) throw new StateError('CAMPAIGN_INVALID');
+    if (mentionsPaymentAddress(title ?? '') || mentionsPaymentAddress(patch.description ?? ''))
+      throw new StateError('PAYMENT_DETAILS_IN_TEXT'); // 04 R1, DECISIONS #160
     if (patch.targetPaise !== undefined && patch.targetPaise < target) throw new StateError('CAMPAIGN_TARGET_LOWER');
     const set: Record<string, unknown> = { updated_at: now, edited_at: now };
     const unset: Record<string, ''> = {};

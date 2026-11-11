@@ -5,6 +5,7 @@
 // each, version bump, audited without amounts. We never touch money (CLAUDE.md §2.2): it is what the masjid reports.
 import { chandaWeekOf, isChandaWeekStart } from '@mc/domain/chanda';
 import { calendarDateInZone } from '@mc/domain/time';
+import { mentionsPaymentAddress } from '@mc/domain/upi';
 import type { UUID } from 'mongodb';
 
 import { type DbHandle, type TxContext, withTransaction } from '../client.ts';
@@ -95,6 +96,7 @@ export async function setChandaWeek(
   ) {
     throw new StateError('CHANDA_INVALID');
   }
+  if (mentionsPaymentAddress(note)) throw new StateError('PAYMENT_DETAILS_IN_TEXT'); // 04 R1, DECISIONS #160
   const now = input.now ?? new Date();
   return withTransaction(handle, scope, async (ctx) => {
     const masjid = await ownMasjid(ctx, input.masjidId);

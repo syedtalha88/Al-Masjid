@@ -53,7 +53,7 @@ Exceeded → 429 with `Retry-After`.
 | `GET /masjids/:id/bundle?v=` | – | Masjid profile, schedules (raw config — client resolves times), jumu'ah, special dates (next 60 days), ramadan, active payment profile `{vpa, payeeName}`, active campaigns summary, chanda (last 8 weeks if shown) | immutable w/ v |
 | `GET /masjids/:id/feed?v=&type=&aud=&cursor=&limit=` | – | Paginated items (limit ≤ 30), `aud` ∈ brothers/sisters → returns everyone + that audience | immutable w/ v |
 | `GET /masjids/:id/ruqyah?v=` | – | `{sections: [{category, entries}]}` — non-empty headings in A19 order, entries in the masjid's order; library content expanded (entries whose library entry is no longer verified left out); recordings as `audio {key, durationS, peaks?}` — the key, like voice notes (#127); a suspended masjid answers `{sections: []}` (DECISIONS #104, #130) | immutable w/ v |
-| `GET /masjids/:id/beneficiaries?v=&zakat=` | – | Active needy people, least-funded first; public fields only (Phase 5, #104) | immutable w/ v |
+| `GET /masjids/:id/beneficiaries?v=&zakat=` | – | Active needy people, least-funded first; public fields only (Phase 5, #104) | per v, `max-age=86400, s-maxage=86400` — never a year: a removed person must leave caches (#160) |
 | `GET /items/:publicId?v=&aud=` | – | Full item incl. type detail + library content | immutable w/ v |
 | `POST /items/:publicId/ameen` | Device | Idempotent (via `recordAmeen`); returns `{count}` | no-store |
 | `GET /library/:id` | – | Library entry (verified only) | s-maxage=86400 |

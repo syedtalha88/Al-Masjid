@@ -135,6 +135,7 @@ export {
   PAYMENT_HOLD_MIN_PRODUCTION,
   PAYMENT_NOTICE_TEMPLATE,
   type PaymentActivation,
+  type PaymentActivationRun,
   rejectPaymentChange,
   requestPaymentChange,
 } from './payment.ts';

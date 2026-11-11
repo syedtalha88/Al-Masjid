@@ -14,7 +14,7 @@ import type { JobQueues } from '../src/queue/queues.ts';
 import { CSRF, superHarness } from './super-harness.ts';
 
 const harness = superHarness('campaign_routes', new Date('2026-11-10T06:30:00Z'), { paymentHoldMinutes: 1 });
-const { app, asSuper, stepUp, register, testDatabase, clock } = harness;
+const { app, asSuper, stepUp, register, testDatabase, clock, activatePaymentNotice } = harness;
 const logger = createLogger({ level: 'silent', process: 'worker', release: 't' });
 const noQueues = { enqueue: () => Promise.resolve() } as unknown as JobQueues; // only `enqueue` is called
 
@@ -49,6 +49,7 @@ async function asSystem<T>(run: (db: Awaited<ReturnType<typeof processUserHandle
 }
 
 beforeAll(async () => {
+  await activatePaymentNotice(); // approval needs it (DECISIONS #160)
   const masjid = await asSuper('post', '/masjids').send({
     name: 'Test Masjid Drive',
     area: 'Test Area',
