@@ -91,6 +91,9 @@ export const API_ERRORS = {
   CAMPAIGN_TARGET_LOWER: 409, // the target only goes up (00 §4.3, T5.3)
   CHANDA_INVALID: 400, // not a week start of the masjid, a future week, amount, note ≤ 200, week start 1–7 (T5.5)
   CHANDA_HIDDEN: 409, // "Notify followers" while chanda is not shown (T5.5)
+  BENEFICIARY_INVALID: 400, // an invalid UPI ID, a name / reason / payee out of range, a cap outside ₹1 … ₹1 crore (T5.8)
+  BENEFICIARY_NOT_FOUND: 404, // unknown person, or closed / deleted (T5.8)
+  BENEFICIARY_LIMIT_REACHED: 409, // 100 active people (00 §4.14, T5.8)
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

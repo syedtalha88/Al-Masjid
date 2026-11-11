@@ -3687,6 +3687,276 @@
         },
         "additionalProperties": false
       },
+      "AdminBeneficiaryList": {
+        "type": "object",
+        "properties": {
+          "people": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "publicId": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string",
+                  "enum": [
+                    "widow",
+                    "orphan",
+                    "disability",
+                    "illness",
+                    "elderly",
+                    "homeless",
+                    "debt",
+                    "student",
+                    "other"
+                  ]
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "reasonLocale": {
+                  "type": "string",
+                  "enum": [
+                    "en",
+                    "hi",
+                    "ur",
+                    "te"
+                  ]
+                },
+                "vpa": {
+                  "type": "string"
+                },
+                "payeeName": {
+                  "type": "string"
+                },
+                "capPaise": {
+                  "type": "integer"
+                },
+                "receivedPaise": {
+                  "type": "integer"
+                },
+                "receivedUpdatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "fundedPermille": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000
+                },
+                "zakatEligible": {
+                  "type": "boolean"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "active",
+                    "fulfilled",
+                    "closed"
+                  ]
+                },
+                "hasPrivate": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "publicId",
+                "displayName",
+                "category",
+                "reason",
+                "reasonLocale",
+                "vpa",
+                "payeeName",
+                "capPaise",
+                "receivedPaise",
+                "fundedPermille",
+                "zakatEligible",
+                "status",
+                "hasPrivate",
+                "createdAt"
+              ]
+            }
+          }
+        },
+        "required": [
+          "people"
+        ]
+      },
+      "BeneficiarySaved": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "publicId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "fulfilled"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ]
+      },
+      "BeneficiarySave": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "widow",
+              "orphan",
+              "disability",
+              "illness",
+              "elderly",
+              "homeless",
+              "debt",
+              "student",
+              "other"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "reasonLocale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
+          },
+          "vpa": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 256
+          },
+          "payeeName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "capPaise": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 1000000000
+          },
+          "zakatEligible": {
+            "type": "boolean"
+          },
+          "consentConfirmed": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "private": {
+            "$ref": "#/components/schemas/BeneficiaryPrivate"
+          }
+        },
+        "required": [
+          "displayName",
+          "category",
+          "reason",
+          "reasonLocale",
+          "vpa",
+          "payeeName",
+          "capPaise",
+          "zakatEligible",
+          "consentConfirmed"
+        ],
+        "additionalProperties": false
+      },
+      "BeneficiaryPrivate": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "phone": {
+            "type": "string",
+            "pattern": "^\\+[1-9][0-9]{6,14}$"
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
+        },
+        "additionalProperties": false
+      },
+      "BeneficiaryReceivedResult": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "fulfilled"
+            ]
+          },
+          "fundedPermille": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "status",
+          "fundedPermille"
+        ]
+      },
+      "BeneficiaryReceived": {
+        "type": "object",
+        "properties": {
+          "receivedPaise": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000000
+          }
+        },
+        "required": [
+          "receivedPaise"
+        ],
+        "additionalProperties": false
+      },
+      "BeneficiaryPrivateResult": {
+        "type": "object",
+        "properties": {
+          "private": {
+            "$ref": "#/components/schemas/BeneficiaryPrivate"
+          }
+        },
+        "required": [
+          "private"
+        ]
+      },
       "SuperDashboard": {
         "type": "object",
         "properties": {
@@ -7319,6 +7589,150 @@
                   },
                   "required": [
                     "sections"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "HTTP 302"
+          }
+        }
+      }
+    },
+    "/api/v1/masjids/{id}/beneficiaries": {
+      "get": {
+        "summary": "Needy people a masjid lists, least-funded first — public fields only; `zakat=1` keeps the zakat-eligible (A23; immutable per version)",
+        "tags": [
+          "masjids"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,15}$"
+            },
+            "required": false,
+            "name": "v",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            },
+            "required": false,
+            "name": "zakat",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "people": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "publicId": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_-]{12}$"
+                          },
+                          "displayName": {
+                            "type": "string"
+                          },
+                          "category": {
+                            "type": "string",
+                            "enum": [
+                              "widow",
+                              "orphan",
+                              "disability",
+                              "illness",
+                              "elderly",
+                              "homeless",
+                              "debt",
+                              "student",
+                              "other"
+                            ]
+                          },
+                          "reason": {
+                            "type": "string"
+                          },
+                          "reasonLocale": {
+                            "type": "string",
+                            "enum": [
+                              "en",
+                              "hi",
+                              "ur",
+                              "te"
+                            ]
+                          },
+                          "vpa": {
+                            "type": "string"
+                          },
+                          "payeeName": {
+                            "type": "string"
+                          },
+                          "capPaise": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "receivedPaise": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "receivedUpdatedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          },
+                          "fundedPermille": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 1000
+                          },
+                          "zakatEligible": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "publicId",
+                          "displayName",
+                          "category",
+                          "reason",
+                          "reasonLocale",
+                          "vpa",
+                          "payeeName",
+                          "capPaise",
+                          "receivedPaise",
+                          "fundedPermille",
+                          "zakatEligible"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "people"
                   ],
                   "additionalProperties": false
                 }
@@ -11853,6 +12267,280 @@
         "responses": {
           "204": {
             "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/beneficiaries": {
+      "get": {
+        "summary": "Needy people: active (least-funded first), then fulfilled, then closed — never the private part (B19)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminBeneficiaryList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a needy person — only with `consentConfirmed: true` (≤ 100 active); the UPI details are audited",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BeneficiarySave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BeneficiarySaved"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/beneficiaries/{id}": {
+      "patch": {
+        "summary": "Replace a listed person’s details (consent confirmed again; a UPI change is audited old → new; `private`: object = replace, null = remove, absent = keep)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BeneficiarySave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BeneficiarySaved"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove a person — a mistake, or they asked to be removed (final; data purged 90 days later)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/beneficiaries/{id}/received": {
+      "post": {
+        "summary": "Update what the person has received (history row; reaching the cap fulfils and hides them)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BeneficiaryReceived"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BeneficiaryReceivedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/beneficiaries/{id}/close": {
+      "post": {
+        "summary": "Close a person — help is no longer needed (final; data purged 90 days later)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/beneficiaries/{id}/private": {
+      "get": {
+        "summary": "The person’s private phone / note, decrypted for an admin of this masjid (each view is audited)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BeneficiaryPrivateResult"
+                }
+              }
+            }
           }
         }
       }

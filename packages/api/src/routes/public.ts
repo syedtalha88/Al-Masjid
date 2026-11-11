@@ -14,6 +14,7 @@ import {
   getPublicItem,
   getPublicRuqyah,
   listFeed,
+  listPublicBeneficiaries,
   listTemplates,
   type PublicAudience,
   resolveMasjidByCode,
@@ -35,6 +36,7 @@ import { addDays, calendarDateInZone } from '@mc/domain/time';
 import {
   ameenCountsSchema,
   ameenResponseSchema,
+  beneficiaryListSchema,
   deviceRecordSchema,
   feedPageSchema,
   followListSchema,
@@ -438,6 +440,31 @@ export function publicRoutes(deps: PublicRouteDeps): RouteDefinition[] {
         const ruqyah = version.status === 'active' ? await getPublicRuqyah(db, id) : { sections: [] };
         cacheTag(res, `m-${idText(id)}`);
         return reply(200, ruqyah);
+      },
+    }),
+    defineRoute({
+      method: 'get',
+      path: '/masjids/:id/beneficiaries',
+      summary:
+        'Needy people a masjid lists, least-funded first — public fields only; `zakat=1` keeps the zakat-eligible (A23; immutable per version)',
+      tags: ['masjids'],
+      auth: 'none',
+      cacheControl: versioned,
+      request: {
+        params: z.object({ id: IdText }),
+        query: z.object({ v: VersionText.optional(), zakat: z.enum(['1']).optional() }),
+      },
+      responses: { 200: beneficiaryListSchema, 302: redirectSchema },
+      handler: async ({ params, query, res, reply }) => {
+        const id = idOr404(params.id, 'MASJID_NOT_FOUND');
+        const version = await current(id);
+        if (query.v !== String(version.v)) {
+          return reply(302, { location: versionedUrl(`/masjids/${idText(id)}/beneficiaries`, query, version.v) });
+        }
+        // A suspended masjid's sections disappear with its feed (00 §4.1).
+        const people = version.status === 'active' ? await listPublicBeneficiaries(db, id, query.zakat === '1') : [];
+        cacheTag(res, `m-${idText(id)}`);
+        return reply(200, { people });
       },
     }),
 

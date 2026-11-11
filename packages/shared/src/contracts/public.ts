@@ -307,6 +307,47 @@ export const ruqyahListSchema = z.object({
 });
 export type RuqyahList = z.infer<typeof ruqyahListSchema>;
 
+// --- needy people (A23, DECISIONS #104, PHASE_05 T5.8) -------------------------------------------------------------------
+
+export const BENEFICIARY_CATEGORY_VALUES = [
+  'widow',
+  'orphan',
+  'disability',
+  'illness',
+  'elderly',
+  'homeless',
+  'debt',
+  'student',
+  'other',
+] as const;
+
+/**
+ * A person the masjid has verified as in need — public fields only (first name or initials, never a phone or note).
+ * `vpa` / `payeeName` are the person's own UPI details: payments go straight to them (CLAUDE.md §2.2). Amounts are
+ * integer paise; "received" is what the masjid reports.
+ */
+export const beneficiarySchema = z.object({
+  publicId: publicIdText,
+  displayName: z.string(),
+  category: z.enum(BENEFICIARY_CATEGORY_VALUES),
+  reason: z.string(),
+  reasonLocale: LOCALE,
+  vpa: z.string(),
+  payeeName: z.string(),
+  capPaise: z.int(),
+  receivedPaise: z.int(),
+  receivedUpdatedAt: z.optional(instant),
+  /** min(1000, received × 1000 ÷ cap) — the list's order (least-funded first) and the progress bar. */
+  fundedPermille: intIn(0, 1000),
+  /** The masjid's statement that zakat may be given to this person. */
+  zakatEligible: z.boolean(),
+});
+export type Beneficiary = z.infer<typeof beneficiarySchema>;
+
+/** `GET /masjids/:id/beneficiaries?v=&zakat=` — listed people, least-funded first, then oldest. */
+export const beneficiaryListSchema = z.object({ people: z.array(beneficiarySchema) });
+export type BeneficiaryList = z.infer<typeof beneficiaryListSchema>;
+
 // --- follows -----------------------------------------------------------------------------------------------------------
 
 /** `PUT /devices/me/follows/:masjidId`. */

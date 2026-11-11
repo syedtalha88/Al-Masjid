@@ -1067,6 +1067,9 @@ errors,CAMPAIGN_CLOSED,This donation drive has closed. The amount can no longer 
 errors,CAMPAIGN_TARGET_LOWER,"The target can only be raised, not lowered.",ہدف صرف بڑھایا جا سکتا ہے، گھٹایا نہیں۔,no
 errors,CHANDA_INVALID,Please check the week and the amount.,براہِ کرم ہفتہ اور رقم چیک کر لیں۔,no
 errors,CHANDA_HIDDEN,Turn on “Show chanda to followers” before notifying them.,اطلاع بھیجنے سے پہلے ”فالوورز کو چندہ دکھائیں“ آن کریں۔,no
+errors,BENEFICIARY_INVALID,"Please check the UPI ID, the name on the UPI account and the amount needed.",براہِ کرم UPI ID، UPI اکاؤنٹ کا نام اور درکار رقم جانچیں۔,no
+errors,BENEFICIARY_NOT_FOUND,This person is no longer on the list.,یہ شخص اب فہرست میں نہیں ہے۔,no
+errors,BENEFICIARY_LIMIT_REACHED,You can list up to 100 people at a time. Close one to add another.,آپ ایک وقت میں زیادہ سے زیادہ 100 افراد رکھ سکتے ہیں۔ نیا شامل کرنے کے لیے ایک بند کریں۔,no
 follow,scan.title,Scan masjid QR,مسجد کا QR اسکین کریں,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,اپنا کیمرا مسجد کے پوسٹر پر لگے QR کوڈ کی طرف کریں۔,no
 follow,scan.torch,Flashlight,ٹارچ,no

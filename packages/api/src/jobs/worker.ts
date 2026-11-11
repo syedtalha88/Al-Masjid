@@ -25,6 +25,7 @@ import { processPaymentActivate } from './payments/activate.ts';
 import { processFanout, PushPausedError } from './push/fanout.ts';
 import { processSendBatch } from './push/send-batch.ts';
 import { processOutboxSweep } from './push/sweeper.ts';
+import { processRetention } from './retention/run.ts';
 
 type Logger = ReturnType<typeof createLogger>;
 
@@ -38,12 +39,14 @@ export const DEFAULT_CONCURRENCY: Readonly<Record<JobName, number>> = {
   'outbox-sweeper': 1,
   'payment-activate': 1,
   'campaign-close': 1,
+  retention: 1,
 };
 /** Schedulers (01 §5.8), cron in India time. */
 export const SCHEDULES: readonly { readonly job: JobName; readonly pattern: string }[] = [
   { job: 'outbox-sweeper', pattern: '* * * * *' },
   { job: 'payment-activate', pattern: '*/10 * * * *' },
   { job: 'campaign-close', pattern: '10 0 * * *' },
+  { job: 'retention', pattern: '0 3 * * *' },
 ];
 export const SCHEDULE_TIME_ZONE = 'Asia/Kolkata';
 
@@ -127,6 +130,9 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
       case 'campaign-close':
         parseJobPayload(name, data);
         return processCampaignClose(common);
+      case 'retention':
+        parseJobPayload(name, data);
+        return processRetention(common);
     }
   };
 

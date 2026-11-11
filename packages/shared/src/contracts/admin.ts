@@ -731,6 +731,102 @@ export type AdminContactList = z.infer<typeof adminContactListSchema>;
 
 export const contactSavedSchema = z.object({ id: z.string() }).meta({ id: 'ContactSaved' });
 
+// --- needy people (B19, DECISIONS #104, PHASE_05 T5.8) -------------------------------------------------------------------
+
+export const BENEFICIARY_NAME_MAX = 40;
+export const BENEFICIARY_REASON_MAX = 300;
+export const BENEFICIARY_NOTE_MAX = 300;
+/** What a person needs: ₹1 … ₹1 crore, in paise (02 beneficiaries.cap_paise). */
+export const BENEFICIARY_CAP_MIN_PAISE = 100;
+export const BENEFICIARY_CAP_MAX_PAISE = 1_000_000_000;
+const BENEFICIARY_CATEGORIES = [
+  'widow',
+  'orphan',
+  'disability',
+  'illness',
+  'elderly',
+  'homeless',
+  'debt',
+  'student',
+  'other',
+] as const;
+
+/** The private part of a person: seen only by the masjid's own admins, stored encrypted (never public). */
+export const beneficiaryPrivateSchema = z
+  .strictObject({
+    phone: z.string().regex(E164).optional(),
+    note: safeText(BENEFICIARY_NOTE_MAX, { min: 1, multiline: true }).optional(),
+  })
+  .meta({ id: 'BeneficiaryPrivate' });
+export type BeneficiaryPrivate = z.infer<typeof beneficiaryPrivateSchema>;
+
+/**
+ * Body of `POST /masjids/:masjidId/beneficiaries` and `PATCH …/beneficiaries/:id`: a person the masjid has verified as
+ * in need. `consentConfirmed: true` is required on every save — the admin's statement that the person (a guardian for
+ * a child) agreed to be listed with these details (05 §1). The UPI ID is checked by the data layer exactly as the
+ * database accepts it (400 `BENEFICIARY_INVALID`); here only its size is bounded. `private`: an object replaces the
+ * stored phone / note, `null` removes it, leaving it out keeps it.
+ */
+export const beneficiarySaveSchema = z
+  .strictObject({
+    displayName: safeText(BENEFICIARY_NAME_MAX, { min: 1 }),
+    category: z.enum(BENEFICIARY_CATEGORIES),
+    reason: safeText(BENEFICIARY_REASON_MAX, { min: 1, multiline: true }),
+    reasonLocale: z.enum(['en', 'hi', 'ur', 'te']),
+    vpa: z.string().min(3).max(256),
+    payeeName: safeText(100, { min: 1 }),
+    capPaise: z.number().int().min(BENEFICIARY_CAP_MIN_PAISE).max(BENEFICIARY_CAP_MAX_PAISE),
+    zakatEligible: z.boolean(),
+    consentConfirmed: z.literal(true),
+    private: beneficiaryPrivateSchema.nullable().optional(),
+  })
+  .meta({ id: 'BeneficiarySave' });
+export type BeneficiarySave = z.infer<typeof beneficiarySaveSchema>;
+
+/** One person as B19 lists them: the public fields plus the status and whether something private is stored. */
+export const adminBeneficiarySchema = z.object({
+  id: z.string(),
+  publicId: z.string(),
+  displayName: z.string(),
+  category: z.enum(BENEFICIARY_CATEGORIES),
+  reason: z.string(),
+  reasonLocale: z.enum(['en', 'hi', 'ur', 'te']),
+  vpa: z.string(),
+  payeeName: z.string(),
+  capPaise: z.number().int(),
+  receivedPaise: z.number().int(),
+  receivedUpdatedAt: z.iso.datetime().optional(),
+  fundedPermille: z.number().int().min(0).max(1000),
+  zakatEligible: z.boolean(),
+  status: z.enum(['active', 'fulfilled', 'closed']),
+  hasPrivate: z.boolean(),
+  createdAt: z.iso.datetime(),
+});
+export type AdminBeneficiary = z.infer<typeof adminBeneficiarySchema>;
+
+/** `GET /beneficiaries`: active (least-funded first), then fulfilled, then closed. */
+export const adminBeneficiaryListSchema = z
+  .object({ people: z.array(adminBeneficiarySchema) })
+  .meta({ id: 'AdminBeneficiaryList' });
+export type AdminBeneficiaryList = z.infer<typeof adminBeneficiaryListSchema>;
+
+export const beneficiarySavedSchema = z
+  .object({ id: z.string(), publicId: z.string().optional(), status: z.enum(['active', 'fulfilled']) })
+  .meta({ id: 'BeneficiarySaved' });
+
+/** Body of `POST …/beneficiaries/:id/received`: what the person has received so far, in paise. */
+export const beneficiaryReceivedSchema = z
+  .strictObject({ receivedPaise: z.number().int().min(0).max(1_000_000_000_000) })
+  .meta({ id: 'BeneficiaryReceived' });
+export const beneficiaryReceivedResultSchema = z
+  .object({ status: z.enum(['active', 'fulfilled']), fundedPermille: z.number().int().min(0).max(1000) })
+  .meta({ id: 'BeneficiaryReceivedResult' });
+
+/** `GET …/beneficiaries/:id/private`: the decrypted phone / note (each view is audited); `null` when none is stored. */
+export const beneficiaryPrivateResultSchema = z
+  .object({ private: beneficiaryPrivateSchema.nullable() })
+  .meta({ id: 'BeneficiaryPrivateResult' });
+
 // --- UPI payment details (B8, 04 R1, PHASE_05 T5.2) ----------------------------------------------------------------------
 
 /**

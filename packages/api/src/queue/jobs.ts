@@ -43,6 +43,8 @@ export const JOB_SCHEMAS = {
   'payment-activate': z.strictObject({}),
   /** Scheduled daily 00:10 IST: donation drives whose end date has passed close (00 §4.3, T5.3). */
   'campaign-close': z.strictObject({}),
+  /** Scheduled daily 03:00 IST: data whose retention period has ended is deleted (02 §6; T5.8: needy people). */
+  retention: z.strictObject({}),
 } as const;
 
 export type JobName = keyof typeof JOB_SCHEMAS;
@@ -71,6 +73,7 @@ export const JOB_DEFAULTS: Readonly<Record<JobName, JobsOptions>> = {
   // Idempotent and scheduled: a failed run is simply the next run's work.
   'payment-activate': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
   'campaign-close': { attempts: 3, backoff: { type: 'exponential', delay: 60_000 }, ...REMOVAL },
+  retention: { attempts: 3, backoff: { type: 'exponential', delay: 60_000 }, ...REMOVAL },
 };
 
 /** The longest one run of a job may take before it counts as failed (BullMQ has no job timeout of its own). */
@@ -82,6 +85,7 @@ export const JOB_TIMEOUT_MS: Readonly<Record<JobName, number>> = {
   'outbox-sweeper': 50_000,
   'payment-activate': 120_000,
   'campaign-close': 120_000,
+  retention: 600_000,
 };
 
 /** The BullMQ job id of a send batch — dedups a duplicated fan-out (01 §5.8; "." instead of ":", which BullMQ refuses). */
