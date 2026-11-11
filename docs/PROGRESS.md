@@ -18,33 +18,38 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (11 Nov 2026, later — Phase 05 on `feat/phase-05`: T5.1 – T5.6 done, next T5.8; 03 + 04 await the owner)
+## ▶ Next session — start here (11 Nov 2026, evening — Phase 05 on `feat/phase-05`: T5.1 – T5.6 done, T5.8 half done; F61 merge to `main` approved; 03 + 04 await the owner)
 
 **State:** `main` = staging = `863e064` (+ docs) — Phases 03 + 04 **AWAITING OWNER VERIFICATION**. Phase 05 on
 `feat/phase-05` (DECISIONS #145), not merged or deployed (staging only after 03 + 04 are verified, or with the owner's OK).
 
-**Done 11 Nov 2026:** T5.6 (#154) — details in the checklist. CI on `ci/phase-05`: `061830b` (T5.5 + docs) **green**;
-each newer push cancels the running CI, so **T5.6 + F61 have not had a full run yet** — the run for `b19dd83` (id
-42979146713) and the `main`-based one on `ci/f61-base-image` (`de50397`, id 42979141183) were running at hand-off —
-check both first.
+**Done 11 Nov 2026:** T5.6 (#154); F61 on the branch (#155); **T5.8 part 1** (#156 — data layer, API, retention job;
+see the checklist for what is left).
 
-**F61 done on the branch (#155):** the server image is on the patched distroless base (Debian 13.7, `zlib1g
-…+deb13u1`); Trivy 0 HIGH/CRITICAL without ignores; local e2e 12/12 on the new base. The same commit is on
-**`ci/f61-base-image`** (branched from `main`, CI only). **Owner decision needed:** merge it into `main` before 15 Nov
-(recommended — it redeploys staging with only the base-image change), or let `main`'s CI turn red on 15 Nov until
-Phase 05 is merged. After staging runs a new-base image: delete `infra/trivy/mc-server.trivyignore.yaml` and the
-Nightly deployed-image job's `--ignorefile` + sparse checkout.
+**CI:** `ci/phase-05` = `b19dd83` (T5.6 + F61) — its run (id 42979146713) had every job green except the long
+build / e2e job, still running at hand-off. `feat/phase-05` is ahead of it (T5.8 part 1, not pushed to `ci/phase-05`
+on purpose — a push cancels the running job). **First thing next session:** read that run's result, then push
+`feat/phase-05` to `ci/phase-05`.
+
+**F61 on `main` — owner said yes (11 Nov 2026: "do whichever you recommend").** Branch `ci/f61-base-image` (`de50397`
+= `main` + only the base-image fix); its CI run (id 42979141183) was in the same state — all green but the long job
+still running. **When it is green: merge `ci/f61-base-image` into `main` and push** (staging redeploys with the new
+base image; watch "Release to staging" and `/health`), then merge `main` into `feat/phase-05`. After staging runs the
+new image: delete `infra/trivy/mc-server.trivyignore.yaml` and the Nightly deployed-image job's `--ignorefile` +
+sparse checkout. Must be on `main` before 15 Nov.
+
+**Audit (#153):** F65 (admin alerts after a session ends) before Phase 05 reaches staging. New owner task **O43**
+(Atlas roles for the two new collections + view — before Phase 05 is deployed; then `deploy.sh staging --verify-roles`).
 
 **Do next:**
 1. Session start protocol. Owner (#150): still open O25 rest, O26 (Phase 03), O38 (Phase 04), O28 later, O31
-   volunteers — ask whether they found something; those fixes come first (on `feat/phase-04` → `main`, then merge
-   `main` into `feat/phase-05`).
-2. Check CI on `ci/phase-05` (no `gh` on this PC — `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-05`).
-   Nightly is red only for the known Cloudflare cache rule (O23).
-3. **F61 on `main`:** check CI on `ci/f61-base-image`; green + the owner's OK → merge into `main` and push (staging
-   redeploys), then remove the ignore file as above.
-4. **T5.8 needy people** (reuse the T5.4 QR sheet + Donate flow), T5.9 My zakat, **F65**, then T5.7 quality gates
-   (admin B8 / B9 / `/payment` / C4 / C1 e2e + screenshots ×4, security-reviewer on R1, phase-verifier).
+   volunteers — ask whether they found something; those fixes come first.
+2. CI results (above) → F61 merge into `main` → push `feat/phase-05` to `ci/phase-05`.
+3. **T5.8 part 2** (list in the checklist): start with the musalli A23 screen (07 A23) and the admin B19 screen (07
+   B19); patterns to copy — admin `features/campaign` (list + NumberPad sheet with live %) and `features/contacts`
+   (form with the consent tick), musalli `features/campaigns` (QR sheet, `upi-actions`).
+4. T5.9 My zakat, **F65**, then T5.7 quality gates (admin B8 / B9 / B19 / `/payment` / C4 / C1 e2e + screenshots ×4,
+   security-reviewer on R1 + R13, phase-verifier).
 
 **Local notes:** one-off edits of non-ASCII files: write a Python script to the scratchpad and run it with `python -I`
 (write with `newline=''`, or the files turn CRLF). `apps/*/src/routeTree.gen.ts` regenerates on `vite build`. After
@@ -601,7 +606,17 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   weeks. **Acceptance:** `pnpm test:visual` 24/24 — 48 new baselines (Home, Updates, Masjid Detail, A10 list + detail,
   A11 × 4 locales × 2 devices), the earlier ones unchanged. Not pixel-compared: admin screens (B9 → T5.7
   screenshots); the C1 card not yet seen in a browser (T5.7).
-- [ ] T5.8 — Needy people (B19 + A23)
+- [ ] T5.8 — Needy people (B19 + A23) — **part 1 done 11 Nov 2026 (#156): data layer + API + retention job.**
+  Migration `0019_beneficiaries` (2 collections, `v_pub_beneficiaries`), policy cells + roles (Atlas roles file
+  regenerated → owner O43), `state/beneficiary.ts` (create, update, `setBeneficiaryReceived` with auto-fulfil,
+  `endBeneficiary` closed / deleted, `readBeneficiaryPrivate`, `purgeBeneficiaries`), `repos/beneficiaries.ts`, bundle
+  `sections.needy`, contracts, admin routes `…/beneficiaries` (+ `/received`, `/close`, `/private`), public
+  `GET /masjids/:id/beneficiaries`, worker job `retention` (03:00 IST), 3 error codes ×4, OpenAPI regenerated.
+  Tests: db `beneficiaries.int` 19, api `beneficiary-routes.int` 6; `verify:quick` green, db int 365, api int 371.
+  **Left (part 2):** admin B19 screen + Home tile route (`tiles.tsx` `needy` → route), musalli A23 list + pay sheet
+  (reuse `buildUpiUri` and the T5.4 QR sheet; "Log this in My zakat?" comes with T5.9), strings ×4, seed people for
+  Delta, e2e (admin adds → musalli sees → received = cap → gone after the next poll), visual baseline, the acceptance
+  tick list, owner guide rows.
 - [ ] T5.9 — My zakat (A24, device only)
 - [ ] T5.7 — Quality gates
 
@@ -673,6 +688,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-11 | 05 / T5.8 (part 1) | Needy people: data layer, API and the `retention` job (#156). Migration 0019; policy matrix 48 namespaces; db int 365, api int 371, `verify:quick` green. UI (B19, A23), seed, e2e left. Owner approved merging the F61 fix into `main` once its CI is green. |
 | 2026-11-11 | F61 | Server image on the patched distroless base (#155): Trivy 0 HIGH/CRITICAL without ignores, `check:image` OK, stack healthy, e2e 12/12. Same commit on `ci/f61-base-image` for `main` (owner to approve the merge — it redeploys staging). |
 | 2026-11-11 | 05 / T5.6 | Integration polish done (#154). `verify:quick` green, db int 346, api int 365, e2e Pixel 7: campaigns 10/10, chanda, updates, home, masjid-detail; visual 24/24; i18n check passes (1,617 draft strings per locale); budgets unchanged (app 187.97 / 188 kB, admin 215.32 / 220 kB). |
 | 2026-11-11 | audit | Production-readiness audit (`reports/AUDIT_2026-11-11.md`, #153): not ready (5 of 10 phases); no critical / high hole in built parts; plan agreed — everything before launch, F61 + F65 on their dates. |

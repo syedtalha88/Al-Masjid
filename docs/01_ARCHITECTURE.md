@@ -217,7 +217,7 @@ Delivery (DECISIONS #40): `media.<domain>/i/<480|960|1440>/<avif|webp>/<key>` �
 | `push-send-batch` | from fanout | BullMQ job id `<jobId>.<page>.<locale>` + Redis sent-set |
 | `payment-activate` | scheduler every 10 min | state machine (02 §2 Payments) |
 | `campaign-close` | scheduler daily 00:10 IST | state machine |
-| `retention` | scheduler daily 03:00 IST | per-collection batches |
+| `retention` | scheduler daily 03:00 IST | per-collection batches (built in T5.8 with needy people; the rest in Phase 8) |
 | `sla-alerts` | scheduler every 15 min | one alert per (target, threshold) recorded |
 | `outbox-sweeper` | scheduler every 1 min (also runs the stuck-job detector) | status check |
 | `report-triage` | scheduler every 1 min | sends the immediate Super Admin alert for each new urgent report and auto-hides an item once ≥ `report_autohide_threshold` distinct devices reported it within 1 h (the public API may only insert reports, so this runs in the worker); one alert/hide per report/item, recorded |

@@ -104,6 +104,7 @@
 | O6 | 0.18 Sentry error reporting (steps below) — **required before the pilot** (audit 11 Nov 2026) | 15 min | before pilot |
 | O40 | **GitHub repository is public** — decide: make it private, or keep it public and let Claude Code move the `owner/` notes (host names, SSH user name) out. Check first what private changes on your GitHub plan (deploy approvals) | 10 min | before pilot |
 | O41 | **Second Super Admin passkey** on another phone (Account → Add device) and **a backup person for grievances** | 15 min | before pilot |
+| O43 | **Atlas roles for Phase 05** — needy people add two collections and a view. Before Phase 05 is deployed to staging: apply the new `infra/mongo/atlas-roles.json` in Atlas (same steps as O36), then run `deploy.sh staging --verify-roles` — it must PASS. Claude Code tells you when | 15 min | before Phase 05 on staging |
 | O42 | **Independent penetration test** — hire a person or firm that did not build the app; send Claude Code the findings | depends | before pilot |
 
 ### Done since the last update

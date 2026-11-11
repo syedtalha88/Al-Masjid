@@ -2536,3 +2536,33 @@ waiting for a rebuilt distroless digest with Debian's fix (`+deb13u1`).
 **Consequences:** verified locally on the new base: `check:image` (no test hooks in the shipped image), all
 processes healthy (api-public, api-admin, worker, db, redis), e2e Pixel 7 campaigns + chanda + payment (journey 9
 part 2, the worker's `payment-activate`) 12/12.
+
+### #156 — Needy people: the data layer and API (PHASE_05 T5.8, part 1) — ACCEPTED (Claude Code, 11 Nov 2026)
+**Context:** 00 §4.14, 02 beneficiaries, 04 R13, 05 §1, DECISIONS #104. Choices the specs leave open:
+- **Migration `0019_beneficiaries`:** `beneficiaries`, `beneficiary_amount_history`, view `v_pub_beneficiaries` (an
+  allow-list, sorted least-funded first then oldest, no internal `_id`). The validator ties the status to its dates:
+  active = no `purge_after`; fulfilled = `fulfilled_at` + `purge_after`; closed / deleted = `closed_at` + `purge_after`.
+- **`private_enc` is hidden from every generic read** — admin and Super Admin cells both. The masjid's own admins get
+  it only through `readBeneficiaryPrivate` (audited `beneficiary.private_view`); the API encrypts / decrypts with the
+  field key (context `beneficiaries.private_enc`). The Super Admin has no route to it at all.
+- **Statuses:** closed and deleted are final (the policy cell refuses any later write). **A fulfilled person can be
+  corrected:** "Update received" below the cap lists them again and clears the purge date — a typing mistake must not
+  remove a person for good. Details of a fulfilled person are not edited. Lowering the cap to what was received
+  fulfils. Closing a fulfilled person keeps the already running 90-day clock.
+- **Audit (R13):** `beneficiary.create` records the UPI ID + payee name, `beneficiary.update` records them old → new
+  when they change — the one place a UPI ID is in audit meta, because there is no change-lock here (owner, #104).
+  Never the name, reason, phone or note. The Super Admin reviews these in the audit log (C11, filter by action); no
+  separate screen.
+- **Consent without the tick answers 400 `VALIDATION_FAILED`** (the phase file says 422): the same as Ilm contacts and
+  every other body validation in this API (03 §0) — one convention.
+- **`retention` job** (01 §5.8) now exists: daily 03:00 IST, its first part purges needy people 90 days after they were
+  fulfilled / closed / deleted, with their history (`mc_system` only; the history is append-only for `mc_admin`). The
+  other collections' periods (02 §6) join it in Phase 8.
+- **Public list** `GET /masjids/:id/beneficiaries?v=&zakat=1`, immutable per version; bundle `sections.needy` = the
+  number of listed people. `beneficiaries` is a content collection (every write bumps the version).
+**Consequences:** two new collections and a view → **the Atlas roles must be updated before Phase 05 is deployed**
+(owner task O43; `infra/mongo/atlas-roles.json` regenerated). Tests: db `beneficiaries.int` 19 (incl. parallel
+"Update received", parallel adds at the limit, the purge; mutation-checked: un-hiding `private_enc` fails), policy
+matrix 48 namespaces, role and privilege tables; api `beneficiary-routes.int` 6 (incl. a sweep of every public
+response for the private part). **Left for part 2:** admin B19, musalli A23 (+ pay sheet, QR sheet reuse), strings
+×4, seed people for Delta, e2e, 02 / 03 doc touch-ups.
