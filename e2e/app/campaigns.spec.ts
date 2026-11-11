@@ -79,6 +79,46 @@ test('list: active, then completed, then closed (30 days); a card opens the deta
   await expect(screen(page).getByRole('heading', { name: 'Test Masjid Renovation Fund' })).toBeVisible();
 });
 
+// PHASE_05 T5.6 — donations and weekly chanda in the mixed lists: Home's recent updates and Updates say the figures
+// ("… collected in the week of …", "… raised of …"), Updates offers the Donations and Chanda chips, and a chanda row
+// leads to the masjid's Weekly Chanda (Delta shows its chanda in the seed).
+test('Home and Updates: money lines, the Donations and Chanda chips, a chanda row opens Weekly Chanda', async ({
+  page,
+  expectAxeClean,
+  capture,
+}) => {
+  await page.goto(APP_URL);
+  await followByCode(page, APP_URL, [DELTA]);
+  await page.goto(APP_URL);
+  // Home: the newest week's entry has no words of its own — its row says the figure.
+  const recent = screen(page).getByRole('region', { name: 'Recent Updates' });
+  await expect(recent.getByRole('button', { name: /₹18,500 collected in the week of/ })).toBeVisible();
+  await expect(recent.getByRole('button', { name: /Test electricity bills/ })).toBeVisible();
+
+  await page.goto(`${APP_URL}/updates`);
+  const chips = screen(page).getByRole('radiogroup', { name: 'Filter updates' });
+  await expect(chips.getByRole('radio')).toHaveText(['All', 'Donations', 'Chanda']);
+  const rows = screen(page).locator('li[data-key]');
+  await expect(rows.filter({ hasText: 'Test Masjid Renovation Fund' })).toContainText('₹72,000 raised of ₹1,00,000');
+  await expect(rows.filter({ hasText: /₹18,500 collected in the week of/ })).toContainText('Weekly chanda');
+  await expectAxeClean();
+  await capture('updates-donations');
+
+  await chips.getByRole('radio', { name: 'Chanda' }).click();
+  await expect(rows).toHaveCount(6); // six entered weeks
+  await expect(rows.filter({ hasText: 'Test Masjid Renovation Fund' })).toHaveCount(0);
+  await chips.getByRole('radio', { name: 'Donations' }).click();
+  await expect(rows).toHaveCount(5);
+  await expect(rows.filter({ hasText: 'collected in the week of' })).toHaveCount(0);
+
+  // A chanda entry → its detail → the masjid's Weekly Chanda with the same total.
+  await chips.getByRole('radio', { name: 'Chanda' }).click();
+  await rows.first().getByRole('button').click();
+  await screen(page).getByRole('button', { name: 'Weekly Chanda' }).click();
+  await expect(page).toHaveURL(/\/masjid\/[0-9a-f-]+\/chanda$/);
+  await expect(screen(page).getByText('₹18,500').first()).toBeVisible();
+});
+
 test('detail: amounts, bar, last updated, meta, About and the note', async ({ page, expectAxeClean, capture }) => {
   await page.goto(`${APP_URL}/items/${RENOVATION}`);
   const detail = screen(page);

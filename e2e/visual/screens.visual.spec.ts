@@ -91,6 +91,29 @@ for (const locale of LOCALES) {
       }
     });
 
+    // PHASE_05 T5.6 — donations and weekly chanda (07 A10, A11) on the seed masjid Delta, followed alone so the
+    // baselines above stay as they are: Home and Updates with campaign and chanda rows (their money lines, the
+    // Donations / Chanda chips), Masjid Detail with both rows, the campaign list and detail, Weekly Chanda.
+    test(`donations and chanda (${locale})`, async ({ page }) => {
+      test.slow();
+      await pinClock(page);
+      await page.goto(APP_URL);
+      const [delta] = await followByCode(page, APP_URL, ['TESTD004']);
+      if (delta === undefined) throw new Error('seed masjid Delta missing');
+
+      await shot(page, locale, 'donations-home');
+      for (const [name, path] of [
+        ['donations-updates', '/updates'],
+        ['donations-masjid-detail', `/masjid/${delta}`],
+        ['campaigns', `/masjid/${delta}/campaigns`],
+        ['campaign-detail', '/items/seedD0000000'],
+        ['weekly-chanda', `/masjid/${delta}/chanda`],
+      ] as const) {
+        await page.goto(`${APP_URL}${path}`);
+        await shot(page, locale, name);
+      }
+    });
+
     test.describe('first launch', () => {
       test.use({ appDevice: 'fresh' });
 

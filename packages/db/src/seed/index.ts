@@ -1,12 +1,13 @@
 // `@mc/db/seed` — the dev / staging seed (PHASE_02 T2.2): 3 fake masjids (Hyderabad, Delhi, Chennai) with timings,
 // Jumu'ah, a special Eid date, Ramadan mode on one masjid, 13 placeholder library entries (3 `dhikr`: the alpha
-// masjid's adhkar set), 8 notice templates, 30 published items and two Ruqyah entries (alpha: a library dua and a
+// masjid's adhkar set), 8 notice templates, 30 published items (+ Delta: campaigns and weekly chanda) and two Ruqyah entries (alpha: a library dua and a
 // masjid-entered text) and two Ilm contacts on alpha (brothers, sisters — fake numbers). RELIGIOUS CONTENT POLICY (CLAUDE.md §2.3, 10 §5):
 // library entries use the fixture placeholders verbatim — no Quran, hadith or dua text, translation or reference
 // anywhere. Names are obviously fake.
 // Pure document builders plus one writer; scripts/jobs call the writer with `systemScope()` (only they may build one).
 import { createHash } from 'node:crypto';
 
+import { recentChandaWeeks } from '@mc/domain/chanda';
 import { librarySearchText } from '@mc/domain/search';
 import { rgbaToThumbHash } from '@mc/domain/thumbhash';
 import { STARTER_TEMPLATES } from '@mc/i18n/templates';
@@ -540,6 +541,24 @@ const ITEMS: Readonly<Record<SeedMasjidKey, readonly (ItemSpec & { hoursAgo: num
   ],
 };
 
+/**
+ * Delta's weekly chanda (07 A11, PHASE_05 T5.6): the masjid shows its chanda; totals in rupees for the last 7 weeks,
+ * newest first — `null` is a week nobody entered (the chart draws a flat stub). Fake figures.
+ */
+const SEED_CHANDA: readonly ({ rupees: number; note?: string } | null)[] = [
+  { rupees: 18_500, note: 'Sample chanda note — DEV ONLY' },
+  { rupees: 16_200 },
+  { rupees: 21_000 },
+  null,
+  { rupees: 14_750 },
+  { rupees: 19_300 },
+  { rupees: 17_800 },
+];
+/** Weeks start on Friday (02 masjids.chanda_week_start default). */
+const SEED_CHANDA_WEEK_START = 5;
+/** Hours before the seed time at which the newest week's total was entered (each older week: 7 days earlier). */
+const SEED_CHANDA_ENTERED_HOURS_AGO = 3;
+
 /** The delta masjid's live UPI details — the 10 §5 fixture VPA (an invalid bank handle on purpose). */
 const SEED_PAYMENT = {
   id: seedId('payment-delta'),
@@ -566,6 +585,7 @@ export interface DevSeed {
   readonly ruqyah: readonly Document[];
   readonly contacts: readonly Document[];
   readonly payments: readonly Document[];
+  readonly chandaWeeks: readonly Document[];
 }
 
 const replaceDate = (value: unknown, today: string): unknown => {
@@ -606,8 +626,8 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
     calc_method: 'karachi',
     asr_madhab: 'hanafi',
     ...(masjid.key === 'gamma' ? { hijri_offset: -1 } : {}),
-    show_chanda: false,
-    chanda_week_start: 5,
+    show_chanda: masjid.key === 'delta',
+    chanda_week_start: SEED_CHANDA_WEEK_START,
     // Ramadan mode on for the Delhi masjid (Home's Ramadan card; dev data only).
     ...(masjid.key === 'beta' ? { ramadan_start: shiftDate(today, -5), ramadan_end: shiftDate(today, 24) } : {}),
     sehri_precaution_min: masjid.key === 'beta' ? 5 : 0,
@@ -875,7 +895,64 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
       updated_at: effective,
     },
   ];
-  return { masjids, masjidStats, timings, specialTimings, library, templates, items, ruqyah, contacts, payments };
+  // Weekly chanda (Delta): one week document and its `chanda_update` feed item per entered week. Ids follow the week's
+  // date, so a re-seed in a later week adds the new week and keeps the older ones as history.
+  const weekStarts = recentChandaWeeks(today, SEED_CHANDA_WEEK_START, SEED_CHANDA.length).reverse(); // newest first
+  const chanda = SEED_CHANDA.flatMap((entry, index) => {
+    const weekStart = weekStarts[index];
+    if (!entry || weekStart === undefined) return [];
+    const entered = at(SEED_CHANDA_ENTERED_HOURS_AGO + index * 7 * 24);
+    const weekId = seedId(`chanda-delta-${weekStart}`);
+    const itemId = seedId(`item-delta-chanda-${weekStart}`);
+    const amount = Long.fromNumber(entry.rupees * 100);
+    return [
+      {
+        week: {
+          _id: weekId,
+          masjid_id: masjidId('delta'),
+          week_start: weekStart,
+          amount_paise: amount,
+          ...(entry.note ? { note: entry.note } : {}),
+          item_id: itemId,
+          visible: true,
+          masjid_visible: true,
+          created_by: SEED_ADMIN,
+          created_at: entered,
+          updated_at: entered,
+        },
+        item: {
+          _id: itemId,
+          public_id: `seedDc${weekStart.slice(2).replaceAll('-', '')}`, // "seedDc" + YYMMDD = 12 characters
+          masjid_id: masjidId('delta'),
+          type: 'chanda_update',
+          status: 'published',
+          audience: 'everyone',
+          is_important: false,
+          notify: false,
+          masjid_visible: true,
+          chanda: { chanda_week_id: weekId, week_start: weekStart, amount_paise: amount, visible: true },
+          published_at: entered,
+          published_version: Long.fromNumber(1),
+          created_by: SEED_ADMIN,
+          created_at: entered,
+          updated_at: entered,
+        },
+      },
+    ];
+  });
+  return {
+    masjids,
+    masjidStats,
+    timings,
+    specialTimings,
+    library,
+    templates,
+    items: [...items, ...chanda.map((entry) => entry.item)],
+    ruqyah,
+    contacts,
+    payments,
+    chandaWeeks: chanda.map((entry) => entry.week),
+  };
 }
 
 /** A seed document: string ids for templates, UUIDs elsewhere. */
@@ -934,6 +1011,21 @@ export async function writeDevSeed(handle: DbHandle, scope: Scope, seed: DevSeed
       .collection<SeedDoc>('payment_profiles')
       .countDocuments({ masjid_id: masjid, status: 'active', _id: { $ne: idOf(payment) } });
     if (live === 0) await put('payment_profiles', [payment]);
+  }
+  // Chanda weeks: one per masjid and week (unique index) — a week somebody entered by hand on staging stays theirs,
+  // and the seed's feed item for that week is taken out again.
+  for (const week of seed.chandaWeeks) {
+    const masjid: unknown = week['masjid_id'];
+    const weekStart: unknown = week['week_start'];
+    const item: unknown = week['item_id'];
+    if (!(masjid instanceof UUID) || typeof weekStart !== 'string' || !(item instanceof UUID)) {
+      throw new Error('seed chanda week without its masjid, week or item');
+    }
+    const taken = await db
+      .collection<SeedDoc>('chanda_weeks')
+      .countDocuments({ masjid_id: masjid, week_start: weekStart, _id: { $ne: idOf(week) } });
+    if (taken === 0) await put('chanda_weeks', [week]);
+    else await db.collection<SeedDoc>('items').deleteOne({ _id: item });
   }
   for (const stats of seed.masjidStats) {
     await db
