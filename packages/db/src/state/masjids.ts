@@ -35,6 +35,7 @@ const MIRRORED = [
   'payment_profiles',
   'ruqyah_entries',
   'masjid_contacts',
+  'beneficiaries',
 ] as const;
 
 /** Sets `masjid_visible` on every child document of a masjid (02 §5), in the caller's transaction. */

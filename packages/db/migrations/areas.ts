@@ -67,4 +67,9 @@ export const SCHEMA_AREAS: Readonly<
   '0017_push_batch_balance': { collections: ['notification_jobs'] },
   // PHASE_05 T5.5 (DECISIONS #152): a chanda update carries its week's figures and visibility; hidden ones never public.
   '0018_chanda_items': { collections: ['items'], views: ['v_pub_items'] },
+  // PHASE_05 T5.8 (DECISIONS #104, #156): needy people, their append-only amount history and the public view.
+  '0019_beneficiaries': {
+    collections: ['beneficiaries', 'beneficiary_amount_history'],
+    views: ['v_pub_beneficiaries'],
+  },
 };

@@ -9,6 +9,13 @@ export {
   quotaUsageId,
   requireOwnMasjid,
 } from './admin.ts';
+export {
+  type AdminBeneficiary,
+  countPublicBeneficiaries,
+  listBeneficiariesForAdmin,
+  listPublicBeneficiaries,
+  type PublicBeneficiary,
+} from './beneficiaries.ts';
 export { type AdminCampaignRow, campaignRowOf, type CampaignStatus, listCampaignsForAdmin } from './campaigns.ts';
 export { type AdminChanda, CHANDA_HISTORY_WEEKS, getChandaForAdmin } from './chanda.ts';
 export { type ContactRow, getPublicContacts, listContactsForAdmin } from './contacts.ts';

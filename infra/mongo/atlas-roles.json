@@ -61,6 +61,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "v_pub_beneficiaries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "grievance_seq"
               },
               {
@@ -223,6 +227,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "v_pub_beneficiaries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "v_admin_follow_audience"
               },
               {
@@ -267,6 +275,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiaries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "admin_users"
               },
               {
@@ -308,6 +320,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "campaign_amount_history"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "beneficiary_amount_history"
               },
               {
                 "db": "masjid_connect",
@@ -380,6 +396,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiaries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "admin_users"
               },
               {
@@ -421,6 +441,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "campaign_amount_history"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "beneficiary_amount_history"
               },
               {
                 "db": "masjid_connect",
@@ -483,6 +507,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "payment_profiles"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "beneficiaries"
               },
               {
                 "db": "masjid_connect",
@@ -597,6 +625,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "v_pub_beneficiaries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "v_admin_follow_audience"
               },
               {
@@ -638,6 +670,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "payment_profiles"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "beneficiaries"
               },
               {
                 "db": "masjid_connect",
@@ -718,6 +754,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "campaign_amount_history"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "beneficiary_amount_history"
               },
               {
                 "db": "masjid_connect",
@@ -770,6 +810,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiaries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "admin_users"
               },
               {
@@ -847,6 +891,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "campaign_amount_history"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "beneficiary_amount_history"
               },
               {
                 "db": "masjid_connect",
@@ -899,6 +947,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiaries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "admin_users"
               },
               {
@@ -979,6 +1031,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiary_amount_history"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "audit_log"
               }
             ]
@@ -1025,6 +1081,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "payment_profiles"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "beneficiaries"
               },
               {
                 "db": "masjid_connect",
@@ -1159,6 +1219,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiaries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "admin_users"
               },
               {
@@ -1239,6 +1303,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiary_amount_history"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "audit_log"
               },
               {
@@ -1288,6 +1356,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "v_pub_contacts"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "v_pub_beneficiaries"
               },
               {
                 "db": "masjid_connect",
@@ -1344,6 +1416,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiaries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "admin_users"
               },
               {
@@ -1424,6 +1500,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiary_amount_history"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "audit_log"
               },
               {
@@ -1473,6 +1553,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "v_pub_contacts"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "v_pub_beneficiaries"
               },
               {
                 "db": "masjid_connect",
@@ -1529,6 +1613,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiaries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "admin_users"
               },
               {
@@ -1609,6 +1697,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiary_amount_history"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "audit_log"
               },
               {
@@ -1658,6 +1750,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "v_pub_contacts"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "v_pub_beneficiaries"
               },
               {
                 "db": "masjid_connect",
@@ -1714,6 +1810,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiaries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "admin_users"
               },
               {
@@ -1794,6 +1894,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiary_amount_history"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "audit_log"
               },
               {
@@ -1843,6 +1947,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "v_pub_contacts"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "v_pub_beneficiaries"
               },
               {
                 "db": "masjid_connect",
@@ -1899,6 +2007,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiaries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "admin_users"
               },
               {
@@ -1979,6 +2091,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiary_amount_history"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "audit_log"
               },
               {
@@ -2028,6 +2144,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "v_pub_contacts"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "v_pub_beneficiaries"
               },
               {
                 "db": "masjid_connect",
@@ -2119,6 +2239,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiaries"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "admin_users"
               },
               {
@@ -2199,6 +2323,10 @@
               },
               {
                 "db": "masjid_connect",
+                "collection": "beneficiary_amount_history"
+              },
+              {
+                "db": "masjid_connect",
                 "collection": "audit_log"
               },
               {
@@ -2248,6 +2376,10 @@
               {
                 "db": "masjid_connect",
                 "collection": "v_pub_contacts"
+              },
+              {
+                "db": "masjid_connect",
+                "collection": "v_pub_beneficiaries"
               },
               {
                 "db": "masjid_connect",

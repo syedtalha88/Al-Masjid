@@ -141,6 +141,26 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
     { $sort: { audience: 1, sort: 1, _id: 1 } },
     { $project: keep('_id', 'masjid_id', 'name', 'role', 'topics', 'whatsapp', 'audience', 'sort') },
   ],
+  // Needy people (DECISIONS #104): listed ones only, least-funded first then oldest (the index's order). An allow-list
+  // — never `private_enc` (phone / note), who added the person, or the consent flag; no internal id either.
+  v_pub_beneficiaries: [
+    { $match: { status: 'active', masjid_visible: true } },
+    { $sort: { funded_permille: 1, created_at: 1, _id: 1 } },
+    {
+      $project: {
+        _id: 0,
+        ...keep('public_id', 'masjid_id', 'display_name', 'category', 'reason', 'reason_locale', 'vpa', 'payee_name'),
+        ...keep(
+          'cap_paise',
+          'received_paise',
+          'received_updated_at',
+          'funded_permille',
+          'zakat_eligible',
+          'created_at',
+        ),
+      },
+    },
+  ],
   v_admin_follow_audience: [{ $project: { _id: 0, ...keep('masjid_id', 'muted', 'push_active', 'audience_pref') } }],
 };
 

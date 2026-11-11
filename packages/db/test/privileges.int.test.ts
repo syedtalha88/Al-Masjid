@@ -139,8 +139,8 @@ describe('T1.1 capability checks (also run against Atlas by db:verify-roles)', (
     );
   });
 
-  it('T1.3: mc_admin can never update or delete audit_log or campaign_amount_history (append-only)', async () => {
-    for (const collection of ['audit_log', 'campaign_amount_history'] as const) {
+  it('T1.3: mc_admin can never update or delete audit_log or the amount histories (append-only)', async () => {
+    for (const collection of ['audit_log', 'campaign_amount_history', 'beneficiary_amount_history'] as const) {
       expect(await attempt('mc_admin', collection, 'insert')).toBe('ok');
       expect(await attempt('mc_admin', collection, 'update')).toBe(UNAUTHORIZED);
       expect(await attempt('mc_admin', collection, 'remove')).toBe(UNAUTHORIZED);

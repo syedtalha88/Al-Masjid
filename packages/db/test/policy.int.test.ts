@@ -34,6 +34,9 @@ const SPEC: Readonly<Partial<Record<Namespace, Partial<Record<Column, string>>>>
   content_library: { admin: 'S', super: 'SIUD' },
   notice_templates: { admin: 'S', super: 'SIUD' },
   payment_profiles: { admin: 'S', super: 'S' },
+  // Needy people (T5.8, DECISIONS #104): admins write only their own masjid's; the Super Admin only reads.
+  beneficiaries: { admin: 'SIU', super: 'S' },
+  beneficiary_amount_history: { admin: 'SI', super: 'S' },
   devices: { public: 'I', device: 'SUD' },
   device_follows: { device: 'SIUD' },
   admin_push_subscriptions: { admin: 'SID', super: 'SID' },
@@ -59,6 +62,7 @@ const SPEC: Readonly<Partial<Record<Namespace, Partial<Record<Column, string>>>>
   v_pub_settings: { public: 'S', device: 'S', admin: 'S', super: 'S' },
   v_pub_ruqyah: { public: 'S', device: 'S', admin: 'S', super: 'S' },
   v_pub_contacts: { public: 'S', device: 'S', admin: 'S', super: 'S' },
+  v_pub_beneficiaries: { public: 'S', device: 'S', admin: 'S', super: 'S' },
   v_admin_follow_audience: { admin: 'S', super: 'S' },
 };
 const LETTER: Record<Operation, string> = { find: 'S', insert: 'I', update: 'U', delete: 'D' };
@@ -103,7 +107,7 @@ function docFor(namespace: Namespace, scope: Scope, contentId: UUID): Record<str
     status:
       namespace === 'notification_jobs'
         ? 'pending'
-        : namespace === 'ruqyah_entries' || namespace === 'masjid_contacts'
+        : namespace === 'ruqyah_entries' || namespace === 'masjid_contacts' || namespace === 'beneficiaries'
           ? 'active'
           : 'verified',
     system: false,
@@ -171,11 +175,11 @@ describe('policy matrix (02 §4.1): every cell, allowed and denied', () => {
       expect(wrong).toEqual([]);
     });
   }
-  it('the generated checklist covered 45 namespaces × 6 scopes × 4 operations (minus what MongoDB decides)', () => {
-    expect(NAMESPACES).toHaveLength(45);
-    // System scope: _migrations × 4 and 13 views × 3 write operations are left to MongoDB / the DB users.
-    expect(skipped).toBe(4 + 13 * 3);
-    expect(tested).toBe(45 * 6 * 4 - skipped); // only cells really attempted are counted (phase-verifier nit)
+  it('the generated checklist covered 48 namespaces × 6 scopes × 4 operations (minus what MongoDB decides)', () => {
+    expect(NAMESPACES).toHaveLength(48);
+    // System scope: _migrations × 4 and 14 views × 3 write operations are left to MongoDB / the DB users.
+    expect(skipped).toBe(4 + 14 * 3);
+    expect(tested).toBe(48 * 6 * 4 - skipped); // only cells really attempted are counted (phase-verifier nit)
   });
 });
 
@@ -191,6 +195,8 @@ describe('tenant isolation', () => {
     'ruqyah_entries',
     'masjid_contacts',
     'campaign_amount_history',
+    'beneficiaries',
+    'beneficiary_amount_history',
     'payment_profiles',
     'notification_jobs',
     'push_quota_usage',
@@ -262,7 +268,13 @@ describe('tenant isolation', () => {
 
   it('an admin of another masjid writes nothing of C: timings, chanda, campaign history, audit entries, masjid', async () => {
     const asD = (namespace: Namespace) => scoped({ scope: adminOfD, db: db(), contentMasjidId: masjidC }, namespace);
-    for (const namespace of ['special_timings', 'chanda_weeks', 'campaign_amount_history'] as const) {
+    for (const namespace of [
+      'special_timings',
+      'chanda_weeks',
+      'campaign_amount_history',
+      'beneficiaries',
+      'beneficiary_amount_history',
+    ] as const) {
       await expect(
         asD(namespace).insertOne({ _id: new UUID(), masjid_id: masjidC, type: 'x' }),
         namespace,

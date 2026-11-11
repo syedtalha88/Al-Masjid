@@ -154,6 +154,14 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'chanda.save': ['week_start', 'notify'],
   'chanda.settings': ['show', 'week_start'],
   'campaign.complete': [],
+  // Needy people (T5.8, 04 R13): a person's UPI details have no change-lock, so every create / change records them
+  // old → new for the Super Admin's review. Never the phone or note (`private_enc`), the name or the reason.
+  'beneficiary.create': ['category', 'zakat_eligible', 'consent_confirmed', 'vpa_new', 'payee_new'],
+  'beneficiary.update': ['fields', 'vpa_old', 'vpa_new', 'payee_old', 'payee_new', 'fulfilled'],
+  'beneficiary.received': ['fulfilled'],
+  'beneficiary.close': [],
+  'beneficiary.delete': [],
+  'beneficiary.private_view': [],
   'item.publish': ['type', 'template', 'notify', 'image'],
   'item.edit': ['type'],
   'item.delete': ['type'],

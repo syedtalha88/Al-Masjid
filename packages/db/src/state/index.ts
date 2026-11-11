@@ -44,6 +44,18 @@ export {
   revokeSessions,
   SESSION_LIFETIMES,
 } from './auth.ts';
+export {
+  type BeneficiaryCategory,
+  type BeneficiaryInput,
+  type BeneficiaryStatus,
+  createBeneficiary,
+  endBeneficiary,
+  fundedPermille,
+  purgeBeneficiaries,
+  readBeneficiaryPrivate,
+  setBeneficiaryReceived,
+  updateBeneficiary,
+} from './beneficiary.ts';
 export { bootstrapSuperAdmin } from './bootstrap.ts';
 export {
   CAMPAIGN_PURPOSES,

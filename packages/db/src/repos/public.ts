@@ -24,6 +24,7 @@ import {
 import { publicScope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
+import { countPublicBeneficiaries } from './beneficiaries.ts';
 import { getPublicContacts } from './contacts.ts';
 import {
   adhkarOf,
@@ -160,7 +161,7 @@ const SPECIAL_DATES_MAX = 100;
  * `GET /masjids/:id/bundle`: the masjid's profile, raw timings, special dates from `fromDate` on, Ramadan settings,
  * the adhkar set, the Ilm contacts (both audiences), the live UPI details, the active donation campaigns (newest first),
  * the last 8 weeks of chanda when the masjid shows it, and the section counts (Masjid Detail rows without loading the
- * lists); needy people arrive with their Phase 5 task (03 §3).
+ * lists — Ruqyah entries, needy people; 03 §3).
  *
  * @param fromDate - "YYYY-MM-DD" (today − 7 days in IST: the timetable's DateStepper range).
  * @returns `null` for unknown, pending and deleted masjids; `{status: 'suspended', v}` for a suspended one.
@@ -213,7 +214,10 @@ export async function getMasjidBundle(handle: DbHandle, id: UUID, fromDate: stri
         : null,
     adhkar: await adhkarEntries(handle, masjid),
     contacts: await getPublicContacts(handle, id),
-    sections: { ruqyah: await (await view(handle, 'v_pub_ruqyah')).count({ masjid_id: id }), needy: 0 },
+    sections: {
+      ruqyah: await (await view(handle, 'v_pub_ruqyah')).count({ masjid_id: id }),
+      needy: await countPublicBeneficiaries(handle, id),
+    },
     payment: await activePayment(handle, id),
     campaigns: await activeCampaigns(handle, id),
     chanda: masjid['show_chanda'] === true ? { weeks: await recentChanda(handle, id) } : null,
