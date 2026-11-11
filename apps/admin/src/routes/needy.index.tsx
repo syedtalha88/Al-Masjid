@@ -133,7 +133,9 @@ function NeedyScreen() {
                         received: format.money(person.receivedPaise),
                         target: format.money(person.capPaise),
                       })}{' '}
-                      <span className="text-text-secondary">· {`${String(percent)}%`}</span>
+                      <span className="text-text-secondary">
+                        · <bdi dir="ltr">{`${String(percent)}%`}</bdi>
+                      </span>
                     </p>
                     {person.status === 'fulfilled' ? <InfoNote>{t('needy.fulfilledNote')}</InfoNote> : null}
                     {actions.updateReceived ? (
@@ -248,7 +250,9 @@ function NeedyScreen() {
           <div className="flex flex-col gap-4 pb-2" data-update-received>
             <p className="type-title2 text-center text-text" aria-live="polite">
               {format.money(amount)}{' '}
-              <span className="type-headline text-text-secondary">· {`${String(livePercent)}%`}</span>
+              <span className="type-headline text-text-secondary">
+                · <bdi dir="ltr">{`${String(livePercent)}%`}</bdi>
+              </span>
             </p>
             <ProgressBar
               value={updating.capPaise > 0 ? amount / updating.capPaise : 0}

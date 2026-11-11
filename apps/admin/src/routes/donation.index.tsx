@@ -161,7 +161,9 @@ function DriveCard({
           received: format.money(campaign.receivedPaise),
           target: format.money(campaign.targetPaise),
         })}{' '}
-        <span className="text-text-secondary">· {`${String(percent)}%`}</span>
+        <span className="text-text-secondary">
+          · <bdi dir="ltr">{`${String(percent)}%`}</bdi>
+        </span>
       </p>
       {actions.updateAmount ? (
         <Button
@@ -223,7 +225,9 @@ function DriveCard({
         <div className="flex flex-col gap-4 pb-2" data-update-amount>
           <p className="type-title2 text-center text-text" aria-live="polite">
             {format.money(amount)}{' '}
-            <span className="type-headline text-text-secondary">· {`${String(livePercent)}%`}</span>
+            <span className="type-headline text-text-secondary">
+              · <bdi dir="ltr">{`${String(livePercent)}%`}</bdi>
+            </span>
           </p>
           <ProgressBar
             value={campaign.targetPaise > 0 ? amount / campaign.targetPaise : 0}

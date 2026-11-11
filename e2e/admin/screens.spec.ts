@@ -1,7 +1,7 @@
 import { axeViolations, expect, test } from '@mc/config/playwright';
 import { devices, type Page } from '@playwright/test';
 
-import { ADMIN_URL } from '../../playwright.config.ts';
+import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
 import {
   CSRF,
   HOOKS,
@@ -15,7 +15,8 @@ import {
 
 // PHASE_01 T1.10 acceptance: every Phase 01 admin screen in en / hi / ur / te — screenshot + axe (WCAG 2.1 AA, no
 // violation of any impact); Urdu renders right-to-left. Masjid-admin screens (B1 invite, B2 undertaking, B3 home, B13
-// account) and the Super Admin screens (C1, C2 list/detail/new/edit, C10, C11). Needs the runtime-test stack
+// account) and the Super Admin screens (C1, C2 list/detail/new/edit, C10, C11); later phases add theirs — Phase 05
+// (T5.7): B8 UPI and donation drives, B9 chanda, B19 needy people, C1 / C4 UPI approvals. Needs the runtime-test stack
 // (E2E_TEST_HOOKS=1). Fake names only (10 §Fixtures).
 
 const LOCALES: readonly Locale[] = ['en', 'hi', 'ur', 'te'];
@@ -41,6 +42,10 @@ const libraryFile = (entries: readonly object[]) =>
 /** A day in India ("YYYY-MM-DD"), `offset` days from today. */
 const istDay = (offset: number) =>
   new Date(Date.now() + 5.5 * 60 * 60 * 1000 + offset * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+const run = Date.now().toString(36); // the stack database outlives a run
+/** This run's fake UPI ID for the locale's masjid (10 §5: the `okexample` handle). */
+const screensVpa = (locale: Locale) => `screens.${locale}.${run}@okexample`;
 
 async function settled(page: Page, path: string): Promise<void> {
   await page.goto(`${ADMIN_URL}${path}`);
@@ -468,6 +473,28 @@ for (const locale of LOCALES) {
         await expect(adminPage).toHaveURL(`${ADMIN_URL}/notice/fill`);
         await expect(adminPage.locator('[data-param="contact"]')).toBeVisible();
         await adminShot('b18-camp-fill');
+        // PHASE_05 T5.7 — a masjid without UPI details yet: B8 UPI setup, the request waiting for the Super Admin, the
+        // donation screen asking for UPI first, B9 chanda and B19 needy people empty (Delta's full screens: next test).
+        await settled(adminPage, '/payment');
+        await expect(adminPage.locator('[data-payment-form]')).toBeVisible();
+        await adminShot('b8-payment-setup');
+        const upiRequest = await adminPage.request.post(`${masjidApi}/payment/requests`, {
+          headers: CSRF,
+          data: { vpa: screensVpa(locale), payeeName: 'Test Masjid Committee', note: 'Test note' },
+        });
+        expect(upiRequest.status()).toBe(201);
+        await settled(adminPage, '/payment');
+        await expect(adminPage.locator('[data-payment-waiting]')).toBeVisible();
+        await adminShot('b8-payment-waiting');
+        await settled(adminPage, '/donation');
+        await expect(adminPage.locator('[data-donation-no-upi]')).toBeVisible();
+        await adminShot('b8-donation-no-upi');
+        await settled(adminPage, '/chanda');
+        await expect(adminPage.locator('[data-chanda]')).toBeVisible();
+        await adminShot('b9-chanda-empty');
+        await settled(adminPage, '/needy');
+        await expect(adminPage.locator('[data-needy]')).toBeVisible();
+        await adminShot('b19-needy-empty');
         await adminPage.goto(`${ADMIN_URL}/account`);
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b13-account-admin');
@@ -475,11 +502,101 @@ for (const locale of LOCALES) {
         await phone.close();
       }
 
+      // C1 with the waiting UPI change, C4 before and after approval (★). The hold is not passed here: moving
+      // api-admin's clock would end other Super Admin sessions — journey 9 (payment.spec.ts) covers going live.
+      await settled(page, '/super');
+      await expect(page.locator('[data-change-requests]')).toBeVisible();
+      await shot('c1-dashboard-requests');
+      await settled(page, '/super/payments');
+      const upiRow = page.locator('[data-payment-row]').filter({ hasText: screensVpa(locale) });
+      await expect(upiRow).toBeVisible();
+      await shot('c4-payments');
+      await upiRow.getByRole('checkbox', { name: label(locale, 'super', 'payments.checkCommittee') }).check();
+      await upiRow.getByRole('checkbox', { name: label(locale, 'super', 'payments.checkName') }).check();
+      await upiRow.getByRole('button', { name: new RegExp(`^${label(locale, 'super', 'payments.approve')}`) }).click();
+      const approveStepUp = page
+        .getByRole('dialog', { name: label(locale, 'super', 'stepUp.title') })
+        .getByRole('button', { name: label(locale, 'super', 'stepUp.confirm') });
+      const stopChange = upiRow.getByRole('button', { name: label(locale, 'super', 'payments.stop') });
+      await expect(approveStepUp.or(stopChange)).toBeVisible();
+      if (await approveStepUp.isVisible()) await approveStepUp.click();
+      await expect(stopChange).toBeVisible(); // on hold: only "Stop this change" is left
+      await page.waitForTimeout(600); // the toast settles before the shot
+      await shot('c4-payments-on-hold');
+
       // B1 login (signed out).
       await page.request.post(`${ADMIN_URL}/api/admin/auth/logout`, { headers: CSRF });
       await settled(page, '/');
       await expect(page.getByRole('button', { name: label(locale, 'admin', 'login.button') })).toBeVisible();
       await shot('b1-login');
+    });
+
+    // PHASE_05 T5.7 — the donation screens with data: an admin of the seed's Test Masjid Delta (live UPI details,
+    // donation drives, weekly chanda, four needy people — fake UPI IDs only). Looks, never saves: Delta stays as seeded.
+    test('Phase 05 screens with data (seed Delta): screenshot + axe clean', async ({ page, browser, browserName }) => {
+      test.skip(browserName !== 'chromium', 'the virtual authenticator is a Chromium DevTools feature');
+      test.setTimeout(180_000);
+      await resetRateLimits(page.request);
+      const dir = locale === 'ur' ? 'rtl' : 'ltr';
+      await virtualAuthenticator(page);
+      const token = await seedSuperAdminInvite(page.request, 'Test Owner', locale);
+      await registerWithInvite(page, `${ADMIN_URL}/invite#${token}`, 'Test Owner', locale);
+      const resolved = await page.request.get(`${APP_URL}/api/v1/masjids/resolve/TESTD004`);
+      expect(resolved.status()).toBe(200);
+      const { masjid: delta } = (await resolved.json()) as { masjid: { id: string } };
+      const invited = await page.request.post(`${ADMIN_URL}/api/super/admins`, {
+        headers: CSRF,
+        data: { displayName: 'Test Treasurer', uiLocale: locale, masjidId: delta.id, role: 'owner' },
+      });
+      expect(invited.status()).toBe(201);
+      const { inviteUrl } = (await invited.json()) as { inviteUrl: string };
+
+      const phone = await browser.newContext({ ...devices['Pixel 7'], ignoreHTTPSErrors: true });
+      try {
+        const admin = await phone.newPage();
+        await virtualAuthenticator(admin);
+        const shot = async (name: string) => {
+          expect(await axeViolations(admin), `axe ${name}`).toEqual([]);
+          await expect(admin.locator('html')).toHaveAttribute('dir', dir);
+          const file = await admin.screenshot({ path: test.info().outputPath(`screens/${locale}/${name}.png`) });
+          await test.info().attach(name, { body: file, contentType: 'image/png' });
+        };
+        const sheetShot = async (button: string, name: string) => {
+          await admin.getByRole('button', { name: button, exact: true }).first().click();
+          await expect(admin.getByRole('dialog')).toBeVisible();
+          await admin.waitForTimeout(600); // the sheet's spring settles before the shot
+          await shot(name);
+          await admin.keyboard.press('Escape');
+          await expect(admin.getByRole('dialog')).toHaveCount(0);
+        };
+        await registerWithInvite(admin, inviteUrl, 'Test Treasurer', locale);
+        await admin.getByRole('checkbox', { name: label(locale, 'admin', 'undertaking.agree') }).check();
+        await admin.getByRole('button', { name: label(locale, 'admin', 'undertaking.continue') }).click();
+        await expect(admin.getByRole('button', { name: label(locale, 'admin', 'home.tiles.donation') })).toBeVisible();
+
+        await settled(admin, '/payment');
+        await expect(admin.locator('[data-payment-form]')).toBeVisible();
+        await shot('b8-payment-change');
+        await settled(admin, '/donation');
+        await expect(admin.locator('[data-drive]').first()).toBeVisible();
+        await shot('b8-donation');
+        await sheetShot(label(locale, 'admin', 'donation.updateAmount'), 'b8-donation-update');
+        await settled(admin, '/donation/new');
+        await expect(admin.locator('[data-drive-editor]')).toBeVisible();
+        await shot('b8-donation-new');
+        await settled(admin, '/chanda');
+        await expect(admin.locator('[data-chanda-row]').first()).toBeVisible();
+        await shot('b9-chanda');
+        await settled(admin, '/needy');
+        await expect(admin.locator('[data-person]')).toHaveCount(4);
+        await shot('b19-needy');
+        await sheetShot(label(locale, 'admin', 'needy.updateReceived'), 'b19-needy-received');
+        await settled(admin, '/needy/new');
+        await expect(admin.locator('[data-needy-editor]')).toBeVisible();
+        await shot('b19-needy-new');
+      } finally {
+        await phone.close();
+      }
     });
   });
 }

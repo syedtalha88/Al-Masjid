@@ -1,7 +1,7 @@
 import { parse } from '@formatjs/icu-messageformat-parser';
 import { describe, expect, it } from 'vitest';
 
-import { createIcuFormat, PRECOMPILED_MARK } from '../src/icu-format.ts';
+import { createIcuFormat, isolateArguments, PRECOMPILED_MARK } from '../src/icu-format.ts';
 import { mapCatalogueStrings, mcIcuPrecompile } from '../src/vite-plugin.ts';
 
 // PROGRESS F14 / DECISIONS #92: production catalogues carry precompiled ICU ASTs; the parser never ships.
@@ -94,5 +94,29 @@ describe('mcIcuPrecompile', () => {
       c: [true, 'Y'],
       d: null,
     });
+  });
+});
+
+describe('right-to-left arguments (DECISIONS #160)', () => {
+  const FSI = '\u2068';
+  const PDI = '\u2069';
+
+  it('Urdu: each string argument is a first-strong isolate — "₹12,500" and "25%" keep their order', () => {
+    const format = createIcuFormat();
+    const message = '{target} میں سے {received}';
+    expect(format.parse(message, { target: '₹50,000', received: '₹12,500' }, 'ur', 'admin', 'x')).toBe(
+      `${FSI}₹50,000${PDI} میں سے ${FSI}₹12,500${PDI}`,
+    );
+  });
+
+  it('numbers (plurals), empty and already isolated text stay as they are; left-to-right languages untouched', () => {
+    expect(isolateArguments({ count: 3, name: '', time: '\u20668:45 PM\u2069' }, 'ur')).toEqual({
+      count: 3,
+      name: '',
+      time: '\u20668:45 PM\u2069',
+    });
+    for (const lng of ['en', 'hi', 'te'])
+      expect(isolateArguments({ amount: '₹12,500' }, lng)).toEqual({ amount: '₹12,500' });
+    expect(isolateArguments(undefined, 'ur')).toBeUndefined();
   });
 });

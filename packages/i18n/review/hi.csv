@@ -1158,6 +1158,8 @@ errors,PUSH_ENDPOINT_IN_USE,Notifications could not be turned on on this phone. 
 errors,PAYMENT_INVALID,"Check the UPI ID and the payee name, then try again.","UPI ID और प्राप्तकर्ता का नाम जाँचें, फिर से कोशिश करें।",no
 errors,PAYMENT_UNCHANGED,These are already the payment details shown to everyone.,यही भुगतान विवरण पहले से सबको दिख रहे हैं।,no
 errors,PAYMENT_REQUEST_OPEN,A change is already waiting. You can ask again once it is decided.,एक बदलाव पहले से इंतज़ार में है। उसका फ़ैसला होने के बाद फिर से माँगें।,no
+errors,PAYMENT_NOTICE_UNAVAILABLE,"Activate the “Payment details updated” notice template first, so followers are told about the change.","पहले “भुगतान विवरण बदला गया” सूचना टेम्पलेट चालू करें, ताकि फ़ॉलोअर्स को बदलाव की जानकारी मिले।",no
+errors,PAYMENT_DETAILS_IN_TEXT,Please remove the UPI ID or payment link from the text. Followers pay only to the masjid's verified UPI details.,कृपया टेक्स्ट से UPI ID या भुगतान लिंक हटाएँ। फ़ॉलोअर्स सिर्फ़ मस्जिद के सत्यापित UPI विवरण पर भुगतान करते हैं।,no
 errors,PAYMENT_NOT_FOUND,This payment request no longer exists.,यह भुगतान अनुरोध अब मौजूद नहीं है।,no
 errors,PAYMENT_NOT_PENDING,This request was already decided.,इस अनुरोध पर पहले ही फ़ैसला हो चुका है।,no
 errors,PAYMENT_NOT_OPEN,This request is already live or closed.,यह अनुरोध पहले से लागू है या बंद हो चुका है।,no

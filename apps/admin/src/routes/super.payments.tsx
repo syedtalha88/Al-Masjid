@@ -115,7 +115,7 @@ function RequestCard({ row }: { readonly row: SuperPaymentRow }) {
             })}
           </p>
         </div>
-        <Tag tone={onHold ? 'sun' : 'info'}>
+        <Tag tone={onHold ? 'sun' : 'info'} wrap>
           {onHold && row.effectiveAt
             ? t('payments.onHold', { time: liveAtText(row.effectiveAt, format) })
             : t('payments.pending')}

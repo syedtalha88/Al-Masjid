@@ -11,6 +11,31 @@ export const PRECOMPILED_MARK = '\u0001';
 
 type Formatter = { format(values?: Record<string, unknown>): unknown };
 
+/** Languages written right to left (09 §5). */
+const RTL_LANGUAGES = new Set(['ur']);
+/** Unicode FIRST STRONG ISOLATE / POP DIRECTIONAL ISOLATE (UAX #9). */
+const FSI = '\u2068';
+const PDI = '\u2069';
+
+/**
+ * In a right-to-left language every string argument becomes a first-strong isolate: its direction comes from its own
+ * first letter, and it cannot reorder the sentence around it. Without it, an amount after Urdu words reads "12,500₹"
+ * and "%25" — the digits turn into Arabic numbers and the ₹ / % signs move to the other side (DECISIONS #160). A Latin
+ * name or a time keeps its order; an Urdu name or date is still right to left. Numbers (plurals) are left alone;
+ * text that is already isolated is not wrapped again. Invisible on screen.
+ */
+export function isolateArguments(
+  options: Record<string, unknown> | undefined,
+  lng: string,
+): Record<string, unknown> | undefined {
+  if (!options || !RTL_LANGUAGES.has(lng.split('-')[0] ?? lng)) return options;
+  const out: Record<string, unknown> = {};
+  for (const [name, value] of Object.entries(options))
+    out[name] =
+      typeof value === 'string' && value !== '' && !/^[\u2066-\u2068]/.test(value) ? `${FSI}${value}${PDI}` : value;
+  return out;
+}
+
 /** An i18next `i18nFormat` module (the interface i18next-icu implements). */
 export interface IcuFormatModule extends I18nFormatModule {
   readonly type: 'i18nFormat';
@@ -39,7 +64,7 @@ export function createIcuFormat(): IcuFormatModule {
           formatter = compile(res, lng);
           cache.set(cacheKey, formatter);
         }
-        return formatter.format(options);
+        return formatter.format(isolateArguments(options, lng));
       } catch {
         return res.startsWith(PRECOMPILED_MARK) ? key : res;
       }
