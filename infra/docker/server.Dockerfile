@@ -5,7 +5,8 @@
 # Base images are pinned by digest (04 §2 R9); Renovate proposes updates.
 
 ARG NODE_IMAGE=node:24.21.0-trixie-slim@sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66
-ARG RUNTIME_IMAGE=gcr.io/distroless/nodejs24-debian13:nonroot@sha256:9eeb7f5887d0e239e78264b06f7f11d2e14be534050481803a9e4728fcdd278e
+# Debian 13.7 base (zlib1g fixed — F61, DECISIONS #155); Trivy HIGH/CRITICAL fixable: 0 on 11 Nov 2026.
+ARG RUNTIME_IMAGE=gcr.io/distroless/nodejs24-debian13:nonroot@sha256:088a01637f22908632ba09018be2e0b516f2fa6f7869c191d29491139db43c78
 
 # ---------------------------------------------------------------------------------------------------
 FROM ${NODE_IMAGE} AS base
