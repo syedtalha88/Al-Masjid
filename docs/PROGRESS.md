@@ -12,47 +12,40 @@
 | 02 | Musalli app core (follow, timings, feed, offline, install) | **DONE** (owner tested the Phase 02 checks on staging `cdd39fa`, incl. a low-end device, 27 Oct 2026) | [final](reports/PHASE_02_REPORT.md) | 27 Oct 2026 |
 | 03 | Masjid Admin content tools | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`, with Phase 04); O39 PASS + O27 OK (10 Nov 2026); left: O25 rest (photos 3.7 / voice 3.14) + O26 (usability) — #150 | [report](reports/PHASE_03_REPORT.md) | – |
 | 04 | Push notifications | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`); T4.6 acceptance = the owner's O38 (real phones) | [report](reports/PHASE_04_REPORT.md) | – |
-| 05 | Donations, chanda & UPI change-lock | **IN PROGRESS** — started 9 Nov 2026 on `feat/phase-05` while Phases 03 + 04 await the owner's checks (DECISIONS #145) | – | – |
+| 05 | Donations, chanda & UPI change-lock | **IN PROGRESS** (T5.1 – T5.6 done) — started 9 Nov 2026 on `feat/phase-05` while Phases 03 + 04 await the owner's checks (DECISIONS #145) | – | – |
 | 06 | Bayan videos | NOT STARTED | – | – |
 | 07 | Qibla compass | NOT STARTED | – | – |
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (11 Nov 2026 — Phase 05 on `feat/phase-05`: T5.1 – T5.5 done, next T5.6; 03 + 04 await the owner)
+## ▶ Next session — start here (11 Nov 2026, later — Phase 05 on `feat/phase-05`: T5.1 – T5.6 done, next T5.8; 03 + 04 await the owner)
 
 **State:** `main` = staging = `863e064` (+ docs) — Phases 03 + 04 **AWAITING OWNER VERIFICATION**. Phase 05 on
 `feat/phase-05` (DECISIONS #145), not merged or deployed (staging only after 03 + 04 are verified, or with the owner's OK).
 
-**Done 10 Nov 2026:** T5.4 musalli campaigns (#149 — A10 list + detail, lazy UPI QR sheet with `lean-qr`, Donate Now
-with the 1.5 s no-UPI-app fallback, bundle `campaigns`, seed masjid Delta `TESTD004` with fake UPI details and five
-campaigns). Journey 9 part 2 (#151). **T5.5 weekly chanda (#152** — migration `0018_chanda_items`, B9 `/chanda`,
-A11 `/masjid/:id/chanda` with ChandaChart, hidden chanda never public). Details in the checklist. CI for the branch
-runs on `ci/phase-05` (push it together with `feat/phase-05`).
-
-**At hand-off (11 Nov 2026):** `feat/phase-05` = `ci/phase-05` = `812aec0` + this note, working tree clean except
-`.claude/settings.json` (the owner's own edit — three "ask" rules removed; leave it, do not commit). CI on `16367cf`
-(T5.4 + journey 9 part 2) **green incl. iphone-14**; the run for `812aec0` (T5.5, id 42970381316) was still running —
-check it first. A11 / B9 were looked at in English only; 4-locale baselines come with T5.6.
+**Done 11 Nov 2026:** T5.6 (#154) — details in the checklist. CI: `16367cf` (T5.4) green incl. iphone-14; the T5.5 run
+was cancelled by the next push; check the newest run on `ci/phase-05` first (it carries T5.5 + T5.6).
 
 **Audit 11 Nov 2026 (#153):** `docs/reports/AUDIT_2026-11-11.md` — plan in its §8. **Due now: F61 by 15 Nov (base
-image), F65 before Phase 05 reaches staging.** New: F66, O40 – O42.
+image — do it next session at the latest), F65 before Phase 05 reaches staging.** New: F66, O40 – O42.
 
 **Do next:**
-1. Session start protocol. Owner 10 Nov (#150): O39 PASS, O27 OK; still open O25 rest, O26 (Phase 03), O38
-   (Phase 04), O28 later, O31 volunteers — ask whether they found something; those fixes come first (on `feat/phase-04` → `main`, then merge `main` into `feat/phase-05`).
-2. Check CI on `ci/phase-05` (iphone-14 project for `e2e/app/campaigns.spec.ts`; no `gh` on this PC — use
-   `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-05`) and the Nightly runs since 9 Nov.
-3. ~~Journey 9 part 2~~ — done 10 Nov 2026 (#151, `e2e/admin/payment.spec.ts`).
-4. ~~T5.5 chanda~~ — done 10 Nov 2026 (#152). **Next: T5.6** (Updates chips Donations / Chanda, the "₹… collected"
-   line on chanda cards, push texts, Stats, **visual baselines incl. A10, A11, B9 in `pnpm test:visual`**), T5.8
-   needy people (reuse the T5.4 QR sheet + Donate
-   flow), T5.9 My zakat, T5.7 quality gates (admin B8 / `/payment` / C4 e2e + screenshots ×4, security-reviewer on R1,
-   phase-verifier).
+1. Session start protocol. Owner (#150): still open O25 rest, O26 (Phase 03), O38 (Phase 04), O28 later, O31
+   volunteers — ask whether they found something; those fixes come first (on `feat/phase-04` → `main`, then merge
+   `main` into `feat/phase-05`).
+2. Check CI on `ci/phase-05` (no `gh` on this PC — `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-05`).
+   Nightly is red only for the known Cloudflare cache rule (O23).
+3. **F61** (patched base image, delete the Trivy ignore) — before 15 Nov.
+4. **T5.8 needy people** (reuse the T5.4 QR sheet + Donate flow), T5.9 My zakat, **F65**, then T5.7 quality gates
+   (admin B8 / B9 / `/payment` / C4 / C1 e2e + screenshots ×4, security-reviewer on R1, phase-verifier).
 
-**Local notes:** one-off edits of non-ASCII files: write a Python script to the scratchpad and run it with `python -I`.
-`apps/*/src/routeTree.gen.ts` regenerates on `vite build`. After app/UI changes run `pnpm stack:up:test` (rebuilds the
-web image) and `pnpm db:seed` before e2e. WebKit e2e on this PC: unreliable for item screens — use pixel-7 locally, CI
-for iphone-14. If Docker says "unable to start": `docker desktop restart` worked (10 Nov).
+**Local notes:** one-off edits of non-ASCII files: write a Python script to the scratchpad and run it with `python -I`
+(write with `newline=''`, or the files turn CRLF). `apps/*/src/routeTree.gen.ts` regenerates on `vite build`. After
+app/UI changes run `pnpm stack:up:test` (rebuilds the web image) and `pnpm db:seed` before e2e. `pnpm
+test:visual:update` rewrites *every* baseline (also unchanged ones, with invisible pixel noise): afterwards `git
+checkout` the modified ones and run `pnpm test:visual` to prove them; then `pnpm db:reset`. The e2e DNS shim
+(`localhost-shim.cjs`) lives in older session scratchpads — copy it. WebKit e2e on this PC: unreliable — use pixel-7
+locally, CI for iphone-14. If Docker says "unable to start": `docker desktop restart`.
 
 ## ▶ Previous hand-off (9 Nov 2026, night — Phase 05 T5.1–T5.3)
 
@@ -594,7 +587,13 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   bundle, mirror both ways; mutation-checked) + api int 3 (public API as `mc_public`); chart 0 – 8 weeks — ui
   component test 3 + app view test 3. e2e `e2e/admin/chanda.spec.ts` green on Pixel 7 (axe on B9 and A11).
   With T5.6: "₹… collected" on Updates / Home cards, push text, visual baselines A11 / B9 ×4 locales.
-- [ ] T5.6 — Integration polish
+- [x] T5.6 — Integration polish — 11 Nov 2026 (#154): money lines on Home / Updates rows (`useItemSummary`, strings
+  in `common.summary`), Donations / Chanda chips covered by e2e, push text for a new campaign / an amount update /
+  weekly chanda in 4 locales (`PushContent.campaign` / `.chanda`, `@mc/i18n/push-item-text`), Masjid Detail counts new
+  chanda entries, C1 "Active donation campaigns" (`activeCampaigns`, OpenAPI regenerated), seed: Delta shows 6 chanda
+  weeks. **Acceptance:** `pnpm test:visual` 24/24 — 48 new baselines (Home, Updates, Masjid Detail, A10 list + detail,
+  A11 × 4 locales × 2 devices), the earlier ones unchanged. Not pixel-compared: admin screens (B9 → T5.7
+  screenshots); the C1 card not yet seen in a browser (T5.7).
 - [ ] T5.8 — Needy people (B19 + A23)
 - [ ] T5.9 — My zakat (A24, device only)
 - [ ] T5.7 — Quality gates
@@ -667,6 +666,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-11 | 05 / T5.6 | Integration polish done (#154). `verify:quick` green, db int 346, api int 365, e2e Pixel 7: campaigns 10/10, chanda, updates, home, masjid-detail; visual 24/24; i18n check passes (1,617 draft strings per locale); budgets unchanged (app 187.97 / 188 kB, admin 215.32 / 220 kB). |
 | 2026-11-11 | audit | Production-readiness audit (`reports/AUDIT_2026-11-11.md`, #153): not ready (5 of 10 phases); no critical / high hole in built parts; plan agreed — everything before launch, F61 + F65 on their dates. |
 | 2026-11-10 | 05 / T5.5 | Weekly chanda done (#152): migration 0018 (item `chanda.visible` mirror, `v_pub_items` filter), `setChandaWeek` / `setChandaSettings`, admin routes, B9, A11 + ChandaChart (HTML bars instead of SVG). Unit: domain 218, shared 193, ui 328, app 207, admin 158, api 181; db int 344 (37 files), api int 362; e2e chanda green on Pixel 7. Musalli initial JS 187.97 / 188 kB, admin 215.32 / 220 kB. `db:schema:check` clean. |
 | 2026-11-10 | 05 / T5.2 | Journey 9 part 2 e2e (#151): api-admin `payment-activate` test hook on its clock, test stack holds 24 h; passes on Pixel 7 and fails when activated early. T5.2 ticked (R1 security re-check at T5.7). Owner answers recorded (#150): Phase 00 DONE, O39 PASS, O27 OK. |

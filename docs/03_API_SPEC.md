@@ -128,7 +128,7 @@ Voice notes (T3.13, DECISIONS #126): `POST /masjids/:id/audio?rightsConfirmed=tr
 ## 5. Super Admin API — `admin.<domain>/api/super` (role super_admin; ★ = step-up required)
 | Area | Endpoints |
 |---|---|
-| Dashboard | `GET /dashboard` (SLA breaches/at-risk first, pending approvals, stats; `push` = the last 24 h: jobs, running, failed jobs, sent, failed, pruned, success rate, paused — T4.5) |
+| Dashboard | `GET /dashboard` (SLA breaches/at-risk first, pending approvals, stats incl. `activeCampaigns` — T5.6; `push` = the last 24 h: jobs, running, failed jobs, sent, failed, pruned, success rate, paused — T4.5) |
 | Masjids | `GET /masjids?q=&status=&cursor=` · `POST /masjids` · `GET/PATCH /masjids/:id` · `POST /masjids/:id/activate` · ★`POST /masjids/:id/suspend` `{reason}` · `POST /masjids/:id/unsuspend` · ★`DELETE /masjids/:id` · `PATCH /masjids/:id/quotas` |
 | Admins | `POST /admins` `{displayName, phone?, uiLocale, masjidId, role}` → `{inviteUrl}` · `GET /admins?masjidId=` · ★`POST /admins/:id/invites` `{purpose}` · ★`POST /admins/:id/revoke-sessions` · ★`POST /admins/:id/revoke-passkeys` · ★`DELETE /admins/:id/masjids/:masjidId` · ★`GET /admins/:id/phone` (decrypt, audited) |
 | Payments | `GET /payments/pending` · ★`POST /payments/:id/approve` · `POST /payments/:id/reject` `{reason}` |

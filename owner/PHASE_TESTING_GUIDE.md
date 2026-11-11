@@ -189,6 +189,7 @@ Before you start: **O37** must be done (the notification keys on staging match).
 | 5.9 | Disclaimer | Read the bottom of the campaign page in all 4 languages | "Payments go directly to the masjid's verified UPI account…" |
 | 5.10 | Chanda | Admin → Chanda → enter week amount, turn "Show to followers" ON | Musalli masjid page shows Weekly Chanda with bar chart; turning OFF hides it |
 | 5.12 | Demo masjid | Musalli → Enter code **TESTD004** (Test Masjid Delta) → Donation Campaigns | Two active, one completed (124 %), one closed with "This campaign has ended…"; its UPI ID is fake (`testmasjid@okexample`) — **never pay to it** |
+| 5.13 | Updates and notifications | Musalli (following TESTD004) → Updates → chips **Donations**, **Chanda**. Then as a masjid admin: Update amount with "Notify followers" ON | Rows show "₹… raised of ₹…" and "₹… collected in the week of …"; the notification reads the campaign title and "₹… raised of ₹…" |
 | 5.11 | Personal vs business UPI | If the UPI app shows a warning or blocks the payment from Donate Now, note it | (Expected for some personal UPI IDs — the QR path still works; use business UPI for real masjids) |
 
 ---

@@ -2488,3 +2488,32 @@ per-IP rate limit in `defineRoute`, Phase 09 T9.1). New owner tasks **O40** (rep
 Super Admin passkey + backup grievance person), **O42** (independent penetration test). O6 (Sentry) becomes required
 before the pilot.
 **Consequences:** the T9.9 launch checklist must include the 12 launch conditions of the report's §6.
+
+### #154 — Donations and chanda in mixed lists, pushes and stats; where the visual baselines live (PHASE_05 T5.6) — ACCEPTED (Claude Code, 11 Nov 2026)
+**Context:** T5.6 "Updates chips gain Donations/Chanda; unseen counts; push texts for campaign create/update and
+chanda (localized); Super Admin Stats show active campaigns count; visual baselines updated".
+**Decision:**
+- **Money lines.** Updates rows show "₹72,000 raised of ₹1,00,000" under a campaign's title and "₹18,500 collected in
+  the week of 6 Nov 2026" under "Weekly chanda"; on Home (rows have one title line) a chanda entry's title *is* that
+  sentence. The two sentences are also kept in the `common` namespace (`summary.raisedOf`, `summary.collected` —
+  copies of `content.campaign.raisedOf` / `content.chanda.collected`): Home and Updates render before `content` is
+  loaded, and loading it at start would cost the first paint. Initial JS unchanged (187.97 / 188 kB).
+- **Push text** (`packages/api/src/push/message.ts`): a campaign's push is its title plus one money line — "New
+  donation campaign · Goal ₹1,00,000" while nothing is reported yet (new string `push.campaignNew` ×4), else the
+  "raised of" sentence; the long description is not sent. Chanda: "Weekly chanda" plus the "collected" sentence. The
+  worker reads the figures with the item (`PushContent.campaign` / `.chanda`); same sentences as the lists.
+- **Unseen counts.** Masjid Detail's Weekly Chanda row now counts new `chanda_update` items (one more first-page feed
+  request, cached like the others); the row still shows by the bundle, so it never waits for that request. The chips
+  (Donations, Chanda) already existed and appear when such items are loaded — now covered by e2e.
+- **Stats.** `GET /super/dashboard` gains `activeCampaigns` (published, visible masjid, `campaign.status = active`;
+  index `campaign_status_ends`), shown on C1 under the masjid counts.
+- **Seed:** Test Masjid Delta shows its chanda — 7 weeks, one not entered, with their feed items. Ids follow the
+  week's date, so the daily staging re-seed adds the new week; a week somebody entered by hand there is left alone.
+- **Visual baselines** (`pnpm test:visual`): a second test per locale follows only Delta — Home, Updates, Masjid
+  Detail, campaign list, campaign detail, Weekly Chanda × 4 locales × 2 devices (48 new files). The earlier baselines
+  are unchanged (compared, not rewritten). **Admin screens (B9 and the rest) have no pixel baselines** — the visual
+  project covers the musalli app only (T2.14); B9 gets its 4-locale screenshots with the other admin screens in T5.7,
+  as planned in the hand-off.
+**Consequences:** tests — api `push-message` +3, ui `item-summary` 4, app `detail-view` +1, db `super.int` +1 and the
+push content in `campaigns.int` / `chanda.int`, e2e `campaigns.spec.ts` "Home and Updates…". The C1 card has not been
+looked at in a browser yet (T5.7 admin screenshots).
