@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdhkarRouteImport } from './routes/adhkar'
 import { Route as BloodCampRouteImport } from './routes/blood-camp'
+import { Route as ChandaRouteImport } from './routes/chanda'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as PaymentRouteImport } from './routes/payment'
 import { Route as PostsRouteImport } from './routes/posts'
@@ -70,6 +71,11 @@ const AdhkarRoute = AdhkarRouteImport.update({
 const BloodCampRoute = BloodCampRouteImport.update({
   id: '/blood-camp',
   path: '/blood-camp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChandaRoute = ChandaRouteImport.update({
+  id: '/chanda',
+  path: '/chanda',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NotificationsRoute = NotificationsRouteImport.update({
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/adhkar': typeof AdhkarRoute
   '/blood-camp': typeof BloodCampRoute
+  '/chanda': typeof ChandaRoute
   '/notifications': typeof NotificationsRoute
   '/payment': typeof PaymentRoute
   '/posts': typeof PostsRoute
@@ -312,6 +319,7 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/adhkar': typeof AdhkarRoute
   '/blood-camp': typeof BloodCampRoute
+  '/chanda': typeof ChandaRoute
   '/notifications': typeof NotificationsRoute
   '/payment': typeof PaymentRoute
   '/posts': typeof PostsRoute
@@ -357,6 +365,7 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/adhkar': typeof AdhkarRoute
   '/blood-camp': typeof BloodCampRoute
+  '/chanda': typeof ChandaRoute
   '/notifications': typeof NotificationsRoute
   '/payment': typeof PaymentRoute
   '/posts': typeof PostsRoute
@@ -403,6 +412,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/adhkar'
     | '/blood-camp'
+    | '/chanda'
     | '/notifications'
     | '/payment'
     | '/posts'
@@ -447,6 +457,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/adhkar'
     | '/blood-camp'
+    | '/chanda'
     | '/notifications'
     | '/payment'
     | '/posts'
@@ -491,6 +502,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/adhkar'
     | '/blood-camp'
+    | '/chanda'
     | '/notifications'
     | '/payment'
     | '/posts'
@@ -536,6 +548,7 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   AdhkarRoute: typeof AdhkarRoute
   BloodCampRoute: typeof BloodCampRoute
+  ChandaRoute: typeof ChandaRoute
   NotificationsRoute: typeof NotificationsRoute
   PaymentRoute: typeof PaymentRoute
   PostsRoute: typeof PostsRoute
@@ -603,6 +616,13 @@ declare module '@tanstack/react-router' {
       path: '/blood-camp'
       fullPath: '/blood-camp'
       preLoaderRoute: typeof BloodCampRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chanda': {
+      id: '/chanda'
+      path: '/chanda'
+      fullPath: '/chanda'
+      preLoaderRoute: typeof ChandaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notifications': {
@@ -891,6 +911,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   AdhkarRoute: AdhkarRoute,
   BloodCampRoute: BloodCampRoute,
+  ChandaRoute: ChandaRoute,
   NotificationsRoute: NotificationsRoute,
   PaymentRoute: PaymentRoute,
   PostsRoute: PostsRoute,

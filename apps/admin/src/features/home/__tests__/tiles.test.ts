@@ -9,7 +9,7 @@ describe('Admin Home tiles', () => {
     const production = visibleTiles(false).map((tile) => tile.key);
     expect(production).toContain('donation'); // T5.3
     expect(production).not.toContain('needy'); // not built yet: no route
-    expect(production).not.toContain('chanda');
+    expect(production).toContain('chanda'); // T5.5
     expect(production).toContain('prayerTimes');
     expect(visibleTiles(false).every((tile) => tile.phase <= CURRENT_PHASE && tile.route !== null)).toBe(true);
     expect(visibleTiles(true).map((tile) => tile.key)).toEqual(TILES.map((tile) => tile.key));

@@ -3,6 +3,7 @@ import {
   type AdhkarPut,
   adminAdhkarSchema,
   adminCampaignListSchema,
+  adminChandaSchema,
   adminContactListSchema,
   adminItemListSchema,
   type AdminItemStatus,
@@ -19,6 +20,9 @@ import {
   type CampaignPatchBody,
   type CampaignReceived,
   campaignReceivedResultSchema,
+  type ChandaSettings,
+  type ChandaWeekSave,
+  chandaWeekSavedSchema,
   type ContactSave,
   contactSavedSchema,
   type DailyContentPublish,
@@ -184,6 +188,14 @@ export const masjidApi = {
       method: 'POST',
       body: {},
     }),
+  /** B9 (T5.5): chanda settings and the latest weeks. */
+  chanda: (masjidId: string, signal?: AbortSignal) =>
+    call(`${base(masjidId)}/chanda`, adminChandaSchema, withSignal(signal)),
+  /** Saves one week's total ("YYYY-MM-DD" = the week's first day). */
+  saveChandaWeek: (masjidId: string, weekStart: string, body: ChandaWeekSave) =>
+    call(`${base(masjidId)}/chanda/${encodeURIComponent(weekStart)}`, chandaWeekSavedSchema, { method: 'PUT', body }),
+  chandaSettings: (masjidId: string, body: ChandaSettings) =>
+    call(`${base(masjidId)}/chanda/settings`, noContentSchema, { method: 'PATCH', body }),
   /** B13 (T3.10): the masjid profile. */
   profile: (masjidId: string, signal?: AbortSignal) =>
     call(base(masjidId), adminMasjidProfileSchema, withSignal(signal)),
@@ -241,6 +253,7 @@ export const masjidKeys = {
   contacts: (masjidId: string) => ['masjid', masjidId, 'contacts'] as const,
   payment: (masjidId: string) => ['masjid', masjidId, 'payment'] as const,
   campaigns: (masjidId: string) => ['masjid', masjidId, 'campaigns'] as const,
+  chanda: (masjidId: string) => ['masjid', masjidId, 'chanda'] as const,
   suggestion: (masjidId: string, kind: 'hadith' | 'ayah') => ['masjid', masjidId, 'suggestion', kind] as const,
   library: (masjidId: string, kind: string, q: string, tag: string, category: string) =>
     ['masjid', masjidId, 'library', kind, q, tag, category] as const,
