@@ -395,4 +395,50 @@ describe('read repositories', () => {
       ]);
     expect((await getDashboard(h(), fresh(), { now })).passkeyAlerts).toBe(before + 2);
   });
+
+  it('dashboard: counts active donation campaigns that followers can see (T5.6)', async () => {
+    const before = (await getDashboard(h(), fresh())).activeCampaigns;
+    const { id } = await masjid('Campaign Count Masjid');
+    const now = new Date();
+    const campaign = (
+      campaignStatus: 'active' | 'completed' | 'closed',
+      overrides: Record<string, unknown> = {},
+    ): Record<string, unknown> => ({
+      _id: newId(),
+      public_id: `cc${newId().toHexString().slice(0, 10)}`,
+      masjid_id: id,
+      type: 'campaign',
+      status: 'published',
+      audience: 'everyone',
+      title: 'Test count drive',
+      is_important: false,
+      notify: false,
+      masjid_visible: true,
+      published_at: now,
+      published_version: Long.fromNumber(1),
+      created_by: newId(),
+      created_at: now,
+      updated_at: now,
+      campaign: {
+        purpose: 'other',
+        target_paise: Long.fromNumber(100_000),
+        received_paise: Long.fromNumber(0),
+        starts_on: '2026-11-01',
+        status: campaignStatus,
+        payment_profile_id: newId(),
+      },
+      ...overrides,
+    });
+    await t()
+      .db.collection('items')
+      .insertMany([
+        campaign('active'),
+        campaign('active'),
+        campaign('completed'), // not running any more
+        campaign('closed'),
+        campaign('active', { status: 'deleted' }), // taken down by the masjid
+        campaign('active', { masjid_visible: false }), // its masjid is not shown
+      ]);
+    expect((await getDashboard(h(), fresh())).activeCampaigns).toBe(before + 2);
+  });
 });

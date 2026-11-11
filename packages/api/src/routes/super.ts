@@ -158,7 +158,8 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
     defineRoute({
       method: 'get',
       path: '/dashboard',
-      summary: "Pending activations, masjid counts, passkey clone alerts and admins' change requests (C1)",
+      summary:
+        "Pending activations, masjid counts, active donation campaigns, passkey clone alerts and admins' change requests (C1)",
       tags: ['super'],
       auth: 'super',
       responses: {
@@ -172,6 +173,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
           pending: dashboard.pending.map(rowOut),
           counts: { ...dashboard.counts },
           passkeyAlerts: dashboard.passkeyAlerts,
+          activeCampaigns: dashboard.activeCampaigns,
           push,
           changeRequests,
         });

@@ -3723,6 +3723,10 @@
             "type": "integer",
             "minimum": 0
           },
+          "activeCampaigns": {
+            "type": "integer",
+            "minimum": 0
+          },
           "push": {
             "type": "object",
             "properties": {
@@ -3809,6 +3813,7 @@
           "pending",
           "counts",
           "passkeyAlerts",
+          "activeCampaigns",
           "push",
           "changeRequests"
         ]
@@ -11854,7 +11859,7 @@
     },
     "/api/super/dashboard": {
       "get": {
-        "summary": "Pending activations, masjid counts, passkey clone alerts and admins' change requests (C1)",
+        "summary": "Pending activations, masjid counts, active donation campaigns, passkey clone alerts and admins' change requests (C1)",
         "tags": [
           "super"
         ],

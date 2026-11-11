@@ -227,6 +227,8 @@ export const superDashboardSchema = z
     counts: z.object({ pending: z.number(), active: z.number(), suspended: z.number(), deleted: z.number() }),
     /** Passkeys revoked in the last 30 days because their sign counter went backwards (possible clone, 04 §3). */
     passkeyAlerts: z.number().int().min(0),
+    /** Donation campaigns that are active and visible to followers now, across all masjids (C1 Stats, T5.6). */
+    activeCampaigns: z.number().int().min(0),
     /** Push delivery over the last 24 hours and the kill switch (C1 Stats, T4.5 / T4.7). */
     push: z.object({
       jobs: z.number().int().min(0),

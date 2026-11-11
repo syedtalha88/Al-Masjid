@@ -394,6 +394,7 @@ describe('masjid edits, settings, CSV export', () => {
     expect((await asSuper('get', '/dashboard')).body).toMatchObject({
       counts: { pending: expect.any(Number) as unknown },
       passkeyAlerts: 0,
+      activeCampaigns: expect.any(Number) as unknown,
     });
   });
 

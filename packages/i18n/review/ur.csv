@@ -840,6 +840,8 @@ common,updates.filters,Filter updates,اپڈیٹس چھانٹیں,no
 common,updates.yesterday,Yesterday,کل,no
 common,updates.new,New,نیا,no
 common,updates.loadingMore,Loading more…,مزید لوڈ ہو رہا ہے…,no
+common,summary.raisedOf,{received} raised of {target},{target} میں سے {received} جمع,no
+common,summary.collected,{amount} collected in the week of {date},{date} والے ہفتے میں {amount} جمع ہوئے,no
 content,announcements,Announcements,اعلانات,no
 content,hadithQuran,Hadith & Quran,حدیث اور قرآن,no
 content,duaRequests,Dua Requests,دعا کی درخواستیں,no
@@ -1187,6 +1189,7 @@ onboarding,notifications.turnOn,Turn on notifications,اطلاعات آن کری
 push,voice,🎤 Voice message,🎤 وائس میسج,no
 push,fallbackTitle,Masjid update,مسجد کی خبر,no
 push,fallbackBody,Open the app to see it.,دیکھنے کے لیے ایپ کھولیں۔,no
+push,campaignNew,New donation campaign · Goal {target},نئی چندہ مہم · ہدف {target},no
 push,alert.credential_counter_regression.title,Security check needed,سیکیورٹی جانچ ضروری,no
 push,alert.credential_counter_regression.body,A passkey reported an unexpected sign-in count. Check your passkeys and remove any you don't recognise.,ایک پاس کی نے غیر متوقع سائن اِن گنتی دکھائی۔ اپنی پاس کیز جانچیں اور جسے نہ پہچانیں اسے ہٹا دیں۔,no
 push,alert.push_job_stuck.title,Notification delivery stuck,اطلاع بھیجنا رُک گیا,no
@@ -1309,6 +1312,7 @@ super,status.deleted,Deleted,حذف شدہ,no
 super,dashboard.pending,Waiting for activation,فعال ہونے کی منتظر,no
 super,dashboard.noPending,No masjids are waiting for activation.,کوئی مسجد فعال ہونے کی منتظر نہیں ہے۔,no
 super,dashboard.counts,Masjids,مساجد,no
+super,dashboard.campaigns,Active donation campaigns,جاری چندہ مہمات,no
 super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","پچھلے 30 دنوں میں {count, plural, one {# لاگ اِن} other {# لاگ اِن}} روکا گیا، کیونکہ کسی فون کی نقل ہو سکتی ہے۔ ہر متاثرہ ایڈمن کو نیا لاگ اِن لنک دیں۔",no
 super,dashboard.changeRequests,Requested changes,تبدیلی کی درخواستیں,no
 super,dashboard.noChangeRequests,No change requests from admins.,ایڈمنز کی طرف سے تبدیلی کی کوئی درخواست نہیں۔,no

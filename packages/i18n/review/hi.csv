@@ -840,6 +840,8 @@ common,updates.filters,Filter updates,अपडेट छाँटें,no
 common,updates.yesterday,Yesterday,कल,no
 common,updates.new,New,नया,no
 common,updates.loadingMore,Loading more…,और लोड हो रहा है…,no
+common,summary.raisedOf,{received} raised of {target},{target} में से {received} जमा,no
+common,summary.collected,{amount} collected in the week of {date},{date} वाले हफ़्ते में {amount} जमा हुए,no
 content,announcements,Announcements,सूचनाएँ,no
 content,hadithQuran,Hadith & Quran,हदीस और क़ुरआन,no
 content,duaRequests,Dua Requests,दुआ की गुज़ारिशें,no
@@ -1187,6 +1189,7 @@ onboarding,notifications.turnOn,Turn on notifications,सूचनाएँ च�
 push,voice,🎤 Voice message,🎤 वॉइस मैसेज,no
 push,fallbackTitle,Masjid update,मस्जिद की ख़बर,no
 push,fallbackBody,Open the app to see it.,देखने के लिए ऐप खोलें।,no
+push,campaignNew,New donation campaign · Goal {target},नया चंदा अभियान · लक्ष्य {target},no
 push,alert.credential_counter_regression.title,Security check needed,सुरक्षा जाँच ज़रूरी,no
 push,alert.credential_counter_regression.body,A passkey reported an unexpected sign-in count. Check your passkeys and remove any you don't recognise.,एक पासकी ने अनपेक्षित साइन-इन गिनती दिखाई। अपनी पासकी जाँचें और जिसे न पहचानें उसे हटा दें।,no
 push,alert.push_job_stuck.title,Notification delivery stuck,सूचना भेजना अटका,no
@@ -1309,6 +1312,7 @@ super,status.deleted,Deleted,हटाई गई,no
 super,dashboard.pending,Waiting for activation,चालू होने का इंतज़ार,no
 super,dashboard.noPending,No masjids are waiting for activation.,कोई मस्जिद चालू होने का इंतज़ार नहीं कर रही।,no
 super,dashboard.counts,Masjids,मस्जिदें,no
+super,dashboard.campaigns,Active donation campaigns,चालू चंदा अभियान,no
 super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","पिछले 30 दिनों में {count, plural, one {# लॉग इन} other {# लॉग इन}} रोका गया, क्योंकि किसी फ़ोन की नकल हुई हो सकती है। हर प्रभावित एडमिन को नया लॉग इन लिंक दें।",no
 super,dashboard.changeRequests,Requested changes,बदलाव की गुज़ारिशें,no
 super,dashboard.noChangeRequests,No change requests from admins.,एडमिन की ओर से बदलाव की कोई गुज़ारिश नहीं।,no
