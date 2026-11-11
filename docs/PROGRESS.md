@@ -12,13 +12,42 @@
 | 02 | Musalli app core (follow, timings, feed, offline, install) | **DONE** (owner tested the Phase 02 checks on staging `cdd39fa`, incl. a low-end device, 27 Oct 2026) | [final](reports/PHASE_02_REPORT.md) | 27 Oct 2026 |
 | 03 | Masjid Admin content tools | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`, with Phase 04); O39 PASS + O27 OK (10 Nov 2026); left: O25 rest (photos 3.7 / voice 3.14) + O26 (usability) — #150 | [report](reports/PHASE_03_REPORT.md) | – |
 | 04 | Push notifications | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`); T4.6 acceptance = the owner's O38 (real phones) | [report](reports/PHASE_04_REPORT.md) | – |
-| 05 | Donations, chanda & UPI change-lock | **IN PROGRESS** (T5.1 – T5.6 done) — started 9 Nov 2026 on `feat/phase-05` while Phases 03 + 04 await the owner's checks (DECISIONS #145) | – | – |
+| 05 | Donations, chanda & UPI change-lock | **IN PROGRESS** (T5.1 – T5.6, T5.8 done) — started 9 Nov 2026 on `feat/phase-05` while Phases 03 + 04 await the owner's checks (DECISIONS #145) | – | – |
 | 06 | Bayan videos | NOT STARTED | – | – |
 | 07 | Qibla compass | NOT STARTED | – | – |
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (11 Nov 2026, evening — Phase 05 on `feat/phase-05`: T5.1 – T5.6 done, T5.8 half done; F61 merge to `main` approved; 03 + 04 await the owner)
+## ▶ Next session — start here (11 Nov 2026, night — Phase 05 on `feat/phase-05`: T5.1 – T5.6 + T5.8 done; F61 is on `main`; 03 + 04 await the owner)
+
+**State:** `main` = `de50397` (= `863e064` + the F61 base-image fix, fast-forwarded 11 Nov night after its CI run was
+green; pushed → "Release to staging" redeploys the same app on the patched base image). Phases 03 + 04 **AWAITING OWNER
+VERIFICATION**. Phase 05 on `feat/phase-05` (`main` merged in), not deployed.
+
+**Done this session:** both CI runs of the last hand-off were green → F61 onto `main`; **T5.8 part 2** (#157 — admin
+B19, musalli A23 + pay sheet, strings ×4, seed, e2e, visual baselines, owner guide 5.14 – 5.17). T5.8 is ticked.
+
+**Check first:**
+1. CI of `main` `de50397` (run 43050725455) and "Release to staging"; staging `/health` on both origins. When staging
+   runs the new image: delete `infra/trivy/mc-server.trivyignore.yaml` and the Nightly deployed-image job's
+   `--ignorefile` + sparse checkout (#155). Must be done by 15 Nov.
+2. CI of `ci/phase-05` (the T5.8 part 2 push). Red → fix first.
+
+**Do next:**
+1. Owner (#150): O25 rest, O26 (Phase 03), O38 (Phase 04), O28, O31 — ask whether they found something; those fixes
+   come first. O43 (Atlas roles) before Phase 05 is deployed.
+2. **T5.9 My zakat** (A24, device only): device document `zakat` (schema-versioned, part of Clear all data), Settings
+   row + screen, "Log this in My zakat?" after "Pay with UPI" on A23 (`features/needy/NeedyScreen.tsx` `PaySheet` —
+   the page comes back from the UPI app: `visibilitychange`), network assertion e2e.
+3. **F65** (admin alerts stop with the session) — before Phase 05 reaches staging.
+4. **T5.7 quality gates:** admin B8 / B9 / `/payment` / C4 / C1 e2e + screenshots ×4 (B19 has its journey; add it to
+   `screens.spec.ts`), security-reviewer on R1 + R13, phase-verifier, the report.
+
+**Local notes (new):** after `pnpm test:visual:update`, restore only the unchanged **PNG** files — `git checkout` on
+every modified path also reverts the edited spec (it happened; two runs wasted). After `pnpm stack:up:test` do **not**
+`git checkout` the `routeTree.gen.ts` files when routes were added. Radio cards in e2e are tapped by their text.
+
+## ▶ Previous hand-off (11 Nov 2026, evening — T5.8 half done)
 
 **State:** `main` = staging = `863e064` (+ docs) — Phases 03 + 04 **AWAITING OWNER VERIFICATION**. Phase 05 on
 `feat/phase-05` (DECISIONS #145), not merged or deployed (staging only after 03 + 04 are verified, or with the owner's OK).
@@ -606,17 +635,24 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   weeks. **Acceptance:** `pnpm test:visual` 24/24 — 48 new baselines (Home, Updates, Masjid Detail, A10 list + detail,
   A11 × 4 locales × 2 devices), the earlier ones unchanged. Not pixel-compared: admin screens (B9 → T5.7
   screenshots); the C1 card not yet seen in a browser (T5.7).
-- [ ] T5.8 — Needy people (B19 + A23) — **part 1 done 11 Nov 2026 (#156): data layer + API + retention job.**
+- [x] T5.8 — Needy people (B19 + A23) — 11 Nov 2026 (#156 data layer + API + retention job; #157 screens).
   Migration `0019_beneficiaries` (2 collections, `v_pub_beneficiaries`), policy cells + roles (Atlas roles file
   regenerated → owner O43), `state/beneficiary.ts` (create, update, `setBeneficiaryReceived` with auto-fulfil,
   `endBeneficiary` closed / deleted, `readBeneficiaryPrivate`, `purgeBeneficiaries`), `repos/beneficiaries.ts`, bundle
   `sections.needy`, contracts, admin routes `…/beneficiaries` (+ `/received`, `/close`, `/private`), public
   `GET /masjids/:id/beneficiaries`, worker job `retention` (03:00 IST), 3 error codes ×4, OpenAPI regenerated.
   Tests: db `beneficiaries.int` 19, api `beneficiary-routes.int` 6; `verify:quick` green, db int 365, api int 371.
-  **Left (part 2):** admin B19 screen + Home tile route (`tiles.tsx` `needy` → route), musalli A23 list + pay sheet
-  (reuse `buildUpiUri` and the T5.4 QR sheet; "Log this in My zakat?" comes with T5.9), strings ×4, seed people for
-  Delta, e2e (admin adds → musalli sees → received = cap → gone after the next poll), visual baseline, the acceptance
-  tick list, owner guide rows.
+  **Part 2 (#157):** admin `/needy` (chips, cards, "Update received" sheet with live %, Close / Remove) and
+  `/needy/new` · `/needy/:id` (form, UPI QR scan, private details on request, consent tick), Home tile live; musalli
+  A23 `/masjid/:id/needy` (list least-funded first, zakat chip, pay sheet → `upi://pay` to the person, QR sheet
+  reuse), Masjid Detail row; strings ×4 (review CSVs regenerated — 1,721 draft strings per locale for O31); seed: 4
+  fake people on Delta. **Acceptance:** policy matrix + DB privileges, `private_enc` in no public response
+  (`beneficiary-routes.int` sweep) ✔ · ordering + auto-fulfil under parallel "Update received" (`beneficiaries.int`)
+  ✔ · consent required — 400, not 422 (#156) ✔ · retention purge ✔ · e2e `e2e/admin/needy.spec.ts` on Pixel 7: admin
+  adds → musalli sees and gets exactly the person's UPI link → received ≥ cap → gone after the next poll ✔ (axe clean
+  on B19, editor, A23, pay sheet). `pnpm test:visual` 24/24 (8 new `help-the-needy`, Delta Masjid Detail updated).
+  Tests now: admin unit 166, app unit 213, db int 365, api int 371; `verify:quick`, i18n check, `pnpm size` green
+  (app initial JS 188.41 / 189 kB — #157). "Log this in My zakat?" comes with T5.9; B19 4-locale screenshots at T5.7.
 - [ ] T5.9 — My zakat (A24, device only)
 - [ ] T5.7 — Quality gates
 
@@ -688,6 +724,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-11 | 05 / T5.8 (part 2) | Needy people screens (#157): admin B19 (list + form), musalli A23 (list, pay sheet, QR reuse), strings ×4, seed, e2e journey green on Pixel 7, visual 24/24. F61 fast-forwarded onto `main` (`de50397`) after green CI. App initial JS budget 189 kB. |
 | 2026-11-11 | 05 / T5.8 (part 1) | Needy people: data layer, API and the `retention` job (#156). Migration 0019; policy matrix 48 namespaces; db int 365, api int 371, `verify:quick` green. UI (B19, A23), seed, e2e left. Owner approved merging the F61 fix into `main` once its CI is green. |
 | 2026-11-11 | F61 | Server image on the patched distroless base (#155): Trivy 0 HIGH/CRITICAL without ignores, `check:image` OK, stack healthy, e2e 12/12. Same commit on `ci/f61-base-image` for `main` (owner to approve the merge — it redeploys staging). |
 | 2026-11-11 | 05 / T5.6 | Integration polish done (#154). `verify:quick` green, db int 346, api int 365, e2e Pixel 7: campaigns 10/10, chanda, updates, home, masjid-detail; visual 24/24; i18n check passes (1,617 draft strings per locale); budgets unchanged (app 187.97 / 188 kB, admin 215.32 / 220 kB). |

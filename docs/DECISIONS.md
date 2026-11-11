@@ -2566,3 +2566,36 @@ part 2, the worker's `payment-activate`) 12/12.
 matrix 48 namespaces, role and privilege tables; api `beneficiary-routes.int` 6 (incl. a sweep of every public
 response for the private part). **Left for part 2:** admin B19, musalli A23 (+ pay sheet, QR sheet reuse), strings
 ×4, seed people for Delta, e2e, 02 / 03 doc touch-ups.
+
+### #157 — Needy people: the admin screen B19 and the musalli screen A23 (PHASE_05 T5.8, part 2) — ACCEPTED (Claude Code, 11 Nov 2026)
+**Context:** 07 B19 / A23, 00 §4.14, 05 §1. Choices the specs leave open:
+- **B19 is two screens**, like Ilm contacts: `/needy` (status chips Active · Fulfilled · Closed; each card: progress,
+  "Update received", "Edit details", Close / Remove with a confirmation) and `/needy/new` · `/needy/:id` (the form).
+  Only active people are edited (#156); a fulfilled person keeps "Update received" (a corrected amount lists them
+  again — the sheet says so), Close and Remove.
+- **The consent tick starts empty on every edit** — the API asks for it with every save (#156), and a scanned UPI QR
+  clears it too (the person agreed to specific details).
+- **Private phone / note:** for a listed person the fields are not loaded with the form. "Show private details"
+  fetches them (one audited view) — until then a save leaves the stored part alone; shown and emptied removes it.
+  The result is never cached.
+- **UPI QR scan** is the B8 scanner, now a shared component (`features/payment/components/UpiScanSheet.tsx`); same
+  rule as #147 (built-in QR reader only; admin CSP unchanged).
+- **A23:** the list is fetched per content version like Ruqyah (kept offline once opened; stays on screen while the
+  next version loads). The zakat filter is applied on the phone to that list (works offline; the API's `?zakat=1`
+  stays for other clients). The payment note (`tn`) is the masjid's name — the person sees where the help came from;
+  never an amount. "Show UPI QR" reuses the T5.4 sheet (it now takes any payee; the "changed recently" notice only
+  for the masjid's own change-locked details). The pay sheet closes when the QR sheet opens (one sheet at a time).
+- **Category icons:** the icon set has fitting glyphs for illness, student and orphan; the others show a heart. The
+  label always names the category. Dedicated glyphs can follow with the owner's design pass (no new follow-up — a
+  cosmetic choice).
+- **Names in an Urdu list** are isolated with `<bdi>` instead of `dir="auto"`, so a Latin name stays next to its icon.
+- **Seed:** Test Masjid Delta lists four fake people (fixture bank handle `@okexample` — no payment can reach
+  anyone), with different funded shares and two zakat tags. Every re-seed puts them back to that state.
+- **Budget:** musalli initial JS 188 → **189 kB** (188.41 kB; +0.44 kB — the list call and its validated contract in
+  the API client, like every other endpoint; the screen and pay sheet are lazy). Owner rule "quality over budgets".
+- **Fixed on the way:** `type-title-2` in `donation.index.tsx` / `donation.new.tsx` was not a class of the design
+  system (the amount fell back to body size) — now `type-title2`.
+**Consequences:** tests — admin `needy.test.ts` 8, app `needy-view.test.ts` 4 + `detail-view` +1, db `public.int` seed
+assertions (order, zakat filter, bundle count), e2e `e2e/admin/needy.spec.ts` (the T5.8 acceptance journey, axe on
+B19, the editor, A23 and the pay sheet), visual baselines `help-the-needy` × 4 locales × 2 devices and the Delta
+Masjid Detail (new row). "Log this in My zakat?" after a payment comes with T5.9.
