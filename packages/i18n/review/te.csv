@@ -679,6 +679,80 @@ admin,chanda.update,Save changes,మార్పులు సేవ్ చేయ
 admin,chanda.saved,Saved,సేవ్ అయింది,no
 admin,chanda.history,Earlier weeks,మునుపటి వారాలు,no
 admin,chanda.empty,No weeks entered yet.,ఇంకా ఏ వారమూ నమోదు కాలేదు.,no
+admin,needy.title,Needy people,అవసరంలో ఉన్నవారు,no
+admin,needy.intro,People your masjid has verified as in need. Followers pay them directly by UPI — the app never touches the money.,అవసరంలో ఉన్నారని మీ మస్జిద్ నిర్ధారించిన వ్యక్తులు. అనుచరులు వారికి నేరుగా UPI ద్వారా పంపుతారు — యాప్ డబ్బును ఎప్పుడూ తాకదు.,no
+admin,needy.statusFilter,Status,స్థితి,no
+admin,needy.status.active,Active,చురుకుగా,no
+admin,needy.status.fulfilled,Fulfilled,అవసరం తీరింది,no
+admin,needy.status.closed,Closed,ముగిసింది,no
+admin,needy.empty.active,No one listed yet,ఇంకా ఎవరూ జాబితాలో లేరు,no
+admin,needy.empty.fulfilled,No one fulfilled yet,ఇంకా ఎవరి అవసరం తీరలేదు,no
+admin,needy.empty.closed,No one closed yet,ఇంకా ఎవరినీ ముగించలేదు,no
+admin,needy.emptyBody,Add a person your masjid has verified. Ask them first.,మీ మస్జిద్ నిర్ధారించిన వ్యక్తిని చేర్చండి. ముందుగా వారిని అడగండి.,no
+admin,needy.category.widow,Widow,వితంతువు,no
+admin,needy.category.orphan,Orphan,అనాథ,no
+admin,needy.category.disability,Disability,వైకల్యం,no
+admin,needy.category.illness,Illness,అనారోగ్యం,no
+admin,needy.category.elderly,Elderly,వృద్ధులు,no
+admin,needy.category.homeless,Homeless,నిరాశ్రయులు,no
+admin,needy.category.debt,Debt,అప్పు,no
+admin,needy.category.student,Student,విద్యార్థి,no
+admin,needy.category.other,Other,ఇతర,no
+admin,needy.zakat,Zakat-eligible,జకాత్‌కు అర్హులు,no
+admin,needy.amounts,{received} of {target},{target}లో {received},no
+admin,needy.receivedLabel,Received (reported by masjid),అందినది (మస్జిద్ తెలిపినది),no
+admin,needy.fulfilledNote,Fulfilled — hidden from the app,అవసరం తీరింది — యాప్‌లో కనిపించరు,no
+admin,needy.relistNote,"Below the amount needed, this person is listed in the app again.",కావలసిన మొత్తం కంటే తక్కువైతే ఈ వ్యక్తి యాప్‌లో మళ్ళీ కనిపిస్తారు.,no
+admin,needy.updateReceived,Update received,అందిన మొత్తాన్ని నవీకరించండి,no
+admin,needy.updateTitle,Received so far,ఇప్పటివరకు అందినది,no
+admin,needy.needed,Needed: {amount},కావలసినది: {amount},no
+admin,needy.save,Save,సేవ్ చేయండి,no
+admin,needy.saved,Amount saved,మొత్తం సేవ్ అయింది,no
+admin,needy.edit,Edit details,వివరాలు మార్చండి,no
+admin,needy.close,Close,ముగించండి,no
+admin,needy.closeTitle,Close this person?,ఈ వ్యక్తిని ముగించాలా?,no
+admin,needy.closeBody,Use this when help is no longer needed. They are hidden from the app. This cannot be undone.,సహాయం ఇక అవసరం లేనప్పుడు దీన్ని వాడండి. వారు యాప్‌లో కనిపించరు. దీన్ని వెనక్కి తీసుకోలేరు.,no
+admin,needy.closed,Closed,ముగించబడింది,no
+admin,needy.remove,Remove,తీసివేయండి,no
+admin,needy.removeTitle,Remove this person?,ఈ వ్యక్తిని తీసివేయాలా?,no
+admin,needy.removeBody,"Use this for a mistake, or when the person asks to be removed. This cannot be undone.","పొరపాటు జరిగినప్పుడు, లేదా ఆ వ్యక్తి తీసివేయమని అడిగినప్పుడు దీన్ని వాడండి. దీన్ని వెనక్కి తీసుకోలేరు.",no
+admin,needy.removed,Removed,తీసివేయబడింది,no
+admin,needy.add,Add person,వ్యక్తిని చేర్చండి,no
+admin,needy.full,"You have {max} active people, the most allowed. Close one to add another.","మీకు {max} మంది చురుకుగా ఉన్నారు, ఇదే గరిష్ఠం. కొత్తవారిని చేర్చడానికి ఒకరిని ముగించండి.",no
+admin,needy.retention,"Details of fulfilled, closed and removed people are deleted after 90 days.","అవసరం తీరిన, ముగించిన, తీసివేసిన వ్యక్తుల వివరాలు 90 రోజుల తర్వాత తొలగించబడతాయి.",no
+admin,needy.newTitle,Add a person,కొత్త వ్యక్తిని చేర్చండి,no
+admin,needy.editTitle,Edit person,వ్యక్తి వివరాలు మార్చండి,no
+admin,needy.name,Name shown in the app,యాప్‌లో కనిపించే పేరు,no
+admin,needy.nameHint,First name or initials only,మొదటి పేరు లేదా పేరులోని మొదటి అక్షరాలు మాత్రమే,no
+admin,needy.categoryQuestion,What kind of need?,ఏ రకమైన అవసరం?,no
+admin,needy.reason,Why they need help,సహాయం ఎందుకు కావాలి,no
+admin,needy.reasonHint,"Short and respectful. No address, phone number or family names.","చిన్నగా, గౌరవంగా రాయండి. చిరునామా, ఫోన్ నంబర్ లేదా కుటుంబ సభ్యుల పేర్లు రాయకండి.",no
+admin,needy.upiTitle,The person’s own UPI,వ్యక్తి స్వంత UPI,no
+admin,needy.upiHint,Money goes straight to this UPI ID. Check it with the person.,డబ్బు నేరుగా ఈ UPI IDకి వెళ్తుంది. దీన్ని ఆ వ్యక్తితో సరిచూసుకోండి.,no
+admin,needy.scan,Scan the person’s UPI QR,వ్యక్తి UPI QR స్కాన్ చేయండి,no
+admin,needy.scanHint,Point the camera at the person’s own UPI QR.,కెమెరాను వ్యక్తి స్వంత UPI QR వైపు చూపండి.,no
+admin,needy.cap,Amount needed,కావలసిన మొత్తం,no
+admin,needy.capHint,From ₹1 to ₹1 crore,₹1 నుండి ₹1 కోటి వరకు,no
+admin,needy.zakatLabel,Zakat can be given to this person,ఈ వ్యక్తికి జకాత్ ఇవ్వవచ్చు,no
+admin,needy.zakatHint,Your masjid’s statement. The app shows “Zakat-eligible”.,ఇది మీ మస్జిద్ ప్రకటన. యాప్‌లో “జకాత్‌కు అర్హులు” అని కనిపిస్తుంది.,no
+admin,needy.privateTitle,Private details,ప్రైవేట్ వివరాలు,no
+admin,needy.privateHint,Only admins of this masjid see this. It is stored encrypted and never shown in the app.,"వీటిని ఈ మస్జిద్ అడ్మిన్‌లు మాత్రమే చూస్తారు. ఇవి ఎన్‌క్రిప్ట్ చేసి భద్రపరచబడతాయి, యాప్‌లో ఎప్పుడూ కనిపించవు.",no
+admin,needy.phone,Phone number,ఫోన్ నంబర్,no
+admin,needy.note,Private note,ప్రైవేట్ గమనిక,no
+admin,needy.showPrivate,Show private details,ప్రైవేట్ వివరాలు చూపండి,no
+admin,needy.showPrivateHint,"Each time someone views them, it is recorded.",ఎవరైనా వీటిని చూసిన ప్రతిసారీ అది నమోదవుతుంది.,no
+admin,needy.consent,The person — or a guardian for a child — agreed to be listed with these details,ఈ వ్యక్తి — లేదా పిల్లల విషయంలో వారి సంరక్షకుడు — ఈ వివరాలతో జాబితాలో ఉండటానికి అంగీకరించారు,no
+admin,needy.consentHint,"Ask them first. Their name, reason and UPI ID will be visible to app users.","ముందుగా వారిని అడగండి. వారి పేరు, కారణం, UPI ID యాప్ వాడేవారికి కనిపిస్తాయి.",no
+admin,needy.missing,Still needed: {fields},ఇంకా కావాలి: {fields},no
+admin,needy.issue.name,a name,పేరు,no
+admin,needy.issue.category,the kind of need,అవసరం రకం,no
+admin,needy.issue.reason,the reason,కారణం,no
+admin,needy.issue.vpa,a valid UPI ID,సరైన UPI ID,no
+admin,needy.issue.payee,the payee name,స్వీకర్త పేరు,no
+admin,needy.issue.cap,the amount needed,కావలసిన మొత్తం,no
+admin,needy.issue.phone,a valid phone number,సరైన ఫోన్ నంబర్,no
+admin,needy.issue.consent,the tick that they agreed,అంగీకార టిక్,no
+admin,needy.personSaved,Person saved,వ్యక్తి వివరాలు సేవ్ అయ్యాయి,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -978,6 +1052,32 @@ content,chanda.bar,{week}: {amount},{week}: {amount},no
 content,chanda.empty,No chanda reported yet,ఇంకా చందా తెలియజేయలేదు,no
 content,chanda.emptyBody,"When the masjid enters a week’s total, it appears here.","మస్జిద్ ఒక వారం మొత్తాన్ని నమోదు చేసినప్పుడు, అది ఇక్కడ కనిపిస్తుంది.",no
 content,chanda.collected,{amount} collected in the week of {date},{date} వారంలో {amount} వసూలైంది,no
+content,needy.intro,Verified by {masjid}. Payments go directly to the person.,{masjid} నిర్ధారించింది. చెల్లింపులు నేరుగా ఆ వ్యక్తికే వెళ్తాయి.,no
+content,needy.filter,Filter,ఫిల్టర్,no
+content,needy.all,All,అందరూ,no
+content,needy.zakat,Zakat-eligible,జకాత్‌కు అర్హులు,no
+content,needy.amounts,{received} of {target},{target}లో {received},no
+content,needy.progressLabel,Received so far,ఇప్పటివరకు అందినది,no
+content,needy.stillNeeded,Still needed: {amount},ఇంకా కావలసినది: {amount},no
+content,needy.help,Help {name},{name}కు సహాయం చేయండి,no
+content,needy.pay,Pay with UPI,UPIతో చెల్లించండి,no
+content,needy.showQr,Show UPI QR,UPI QR చూపించు,no
+content,needy.reported,Amount received is reported by the masjid.,అందిన మొత్తం మస్జిద్ తెలిపినది.,no
+content,needy.disclaimer,Payments go directly to each person’s own UPI account. {app} does not receive or handle any money.,"చెల్లింపులు నేరుగా ప్రతి వ్యక్తి స్వంత UPI ఖాతాకు వెళ్తాయి. {app} ఎలాంటి డబ్బునూ తీసుకోదు, నిర్వహించదు.",no
+content,needy.empty,No one is listed right now,ప్రస్తుతం ఎవరూ జాబితాలో లేరు,no
+content,needy.emptyBody,"When the masjid lists people it has verified as in need, you will see them here.","అవసరంలో ఉన్నారని మస్జిద్ నిర్ధారించిన వ్యక్తులను జాబితాలో చేర్చినప్పుడు, వారు ఇక్కడ కనిపిస్తారు.",no
+content,needy.emptyZakat,No one here is marked zakat-eligible right now.,ప్రస్తుతం ఇక్కడ ఎవరూ జకాత్‌కు అర్హులుగా గుర్తించబడలేదు.,no
+content,needy.failed,Couldn’t load the list,జాబితా లోడ్ కాలేదు,no
+content,needy.failedBody,"Check your connection and try again. Once opened, it is available offline too.","మీ కనెక్షన్ తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి. ఒకసారి తెరిచాక, ఇది ఆఫ్‌లైన్‌లో కూడా అందుబాటులో ఉంటుంది.",no
+content,needy.category.widow,Widow,వితంతువు,no
+content,needy.category.orphan,Orphan,అనాథ,no
+content,needy.category.disability,Disability,వైకల్యం,no
+content,needy.category.illness,Illness,అనారోగ్యం,no
+content,needy.category.elderly,Elderly,వృద్ధులు,no
+content,needy.category.homeless,Homeless,నిరాశ్రయులు,no
+content,needy.category.debt,Debt,అప్పు,no
+content,needy.category.student,Student,విద్యార్థి,no
+content,needy.category.other,Other,ఇతర,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,మన సమాజంలోని ఒకరు అనారోగ్యంతో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,మన సమాజంలోని ఒకరు ఆసుపత్రిలో ఉన్నారు. దయచేసి వారు కోలుకోవాలని దువా చేయండి.,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,మన సమాజంలోని ఒకరికి ఆపరేషన్ జరుగుతోంది. అంతా బాగా జరగాలని దయచేసి దువా చేయండి.,no
@@ -1125,6 +1225,7 @@ masjid,adhkar,Adhkar after salah,నమాజ్ తర్వాత అజ్క
 masjid,ruqyah,Ruqyah,రుఖ్యా,no
 masjid,ilm,Ask the masjid,మస్జిద్‌ను అడగండి,no
 masjid,campaigns,Donation Campaigns,విరాళాల ప్రచారాలు,no
+masjid,needy,Help the needy,అవసరంలో ఉన్నవారికి సహాయం,no
 masjid,chanda,Weekly Chanda,వారపు చందా,no
 masjid,bayans,Bayans,బయాన్‌లు,no
 masjid,suspended,This masjid is temporarily unavailable,ఈ మసీదు ప్రస్తుతం అందుబాటులో లేదు,no

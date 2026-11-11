@@ -1,6 +1,6 @@
 // `@mc/db/seed` — the dev / staging seed (PHASE_02 T2.2): 3 fake masjids (Hyderabad, Delhi, Chennai) with timings,
 // Jumu'ah, a special Eid date, Ramadan mode on one masjid, 13 placeholder library entries (3 `dhikr`: the alpha
-// masjid's adhkar set), 8 notice templates, 30 published items (+ Delta: campaigns and weekly chanda) and two Ruqyah entries (alpha: a library dua and a
+// masjid's adhkar set), 8 notice templates, 30 published items (+ Delta: campaigns, weekly chanda and four needy people) and two Ruqyah entries (alpha: a library dua and a
 // masjid-entered text) and two Ilm contacts on alpha (brothers, sisters — fake numbers). RELIGIOUS CONTENT POLICY (CLAUDE.md §2.3, 10 §5):
 // library entries use the fixture placeholders verbatim — no Quran, hadith or dua text, translation or reference
 // anywhere. Names are obviously fake.
@@ -568,6 +568,23 @@ const SEED_PAYMENT = {
   effectiveDaysAgo: 10,
 } as const;
 
+/**
+ * Delta's needy people (07 A23, PHASE_05 T5.8): fake people with the 10 §5 fixture bank handle (invalid on purpose —
+ * no payment can reach anyone). Different funded shares, so "least-funded first" shows; two carry the zakat tag.
+ */
+const SEED_NEEDY: readonly {
+  readonly name: string;
+  readonly category: 'widow' | 'illness' | 'student' | 'elderly';
+  readonly capRupees: number;
+  readonly receivedRupees: number;
+  readonly zakat: boolean;
+}[] = [
+  { name: 'Test A.', category: 'widow', capRupees: 3_000, receivedRupees: 1_200, zakat: true },
+  { name: 'Test B.', category: 'illness', capRupees: 25_000, receivedRupees: 0, zakat: false },
+  { name: 'T. C.', category: 'student', capRupees: 8_000, receivedRupees: 6_000, zakat: true },
+  { name: 'Test D.', category: 'elderly', capRupees: 5_000, receivedRupees: 2_500, zakat: false },
+];
+
 /** `public_id` of the n-th item of a seed masjid (12 URL-safe characters). */
 export const seedPublicId = (masjid: SeedMasjidKey, index: number): string =>
   `seed${masjid.slice(0, 1).toUpperCase()}${String(index).padStart(7, '0')}`;
@@ -586,6 +603,7 @@ export interface DevSeed {
   readonly contacts: readonly Document[];
   readonly payments: readonly Document[];
   readonly chandaWeeks: readonly Document[];
+  readonly beneficiaries: readonly Document[];
 }
 
 const replaceDate = (value: unknown, today: string): unknown => {
@@ -940,6 +958,33 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
       },
     ];
   });
+  const beneficiaries = SEED_NEEDY.map((person, index) => {
+    const received = person.receivedRupees * 100;
+    const cap = person.capRupees * 100;
+    const added = at(24 * (index + 2));
+    return {
+      _id: seedId(`needy-delta-${String(index)}`),
+      public_id: `seedDn${String(index).padStart(6, '0')}`, // 12 characters
+      masjid_id: masjidId('delta'),
+      display_name: person.name,
+      category: person.category,
+      reason: 'Sample reason for help — DEV ONLY',
+      reason_locale: 'en',
+      vpa: `testperson${String(index + 1)}@okexample`,
+      payee_name: `Test Person ${String(index + 1)}`,
+      cap_paise: Long.fromNumber(cap),
+      received_paise: Long.fromNumber(received),
+      ...(received > 0 ? { received_updated_at: at(5 + index) } : {}),
+      funded_permille: Math.min(1000, Math.floor((received * 1000) / cap)),
+      zakat_eligible: person.zakat,
+      consent_confirmed: true,
+      status: 'active',
+      masjid_visible: true,
+      created_by: SEED_ADMIN,
+      created_at: added,
+      updated_at: added,
+    };
+  });
   return {
     masjids,
     masjidStats,
@@ -952,6 +997,7 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
     contacts,
     payments,
     chandaWeeks: chanda.map((entry) => entry.week),
+    beneficiaries,
   };
 }
 
@@ -1027,6 +1073,8 @@ export async function writeDevSeed(handle: DbHandle, scope: Scope, seed: DevSeed
     if (taken === 0) await put('chanda_weeks', [week]);
     else await db.collection<SeedDoc>('items').deleteOne({ _id: item });
   }
+  // Needy people: back to the seed's state on every run (staging: a person someone fulfilled or closed is listed again).
+  await put('beneficiaries', seed.beneficiaries);
   for (const stats of seed.masjidStats) {
     await db
       .collection<SeedDoc>('masjid_stats')

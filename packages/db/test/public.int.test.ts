@@ -9,6 +9,7 @@ import { MIGRATIONS } from '../migrations/index.ts';
 import type { DbHandle } from '../src/client.ts';
 import { StateError } from '../src/effects.ts';
 import { runMigrations } from '../src/migrate/index.ts';
+import { listPublicBeneficiaries } from '../src/repos/beneficiaries.ts';
 import {
   findDuaItemId,
   getAmeenCounts,
@@ -120,6 +121,22 @@ describe('dev seed (T2.2)', () => {
     ]);
     expect(await raw('chanda_weeks').countDocuments({ visible: true })).toBe(6);
     expect(await raw('items').countDocuments({ type: 'chanda_update', 'chanda.visible': true })).toBe(6);
+    // T5.8: Delta lists four needy people (fixture UPI IDs only) — public least-funded first, counted in the bundle.
+    const delta = seedId('masjid-delta');
+    const needy = await listPublicBeneficiaries(pub(), delta);
+    expect(needy.map((person) => [person.displayName, person.fundedPermille])).toEqual([
+      ['Test B.', 0],
+      ['Test A.', 400],
+      ['Test D.', 500],
+      ['T. C.', 750],
+    ]);
+    expect(needy.every((person) => person.vpa.endsWith('@okexample'))).toBe(true);
+    expect((await listPublicBeneficiaries(pub(), delta, true)).map((person) => person.displayName)).toEqual([
+      'Test A.',
+      'T. C.',
+    ]);
+    const deltaBundle = await getMasjidBundle(pub(), delta, TODAY);
+    expect(deltaBundle?.status === 'active' ? deltaBundle.sections.needy : null).toBe(4);
     // T2.11: a notice photo (seed key → the app paints its ThumbHash) and an archived dua request (07 A9 "Older").
     expect(await raw('items').countDocuments({ image_key: 'seed/notice-alpha' })).toBe(1);
     expect(await raw('items').countDocuments({ 'dua.archived_at': { $exists: true } })).toBe(1);
@@ -131,6 +148,7 @@ describe('dev seed (T2.2)', () => {
     expect(await raw('chanda_weeks').countDocuments({})).toBe(6);
     expect(await raw('masjids').countDocuments({})).toBe(4);
     expect(await raw('payment_profiles').countDocuments({})).toBe(1);
+    expect(await raw('beneficiaries').countDocuments({ status: 'active' })).toBe(4);
     const after = (await raw('masjids').findOne({ _id: ALPHA }))?.['content_version'];
     expect(Number(after)).toBe(Number(before) + 1);
   });

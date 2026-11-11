@@ -148,5 +148,35 @@
     "empty": "No chanda reported yet",
     "emptyBody": "When the masjid enters a week’s total, it appears here.",
     "collected": "{amount} collected in the week of {date}"
+  },
+  "needy": {
+    "intro": "Verified by {masjid}. Payments go directly to the person.",
+    "filter": "Filter",
+    "all": "All",
+    "zakat": "Zakat-eligible",
+    "amounts": "{received} of {target}",
+    "progressLabel": "Received so far",
+    "stillNeeded": "Still needed: {amount}",
+    "help": "Help {name}",
+    "pay": "Pay with UPI",
+    "showQr": "Show UPI QR",
+    "reported": "Amount received is reported by the masjid.",
+    "disclaimer": "Payments go directly to each person’s own UPI account. {app} does not receive or handle any money.",
+    "empty": "No one is listed right now",
+    "emptyBody": "When the masjid lists people it has verified as in need, you will see them here.",
+    "emptyZakat": "No one here is marked zakat-eligible right now.",
+    "failed": "Couldn’t load the list",
+    "failedBody": "Check your connection and try again. Once opened, it is available offline too.",
+    "category": {
+      "widow": "Widow",
+      "orphan": "Orphan",
+      "disability": "Disability",
+      "illness": "Illness",
+      "elderly": "Elderly",
+      "homeless": "Homeless",
+      "debt": "Debt",
+      "student": "Student",
+      "other": "Other"
+    }
   }
 }

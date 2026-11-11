@@ -1,10 +1,9 @@
-// The UPI QR sheet (07 A10, 08 §5.7): payee name, the UPI ID with Copy, the QR code (fades/scales in once the sheet has
+// The UPI QR sheet (07 A10 and A23, 08 §5.7): payee name, the UPI ID with Copy, the QR code (fades/scales in once the sheet has
 // settled), "Scan with any UPI app from another phone", Save QR to gallery, the gallery hint, "Payment details changed
 // on …" for 30 days after a change (04 R1) and the check-the-name hint. A lazy chunk: the QR generator stays out of the
 // app's entry (PHASE_05 T5.7 budgets).
 import { buildUpiUri } from '@mc/domain/upi';
 import { useLocale, useTranslation } from '@mc/i18n/react';
-import type { ActiveMasjidBundle } from '@mc/shared/contracts/public';
 import { Button, IconButton, InfoNote, Sheet, useToast } from '@mc/ui/components';
 import { paymentChangedRecently } from '@mc/ui/content';
 import { CheckIcon, CopyIcon, DownloadIcon, WarningIcon } from '@mc/ui/icons';
@@ -22,8 +21,12 @@ const COPIED_MS = 1500;
 export interface UpiQrSheetProps {
   readonly open: boolean;
   readonly onClose: () => void;
-  readonly payment: NonNullable<ActiveMasjidBundle['payment']>;
-  /** The campaign title — the payment note (`tn`) the UPI app pre-fills. */
+  /**
+   * Who is paid: the masjid's live UPI details (with `effectiveAt` — the "changed recently" notice, 04 R1), or a needy
+   * person's own (A23 — no change notice: the masjid lists them as they are).
+   */
+  readonly payment: { readonly vpa: string; readonly payeeName: string; readonly effectiveAt?: string | undefined };
+  /** The payment note (`tn`) the UPI app pre-fills — the campaign title, or the masjid's name for a needy person. */
   readonly note: string;
 }
 
@@ -43,7 +46,7 @@ export default function UpiQrSheet({ open, onClose, payment, note }: UpiQrSheetP
       return null; // the server validated the details; an invalid one shows no QR rather than a wrong one
     }
   }, [payment.vpa, payment.payeeName, note]);
-  const changed = paymentChangedRecently(payment.effectiveAt, now);
+  const changed = payment.effectiveAt ? paymentChangedRecently(payment.effectiveAt, now) : null;
 
   useEffect(() => {
     const node = qr.current;

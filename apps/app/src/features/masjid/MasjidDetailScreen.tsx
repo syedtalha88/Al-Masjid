@@ -45,6 +45,7 @@ import {
   PlayCircleIcon,
   ShareIcon,
   ShieldCheckIcon,
+  UsersIcon,
 } from '@mc/ui/icons';
 import { useMotionPrefs } from '@mc/ui/motion';
 import { BackIcon, useNavigator, useScreen } from '@mc/ui/navigation';
@@ -77,6 +78,7 @@ const SECTION_ICON: Readonly<Record<SectionId, { readonly icon: ReactNode; reado
   ruqyah: { icon: <ShieldCheckIcon />, tone: 'info' },
   ilm: { icon: <ChatCircleIcon />, tone: 'primary' },
   campaigns: { icon: <HeartIcon />, tone: 'heart' },
+  needy: { icon: <UsersIcon />, tone: 'heart' },
   chanda: { icon: <ChartBarIcon />, tone: 'purple' },
   bayans: { icon: <PlayCircleIcon />, tone: 'primary' },
 };

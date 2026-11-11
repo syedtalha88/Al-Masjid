@@ -115,6 +115,18 @@ describe('sectionRows', () => {
     expect(sectionRows(bundle(false, 0), pages, undefined, null, 'brothers')).toEqual([]);
   });
 
+  it('"Help the needy" (A23) shows between campaigns and chanda while the bundle counts listed people', () => {
+    const pages = new Map<ItemType, FeedItem[]>();
+    const listed = { ...bundle(true, 2), sections: { ruqyah: 0, needy: 3 } };
+    expect(sectionRows(listed, pages, undefined, null, 'brothers')).toEqual([
+      { id: 'needy', unseen: 0 },
+      { id: 'chanda', unseen: 0 },
+    ]);
+    // Everyone fulfilled or closed: the row is gone.
+    const none = { ...bundle(true, 2), sections: { ruqyah: 0, needy: 0 } };
+    expect(sectionRows(none, pages, undefined, null, 'brothers').map((row) => row.id)).toEqual(['chanda']);
+  });
+
   it('"Ask the masjid" (A21) shows only when there are contacts for the device’s own audience', () => {
     const pages = new Map<ItemType, FeedItem[]>();
     const contact = (audience: 'brothers' | 'sisters') => ({

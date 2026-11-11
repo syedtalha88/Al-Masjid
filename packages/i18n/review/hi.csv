@@ -679,6 +679,80 @@ admin,chanda.update,Save changes,बदलाव सेव करें,no
 admin,chanda.saved,Saved,सेव हो गया,no
 admin,chanda.history,Earlier weeks,पिछले हफ़्ते,no
 admin,chanda.empty,No weeks entered yet.,अभी कोई हफ़्ता नहीं डाला गया।,no
+admin,needy.title,Needy people,ज़रूरतमंद लोग,no
+admin,needy.intro,People your masjid has verified as in need. Followers pay them directly by UPI — the app never touches the money.,वे लोग जिन्हें आपकी मस्जिद ने ज़रूरतमंद के रूप में जाँचा है। फ़ॉलोअर्स उन्हें सीधे UPI से भेजते हैं — ऐप पैसे को कभी नहीं छूता।,no
+admin,needy.statusFilter,Status,स्थिति,no
+admin,needy.status.active,Active,चालू,no
+admin,needy.status.fulfilled,Fulfilled,ज़रूरत पूरी,no
+admin,needy.status.closed,Closed,बंद,no
+admin,needy.empty.active,No one listed yet,अभी कोई सूची में नहीं,no
+admin,needy.empty.fulfilled,No one fulfilled yet,अभी किसी की ज़रूरत पूरी नहीं हुई,no
+admin,needy.empty.closed,No one closed yet,अभी कोई बंद नहीं,no
+admin,needy.emptyBody,Add a person your masjid has verified. Ask them first.,ऐसे व्यक्ति को जोड़ें जिसे आपकी मस्जिद ने जाँचा है। पहले उनसे पूछें।,no
+admin,needy.category.widow,Widow,विधवा,no
+admin,needy.category.orphan,Orphan,यतीम,no
+admin,needy.category.disability,Disability,विकलांगता,no
+admin,needy.category.illness,Illness,बीमारी,no
+admin,needy.category.elderly,Elderly,बुज़ुर्ग,no
+admin,needy.category.homeless,Homeless,बेघर,no
+admin,needy.category.debt,Debt,क़र्ज़,no
+admin,needy.category.student,Student,विद्यार्थी,no
+admin,needy.category.other,Other,अन्य,no
+admin,needy.zakat,Zakat-eligible,ज़कात के पात्र,no
+admin,needy.amounts,{received} of {target},{target} में से {received},no
+admin,needy.receivedLabel,Received (reported by masjid),प्राप्त (मस्जिद द्वारा बताया गया),no
+admin,needy.fulfilledNote,Fulfilled — hidden from the app,ज़रूरत पूरी — ऐप में नहीं दिखेगा,no
+admin,needy.relistNote,"Below the amount needed, this person is listed in the app again.",ज़रूरत की राशि से कम होने पर यह व्यक्ति ऐप में फिर दिखेगा।,no
+admin,needy.updateReceived,Update received,प्राप्त राशि अपडेट करें,no
+admin,needy.updateTitle,Received so far,अब तक प्राप्त,no
+admin,needy.needed,Needed: {amount},ज़रूरत: {amount},no
+admin,needy.save,Save,सेव करें,no
+admin,needy.saved,Amount saved,राशि सेव हो गई,no
+admin,needy.edit,Edit details,विवरण बदलें,no
+admin,needy.close,Close,बंद करें,no
+admin,needy.closeTitle,Close this person?,इस व्यक्ति को बंद करें?,no
+admin,needy.closeBody,Use this when help is no longer needed. They are hidden from the app. This cannot be undone.,जब मदद की ज़रूरत न रहे तब इसे चुनें। वे ऐप में नहीं दिखेंगे। इसे वापस नहीं किया जा सकता।,no
+admin,needy.closed,Closed,बंद किया गया,no
+admin,needy.remove,Remove,हटाएँ,no
+admin,needy.removeTitle,Remove this person?,इस व्यक्ति को हटाएँ?,no
+admin,needy.removeBody,"Use this for a mistake, or when the person asks to be removed. This cannot be undone.","ग़लती होने पर, या जब व्यक्ति हटाने को कहे, तब इसे चुनें। इसे वापस नहीं किया जा सकता।",no
+admin,needy.removed,Removed,हटाया गया,no
+admin,needy.add,Add person,व्यक्ति जोड़ें,no
+admin,needy.full,"You have {max} active people, the most allowed. Close one to add another.","आपके {max} चालू व्यक्ति हैं, जो सबसे ज़्यादा है। नया जोड़ने के लिए एक को बंद करें।",no
+admin,needy.retention,"Details of fulfilled, closed and removed people are deleted after 90 days.","ज़रूरत पूरी हुए, बंद और हटाए गए लोगों का विवरण 90 दिन बाद मिटा दिया जाता है।",no
+admin,needy.newTitle,Add a person,नया व्यक्ति जोड़ें,no
+admin,needy.editTitle,Edit person,व्यक्ति का विवरण बदलें,no
+admin,needy.name,Name shown in the app,ऐप में दिखने वाला नाम,no
+admin,needy.nameHint,First name or initials only,सिर्फ़ पहला नाम या नाम के पहले अक्षर,no
+admin,needy.categoryQuestion,What kind of need?,किस तरह की ज़रूरत है?,no
+admin,needy.reason,Why they need help,मदद क्यों चाहिए,no
+admin,needy.reasonHint,"Short and respectful. No address, phone number or family names.","छोटा और सम्मानजनक लिखें। पता, फ़ोन नंबर या परिवार के नाम न लिखें।",no
+admin,needy.upiTitle,The person’s own UPI,व्यक्ति का अपना UPI,no
+admin,needy.upiHint,Money goes straight to this UPI ID. Check it with the person.,पैसा सीधे इसी UPI ID पर जाता है। व्यक्ति से इसे जाँच लें।,no
+admin,needy.scan,Scan the person’s UPI QR,व्यक्ति का UPI QR स्कैन करें,no
+admin,needy.scanHint,Point the camera at the person’s own UPI QR.,कैमरा व्यक्ति के अपने UPI QR पर रखें।,no
+admin,needy.cap,Amount needed,ज़रूरत की राशि,no
+admin,needy.capHint,From ₹1 to ₹1 crore,₹1 से ₹1 करोड़ तक,no
+admin,needy.zakatLabel,Zakat can be given to this person,इस व्यक्ति को ज़कात दी जा सकती है,no
+admin,needy.zakatHint,Your masjid’s statement. The app shows “Zakat-eligible”.,यह आपकी मस्जिद का बयान है। ऐप में “ज़कात के पात्र” दिखेगा।,no
+admin,needy.privateTitle,Private details,निजी विवरण,no
+admin,needy.privateHint,Only admins of this masjid see this. It is stored encrypted and never shown in the app.,इसे सिर्फ़ इस मस्जिद के एडमिन देखते हैं। यह एन्क्रिप्ट करके रखा जाता है और ऐप में कभी नहीं दिखता।,no
+admin,needy.phone,Phone number,फ़ोन नंबर,no
+admin,needy.note,Private note,निजी नोट,no
+admin,needy.showPrivate,Show private details,निजी विवरण दिखाएँ,no
+admin,needy.showPrivateHint,"Each time someone views them, it is recorded.","जब भी कोई इन्हें देखता है, वह दर्ज होता है।",no
+admin,needy.consent,The person — or a guardian for a child — agreed to be listed with these details,इस व्यक्ति ने — या बच्चे के लिए उसके अभिभावक ने — इन विवरणों के साथ सूची में आने की सहमति दी है,no
+admin,needy.consentHint,"Ask them first. Their name, reason and UPI ID will be visible to app users.","पहले उनसे पूछें। उनका नाम, कारण और UPI ID ऐप के उपयोगकर्ताओं को दिखेंगे।",no
+admin,needy.missing,Still needed: {fields},अभी चाहिए: {fields},no
+admin,needy.issue.name,a name,नाम,no
+admin,needy.issue.category,the kind of need,ज़रूरत का प्रकार,no
+admin,needy.issue.reason,the reason,कारण,no
+admin,needy.issue.vpa,a valid UPI ID,सही UPI ID,no
+admin,needy.issue.payee,the payee name,प्राप्तकर्ता का नाम,no
+admin,needy.issue.cap,the amount needed,ज़रूरत की राशि,no
+admin,needy.issue.phone,a valid phone number,सही फ़ोन नंबर,no
+admin,needy.issue.consent,the tick that they agreed,सहमति का टिक,no
+admin,needy.personSaved,Person saved,व्यक्ति सेव हो गया,no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no
@@ -978,6 +1052,32 @@ content,chanda.bar,{week}: {amount},{week}: {amount},no
 content,chanda.empty,No chanda reported yet,अभी कोई चंदा नहीं बताया गया,no
 content,chanda.emptyBody,"When the masjid enters a week’s total, it appears here.","जब मस्जिद किसी हफ़्ते का कुल डालेगी, वह यहाँ दिखेगा।",no
 content,chanda.collected,{amount} collected in the week of {date},{date} वाले हफ़्ते में {amount} जमा हुए,no
+content,needy.intro,Verified by {masjid}. Payments go directly to the person.,{masjid} द्वारा जाँचा गया। भुगतान सीधे उस व्यक्ति को जाता है।,no
+content,needy.filter,Filter,फ़िल्टर,no
+content,needy.all,All,सभी,no
+content,needy.zakat,Zakat-eligible,ज़कात के पात्र,no
+content,needy.amounts,{received} of {target},{target} में से {received},no
+content,needy.progressLabel,Received so far,अब तक प्राप्त,no
+content,needy.stillNeeded,Still needed: {amount},अभी ज़रूरत: {amount},no
+content,needy.help,Help {name},{name} की मदद करें,no
+content,needy.pay,Pay with UPI,UPI से भुगतान करें,no
+content,needy.showQr,Show UPI QR,UPI QR दिखाएँ,no
+content,needy.reported,Amount received is reported by the masjid.,प्राप्त राशि मस्जिद द्वारा बताई गई है।,no
+content,needy.disclaimer,Payments go directly to each person’s own UPI account. {app} does not receive or handle any money.,"भुगतान सीधे हर व्यक्ति के अपने UPI खाते में जाता है। {app} कोई पैसा न लेता है, न संभालता है।",no
+content,needy.empty,No one is listed right now,अभी कोई सूची में नहीं है,no
+content,needy.emptyBody,"When the masjid lists people it has verified as in need, you will see them here.","जब मस्जिद उन लोगों को सूची में डालेगी जिन्हें उसने ज़रूरतमंद के रूप में जाँचा है, वे यहाँ दिखेंगे।",no
+content,needy.emptyZakat,No one here is marked zakat-eligible right now.,अभी यहाँ कोई ज़कात का पात्र चिह्नित नहीं है।,no
+content,needy.failed,Couldn’t load the list,सूची लोड नहीं हो सकी,no
+content,needy.failedBody,"Check your connection and try again. Once opened, it is available offline too.",अपना कनेक्शन जाँचें और फिर से कोशिश करें। एक बार खुलने के बाद यह ऑफ़लाइन भी मिलेगी।,no
+content,needy.category.widow,Widow,विधवा,no
+content,needy.category.orphan,Orphan,यतीम,no
+content,needy.category.disability,Disability,विकलांगता,no
+content,needy.category.illness,Illness,बीमारी,no
+content,needy.category.elderly,Elderly,बुज़ुर्ग,no
+content,needy.category.homeless,Homeless,बेघर,no
+content,needy.category.debt,Debt,क़र्ज़,no
+content,needy.category.student,Student,विद्यार्थी,no
+content,needy.category.other,Other,अन्य,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,हमारी बिरादरी के एक सदस्य बीमार हैं। कृपया उन्हें अपनी दुआओं में याद रखें।,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,हमारी बिरादरी के एक सदस्य अस्पताल में हैं। कृपया उनकी सेहत के लिए दुआ करें।,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,हमारी बिरादरी के एक सदस्य का ऑपरेशन है। कृपया दुआ करें कि सब ठीक हो।,no
@@ -1125,6 +1225,7 @@ masjid,adhkar,Adhkar after salah,नमाज़ के बाद के अज�
 masjid,ruqyah,Ruqyah,रुक़्या,no
 masjid,ilm,Ask the masjid,मस्जिद से पूछें,no
 masjid,campaigns,Donation Campaigns,चंदा अभियान,no
+masjid,needy,Help the needy,ज़रूरतमंदों की मदद,no
 masjid,chanda,Weekly Chanda,हफ़्ते का चंदा,no
 masjid,bayans,Bayans,बयान,no
 masjid,suspended,This masjid is temporarily unavailable,यह मस्जिद अभी कुछ समय के लिए उपलब्ध नहीं है,no

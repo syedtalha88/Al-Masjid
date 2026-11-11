@@ -20,9 +20,11 @@ import { join } from 'node:path';
  * Vibration choice (F16) run from the data layer in the entry (+1.1 kB — DECISIONS #101); 187 kB since T3.14 — Home's
  * "Adhkar after salah" card and its window (186.01 kB — DECISIONS #129); 188 kB since T4.2 — the push bridge (a tapped
  * notification opens its screen) and the soft-ask shell after the first follow (187.65 kB, +0.65 kB; the subscription
- * code itself, `lib/push.ts`, and the ask sheet stay lazy — DECISIONS #140).
+ * code itself, `lib/push.ts`, and the ask sheet stay lazy — DECISIONS #140); 189 kB since T5.8 — the needy-people list
+ * call and its validated contract sit in the API client like every other endpoint (188.41 kB, +0.44 kB; the screen and
+ * its pay sheet are lazy — DECISIONS #157, owner rule "quality over budgets").
  */
-const APP_INITIAL_JS = '188 kB';
+const APP_INITIAL_JS = '189 kB';
 const ADMIN_INITIAL_JS = '220 kB';
 const INITIAL_CSS = '25 kB';
 const LAZY_CHUNK = '60 kB';

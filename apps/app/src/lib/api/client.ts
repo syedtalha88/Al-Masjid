@@ -7,6 +7,8 @@ import {
   type AmeenCounts,
   ameenCountsSchema,
   ameenResponseSchema,
+  type BeneficiaryList,
+  beneficiaryListSchema,
   type DeviceRecord,
   deviceRecordSchema,
   type FeedPage,
@@ -209,6 +211,9 @@ export function createApiClient(options: ApiClientOptions) {
     /** A19 (T3.15): the masjid's Ruqyah entries under their headings. */
     ruqyah: (masjidId: string, v: number, signal?: AbortSignal): Promise<RuqyahList> =>
       call(`/masjids/${enc(masjidId)}/ruqyah${query({ v })}`, ruqyahListSchema, signal ? { signal } : {}),
+    /** A23 (T5.8): the people the masjid lists as in need, least-funded first — public fields only. */
+    beneficiaries: (masjidId: string, v: number, signal?: AbortSignal): Promise<BeneficiaryList> =>
+      call(`/masjids/${enc(masjidId)}/beneficiaries${query({ v })}`, beneficiaryListSchema, signal ? { signal } : {}),
     item: (
       publicId: string,
       params: { v?: number; aud: 'brothers' | 'sisters' },

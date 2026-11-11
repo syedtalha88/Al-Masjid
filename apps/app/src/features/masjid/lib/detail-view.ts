@@ -5,10 +5,11 @@ import type { ActiveMasjidBundle, FeedItem, IlmContact, ItemType } from '@mc/sha
 import { unseenCount } from '../../masjids/lib/masjids-view.ts';
 
 export type SectionId =
-  'announcements' | 'hadith' | 'duas' | 'adhkar' | 'ruqyah' | 'ilm' | 'campaigns' | 'chanda' | 'bayans';
+  'announcements' | 'hadith' | 'duas' | 'adhkar' | 'ruqyah' | 'ilm' | 'campaigns' | 'needy' | 'chanda' | 'bayans';
 
 /**
- * Overview rows in order (07 A5) and the feed type behind each (adhkar, Ruqyah and Ilm come from the bundle; chanda
+ * Overview rows in order (07 A5) and the feed type behind each (adhkar, Ruqyah, Ilm and needy people come from the
+ * bundle; chanda
  * shows by the bundle, and its `chanda_update` items only count what is new — T5.6).
  */
 export const SECTIONS: readonly { readonly id: SectionId; readonly type: ItemType | null }[] = [
@@ -19,6 +20,7 @@ export const SECTIONS: readonly { readonly id: SectionId; readonly type: ItemTyp
   { id: 'ruqyah', type: null },
   { id: 'ilm', type: null },
   { id: 'campaigns', type: 'campaign' },
+  { id: 'needy', type: null },
   { id: 'chanda', type: 'chanda_update' },
   { id: 'bayans', type: 'video' },
 ];
@@ -41,7 +43,7 @@ export interface SectionRow {
 /**
  * The Overview rows: a section shows when it has content (the first page of its feed is not empty; "Adhkar after salah"
  * when the masjid has a set; Ruqyah when the bundle counts entries; "Ask the masjid" when it lists contacts for this
- * device's audience; Weekly Chanda when the masjid shows it and has weeks — also before its feed page arrived), with
+ * device's audience; "Help the needy" when the bundle counts listed people (07 A23); Weekly Chanda when the masjid shows it and has weeks — also before its feed page arrived), with
  * the count of items not seen yet.
  *
  * @param pages - first feed page per type (missing = still loading → the row waits).
@@ -59,6 +61,7 @@ export function sectionRows(
     if (section.id === 'adhkar') return bundle.adhkar ? [{ id: section.id, unseen: 0 }] : []; // 07 A20 (T3.14)
     if (section.id === 'ruqyah') return (bundle.sections?.ruqyah ?? 0) > 0 ? [{ id: section.id, unseen: 0 }] : []; // A19
     if (section.id === 'ilm') return contactsFor(bundle, audience).length > 0 ? [{ id: section.id, unseen: 0 }] : []; // A21
+    if (section.id === 'needy') return (bundle.sections?.needy ?? 0) > 0 ? [{ id: section.id, unseen: 0 }] : []; // A23
     if (section.type === null) return [];
     const items = pages.get(section.type) ?? [];
     const unseen = followedAt === null ? 0 : unseenCount(items, seenAt, followedAt);
