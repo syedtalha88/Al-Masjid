@@ -76,5 +76,7 @@
   "CAMPAIGN_NOT_FOUND": "This donation drive no longer exists.",
   "CAMPAIGN_NOT_ACTIVE": "This donation drive is already completed or closed.",
   "CAMPAIGN_CLOSED": "This donation drive has closed. The amount can no longer be changed.",
-  "CAMPAIGN_TARGET_LOWER": "The target can only be raised, not lowered."
+  "CAMPAIGN_TARGET_LOWER": "The target can only be raised, not lowered.",
+  "CHANDA_INVALID": "Please check the week and the amount.",
+  "CHANDA_HIDDEN": "Turn on “Show chanda to followers” before notifying them."
 }

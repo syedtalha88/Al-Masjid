@@ -770,5 +770,35 @@
       "target": "a target of at least ₹1,000",
       "dates": "an end date after the start"
     }
+  },
+  "chanda": {
+    "title": "Chanda",
+    "intro": "Enter the total collected each week. Followers see it only when “Show chanda to followers” is on.",
+    "show": "Show chanda to followers",
+    "showHint": "Followers see the weekly totals and a chart on your masjid page.",
+    "shownToast": "Chanda is now shown to followers",
+    "hiddenToast": "Chanda is now hidden from followers",
+    "weekStartsOn": "Week starts on",
+    "day": {
+      "5": "Friday",
+      "1": "Monday"
+    },
+    "weekStartSaved": "Week start saved",
+    "thisWeek": "This week",
+    "week": "Week",
+    "range": "{start} – {end}",
+    "previous": "Previous week",
+    "next": "Next week",
+    "amount": "Total collected",
+    "note": "Note",
+    "noteHint": "For example: thanks to everyone who gave",
+    "notify": "Notify followers",
+    "notifyHint": "Uses one of today’s notifications.",
+    "notifyHidden": "Turn on “Show chanda to followers” to notify them.",
+    "save": "Save",
+    "update": "Save changes",
+    "saved": "Saved",
+    "history": "Earlier weeks",
+    "empty": "No weeks entered yet."
   }
 }

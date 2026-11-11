@@ -17,6 +17,7 @@ import {
   IconButton,
   Image,
   ImageViewer,
+  InfoNote,
   Skeleton,
   SkeletonText,
   Switch,
@@ -141,6 +142,7 @@ function ItemDetail({ publicId }: { readonly publicId: string }) {
   if (item.type === 'daily_content' && item.daily?.library) return <Reader item={item} masjid={masjid} />;
   if (item.type === 'dua_request' && item.dua) return <DuaDetail item={item} masjid={masjid} />;
   if (item.type === 'campaign' && item.campaign) return <CampaignItemDetail item={item} masjid={masjid} />;
+  if (item.type === 'chanda_update' && item.chanda) return <ChandaItemDetail item={item} masjid={masjid} />;
   return <NoticeDetail item={item} masjid={masjid} />;
 }
 
@@ -206,6 +208,43 @@ function CampaignItemDetail({ item, masjid }: DetailProps) {
       share={<ShareButton item={item} masjid={masjid} />}
       footer={<LandingFooter />}
     />
+  );
+}
+
+/** A chanda update (A11 feed entry): the week's total, and the way to the masjid's Weekly Chanda. */
+function ChandaItemDetail({ item, masjid }: DetailProps) {
+  const { t } = useTranslation('content');
+  const { format } = useLocale();
+  const navigator = useNavigator();
+  const name = useMasjidLabel(masjid);
+  const chanda = item.chanda;
+  if (!chanda) return null;
+  return (
+    <Screen title={t('chanda.title')} {...(name ? { subtitle: name } : {})}>
+      <article className="flex flex-col gap-4 pt-2 pb-6" data-chanda-item>
+        <header className="flex items-start gap-3">
+          <ItemIcon item={item} size={56} />
+          <p className="type-title2 text-text">
+            {t('chanda.collected', {
+              amount: format.money(chanda.amountPaise),
+              date: format.calendarDate(chanda.weekStart, 'medium'),
+            })}
+          </p>
+        </header>
+        <InfoNote>{t('chanda.reported')}</InfoNote>
+        <Button
+          size="lg"
+          fullWidth
+          onPress={() => {
+            navigator.push(`/masjid/${item.masjidId}/chanda`);
+          }}
+        >
+          {t('chanda.title')}
+        </Button>
+        <ShareButton item={item} masjid={masjid} />
+        <LandingFooter />
+      </article>
+    </Screen>
   );
 }
 

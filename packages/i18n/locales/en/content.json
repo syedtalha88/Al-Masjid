@@ -136,5 +136,17 @@
       "changed": "Payment details changed on {date}",
       "checkName": "Your UPI app shows the name before you pay — make sure it says {payee}."
     }
+  },
+  "chanda": {
+    "title": "Weekly Chanda",
+    "thisWeek": "This week",
+    "lastWeek": "Latest week",
+    "range": "{start} – {end}",
+    "reported": "Reported by masjid admin.",
+    "chartLabel": "Chanda of the last {count, plural, one {week} other {# weeks}}",
+    "bar": "{week}: {amount}",
+    "empty": "No chanda reported yet",
+    "emptyBody": "When the masjid enters a week’s total, it appears here.",
+    "collected": "{amount} collected in the week of {date}"
   }
 }

@@ -653,6 +653,32 @@ admin,donation.issue.purpose,what it is for,ఇది దేని కోసం,
 admin,donation.issue.title,a title,శీర్షిక,no
 admin,donation.issue.target,"a target of at least ₹1,000","కనీసం ₹1,000 లక్ష్యం",no
 admin,donation.issue.dates,an end date after the start,మొదలు తర్వాతి ముగింపు తేదీ,no
+admin,chanda.title,Chanda,చందా,no
+admin,chanda.intro,Enter the total collected each week. Followers see it only when “Show chanda to followers” is on.,ప్రతి వారం వసూలైన మొత్తాన్ని నమోదు చేయండి. “ఫాలోవర్లకు చందా చూపించు” ఆన్‌లో ఉన్నప్పుడే ఫాలోవర్లు దీన్ని చూస్తారు.,no
+admin,chanda.show,Show chanda to followers,ఫాలోవర్లకు చందా చూపించు,no
+admin,chanda.showHint,Followers see the weekly totals and a chart on your masjid page.,"ఫాలోవర్లు మీ మస్జిద్ పేజీలో వారపు మొత్తాలు, ఒక చార్ట్ చూస్తారు.",no
+admin,chanda.shownToast,Chanda is now shown to followers,ఇప్పుడు చందా ఫాలోవర్లకు కనిపిస్తోంది,no
+admin,chanda.hiddenToast,Chanda is now hidden from followers,ఇప్పుడు చందా ఫాలోవర్ల నుండి దాచబడింది,no
+admin,chanda.weekStartsOn,Week starts on,వారం మొదలయ్యే రోజు,no
+admin,chanda.day.1,Monday,సోమవారం,no
+admin,chanda.day.5,Friday,శుక్రవారం,no
+admin,chanda.weekStartSaved,Week start saved,వారం మొదలు సేవ్ అయింది,no
+admin,chanda.thisWeek,This week,ఈ వారం,no
+admin,chanda.week,Week,వారం,no
+admin,chanda.range,{start} – {end},{start} – {end},no
+admin,chanda.previous,Previous week,మునుపటి వారం,no
+admin,chanda.next,Next week,తర్వాతి వారం,no
+admin,chanda.amount,Total collected,మొత్తం వసూలు,no
+admin,chanda.note,Note,గమనిక,no
+admin,chanda.noteHint,For example: thanks to everyone who gave,ఉదాహరణ: ఇచ్చిన అందరికీ ధన్యవాదాలు,no
+admin,chanda.notify,Notify followers,ఫాలోవర్లకు తెలియజేయండి,no
+admin,chanda.notifyHint,Uses one of today’s notifications.,ఈరోజు నోటిఫికేషన్లలో ఒకటి వాడబడుతుంది.,no
+admin,chanda.notifyHidden,Turn on “Show chanda to followers” to notify them.,తెలియజేయడానికి “ఫాలోవర్లకు చందా చూపించు” ఆన్ చేయండి.,no
+admin,chanda.save,Save,సేవ్ చేయండి,no
+admin,chanda.update,Save changes,మార్పులు సేవ్ చేయండి,no
+admin,chanda.saved,Saved,సేవ్ అయింది,no
+admin,chanda.history,Earlier weeks,మునుపటి వారాలు,no
+admin,chanda.empty,No weeks entered yet.,ఇంకా ఏ వారమూ నమోదు కాలేదు.,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -940,6 +966,16 @@ content,campaign.qr.saved,QR code saved,QR కోడ్ సేవ్ అయి�
 content,campaign.qr.saveFailed,Couldn’t save the QR code. Take a screenshot instead.,QR కోడ్ సేవ్ కాలేదు. బదులుగా స్క్రీన్‌షాట్ తీసుకోండి.,no
 content,campaign.qr.changed,Payment details changed on {date},చెల్లింపు వివరాలు {date}న మారాయి,no
 content,campaign.qr.checkName,Your UPI app shows the name before you pay — make sure it says {payee}.,చెల్లించే ముందు మీ UPI యాప్ పేరు చూపిస్తుంది — అందులో {payee} అని ఉందో లేదో చూసుకోండి.,no
+content,chanda.title,Weekly Chanda,వారపు చందా,no
+content,chanda.thisWeek,This week,ఈ వారం,no
+content,chanda.lastWeek,Latest week,తాజా వారం,no
+content,chanda.range,{start} – {end},{start} – {end},no
+content,chanda.reported,Reported by masjid admin.,మస్జిద్ అడ్మిన్ తెలిపినది.,no
+content,chanda.chartLabel,"Chanda of the last {count, plural, one {week} other {# weeks}}","గత {count, plural, one {# వారం} other {# వారాల}} చందా",no
+content,chanda.bar,{week}: {amount},{week}: {amount},no
+content,chanda.empty,No chanda reported yet,ఇంకా చందా తెలియజేయలేదు,no
+content,chanda.emptyBody,"When the masjid enters a week’s total, it appears here.","మస్జిద్ ఒక వారం మొత్తాన్ని నమోదు చేసినప్పుడు, అది ఇక్కడ కనిపిస్తుంది.",no
+content,chanda.collected,{amount} collected in the week of {date},{date} వారంలో {amount} వసూలైంది,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,మన సమాజంలోని ఒకరు అనారోగ్యంతో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,మన సమాజంలోని ఒకరు ఆసుపత్రిలో ఉన్నారు. దయచేసి వారు కోలుకోవాలని దువా చేయండి.,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,మన సమాజంలోని ఒకరికి ఆపరేషన్ జరుగుతోంది. అంతా బాగా జరగాలని దయచేసి దువా చేయండి.,no
@@ -1027,6 +1063,8 @@ errors,CAMPAIGN_NOT_FOUND,This donation drive no longer exists.,ఈ విరా
 errors,CAMPAIGN_NOT_ACTIVE,This donation drive is already completed or closed.,ఈ విరాళ ప్రచారం ఇప్పటికే పూర్తయింది లేదా ముగిసింది.,no
 errors,CAMPAIGN_CLOSED,This donation drive has closed. The amount can no longer be changed.,ఈ విరాళ ప్రచారం ముగిసింది. మొత్తాన్ని ఇక మార్చలేరు.,no
 errors,CAMPAIGN_TARGET_LOWER,"The target can only be raised, not lowered.","లక్ష్యాన్ని పెంచవచ్చు మాత్రమే, తగ్గించలేరు.",no
+errors,CHANDA_INVALID,Please check the week and the amount.,దయచేసి వారం మరియు మొత్తాన్ని తనిఖీ చేయండి.,no
+errors,CHANDA_HIDDEN,Turn on “Show chanda to followers” before notifying them.,తెలియజేసే ముందు “ఫాలోవర్లకు చందా చూపించు” ఆన్ చేయండి.,no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no

@@ -15,6 +15,7 @@ export {
 } from './Button.tsx';
 export { Card, type CardProps, type CardVariant, PressableCard, type PressableCardProps } from './Card.tsx';
 export { Carousel, type CarouselProps } from './Carousel.tsx';
+export { type ChandaBar, ChandaChart, type ChandaChartProps } from './ChandaChart.tsx';
 export { type Chip, ChipGroup, type ChipGroupProps } from './ChipGroup.tsx';
 export {
   AnnouncementCard,

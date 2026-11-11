@@ -653,6 +653,32 @@ admin,donation.issue.purpose,what it is for,یہ کس لیے ہے,no
 admin,donation.issue.title,a title,عنوان,no
 admin,donation.issue.target,"a target of at least ₹1,000","کم از کم ₹1,000 کا ہدف",no
 admin,donation.issue.dates,an end date after the start,شروع کے بعد کی ختم تاریخ,no
+admin,chanda.title,Chanda,چندہ,no
+admin,chanda.intro,Enter the total collected each week. Followers see it only when “Show chanda to followers” is on.,ہر ہفتے جمع ہونے والی کل رقم درج کریں۔ فالوورز اسے تبھی دیکھتے ہیں جب ”فالوورز کو چندہ دکھائیں“ آن ہو۔,no
+admin,chanda.show,Show chanda to followers,فالوورز کو چندہ دکھائیں,no
+admin,chanda.showHint,Followers see the weekly totals and a chart on your masjid page.,فالوورز آپ کی مسجد کے صفحے پر ہر ہفتے کا کل اور ایک چارٹ دیکھتے ہیں۔,no
+admin,chanda.shownToast,Chanda is now shown to followers,اب چندہ فالوورز کو دکھ رہا ہے,no
+admin,chanda.hiddenToast,Chanda is now hidden from followers,اب چندہ فالوورز سے چھپا ہے,no
+admin,chanda.weekStartsOn,Week starts on,ہفتہ شروع ہوتا ہے,no
+admin,chanda.day.1,Monday,پیر,no
+admin,chanda.day.5,Friday,جمعہ,no
+admin,chanda.weekStartSaved,Week start saved,ہفتے کا آغاز محفوظ ہو گیا,no
+admin,chanda.thisWeek,This week,یہ ہفتہ,no
+admin,chanda.week,Week,ہفتہ,no
+admin,chanda.range,{start} – {end},{start} – {end},no
+admin,chanda.previous,Previous week,پچھلا ہفتہ,no
+admin,chanda.next,Next week,اگلا ہفتہ,no
+admin,chanda.amount,Total collected,کل جمع,no
+admin,chanda.note,Note,نوٹ,no
+admin,chanda.noteHint,For example: thanks to everyone who gave,مثال: دینے والے سب کا شکریہ,no
+admin,chanda.notify,Notify followers,فالوورز کو اطلاع دیں,no
+admin,chanda.notifyHint,Uses one of today’s notifications.,آج کی اطلاعات میں سے ایک استعمال ہوگی۔,no
+admin,chanda.notifyHidden,Turn on “Show chanda to followers” to notify them.,اطلاع دینے کے لیے ”فالوورز کو چندہ دکھائیں“ آن کریں۔,no
+admin,chanda.save,Save,محفوظ کریں,no
+admin,chanda.update,Save changes,تبدیلیاں محفوظ کریں,no
+admin,chanda.saved,Saved,محفوظ ہو گیا,no
+admin,chanda.history,Earlier weeks,پچھلے ہفتے,no
+admin,chanda.empty,No weeks entered yet.,ابھی کوئی ہفتہ درج نہیں کیا گیا۔,no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no
@@ -940,6 +966,16 @@ content,campaign.qr.saved,QR code saved,QR کوڈ محفوظ ہو گیا,no
 content,campaign.qr.saveFailed,Couldn’t save the QR code. Take a screenshot instead.,QR کوڈ محفوظ نہیں ہو سکا۔ اس کی جگہ اسکرین شاٹ لے لیں۔,no
 content,campaign.qr.changed,Payment details changed on {date},ادائیگی کی تفصیلات {date} کو بدلی گئیں,no
 content,campaign.qr.checkName,Your UPI app shows the name before you pay — make sure it says {payee}.,ادائیگی سے پہلے آپ کی UPI ایپ نام دکھاتی ہے — دیکھ لیں کہ اس میں {payee} لکھا ہو۔,no
+content,chanda.title,Weekly Chanda,ہفتہ وار چندہ,no
+content,chanda.thisWeek,This week,یہ ہفتہ,no
+content,chanda.lastWeek,Latest week,تازہ ہفتہ,no
+content,chanda.range,{start} – {end},{start} – {end},no
+content,chanda.reported,Reported by masjid admin.,مسجد ایڈمن کی طرف سے بتایا گیا۔,no
+content,chanda.chartLabel,"Chanda of the last {count, plural, one {week} other {# weeks}}","پچھلے {count, plural, one {# ہفتے} other {# ہفتوں}} کا چندہ",no
+content,chanda.bar,{week}: {amount},{week}: {amount},no
+content,chanda.empty,No chanda reported yet,ابھی کوئی چندہ نہیں بتایا گیا,no
+content,chanda.emptyBody,"When the masjid enters a week’s total, it appears here.",جب مسجد کسی ہفتے کا کل درج کرے گی تو وہ یہاں نظر آئے گا۔,no
+content,chanda.collected,{amount} collected in the week of {date},{date} والے ہفتے میں {amount} جمع ہوئے,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,ہماری برادری کے ایک رکن بیمار ہیں۔ براہِ کرم انہیں اپنی دعاؤں میں یاد رکھیں۔,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,ہماری برادری کے ایک رکن اسپتال میں ہیں۔ براہِ کرم ان کی صحت یابی کے لیے دعا کریں۔,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,ہماری برادری کے ایک رکن کا آپریشن ہے۔ براہِ کرم دعا کریں کہ سب خیریت سے ہو۔,no
@@ -1027,6 +1063,8 @@ errors,CAMPAIGN_NOT_FOUND,This donation drive no longer exists.,یہ عطیہ م
 errors,CAMPAIGN_NOT_ACTIVE,This donation drive is already completed or closed.,یہ عطیہ مہم پہلے ہی مکمل یا بند ہو چکی ہے۔,no
 errors,CAMPAIGN_CLOSED,This donation drive has closed. The amount can no longer be changed.,یہ عطیہ مہم بند ہو گئی ہے۔ رقم اب بدلی نہیں جا سکتی۔,no
 errors,CAMPAIGN_TARGET_LOWER,"The target can only be raised, not lowered.",ہدف صرف بڑھایا جا سکتا ہے، گھٹایا نہیں۔,no
+errors,CHANDA_INVALID,Please check the week and the amount.,براہِ کرم ہفتہ اور رقم چیک کر لیں۔,no
+errors,CHANDA_HIDDEN,Turn on “Show chanda to followers” before notifying them.,اطلاع بھیجنے سے پہلے ”فالوورز کو چندہ دکھائیں“ آن کریں۔,no
 follow,scan.title,Scan masjid QR,مسجد کا QR اسکین کریں,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,اپنا کیمرا مسجد کے پوسٹر پر لگے QR کوڈ کی طرف کریں۔,no
 follow,scan.torch,Flashlight,ٹارچ,no
