@@ -8,7 +8,7 @@ describe('Admin Home tiles', () => {
   it('production shows only tiles of phases built so far; dev/staging shows all, in order', () => {
     const production = visibleTiles(false).map((tile) => tile.key);
     expect(production).toContain('donation'); // T5.3
-    expect(production).not.toContain('needy'); // not built yet: no route
+    expect(production).toContain('needy'); // T5.8
     expect(production).toContain('chanda'); // T5.5
     expect(production).toContain('prayerTimes');
     expect(visibleTiles(false).every((tile) => tile.phase <= CURRENT_PHASE && tile.route !== null)).toBe(true);

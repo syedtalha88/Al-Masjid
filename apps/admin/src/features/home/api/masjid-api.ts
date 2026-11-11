@@ -2,6 +2,7 @@
 import {
   type AdhkarPut,
   adminAdhkarSchema,
+  adminBeneficiaryListSchema,
   adminCampaignListSchema,
   adminChandaSchema,
   adminContactListSchema,
@@ -16,6 +17,10 @@ import {
   adminSpecialDatesSchema,
   type AnnouncementPublish,
   audioUploadedSchema,
+  beneficiaryPrivateResultSchema,
+  beneficiaryReceivedResultSchema,
+  type BeneficiarySave,
+  beneficiarySavedSchema,
   type CampaignCreate,
   type CampaignPatchBody,
   type CampaignReceived,
@@ -196,6 +201,30 @@ export const masjidApi = {
     call(`${base(masjidId)}/chanda/${encodeURIComponent(weekStart)}`, chandaWeekSavedSchema, { method: 'PUT', body }),
   chandaSettings: (masjidId: string, body: ChandaSettings) =>
     call(`${base(masjidId)}/chanda/settings`, noContentSchema, { method: 'PATCH', body }),
+  /** B19 (T5.8): needy people — active (least-funded first), then fulfilled, then closed; never the private part. */
+  beneficiaries: (masjidId: string, signal?: AbortSignal) =>
+    call(`${base(masjidId)}/beneficiaries`, adminBeneficiaryListSchema, withSignal(signal)),
+  /** Adds a person, or replaces the details of the one with `id` (the consent tick is part of every save). */
+  saveBeneficiary: (masjidId: string, id: string | null, body: BeneficiarySave) =>
+    id === null
+      ? call(`${base(masjidId)}/beneficiaries`, beneficiarySavedSchema, { method: 'POST', body })
+      : call(`${base(masjidId)}/beneficiaries/${encodeURIComponent(id)}`, beneficiarySavedSchema, {
+          method: 'PATCH',
+          body,
+        }),
+  /** "Update received" — reaching the amount needed fulfils the person and hides them from the app. */
+  beneficiaryReceived: (masjidId: string, id: string, receivedPaise: number) =>
+    call(`${base(masjidId)}/beneficiaries/${encodeURIComponent(id)}/received`, beneficiaryReceivedResultSchema, {
+      method: 'POST',
+      body: { receivedPaise },
+    }),
+  closeBeneficiary: (masjidId: string, id: string) =>
+    call(`${base(masjidId)}/beneficiaries/${encodeURIComponent(id)}/close`, noContentSchema, { method: 'POST' }),
+  deleteBeneficiary: (masjidId: string, id: string) =>
+    call(`${base(masjidId)}/beneficiaries/${encodeURIComponent(id)}`, noContentSchema, { method: 'DELETE' }),
+  /** The person's private phone / note — the server records every view in the audit log. */
+  beneficiaryPrivate: (masjidId: string, id: string) =>
+    call(`${base(masjidId)}/beneficiaries/${encodeURIComponent(id)}/private`, beneficiaryPrivateResultSchema),
   /** B13 (T3.10): the masjid profile. */
   profile: (masjidId: string, signal?: AbortSignal) =>
     call(base(masjidId), adminMasjidProfileSchema, withSignal(signal)),
@@ -254,6 +283,7 @@ export const masjidKeys = {
   payment: (masjidId: string) => ['masjid', masjidId, 'payment'] as const,
   campaigns: (masjidId: string) => ['masjid', masjidId, 'campaigns'] as const,
   chanda: (masjidId: string) => ['masjid', masjidId, 'chanda'] as const,
+  beneficiaries: (masjidId: string) => ['masjid', masjidId, 'beneficiaries'] as const,
   suggestion: (masjidId: string, kind: 'hadith' | 'ayah') => ['masjid', masjidId, 'suggestion', kind] as const,
   library: (masjidId: string, kind: string, q: string, tag: string, category: string) =>
     ['masjid', masjidId, 'library', kind, q, tag, category] as const,

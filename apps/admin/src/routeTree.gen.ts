@@ -30,6 +30,8 @@ import { Route as DuaIndexRouteImport } from './routes/dua.index'
 import { Route as DuaAttachRouteImport } from './routes/dua.attach'
 import { Route as DuaDetailsRouteImport } from './routes/dua.details'
 import { Route as DuaPreviewRouteImport } from './routes/dua.preview'
+import { Route as NeedyIndexRouteImport } from './routes/needy.index'
+import { Route as NeedyIdRouteImport } from './routes/needy.$id'
 import { Route as NoticeIndexRouteImport } from './routes/notice.index'
 import { Route as NoticeFillRouteImport } from './routes/notice.fill'
 import { Route as NoticePreviewRouteImport } from './routes/notice.preview'
@@ -156,6 +158,16 @@ const DuaDetailsRoute = DuaDetailsRouteImport.update({
 const DuaPreviewRoute = DuaPreviewRouteImport.update({
   id: '/dua/preview',
   path: '/dua/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NeedyIndexRoute = NeedyIndexRouteImport.update({
+  id: '/needy/',
+  path: '/needy/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NeedyIdRoute = NeedyIdRouteImport.update({
+  id: '/needy/$id',
+  path: '/needy/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NoticeIndexRoute = NoticeIndexRouteImport.update({
@@ -288,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/dua/attach': typeof DuaAttachRoute
   '/dua/details': typeof DuaDetailsRoute
   '/dua/preview': typeof DuaPreviewRoute
+  '/needy/$id': typeof NeedyIdRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
   '/ruqyah/$id': typeof RuqyahIdRoute
@@ -299,6 +312,7 @@ export interface FileRoutesByFullPath {
   '/daily/': typeof DailyIndexRoute
   '/donation/': typeof DonationIndexRoute
   '/dua/': typeof DuaIndexRoute
+  '/needy/': typeof NeedyIndexRoute
   '/notice/': typeof NoticeIndexRoute
   '/ruqyah/': typeof RuqyahIndexRoute
   '/special/': typeof SpecialIndexRoute
@@ -333,6 +347,7 @@ export interface FileRoutesByTo {
   '/dua/attach': typeof DuaAttachRoute
   '/dua/details': typeof DuaDetailsRoute
   '/dua/preview': typeof DuaPreviewRoute
+  '/needy/$id': typeof NeedyIdRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
   '/ruqyah/$id': typeof RuqyahIdRoute
@@ -344,6 +359,7 @@ export interface FileRoutesByTo {
   '/daily': typeof DailyIndexRoute
   '/donation': typeof DonationIndexRoute
   '/dua': typeof DuaIndexRoute
+  '/needy': typeof NeedyIndexRoute
   '/notice': typeof NoticeIndexRoute
   '/ruqyah': typeof RuqyahIndexRoute
   '/special': typeof SpecialIndexRoute
@@ -379,6 +395,7 @@ export interface FileRoutesById {
   '/dua/attach': typeof DuaAttachRoute
   '/dua/details': typeof DuaDetailsRoute
   '/dua/preview': typeof DuaPreviewRoute
+  '/needy/$id': typeof NeedyIdRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
   '/ruqyah/$id': typeof RuqyahIdRoute
@@ -390,6 +407,7 @@ export interface FileRoutesById {
   '/daily/': typeof DailyIndexRoute
   '/donation/': typeof DonationIndexRoute
   '/dua/': typeof DuaIndexRoute
+  '/needy/': typeof NeedyIndexRoute
   '/notice/': typeof NoticeIndexRoute
   '/ruqyah/': typeof RuqyahIndexRoute
   '/special/': typeof SpecialIndexRoute
@@ -426,6 +444,7 @@ export interface FileRouteTypes {
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
+    | '/needy/$id'
     | '/notice/fill'
     | '/notice/preview'
     | '/ruqyah/$id'
@@ -437,6 +456,7 @@ export interface FileRouteTypes {
     | '/daily/'
     | '/donation/'
     | '/dua/'
+    | '/needy/'
     | '/notice/'
     | '/ruqyah/'
     | '/special/'
@@ -471,6 +491,7 @@ export interface FileRouteTypes {
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
+    | '/needy/$id'
     | '/notice/fill'
     | '/notice/preview'
     | '/ruqyah/$id'
@@ -482,6 +503,7 @@ export interface FileRouteTypes {
     | '/daily'
     | '/donation'
     | '/dua'
+    | '/needy'
     | '/notice'
     | '/ruqyah'
     | '/special'
@@ -516,6 +538,7 @@ export interface FileRouteTypes {
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
+    | '/needy/$id'
     | '/notice/fill'
     | '/notice/preview'
     | '/ruqyah/$id'
@@ -527,6 +550,7 @@ export interface FileRouteTypes {
     | '/daily/'
     | '/donation/'
     | '/dua/'
+    | '/needy/'
     | '/notice/'
     | '/ruqyah/'
     | '/special/'
@@ -562,6 +586,7 @@ export interface RootRouteChildren {
   DuaAttachRoute: typeof DuaAttachRoute
   DuaDetailsRoute: typeof DuaDetailsRoute
   DuaPreviewRoute: typeof DuaPreviewRoute
+  NeedyIdRoute: typeof NeedyIdRoute
   NoticeFillRoute: typeof NoticeFillRoute
   NoticePreviewRoute: typeof NoticePreviewRoute
   RuqyahIdRoute: typeof RuqyahIdRoute
@@ -573,6 +598,7 @@ export interface RootRouteChildren {
   DailyIndexRoute: typeof DailyIndexRoute
   DonationIndexRoute: typeof DonationIndexRoute
   DuaIndexRoute: typeof DuaIndexRoute
+  NeedyIndexRoute: typeof NeedyIndexRoute
   NoticeIndexRoute: typeof NoticeIndexRoute
   RuqyahIndexRoute: typeof RuqyahIndexRoute
   SpecialIndexRoute: typeof SpecialIndexRoute
@@ -735,6 +761,20 @@ declare module '@tanstack/react-router' {
       path: '/dua/preview'
       fullPath: '/dua/preview'
       preLoaderRoute: typeof DuaPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/needy/': {
+      id: '/needy/'
+      path: '/needy'
+      fullPath: '/needy/'
+      preLoaderRoute: typeof NeedyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/needy/$id': {
+      id: '/needy/$id'
+      path: '/needy/$id'
+      fullPath: '/needy/$id'
+      preLoaderRoute: typeof NeedyIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notice/': {
@@ -925,6 +965,7 @@ const rootRouteChildren: RootRouteChildren = {
   DuaAttachRoute: DuaAttachRoute,
   DuaDetailsRoute: DuaDetailsRoute,
   DuaPreviewRoute: DuaPreviewRoute,
+  NeedyIdRoute: NeedyIdRoute,
   NoticeFillRoute: NoticeFillRoute,
   NoticePreviewRoute: NoticePreviewRoute,
   RuqyahIdRoute: RuqyahIdRoute,
@@ -936,6 +977,7 @@ const rootRouteChildren: RootRouteChildren = {
   DailyIndexRoute: DailyIndexRoute,
   DonationIndexRoute: DonationIndexRoute,
   DuaIndexRoute: DuaIndexRoute,
+  NeedyIndexRoute: NeedyIndexRoute,
   NoticeIndexRoute: NoticeIndexRoute,
   RuqyahIndexRoute: RuqyahIndexRoute,
   SpecialIndexRoute: SpecialIndexRoute,

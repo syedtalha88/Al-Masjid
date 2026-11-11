@@ -739,6 +739,8 @@ export const BENEFICIARY_NOTE_MAX = 300;
 /** What a person needs: ₹1 … ₹1 crore, in paise (02 beneficiaries.cap_paise). */
 export const BENEFICIARY_CAP_MIN_PAISE = 100;
 export const BENEFICIARY_CAP_MAX_PAISE = 1_000_000_000;
+/** Most active needy people per masjid (00 §4.14) — 409 `BENEFICIARY_LIMIT_REACHED` beyond it. */
+export const BENEFICIARIES_ACTIVE_MAX = 100;
 const BENEFICIARY_CATEGORIES = [
   'widow',
   'orphan',

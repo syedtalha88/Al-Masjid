@@ -1,15 +1,14 @@
 import { useTranslation } from '@mc/i18n/react';
 import { PublishBar } from '@mc/ui/admin';
-import { Button, InfoNote, Sheet, SkeletonText, TextArea, TextField, useToast } from '@mc/ui/components';
+import { Button, InfoNote, SkeletonText, TextArea, TextField, useToast } from '@mc/ui/components';
 import { CameraIcon, ShieldCheckIcon } from '@mc/ui/icons';
 import { Screen, useNavigator } from '@mc/ui/navigation';
-import { nativeQrDetector } from '@mc/ui/scanner';
-import { useScanner } from '@mc/ui/scanner';
 import { createFileRoute } from '@tanstack/react-router';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { useErrorText, useSignedInAdmin } from '../features/auth/hooks/use-session.ts';
 import { useSelectedMasjid } from '../features/home/hooks/use-selected-masjid.ts';
+import { UpiScanSheet, useCanScanUpi } from '../features/payment/components/UpiScanSheet.tsx';
 import { usePayment, usePaymentRequest } from '../features/payment/hooks/use-payment.ts';
 import {
   draftFromScan,
@@ -66,21 +65,11 @@ function Form({ masjidId }: { readonly masjidId: string | undefined }) {
   const send = usePaymentRequest(masjidId);
   const [draft, setDraft] = useState<PaymentDraft>(emptyDraft());
   const [scanning, setScanning] = useState(false);
-  const [canScan, setCanScan] = useState(false);
+  // DECISIONS #147: only a built-in QR reader on the admin origin — no WebAssembly fallback (its CSP is unchanged).
+  const canScan = useCanScanUpi();
   const issues = draftIssues(draft);
   const body = requestBody(draft);
   const started = draft.vpa.trim() !== '' || draft.payee.trim() !== '';
-
-  // DECISIONS #147: only a built-in QR reader on the admin origin — no WebAssembly fallback (its CSP is unchanged).
-  useEffect(() => {
-    let alive = true;
-    void nativeQrDetector().then((detector) => {
-      if (alive) setCanScan(detector !== null);
-    });
-    return () => {
-      alive = false;
-    };
-  }, []);
 
   return (
     <>
@@ -154,7 +143,9 @@ function Form({ masjidId }: { readonly masjidId: string | undefined }) {
           });
         }}
       />
-      <ScanSheet
+      <UpiScanSheet
+        title={t('payment.scan')}
+        hint={t('payment.scanHint')}
         open={scanning}
         onClose={() => {
           setScanning(false);
@@ -169,64 +160,5 @@ function Form({ masjidId }: { readonly masjidId: string | undefined }) {
         }}
       />
     </>
-  );
-}
-
-/** The camera in a sheet; every text it reads goes through `onText`, which says whether it was a UPI QR. */
-function ScanSheet({
-  open,
-  onClose,
-  onText,
-}: {
-  readonly open: boolean;
-  readonly onClose: () => void;
-  readonly onText: (text: string) => boolean;
-}) {
-  const { t } = useTranslation('admin');
-  return (
-    <Sheet open={open} onClose={onClose} title={t('payment.scan')}>
-      {open ? <Camera onText={onText} /> : null}
-    </Sheet>
-  );
-}
-
-function Camera({ onText }: { readonly onText: (text: string) => boolean }) {
-  const { t } = useTranslation('admin');
-  const video = useRef<HTMLVideoElement>(null);
-  const [wrong, setWrong] = useState(false);
-  const scanner = useScanner({
-    video,
-    paused: false,
-    detector: nativeQrDetector,
-    onText: (text) => {
-      setWrong(!onText(text));
-    },
-  });
-  useEffect(() => {
-    if (video.current) video.current.srcObject = scanner.stream;
-  }, [scanner.stream]);
-  const blocked = scanner.state === 'denied' || scanner.state === 'unavailable' || scanner.state === 'busy';
-  return (
-    <div className="flex flex-col gap-4 pb-4" data-payment-scanner={scanner.state}>
-      <p className="type-callout text-text-secondary">{t('payment.scanHint')}</p>
-      {blocked ? (
-        <p className="type-body text-text">{t('payment.scanUnavailable')}</p>
-      ) : (
-        <div className="relative aspect-square overflow-hidden rounded-md bg-surface-muted">
-          {/* muted + playsInline + autoPlay: plays as soon as the stream is attached (no audio track is asked for). */}
-          <video ref={video} className="size-full object-cover" muted playsInline autoPlay aria-hidden />
-        </div>
-      )}
-      {scanner.state === 'ask' ? (
-        <Button size="lg" fullWidth onPress={scanner.start}>
-          {t('payment.scanStart')}
-        </Button>
-      ) : null}
-      {wrong ? (
-        <p className="type-callout text-danger" aria-live="polite">
-          {t('payment.scanNotUpi')}
-        </p>
-      ) : null}
-    </div>
   );
 }

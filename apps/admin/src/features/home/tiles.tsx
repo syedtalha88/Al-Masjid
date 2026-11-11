@@ -34,7 +34,7 @@ const TILE_LIST = [
   { key: 'adhkar', icon: <MoonStarsIcon size={28} />, tone: 'primary', phase: 3, route: '/adhkar' },
   { key: 'ruqyah', icon: <ShieldCheckIcon size={28} />, tone: 'info', phase: 3, route: '/ruqyah' },
   { key: 'bloodCamp', icon: <DropIcon size={28} />, tone: 'danger', phase: 3, route: '/blood-camp' },
-  { key: 'needy', icon: <HandsPrayingIcon size={28} />, tone: 'heart', phase: 5, route: null },
+  { key: 'needy', icon: <HandsPrayingIcon size={28} />, tone: 'heart', phase: 5, route: '/needy' },
   { key: 'myPosts', icon: <ListBulletsIcon size={28} />, tone: 'neutral', phase: 3, route: '/posts' },
   { key: 'profile', icon: <GearIcon size={28} />, tone: 'slate', phase: 3, route: '/profile' },
 ] as const satisfies readonly {

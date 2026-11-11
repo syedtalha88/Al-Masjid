@@ -221,7 +221,7 @@ function DriveCard({
         }
       >
         <div className="flex flex-col gap-4 pb-2" data-update-amount>
-          <p className="type-title-2 text-center text-text" aria-live="polite">
+          <p className="type-title2 text-center text-text" aria-live="polite">
             {format.money(amount)}{' '}
             <span className="type-headline text-text-secondary">· {`${String(livePercent)}%`}</span>
           </p>

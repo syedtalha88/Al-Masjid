@@ -116,7 +116,7 @@ function NewDriveScreen() {
           <h2 id="drive-target" className="type-headline text-text">
             {t('donation.target')}
           </h2>
-          <p className="type-title-2 text-center text-text" aria-live="polite">
+          <p className="type-title2 text-center text-text" aria-live="polite">
             {format.money(draft.targetPaise)}
           </p>
           <p className="type-footnote text-center text-text-secondary">{t('donation.targetHint')}</p>
