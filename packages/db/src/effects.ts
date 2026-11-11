@@ -150,6 +150,9 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'campaign.create': ['purpose', 'notify'],
   'campaign.update': ['fields', 'target_raised'],
   'campaign.received': ['notify'],
+  // PHASE_05 T5.5: never the amount (the week and whether followers were told).
+  'chanda.save': ['week_start', 'notify'],
+  'chanda.settings': ['show', 'week_start'],
   'campaign.complete': [],
   'item.publish': ['type', 'template', 'notify', 'image'],
   'item.edit': ['type'],

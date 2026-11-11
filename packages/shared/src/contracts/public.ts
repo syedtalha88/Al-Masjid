@@ -251,7 +251,12 @@ export const masjidBundleSchema = z.discriminatedUnion('status', [
     /** Phase 5 (donations): present but empty until then. */
     payment: z.nullable(z.object({ vpa: z.string(), payeeName: z.string(), effectiveAt: instant })),
     campaigns: z.array(z.object({ publicId: publicIdText })),
-    chanda: z.nullable(z.object({ weeks: z.array(z.object({ weekStart: calendarDate, amountPaise: z.int() })) })),
+    /** A11 (DECISIONS #152): the last 8 weeks, oldest first — `null` while the masjid does not show its chanda. */
+    chanda: z.nullable(
+      z.object({
+        weeks: z.array(z.object({ weekStart: calendarDate, amountPaise: z.int(), note: z.optional(z.string()) })),
+      }),
+    ),
   }),
   /** A followed masjid that was suspended: the app shows "temporarily unavailable" (00 §4.1). */
   z.object({ status: z.literal('suspended'), v: version }),
@@ -383,6 +388,8 @@ export const feedItemSchema = z.object({
       cover: z.optional(mediaImageSchema),
     }),
   ),
+  /** A `chanda_update`: the week and its total as the masjid reported it (DECISIONS #152). */
+  chanda: z.optional(z.object({ weekStart: calendarDate, amountPaise: z.int() })),
   video: z.optional(
     z.object({
       youtubeId: z.string(),

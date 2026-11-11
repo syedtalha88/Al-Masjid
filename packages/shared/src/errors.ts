@@ -89,6 +89,8 @@ export const API_ERRORS = {
   CAMPAIGN_NOT_ACTIVE: 409, // edit / complete: already completed or closed (T5.3)
   CAMPAIGN_CLOSED: 409, // "Update amount" after the end date (T5.3)
   CAMPAIGN_TARGET_LOWER: 409, // the target only goes up (00 §4.3, T5.3)
+  CHANDA_INVALID: 400, // not a week start of the masjid, a future week, amount, note ≤ 200, week start 1–7 (T5.5)
+  CHANDA_HIDDEN: 409, // "Notify followers" while chanda is not shown (T5.5)
 } as const satisfies Readonly<Record<string, number>>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

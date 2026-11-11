@@ -59,6 +59,15 @@ export {
   setCampaignReceived,
   updateCampaign,
 } from './campaigns.ts';
+export {
+  CHANDA_NOTE_MAX,
+  CHANDA_WEEK_START_DEFAULT,
+  type ChandaSettingsInput,
+  type ChandaWeekInput,
+  setChandaSettings,
+  setChandaWeek,
+  setShowChanda,
+} from './chanda.ts';
 export { addContact, type ContactInput, deleteContact, updateContact } from './contacts.ts';
 export { type DailyContentInput, type DailyContentPublished, publishDailyContent } from './daily.ts';
 export {

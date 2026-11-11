@@ -65,4 +65,6 @@ export const SCHEMA_AREAS: Readonly<
   '0016_push_fanout': { collections: ['notification_jobs'] },
   // PHASE_04 T4.9 (DECISIONS #140): `pending_batches` is a balance that may dip below 0 for a moment.
   '0017_push_batch_balance': { collections: ['notification_jobs'] },
+  // PHASE_05 T5.5 (DECISIONS #152): a chanda update carries its week's figures and visibility; hidden ones never public.
+  '0018_chanda_items': { collections: ['items'], views: ['v_pub_items'] },
 };

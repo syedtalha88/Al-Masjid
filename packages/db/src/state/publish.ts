@@ -29,7 +29,8 @@ export interface ItemContent {
     | { readonly announcement: Readonly<Record<string, unknown>> }
     | { readonly daily: Readonly<Record<string, unknown>> }
     | { readonly dua: Readonly<Record<string, unknown>> }
-    | { readonly campaign: Readonly<Record<string, unknown>> };
+    | { readonly campaign: Readonly<Record<string, unknown>> }
+    | { readonly chanda: Readonly<Record<string, unknown>> };
 }
 
 /** A voice note as a post carries it (02 items.voice). */
@@ -66,7 +67,7 @@ export function voiceContent(
 
 /** The common fields of a published item. */
 export interface PublishedItemInput extends ItemContent {
-  readonly type: 'announcement' | 'timing_update' | 'daily_content' | 'dua_request' | 'campaign';
+  readonly type: 'announcement' | 'timing_update' | 'daily_content' | 'dua_request' | 'campaign' | 'chanda_update';
   readonly audience: ItemAudience;
   readonly notify: boolean;
 }

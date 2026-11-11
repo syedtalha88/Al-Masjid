@@ -18,7 +18,3 @@ export const restoreItem: (handle: DbHandle, scope: Scope, itemId: UUID) => Prom
   'restoreItem',
   'Phase 8',
 );
-export const setShowChanda: (handle: DbHandle, scope: Scope, masjidId: UUID, show: boolean) => Promise<void> = later(
-  'setShowChanda',
-  'Phase 5',
-);

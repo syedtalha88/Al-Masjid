@@ -864,3 +864,48 @@ export type AdminCampaignList = z.infer<typeof adminCampaignListSchema>;
 export const campaignReceivedResultSchema = z
   .object({ notification: z.object({ queued: z.boolean(), targeted: count, quotaLeft: count }).nullable() })
   .meta({ id: 'CampaignReceivedResult' });
+
+// --- Weekly chanda (B9, 00 §4.3, PHASE_05 T5.5) --------------------------------------------------------------------------
+
+/** 02 chanda_weeks.note. */
+export const CHANDA_NOTE_MAX = 200;
+
+/** Body of `PUT /masjids/:masjidId/chanda/:weekStart` (B9 Save; "Notify followers" off by default). */
+export const chandaWeekSaveSchema = z
+  .strictObject({
+    amountPaise: paise,
+    /** Empty removes the note. */
+    note: safeText(CHANDA_NOTE_MAX).optional(),
+    notify: z.boolean(),
+  })
+  .meta({ id: 'ChandaWeekSave' });
+export type ChandaWeekSave = z.infer<typeof chandaWeekSaveSchema>;
+
+/** `PUT /masjids/:masjidId/chanda/:weekStart`: the week's feed item, whether the week was new, the notification. */
+export const chandaWeekSavedSchema = z
+  .object({
+    item: z.object({ id: z.string(), publicId: z.string() }),
+    created: z.boolean(),
+    notification: z.object({ queued: z.boolean(), targeted: z.int().min(0), quotaLeft: z.int().min(0) }).nullable(),
+  })
+  .meta({ id: 'ChandaWeekSaved' });
+export type ChandaWeekSaved = z.infer<typeof chandaWeekSavedSchema>;
+
+/** Body of `PATCH /masjids/:masjidId/chanda/settings`: "Show chanda to followers" and the day the week starts. */
+export const chandaSettingsSchema = z
+  .strictObject({ show: z.boolean().optional(), weekStart: z.int().min(1).max(7).optional() })
+  .meta({ id: 'ChandaSettings' });
+export type ChandaSettings = z.infer<typeof chandaSettingsSchema>;
+
+/** `GET /masjids/:masjidId/chanda` (B9): settings and the latest weeks, newest first. */
+export const adminChandaSchema = z
+  .object({
+    show: z.boolean(),
+    /** 1 = Monday … 7 = Sunday. */
+    weekStart: z.int().min(1).max(7),
+    weeks: z.array(
+      z.object({ weekStart: z.iso.date(), amountPaise: z.int(), note: z.string().optional(), updatedAt: z.string() }),
+    ),
+  })
+  .meta({ id: 'AdminChanda' });
+export type AdminChanda = z.infer<typeof adminChandaSchema>;
