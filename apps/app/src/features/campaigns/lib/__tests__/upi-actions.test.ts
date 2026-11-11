@@ -3,7 +3,7 @@
 // nothing took the link within 1.5 s; iOS saves through the share sheet, others download. Fake UPI data only.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { openUpiLink, qrFilename, saveQrImage, UPI_FALLBACK_MS } from '../upi-actions.ts';
+import { onReturnFromUpi, openUpiLink, qrFilename, saveQrImage, UPI_FALLBACK_MS } from '../upi-actions.ts';
 
 const LINK = 'upi://pay?pa=test.masjid@okbank&pn=Test%20Masjid&tn=Test%20roof&cu=INR';
 
@@ -55,6 +55,36 @@ describe('openUpiLink', () => {
     openUpiLink(LINK, cancelled)();
     vi.advanceTimersByTime(UPI_FALLBACK_MS);
     expect(cancelled).not.toHaveBeenCalled();
+  });
+});
+
+describe('onReturnFromUpi (07 A23: "after returning from the UPI app")', () => {
+  const visibility = (state: DocumentVisibilityState) => {
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue(state);
+    document.dispatchEvent(new Event('visibilitychange'));
+  };
+
+  it('runs once when the page is in front again after having been hidden', () => {
+    const onReturn = vi.fn();
+    onReturnFromUpi(onReturn);
+    visibility('visible'); // never left: nothing
+    expect(onReturn).not.toHaveBeenCalled();
+    visibility('hidden');
+    expect(onReturn).not.toHaveBeenCalled();
+    visibility('visible');
+    expect(onReturn).toHaveBeenCalledOnce();
+    visibility('hidden');
+    visibility('visible');
+    expect(onReturn).toHaveBeenCalledOnce();
+  });
+
+  it('never runs after it was cancelled (no UPI app took the link, or the screen went away)', () => {
+    const onReturn = vi.fn();
+    const cancel = onReturnFromUpi(onReturn);
+    visibility('hidden');
+    cancel();
+    visibility('visible');
+    expect(onReturn).not.toHaveBeenCalled();
   });
 });
 

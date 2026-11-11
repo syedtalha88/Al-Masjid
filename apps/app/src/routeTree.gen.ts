@@ -27,6 +27,7 @@ import { Route as SettingsGrievanceRouteImport } from './routes/settings_.grieva
 import { Route as SettingsNotificationsRouteImport } from './routes/settings_.notifications'
 import { Route as SettingsPrivacyRouteImport } from './routes/settings_.privacy'
 import { Route as SettingsSavedRouteImport } from './routes/settings_.saved'
+import { Route as SettingsZakatRouteImport } from './routes/settings_.zakat'
 import { Route as MasjidMasjidIdSectionRouteImport } from './routes/masjid_.$masjidId.$section'
 import { Route as MasjidMasjidIdAdhkarRouteImport } from './routes/masjid_.$masjidId.adhkar'
 import { Route as MasjidMasjidIdAnnouncementsRouteImport } from './routes/masjid_.$masjidId.announcements'
@@ -129,6 +130,11 @@ const SettingsSavedRoute = SettingsSavedRouteImport.update({
   path: '/settings/saved',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsZakatRoute = SettingsZakatRouteImport.update({
+  id: '/settings_/zakat',
+  path: '/settings/zakat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MasjidMasjidIdSectionRoute = MasjidMasjidIdSectionRouteImport.update({
   id: '/masjid_/$masjidId/$section',
   path: '/masjid/$masjidId/$section',
@@ -205,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/settings/notifications': typeof SettingsNotificationsRoute
   '/settings/privacy': typeof SettingsPrivacyRoute
   '/settings/saved': typeof SettingsSavedRoute
+  '/settings/zakat': typeof SettingsZakatRoute
   '/masjid/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
   '/masjid/$masjidId/adhkar': typeof MasjidMasjidIdAdhkarRoute
   '/masjid/$masjidId/announcements': typeof MasjidMasjidIdAnnouncementsRoute
@@ -236,6 +243,7 @@ export interface FileRoutesByTo {
   '/settings/notifications': typeof SettingsNotificationsRoute
   '/settings/privacy': typeof SettingsPrivacyRoute
   '/settings/saved': typeof SettingsSavedRoute
+  '/settings/zakat': typeof SettingsZakatRoute
   '/masjid/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
   '/masjid/$masjidId/adhkar': typeof MasjidMasjidIdAdhkarRoute
   '/masjid/$masjidId/announcements': typeof MasjidMasjidIdAnnouncementsRoute
@@ -268,6 +276,7 @@ export interface FileRoutesById {
   '/settings_/notifications': typeof SettingsNotificationsRoute
   '/settings_/privacy': typeof SettingsPrivacyRoute
   '/settings_/saved': typeof SettingsSavedRoute
+  '/settings_/zakat': typeof SettingsZakatRoute
   '/masjid_/$masjidId/$section': typeof MasjidMasjidIdSectionRoute
   '/masjid_/$masjidId/adhkar': typeof MasjidMasjidIdAdhkarRoute
   '/masjid_/$masjidId/announcements': typeof MasjidMasjidIdAnnouncementsRoute
@@ -301,6 +310,7 @@ export interface FileRouteTypes {
     | '/settings/notifications'
     | '/settings/privacy'
     | '/settings/saved'
+    | '/settings/zakat'
     | '/masjid/$masjidId/$section'
     | '/masjid/$masjidId/adhkar'
     | '/masjid/$masjidId/announcements'
@@ -332,6 +342,7 @@ export interface FileRouteTypes {
     | '/settings/notifications'
     | '/settings/privacy'
     | '/settings/saved'
+    | '/settings/zakat'
     | '/masjid/$masjidId/$section'
     | '/masjid/$masjidId/adhkar'
     | '/masjid/$masjidId/announcements'
@@ -363,6 +374,7 @@ export interface FileRouteTypes {
     | '/settings_/notifications'
     | '/settings_/privacy'
     | '/settings_/saved'
+    | '/settings_/zakat'
     | '/masjid_/$masjidId/$section'
     | '/masjid_/$masjidId/adhkar'
     | '/masjid_/$masjidId/announcements'
@@ -395,6 +407,7 @@ export interface RootRouteChildren {
   SettingsNotificationsRoute: typeof SettingsNotificationsRoute
   SettingsPrivacyRoute: typeof SettingsPrivacyRoute
   SettingsSavedRoute: typeof SettingsSavedRoute
+  SettingsZakatRoute: typeof SettingsZakatRoute
   MasjidMasjidIdSectionRoute: typeof MasjidMasjidIdSectionRoute
   MasjidMasjidIdAdhkarRoute: typeof MasjidMasjidIdAdhkarRoute
   MasjidMasjidIdAnnouncementsRoute: typeof MasjidMasjidIdAnnouncementsRoute
@@ -536,6 +549,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsSavedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings_/zakat': {
+      id: '/settings_/zakat'
+      path: '/settings/zakat'
+      fullPath: '/settings/zakat'
+      preLoaderRoute: typeof SettingsZakatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/masjid_/$masjidId/$section': {
       id: '/masjid_/$masjidId/$section'
       path: '/masjid/$masjidId/$section'
@@ -635,6 +655,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsNotificationsRoute: SettingsNotificationsRoute,
   SettingsPrivacyRoute: SettingsPrivacyRoute,
   SettingsSavedRoute: SettingsSavedRoute,
+  SettingsZakatRoute: SettingsZakatRoute,
   MasjidMasjidIdSectionRoute: MasjidMasjidIdSectionRoute,
   MasjidMasjidIdAdhkarRoute: MasjidMasjidIdAdhkarRoute,
   MasjidMasjidIdAnnouncementsRoute: MasjidMasjidIdAnnouncementsRoute,

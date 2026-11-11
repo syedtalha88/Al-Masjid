@@ -2599,3 +2599,34 @@ response for the private part). **Left for part 2:** admin B19, musalli A23 (+ p
 assertions (order, zakat filter, bundle count), e2e `e2e/admin/needy.spec.ts` (the T5.8 acceptance journey, axe on
 B19, the editor, A23 and the pay sheet), visual baselines `help-the-needy` × 4 locales × 2 devices and the Delta
 Masjid Detail (new row). "Log this in My zakat?" after a payment comes with T5.9.
+
+### #158 — My zakat: where it lives, when the app asks, starting a new year (PHASE_05 T5.9) — ACCEPTED (Claude Code, 12 Nov 2026)
+**Context:** 07 A24, 00 §4.15, 05 §1, PHASE_05 T5.9. Choices the specs leave open:
+- **The tracker is a field of the device document** (`zakat`, optional; `apps/app/src/lib/device/store.ts`), not a
+  second IndexedDB entry: it is validated with the document on every read (04 §11), versioned with it, and "Clear all
+  data" deletes it without separate code. Field names are camelCase like the rest of the document (`owedPaise`,
+  `amountPaise`, `beneficiaryPublicId`); limits as specified (label ≤ 20, note ≤ 60, ≤ 500 payments). An optional field
+  needs no version bump: an older app build still reads the document and keeps the field on write.
+- **Amounts:** whole paise; a payment is ≥ 1 paisa; the payments of one tracker add up to at most 10^12 paise (the
+  largest amount the app can show) — the NumberPad refuses a key past that.
+- **"Log this in My zakat?" is asked only for a person the masjid marked zakat-eligible**, and only after the page
+  was hidden and came back to the front following "Pay with UPI" (the UPI app took over). The app does not suggest
+  counting help to anyone else as zakat — whether a gift counts is not the app's call, and the tag is the masjid's
+  statement (05 §8). Anyone can still add any payment by hand in Settings → My zakat. The app never knows whether or
+  how much was paid: the musalli types the amount; the person's first name / initials becomes the note (they vanish
+  from the list once fulfilled), with their public id. *Owner may change this to "ask for everyone" — one condition.*
+  The QR path (another phone scans) has no "came back" moment: no question there.
+- **"Start a new year"** (not in 07 A24): removes the tracker after a confirmation. Without it the list of a past
+  year could only be emptied one payment at a time, or with Clear all data.
+- **A payment can be removed** (✕ → confirmation); it cannot be edited — remove and add again.
+- **The year label** starts as the current Hijri year ("1448 AH", worded per language) and is free text.
+- **Settings → My data** lists "My zakat payments" under "On this phone" once the tracker exists, and the privacy
+  notice (English draft, version unchanged — still `draft-1`, lawyer review is O34) gained one sentence (05 §1 "the
+  privacy notice says so"). No re-acceptance: nothing about what the server keeps changed.
+- **No API, contract, collection or log line knows about it.** e2e watches every request while the tracker is used.
+- **Budget:** musalli initial JS 188.41 → 188.7 kB (limit 189 kB) — the schema in the device document and the Settings
+  row; the screen, the sheet and their strings are lazy.
+**Consequences:** tests — app `zakat.test.ts` 12 (remaining never negative, integer paise, 500 cap, tampered document
+reset), `upi-actions.test.ts` +2 (return from the UPI app); e2e `e2e/app/zakat.spec.ts` (journey + network assertion +
+Clear all data; "Start a new year"; 4 locales with axe and screenshots) and the zakat step in
+`e2e/admin/needy.spec.ts`; Settings visual baselines × 4 locales × 2 devices updated (new row). Owner guide 5.18–5.20.

@@ -51,6 +51,31 @@ export function openUpiLink(uri: string, onNoApp: () => void, env: UpiEnvironmen
   return stop;
 }
 
+/**
+ * Tells when the person is back from their UPI app: `onReturn` runs once, the first time the page is in front again
+ * after having been hidden (07 A23 "after returning from the UPI app"). A page that never leaves never calls it. What
+ * happened in the UPI app is unknown to us — the caller can only ask.
+ *
+ * @returns a cancel function (no UPI app took the link, or the screen went away): no `onReturn` after it.
+ */
+export function onReturnFromUpi(onReturn: () => void, env: UpiEnvironment = browser()): () => void {
+  const { document: doc } = env;
+  let left = false;
+  const stop = () => {
+    doc.removeEventListener('visibilitychange', onVisibility);
+  };
+  function onVisibility() {
+    if (doc.visibilityState === 'hidden') {
+      left = true;
+    } else if (left) {
+      stop();
+      onReturn();
+    }
+  }
+  doc.addEventListener('visibilitychange', onVisibility);
+  return stop;
+}
+
 export type SaveResult = 'saved' | 'shared' | 'cancelled' | 'failed';
 
 interface SaveEnvironment {

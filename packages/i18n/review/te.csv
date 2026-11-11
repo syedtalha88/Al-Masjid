@@ -1063,6 +1063,10 @@ content,needy.help,Help {name},{name}కు సహాయం చేయండి,n
 content,needy.pay,Pay with UPI,UPIతో చెల్లించండి,no
 content,needy.showQr,Show UPI QR,UPI QR చూపించు,no
 content,needy.reported,Amount received is reported by the masjid.,అందిన మొత్తం మస్జిద్ తెలిపినది.,no
+content,needy.zakatAsk,Log this in My zakat?,దీన్ని నా జకాత్‌లో నమోదు చేయాలా?,no
+content,needy.zakatAskBody,My zakat is a private list kept only on this phone.,నా జకాత్ ఈ ఫోన్‌లో మాత్రమే ఉండే వ్యక్తిగత జాబితా.,no
+content,needy.zakatLog,Log it,నమోదు చేయండి,no
+content,needy.zakatNotNow,Not now,ఇప్పుడు కాదు,no
 content,needy.disclaimer,Payments go directly to each person’s own UPI account. {app} does not receive or handle any money.,"చెల్లింపులు నేరుగా ప్రతి వ్యక్తి స్వంత UPI ఖాతాకు వెళ్తాయి. {app} ఎలాంటి డబ్బునూ తీసుకోదు, నిర్వహించదు.",no
 content,needy.empty,No one is listed right now,ప్రస్తుతం ఎవరూ జాబితాలో లేరు,no
 content,needy.emptyBody,"When the masjid lists people it has verified as in need, you will see them here.","అవసరంలో ఉన్నారని మస్జిద్ నిర్ధారించిన వ్యక్తులను జాబితాలో చేర్చినప్పుడు, వారు ఇక్కడ కనిపిస్తారు.",no
@@ -1350,6 +1354,7 @@ settings,field.createdAt,First used,మొదటిసారి ఉపయోగ�
 settings,field.lastSeen,Last used,చివరిసారి ఉపయోగం,no
 settings,field.saved,Saved posts,సేవ్ చేసిన పోస్ట్‌లు,no
 settings,field.ameens,Ameens said,అన్న ఆమీన్‌లు,no
+settings,field.zakat,My zakat payments,నా జకాత్ చెల్లింపులు,no
 settings,field.reader,Reader and vibration,"చదివే, వైబ్రేషన్ సెట్టింగ్‌లు",no
 settings,pushOn,On,ఆన్,no
 settings,pushOff,Off,ఆఫ్,no
@@ -1378,6 +1383,38 @@ settings,aboutCommunity,Made for the community.,సమాజం కోసం త
 settings,appVersion,Version {version},వెర్షన్ {version},no
 settings,landingTitle,Shared post,షేర్ చేసిన పోస్ట్,no
 settings,landingApp,Get the app,యాప్ పొందండి,no
+settings,zakat.title,My zakat,నా జకాత్,no
+settings,zakat.onlyHere,Only on this phone,ఈ ఫోన్‌లో మాత్రమే,no
+settings,zakat.onlyHereLong,Kept only on this phone. Nothing is sent to anyone.,ఈ ఫోన్‌లో మాత్రమే ఉంటుంది. ఎవరికీ ఏమీ పంపబడదు.,no
+settings,zakat.notice,Saved only on this phone. Clear all data or a new phone removes it. The app does not calculate zakat.,ఈ ఫోన్‌లో మాత్రమే సేవ్ అవుతుంది. మొత్తం డేటా తొలగించినా లేదా కొత్త ఫోన్ తీసుకున్నా ఇది పోతుంది. యాప్ జకాత్‌ను లెక్కించదు.,no
+settings,zakat.yearLabel,{year} AH,{year} హిజ్రీ,no
+settings,zakat.remaining,Remaining,మిగిలినది,no
+settings,zakat.given,Given so far,ఇప్పటివరకు ఇచ్చినది,no
+settings,zakat.owed,Amount owed,చెల్లించాల్సిన మొత్తం,no
+settings,zakat.givenOf,{given} of {owed},{owed} లో {given},no
+settings,zakat.setOwed,Set amount owed,చెల్లించాల్సిన మొత్తం నమోదు చేయండి,no
+settings,zakat.changeOwed,Change amount owed,చెల్లించాల్సిన మొత్తం మార్చండి,no
+settings,zakat.owedHint,Enter the amount yourself. The app does not calculate zakat.,మొత్తాన్ని మీరే నమోదు చేయండి. యాప్ జకాత్‌ను లెక్కించదు.,no
+settings,zakat.label,Year,సంవత్సరం,no
+settings,zakat.labelHint,"For example, the Hijri year.","ఉదాహరణకు, హిజ్రీ సంవత్సరం.",no
+settings,zakat.save,Save,సేవ్ చేయండి,no
+settings,zakat.owedSaved,Saved,సేవ్ అయింది,no
+settings,zakat.payments,Payments,చెల్లింపులు,no
+settings,zakat.noPayments,No payments logged yet.,ఇంకా చెల్లింపులేవీ నమోదు కాలేదు.,no
+settings,zakat.add,Add payment,చెల్లింపు జోడించండి,no
+settings,zakat.amount,Amount given,ఇచ్చిన మొత్తం,no
+settings,zakat.note,Note,గమనిక,no
+settings,zakat.paymentSaved,Saved in My zakat,నా జకాత్‌లో సేవ్ అయింది,no
+settings,zakat.full,"The list is full (500 payments). Remove one, or start a new year.","జాబితా నిండింది (500 చెల్లింపులు). ఒకటి తొలగించండి, లేదా కొత్త సంవత్సరం ప్రారంభించండి.",no
+settings,zakat.removeLabel,Remove payment of {amount},{amount} చెల్లింపును తొలగించండి,no
+settings,zakat.removeTitle,Remove this payment?,ఈ చెల్లింపును తొలగించాలా?,no
+settings,zakat.removeBody,{amount} · {date},{amount} · {date},no
+settings,zakat.removeConfirm,Remove,తొలగించండి,no
+settings,zakat.removed,Removed,తొలగించబడింది,no
+settings,zakat.reset,Start a new year,కొత్త సంవత్సరం ప్రారంభించండి,no
+settings,zakat.resetTitle,Start a new year?,కొత్త సంవత్సరం ప్రారంభించాలా?,no
+settings,zakat.resetBody,This removes the amount owed and every payment in this list from this phone.,"ఇది చెల్లించాల్సిన మొత్తాన్ని, ఈ జాబితాలోని ప్రతి చెల్లింపును ఈ ఫోన్ నుండి తొలగిస్తుంది.",no
+settings,zakat.resetConfirm,Start again,మళ్లీ ప్రారంభించండి,no
 settings,push.title,Notifications,నోటిఫికేషన్‌లు,no
 settings,push.status.on,On,ఆన్,no
 settings,push.status.off,Off,ఆఫ్,no

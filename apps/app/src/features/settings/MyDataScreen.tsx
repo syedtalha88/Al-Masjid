@@ -131,6 +131,8 @@ function MyData() {
             </Field>
             <Field label={t('field.saved')}>{format.number(state.saved.length)}</Field>
             <Field label={t('field.ameens')}>{format.number(state.ameens.length)}</Field>
+            {/* My zakat (07 A24) is kept here and nowhere else — listed so "everything kept" stays true (05 §4). */}
+            {state.zakat ? <Field label={t('field.zakat')}>{format.number(state.zakat.payments.length)}</Field> : null}
             <Field label={t('field.reader')}>
               {t('readerSettings', {
                 size: format.number(Math.round(state.settings.arabicScale * 100)),

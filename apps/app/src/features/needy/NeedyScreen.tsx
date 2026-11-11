@@ -45,13 +45,17 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { needyQuery } from '../../lib/api/queries.ts';
 import { useAppData } from '../../lib/data.tsx';
 import { masjidName } from '../../lib/masjid.ts';
-import { openUpiLink, UPI_FALLBACK_MS } from '../campaigns/lib/upi-actions.ts';
+import { onReturnFromUpi, openUpiLink, UPI_FALLBACK_MS } from '../campaigns/lib/upi-actions.ts';
 import { ContentGate } from '../content/components/ContentGate.tsx';
 import { useMasjidDetail } from '../masjid/hooks/useMasjidDetail.ts';
 import { needyLink, needyProgress, peopleToShow } from './lib/needy-view.ts';
 
 const loadQrSheet = () => import('../campaigns/UpiQrSheet.tsx');
 const UpiQrSheet = lazy(loadQrSheet);
+// My zakat's "Add payment" (07 A24) — loaded only when someone answers "Log it".
+const ZakatLogSheet = lazy(() =>
+  import('../zakat/components/ZakatLogSheet.tsx').then((module) => ({ default: module.ZakatLogSheet })),
+);
 
 /** How long the copy button shows its check (08 §5.7). */
 const COPIED_MS = 1500;
@@ -103,8 +107,10 @@ function NeedyList({ masjidId }: { readonly masjidId: string }) {
   });
   const [filter, setFilter] = useState<Filter>('all');
   const [selected, setSelected] = useState<Beneficiary | null>(null);
-  const [sheet, setSheet] = useState<'pay' | 'qr' | null>(null);
+  const [sheet, setSheet] = useState<'pay' | 'qr' | 'zakat' | null>(null);
   const [qrMounted, setQrMounted] = useState(false);
+  /** How often "Log it" was tapped: 0 = the zakat sheet is not loaded yet; each time is a fresh form. */
+  const [zakatForm, setZakatForm] = useState(0);
 
   const all = useMemo(() => list.data?.people ?? [], [list.data]);
   const people = useMemo(() => peopleToShow(all, filter === 'zakat'), [all, filter]);
@@ -259,7 +265,23 @@ function NeedyList({ masjidId }: { readonly masjidId: string }) {
           setSheet(null);
         }}
         onShowQr={showQr}
+        onLogZakat={() => {
+          setZakatForm((count) => count + 1);
+          setSheet('zakat');
+        }}
       />
+      {zakatForm > 0 && selected ? (
+        <Suspense fallback={null}>
+          <ZakatLogSheet
+            open={sheet === 'zakat'}
+            onClose={() => {
+              setSheet(null);
+            }}
+            formKey={zakatForm}
+            person={{ publicId: selected.publicId, displayName: selected.displayName }}
+          />
+        </Suspense>
+      ) : null}
       {qrMounted && selected ? (
         <Suspense fallback={null}>
           <UpiQrSheet
@@ -285,15 +307,20 @@ interface PaySheetProps {
   readonly onClose: () => void;
   /** "Show UPI QR", and the fallback when no UPI app took the link. */
   readonly onShowQr: () => void;
+  /** "Log it" on "Log this in My zakat?" (07 A23 → A24). */
+  readonly onLogZakat: () => void;
 }
 
-function PaySheet({ person, masjid, open, onClose, onShowQr }: PaySheetProps) {
+function PaySheet({ person, masjid, open, onClose, onShowQr, onLogZakat }: PaySheetProps) {
   const { t } = useTranslation('content');
   const { format } = useLocale();
   const toast = useToast();
   const [opening, setOpening] = useState(false);
   const [copied, setCopied] = useState(false);
+  /** The person whose "Pay with UPI" the musalli came back from — the question shows for them, until answered. */
+  const [returnedFor, setReturnedFor] = useState<string | null>(null);
   const cancelOpen = useRef<(() => void) | null>(null);
+  const cancelReturn = useRef<(() => void) | null>(null);
   const link = useMemo(() => (person ? needyLink(person, masjid) : null), [person, masjid]);
 
   useEffect(() => {
@@ -317,6 +344,7 @@ function PaySheet({ person, masjid, open, onClose, onShowQr }: PaySheetProps) {
   useEffect(
     () => () => {
       cancelOpen.current?.();
+      cancelReturn.current?.();
     },
     [],
   );
@@ -328,10 +356,24 @@ function PaySheet({ person, masjid, open, onClose, onShowQr }: PaySheetProps) {
   const pay = () => {
     if (!link || opening) return;
     setOpening(true);
+    setReturnedFor(null);
     toast.show({ message: t('campaign.opening') });
     cancelOpen.current?.();
-    cancelOpen.current = openUpiLink(link, onShowQr);
+    cancelReturn.current?.();
+    // Only for someone the masjid marked zakat-eligible (DECISIONS #158): the app does not suggest counting any
+    // other help as zakat. Back from the UPI app → the question; what was paid, if anything, only the person knows.
+    if (person.zakatEligible) {
+      const { publicId } = person;
+      cancelReturn.current = onReturnFromUpi(() => {
+        setReturnedFor(publicId);
+      });
+    }
+    cancelOpen.current = openUpiLink(link, () => {
+      cancelReturn.current?.(); // no UPI app took the link: nobody is coming back from one
+      onShowQr();
+    });
   };
+  const askZakat = open && returnedFor === person.publicId;
   const copy = () => {
     void navigator.clipboard
       .writeText(person.vpa)
@@ -343,8 +385,41 @@ function PaySheet({ person, masjid, open, onClose, onShowQr }: PaySheetProps) {
   };
 
   return (
-    <Sheet open={open} onClose={onClose} title={t('needy.help', { name: person.displayName })}>
+    <Sheet
+      open={open}
+      onClose={() => {
+        setReturnedFor(null);
+        onClose();
+      }}
+      title={t('needy.help', { name: person.displayName })}
+    >
       <div className="flex flex-col gap-4 pb-2" data-needy-sheet={person.publicId}>
+        {askZakat ? (
+          <div role="status" className="flex flex-col gap-3 rounded-md bg-mint-50 p-4" data-zakat-ask>
+            <div className="flex flex-col gap-1">
+              <p className="type-headline text-text">{t('needy.zakatAsk')}</p>
+              <p className="type-footnote text-text-secondary">{t('needy.zakatAskBody')}</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                onPress={() => {
+                  setReturnedFor(null);
+                  onLogZakat();
+                }}
+              >
+                {t('needy.zakatLog')}
+              </Button>
+              <Button
+                variant="outline"
+                onPress={() => {
+                  setReturnedFor(null);
+                }}
+              >
+                {t('needy.zakatNotNow')}
+              </Button>
+            </div>
+          </div>
+        ) : null}
         <p className="flex flex-wrap items-center gap-2 type-footnote text-text-secondary">
           {t(`needy.category.${person.category}`)}
           {person.zakatEligible ? <Tag tone="primary">{t('needy.zakat')}</Tag> : null}

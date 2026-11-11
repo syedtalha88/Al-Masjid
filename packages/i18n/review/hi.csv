@@ -1063,6 +1063,10 @@ content,needy.help,Help {name},{name} की मदद करें,no
 content,needy.pay,Pay with UPI,UPI से भुगतान करें,no
 content,needy.showQr,Show UPI QR,UPI QR दिखाएँ,no
 content,needy.reported,Amount received is reported by the masjid.,प्राप्त राशि मस्जिद द्वारा बताई गई है।,no
+content,needy.zakatAsk,Log this in My zakat?,इसे मेरी ज़कात में दर्ज करें?,no
+content,needy.zakatAskBody,My zakat is a private list kept only on this phone.,मेरी ज़कात एक निजी सूची है जो सिर्फ़ इस फ़ोन पर रहती है।,no
+content,needy.zakatLog,Log it,दर्ज करें,no
+content,needy.zakatNotNow,Not now,अभी नहीं,no
 content,needy.disclaimer,Payments go directly to each person’s own UPI account. {app} does not receive or handle any money.,"भुगतान सीधे हर व्यक्ति के अपने UPI खाते में जाता है। {app} कोई पैसा न लेता है, न संभालता है।",no
 content,needy.empty,No one is listed right now,अभी कोई सूची में नहीं है,no
 content,needy.emptyBody,"When the masjid lists people it has verified as in need, you will see them here.","जब मस्जिद उन लोगों को सूची में डालेगी जिन्हें उसने ज़रूरतमंद के रूप में जाँचा है, वे यहाँ दिखेंगे।",no
@@ -1350,6 +1354,7 @@ settings,field.createdAt,First used,पहली बार इस्तेमा
 settings,field.lastSeen,Last used,आख़िरी बार इस्तेमाल,no
 settings,field.saved,Saved posts,सेव की गई पोस्ट,no
 settings,field.ameens,Ameens said,कहे गए आमीन,no
+settings,field.zakat,My zakat payments,मेरी ज़कात के भुगतान,no
 settings,field.reader,Reader and vibration,पढ़ने और वाइब्रेशन की सेटिंग,no
 settings,pushOn,On,चालू,no
 settings,pushOff,Off,बंद,no
@@ -1378,6 +1383,38 @@ settings,aboutCommunity,Made for the community.,समुदाय के लि
 settings,appVersion,Version {version},संस्करण {version},no
 settings,landingTitle,Shared post,शेयर की गई पोस्ट,no
 settings,landingApp,Get the app,ऐप पाएँ,no
+settings,zakat.title,My zakat,मेरी ज़कात,no
+settings,zakat.onlyHere,Only on this phone,सिर्फ़ इस फ़ोन पर,no
+settings,zakat.onlyHereLong,Kept only on this phone. Nothing is sent to anyone.,सिर्फ़ इस फ़ोन पर रहता है। किसी को कुछ नहीं भेजा जाता।,no
+settings,zakat.notice,Saved only on this phone. Clear all data or a new phone removes it. The app does not calculate zakat.,सिर्फ़ इस फ़ोन पर सेव है। सारा डेटा मिटाने या नया फ़ोन लेने पर यह हट जाता है। ऐप ज़कात का हिसाब नहीं लगाता।,no
+settings,zakat.yearLabel,{year} AH,{year} हिजरी,no
+settings,zakat.remaining,Remaining,बाक़ी,no
+settings,zakat.given,Given so far,अब तक दिया,no
+settings,zakat.owed,Amount owed,देय राशि,no
+settings,zakat.givenOf,{given} of {owed},{owed} में से {given},no
+settings,zakat.setOwed,Set amount owed,देय राशि लिखें,no
+settings,zakat.changeOwed,Change amount owed,देय राशि बदलें,no
+settings,zakat.owedHint,Enter the amount yourself. The app does not calculate zakat.,राशि ख़ुद लिखें। ऐप ज़कात का हिसाब नहीं लगाता।,no
+settings,zakat.label,Year,साल,no
+settings,zakat.labelHint,"For example, the Hijri year.","जैसे, हिजरी साल।",no
+settings,zakat.save,Save,सेव करें,no
+settings,zakat.owedSaved,Saved,सेव हो गया,no
+settings,zakat.payments,Payments,भुगतान,no
+settings,zakat.noPayments,No payments logged yet.,अभी कोई भुगतान दर्ज नहीं है।,no
+settings,zakat.add,Add payment,भुगतान जोड़ें,no
+settings,zakat.amount,Amount given,दी गई राशि,no
+settings,zakat.note,Note,नोट,no
+settings,zakat.paymentSaved,Saved in My zakat,मेरी ज़कात में सेव हो गया,no
+settings,zakat.full,"The list is full (500 payments). Remove one, or start a new year.","सूची भर गई है (500 भुगतान)। एक हटाएँ, या नया साल शुरू करें।",no
+settings,zakat.removeLabel,Remove payment of {amount},{amount} का भुगतान हटाएँ,no
+settings,zakat.removeTitle,Remove this payment?,यह भुगतान हटाएँ?,no
+settings,zakat.removeBody,{amount} · {date},{amount} · {date},no
+settings,zakat.removeConfirm,Remove,हटाएँ,no
+settings,zakat.removed,Removed,हटा दिया गया,no
+settings,zakat.reset,Start a new year,नया साल शुरू करें,no
+settings,zakat.resetTitle,Start a new year?,नया साल शुरू करें?,no
+settings,zakat.resetBody,This removes the amount owed and every payment in this list from this phone.,इससे देय राशि और इस सूची का हर भुगतान इस फ़ोन से हट जाएगा।,no
+settings,zakat.resetConfirm,Start again,फिर से शुरू करें,no
 settings,push.title,Notifications,सूचनाएँ,no
 settings,push.status.on,On,चालू,no
 settings,push.status.off,Off,बंद,no

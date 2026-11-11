@@ -12,7 +12,7 @@
 | 02 | Musalli app core (follow, timings, feed, offline, install) | **DONE** (owner tested the Phase 02 checks on staging `cdd39fa`, incl. a low-end device, 27 Oct 2026) | [final](reports/PHASE_02_REPORT.md) | 27 Oct 2026 |
 | 03 | Masjid Admin content tools | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`, with Phase 04); O39 PASS + O27 OK (10 Nov 2026); left: O25 rest (photos 3.7 / voice 3.14) + O26 (usability) — #150 | [report](reports/PHASE_03_REPORT.md) | – |
 | 04 | Push notifications | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`); T4.6 acceptance = the owner's O38 (real phones) | [report](reports/PHASE_04_REPORT.md) | – |
-| 05 | Donations, chanda & UPI change-lock | **IN PROGRESS** (T5.1 – T5.6, T5.8 done) — started 9 Nov 2026 on `feat/phase-05` while Phases 03 + 04 await the owner's checks (DECISIONS #145) | – | – |
+| 05 | Donations, chanda & UPI change-lock | **IN PROGRESS** (T5.1 – T5.6, T5.8, T5.9 done; T5.7 quality gates left) — started 9 Nov 2026 on `feat/phase-05` while Phases 03 + 04 await the owner's checks (DECISIONS #145) | – | – |
 | 06 | Bayan videos | NOT STARTED | – | – |
 | 07 | Qibla compass | NOT STARTED | – | – |
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
@@ -653,7 +653,16 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   on B19, editor, A23, pay sheet). `pnpm test:visual` 24/24 (8 new `help-the-needy`, Delta Masjid Detail updated).
   Tests now: admin unit 166, app unit 213, db int 365, api int 371; `verify:quick`, i18n check, `pnpm size` green
   (app initial JS 188.41 / 189 kB — #157). "Log this in My zakat?" comes with T5.9; B19 4-locale screenshots at T5.7.
-- [ ] T5.9 — My zakat (A24, device only)
+- [x] T5.9 — My zakat (A24, device only) — 12 Nov 2026 (#158). Device document field `zakat` (validated with the
+  document, removed by Clear all data), `features/zakat` (pure arithmetic, `useZakat`, A24 screen `/settings/zakat`,
+  "Add payment" sheet), Settings row "My zakat · Only on this phone", My data line, "Log this in My zakat?" on the A23
+  pay sheet after coming back from the UPI app (zakat-eligible people only — #158, owner may widen), "Start a new
+  year", privacy notice sentence (English draft), strings ×4 (1,758 draft strings per locale for O31), owner guide
+  5.18–5.20. **Acceptance:** unit — remaining never negative, integer paise, 500-entry cap, tampered document reset
+  (`zakat.test.ts` 12) ✔ · e2e `e2e/app/zakat.spec.ts` on Pixel 7 6/6: every request while the tracker is used is
+  checked (no write, nothing about zakat in any URL) and Clear all data removes it ✔ · notice in 4 locales (axe clean,
+  Urdu mirrored, screenshots) ✔ · the zakat step in `e2e/admin/needy.spec.ts` ✔. `pnpm test:visual` 24/24 (Settings
+  × 8 updated). App unit 228; `pnpm size` green (app initial JS 188.7 / 189 kB).
 - [ ] T5.7 — Quality gates
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
@@ -724,6 +733,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-12 | 05 / T5.9 | My zakat done (#158): phone-only tracker in the device document, A24 screen, "Log this in My zakat?" after a UPI payment to a zakat-eligible person, e2e with a network assertion, 4 locales. Before it: last night's red CI fixed in tests (`2df8d6d` — axe read two CSS state fades in the needy spec, the voice spec hung on a disabled Play button; the VPS deploy test failed on CI only and now annotates its reason — it passed on the next run, so the cause was outside the repo). **`main` `de50397` CI was red in that same step, so F61 is not on staging yet.** |
 | 2026-11-11 | 05 / T5.8 (part 2) | Needy people screens (#157): admin B19 (list + form), musalli A23 (list, pay sheet, QR reuse), strings ×4, seed, e2e journey green on Pixel 7, visual 24/24. F61 fast-forwarded onto `main` (`de50397`) after green CI. App initial JS budget 189 kB. |
 | 2026-11-11 | 05 / T5.8 (part 1) | Needy people: data layer, API and the `retention` job (#156). Migration 0019; policy matrix 48 namespaces; db int 365, api int 371, `verify:quick` green. UI (B19, A23), seed, e2e left. Owner approved merging the F61 fix into `main` once its CI is green. |
 | 2026-11-11 | F61 | Server image on the patched distroless base (#155): Trivy 0 HIGH/CRITICAL without ignores, `check:image` OK, stack healthy, e2e 12/12. Same commit on `ci/f61-base-image` for `main` (owner to approve the merge — it redeploys staging). |

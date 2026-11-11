@@ -1063,6 +1063,10 @@ content,needy.help,Help {name},{name} کی مدد کریں,no
 content,needy.pay,Pay with UPI,UPI سے ادائیگی کریں,no
 content,needy.showQr,Show UPI QR,UPI QR دکھائیں,no
 content,needy.reported,Amount received is reported by the masjid.,موصول رقم مسجد کی بتائی ہوئی ہے۔,no
+content,needy.zakatAsk,Log this in My zakat?,اسے میری زکوٰۃ میں درج کریں؟,no
+content,needy.zakatAskBody,My zakat is a private list kept only on this phone.,میری زکوٰۃ ایک ذاتی فہرست ہے جو صرف اس فون پر رہتی ہے۔,no
+content,needy.zakatLog,Log it,درج کریں,no
+content,needy.zakatNotNow,Not now,ابھی نہیں,no
 content,needy.disclaimer,Payments go directly to each person’s own UPI account. {app} does not receive or handle any money.,ادائیگی سیدھی ہر شخص کے اپنے UPI اکاؤنٹ میں جاتی ہے۔ {app} نہ کوئی رقم وصول کرتا ہے نہ سنبھالتا ہے۔,no
 content,needy.empty,No one is listed right now,ابھی کوئی فہرست میں نہیں ہے,no
 content,needy.emptyBody,"When the masjid lists people it has verified as in need, you will see them here.",جب مسجد ان لوگوں کو فہرست میں شامل کرے گی جن کے ضرورت مند ہونے کی اس نے تصدیق کی ہے تو وہ یہاں نظر آئیں گے۔,no
@@ -1350,6 +1354,7 @@ settings,field.createdAt,First used,پہلی بار استعمال,no
 settings,field.lastSeen,Last used,آخری بار استعمال,no
 settings,field.saved,Saved posts,محفوظ پوسٹس,no
 settings,field.ameens,Ameens said,کہے گئے آمین,no
+settings,field.zakat,My zakat payments,میری زکوٰۃ کی ادائیگیاں,no
 settings,field.reader,Reader and vibration,پڑھنے اور وائبریشن کی ترتیبات,no
 settings,pushOn,On,آن,no
 settings,pushOff,Off,آف,no
@@ -1378,6 +1383,38 @@ settings,aboutCommunity,Made for the community.,برادری کے لیے بنا�
 settings,appVersion,Version {version},ورژن {version},no
 settings,landingTitle,Shared post,شیئر کی گئی پوسٹ,no
 settings,landingApp,Get the app,ایپ حاصل کریں,no
+settings,zakat.title,My zakat,میری زکوٰۃ,no
+settings,zakat.onlyHere,Only on this phone,صرف اس فون پر,no
+settings,zakat.onlyHereLong,Kept only on this phone. Nothing is sent to anyone.,صرف اس فون پر رہتا ہے۔ کسی کو کچھ نہیں بھیجا جاتا۔,no
+settings,zakat.notice,Saved only on this phone. Clear all data or a new phone removes it. The app does not calculate zakat.,صرف اس فون پر محفوظ ہے۔ سارا ڈیٹا مٹانے یا نیا فون لینے پر یہ ختم ہو جاتا ہے۔ ایپ زکوٰۃ کا حساب نہیں لگاتی۔,no
+settings,zakat.yearLabel,{year} AH,{year} ہجری,no
+settings,zakat.remaining,Remaining,باقی,no
+settings,zakat.given,Given so far,اب تک دیا,no
+settings,zakat.owed,Amount owed,واجب رقم,no
+settings,zakat.givenOf,{given} of {owed},{owed} میں سے {given},no
+settings,zakat.setOwed,Set amount owed,واجب رقم لکھیں,no
+settings,zakat.changeOwed,Change amount owed,واجب رقم بدلیں,no
+settings,zakat.owedHint,Enter the amount yourself. The app does not calculate zakat.,رقم خود لکھیں۔ ایپ زکوٰۃ کا حساب نہیں لگاتی۔,no
+settings,zakat.label,Year,سال,no
+settings,zakat.labelHint,"For example, the Hijri year.",مثلاً ہجری سال۔,no
+settings,zakat.save,Save,محفوظ کریں,no
+settings,zakat.owedSaved,Saved,محفوظ ہو گیا,no
+settings,zakat.payments,Payments,ادائیگیاں,no
+settings,zakat.noPayments,No payments logged yet.,ابھی کوئی ادائیگی درج نہیں۔,no
+settings,zakat.add,Add payment,ادائیگی شامل کریں,no
+settings,zakat.amount,Amount given,دی گئی رقم,no
+settings,zakat.note,Note,نوٹ,no
+settings,zakat.paymentSaved,Saved in My zakat,میری زکوٰۃ میں محفوظ ہو گیا,no
+settings,zakat.full,"The list is full (500 payments). Remove one, or start a new year.",فہرست بھر گئی ہے (500 ادائیگیاں)۔ ایک ہٹائیں، یا نیا سال شروع کریں۔,no
+settings,zakat.removeLabel,Remove payment of {amount},{amount} کی ادائیگی ہٹائیں,no
+settings,zakat.removeTitle,Remove this payment?,یہ ادائیگی ہٹائیں؟,no
+settings,zakat.removeBody,{amount} · {date},{amount} · {date},no
+settings,zakat.removeConfirm,Remove,ہٹائیں,no
+settings,zakat.removed,Removed,ہٹا دیا گیا,no
+settings,zakat.reset,Start a new year,نیا سال شروع کریں,no
+settings,zakat.resetTitle,Start a new year?,نیا سال شروع کریں؟,no
+settings,zakat.resetBody,This removes the amount owed and every payment in this list from this phone.,اس سے واجب رقم اور اس فہرست کی ہر ادائیگی اس فون سے ہٹ جائے گی۔,no
+settings,zakat.resetConfirm,Start again,دوبارہ شروع کریں,no
 settings,push.title,Notifications,اطلاعات,no
 settings,push.status.on,On,آن,no
 settings,push.status.off,Off,آف,no

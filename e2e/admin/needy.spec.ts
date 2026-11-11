@@ -2,7 +2,7 @@ import { axeViolations, expect, test } from '@mc/config/playwright';
 import { devices, type Page } from '@playwright/test';
 
 import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
-import { followByCode, registerDevice } from '../support/device.ts';
+import { followByCode, registerDevice, storedDevice } from '../support/device.ts';
 import {
   CSRF,
   HOOKS,
@@ -208,6 +208,46 @@ test.describe('needy people (T5.8)', () => {
       await expect(qr.locator('[data-vpa]')).toHaveText(VPA);
       await musalli.keyboard.press('Escape');
       await expect(qr).toBeHidden();
+
+      // T5.9: back from a UPI app (the page was hidden, then in front again) → "Log this in My zakat?" — asked
+      // because the masjid marked this person zakat-eligible. The musalli types the amount; it stays on the phone.
+      await person.click();
+      await expect(sheet).toBeVisible();
+      const ask = sheet.locator('[data-zakat-ask]');
+      await expect(ask).toHaveCount(0);
+      await sheet.getByRole('button', { name: 'Pay with UPI' }).click();
+      await musalli.evaluate(() => {
+        for (const state of ['hidden', 'visible']) {
+          Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => state });
+          document.dispatchEvent(new Event('visibilitychange'));
+        }
+        Reflect.deleteProperty(document, 'visibilityState');
+      });
+      await expect(ask).toContainText('Log this in My zakat?');
+      const writes: string[] = [];
+      musalli.on('request', (request) => {
+        if (request.method() !== 'GET') writes.push(`${request.method()} ${request.url()}`);
+      });
+      await ask.getByRole('button', { name: 'Log it' }).click();
+      const log = musalli.getByRole('dialog', { name: 'Add payment' });
+      await expect(log.getByRole('textbox', { name: /^Note/ })).toHaveValue('Test N.');
+      const given = log.getByRole('group', { name: 'Amount given' });
+      for (const key of ['5', '0', '0']) await given.getByRole('button', { name: key, exact: true }).click();
+      await log.getByRole('button', { name: 'Save', exact: true }).click();
+      await expect(musalli.locator('p', { hasText: /^Saved in My zakat$/ })).toBeVisible();
+      await expect(log).toBeHidden();
+      await expect
+        .poll(async () => (await storedDevice(musalli))?.['zakat'])
+        .toMatchObject({
+          owedPaise: 0,
+          payments: [
+            { amountPaise: 50_000, note: 'Test N.', beneficiaryPublicId: expect.stringMatching(/^[\w-]{12}$/) },
+          ],
+        });
+      // Nothing was written to any server while it was logged, and no QR sheet opened (a UPI app "took" the link).
+      expect(writes).toEqual([]);
+      await expect(qr).toBeHidden();
+      expect(await upiOpened(musalli)).toEqual([EXPECTED_LINK, EXPECTED_LINK]);
 
       // The masjid reports ₹1,200: the follower sees it one poll (60 s) later.
       const received = admin.getByRole('dialog', { name: 'Received so far' });
