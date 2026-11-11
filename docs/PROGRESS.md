@@ -18,9 +18,26 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (12 Nov 2026, later — T5.7 half done: screens ×4 + security review fixed; `main` CI re-run for F61)
+## ▶ Next session — start here (12 Nov 2026, evening — T5.7: all our fixes in; waiting for CI + the owner's O46)
 
-**Update since the hand-off below:**
+**State:** `main` = **`1f051fa`** — run 43089866763 on `a30f9f8` passed every gate (unit, integration, security
+scans incl. the VPS deploy test, budgets, Lighthouse, e2e, visual) but its *report upload* failed, which failed the
+job and skipped "Release to staging". `1f051fa` makes that upload `continue-on-error` (actionlint clean); its CI run
+(43097793481) was queued at hand-off. **Green → F61 reaches staging**: check `/health` on both origins shows
+`1f051fa`, then remove `infra/trivy/mc-server.trivyignore.yaml` + the Nightly `--ignorefile` (#155) — **by 15 Nov**.
+`feat/phase-05` = `7214e99` (same CI change); `ci/phase-05` = `d9e8329`, its run (43097520749) queued — push
+`feat/phase-05` there again once it starts or finishes.
+
+**Done since the previous update:** phase-verifier ran (FAIL → our items fixed: Urdu change-lock time `3859c15`,
+journey 9 part 2 re-run green on the #160 code, report corrected `d9e8329`, extra tests `142bedd`). Local verify
+stages: dev-proxy, dist, bundle scan, size ✅; `db:schema:check` ✅ after `db:reset` (the local DB had applied an
+earlier 0021 snapshot — local only); **local misses known from before:** Lighthouse app cold LCP 2.85 s > 2.5 s and
+motion perf long tasks on push / swipe — both passed on CI for `a30f9f8`; judge them on the Phase 05 CI run.
+
+**Next:** CI results (above) → owner O46 (a–d) → F69 (L2/L3) if accepted → re-run `security-reviewer` on R1 →
+report final → O43 → staging → O28 ₹1 tests → AWAITING OWNER VERIFICATION.
+
+**Earlier update the same day:**
 - **`main` = `a30f9f8`** (test-only: the deploy-test annotation + voice spec fix, built on `de50397` with a temporary
   index — the commit hook breaks in a worktree whose path has a space). Its CI run (43089866763) was still in the e2e
   job at this hand-off. **Green → "Release to staging" ships F61**; check `/health` on both origins, then remove the
