@@ -18,7 +18,7 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (10 Nov 2026 — Phase 05 on `feat/phase-05`: T5.1 – T5.5 done; 03 + 04 await the owner)
+## ▶ Next session — start here (11 Nov 2026 — Phase 05 on `feat/phase-05`: T5.1 – T5.5 done, next T5.6; 03 + 04 await the owner)
 
 **State:** `main` = staging = `863e064` (+ docs) — Phases 03 + 04 **AWAITING OWNER VERIFICATION**. Phase 05 on
 `feat/phase-05` (DECISIONS #145), not merged or deployed (staging only after 03 + 04 are verified, or with the owner's OK).
@@ -29,9 +29,14 @@ campaigns). Journey 9 part 2 (#151). **T5.5 weekly chanda (#152** — migration 
 A11 `/masjid/:id/chanda` with ChandaChart, hidden chanda never public). Details in the checklist. CI for the branch
 runs on `ci/phase-05` (push it together with `feat/phase-05`).
 
+**At hand-off (11 Nov 2026):** `feat/phase-05` = `ci/phase-05` = `812aec0` + this note, working tree clean except
+`.claude/settings.json` (the owner's own edit — three "ask" rules removed; leave it, do not commit). CI on `16367cf`
+(T5.4 + journey 9 part 2) **green incl. iphone-14**; the run for `812aec0` (T5.5, id 42970381316) was still running —
+check it first. A11 / B9 were looked at in English only; 4-locale baselines come with T5.6.
+
 **Do next:**
-1. Session start protocol. Owner 10 Nov (#150): O39 PASS, O27 OK; still open O25 rest, O26, O38 — ask whether they
-   found something; those fixes come first (on `feat/phase-04` → `main`, then merge `main` into `feat/phase-05`).
+1. Session start protocol. Owner 10 Nov (#150): O39 PASS, O27 OK; still open O25 rest, O26 (Phase 03), O38
+   (Phase 04), O28 later, O31 volunteers — ask whether they found something; those fixes come first (on `feat/phase-04` → `main`, then merge `main` into `feat/phase-05`).
 2. Check CI on `ci/phase-05` (iphone-14 project for `e2e/app/campaigns.spec.ts`; no `gh` on this PC — use
    `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-05`) and the Nightly runs since 9 Nov.
 3. ~~Journey 9 part 2~~ — done 10 Nov 2026 (#151, `e2e/admin/payment.spec.ts`).
