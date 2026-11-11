@@ -2664,3 +2664,63 @@ approved / rejected / active), so this had to be closed before Phase 05 reaches 
 save, one-session revoke, expired / revoked / deleted / unlinked sessions and the prune; `sessionCarriesAlerts` cases),
 api `alert-send.int` (+1: silent phones; the Super Admin reached after the short session), `notification-routes.int`
 (the saved row carries the request's session). F65 closed.
+
+### #160 — Phase 05 security review: fixes, and what waits for the owner (PHASE_05 T5.7) — ACCEPTED (Claude Code, 12 Nov 2026; items marked "owner" are OPEN questions)
+**Context:** `security-reviewer` on `863e064..feat/phase-05` (12 Nov 2026): 0 HIGH, 4 MEDIUM, 11 LOW. R1 verdict: no
+bypass of the change-lock (no admin write path to the live UPI details; hold enforced in production; test hooks
+impossible outside local tests; audits; locked notice; followers read only the active profile). The phase exit
+criterion "no findings at any severity on R1 paths" is met only once M1 and L1–L5 are fixed or accepted. In the same
+T5.7 pass the 4-locale admin screenshots found two display bugs (Urdu amounts, a Telugu tag).
+**Fixed (with tests):**
+- **M1 — followers are always told.** `approvePaymentChange` refuses with `PAYMENT_NOTICE_UNAVAILABLE` (409, text ×4)
+  unless the system template `payment_details_updated` is `active`; `activateDuePaymentProfiles` holds a due profile
+  back (stays `approved_on_hold`, returned as `heldBack`, logged by the job, ids only) while the template is not
+  active. A migration does **not** activate the template: #111 (no unreviewed template is active) stands; the dev /
+  staging seed has it active; on production the Super Admin activates it with the other starters (O30) — approval
+  says so if it is missing.
+- **L1** — activation also waits while the masjid is suspended (no silent change after it is restored).
+- **M3 — a needy person's UPI ID and payee name no longer reach the audit log** (kept ~2 years). The old → new record
+  (04 R13) is a `upi` entry in the person's own history (`beneficiary_amount_history`, append-only for `mc_admin`,
+  deleted with the person after 90 days — migration `0021_beneficiary_upi_history`); the audit says only
+  `upi_changed: true`. No new collection, role or Atlas change. 02 / 04 R13 read accordingly.
+- **L8** — removing a person drops their encrypted phone / note at once; private details are readable only while the
+  person is listed (active or fulfilled).
+- **M4 — the public needy list is cached one day, not a year** (`public, max-age=86400, s-maxage=86400`), so a person
+  who is removed or withdraws consent leaves CDN and phone caches within a day. The immediate CDN purge on close /
+  remove comes with the Phase 8 purge job — **F67**.
+- **M2 (text part) — donation texts never name another payee.** `mentionsPaymentAddress` (`@mc/domain/upi`, 100 %
+  covered): a `upi:` link or a UPI-ID-shaped token whose handle has no dot (`name@ybl`; `info@masjid.org` passes).
+  Refused with `PAYMENT_DETAILS_IN_TEXT` (400, text ×4) in drive title / description (create and edit), chanda notes,
+  needy name / reason and free-text notices.
+- **L6** — the `v_pub_items` chanda filter fails closed (`type ≠ chanda_update OR chanda.visible = true`), same
+  migration.
+- **Urdu amounts (T5.7 screenshots):** after Urdu words the bidi algorithm turned "₹12,500" into "12,500₹" and "25%"
+  into "%25". The ICU layer now wraps every string argument in a first-strong isolate (U+2068…U+2069) in Urdu —
+  numbers, times and Latin names keep their order, Urdu names stay right to left; invisible, baselines unchanged.
+  Inline percentages outside sentences are `<bdi dir="ltr">`.
+- **Telugu C4:** the "On hold — goes live …" tag overflowed its card; `Tag` gains `wrap` for sentence-length text.
+**Not fixed now — reasons, and the owner's call where marked:**
+- **M2 (image part) — a QR code inside a drive cover or notice photo.** Needs a QR decoder on the server; the obvious
+  one (`jsQR`) has had no release for years (CLAUDE.md §6 forbids abandoned packages); a maintained one (`zxing-wasm`)
+  adds a WebAssembly module to api-admin. **Owner:** add it (recommended, Phase 8 with moderation, which already
+  reviews images) or accept the risk — **F68**. Meanwhile the Super Admin's moderation queue can remove such a post.
+- **L2 (owner)** — anyone with the masjid (owner or editor) may request a UPI change and only the requester hears
+  about approval. Recommended: requests by `owner` only, and an alert to every owner of the masjid on request and
+  approval — **F69** (needs a new alert type and texts ×4).
+- **L3** — revoking or removing an admin leaves their open UPI request. The Super Admin who revokes sees it in C1 / C4
+  ("Stop this change"); automatic rejection in the revoke transaction — **F69** as well.
+- **L4** — the request alert is best effort; C1 already lists open change requests (`[data-change-requests]`). Kept.
+- **L5 (owner)** — `mc_admin` can technically write `payment_profiles` (needed to record requests / approvals); a
+  remote-code bug in api-admin could set a profile active. Defence in depth (a live-details collection only
+  `mc_system` writes) is a schema + role change — recommended for Phase 9 hardening — **F70**.
+- **L7** — the needy-person ciphertext's associated data does not name the person (only a database-level writer could
+  swap it). With L8 → F70 (Phase 9 hardening).
+- **L9** — a raw read in `repos/beneficiaries.ts` (own masjid checked, `_id` only). Lint rule for raw `.collection(`
+  in `repos/` → F70.
+- **L10 / L11 (owner, legal)** — consent recorded as a tick + audit actor only (no version / guardian flag), and a
+  needy person's public UPI ID is often their phone number. Both go to the lawyer review (O34) with a recommendation:
+  store `consent_by: person | guardian` + version; warn in B19 when the UPI ID is a 10-digit number.
+**Consequences:** migrations 0021; error codes `PAYMENT_NOTICE_UNAVAILABLE`, `PAYMENT_DETAILS_IN_TEXT`; new tests in
+db `payment.int` (+2), `beneficiaries.int`, `campaigns.int` (+1), domain `upi` (+2), i18n `icu-format` (+2), api
+harness `activatePaymentNotice`. Follow-ups F67–F70. The R1 exit criterion now depends on the owner's answers to L2 /
+L5 (fix as recommended, or accept) — asked as O46.

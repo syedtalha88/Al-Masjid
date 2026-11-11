@@ -512,6 +512,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O27 | **Phase 03 checks on staging** (`owner/PHASE_TESTING_GUIDE.md` → Phase 03) | Phase 03 DONE | 45 min | **OK — owner, 10 Nov 2026** (photos / voice wait for O25) |
 | O28 | **UPI ID for a ₹1 test** | Phase 05 exit | 5 min | Phase 05 |
 | O44 | **Two answers (12 Nov 2026):** (a) #159 — the Super Admin's phone keeps getting alerts for **30 days** after the admin app was last used on it (sign-out stops them at once): OK, or shorter? (b) #158 — "Log this in My zakat?" is asked only after paying a person the masjid marked **zakat-eligible**: OK, or ask for everyone? | F65 / T5.9 defaults stand until answered | 2 answers | open — not blocking |
+| O46 | **Phase 05 security decisions** (#160): (a) UPI change requests by owners only + alert every owner (L2 / F69); (b) refuse photos with a QR code (M2 image / F68); (c) live UPI details writable only by the worker, Phase 9 (L5 / F70) | R1 exit criterion | 5 min | open — asked 12 Nov 2026 |
 | O45 | **Open the admin app once on each phone that should get alerts** (after Phase 05 is on staging) | F65: older alert subscriptions are no longer used; opening the app links the phone again | 1 min | before O38's alert checks on the Phase 05 build |
 | O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | Phase 07 (map-tile decision dropped — #118) |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
@@ -719,7 +720,13 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   checked (no write, nothing about zakat in any URL) and Clear all data removes it ✔ · notice in 4 locales (axe clean,
   Urdu mirrored, screenshots) ✔ · the zakat step in `e2e/admin/needy.spec.ts` ✔. `pnpm test:visual` 24/24 (Settings
   × 8 updated). App unit 228; `pnpm size` green (app initial JS 188.7 / 189 kB).
-- [ ] T5.7 — Quality gates
+- [ ] T5.7 — Quality gates — **in progress 12 Nov 2026.** Done: admin Phase 05 screens × 4 locales in
+  `e2e/admin/screens.spec.ts` (B8 UPI setup / waiting / change, drives, update sheet, new drive, B9, B19 list /
+  received / new / empty, C1 with change requests, C4 pending and on hold — axe clean, Urdu mirrored; Delta's data
+  for the full screens); they found two display bugs, fixed (#160: Urdu amounts, Telugu tag). Security review run:
+  0 HIGH, 4 MEDIUM, 11 LOW — M1, M3, M4, M2 (text), L1, L6, L8 fixed (#160); M2 image part, L2–L5, L7, L9–L11 deferred
+  F67–F70 / owner O46. Local: e2e 25/25 (screens ×4, zakat, campaigns, needy), visual 24/24, db 371, i18n 206.
+  **Left:** owner answers (O46), `phase-verifier`, `pnpm verify`, the Phase 05 report, CI green.
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
@@ -783,6 +790,10 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F64 | Review L4 (DECISIONS #142) | Kill switch takes effect per batch (up to ~4,000 sends after pause): re-check every send round | Phase 8 (moderation incidents) |
 | F65 | Review M2 rest (DECISIONS #142, #144) | ~~Admin alerts keep arriving after a session ends~~ — **closed 12 Nov 2026 (#159)**: every subscription hangs on the session that saved it (`session_id`, migration 0020); `getAlertTargets` skips phones whose session is revoked or expired (Super Admin: not used for 30 days); ending one session deletes its subscriptions; `retention` prunes the rest. Original text: Link each admin push subscription to its session (or have `getAlertTargets` require a live session), so revoking one session (another device) **or a session expiring** stops that phone's alerts too | **Before Phase 5's first alert to masjid admins** ("UPI change approved"); today masjid admins receive only test alerts (#144) |
 | F66 | Audit 11 Nov 2026 H1 (DECISIONS #153) | `defineRoute`: a default per-IP rate limit for routes that declare none (44 GET routes today rely on the CDN cache or the session alone); keep explicit rules as they are | Phase 9 T9.1 |
+| F67 | Security review M4 (DECISIONS #160) | Purge the CDN tag `m-<masjidId>` when a needy person is closed, removed or purged (the list is cached one day until then) | Phase 8 (CDN purge job) |
+| F68 | Security review M2, image part (#160) — **owner decision** | Refuse drive covers / notice photos that contain a QR code (maintained server-side decoder, e.g. `zxing-wasm`), or accept the risk | Owner answer (O46); then Phase 8 with moderation |
+| F69 | Security review L2, L3 (#160) — **owner decision for L2** | UPI change requests by masjid `owner`s only; alert every owner on request and approval; revoking / removing an admin rejects their open request in the same transaction | Owner answer (O46); before Phase 05 is DONE if accepted |
+| F70 | Security review L5, L7, L9 (#160) | Live UPI details in a collection only `mc_system` writes; needy ciphertext bound to the person (associated data with the id); lint rule against raw `.collection(` in `repos/` | Phase 9 hardening |
 | F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
 
 ## Session log (newest first, one line each)
