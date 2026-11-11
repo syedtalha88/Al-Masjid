@@ -218,10 +218,9 @@ jobs:
         run: pnpm check:image mc-server:local
       - name: Trivy (images, HIGH/CRITICAL with a fix available)
         run: |
-          # mc-server only: time-boxed, owner-approved ignores (infra/trivy/mc-server.trivyignore.yaml, DECISIONS #141).
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD/infra/trivy:/trivy:ro" "$TRIVY_IMAGE" \
-            image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 \
-            --ignorefile /trivy/mc-server.trivyignore.yaml mc-server:local
+          # No ignores: the patched distroless base is clean (F61, DECISIONS #155).
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" image \
+            --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 mc-server:local
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" image \
             --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 mc-caddy:local
 
