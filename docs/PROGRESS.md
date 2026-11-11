@@ -23,8 +23,18 @@
 **State:** `main` = staging = `863e064` (+ docs) — Phases 03 + 04 **AWAITING OWNER VERIFICATION**. Phase 05 on
 `feat/phase-05` (DECISIONS #145), not merged or deployed (staging only after 03 + 04 are verified, or with the owner's OK).
 
-**Done 11 Nov 2026:** T5.6 (#154) — details in the checklist. CI: `16367cf` (T5.4) green incl. iphone-14; the T5.5 run
-was cancelled by the next push; check the newest run on `ci/phase-05` first (it carries T5.5 + T5.6).
+**Done 11 Nov 2026:** T5.6 (#154) — details in the checklist. CI on `ci/phase-05`: `061830b` (T5.5 + docs) **green**;
+the run for `e7fda43` (T5.6, id 42978081459) was still running at hand-off — check it first.
+
+**F61 — started, nothing changed in the repo yet.** Checked 11 Nov: the tag `gcr.io/distroless/nodejs24-debian13:nonroot`
+now points at index digest `sha256:088a01637f22908632ba09018be2e0b516f2fa6f7869c191d29491139db43c78` (Debian 13.7), and
+Trivy 0.75.0 with CI's flags (`--severity HIGH,CRITICAL --ignore-unfixed`, **no ignore file**) reports 0 findings on
+it. Left to do: set `RUNTIME_IMAGE` in `infra/docker/server.Dockerfile` to that digest, delete
+`infra/trivy/mc-server.trivyignore.yaml` and its `--ignorefile` / sparse-checkout uses in `ci.yml` (line ~221) and
+`nightly.yml` (lines ~58, ~86, ~110), rebuild (`pnpm stack:up:test`), run the Trivy step on `mc-server:local` and a
+smoke e2e, close F61 + a DECISIONS entry. Note: staging's Nightly scans the *deployed* image, so its Trivy step needs
+the ignore file until that image is rebuilt — keep the file until Phase 05 (or a `main` rebuild) is deployed, or
+rebuild `main` first.
 
 **Audit 11 Nov 2026 (#153):** `docs/reports/AUDIT_2026-11-11.md` — plan in its §8. **Due now: F61 by 15 Nov (base
 image — do it next session at the latest), F65 before Phase 05 reaches staging.** New: F66, O40 – O42.
@@ -35,7 +45,8 @@ image — do it next session at the latest), F65 before Phase 05 reaches staging
    `main` into `feat/phase-05`).
 2. Check CI on `ci/phase-05` (no `gh` on this PC — `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-05`).
    Nightly is red only for the known Cloudflare cache rule (O23).
-3. **F61** (patched base image, delete the Trivy ignore) — before 15 Nov.
+3. **F61** — finish it as described above, before 15 Nov (the fix must also reach `main`, or CI on `main` and the
+   Nightly turn red on the 15th — ask the owner whether to put only this change on `main` now).
 4. **T5.8 needy people** (reuse the T5.4 QR sheet + Donate flow), T5.9 My zakat, **F65**, then T5.7 quality gates
    (admin B8 / B9 / `/payment` / C4 / C1 e2e + screenshots ×4, security-reviewer on R1, phase-verifier).
 
