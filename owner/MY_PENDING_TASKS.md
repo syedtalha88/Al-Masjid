@@ -101,7 +101,10 @@
 | O7 | **Design notes** — the minor improvements you noticed (list or screenshots) | — | when ready |
 | O16 | **Low-end Android phone** (≈ ₹8,000) for a measured check — optional; you said it looks good (27 Oct 2026) | — | optional |
 | ~~O6~~ | ~~GitHub checks 0.15 + 0.16~~ — **skipped by me 10 Nov 2026** (DECISIONS #150: no branch ruleset while I work alone; revisit if a second developer joins) | – | – |
-| O6 | 0.18 Sentry error reporting (steps below) | 15 min | optional |
+| O6 | 0.18 Sentry error reporting (steps below) — **required before the pilot** (audit 11 Nov 2026) | 15 min | before pilot |
+| O40 | **GitHub repository is public** — decide: make it private, or keep it public and let Claude Code move the `owner/` notes (host names, SSH user name) out. Check first what private changes on your GitHub plan (deploy approvals) | 10 min | before pilot |
+| O41 | **Second Super Admin passkey** on another phone (Account → Add device) and **a backup person for grievances** | 15 min | before pilot |
+| O42 | **Independent penetration test** — hire a person or firm that did not build the app; send Claude Code the findings | depends | before pilot |
 
 ### Done since the last update
 

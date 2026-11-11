@@ -34,6 +34,9 @@ runs on `ci/phase-05` (push it together with `feat/phase-05`).
 (T5.4 + journey 9 part 2) **green incl. iphone-14**; the run for `812aec0` (T5.5, id 42970381316) was still running —
 check it first. A11 / B9 were looked at in English only; 4-locale baselines come with T5.6.
 
+**Audit 11 Nov 2026 (#153):** `docs/reports/AUDIT_2026-11-11.md` — plan in its §8. **Due now: F61 by 15 Nov (base
+image), F65 before Phase 05 reaches staging.** New: F66, O40 – O42.
+
 **Do next:**
 1. Session start protocol. Owner 10 Nov (#150): O39 PASS, O27 OK; still open O25 rest, O26 (Phase 03), O38
    (Phase 04), O28 later, O31 volunteers — ask whether they found something; those fixes come first (on `feat/phase-04` → `main`, then merge `main` into `feat/phase-05`).
@@ -657,12 +660,14 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F63 | Review L3 (DECISIONS #142) | Honour the push service `Retry-After` (move the batch to delayed by the largest value) instead of only BullMQ backoff | Before pilot (peak traffic) |
 | F64 | Review L4 (DECISIONS #142) | Kill switch takes effect per batch (up to ~4,000 sends after pause): re-check every send round | Phase 8 (moderation incidents) |
 | F65 | Review M2 rest (DECISIONS #142, #144) | Link each admin push subscription to its session (or have `getAlertTargets` require a live session), so revoking one session (another device) **or a session expiring** stops that phone's alerts too | **Before Phase 5's first alert to masjid admins** ("UPI change approved"); today masjid admins receive only test alerts (#144) |
+| F66 | Audit 11 Nov 2026 H1 (DECISIONS #153) | `defineRoute`: a default per-IP rate limit for routes that declare none (44 GET routes today rely on the CDN cache or the session alone); keep explicit rules as they are | Phase 9 T9.1 |
 | F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-11 | audit | Production-readiness audit (`reports/AUDIT_2026-11-11.md`, #153): not ready (5 of 10 phases); no critical / high hole in built parts; plan agreed — everything before launch, F61 + F65 on their dates. |
 | 2026-11-10 | 05 / T5.5 | Weekly chanda done (#152): migration 0018 (item `chanda.visible` mirror, `v_pub_items` filter), `setChandaWeek` / `setChandaSettings`, admin routes, B9, A11 + ChandaChart (HTML bars instead of SVG). Unit: domain 218, shared 193, ui 328, app 207, admin 158, api 181; db int 344 (37 files), api int 362; e2e chanda green on Pixel 7. Musalli initial JS 187.97 / 188 kB, admin 215.32 / 220 kB. `db:schema:check` clean. |
 | 2026-11-10 | 05 / T5.2 | Journey 9 part 2 e2e (#151): api-admin `payment-activate` test hook on its clock, test stack holds 24 h; passes on Pixel 7 and fails when activated early. T5.2 ticked (R1 security re-check at T5.7). Owner answers recorded (#150): Phase 00 DONE, O39 PASS, O27 OK. |
 | 2026-11-10 | 05 / T5.4 | Musalli campaigns done (#149): A10 list + detail + lazy UPI QR sheet, `lean-qr` instead of the unmaintained `qrcode`, Donate Now with the 1.5 s no-app fallback, Delta seed masjid. Fixed on the way: MetaRow `<dl>` structure (axe), Urdu "PM 10:10" (LTR isolate), a T5.3 admin unit test left behind (`uploadImage` purpose). Unit: domain 213, ui 325, app 204, admin 154; db int 336, api int 358; e2e campaigns 9/9 (Pixel 7), app suite on Pixel 7 green (2 parallel-load flakes pass serially). Musalli initial JS 187.85 / 188 kB. Docker Desktop stopped mid-session; `docker desktop restart` brought it back. |

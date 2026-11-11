@@ -2476,3 +2476,15 @@ views and the bundle, the mirror both ways, one item per week, notify refused wh
 removing the view filter), `packages/api/test/chanda-routes.int.test.ts` (3, incl. the public API as `mc_public`),
 `e2e/admin/chanda.spec.ts` (B9 → hidden → shown → A11 chart → hidden, axe on both screens). Left for T5.6: the
 "₹… collected" line on Updates / Home cards, the localized push text, visual baselines for A11 / B9 in 4 locales.
+
+### #153 — Production-readiness audit of 11 Nov 2026: findings are fixed before launch, per the plan in the report — ACCEPTED (owner, 11 Nov 2026)
+**Context:** the owner asked for a full audit (`docs/reports/AUDIT_2026-11-11.md`): no critical or high hole in the
+built parts; blockers are the unbuilt legal features (Phase 08), draft legal texts and translations, no production
+environment (Phase 09) and the owner's legal checklist; findings H1 – H4, M1 – M6.
+**Decision (owner: "write the plan, we'll do it before launch"):** every finding is scheduled in §8 of the report, in
+the phase where it fits. Two keep their earlier dates because they cannot wait: **F61** (Trivy ignore expires 15 Nov
+2026) and **F65** (admin alerts after a session ends — before Phase 05 reaches staging). New follow-up **F66** (default
+per-IP rate limit in `defineRoute`, Phase 09 T9.1). New owner tasks **O40** (repository visibility), **O41** (second
+Super Admin passkey + backup grievance person), **O42** (independent penetration test). O6 (Sentry) becomes required
+before the pilot.
+**Consequences:** the T9.9 launch checklist must include the 12 launch conditions of the report's §6.
