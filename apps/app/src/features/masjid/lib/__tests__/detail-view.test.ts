@@ -68,6 +68,22 @@ describe('sectionRows', () => {
     expect(sectionRows(bundle(true, 0), new Map(), undefined, null, 'brothers')).toEqual([]);
   });
 
+  it('Weekly Chanda counts its new week entries; hidden chanda shows no row even with items (T5.6)', () => {
+    const pages = new Map<ItemType, FeedItem[]>([
+      [
+        'chanda_update',
+        [item('2026-10-23T10:00:00.000Z', 'chanda_update'), item('2026-10-16T10:00:00.000Z', 'chanda_update')],
+      ],
+    ]);
+    const seen = '2026-10-21T00:00:00.000Z';
+    const followed = '2026-10-01T00:00:00.000Z';
+    expect(sectionRows(bundle(true, 2), pages, seen, followed, 'brothers')).toEqual([{ id: 'chanda', unseen: 1 }]);
+    expect(sectionRows(bundle(true, 2), pages, undefined, null, 'brothers')).toEqual([{ id: 'chanda', unseen: 0 }]);
+    expect(sectionRows(bundle(false, 2), pages, seen, followed, 'brothers')).toEqual([]);
+    // The row does not wait for the feed page.
+    expect(sectionRows(bundle(true, 2), new Map(), seen, followed, 'brothers')).toEqual([{ id: 'chanda', unseen: 0 }]);
+  });
+
   it('"Adhkar after salah" after Dua Requests when the masjid has a set (T3.14)', () => {
     const entry = {
       id: '0b7f6c2e-1d4a-4f3b-9c8e-2a1b3c4d5e6f',
@@ -124,8 +140,15 @@ describe('sectionRows', () => {
     ]);
   });
 
-  it('loads the five feed types (chanda is in the bundle)', () => {
-    expect(SECTION_TYPES).toEqual(['announcement', 'daily_content', 'dua_request', 'campaign', 'video']);
+  it('loads the six feed types (chanda shows by the bundle; its items count what is new)', () => {
+    expect(SECTION_TYPES).toEqual([
+      'announcement',
+      'daily_content',
+      'dua_request',
+      'campaign',
+      'chanda_update',
+      'video',
+    ]);
   });
 });
 

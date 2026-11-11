@@ -62,5 +62,6 @@ export {
 export { DUA_TONE, ItemIcon } from './ItemIcon.tsx';
 export { RuqyahCard, type RuqyahCardProps } from './RuqyahCard.tsx';
 export { SpecialDateCard, type SpecialDateCardProps } from './SpecialDateCard.tsx';
+export { useItemSummary } from './use-item-summary.ts';
 export { useNoticeBody } from './use-notice-body.ts';
 export { WhatsAppButton, type WhatsAppButtonProps } from './WhatsAppButton.tsx';
