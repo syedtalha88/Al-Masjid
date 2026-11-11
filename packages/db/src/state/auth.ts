@@ -593,11 +593,15 @@ export async function revokeSessions(
         { $set: { revoked_at: now, revoked_reason: input.reason } },
         { session: ctx.session },
       );
-    // Signing out everywhere also stops alerts on every phone (one session: the app removes its own subscription).
-    if (!input.sessionId && result.modifiedCount > 0)
+    // Signing out everywhere stops alerts on every phone; ending one session stops them on the phone that saved its
+    // subscription in that session (F65, DECISIONS #159) — also when that phone is not the one asking.
+    if (result.modifiedCount > 0)
       await ctx.db
-        .collection<{ admin_id: UUID }>('admin_push_subscriptions')
-        .deleteMany({ admin_id: adminId }, { session: ctx.session });
+        .collection<{ admin_id: UUID; session_id?: UUID }>('admin_push_subscriptions')
+        .deleteMany(
+          { admin_id: adminId, ...(input.sessionId ? { session_id: input.sessionId } : {}) },
+          { session: ctx.session },
+        );
     const requestId = input.requestId ? { requestId: input.requestId } : {};
     if (result.modifiedCount > 0) {
       await writeAudit(

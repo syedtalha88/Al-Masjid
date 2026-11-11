@@ -58,7 +58,7 @@ export async function processAlertSend(
             return id ? [id] : [];
           }),
         };
-  const targets = await getAlertTargets(deps.db, scope, to);
+  const targets = await getAlertTargets(deps.db, scope, to, deps.clock.now());
   const delivered: AlertTarget['id'][] = [];
   const gone: AlertTarget['id'][] = [];
   let retry = 0;

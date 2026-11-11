@@ -289,7 +289,12 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
         await saveAdminPushSubscription(
           deps.db,
           auth.scope,
-          { endpoint: body.endpoint, p256dh: body.keys.p256dh, auth: body.keys.auth },
+          {
+            endpoint: body.endpoint,
+            p256dh: body.keys.p256dh,
+            auth: body.keys.auth,
+            sessionId: auth.session.sessionId, // alerts stop with this session (F65)
+          },
           clock.now(),
         );
         return reply(204, {});

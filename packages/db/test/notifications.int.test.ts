@@ -1,7 +1,8 @@
 // PHASE_04 T4.5 / T4.6 / T4.7 — notification visibility and admin alert phones as the real process users: today's quota
 // with the audience reach and the kill switch, the history (newest first, 30 a page, the post joined), the Super
 // Admin's 24 h push stats (`mc_admin`), and admin push subscriptions — saved, replaced, capped at five, refused on
-// another admin's endpoint — read and pruned by the worker's alert sender (`mc_system`).
+// another admin's endpoint — read and pruned by the worker's alert sender (`mc_system`). F65 (DECISIONS #159): each
+// subscription hangs on the session that saved it; alerts go only to phones whose session still carries them.
 import { randomBytes } from 'node:crypto';
 
 import { Binary, type UUID } from 'mongodb';
@@ -23,12 +24,15 @@ import { buildDevSeed, seedId, writeDevSeed } from '../src/seed/index.ts';
 import {
   getAlertTargets,
   MAX_ADMIN_PUSH_SUBSCRIPTIONS,
+  pruneAdminPushSubscriptions,
   recordAlertDelivery,
   removeAdminPushSubscription,
   revokeAdminPasskeys,
   revokeAdminSessions,
   revokeSessions,
   saveAdminPushSubscription,
+  sessionCarriesAlerts,
+  SUPER_ALERT_WINDOW_MS,
 } from '../src/state/index.ts';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '../src/testing/index.ts';
 import { newId, newPublicId } from '../src/values.ts';
@@ -133,10 +137,32 @@ async function admin(role: 'super_admin' | 'masjid_admin', locale: string, statu
   });
   return id;
 }
-const subscription = (n: number | string) => ({
+const HOUR = 3_600_000;
+const DAY = 24 * HOUR;
+/** A session of `adminId`: open at NOW, idle for another hour, absolute for two — unless `extra` says otherwise. */
+async function session(adminId: UUID, extra: Record<string, unknown> = {}): Promise<UUID> {
+  const id = newId();
+  await raw('admin_sessions').insertOne(
+    {
+      _id: id,
+      admin_id: adminId,
+      token_hash: new Binary(randomBytes(32)),
+      created_at: NOW,
+      last_seen_at: NOW,
+      idle_expires_at: new Date(NOW.getTime() + HOUR),
+      absolute_expires_at: new Date(NOW.getTime() + 2 * HOUR),
+      ...extra,
+    },
+    { bypassDocumentValidation: true },
+  );
+  return id;
+}
+const subscription = (n: number | string, sessionId: UUID) => ({
   endpoint: `https://fcm.googleapis.com/fcm/send/admin-${String(n)}`,
   ...KEYS,
+  sessionId,
 });
+const endpointOf = (n: number | string) => `https://fcm.googleapis.com/fcm/send/admin-${String(n)}`;
 
 beforeAll(async () => {
   test = await createTestDatabase('notifications');
@@ -241,27 +267,32 @@ describe('notification status and history (mc_admin)', () => {
 });
 
 describe('admin push subscriptions (mc_admin) and alert targets (mc_system)', () => {
-  it('saved per admin, the same endpoint replaced, at most five kept (newest), removed idempotently', async () => {
+  it('saved per admin with its session, the same endpoint replaced, at most five kept (newest), removed idempotently', async () => {
     const adminId = await admin('masjid_admin', 'hi');
     const scope = owner(ALPHA, adminId);
+    const first = await session(adminId);
     for (let n = 0; n < MAX_ADMIN_PUSH_SUBSCRIPTIONS + 2; n += 1)
       await saveAdminPushSubscription(
         adm(),
         scope,
-        subscription(`${adminId.toHexString()}-${String(n)}`),
+        subscription(`${adminId.toHexString()}-${String(n)}`, first),
         new Date(NOW.getTime() + n * 1000),
       );
     const own = await raw('admin_push_subscriptions').find({ admin_id: adminId }).toArray();
     expect(own).toHaveLength(MAX_ADMIN_PUSH_SUBSCRIPTIONS);
-    expect(own.map((row) => row['endpoint'])).not.toContain(subscription(`${adminId.toHexString()}-0`).endpoint); // oldest gone
+    expect(own.map((row) => row['endpoint'])).not.toContain(endpointOf(`${adminId.toHexString()}-0`)); // oldest gone
+    expect(own.every((row) => (row['session_id'] as UUID).equals(first))).toBe(true);
 
-    const again = subscription(`${adminId.toHexString()}-6`);
+    // The app sends the subscription again after a new sign-in: it moves to the new session.
+    const second = await session(adminId);
+    const again = subscription(`${adminId.toHexString()}-6`, second);
     await saveAdminPushSubscription(adm(), scope, { ...again, auth: 'B'.repeat(22) }, NOW);
     expect(await raw('admin_push_subscriptions').countDocuments({ admin_id: adminId })).toBe(
       MAX_ADMIN_PUSH_SUBSCRIPTIONS,
     );
     expect(await raw('admin_push_subscriptions').findOne({ endpoint: again.endpoint })).toMatchObject({
       auth: 'B'.repeat(22),
+      session_id: second,
     });
 
     await removeAdminPushSubscription(adm(), scope, again.endpoint);
@@ -272,41 +303,41 @@ describe('admin push subscriptions (mc_admin) and alert targets (mc_system)', ()
   it('another admin’s endpoint is PUSH_ENDPOINT_IN_USE; only admins may save; only the worker reads targets', async () => {
     const first = await admin('masjid_admin', 'en');
     const second = await admin('masjid_admin', 'en');
-    const shared = subscription(`shared-${first.toHexString()}`);
-    await saveAdminPushSubscription(adm(), owner(ALPHA, first), shared, NOW);
-    expect(await code(saveAdminPushSubscription(adm(), owner(ALPHA, second), shared, NOW))).toBe(
-      'PUSH_ENDPOINT_IN_USE',
-    );
-    expect(await code(saveAdminPushSubscription(adm(), deviceScope(newId()), shared, NOW))).toBe('FORBIDDEN');
-    expect(await code(removeAdminPushSubscription(adm(), SYSTEM, shared.endpoint))).toBe('FORBIDDEN');
-    expect(await code(getAlertTargets(adm(), owner(ALPHA, first), { kind: 'super' }))).toBe('FORBIDDEN');
+    const shared = `shared-${first.toHexString()}`;
+    await saveAdminPushSubscription(adm(), owner(ALPHA, first), subscription(shared, await session(first)), NOW);
+    const other = subscription(shared, await session(second));
+    expect(await code(saveAdminPushSubscription(adm(), owner(ALPHA, second), other, NOW))).toBe('PUSH_ENDPOINT_IN_USE');
+    expect(await code(saveAdminPushSubscription(adm(), deviceScope(newId()), other, NOW))).toBe('FORBIDDEN');
+    expect(await code(removeAdminPushSubscription(adm(), SYSTEM, other.endpoint))).toBe('FORBIDDEN');
+    expect(await code(getAlertTargets(adm(), owner(ALPHA, first), { kind: 'super' }, NOW))).toBe('FORBIDDEN');
     expect(await code(recordAlertDelivery(adm(), owner(ALPHA, first), { delivered: [], gone: [] }, NOW))).toBe(
       'FORBIDDEN',
     );
+    expect(await code(pruneAdminPushSubscriptions(adm(), owner(ALPHA, first), NOW))).toBe('FORBIDDEN');
+  });
+
+  it('F65: a subscription is saved only on a session of the same admin that is still open', async () => {
+    const self = await admin('masjid_admin', 'en');
+    const stranger = await admin('masjid_admin', 'en');
+    const label = `own-${self.toHexString()}`;
+    const save = (sessionId: UUID) =>
+      code(saveAdminPushSubscription(adm(), owner(ALPHA, self), subscription(label, sessionId), NOW));
+    expect(await save(newId())).toBe('FORBIDDEN'); // no such session
+    expect(await save(await session(stranger))).toBe('FORBIDDEN'); // someone else's
+    expect(await save(await session(self, { revoked_at: NOW, revoked_reason: 'logout' }))).toBe('FORBIDDEN');
+    expect(await raw('admin_push_subscriptions').countDocuments({ admin_id: self })).toBe(0);
+    expect(await save(await session(self))).toBe('ok');
   });
 
   it('revoked sessions or passkeys, or signing out everywhere, stop alerts to every phone of the admin (#142)', async () => {
-    const session = async (adminId: UUID) => {
-      const id = newId();
-      await raw('admin_sessions').insertOne(
-        {
-          _id: id,
-          admin_id: adminId,
-          token_hash: new Binary(randomBytes(32)),
-          created_at: NOW,
-          last_seen_at: NOW,
-          idle_expires_at: new Date(NOW.getTime() + 3_600_000),
-          absolute_expires_at: new Date(NOW.getTime() + 7_200_000),
-        },
-        { bypassDocumentValidation: true },
-      );
-      return id;
-    };
     const phones = (adminId: UUID) => raw('admin_push_subscriptions').countDocuments({ admin_id: adminId });
     const owner2 = superScope(newId(), NOW); // the Super Admin acting, step-up fresh
     const subscribe = async (adminId: UUID, label: string) => {
-      await saveAdminPushSubscription(adm(), owner(ALPHA, adminId), subscription(`${label}-a`), NOW);
-      await saveAdminPushSubscription(adm(), owner(ALPHA, adminId), subscription(`${label}-b`), NOW);
+      const a = await session(adminId);
+      const b = await session(adminId);
+      await saveAdminPushSubscription(adm(), owner(ALPHA, adminId), subscription(`${label}-a`, a), NOW);
+      await saveAdminPushSubscription(adm(), owner(ALPHA, adminId), subscription(`${label}-b`, b), NOW);
+      return [a, b] as const;
     };
 
     const lostPhone = await admin('masjid_admin', 'en');
@@ -319,12 +350,14 @@ describe('admin push subscriptions (mc_admin) and alert targets (mc_system)', ()
     await revokeAdminPasskeys(adm(), owner2, { adminId: stolen, now: NOW });
     expect(await phones(stolen)).toBe(0);
 
+    // F65: ending ONE session — from that phone or from another one's session list — stops that phone's alerts.
     const self = await admin('masjid_admin', 'en');
-    await subscribe(self, `self-${self.toHexString()}`);
-    const one = await session(self);
-    await session(self);
+    const label = `self-${self.toHexString()}`;
+    const [one] = await subscribe(self, label);
     await revokeSessions(adm(), owner(ALPHA, self), { sessionId: one, reason: 'revoked_by_admin', now: NOW });
-    expect(await phones(self)).toBe(2); // one device signed out: that app removes its own subscription
+    expect(await raw('admin_push_subscriptions').find({ admin_id: self }).toArray()).toMatchObject([
+      { endpoint: endpointOf(`${label}-b`) },
+    ]);
     await revokeSessions(adm(), owner(ALPHA, self), { reason: 'revoked_by_admin', now: NOW });
     expect(await phones(self)).toBe(0); // everywhere
   });
@@ -334,19 +367,25 @@ describe('admin push subscriptions (mc_admin) and alert targets (mc_system)', ()
     const superUrdu = await admin('super_admin', 'ur');
     const superOff = await admin('super_admin', 'en', 'disabled');
     const telugu = await admin('masjid_admin', 'te');
-    await saveAdminPushSubscription(adm(), superScope(superUrdu), subscription('super-ur-1'), NOW);
-    await saveAdminPushSubscription(adm(), superScope(superUrdu), subscription('super-ur-2'), NOW);
-    await saveAdminPushSubscription(adm(), superScope(superOff), subscription('super-off'), NOW);
-    await saveAdminPushSubscription(adm(), owner(ALPHA, telugu), subscription('te'), NOW);
+    const urduSession = await session(superUrdu);
+    await saveAdminPushSubscription(adm(), superScope(superUrdu), subscription('super-ur-1', urduSession), NOW);
+    await saveAdminPushSubscription(adm(), superScope(superUrdu), subscription('super-ur-2', urduSession), NOW);
+    await saveAdminPushSubscription(
+      adm(),
+      superScope(superOff),
+      subscription('super-off', await session(superOff)),
+      NOW,
+    );
+    await saveAdminPushSubscription(adm(), owner(ALPHA, telugu), subscription('te', await session(telugu)), NOW);
 
-    const supers = await getAlertTargets(sys(), SYSTEM, { kind: 'super' });
+    const supers = await getAlertTargets(sys(), SYSTEM, { kind: 'super' }, NOW);
     expect(supers.map((row) => row.endpoint).sort()).toEqual(
-      [subscription('super-ur-1').endpoint, subscription('super-ur-2').endpoint].sort(),
+      [endpointOf('super-ur-1'), endpointOf('super-ur-2')].sort(),
     );
     expect(supers.every((row) => row.locale === 'ur')).toBe(true);
-    const named = await getAlertTargets(sys(), SYSTEM, { kind: 'admins', adminIds: [telugu, superOff] });
-    expect(named).toEqual([expect.objectContaining({ endpoint: subscription('te').endpoint, locale: 'te' })]);
-    expect(await getAlertTargets(sys(), SYSTEM, { kind: 'admins', adminIds: [newId()] })).toEqual([]);
+    const named = await getAlertTargets(sys(), SYSTEM, { kind: 'admins', adminIds: [telugu, superOff] }, NOW);
+    expect(named).toEqual([expect.objectContaining({ endpoint: endpointOf('te'), locale: 'te' })]);
+    expect(await getAlertTargets(sys(), SYSTEM, { kind: 'admins', adminIds: [newId()] }, NOW)).toEqual([]);
 
     const [kept, gone] = supers;
     if (!kept || !gone) throw new Error('two Super Admin phones');
@@ -354,5 +393,85 @@ describe('admin push subscriptions (mc_admin) and alert targets (mc_system)', ()
     expect(await raw('admin_push_subscriptions').findOne({ _id: kept.id })).toMatchObject({ last_ok_at: NOW });
     expect(await raw('admin_push_subscriptions').findOne({ _id: gone.id })).toBeNull();
     await recordAlertDelivery(sys(), SYSTEM, { delivered: [], gone: [] }, NOW); // nothing to do
+  });
+
+  it('F65: a session carries alerts until it is revoked or expires — a Super Admin’s for 30 days after its last use', () => {
+    const at = (ms: number) => new Date(NOW.getTime() + ms);
+    const open = { last_seen_at: NOW, idle_expires_at: at(HOUR), absolute_expires_at: at(2 * HOUR) };
+    expect(sessionCarriesAlerts(open, 'masjid_admin', NOW)).toBe(true);
+    expect(sessionCarriesAlerts(open, 'masjid_admin', at(HOUR))).toBe(false); // idle expiry reached
+    expect(sessionCarriesAlerts({ ...open, idle_expires_at: at(3 * HOUR) }, 'masjid_admin', at(2 * HOUR))).toBe(false);
+    expect(sessionCarriesAlerts({ ...open, revoked_at: NOW }, 'masjid_admin', NOW)).toBe(false);
+    // The Super Admin's short session has long expired: takedown alerts still reach the phone…
+    expect(sessionCarriesAlerts(open, 'super_admin', at(5 * DAY))).toBe(true);
+    expect(sessionCarriesAlerts(open, 'super_admin', at(SUPER_ALERT_WINDOW_MS - 1))).toBe(true);
+    // …until it was not used for 30 days, or it is revoked (sign-out, the session list, a ★ revoke).
+    expect(sessionCarriesAlerts(open, 'super_admin', at(SUPER_ALERT_WINDOW_MS))).toBe(false);
+    expect(sessionCarriesAlerts({ ...open, revoked_at: NOW }, 'super_admin', NOW)).toBe(false);
+  });
+
+  it('F65: no alert to a phone whose session expired, was revoked, is gone, or was never linked; the daily prune deletes them', async () => {
+    await raw('admin_push_subscriptions').deleteMany({});
+    const masjidAdmin = await admin('masjid_admin', 'en');
+    const superAdmin = await admin('super_admin', 'en');
+    const mine = owner(ALPHA, masjidAdmin);
+    const tag = masjidAdmin.toHexString();
+    const save = async (scope: Parameters<typeof saveAdminPushSubscription>[1], name: string, sessionId: UUID) => {
+      await saveAdminPushSubscription(adm(), scope, subscription(`${name}-${tag}`, sessionId), NOW);
+      return endpointOf(`${name}-${tag}`);
+    };
+    const live = await save(mine, 'live', await session(masjidAdmin));
+    const expiring = await session(masjidAdmin);
+    const expired = await save(mine, 'expired', expiring);
+    const revoking = await session(masjidAdmin);
+    const revoked = await save(mine, 'revoked', revoking);
+    const deleting = await session(masjidAdmin);
+    const orphan = await save(mine, 'orphan', deleting);
+    const legacy = endpointOf(`legacy-${tag}`); // saved before F65: no session
+    await raw('admin_push_subscriptions').insertOne({
+      _id: newId(),
+      admin_id: masjidAdmin,
+      endpoint: legacy,
+      ...KEYS,
+      created_at: NOW,
+    });
+    const superPhone = await save(superScope(superAdmin), 'super', await session(superAdmin));
+    const superStale = await save(
+      superScope(superAdmin),
+      'super-stale',
+      await session(superAdmin, { last_seen_at: new Date(NOW.getTime() - SUPER_ALERT_WINDOW_MS) }),
+    );
+
+    // Things happen to the sessions after the phones subscribed (raw writes: what time and other code paths do).
+    await raw('admin_sessions').updateOne(
+      { _id: expiring },
+      { $set: { idle_expires_at: new Date(NOW.getTime() - 1) } },
+      { bypassDocumentValidation: true },
+    );
+    await raw('admin_sessions').updateOne(
+      { _id: revoking },
+      { $set: { revoked_at: NOW, revoked_reason: 'credential_revoked' } },
+      { bypassDocumentValidation: true },
+    );
+    await raw('admin_sessions').deleteOne({ _id: deleting });
+
+    const to = { kind: 'admins', adminIds: [masjidAdmin, superAdmin] } as const;
+    const endpoints = async (now: Date) => (await getAlertTargets(sys(), SYSTEM, to, now)).map((row) => row.endpoint);
+    expect((await endpoints(NOW)).sort()).toEqual([live, superPhone].sort());
+    // Two hours on, the masjid admin's session has run out; the Super Admin's phone still hears alerts.
+    expect(await endpoints(new Date(NOW.getTime() + 2 * HOUR))).toEqual([superPhone]);
+
+    expect(await pruneAdminPushSubscriptions(sys(), SYSTEM, NOW)).toBe(5);
+    const left = await raw('admin_push_subscriptions')
+      .find({ admin_id: { $in: [masjidAdmin, superAdmin] } })
+      .toArray();
+    expect(left.map((row) => row['endpoint']).sort()).toEqual([live, superPhone].sort());
+    for (const gone of [expired, revoked, orphan, legacy, superStale])
+      expect(await raw('admin_push_subscriptions').findOne({ endpoint: gone })).toBeNull();
+    expect(await pruneAdminPushSubscriptions(sys(), SYSTEM, NOW)).toBe(0); // idempotent
+    // An admin who is disabled later: their phone is not a target, and the next prune removes it.
+    await raw('admin_users').updateOne({ _id: masjidAdmin }, { $set: { status: 'disabled' } });
+    expect(await endpoints(NOW)).toEqual([superPhone]);
+    expect(await pruneAdminPushSubscriptions(sys(), SYSTEM, NOW)).toBe(1);
   });
 });

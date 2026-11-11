@@ -2630,3 +2630,37 @@ Masjid Detail (new row). "Log this in My zakat?" after a payment comes with T5.9
 reset), `upi-actions.test.ts` +2 (return from the UPI app); e2e `e2e/app/zakat.spec.ts` (journey + network assertion +
 Clear all data; "Start a new year"; 4 locales with axe and screenshots) and the zakat step in
 `e2e/admin/needy.spec.ts`; Settings visual baselines × 4 locales × 2 devices updated (new row). Owner guide 5.18–5.20.
+
+### #159 — F65: admin alerts stop when the session ends; the Super Admin's phone is reached for 30 days (audit H3) — ACCEPTED (Claude Code, 12 Nov 2026; one point for the owner to confirm)
+**Context:** #142 M2 / #144 / audit H3 (#153): signing out one admin phone from another device, or a session
+expiring, left that phone receiving alerts. Phase 05 sends the first real alerts to masjid admins (UPI change
+approved / rejected / active), so this had to be closed before Phase 05 reaches staging.
+**Decision.**
+- **Every subscription belongs to the session that saved it** (`admin_push_subscriptions.session_id`, migration
+  `0020_admin_push_session`, index `{session_id:1}`). `PUT /auth/push` takes the session from the cookie, never from
+  the body; the data layer refuses a session that is not an open session of the same admin.
+- **Alerts go only to phones whose session still carries them** (`getAlertTargets`, checked at send time):
+  never when the session is revoked (sign-out, the session list, ★ revoke, recovery, counter regression);
+  **masjid admin** — not once the session has expired (7 days idle / 30 days absolute, 04 §4);
+  **Super Admin** — until the session was last used **30 days** ago (`SUPER_ALERT_WINDOW_MS`).
+- **Why the Super Admin differs — two docs pull apart here.** 04 R4 gives the Super Admin a session of 30 minutes
+  idle / 12 hours absolute. 05 §3 needs the Super Admin alerted at once for takedowns with deadlines of 2–36 hours,
+  and 04 §13 routes SLA and failure alerts to "Super Admin push". Tying alerts to the 30-minute session would mean no
+  alert ever reaches the owner unless the app was open in the last half hour — the legal feature would not work. So
+  for the Super Admin the *alert* lifetime is longer than the *session* lifetime: an alert only says "open the app"
+  (its type and a fixed path — no content), and acting on it needs a fresh passkey login. Revoking still stops it
+  at once, and a phone not used for 30 days falls silent. **Owner to confirm the 30 days** (shorter = safer if a
+  phone is lost without revoking; longer = fewer missed alerts after a holiday). Changing it is one constant.
+- **Ending one session deletes the subscriptions saved in it** in the same transaction (`revokeSessions` with a
+  session id) — before, only "everywhere" did, and one-device sign-out relied on the app removing its own.
+- **The app needs no change:** it already sends the subscription again on every open (#142), which moves it to the
+  new session after the next sign-in. A masjid admin whose session expired gets alerts again from that moment.
+- **Old rows** (saved before the link; staging only) are never targets; the `retention` job deletes them and every
+  other subscription whose session no longer carries alerts (data minimisation, 05 §1). The owner's phones start
+  receiving alerts again the next time the admin app is opened on them — before O38, just open the app once.
+- **No new privilege:** `mc_system` already reads `admin_sessions`; `mc_admin` already writes its own subscriptions.
+  The Atlas roles file is unchanged (O43 stays as it was).
+**Consequences:** 02 `admin_push_subscriptions` updated. Tests — db `notifications.int` (+3: session ownership on
+save, one-session revoke, expired / revoked / deleted / unlinked sessions and the prune; `sessionCarriesAlerts` cases),
+api `alert-send.int` (+1: silent phones; the Super Admin reached after the short session), `notification-routes.int`
+(the saved row carries the request's session). F65 closed.

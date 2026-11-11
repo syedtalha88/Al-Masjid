@@ -72,4 +72,6 @@ export const SCHEMA_AREAS: Readonly<
     collections: ['beneficiaries', 'beneficiary_amount_history'],
     views: ['v_pub_beneficiaries'],
   },
+  // F65 (DECISIONS #159): an admin alert subscription belongs to the session that saved it (`session_id`, indexed).
+  '0020_admin_push_session': { collections: ['admin_push_subscriptions'] },
 };
