@@ -47,12 +47,12 @@ keep a personal zakat tracker that never leaves the phone.
 | Unit + component | ✅ local | app 228 · admin 166 · ui 332 · i18n 206 · domain 220 (100 % gate) |
 | DB policy matrix + privileges | ✅ local | `pnpm db:test` 371 |
 | API integration | ✅ local | 372 |
-| E2E (Pixel 7, local) | ✅ | admin screens ×4 locales, zakat 6, campaigns, needy, voice, payment (journey 9 part 2) — CI (Pixel 7 + iPhone 14) pending |
+| E2E (Pixel 7, local, 12 Nov) | ✅ | admin screens ×4 locales, zakat 6, campaigns, needy (25/25); journey 9 part 2 (`payment.spec.ts`) re-run after #160 — see the T5.7 checklist; iPhone 14 / WebKit only on CI (pending) |
 | Accessibility (axe) | ✅ | every Phase 05 screen in en / hi / ur / te: 0 violations |
 | Visual regression | ✅ | `pnpm test:visual` 24/24 (key screens × 4 locales × 2 phones) |
 | Bundle budgets | ✅ | app initial JS 188.7 / 189 kB (raised 188 → 189, #157 — owner rule "quality over budgets"); QR generator lazy |
 | Lighthouse / motion | ⏳ | CI |
-| phase-verifier | ⏳ | running |
+| phase-verifier | ❌ → fixing (12 Nov) | FAIL on: T5.7 open, journey 9 stale after #160, Urdu time "AM 1:24" on C4 / B8 (fixed: LTR isolate + unit test), T5.4 evidence (now §4), report gaps (fixed). Open: `pnpm verify`, CI, owner O28 / O46 |
 | security-reviewer | 0 HIGH · 4 MEDIUM (3 fixed, 1 half) · 11 LOW | DECISIONS #160 — see §6 |
 
 ## 4. Screenshots
@@ -64,18 +64,34 @@ keep a personal zakat tracker that never leaves the phone.
 `campaigns`, `campaign-detail`, `donations-*`, `weekly-chanda`, `help-the-needy`, `settings` (× 4 × 2); zakat and needy
 sheets in their e2e attachments.
 
-**A10 vs `ref-3` screen 13 (T5.4 acceptance):** same structure — hero with the status pill, title, amount with goal,
-progress bar with %, Started / Ends / purpose row, About, Donate Now, Show UPI QR Code, the footer note. Intended
-differences: the seed drive has no cover photo (mint placeholder); "Received (reported by masjid)" and a "Last updated
-… by masjid admin" line (05 §8 wording); a heart on Donate Now instead of a UPI-app logo (no brand logos).
+**A10 vs the references (T5.4 acceptance — written comparison; the images are `docs/design-references/ref-2…png`
+screen 12, `ref-3…png` screen 13 and `e2e/visual/__screenshots__/visual-pixel-7/en/campaign-detail.png`):**
+- *ref-3 screen 13:* same structure — hero with the status pill, title, amount with goal, progress bar with %,
+  Started / Ends / purpose row, About, Donate Now, Show UPI QR Code, the footer note.
+- *ref-2 screen 12:* same amount block ("Received (reported by masjid)" / target, % bar) and the same "Last updated …
+  by masjid admin" box and About section.
+- Differences: the seed drive has no cover photo (mint placeholder); a heart on Donate Now instead of a UPI-app logo,
+  and no Google Pay / PhonePe / Paytm logos (no brand logos); **ref-2's inline "Donate via UPI" block (QR + "Open UPI
+  App") is not on the page** — 07 A10 specifies Donate Now plus a "Show UPI QR Code" sheet (payee, UPI ID copy, Save
+  QR, hints), which is what is built (§5).
 
 ## 5. Deviations from spec
 
-- Chanda chart in HTML bars instead of SVG (#152) · payee QR scan Android-only, admin CSP unchanged (#147) · journey 9
-  part 2 runs the activation through a test hook on api-admin's settable clock (#151) · needy consent missing → 400,
-  not 422 (#156) · "Log this in My zakat?" asked only for zakat-eligible people (#158 — owner may widen, O44) · Super
-  Admin alerts reach the phone 30 days after the last use, admins' end with the session (#159, O44) · the needy list is
-  cached one day, not immutable (#160).
+- A10: ref-2's inline QR block → the "Show UPI QR Code" sheet of 07 A10 (spec over picture); no UPI-app logos.
+- `lean-qr` instead of the unmaintained `qrcode` package for the UPI QR (#149).
+- The Super Admin may also stop a change **during** the hold (reject from `approved_on_hold`, #146) — 02's state
+  diagram had reject from `pending` only.
+- Chanda chart in HTML bars instead of SVG (#152); admin screens (B8, B9, B19, C1, C4) have 4-locale screenshots,
+  not pixel baselines (#154).
+- Payee QR scan Android-only, admin CSP unchanged (#147, owner).
+- Journey 9 part 2 runs the activation through a test hook on api-admin's settable clock (#151).
+- Needy consent missing → **400**, not 422 as the phase file says — 03 §0 uses 400 for every validation failure
+  (#156, Claude Code's choice: **owner to acknowledge**).
+- Needy UPI changes (04 R13): recorded old → new in the person's history, the audit says only "changed" (#160 M3).
+- The public needy list is cached one day, not immutable (#160 M4).
+- "Log this in My zakat?" only for zakat-eligible people (#158, O44); Super Admin alerts reach the phone for 30 days
+  after its last use, admins' end with the session (#159, O44).
+- App initial JS budget 188.7 / **189 kB** (raised during this phase, #157; 01 §9's original target is 170 kB).
 
 ## 6. Known limitations / follow-ups
 

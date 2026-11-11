@@ -530,7 +530,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O27 | **Phase 03 checks on staging** (`owner/PHASE_TESTING_GUIDE.md` → Phase 03) | Phase 03 DONE | 45 min | **OK — owner, 10 Nov 2026** (photos / voice wait for O25) |
 | O28 | **UPI ID for a ₹1 test** | Phase 05 exit | 5 min | Phase 05 |
 | O44 | **Two answers (12 Nov 2026):** (a) #159 — the Super Admin's phone keeps getting alerts for **30 days** after the admin app was last used on it (sign-out stops them at once): OK, or shorter? (b) #158 — "Log this in My zakat?" is asked only after paying a person the masjid marked **zakat-eligible**: OK, or ask for everyone? | F65 / T5.9 defaults stand until answered | 2 answers | open — not blocking |
-| O46 | **Phase 05 security decisions** (#160): (a) UPI change requests by owners only + alert every owner (L2 / F69); (b) refuse photos with a QR code (M2 image / F68); (c) live UPI details writable only by the worker, Phase 9 (L5 / F70) | R1 exit criterion | 5 min | open — asked 12 Nov 2026 |
+| O46 | **Phase 05 security decisions** (#160): (a) UPI change requests by owners only + alert every owner (L2 / F69); (b) refuse photos with a QR code (M2 image / F68); (c) live UPI details writable only by the worker, Phase 9 (L5 / F70); (d) acknowledge consent → 400 not 422 (#156) | R1 exit criterion | 5 min | open — asked 12 Nov 2026 |
 | O45 | **Open the admin app once on each phone that should get alerts** (after Phase 05 is on staging) | F65: older alert subscriptions are no longer used; opening the app links the phone again | 1 min | before O38's alert checks on the Phase 05 build |
 | O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | Phase 07 (map-tile decision dropped — #118) |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
@@ -744,7 +744,13 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   for the full screens); they found two display bugs, fixed (#160: Urdu amounts, Telugu tag). Security review run:
   0 HIGH, 4 MEDIUM, 11 LOW — M1, M3, M4, M2 (text), L1, L6, L8 fixed (#160); M2 image part, L2–L5, L7, L9–L11 deferred
   F67–F70 / owner O46. Local: e2e 25/25 (screens ×4, zakat, campaigns, needy), visual 24/24, db 371, i18n 206.
-  **Left:** owner answers (O46), `phase-verifier`, `pnpm verify`, the Phase 05 report, CI green.
+  **phase-verifier (12 Nov): FAIL → fixed what is ours:** the Urdu time on C4 / B8 read "AM 1:24" (`liveAtText` now
+  LTR-isolates the time; unit test for Urdu), journey 9 part 2 re-run on the #160 code — green (with screens ×4 and
+  journey 7: 10/10), T5.4 written comparison with ref-2 + ref-3 and all deviations in the report draft, stale test
+  header / title fixed. **Left:** owner answers (O46 incl. the 400-vs-422 note), `pnpm verify` (lhci, perf,
+  check:dist, `db:schema:check`), CI green on Pixel 7 + iPhone 14, then O43 → staging → O28. Recommended, not
+  blocking: scheduler tests for `payment-activate` / `campaign-close` / `retention`; a campaign PATCH test with a
+  disallowed field; `/items/:publicId`, `/templates`, `/library/:id` in the `private_enc` sweep.
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
