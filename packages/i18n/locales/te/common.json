@@ -201,5 +201,9 @@
     "yesterday": "నిన్న",
     "new": "కొత్తది",
     "loadingMore": "మరిన్ని లోడ్ అవుతున్నాయి…"
+  },
+  "summary": {
+    "raisedOf": "{target}లో {received} వచ్చింది",
+    "collected": "{date} వారంలో {amount} వసూలైంది"
   }
 }

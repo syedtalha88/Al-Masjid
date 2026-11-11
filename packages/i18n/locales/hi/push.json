@@ -2,6 +2,7 @@
   "voice": "🎤 वॉइस मैसेज",
   "fallbackTitle": "मस्जिद की ख़बर",
   "fallbackBody": "देखने के लिए ऐप खोलें।",
+  "campaignNew": "नया चंदा अभियान · लक्ष्य {target}",
   "alert": {
     "credential_counter_regression": {
       "title": "सुरक्षा जाँच ज़रूरी",

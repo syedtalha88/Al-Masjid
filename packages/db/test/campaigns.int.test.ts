@@ -17,6 +17,7 @@ import {
   closeEndedCampaigns,
   completeCampaign,
   createCampaign,
+  getPushContent,
   setCampaignReceived,
   updateCampaign,
 } from '../src/state/index.ts';
@@ -200,6 +201,16 @@ describe('update amount, edit, complete, close', () => {
     expect(await code(received(0.5))).toBe('CAMPAIGN_INVALID');
     // Above the target is fine: the text shows the real value (00 §4.3).
     expect(await code(received(12_000_000))).toBe('ok');
+  });
+
+  it('the notification content carries the goal and the reported amount (T5.6 push text)', async () => {
+    const content = await getPushContent(as('system'), systemScope(), itemId);
+    expect(content).toMatchObject({
+      type: 'campaign',
+      title: 'Test water tank',
+      campaign: { targetPaise: campaign().targetPaise, receivedPaise: 12_000_000 },
+      chanda: undefined,
+    });
   });
 
   it('edits raise the target only; a lower one is refused', async () => {

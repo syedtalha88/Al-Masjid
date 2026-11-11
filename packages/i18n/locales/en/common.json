@@ -201,5 +201,9 @@
     "yesterday": "Yesterday",
     "new": "New",
     "loadingMore": "Loading more…"
+  },
+  "summary": {
+    "raisedOf": "{received} raised of {target}",
+    "collected": "{amount} collected in the week of {date}"
   }
 }

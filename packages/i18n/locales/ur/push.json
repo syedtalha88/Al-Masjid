@@ -2,6 +2,7 @@
   "voice": "🎤 وائس میسج",
   "fallbackTitle": "مسجد کی خبر",
   "fallbackBody": "دیکھنے کے لیے ایپ کھولیں۔",
+  "campaignNew": "نئی چندہ مہم · ہدف {target}",
   "alert": {
     "credential_counter_regression": {
       "title": "سیکیورٹی جانچ ضروری",

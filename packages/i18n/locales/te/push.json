@@ -2,6 +2,7 @@
   "voice": "🎤 వాయిస్ సందేశం",
   "fallbackTitle": "మసీదు సమాచారం",
   "fallbackBody": "చూడటానికి యాప్ తెరవండి.",
+  "campaignNew": "కొత్త విరాళాల ప్రచారం · లక్ష్యం {target}",
   "alert": {
     "credential_counter_regression": {
       "title": "భద్రతా తనిఖీ అవసరం",

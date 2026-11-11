@@ -201,5 +201,9 @@
     "yesterday": "کل",
     "new": "نیا",
     "loadingMore": "مزید لوڈ ہو رہا ہے…"
+  },
+  "summary": {
+    "raisedOf": "{target} میں سے {received} جمع",
+    "collected": "{date} والے ہفتے میں {amount} جمع ہوئے"
   }
 }

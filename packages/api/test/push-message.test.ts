@@ -36,7 +36,12 @@ const BASE: PushContent = {
       { name: 'time', type: 'time' },
     ],
   },
+  campaign: undefined,
+  chanda: undefined,
 };
+
+/** An item with no template (campaigns, chanda). */
+const PLAIN: PushContent = { ...BASE, templateKey: undefined, template: undefined, templateParams: undefined };
 
 describe('pushMessage', () => {
   it('English: masjid name, template title and the formatted body; opens the item', () => {
@@ -111,6 +116,55 @@ describe('pushMessage', () => {
     expect(pushMessage({ ...bare, body: '\n  \nTest first line\nTest second line' }, 'en').b).toBe(
       'Test first line\nTest first line\nTest second line',
     );
+  });
+
+  it('a new donation campaign: its title and the goal — not the long description (T5.6)', () => {
+    const created: PushContent = {
+      ...PLAIN,
+      type: 'campaign',
+      title: 'Test Masjid Renovation Fund',
+      body: 'Sample campaign description for development.',
+      campaign: { targetPaise: 10_000_000, receivedPaise: 0 },
+    };
+    expect(pushMessage(created, 'en').b).toBe('Test Masjid Renovation Fund\nNew donation campaign · Goal ₹1,00,000');
+    for (const locale of ['hi', 'ur', 'te'] as const) {
+      const [head, line] = pushMessage(created, locale).b.split('\n');
+      expect(head).toBe('Test Masjid Renovation Fund');
+      expect(line).toContain('1,00,000');
+      expect(line).not.toContain('{');
+      expect(line).not.toBe('New donation campaign · Goal ₹1,00,000');
+    }
+  });
+
+  it('a campaign amount update: "… raised of …" as the app shows it (T5.6)', () => {
+    const updated: PushContent = {
+      ...PLAIN,
+      type: 'campaign',
+      title: 'Test Masjid Renovation Fund',
+      body: 'Sample campaign description for development.',
+      campaign: { targetPaise: 10_000_000, receivedPaise: 7_200_000 },
+    };
+    expect(pushMessage(updated, 'en').b).toBe('Test Masjid Renovation Fund\n₹72,000 raised of ₹1,00,000');
+    const urdu = pushMessage(updated, 'ur').b;
+    expect(urdu).toContain('72,000');
+    expect(urdu).toContain('1,00,000');
+    expect(urdu).not.toContain('{');
+  });
+
+  it('weekly chanda: the label and "… collected in the week of …" (T5.6)', () => {
+    const chanda: PushContent = {
+      ...PLAIN,
+      type: 'chanda_update',
+      category: undefined,
+      chanda: { weekStart: '2026-11-06', amountPaise: 1_850_000 },
+    };
+    expect(pushMessage(chanda, 'en').b).toBe('Weekly chanda\n₹18,500 collected in the week of 6 Nov 2026');
+    for (const locale of ['hi', 'ur', 'te'] as const) {
+      const [head, line] = pushMessage(chanda, locale).b.split('\n');
+      expect(head).toBe(itemLabel('chanda', locale));
+      expect(line).toContain('18,500');
+      expect(line).not.toContain('{');
+    }
   });
 
   it('a template without words in the reader’s language falls back to English; an empty one to the label', () => {

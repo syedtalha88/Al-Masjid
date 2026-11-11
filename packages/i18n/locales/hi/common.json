@@ -201,5 +201,9 @@
     "yesterday": "कल",
     "new": "नया",
     "loadingMore": "और लोड हो रहा है…"
+  },
+  "summary": {
+    "raisedOf": "{target} में से {received} जमा",
+    "collected": "{date} वाले हफ़्ते में {amount} जमा हुए"
   }
 }

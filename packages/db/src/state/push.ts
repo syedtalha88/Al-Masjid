@@ -391,7 +391,25 @@ export interface PushContent {
         readonly params: readonly { readonly name: string; readonly type: string }[];
       }
     | undefined;
+  /** A donation campaign's goal and what the masjid reports as received (paise) — the push says "… raised of …". */
+  readonly campaign: { readonly targetPaise: number; readonly receivedPaise: number } | undefined;
+  /** A weekly chanda entry: the week ("YYYY-MM-DD") and its total (paise). */
+  readonly chanda: { readonly weekStart: string; readonly amountPaise: number } | undefined;
 }
+
+const campaignOf = (item: Document): PushContent['campaign'] => {
+  const campaign = objectOf(item, 'campaign');
+  const targetPaise = campaign ? numberOf(campaign, 'target_paise') : undefined;
+  if (!campaign || targetPaise === undefined) return undefined;
+  return { targetPaise, receivedPaise: numberOf(campaign, 'received_paise') ?? 0 };
+};
+
+const chandaOf = (item: Document): PushContent['chanda'] => {
+  const chanda = objectOf(item, 'chanda');
+  const weekStart = chanda ? text(chanda, 'week_start') : undefined;
+  const amountPaise = chanda ? numberOf(chanda, 'amount_paise') : undefined;
+  return weekStart === undefined || amountPaise === undefined ? undefined : { weekStart, amountPaise };
+};
 
 const i18nOf = (doc: Document | undefined): I18nText => {
   const out: Partial<Record<PushLocale, string>> = {};
@@ -446,5 +464,7 @@ export async function getPushContent(handle: DbHandle, scope: Scope, itemId: UUI
           })),
         }
       : undefined,
+    campaign: campaignOf(item),
+    chanda: chandaOf(item),
   };
 }

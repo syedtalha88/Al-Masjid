@@ -15,6 +15,7 @@
     "./templates": "./src/templates.ts",
     "./dua-messages": "./src/dua-messages.ts",
     "./push-text": "./src/push-text.ts",
+    "./push-item-text": "./src/push-item-text.ts",
     "./template-args": "./src/template-args.ts"
   },
   "scripts": {

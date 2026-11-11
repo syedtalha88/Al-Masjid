@@ -13,9 +13,9 @@ import { getChandaForAdmin, getMasjidBundle, getPublicItem, listFeed } from '../
 import { adminScope, publicScope, systemScope } from '../src/scope.ts';
 import { scoped } from '../src/scoped.ts';
 import { buildDevSeed, seedId, writeDevSeed } from '../src/seed/index.ts';
-import { setChandaSettings, setChandaWeek, setShowChanda } from '../src/state/index.ts';
+import { getPushContent, setChandaSettings, setChandaWeek, setShowChanda } from '../src/state/index.ts';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '../src/testing/index.ts';
-import { newId } from '../src/values.ts';
+import { newId, parseId } from '../src/values.ts';
 
 const NOW = new Date('2026-11-10T06:30:00Z'); // a Tuesday (IST); the Friday week started 2026-11-06
 const TODAY = '2026-11-10';
@@ -164,6 +164,12 @@ describe('hidden chanda is never public; setShowChanda mirrors both ways', () =>
     ).toEqual(shown.chanda?.weeks);
     const notified = await save('2026-10-16', 500_000, { notify: true });
     expect(notified.notificationJobId).not.toBeNull();
+    // T5.6: the notification says the week and its total.
+    expect(await getPushContent(as('system'), systemScope(), parseId(notified.item.id) ?? newId())).toMatchObject({
+      type: 'chanda_update',
+      chanda: { weekStart: '2026-10-16', amountPaise: 500_000 },
+      campaign: undefined,
+    });
     // A new week while shown is visible at once.
     expect((await publicChanda()).view).toHaveLength(4);
     expect(await raw('audit_log').findOne({ action: 'chanda.settings', masjid_id: BETA })).toMatchObject({
