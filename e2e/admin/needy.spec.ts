@@ -137,9 +137,10 @@ test.describe('needy people (T5.8)', () => {
       await expect(save).toBeDisabled();
       await expect(editor.locator('[data-needy-missing]')).toContainText('the tick that they agreed');
       await editor.getByRole('checkbox', { name: /agreed to be listed with these details/ }).check();
+      await expect(save).toBeEnabled();
+      await admin.waitForTimeout(600); // Save fades in from its disabled look before axe reads colours (CI 11 Nov 2026)
       expect(await axeViolations(admin)).toEqual([]);
       await capture('b19-needy-editor', { target: editor });
-      await expect(save).toBeEnabled();
       await save.click();
       await expect(admin.locator('p', { hasText: /^Person saved$/ })).toBeVisible();
       const cards = b19.locator('[data-person]');
@@ -184,6 +185,7 @@ test.describe('needy people (T5.8)', () => {
       expect(await list.textContent()).not.toMatch(/0000000005|Test private note/);
       await list.getByRole('radio', { name: 'Zakat-eligible' }).click();
       await expect(person).toHaveCount(1);
+      await musalli.waitForTimeout(600); // the chip's selection settles before axe reads colours (CI 11 Nov 2026)
       expect(await axeViolations(musalli)).toEqual([]);
       await capture('a23-needy', { target: top });
 

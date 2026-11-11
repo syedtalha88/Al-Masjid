@@ -147,7 +147,9 @@ test.describe('B14 voice notes (T3.13)', () => {
     if (!process.env['CI']) await expect(note.getByText('Available when online')).toHaveCount(0);
     // Stop before the screenshots — when it plays (on CI it may not: F59).
     const toggle = note.getByRole('button', { name: /^(Pause|Play)$/ });
-    if (await toggle.isEnabled()) await toggle.click();
+    // The button can turn disabled between the check and the tap (a media error arriving late — CI 11 Nov 2026 hung
+    // here for the whole test timeout): a short tap, and no tap is fine — every screenshot below reloads the page.
+    if (await toggle.isEnabled()) await toggle.click({ timeout: 2000 }).catch(() => undefined);
 
     // A18 in every language (PHASE_03 exit: screenshots in 4 locales): axe clean, Urdu mirrored, the times LTR.
     const detail = musalli.url();
