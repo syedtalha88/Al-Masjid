@@ -64,6 +64,11 @@ describe('B8 status', () => {
   it('shows when the details go live in IST', () => {
     // Intl puts a narrow no-break space before the day period.
     const text = liveAtText('2026-11-11T11:00:00.000Z', formatters('en'));
-    expect(text.replace(/\s/gu, ' ')).toBe('Wed, 11 Nov, 4:30 PM');
+    expect(text.replace(/[\u2066-\u2069]/gu, '').replace(/\s/gu, ' ')).toBe('Wed, 11 Nov, 4:30 PM');
+  });
+
+  it('keeps the time left to right inside Urdu text ("4:30 PM", never "PM 4:30")', () => {
+    const text = liveAtText('2026-11-11T11:00:00.000Z', formatters('ur'));
+    expect(text).toMatch(/\u2066[^\u2069]*4:30[^\u2069]*\u2069$/u);
   });
 });

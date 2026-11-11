@@ -202,7 +202,7 @@ describe('request → approve ★ → hold → live', () => {
     expect([deleted.status, errorCode(deleted)]).toEqual([409, 'ITEM_LOCKED']);
   });
 
-  it('reject (also during the hold) is 204 with a reason; the requester is alerted and sees why', async () => {
+  it('reject is 204 with a reason; the requester is alerted and sees why (rejecting during the hold: db payment.int)', async () => {
     const created = await asAdmin('post', '/payment/requests').send({ vpa: 'second.vpa@okbank', payeeName: 'X' });
     const id = (created.body as { id: string }).id;
     const noReason = await asSuper('post', `/payments/${id}/reject`).send({});

@@ -4,6 +4,7 @@
 import { wallClockInZone } from '@mc/domain/time';
 import { cleanUpiText, isValidVpa, normalizeVpa, parseUpiUri } from '@mc/domain/upi';
 import type { Formatters } from '@mc/i18n/format';
+import { ltrIsolate } from '@mc/i18n/template-args';
 import type { PaymentRequest, PaymentRequestRow } from '@mc/shared/contracts';
 
 export interface PaymentDraft {
@@ -51,8 +52,11 @@ export function stepsDone(request: PaymentRequestRow | null): number {
   return request.status === 'approved_on_hold' ? 2 : 1;
 }
 
-/** "Thu, 12 Nov, 4:30 PM" in IST — when approved details go live. */
+/**
+ * "Thu, 12 Nov, 4:30 PM" in IST — when approved details go live. The time is a left-to-right isolate: inside an Urdu
+ * sentence it would otherwise read "PM 4:30" (F58, DECISIONS #136 — phase-verifier 12 Nov 2026).
+ */
 export function liveAtText(iso: string, format: Formatters): string {
   const at = new Date(iso);
-  return `${format.date(at, 'weekday')}, ${format.time(wallClockInZone(at)).text}`;
+  return `${format.date(at, 'weekday')}, ${ltrIsolate(format.time(wallClockInZone(at)).text)}`;
 }

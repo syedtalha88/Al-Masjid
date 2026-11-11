@@ -1,4 +1,4 @@
-// PHASE_01 T1.4 acceptance: every (namespace × scope × operation) cell of 02 §4.1 — 45 × 6 × 4 = 1,080 — is exercised
+// PHASE_01 T1.4 acceptance: every (namespace × scope × operation) cell of 02 §4.1 — 48 × 6 × 4 = 1,152 — is exercised
 // through `scoped()` against a real MongoDB and compared with an independent transcription of the table; plus
 // cross-masjid isolation (crafted ids, injected filters), an admin without memberships, allow-listed fields, hidden
 // fields, redaction, forged scopes and the operator-key guard.
