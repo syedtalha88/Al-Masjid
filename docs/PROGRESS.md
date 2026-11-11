@@ -26,18 +26,12 @@
 **Done 11 Nov 2026:** T5.6 (#154) — details in the checklist. CI on `ci/phase-05`: `061830b` (T5.5 + docs) **green**;
 the run for `e7fda43` (T5.6, id 42978081459) was still running at hand-off — check it first.
 
-**F61 — started, nothing changed in the repo yet.** Checked 11 Nov: the tag `gcr.io/distroless/nodejs24-debian13:nonroot`
-now points at index digest `sha256:088a01637f22908632ba09018be2e0b516f2fa6f7869c191d29491139db43c78` (Debian 13.7), and
-Trivy 0.75.0 with CI's flags (`--severity HIGH,CRITICAL --ignore-unfixed`, **no ignore file**) reports 0 findings on
-it. Left to do: set `RUNTIME_IMAGE` in `infra/docker/server.Dockerfile` to that digest, delete
-`infra/trivy/mc-server.trivyignore.yaml` and its `--ignorefile` / sparse-checkout uses in `ci.yml` (line ~221) and
-`nightly.yml` (lines ~58, ~86, ~110), rebuild (`pnpm stack:up:test`), run the Trivy step on `mc-server:local` and a
-smoke e2e, close F61 + a DECISIONS entry. Note: staging's Nightly scans the *deployed* image, so its Trivy step needs
-the ignore file until that image is rebuilt — keep the file until Phase 05 (or a `main` rebuild) is deployed, or
-rebuild `main` first.
-
-**Audit 11 Nov 2026 (#153):** `docs/reports/AUDIT_2026-11-11.md` — plan in its §8. **Due now: F61 by 15 Nov (base
-image — do it next session at the latest), F65 before Phase 05 reaches staging.** New: F66, O40 – O42.
+**F61 done on the branch (#155):** the server image is on the patched distroless base (Debian 13.7, `zlib1g
+…+deb13u1`); Trivy 0 HIGH/CRITICAL without ignores; local e2e 12/12 on the new base. The same commit is on
+**`ci/f61-base-image`** (branched from `main`, CI only). **Owner decision needed:** merge it into `main` before 15 Nov
+(recommended — it redeploys staging with only the base-image change), or let `main`'s CI turn red on 15 Nov until
+Phase 05 is merged. After staging runs a new-base image: delete `infra/trivy/mc-server.trivyignore.yaml` and the
+Nightly deployed-image job's `--ignorefile` + sparse checkout.
 
 **Do next:**
 1. Session start protocol. Owner (#150): still open O25 rest, O26 (Phase 03), O38 (Phase 04), O28 later, O31
@@ -45,8 +39,8 @@ image — do it next session at the latest), F65 before Phase 05 reaches staging
    `main` into `feat/phase-05`).
 2. Check CI on `ci/phase-05` (no `gh` on this PC — `api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-05`).
    Nightly is red only for the known Cloudflare cache rule (O23).
-3. **F61** — finish it as described above, before 15 Nov (the fix must also reach `main`, or CI on `main` and the
-   Nightly turn red on the 15th — ask the owner whether to put only this change on `main` now).
+3. **F61 on `main`:** check CI on `ci/f61-base-image`; green + the owner's OK → merge into `main` and push (staging
+   redeploys), then remove the ignore file as above.
 4. **T5.8 needy people** (reuse the T5.4 QR sheet + Donate flow), T5.9 My zakat, **F65**, then T5.7 quality gates
    (admin B8 / B9 / `/payment` / C4 / C1 e2e + screenshots ×4, security-reviewer on R1, phase-verifier).
 
@@ -665,7 +659,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F58 | Phase 03 close (6 Nov 2026, DECISIONS #136) | ~~Latin times inside Urdu sentences reordered by bidi ("PM 8:45"; camp hours scrambled; voice player times on the wrong ends)~~ — **fixed 6 Nov 2026**: times LTR-isolated in template params, camp card, khutbah line, Eid card; player labels follow the page direction; Urdu baselines regenerated | Closed |
 | F59 | CI 6 Nov 2026 (`2e5eda5`) | e2e `voice.spec`: on CI's Chromium the local file store's WAV sometimes fails to play ("Available when online"); passes locally. The playback assertion is skipped on CI only; upload, publish, badge and player checks stay  | Deferred to Phase 9 (DECISIONS #143): CI run `64b0234` (8 Nov) had no voice.spec failure; the CI-only skip stays until media logs are added |
 | F60 | T4.1 (8 Nov 2026, DECISIONS #138) | `web-push` pinned at 3.6.7: 4.0.0 (6 Nov 2026) was younger than `minimumReleaseAge`. Review its changelog and move to 4.x (Renovate) — the adapter uses only `generateRequestDetails`  | Phase 9 hardening (DECISIONS #143): 4.x after its changelog review; 3.6.7 has no known advisory |
-| F61 | CI 8 Nov 2026 (DECISIONS #141) | Trivy ignores for the two distroless `zlib1g` CVEs (CVE-2026-76844, CVE-2026-85091) in `infra/trivy/mc-server.trivyignore.yaml` expire **15 Nov 2026**. Move `RUNTIME_IMAGE` (server.Dockerfile) to the first distroless digest with `zlib1g +deb13u1` and delete the entries (and the file if empty) | By 15 Nov 2026 (CI fails again after it) |
+| F61 | CI 8 Nov 2026 (DECISIONS #141) | **Fixed on `feat/phase-05` 11 Nov 2026 (#155):** `RUNTIME_IMAGE` on the patched distroless digest (`zlib1g …-1+deb13u1`, Trivy 0 HIGH/CRITICAL without ignores); CI + Nightly fresh-build scans use no ignore file. **Left:** (1) the same fix on `main` — branch `ci/f61-base-image`, merge when its CI is green and the owner agrees (it redeploys staging); (2) delete `infra/trivy/mc-server.trivyignore.yaml` and the Nightly deployed-image job's `--ignorefile` once staging runs a new-base image | `main` before 15 Nov 2026 (CI on `main` fails after it) |
 | F62 | Review L2 (8 Nov 2026, DECISIONS #142) | Job timeouts race the run but do not cancel it: pass an `AbortSignal` into the push processors and stop between sends / pages | Phase 9 hardening |
 | F63 | Review L3 (DECISIONS #142) | Honour the push service `Retry-After` (move the batch to delayed by the largest value) instead of only BullMQ backoff | Before pilot (peak traffic) |
 | F64 | Review L4 (DECISIONS #142) | Kill switch takes effect per batch (up to ~4,000 sends after pause): re-check every send round | Phase 8 (moderation incidents) |
@@ -677,6 +671,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-11 | F61 | Server image on the patched distroless base (#155): Trivy 0 HIGH/CRITICAL without ignores, `check:image` OK, stack healthy, e2e 12/12. Same commit on `ci/f61-base-image` for `main` (owner to approve the merge — it redeploys staging). |
 | 2026-11-11 | 05 / T5.6 | Integration polish done (#154). `verify:quick` green, db int 346, api int 365, e2e Pixel 7: campaigns 10/10, chanda, updates, home, masjid-detail; visual 24/24; i18n check passes (1,617 draft strings per locale); budgets unchanged (app 187.97 / 188 kB, admin 215.32 / 220 kB). |
 | 2026-11-11 | audit | Production-readiness audit (`reports/AUDIT_2026-11-11.md`, #153): not ready (5 of 10 phases); no critical / high hole in built parts; plan agreed — everything before launch, F61 + F65 on their dates. |
 | 2026-11-10 | 05 / T5.5 | Weekly chanda done (#152): migration 0018 (item `chanda.visible` mirror, `v_pub_items` filter), `setChandaWeek` / `setChandaSettings`, admin routes, B9, A11 + ChandaChart (HTML bars instead of SVG). Unit: domain 218, shared 193, ui 328, app 207, admin 158, api 181; db int 344 (37 files), api int 362; e2e chanda green on Pixel 7. Musalli initial JS 187.97 / 188 kB, admin 215.32 / 220 kB. `db:schema:check` clean. |

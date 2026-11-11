@@ -2517,3 +2517,22 @@ chanda (localized); Super Admin Stats show active campaigns count; visual baseli
 **Consequences:** tests — api `push-message` +3, ui `item-summary` 4, app `detail-view` +1, db `super.int` +1 and the
 push content in `campaigns.int` / `chanda.int`, e2e `campaigns.spec.ts` "Home and Updates…". The C1 card has not been
 looked at in a browser yet (T5.7 admin screenshots).
+
+### #155 — F61: the server image moves to the patched distroless base; the Trivy ignores leave the fresh-build scans (closes #141's exception) — ACCEPTED (Claude Code, 11 Nov 2026)
+**Context:** #141 (owner, 8 Nov) ignored two `zlib1g` CVEs in `gcr.io/distroless/nodejs24-debian13` until 15 Nov 2026,
+waiting for a rebuilt distroless digest with Debian's fix (`+deb13u1`).
+**Decision:**
+- `RUNTIME_IMAGE` = `gcr.io/distroless/nodejs24-debian13:nonroot@sha256:088a01637f22908632ba09018be2e0b516f2fa6f7869c191d29491139db43c78`
+  (index digest; Debian 13.7). The built `mc-server:local` carries `zlib1g 1:1.3.dfsg+really1.3.1-1+deb13u1` and Trivy
+  0.75.0 with CI's flags (`--severity HIGH,CRITICAL --ignore-unfixed`) and **no ignore file** reports 0 findings.
+- The CI scan and the Nightly stack-job scan (both of fresh local builds) no longer pass `--ignorefile`.
+- **The file stays for one job only:** Nightly's "Deployed staging images" scan reads it while staging still runs an
+  image on the old base. Its entries expire 15 Nov; the file and that job's `--ignorefile` + sparse checkout are
+  deleted once staging runs a new-base image. If staging is not rebuilt by 15 Nov, that one job turns red until it is
+  (correctly — the deployed image then really has the CVEs, unused by node as #141 showed).
+- To get the fix onto `main` before 15 Nov without merging Phase 05, the same commit is on branch
+  `ci/f61-base-image` (from `main`; CI only, no deploy). Merging it into `main` deploys new server images to staging
+  — the owner's call (it touches the environment the owner is verifying Phases 03 + 04 on).
+**Consequences:** verified locally on the new base: `check:image` (no test hooks in the shipped image), all
+processes healthy (api-public, api-admin, worker, db, redis), e2e Pixel 7 campaigns + chanda + payment (journey 9
+part 2, the worker's `payment-activate`) 12/12.
