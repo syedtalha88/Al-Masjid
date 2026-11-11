@@ -357,7 +357,16 @@ describe('musalli: GET /masjids/:id/beneficiaries', () => {
       const followCode = parsed.masjid.followCode;
       const resolved = await request(publicApp).get(`/api/v1/masjids/resolve/${followCode}`);
       const config = await request(publicApp).get('/api/v1/config');
-      for (const response of [versions, resolved, config]) {
+      // The global lists too (phase-verifier 12 Nov 2026): templates and every feed item's detail page.
+      const follow = async (path: string) => {
+        const first = await request(publicApp).get(path);
+        if (first.status !== 302) return first;
+        return request(publicApp).get((first.headers['location'] ?? '').replace(/^https?:\/\/[^/]+/, ''));
+      };
+      const templates = await follow('/api/v1/templates');
+      const feed = (await follow(`/api/v1/masjids/${masjidId}/feed`)).body as { items?: { publicId: string }[] };
+      const details = await Promise.all((feed.items ?? []).map((item) => follow(`/api/v1/items/${item.publicId}`)));
+      for (const response of [versions, resolved, config, templates, ...details]) {
         expect(response.status).toBe(200);
         bodies.push(response.text, JSON.stringify(response.headers));
       }

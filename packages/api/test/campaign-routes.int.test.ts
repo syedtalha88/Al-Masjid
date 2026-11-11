@@ -152,6 +152,19 @@ describe('donation drives (B8)', () => {
     const lower = await call('patch', `/${campaignId}`).send({ targetPaise: 9_000_000 });
     expect([lower.status, codeOf(lower)]).toEqual([409, 'CAMPAIGN_TARGET_LOWER']);
     expect((await call('patch', `/${campaignId}`).send({ targetPaise: 20_000_000 })).status).toBe(204);
+    // Only title / description / cover / end date / target (upward) may change: anything else is refused, and so is
+    // a payee in the text (DECISIONS #160).
+    for (const field of [
+      { purpose: 'bills' },
+      { startsOn: '2026-11-01' },
+      { receivedPaise: 1 },
+      { status: 'closed' },
+    ]) {
+      const refused = await call('patch', `/${campaignId}`).send(field);
+      expect([refused.status, codeOf(refused)], JSON.stringify(field)).toEqual([400, 'VALIDATION_FAILED']);
+    }
+    const payee = await call('patch', `/${campaignId}`).send({ description: 'Pay test.person@okexample instead' });
+    expect([payee.status, codeOf(payee)]).toEqual([400, 'PAYMENT_DETAILS_IN_TEXT']);
     expect((await call('post', `/${campaignId}/complete`).send({})).status).toBe(204);
     const again = await call('post', `/${campaignId}/complete`).send({});
     expect([again.status, codeOf(again)]).toEqual([409, 'CAMPAIGN_NOT_ACTIVE']);
