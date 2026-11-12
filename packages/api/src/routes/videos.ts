@@ -108,8 +108,15 @@ export function adminVideoRoutes(deps: VideoRouteDeps): RouteDefinition[] {
       auth: 'session',
       request: { params: Params },
       responses: { 200: adminVideoListSchema },
-      handler: async ({ auth, params, reply }) =>
-        reply(200, await listVideosForAdmin(db, auth.scope, masjidIdOf(params.masjidId))),
+      handler: async ({ auth, params, reply }) => {
+        const { videos } = await listVideosForAdmin(db, auth.scope, masjidIdOf(params.masjidId));
+        const origin = deps.media?.origin.replace(/\/$/u, '');
+        return reply(200, {
+          videos: videos.map((video) =>
+            origin ? { ...video, thumb: { ...video.thumb, url: `${origin}/i/480/webp/${video.thumb.key}` } } : video,
+          ),
+        });
+      },
     }),
     defineRoute({
       method: 'post',

@@ -773,6 +773,55 @@
       "dates": "an end date after the start"
     }
   },
+  "video": {
+    "title": "Bayan Video",
+    "new": "Add a bayan",
+    "empty": "No bayans yet",
+    "emptyBody": "Upload a bayan to your masjid's YouTube channel, then add its link here.",
+    "helpTitle": "Upload to YouTube first",
+    "helpBody": "Upload the bayan to your masjid's YouTube channel, then copy its link.",
+    "paste": "Paste link",
+    "pasteFailed": "Could not read the copied link. Long-press the box and paste.",
+    "linkLabel": "YouTube link",
+    "linkInvalid": "This is not a YouTube video link",
+    "check": "Check link",
+    "checking": "Checking the video…",
+    "previewTitle": "Preview",
+    "playsFromYouTube": "Plays from YouTube",
+    "titleLabel": "Title",
+    "speaker": "Speaker",
+    "description": "Description",
+    "audienceQuestion": "Who is it for?",
+    "audience": {
+      "everyone": "Everyone",
+      "brothers": "Brothers only",
+      "sisters": "Sisters only"
+    },
+    "sistersWarning": "Anyone who has this YouTube link can watch it outside the app. Upload it as Unlisted.",
+    "rights": "This bayan is our masjid's, or we may share it",
+    "rightsHint": "Share only bayans your masjid is allowed to publish.",
+    "missing": "Still needed: {fields}",
+    "issue": {
+      "link": "a checked YouTube link",
+      "title": "a title",
+      "audience": "who it is for",
+      "rights": "the tick above"
+    },
+    "status": {
+      "published": "Published",
+      "removed": "Removed by moderation",
+      "deleted": "Deleted"
+    },
+    "edit": "Edit",
+    "editTitle": "Edit bayan",
+    "editHint": "You can change the texts for 24 hours after publishing.",
+    "save": "Save",
+    "saved": "Saved",
+    "delete": "Delete",
+    "deleteTitle": "Delete this bayan?",
+    "deleteBody": "Followers will no longer see it in the app. The video itself stays on your YouTube channel.",
+    "deleted": "Deleted"
+  },
   "chanda": {
     "title": "Chanda",
     "intro": "Enter the total collected each week. Followers see it only when “Show chanda to followers” is on.",

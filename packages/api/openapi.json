@@ -4025,6 +4025,9 @@
               },
               "thumbhash": {
                 "type": "string"
+              },
+              "url": {
+                "type": "string"
               }
             },
             "required": [

@@ -44,6 +44,8 @@ import { Route as SuperIndexRouteImport } from './routes/super.index'
 import { Route as SuperAuditRouteImport } from './routes/super.audit'
 import { Route as SuperPaymentsRouteImport } from './routes/super.payments'
 import { Route as SuperSettingsRouteImport } from './routes/super.settings'
+import { Route as VideosIndexRouteImport } from './routes/videos.index'
+import { Route as VideosNewRouteImport } from './routes/videos.new'
 import { Route as SuperLibraryIndexRouteImport } from './routes/super.library.index'
 import { Route as SuperLibraryIdRouteImport } from './routes/super.library.$id'
 import { Route as SuperLibraryImportRouteImport } from './routes/super.library.import'
@@ -230,6 +232,16 @@ const SuperSettingsRoute = SuperSettingsRouteImport.update({
   path: '/super/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VideosIndexRoute = VideosIndexRouteImport.update({
+  id: '/videos/',
+  path: '/videos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VideosNewRoute = VideosNewRouteImport.update({
+  id: '/videos/new',
+  path: '/videos/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuperLibraryIndexRoute = SuperLibraryIndexRouteImport.update({
   id: '/super/library/',
   path: '/super/library/',
@@ -309,6 +321,7 @@ export interface FileRoutesByFullPath {
   '/super/audit': typeof SuperAuditRoute
   '/super/payments': typeof SuperPaymentsRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/videos/new': typeof VideosNewRoute
   '/daily/': typeof DailyIndexRoute
   '/donation/': typeof DonationIndexRoute
   '/dua/': typeof DuaIndexRoute
@@ -317,6 +330,7 @@ export interface FileRoutesByFullPath {
   '/ruqyah/': typeof RuqyahIndexRoute
   '/special/': typeof SpecialIndexRoute
   '/super/': typeof SuperIndexRoute
+  '/videos/': typeof VideosIndexRoute
   '/super/library/$id': typeof SuperLibraryIdRoute
   '/super/library/import': typeof SuperLibraryImportRoute
   '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren
@@ -356,6 +370,7 @@ export interface FileRoutesByTo {
   '/super/audit': typeof SuperAuditRoute
   '/super/payments': typeof SuperPaymentsRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/videos/new': typeof VideosNewRoute
   '/daily': typeof DailyIndexRoute
   '/donation': typeof DonationIndexRoute
   '/dua': typeof DuaIndexRoute
@@ -364,6 +379,7 @@ export interface FileRoutesByTo {
   '/ruqyah': typeof RuqyahIndexRoute
   '/special': typeof SpecialIndexRoute
   '/super': typeof SuperIndexRoute
+  '/videos': typeof VideosIndexRoute
   '/super/library/$id': typeof SuperLibraryIdRoute
   '/super/library/import': typeof SuperLibraryImportRoute
   '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren
@@ -404,6 +420,7 @@ export interface FileRoutesById {
   '/super/audit': typeof SuperAuditRoute
   '/super/payments': typeof SuperPaymentsRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/videos/new': typeof VideosNewRoute
   '/daily/': typeof DailyIndexRoute
   '/donation/': typeof DonationIndexRoute
   '/dua/': typeof DuaIndexRoute
@@ -412,6 +429,7 @@ export interface FileRoutesById {
   '/ruqyah/': typeof RuqyahIndexRoute
   '/special/': typeof SpecialIndexRoute
   '/super/': typeof SuperIndexRoute
+  '/videos/': typeof VideosIndexRoute
   '/super/library/$id': typeof SuperLibraryIdRoute
   '/super/library/import': typeof SuperLibraryImportRoute
   '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren
@@ -453,6 +471,7 @@ export interface FileRouteTypes {
     | '/super/audit'
     | '/super/payments'
     | '/super/settings'
+    | '/videos/new'
     | '/daily/'
     | '/donation/'
     | '/dua/'
@@ -461,6 +480,7 @@ export interface FileRouteTypes {
     | '/ruqyah/'
     | '/special/'
     | '/super/'
+    | '/videos/'
     | '/super/library/$id'
     | '/super/library/import'
     | '/super/masjids/$id'
@@ -500,6 +520,7 @@ export interface FileRouteTypes {
     | '/super/audit'
     | '/super/payments'
     | '/super/settings'
+    | '/videos/new'
     | '/daily'
     | '/donation'
     | '/dua'
@@ -508,6 +529,7 @@ export interface FileRouteTypes {
     | '/ruqyah'
     | '/special'
     | '/super'
+    | '/videos'
     | '/super/library/$id'
     | '/super/library/import'
     | '/super/masjids/$id'
@@ -547,6 +569,7 @@ export interface FileRouteTypes {
     | '/super/audit'
     | '/super/payments'
     | '/super/settings'
+    | '/videos/new'
     | '/daily/'
     | '/donation/'
     | '/dua/'
@@ -555,6 +578,7 @@ export interface FileRouteTypes {
     | '/ruqyah/'
     | '/special/'
     | '/super/'
+    | '/videos/'
     | '/super/library/$id'
     | '/super/library/import'
     | '/super/masjids/$id'
@@ -595,6 +619,7 @@ export interface RootRouteChildren {
   SuperAuditRoute: typeof SuperAuditRoute
   SuperPaymentsRoute: typeof SuperPaymentsRoute
   SuperSettingsRoute: typeof SuperSettingsRoute
+  VideosNewRoute: typeof VideosNewRoute
   DailyIndexRoute: typeof DailyIndexRoute
   DonationIndexRoute: typeof DonationIndexRoute
   DuaIndexRoute: typeof DuaIndexRoute
@@ -603,6 +628,7 @@ export interface RootRouteChildren {
   RuqyahIndexRoute: typeof RuqyahIndexRoute
   SpecialIndexRoute: typeof SpecialIndexRoute
   SuperIndexRoute: typeof SuperIndexRoute
+  VideosIndexRoute: typeof VideosIndexRoute
   SuperLibraryIdRoute: typeof SuperLibraryIdRoute
   SuperLibraryImportRoute: typeof SuperLibraryImportRoute
   SuperMasjidsIdRoute: typeof SuperMasjidsIdRouteWithChildren
@@ -861,6 +887,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/videos/': {
+      id: '/videos/'
+      path: '/videos'
+      fullPath: '/videos/'
+      preLoaderRoute: typeof VideosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/videos/new': {
+      id: '/videos/new'
+      path: '/videos/new'
+      fullPath: '/videos/new'
+      preLoaderRoute: typeof VideosNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/library/': {
       id: '/super/library/'
       path: '/super/library'
@@ -974,6 +1014,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuperAuditRoute: SuperAuditRoute,
   SuperPaymentsRoute: SuperPaymentsRoute,
   SuperSettingsRoute: SuperSettingsRoute,
+  VideosNewRoute: VideosNewRoute,
   DailyIndexRoute: DailyIndexRoute,
   DonationIndexRoute: DonationIndexRoute,
   DuaIndexRoute: DuaIndexRoute,
@@ -982,6 +1023,7 @@ const rootRouteChildren: RootRouteChildren = {
   RuqyahIndexRoute: RuqyahIndexRoute,
   SpecialIndexRoute: SpecialIndexRoute,
   SuperIndexRoute: SuperIndexRoute,
+  VideosIndexRoute: VideosIndexRoute,
   SuperLibraryIdRoute: SuperLibraryIdRoute,
   SuperLibraryImportRoute: SuperLibraryImportRoute,
   SuperMasjidsIdRoute: SuperMasjidsIdRouteWithChildren,

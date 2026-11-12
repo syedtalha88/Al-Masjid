@@ -655,6 +655,47 @@ admin,donation.issue.purpose,what it is for,यह किस लिए है,no
 admin,donation.issue.title,a title,शीर्षक,no
 admin,donation.issue.target,"a target of at least ₹1,000","कम से कम ₹1,000 का लक्ष्य",no
 admin,donation.issue.dates,an end date after the start,शुरू के बाद की ख़त्म तारीख़,no
+admin,video.title,Bayan Video,बयान वीडियो,no
+admin,video.new,Add a bayan,बयान जोड़ें,no
+admin,video.empty,No bayans yet,अभी कोई बयान नहीं,no
+admin,video.emptyBody,"Upload a bayan to your masjid's YouTube channel, then add its link here.","बयान को अपनी मस्जिद के YouTube चैनल पर अपलोड करें, फिर उसका लिंक यहाँ जोड़ें।",no
+admin,video.helpTitle,Upload to YouTube first,पहले YouTube पर अपलोड करें,no
+admin,video.helpBody,"Upload the bayan to your masjid's YouTube channel, then copy its link.","बयान को अपनी मस्जिद के YouTube चैनल पर अपलोड करें, फिर उसका लिंक कॉपी करें।",no
+admin,video.paste,Paste link,लिंक पेस्ट करें,no
+admin,video.pasteFailed,Could not read the copied link. Long-press the box and paste.,कॉपी किया गया लिंक पढ़ा नहीं जा सका। बॉक्स को दबाकर रखें और पेस्ट करें।,no
+admin,video.linkLabel,YouTube link,YouTube लिंक,no
+admin,video.linkInvalid,This is not a YouTube video link,यह YouTube वीडियो का लिंक नहीं है,no
+admin,video.check,Check link,लिंक जाँचें,no
+admin,video.checking,Checking the video…,वीडियो जाँचा जा रहा है…,no
+admin,video.previewTitle,Preview,पूर्वावलोकन,no
+admin,video.playsFromYouTube,Plays from YouTube,YouTube से चलता है,no
+admin,video.titleLabel,Title,शीर्षक,no
+admin,video.speaker,Speaker,वक्ता,no
+admin,video.description,Description,विवरण,no
+admin,video.audienceQuestion,Who is it for?,यह किसके लिए है?,no
+admin,video.audience.everyone,Everyone,सभी,no
+admin,video.audience.brothers,Brothers only,सिर्फ़ भाई,no
+admin,video.audience.sisters,Sisters only,सिर्फ़ बहनें,no
+admin,video.sistersWarning,Anyone who has this YouTube link can watch it outside the app. Upload it as Unlisted.,"जिसके पास भी यह YouTube लिंक है, वह इसे ऐप के बाहर देख सकता है। इसे Unlisted के रूप में अपलोड करें।",no
+admin,video.rights,"This bayan is our masjid's, or we may share it","यह बयान हमारी मस्जिद का है, या हम इसे साझा कर सकते हैं",no
+admin,video.rightsHint,Share only bayans your masjid is allowed to publish.,सिर्फ़ वही बयान साझा करें जिन्हें प्रकाशित करने की आपकी मस्जिद को अनुमति है।,no
+admin,video.missing,Still needed: {fields},अभी चाहिए: {fields},no
+admin,video.issue.link,a checked YouTube link,जाँचा हुआ YouTube लिंक,no
+admin,video.issue.title,a title,शीर्षक,no
+admin,video.issue.audience,who it is for,यह किसके लिए है,no
+admin,video.issue.rights,the tick above,ऊपर का निशान,no
+admin,video.status.published,Published,प्रकाशित,no
+admin,video.status.removed,Removed by moderation,मॉडरेशन द्वारा हटाया गया,no
+admin,video.status.deleted,Deleted,हटाया गया,no
+admin,video.edit,Edit,बदलें,no
+admin,video.editTitle,Edit bayan,बयान बदलें,no
+admin,video.editHint,You can change the texts for 24 hours after publishing.,प्रकाशित करने के बाद 24 घंटे तक आप लिखा हुआ बदल सकते हैं।,no
+admin,video.save,Save,सहेजें,no
+admin,video.saved,Saved,सहेजा गया,no
+admin,video.delete,Delete,हटाएँ,no
+admin,video.deleteTitle,Delete this bayan?,यह बयान हटाएँ?,no
+admin,video.deleteBody,Followers will no longer see it in the app. The video itself stays on your YouTube channel.,फ़ॉलोअर्स इसे ऐप में अब नहीं देखेंगे। वीडियो आपके YouTube चैनल पर बना रहेगा।,no
+admin,video.deleted,Deleted,हटाया गया,no
 admin,chanda.title,Chanda,चंदा,no
 admin,chanda.intro,Enter the total collected each week. Followers see it only when “Show chanda to followers” is on.,हर हफ़्ते जमा हुई कुल राशि डालें। फ़ॉलोअर्स इसे तभी देखते हैं जब “फ़ॉलोअर्स को चंदा दिखाएँ” चालू हो।,no
 admin,chanda.show,Show chanda to followers,फ़ॉलोअर्स को चंदा दिखाएँ,no

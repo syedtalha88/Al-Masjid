@@ -1073,7 +1073,8 @@ export const adminVideoSchema = z
     audience: videoAudience,
     youtubeId: z.string(),
     startS: z.number().int().optional(),
-    thumb: z.object({ key: z.string(), thumbhash: z.string() }),
+    /** Our thumbnail copy; `url` (480 px WebP on the media origin) when media is configured. */
+    thumb: z.object({ key: z.string(), thumbhash: z.string(), url: z.string().optional() }),
     publishedAt: z.string(),
     updatedAt: z.string(),
   })

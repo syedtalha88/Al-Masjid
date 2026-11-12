@@ -15,6 +15,7 @@ import {
   adminRuqyahListSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
+  adminVideoListSchema,
   type AnnouncementPublish,
   audioUploadedSchema,
   beneficiaryPrivateResultSchema,
@@ -51,6 +52,9 @@ import {
   templateListSchema,
   type TimingsSave,
   timingsSavedSchema,
+  type VideoCreate,
+  type VideoPatch,
+  videoPreviewSchema,
 } from '@mc/shared/contracts';
 
 import { ADMIN_API, call } from '../../auth/api/auth-api.ts';
@@ -143,6 +147,19 @@ export const masjidApi = {
     }),
   deleteItem: (masjidId: string, itemId: string) =>
     call(`${base(masjidId)}/items/${encodeURIComponent(itemId)}`, noContentSchema, { method: 'DELETE' }),
+  /** B10 (T6.2): the masjid's bayans; a pasted link → preview; publish; edit the texts within 24 h. */
+  videos: (masjidId: string, signal?: AbortSignal) =>
+    call(`${base(masjidId)}/videos`, adminVideoListSchema, withSignal(signal)),
+  previewVideo: (masjidId: string, url: string) =>
+    call(`${base(masjidId)}/videos/preview`, videoPreviewSchema, { method: 'POST', body: { url } }),
+  publishVideo: (masjidId: string, body: VideoCreate) =>
+    call(`${base(masjidId)}/videos`, itemPublishedSchema, { method: 'POST', body }),
+  editVideo: (masjidId: string, videoId: string, updatedAt: string, body: VideoPatch) =>
+    call(`${base(masjidId)}/videos/${encodeURIComponent(videoId)}`, itemEditedSchema, {
+      method: 'PATCH',
+      body,
+      headers: { 'If-Match': `"${updatedAt}"` },
+    }),
   /** B16 (T3.14): "Adhkar after salah" — on/off and the chosen dhikr in order. */
   adhkar: (masjidId: string, signal?: AbortSignal) =>
     call(`${base(masjidId)}/adhkar`, adminAdhkarSchema, withSignal(signal)),
@@ -282,6 +299,7 @@ export const masjidKeys = {
   contacts: (masjidId: string) => ['masjid', masjidId, 'contacts'] as const,
   payment: (masjidId: string) => ['masjid', masjidId, 'payment'] as const,
   campaigns: (masjidId: string) => ['masjid', masjidId, 'campaigns'] as const,
+  videos: (masjidId: string) => ['masjid', masjidId, 'videos'] as const,
   chanda: (masjidId: string) => ['masjid', masjidId, 'chanda'] as const,
   beneficiaries: (masjidId: string) => ['masjid', masjidId, 'beneficiaries'] as const,
   suggestion: (masjidId: string, kind: 'hadith' | 'ayah') => ['masjid', masjidId, 'suggestion', kind] as const,
