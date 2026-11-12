@@ -2,7 +2,7 @@ import { expect, settle, test } from '@mc/config/playwright';
 import type { Page } from '@playwright/test';
 
 import { APP_URL } from '../../playwright.config.ts';
-import { followByCode } from '../support/device.ts';
+import { followByCode, gotoAfterStart } from '../support/device.ts';
 import { VISUAL_NOW } from './visual-now.ts';
 
 // PHASE_02 T2.14 — visual baselines (10 §1 "key screens × 4 locales", journey 5 "screenshots match baseline"): every
@@ -86,7 +86,7 @@ for (const locale of LOCALES) {
         ['dua-requests', `/masjid/${alpha}/duas`],
         ['settings', '/settings'],
       ] as const) {
-        await page.goto(`${APP_URL}${path}`);
+        await gotoAfterStart(page, `${APP_URL}${path}`);
         await shot(page, locale, name);
       }
     });
@@ -111,7 +111,7 @@ for (const locale of LOCALES) {
         ['weekly-chanda', `/masjid/${delta}/chanda`],
         ['help-the-needy', `/masjid/${delta}/needy`], // T5.8 (07 A23): four seed people, least-funded first
       ] as const) {
-        await page.goto(`${APP_URL}${path}`);
+        await gotoAfterStart(page, `${APP_URL}${path}`);
         await shot(page, locale, name);
       }
     });
@@ -127,7 +127,7 @@ for (const locale of LOCALES) {
         ['bayans', `/masjid/${delta}/bayans`],
         ['bayan-player', '/items/seedD0000005'],
       ] as const) {
-        await page.goto(`${APP_URL}${path}`);
+        await gotoAfterStart(page, `${APP_URL}${path}`);
         await shot(page, locale, name);
       }
     });
@@ -138,7 +138,7 @@ for (const locale of LOCALES) {
       await pinClock(page);
       await page.goto(APP_URL);
       await followByCode(page, APP_URL, ['TESTD004']);
-      await page.goto(`${APP_URL}/qibla`);
+      await gotoAfterStart(page, `${APP_URL}/qibla`);
       await expect(page.locator('[data-qibla-status="none"]')).toBeVisible({ timeout: 5000 });
       await shot(page, locale, 'qibla');
     });

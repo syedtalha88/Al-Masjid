@@ -14,7 +14,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 
 import { configQuery } from '../../lib/api/queries.ts';
-import { SHOW_COMING_SOON } from '../../lib/build.ts';
 import { useNow } from '../../lib/clock.ts';
 import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
 import { masjidName } from '../../lib/masjid.ts';
@@ -70,19 +69,17 @@ export function HomeScreen() {
       lead={lead}
       actions={
         <>
-          {/* Qibla arrives in Phase 7; until then its placeholder is dev/staging only. */}
-          {SHOW_COMING_SOON ? (
-            <IconButton
-              label={t('home.qibla')}
-              icon={<CompassIcon />}
-              onPointerDown={() => {
-                navigator.preload('/qibla');
-              }}
-              onPress={() => {
-                navigator.presentModal('/qibla');
-              }}
-            />
-          ) : null}
+          {/* A14 Qibla (Phase 7) — in every build. */}
+          <IconButton
+            label={t('home.qibla')}
+            icon={<CompassIcon />}
+            onPointerDown={() => {
+              navigator.preload('/qibla');
+            }}
+            onPress={() => {
+              navigator.presentModal('/qibla');
+            }}
+          />
           <HomeBell recent={data.recent} itemsByMasjid={data.itemsByMasjid} />
         </>
       }

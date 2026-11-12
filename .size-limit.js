@@ -22,9 +22,11 @@ import { join } from 'node:path';
  * notification opens its screen) and the soft-ask shell after the first follow (187.65 kB, +0.65 kB; the subscription
  * code itself, `lib/push.ts`, and the ask sheet stay lazy — DECISIONS #140); 189 kB since T5.8 — the needy-people list
  * call and its validated contract sit in the API client like every other endpoint (188.41 kB, +0.44 kB; the screen and
- * its pay sheet are lazy — DECISIONS #157, owner rule "quality over budgets").
+ * its pay sheet are lazy — DECISIONS #157, owner rule "quality over budgets"); 190 kB since Phase 07 — the Home Qibla
+ * button in every build and the bayan contract's id / start-second checks (189.01 kB, +0.07 kB; the Qibla page is
+ * lazy — DECISIONS #167).
  */
-const APP_INITIAL_JS = '189 kB';
+const APP_INITIAL_JS = '190 kB';
 const ADMIN_INITIAL_JS = '220 kB';
 const INITIAL_CSS = '25 kB';
 const LAZY_CHUNK = '60 kB';
