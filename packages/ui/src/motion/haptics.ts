@@ -6,6 +6,8 @@ export const HAPTICS = {
   impactLight: 12,
   /** Ameen tap (08 §5.6). */
   ameen: 15,
+  /** Facing the Qibla (07 A14 / 08 §5.9 — once per entry into the aligned zone). */
+  qibla: 30,
   success: [15, 40, 15],
   warning: [30, 60, 30],
 } as const satisfies Record<string, number | readonly number[]>;

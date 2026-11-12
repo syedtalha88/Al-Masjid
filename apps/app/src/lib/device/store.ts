@@ -109,6 +109,16 @@ const stateSchema = z.object({
   pendingAmeens: z.array(publicIdText).check(z.maxLength(MAX_AMEENS)),
   /** My zakat (07 A24): absent until the person uses it. Never sent anywhere. */
   zakat: z.optional(zakatSchema),
+  /**
+   * The Qibla page's last "Use my location" (07 A14, 05 §1): rounded to 3 decimals (~100 m — plenty for a direction),
+   * kept on this phone only and never sent anywhere. Absent → the first followed masjid's location is used.
+   */
+  qibla: z.optional(
+    z.object({
+      lat: z.number().check(z.minimum(-90), z.maximum(90)),
+      lng: z.number().check(z.minimum(-180), z.maximum(180)),
+    }),
+  ),
   settings: z.object({
     /** 08 §7 — Android haptics (F16). */
     vibration: z.boolean(),

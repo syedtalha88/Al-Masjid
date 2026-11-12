@@ -211,5 +211,26 @@
   "summary": {
     "raisedOf": "{received} raised of {target}",
     "collected": "{amount} collected in the week of {date}"
+  },
+  "qibla": {
+    "title": "Qibla Direction",
+    "facing": "You are facing the Qibla",
+    "turn": "Turn until the arrow points up",
+    "bearing": "Qibla is {degrees}° from North",
+    "distance": "Distance to Makkah: {km} km",
+    "usingDevice": "Using your location",
+    "usingMasjid": "Using: {name}",
+    "useMyLocation": "Use my location",
+    "locating": "Finding your location…",
+    "needLocationTitle": "Where are you?",
+    "needLocationBody": "Your location stays on this phone. It is only used to work out the direction.",
+    "denied": "Location is off for this app. Allow it in your phone's settings, or follow a masjid to use its location.",
+    "unavailable": "Your location could not be found. Try again near a window or outside.",
+    "motionTitle": "Turn on the compass",
+    "motionBody": "Allow motion and orientation so the arrow can turn with your phone.",
+    "motionButton": "Turn on compass",
+    "motionDenied": "The compass is off. The direction is shown in degrees instead.",
+    "noCompass": "Face {degrees}° from North — use your phone's compass app if you need to",
+    "dialLabel": "Compass: the Kaaba is {degrees}° from North"
   }
 }
