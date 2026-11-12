@@ -160,7 +160,7 @@ describe('snapshots', () => {
 
 // 05 §1 (data minimization, DPDP): every field the server keeps about a musalli's phone. A new field fails this test
 // until it is reviewed and recorded in DECISIONS — no name, phone, email, location, IP or user agent, ever.
-// Baseline reviewed in DECISIONS #170 (Phase 08 T8.1).
+// Baseline reviewed in DECISIONS #170 (Phase 08 T8.1); reports.sla_alerted in #172.
 const MUSALLI_FIELDS: Readonly<Record<string, readonly string[]>> = {
   devices: [
     '_id',
@@ -191,6 +191,7 @@ const MUSALLI_FIELDS: Readonly<Record<string, readonly string[]>> = {
     'masjid_id',
     'reason',
     'resolution_note',
+    'sla_alerted',
     'sla_due_at',
     'status',
     'target_id',

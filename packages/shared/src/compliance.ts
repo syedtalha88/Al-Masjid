@@ -72,3 +72,29 @@ export function reportSla(reason: ReportReason, receivedAt: Date): { urgent: boo
     slaDueAt: new Date(receivedAt.getTime() + (urgent ? SLA_MS.urgentReport : SLA_MS.report)),
   };
 }
+
+/** 05 §3: the Super Admin is alerted at these shares of an SLA's time (once each per target — T8.3). */
+export const SLA_ALERT_LEVELS = [50, 80, 100] as const;
+export type SlaAlertLevel = (typeof SLA_ALERT_LEVELS)[number];
+
+/** C1: a timer turns red when less than this share of its time is left. */
+export const SLA_RED_SHARE = 0.2;
+
+/**
+ * Where a timer stands (C1 cards, the `sla-alerts` job).
+ *
+ * @param start - when the clock started (received / created).
+ * @param due - when it is due.
+ * @param now - now.
+ * @returns `level` — the highest of 50 / 80 / 100 % reached (0 before half-time); `red` — under 20 % left; `overdue`.
+ */
+export function slaProgress(
+  start: Date,
+  due: Date,
+  now: Date,
+): { level: 0 | SlaAlertLevel; red: boolean; overdue: boolean } {
+  const total = due.getTime() - start.getTime();
+  const used = total <= 0 ? 1 : (now.getTime() - start.getTime()) / total;
+  const level = used >= 1 ? 100 : used >= 0.8 ? 80 : used >= 0.5 ? 50 : 0;
+  return { level, red: used > 1 - SLA_RED_SHARE, overdue: now.getTime() >= due.getTime() };
+}

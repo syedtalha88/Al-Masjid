@@ -29,6 +29,9 @@ const ALERT_PATH: Readonly<Record<AdminAlertPayload['type'], string>> = {
   report_urgent: '/super/reports',
   report_autohide: '/super/reports',
   item_removed: '/posts',
+  sla_50: '/super',
+  sla_80: '/super',
+  sla_100: '/super',
 };
 
 /** Alerts live four hours at the push service and always arrive at once. */

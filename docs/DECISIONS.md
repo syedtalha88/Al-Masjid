@@ -3044,3 +3044,26 @@ owner check in the Phase 08 guide plus F76 (Phase 9: a staging-only check accoun
 **Tests:** db `moderation.int` 7, api `moderation-routes.int` 6, `cdn-purge` 9 (tag batches, 1134 → retry, job),
 e2e journey 11 `admin/moderation.spec.ts` (Pixel 7: report → C5 → ★ Remove → musalli "no longer available" → My Posts
 category, no note), app unit `queries` (version → posts re-checked), `content-hooks` (404 beats the kept copy; F74).
+
+### #172 — SLA engine (PHASE_08 T8.3): one alert per (target, threshold), the C1 card, the e-mail fallback — ACCEPTED (Claude Code, 13 Nov 2026)
+**Context:** 05 §3 timers need Super Admin alerts at 50 / 80 / 100 % of each SLA, recorded so each fires once, and a
+dashboard card sorted by urgency (C1 — red under 20 % left), with an e-mail fallback (T8.3).
+**Decision:**
+- `@mc/shared/compliance` gains `slaProgress(start, due, now)` → `{level: 0|50|80|100, red, overdue}`
+  (`SLA_ALERT_LEVELS`, `SLA_RED_SHARE = 0.2`).
+- `@mc/db/state/sla.ts`: `listSlaTimers` — one list of open timers, earliest due first (today open reports: urgent
+  2 h / others 36 h; **grievances (T8.4) and legal orders (T8.5) add their rows here**) — system or Super Admin;
+  `markSlaAlerted` records the highest threshold sent, only upwards (`reports.sla_alerted`, migration
+  `0025_report_sla_alerted`; the 05 §1 allow-list updated).
+- `sla-alerts` job every 15 minutes (mc_system): per timer, when the reached level is above the recorded one, one
+  `sla_50` / `sla_80` / `sla_100` alert to the Super Admin (fixed words; job id per target + level), then recorded; a
+  timer that jumped thresholds while the worker was down alerts once, at the highest.
+- **E-mail fallback:** a passed deadline (100 %) is also reported to Sentry as `SlaBreachError` ("SLA deadline passed:
+  <kind>") — Sentry e-mails a project's members about new issues by default, so a missed push still reaches the
+  owner (owner: keep the e-mail notification on for the Sentry project — O52). No e-mail service of our own (no paid
+  services).
+- C1: a "Deadlines" card at the top of the dashboard (20 timers, kind + "Due in …" / "Overdue — due …", a red
+  "Under 20 % left" tag), each opening Reports.
+**Tests:** shared `compliance` (levels, red, overdue), api `sla-alerts.int` 3 (urgent: 50 → 80 → 100 once each, never
+again; jumped thresholds → one alert at 100; a closed report stops; one Sentry report at 100), `moderation-routes.int`
+(dashboard `sla` earliest due first).

@@ -111,6 +111,14 @@ describe('moderation (C5)', () => {
     expect(targets[0]).toMatchObject({ urgent: true, itemStatus: 'published', masjid: { removals90d: 0 } });
     expect(targets[1]?.reports).toHaveLength(2);
     expect(JSON.stringify(response.body)).not.toContain('device');
+    // C1: the same open reports as timers, earliest due first (the urgent one: 2 h).
+    const dashboard = await asSuper('get', '/dashboard');
+    const sla = (dashboard.body as { sla: { kind: string; dueAt: string }[] }).sla;
+    expect(sla[0]).toMatchObject({
+      kind: 'urgent_report',
+      dueAt: new Date(NOW.getTime() + 2 * 3_600_000).toISOString(),
+    });
+    expect(sla.filter((timer) => timer.kind === 'report')).toHaveLength(2);
   });
 
   it('★ Remove needs a step-up; then the post is gone for everyone, reports closed, admins told, CDN purged', async () => {

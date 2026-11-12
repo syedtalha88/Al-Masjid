@@ -30,6 +30,7 @@ import s0021 from './0021_beneficiary_upi_history.snapshot.json' with { type: 'j
 import s0022 from './0022_payment_reject_code.snapshot.json' with { type: 'json' };
 import s0023 from './0023_report_triage.snapshot.json' with { type: 'json' };
 import s0024 from './0024_removed_note.snapshot.json' with { type: 'json' };
+import s0025 from './0025_report_sla_alerted.snapshot.json' with { type: 'json' };
 
 /** A schema migration from its snapshot file (canonical EJSON → exact BSON types). */
 function schema(id: string, file: unknown): Migration {
@@ -95,4 +96,5 @@ export const MIGRATIONS: readonly Migration[] = [
   schema('0022_payment_reject_code', s0022),
   schema('0023_report_triage', s0023),
   schema('0024_removed_note', s0024),
+  schema('0025_report_sla_alerted', s0025),
 ];

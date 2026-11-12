@@ -24,7 +24,11 @@
     "campaigns": "Active donation campaigns",
     "passkeyAlert": "{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.",
     "changeRequests": "Requested changes",
-    "noChangeRequests": "No change requests from admins."
+    "noChangeRequests": "No change requests from admins.",
+    "sla": "Deadlines",
+    "slaUrgentReport": "Urgent report",
+    "slaReport": "Report",
+    "slaRed": "Under 20 % left"
   },
   "masjids": {
     "search": "Search by name, city or code",

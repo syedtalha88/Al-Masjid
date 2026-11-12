@@ -48,6 +48,8 @@ export const JOB_SCHEMAS = {
   }),
   /** After a takedown / restore (F73): the post's files stop (or start again) being delivered. */
   'media-access': z.strictObject({ itemId: uuid, restrict: z.boolean() }),
+  /** Scheduled every 15 minutes: Super Admin alerts at 50 / 80 / 100 % of each SLA (05 §3, PHASE_08 T8.3). */
+  'sla-alerts': z.strictObject({}),
   /** Scheduled every minute: urgent-report alerts and auto-hide after many reports (05 §3, PHASE_08 T8.1). */
   'report-triage': z.strictObject({}),
   /** Scheduled every 10 minutes: approved UPI details whose hold has passed go live (04 R1, T5.2). */
@@ -85,6 +87,7 @@ export const JOB_DEFAULTS: Readonly<Record<JobName, JobsOptions>> = {
   'cdn-purge': { attempts: 8, backoff: { type: 'exponential', delay: 15_000 }, ...REMOVAL },
   'media-access': { attempts: 8, backoff: { type: 'exponential', delay: 15_000 }, ...REMOVAL },
   // Idempotent and scheduled: a failed run is simply the next run's work.
+  'sla-alerts': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
   'report-triage': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
   'payment-activate': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
   'campaign-close': { attempts: 3, backoff: { type: 'exponential', delay: 60_000 }, ...REMOVAL },
@@ -100,6 +103,7 @@ export const JOB_TIMEOUT_MS: Readonly<Record<JobName, number>> = {
   'outbox-sweeper': 50_000,
   'cdn-purge': 30_000,
   'media-access': 120_000,
+  'sla-alerts': 120_000,
   'report-triage': 50_000,
   'payment-activate': 120_000,
   'campaign-close': 120_000,

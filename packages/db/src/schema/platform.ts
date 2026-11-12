@@ -192,6 +192,8 @@ const reports = documentSchema({
   closed_at: opt(f.instant()),
   /** Set by `report-triage` once it has looked at the report (urgent alert raised at most once — PHASE_08 T8.1). */
   triaged_at: opt(f.instant()),
+  /** The highest SLA alert sent for it (50 / 80 / 100 % of its time — `sla-alerts`, PHASE_08 T8.3). */
+  sla_alerted: opt(f.int(0, 100)),
 });
 
 const grievances = documentSchema({

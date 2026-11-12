@@ -88,6 +88,10 @@ export const ADMIN_ALERT_TYPES = [
   'report_autohide',
   // Takedown (T8.2): the masjid's admins — fixed words; the category is in My Posts.
   'item_removed',
+  // SLA timers (T8.3): 50 / 80 / 100 % of the time to handle a report (later: grievances, legal orders) — Super Admin.
+  'sla_50',
+  'sla_80',
+  'sla_100',
 ] as const;
 
 /**

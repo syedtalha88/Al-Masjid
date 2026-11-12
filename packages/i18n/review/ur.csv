@@ -1443,6 +1443,12 @@ push,alert.report_autohide.title,Post hidden after many reports,کئی رپور�
 push,alert.report_autohide.body,A post was hidden automatically because many people reported it. Review it in Reports.,کئی لوگوں نے ایک پوسٹ کی رپورٹ کی، اس لیے وہ خود بخود چھپ گئی۔ رپورٹس میں دیکھیں۔,no
 push,alert.item_removed.title,A post was removed,ایک پوسٹ ہٹا دی گئی,no
 push,alert.item_removed.body,A post from your masjid was removed by the app team. Open My Posts to see the reason.,ایپ ٹیم نے آپ کی مسجد کی ایک پوسٹ ہٹا دی ہے۔ وجہ دیکھنے کے لیے میری پوسٹس کھولیں۔,no
+push,alert.sla_50.title,Half the time has passed,آدھا وقت گزر گیا,no
+push,alert.sla_50.body,Something in Reports has used half of the time allowed to handle it. Open the dashboard.,رپورٹس میں کسی چیز کے لیے دیا گیا آدھا وقت گزر چکا ہے۔ ڈیش بورڈ کھولیں۔,no
+push,alert.sla_80.title,Deadline is close,آخری وقت قریب ہے,no
+push,alert.sla_80.body,Something in Reports must be handled soon — most of its time has passed. Open the dashboard.,رپورٹس میں کچھ جلد نمٹانا ہے — اس کا زیادہ تر وقت گزر چکا ہے۔ ڈیش بورڈ کھولیں۔,no
+push,alert.sla_100.title,Deadline passed,آخری وقت گزر گیا,no
+push,alert.sla_100.body,Something in Reports is past its deadline. Handle it now from the dashboard.,رپورٹس میں کچھ اپنے آخری وقت سے آگے نکل چکا ہے۔ ابھی ڈیش بورڈ سے نمٹائیں۔,no
 settings,language,Language,زبان,no
 settings,languageSheet,Choose your language,اپنی زبان منتخب کریں,no
 settings,audience,Brother / Sister,بھائی / بہن,no
@@ -1589,6 +1595,10 @@ super,dashboard.campaigns,Active donation campaigns,جاری چندہ مہمات
 super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","پچھلے 30 دنوں میں {count, plural, one {# لاگ اِن} other {# لاگ اِن}} روکا گیا، کیونکہ کسی فون کی نقل ہو سکتی ہے۔ ہر متاثرہ ایڈمن کو نیا لاگ اِن لنک دیں۔",no
 super,dashboard.changeRequests,Requested changes,تبدیلی کی درخواستیں,no
 super,dashboard.noChangeRequests,No change requests from admins.,ایڈمنز کی طرف سے تبدیلی کی کوئی درخواست نہیں۔,no
+super,dashboard.sla,Deadlines,آخری اوقات,no
+super,dashboard.slaUrgentReport,Urgent report,فوری رپورٹ,no
+super,dashboard.slaReport,Report,رپورٹ,no
+super,dashboard.slaRed,Under 20 % left,20% سے کم وقت باقی,no
 super,masjids.search,"Search by name, city or code",نام، شہر یا کوڈ سے تلاش کریں,no
 super,masjids.all,All,سب,no
 super,masjids.new,New masjid,نئی مسجد,no

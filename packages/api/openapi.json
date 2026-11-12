@@ -4262,6 +4262,36 @@
               "paused"
             ]
           },
+          "sla": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "urgent_report",
+                    "report"
+                  ]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "startAt": {
+                  "type": "string"
+                },
+                "dueAt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "id",
+                "startAt",
+                "dueAt"
+              ]
+            }
+          },
           "changeRequests": {
             "type": "array",
             "items": {
@@ -4300,6 +4330,7 @@
           "passkeyAlerts",
           "activeCampaigns",
           "push",
+          "sla",
           "changeRequests"
         ]
       },

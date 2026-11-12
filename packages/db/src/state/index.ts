@@ -198,6 +198,7 @@ export {
   type RuqyahEntryInput,
   updateRuqyahEntry,
 } from './ruqyah.ts';
+export { listSlaTimers, markSlaAlerted, SLA_TIMERS_MAX, type SlaKind, type SlaTimer } from './sla.ts';
 export {
   deleteSpecialDate,
   type RamadanInput,

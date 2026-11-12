@@ -51,6 +51,18 @@
     "item_removed": {
       "title": "A post was removed",
       "body": "A post from your masjid was removed by the app team. Open My Posts to see the reason."
+    },
+    "sla_50": {
+      "title": "Half the time has passed",
+      "body": "Something in Reports has used half of the time allowed to handle it. Open the dashboard."
+    },
+    "sla_80": {
+      "title": "Deadline is close",
+      "body": "Something in Reports must be handled soon — most of its time has passed. Open the dashboard."
+    },
+    "sla_100": {
+      "title": "Deadline passed",
+      "body": "Something in Reports is past its deadline. Handle it now from the dashboard."
     }
   }
 }

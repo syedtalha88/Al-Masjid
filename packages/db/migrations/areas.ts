@@ -85,4 +85,6 @@ export const SCHEMA_AREAS: Readonly<
   '0023_report_triage': { collections: ['reports', 'items'] },
   // PHASE_08 T8.2 (DECISIONS #171): the Super Admin's private note on a takedown (`removed_note`).
   '0024_removed_note': { collections: ['items'] },
+  // PHASE_08 T8.3 (DECISIONS #172): the highest SLA alert sent per report (`sla_alerted`).
+  '0025_report_sla_alerted': { collections: ['reports'] },
 };

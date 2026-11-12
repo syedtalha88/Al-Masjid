@@ -28,6 +28,7 @@ import { processPaymentActivate } from './payments/activate.ts';
 import { processFanout, PushPausedError } from './push/fanout.ts';
 import { processSendBatch } from './push/send-batch.ts';
 import { processOutboxSweep } from './push/sweeper.ts';
+import { processSlaAlerts } from './reports/sla-alerts.ts';
 import { processReportTriage } from './reports/triage.ts';
 import { processRetention, type RetentionDeps } from './retention/run.ts';
 
@@ -43,6 +44,7 @@ export const DEFAULT_CONCURRENCY: Readonly<Record<JobName, number>> = {
   'outbox-sweeper': 1,
   'cdn-purge': 1,
   'media-access': 1,
+  'sla-alerts': 1,
   'report-triage': 1,
   'payment-activate': 1,
   'campaign-close': 1,
@@ -52,6 +54,7 @@ export const DEFAULT_CONCURRENCY: Readonly<Record<JobName, number>> = {
 export const SCHEDULES: readonly { readonly job: JobName; readonly pattern: string }[] = [
   { job: 'outbox-sweeper', pattern: '* * * * *' },
   { job: 'report-triage', pattern: '* * * * *' },
+  { job: 'sla-alerts', pattern: '*/15 * * * *' },
   { job: 'payment-activate', pattern: '*/10 * * * *' },
   { job: 'campaign-close', pattern: '10 0 * * *' },
   { job: 'retention', pattern: '0 3 * * *' },
@@ -151,6 +154,9 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
           payload,
         );
       }
+      case 'sla-alerts':
+        parseJobPayload(name, data);
+        return processSlaAlerts({ ...common, queues, report: deps.report });
       case 'report-triage':
         parseJobPayload(name, data);
         return processReportTriage({ ...common, queues });

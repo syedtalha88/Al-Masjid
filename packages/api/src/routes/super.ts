@@ -21,6 +21,7 @@ import {
   createInvite,
   createMasjid,
   dismissReport,
+  listSlaTimers,
   readAdminPhone,
   recordAuditExport,
   removeAdminFromMasjid,
@@ -133,6 +134,9 @@ function defined<T extends object>(value: T): { [K in keyof T]?: Exclude<T[K], u
 }
 
 /** Resolves an id path parameter; malformed ids answer like unknown ones. */
+/** C1 shows this many timers (the queue has the rest). */
+const DASHBOARD_SLA_MAX = 20;
+
 function idOr404(text: string, code: 'MASJID_NOT_FOUND' | 'ADMIN_NOT_FOUND' | 'ITEM_NOT_FOUND' | 'REPORT_NOT_FOUND') {
   const id = parseId(text);
   if (!id) throw new ApiProblem(404, code);
@@ -182,12 +186,19 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
         const dashboard = await getDashboard(db, auth.scope, { now: clock.now() });
         const changeRequests = await listChangeRequests(db, auth.scope, { now: clock.now() });
         const push = await getPushStats(db, auth.scope, new Date(clock.now().getTime() - DAY_MS));
+        const sla = (await listSlaTimers(db, auth.scope)).slice(0, DASHBOARD_SLA_MAX).map((timer) => ({
+          kind: timer.kind,
+          id: idText(timer.id),
+          startAt: timer.startAt.toISOString(),
+          dueAt: timer.dueAt.toISOString(),
+        }));
         return reply(200, {
           pending: dashboard.pending.map(rowOut),
           counts: { ...dashboard.counts },
           passkeyAlerts: dashboard.passkeyAlerts,
           activeCampaigns: dashboard.activeCampaigns,
           push,
+          sla,
           changeRequests,
         });
       },

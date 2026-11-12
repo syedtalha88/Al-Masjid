@@ -1443,6 +1443,12 @@ push,alert.report_autohide.title,Post hidden after many reports,कई रिप
 push,alert.report_autohide.body,A post was hidden automatically because many people reported it. Review it in Reports.,"कई लोगों ने एक पोस्ट की रिपोर्ट की, इसलिए वह अपने आप छिप गई। रिपोर्ट में देखें।",no
 push,alert.item_removed.title,A post was removed,एक पोस्ट हटाई गई,no
 push,alert.item_removed.body,A post from your masjid was removed by the app team. Open My Posts to see the reason.,ऐप टीम ने आपकी मस्जिद की एक पोस्ट हटाई है। कारण देखने के लिए मेरी पोस्ट खोलें।,no
+push,alert.sla_50.title,Half the time has passed,आधा समय बीत गया,no
+push,alert.sla_50.body,Something in Reports has used half of the time allowed to handle it. Open the dashboard.,रिपोर्ट में किसी चीज़ के लिए दिया गया आधा समय बीत चुका है। डैशबोर्ड खोलें।,no
+push,alert.sla_80.title,Deadline is close,समय सीमा पास है,no
+push,alert.sla_80.body,Something in Reports must be handled soon — most of its time has passed. Open the dashboard.,रिपोर्ट में कुछ जल्द निपटाना है — उसका ज़्यादातर समय बीत चुका है। डैशबोर्ड खोलें।,no
+push,alert.sla_100.title,Deadline passed,समय सीमा निकल गई,no
+push,alert.sla_100.body,Something in Reports is past its deadline. Handle it now from the dashboard.,रिपोर्ट में कुछ अपनी समय सीमा पार कर चुका है। अभी डैशबोर्ड से निपटाएँ।,no
 settings,language,Language,भाषा,no
 settings,languageSheet,Choose your language,अपनी भाषा चुनें,no
 settings,audience,Brother / Sister,भाई / बहन,no
@@ -1589,6 +1595,10 @@ super,dashboard.campaigns,Active donation campaigns,चालू चंदा �
 super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","पिछले 30 दिनों में {count, plural, one {# लॉग इन} other {# लॉग इन}} रोका गया, क्योंकि किसी फ़ोन की नकल हुई हो सकती है। हर प्रभावित एडमिन को नया लॉग इन लिंक दें।",no
 super,dashboard.changeRequests,Requested changes,बदलाव की गुज़ारिशें,no
 super,dashboard.noChangeRequests,No change requests from admins.,एडमिन की ओर से बदलाव की कोई गुज़ारिश नहीं।,no
+super,dashboard.sla,Deadlines,समय सीमाएँ,no
+super,dashboard.slaUrgentReport,Urgent report,तत्काल रिपोर्ट,no
+super,dashboard.slaReport,Report,रिपोर्ट,no
+super,dashboard.slaRed,Under 20 % left,20% से कम समय बचा,no
 super,masjids.search,"Search by name, city or code","नाम, शहर या कोड से खोजें",no
 super,masjids.all,All,सभी,no
 super,masjids.new,New masjid,नई मस्जिद,no

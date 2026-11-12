@@ -618,6 +618,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O45 | **Open the admin app once on each phone that should get alerts** (after Phase 05 is on staging) | F65: older alert subscriptions are no longer used; opening the app links the phone again | 1 min | before O38's alert checks on the Phase 05 build |
 | O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | **now** — staging has Phase 07 (`30a268b`, 13 Nov 2026) |
 | O51 | **Takedown check on staging**: report → remove; old link "no longer available" within a minute; the photo URL stops loading (#171, F76) | Phase 08 exit | 15 min | after Phase 08 is on staging |
+| O52 | **Sentry: e-mail on new issues** stays on (passed SLA deadlines are reported there — #172) | before launch | 5 min | any time |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
 | O31 | **Translation review** of `packages/i18n/review/{hi,ur,te}.csv` (≈ 920 draft strings each) | pilot | translators | before pilot |
 | O32 | **Verified Content Library file** (`docs/content-library-format.md`) | pilot | — | before pilot |
@@ -899,7 +900,9 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   C5 `/super/reports`, `cdn-purge` by cache tag, `item_removed` alert, My Posts hidden + category, removed posts vanish
   after the next poll (app fix), F74 (removed bayan text), **F73** (`media-access`: files to Cloudinary `authenticated`
   at removal, back on restore; shared files kept). Journey 11 green on Pixel 7. Staging purge check = owner (F76).
-- [ ] T8.3 — SLA engine & dashboard (C1)
+- [x] T8.3 — SLA engine & dashboard (C1) — **done 13 Nov 2026 (#172)**: `slaProgress`, `listSlaTimers` /
+  `markSlaAlerted` (migration 0025), `sla-alerts` job every 15 min (one alert per report + threshold, Sentry e-mail
+  fallback at 100 %), C1 "Deadlines" card. Grievances / legal orders plug into `listSlaTimers` in T8.4 / T8.5.
 - [ ] T8.4 — Grievances (form + C6 tracker)
 - [ ] T8.5 — Legal orders register (C7)
 - [ ] T8.6 — Legal texts, versions & reminders

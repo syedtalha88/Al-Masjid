@@ -241,6 +241,15 @@ export const superDashboardSchema = z
       successRate: z.number().min(0).max(1).nullable(),
       paused: z.boolean(),
     }),
+    /** Open SLA timers, earliest due first (C1 "SLA alerts", PHASE_08 T8.3); grievances / legal orders join later. */
+    sla: z.array(
+      z.object({
+        kind: z.enum(['urgent_report', 'report']),
+        id: z.string(),
+        startAt: z.string(),
+        dueAt: z.string(),
+      }),
+    ),
     /** Admins' open "Request change" notes (B13, T3.10) — closed by the next edit of that masjid. */
     changeRequests: z.array(
       z.object({
