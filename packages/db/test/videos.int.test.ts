@@ -12,7 +12,14 @@ import { runMigrations } from '../src/migrate/index.ts';
 import { listFeed, listVideosForAdmin } from '../src/repos/index.ts';
 import { adminScope, systemScope } from '../src/scope.ts';
 import { buildDevSeed, seedId, writeDevSeed } from '../src/seed/index.ts';
-import { deleteItem, editVideo, publishVideo, purgeExpiredItems, type VideoInput } from '../src/state/index.ts';
+import {
+  deleteExpiredItem,
+  deleteItem,
+  editVideo,
+  listExpiredItems,
+  publishVideo,
+  type VideoInput,
+} from '../src/state/index.ts';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '../src/testing/index.ts';
 import { idText, newId, parseId } from '../src/values.ts';
 
@@ -200,27 +207,72 @@ describe('editVideo and the admin list', () => {
   });
 });
 
-describe('purgeExpiredItems (T6.4 — 02 §6 deleted posts, 180 days)', () => {
+describe('item retention (T6.4 — 02 §6 deleted posts, 180 days; #165 M1, L1–L3)', () => {
   const DAY = 24 * HOUR;
-  it('only the system; nothing before 180 days; then the post and its Ameens go; a thumbnail still used stays', async () => {
-    const shared = { key: `m/${idText(ALPHA)}/22222222-2222-4222-8222-222222222222`, thumbhash: 'AAAA' };
-    const own = { key: `m/${idText(ALPHA)}/33333333-3333-4333-8333-333333333333`, thumbhash: 'AAAA' };
+  const key = (n: number) =>
+    `m/${idText(ALPHA)}/${String(n).repeat(8)}-${String(n).repeat(4)}-4${String(n).repeat(3)}-8${String(n).repeat(3)}-${String(n).repeat(12)}`;
+  const thumb = (n: number) => ({ key: key(n), thumbhash: 'AAAA' });
+  const at = (days: number) => new Date(NOW.getTime() + days * DAY);
+  const listed = async (days: number) => listExpiredItems(as('system'), systemScope(), { now: at(days) });
+
+  it('lists only after 180 days, with the files only that post uses; deletes the post after its files', async () => {
+    const own = thumb(4);
+    const shared = thumb(5);
+    const photo = thumb(6);
     const gone = await publish(video({ title: 'Test purged', thumb: own }));
     const twin = await publish(video({ title: 'Test purged twin', thumb: shared }));
     await publish(video({ title: 'Test keeps the shared thumbnail', thumb: shared }));
-    for (const item of [gone.item, twin.item]) {
+    const usesPhoto = await publish(video({ title: 'Test uses the masjid photo', thumb: photo }));
+    await raw('masjids').updateOne({ _id: ALPHA }, { $set: { photo_key: photo.key } });
+    for (const item of [gone.item, twin.item, usesPhoto.item]) {
       await deleteItem(as('admin'), alpha, { masjidId: ALPHA, itemId: idOf(item.id), now: NOW });
     }
     await raw('ameen_counters').insertOne({ _id: idOf(gone.item.id), count: 3, updated_at: NOW });
-    expect(await code(purgeExpiredItems(as('admin'), alpha, { now: NOW }))).toBe('FORBIDDEN');
-    const early = await purgeExpiredItems(as('system'), systemScope(), { now: new Date(NOW.getTime() + 179 * DAY) });
-    expect(early.media.images).not.toContain(own.key);
-    expect(await raw('items').countDocuments({ _id: idOf(gone.item.id) })).toBe(1);
-    const due = await purgeExpiredItems(as('system'), systemScope(), { now: new Date(NOW.getTime() + 181 * DAY) });
-    expect(due.purged).toBeGreaterThanOrEqual(2);
-    expect(due.media.images).toContain(own.key);
-    expect(due.media.images).not.toContain(shared.key); // still on a live bayan
-    expect(await raw('items').countDocuments({ _id: { $in: [idOf(gone.item.id), idOf(twin.item.id)] } })).toBe(0);
+    expect(await code(listExpiredItems(as('admin'), alpha, { now: NOW }))).toBe('FORBIDDEN');
+    expect((await listed(179)).map((item) => idText(item.id))).not.toContain(gone.item.id);
+
+    const due = await listed(181);
+    const byId = new Map(due.map((item) => [idText(item.id), item.media.images]));
+    expect(byId.get(gone.item.id)).toEqual([own.key]);
+    expect(byId.get(twin.item.id)).toEqual([]); // still on a live bayan
+    expect(byId.get(usesPhoto.item.id)).toEqual([]); // the masjid's own photo (#165 L1)
+    expect(await deleteExpiredItem(as('system'), systemScope(), { itemId: idOf(gone.item.id), now: at(181) })).toBe(
+      true,
+    );
+    expect(await raw('items').countDocuments({ _id: idOf(gone.item.id) })).toBe(0);
     expect(await raw('ameen_counters').countDocuments({ _id: idOf(gone.item.id) })).toBe(0);
+    expect(await deleteExpiredItem(as('system'), systemScope(), { itemId: idOf(gone.item.id), now: at(181) })).toBe(
+      false,
+    );
+    await raw('masjids').updateOne({ _id: ALPHA }, { $unset: { photo_key: '' } });
+  });
+
+  it('a post named in an open legal order is held; once the order is closed it goes (#165 L3)', async () => {
+    const held = await publish(video({ title: 'Test held', thumb: thumb(7) }));
+    await deleteItem(as('admin'), alpha, { masjidId: ALPHA, itemId: idOf(held.item.id), now: NOW });
+    const orderId = newId();
+    await raw('legal_orders').insertOne({
+      _id: orderId,
+      authority: 'Test Authority',
+      reference_no: 'TEST-1',
+      received_at: NOW,
+      due_at: at(30),
+      target_type: 'items',
+      target_id: held.item.id,
+      summary: 'Test order — preserve',
+      action_log: [],
+      status: 'received',
+      created_at: NOW,
+      updated_at: NOW,
+    });
+    expect((await listed(181)).map((item) => idText(item.id))).not.toContain(held.item.id);
+    expect(await deleteExpiredItem(as('system'), systemScope(), { itemId: idOf(held.item.id), now: at(181) })).toBe(
+      false,
+    );
+    await raw('legal_orders').updateOne({ _id: orderId }, { $set: { status: 'closed' } });
+    expect((await listed(181)).map((item) => idText(item.id))).toContain(held.item.id);
+    expect(await deleteExpiredItem(as('system'), systemScope(), { itemId: idOf(held.item.id), now: at(181) })).toBe(
+      true,
+    );
   });
 });

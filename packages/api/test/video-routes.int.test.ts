@@ -181,6 +181,7 @@ describe('B10 bayans', () => {
       .set('If-Match', `"${after?.updatedAt ?? ''}"`)
       .send({ title: 'Too late' });
     expect([late.status, codeOf(late)]).toEqual([409, 'EDIT_WINDOW_CLOSED']);
+    clock.set(new Date(clock.now().getTime() - 25 * 3_600_000)); // back: the sessions stay valid
   });
 
   it('T6.4: deleted → kept 180 days → the post, our thumbnail copy and its 6 CDN URLs are purged', async () => {
@@ -194,9 +195,14 @@ describe('B10 bayans', () => {
     const removedKeys: string[] = [];
     const purged: string[][] = [];
     const files = fileMediaStore(mediaDir);
+    let failNext = false;
     const media: MediaStore = {
       ...files,
       deleteImage: async (key) => {
+        if (failNext) {
+          failNext = false;
+          throw new Error('storage down');
+        }
         removedKeys.push(key);
         await files.deleteImage(key);
       },
@@ -228,6 +234,11 @@ describe('B10 bayans', () => {
     };
     expect(await run(179)).toMatchObject({ items: 0, mediaFiles: 0 });
     expect(removedKeys).toEqual([]);
+    // Storage fails once: the post is kept (nothing stranded) and the run fails so the job retries (#165 M1).
+    failNext = true;
+    await expect(run(181)).rejects.toThrow(/could not be deleted/);
+    expect(await testDatabase().db.collection('items').countDocuments({ public_id: doc?.['public_id'] })).toBe(1);
+    expect(purged).toEqual([]);
     expect(await run(181)).toMatchObject({ items: 1, mediaFiles: 1 });
     expect(removedKeys).toEqual([thumb]);
     expect(purged).toEqual([
@@ -237,6 +248,28 @@ describe('B10 bayans', () => {
     ]);
     expect(await testDatabase().db.collection('items').countDocuments({ public_id: doc?.['public_id'] })).toBe(0);
     expect(await run(182)).toMatchObject({ items: 0 }); // idempotent
+  });
+
+  it("another masjid's admin cannot spend this masjid's lookup budget (#165 M2)", async () => {
+    const other = await asSuper('post', '/admins').send({
+      displayName: 'Test Other Imam',
+      uiLocale: 'en',
+      masjidId: otherMasjidId,
+      role: 'owner',
+    });
+    const otherCookie = await register((other.body as { inviteUrl: string }).inviteUrl);
+    const settings = await asSuper('get', '/settings');
+    const version = (settings.body as { undertakingVersion: string }).undertakingVersion;
+    await request(app()).post('/api/admin/auth/undertaking').set(CSRF).set('Cookie', otherCookie).send({ version });
+    for (let n = 0; n < 31; n += 1) {
+      const attack = await request(app())
+        .post(`/api/admin/masjids/${masjidId}/videos/preview`)
+        .set('Cookie', otherCookie)
+        .set(CSRF)
+        .send({ url: valid.url });
+      expect(attack.status).toBe(404);
+    }
+    expect((await call('post', '/preview').send({ url: valid.url })).status).toBe(200);
   });
 
   it('30 lookups per hour per masjid: the next one is 429', async () => {

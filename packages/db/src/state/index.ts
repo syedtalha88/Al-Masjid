@@ -108,7 +108,14 @@ export {
 export { type DuaRequestInput, type DuaRequestPublished, publishDuaRequest } from './duas.ts';
 export { followMasjid, MAX_FOLLOWS_PER_DEVICE, unfollowMasjid } from './follows.ts';
 export { requireSuper, STEP_UP_WINDOW_MS } from './guards.ts';
-export { ITEM_PURGE_BATCH, mediaOf, type PurgedMedia, purgeExpiredItems } from './item-retention.ts';
+export {
+  deleteExpiredItem,
+  type ExpiredItem,
+  ITEM_PURGE_BATCH,
+  listExpiredItems,
+  mediaOf,
+  type PurgedMedia,
+} from './item-retention.ts';
 export { deleteItem, EDIT_WINDOW_MS, EDITABLE_ITEM_TYPES, editItem, type ItemEdit } from './items.ts';
 export * from './later.ts';
 export {

@@ -66,7 +66,6 @@ import {
   timingsSavedSchema,
   timingsSaveSchema,
 } from '@mc/shared/contracts';
-import type { Request } from 'express';
 import { z } from 'zod';
 
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
@@ -173,7 +172,7 @@ export function adminMasjidRoutes(deps: AdminMasjidRouteDeps): RouteDefinition[]
   // 03 §2: 30 uploads per hour per masjid (whichever admin uploads), and the session's write budget. The id is
   // lower-cased as `parseId` does, so another spelling of the same masjid shares its bucket (DECISIONS #135).
   const uploads = [
-    { bucket: 'adminUploads', key: (req: Request) => req.params['masjidId']?.toString().toLowerCase() },
+    { bucket: 'adminUploads', key: 'own_masjid' }, // only the masjid's own admins spend it (#165 M2)
     ...writes,
   ] as const;
 

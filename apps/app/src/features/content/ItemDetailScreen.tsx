@@ -224,7 +224,7 @@ function VideoDetail({ item, masjid, video }: DetailProps & { readonly video: No
             title={title}
             thumbSrc={mediaUrl(video.thumb.key, 960)}
             thumbhash={video.thumb.thumbhash}
-            embedSrc={youTubeEmbedUrl(video.youtubeId, video.startS)}
+            embedSrc={youTubeEmbedUrl(video.youtubeId, video.startS === 0 ? undefined : video.startS)}
             offline={offline}
           />
         </div>

@@ -2817,3 +2817,31 @@ are Phase 8 (T8.7, T8.2); the thumbnail rule is the same as for every post's pho
 `CF_API_TOKEN_PURGE`, `CF_ZONE_ID`, `MEDIA_ORIGIN`). Staging needs a **real** Cache-Purge token in the worker env —
 owner O48. T8.7 extends this job to the other rows of 02 §6.
 
+### #165 — Phase 06 security review: 0 HIGH · 2 MEDIUM · 13 LOW — the MEDIUMs and most LOWs fixed — ACCEPTED (Claude Code, 13 Nov 2026)
+**Context:** PHASE_06 T6.5 security review (link parsing, outbound fetches, CSP, retention). Parser, fetches, CSP,
+audience filter, env and audit verified OK.
+**Fixed:**
+- **M1 — retention could strand media.** It deleted the documents first; a storage / CDN failure left files for ever
+  (the retry found no documents). Now `listExpiredItems` gives each due post with the files only it uses, the job
+  deletes those files (carrying on past a failed one), purges the CDN for all of them, and only then
+  `deleteExpiredItem` removes the documents of posts whose files are all gone; anything that failed keeps its
+  document and the job fails, so BullMQ retries and Sentry hears about it. Test: storage fails once → post kept,
+  nothing purged; next run → gone. (#164's "orphan sweep" remark is withdrawn — nothing is stranded now.)
+- **M2 — another masjid's admin could spend a masjid's 30 / hour upload budget** with requests that end in 404 (the
+  per-masjid key was the raw path). New rate-limit key `own_masjid`: counted only when the session belongs to that
+  masjid; used by `POST /images`, `/audio` and the bayan lookups. Test: 31 requests from another masjid's admin → all
+  404, the masjid's own admin still gets 200.
+- **L1** files still used by the masjid photo or a Ruqyah recording are never deleted; **L2** a purged post's campaign
+  amount history goes and its chanda week is unlinked (02 §5); **L3** a post named in an open legal order is held
+  (IT Rules 3(1)(g)) until the order is closed; **L4** YouTube 408 / 429 → "try again", not "unavailable"; **L5** a
+  thumbnail body timeout → 503; **L7** a refused publish deletes its thumbnail copy; **L8** the worker never deletes
+  in the real Cloudinary account locally; **L9** the media site refuses any query string (`expression {query} == ""`)
+  so no cache copy escapes purge by URL; **L10** a stored start second of 0 cannot break the player; doc drift in 03.
+**Kept, with reasons:** **L6** bodies without Content-Length are buffered before the size check — fixed Google hosts,
+5 s timeout, small exposure. **L11** no test that the pasted link is absent from logs — the request logger is
+allow-list only and never logs bodies (code-verified). **L12** no `sandbox` on the iframe — the attributes match
+01 §5.4; a sandbox risks breaking fullscreen / "Watch on YouTube" on iOS; revisit with real-device checks (F72).
+**L13** removed posts' media stays deliverable at its unguessable URL during the 180-day preservation — Phase 8
+T8.2 (makes it undeliverable at removal and purges the CDN), tracked as F73. Note: sisters-only is a display filter by
+the device's own choice (#3), as the B10 warning and #39 say.
+
