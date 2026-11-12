@@ -234,5 +234,34 @@
     "motionDenied": "The compass is off. The direction is shown in degrees instead.",
     "noCompass": "Face {degrees}° from North — use your phone's compass app if you need to",
     "dialLabel": "Compass: the Kaaba is {degrees}° from North"
+  },
+  "report": {
+    "more": "More options",
+    "menuTitle": "Options",
+    "action": "Report",
+    "titlePost": "Report this post",
+    "titleMasjid": "Report this masjid",
+    "reasonLegend": "What is wrong with it?",
+    "reason": {
+      "misleading": "Misleading or false",
+      "hateful": "Hateful or offensive",
+      "off_topic": "Not about religion or the community",
+      "fraud": "Fraud or fake donation",
+      "private_info": "Personal or private information",
+      "copyright": "Copyright",
+      "other": "Something else"
+    },
+    "privateInfoHint": "Photos or details of someone shared without permission, or someone pretending to be another person",
+    "details": "Details",
+    "detailsHint": "Don't write your name or phone number.",
+    "send": "Send report",
+    "sending": "Sending…",
+    "thanksTitle": "Thank you",
+    "thanksBody": "The app team will look at it. The masjid never sees who sent a report.",
+    "done": "Done",
+    "offline": "You're offline. Try again when you're connected.",
+    "limit": "You have sent the most reports allowed for today. Try again tomorrow.",
+    "gone": "This is no longer shown in the app, so there is nothing to report.",
+    "failed": "The report could not be sent. Please try again."
   }
 }

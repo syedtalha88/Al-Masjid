@@ -984,6 +984,31 @@ common,qibla.motionButton,Turn on compass,کمپاس آن کریں,no
 common,qibla.motionDenied,The compass is off. The direction is shown in degrees instead.,کمپاس بند ہے۔ سمت ڈگری میں دکھائی گئی ہے۔,no
 common,qibla.noCompass,Face {degrees}° from North — use your phone's compass app if you need to,شمال سے {degrees}° کی طرف رخ کریں — ضرورت ہو تو فون کی کمپاس ایپ استعمال کریں,no
 common,qibla.dialLabel,Compass: the Kaaba is {degrees}° from North,کمپاس: کعبہ شمال سے {degrees}° پر ہے,no
+common,report.more,More options,مزید اختیارات,no
+common,report.menuTitle,Options,اختیارات,no
+common,report.action,Report,رپورٹ کریں,no
+common,report.titlePost,Report this post,اس پوسٹ کی رپورٹ کریں,no
+common,report.titleMasjid,Report this masjid,اس مسجد کی رپورٹ کریں,no
+common,report.reasonLegend,What is wrong with it?,اس میں کیا غلط ہے؟,no
+common,report.reason.misleading,Misleading or false,گمراہ کن یا جھوٹ,no
+common,report.reason.hateful,Hateful or offensive,نفرت انگیز یا توہین آمیز,no
+common,report.reason.off_topic,Not about religion or the community,دین یا کمیونٹی سے متعلق نہیں,no
+common,report.reason.fraud,Fraud or fake donation,دھوکا یا جعلی چندہ,no
+common,report.reason.private_info,Personal or private information,ذاتی یا نجی معلومات,no
+common,report.reason.copyright,Copyright,کاپی رائٹ,no
+common,report.reason.other,Something else,کچھ اور,no
+common,report.privateInfoHint,"Photos or details of someone shared without permission, or someone pretending to be another person",کسی کی تصاویر یا معلومات بغیر اجازت شیئر کی گئیں، یا کوئی دوسرا شخص ہونے کا دعویٰ,no
+common,report.details,Details,تفصیل,no
+common,report.detailsHint,Don't write your name or phone number.,اپنا نام یا فون نمبر نہ لکھیں۔,no
+common,report.send,Send report,رپورٹ بھیجیں,no
+common,report.sending,Sending…,بھیجی جا رہی ہے…,no
+common,report.thanksTitle,Thank you,شکریہ,no
+common,report.thanksBody,The app team will look at it. The masjid never sees who sent a report.,ایپ ٹیم اسے دیکھے گی۔ مسجد کو کبھی معلوم نہیں ہوتا کہ رپورٹ کس نے بھیجی۔,no
+common,report.done,Done,ہو گیا,no
+common,report.offline,You're offline. Try again when you're connected.,آپ آف لائن ہیں۔ کنیکٹ ہونے پر دوبارہ کوشش کریں۔,no
+common,report.limit,You have sent the most reports allowed for today. Try again tomorrow.,آج کے لیے آپ سب سے زیادہ رپورٹس بھیج چکے ہیں۔ کل دوبارہ کوشش کریں۔,no
+common,report.gone,"This is no longer shown in the app, so there is nothing to report.",یہ اب ایپ میں نہیں دکھتا، اس لیے رپورٹ کرنے کو کچھ نہیں ہے۔,no
+common,report.failed,The report could not be sent. Please try again.,رپورٹ نہیں بھیجی جا سکی۔ براہِ کرم دوبارہ کوشش کریں۔,no
 content,announcements,Announcements,اعلانات,no
 content,hadithQuran,Hadith & Quran,حدیث اور قرآن,no
 content,duaRequests,Dua Requests,دعا کی درخواستیں,no

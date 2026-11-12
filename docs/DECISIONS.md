@@ -2983,3 +2983,19 @@ alert job id (deduplicated) — T8.2 adds the hide time to the key if restores m
 **Tests:** db `reports.int` 8, api `report-routes.int` 6 (Turnstile, 400s, 404, 10/day → 429, reason lists equal),
 `report-triage.int` 7 (once-only alerts and hides, 1-hour window, lost-alert recovery, mc_public refused), shared
 `compliance` 3, db `schema` 05 §1 allow-list 4.
+**UI (same task, 13 Nov 2026):** a "…" button (`MoreMenu`) on every post detail — announcement, hadith / ayah (next to
+the bookmark), dua request, bayan player, chanda update, donation drive — opens "Options" → **Report**; Masjid Detail's
+existing menu gets a **Report** row (active masjids). The read-only post landing (`/p/:id`, A16) has no menu: a visitor
+there has no registered device. `ReportSheet` loads on demand (musalli initial JS 189.12 / 190 kB): seven big reason
+cards (no typing needed; "Personal or private information" explains itself), optional details (≤ 500, "Don't write your
+name or phone number"), Send off until a reason is picked, then "Thank you — the masjid never sees who sent a report".
+Failures are shown right above Send: offline (nothing is queued or sent), the daily limit, no longer public, could not
+send. Strings × 4 (draft translations, in the review CSVs).
+**Sheet fix (shared, every sheet):** `showModal()` focuses the first focusable element while the panel is still
+off-screen and scrolls the `overflow: hidden` dialog to show it; the offset stayed and lifted a tall sheet by up to
+~150 px (header off the top, the tab bar visible under the footer — seen on the report sheet). The dialog's
+`scrollTop` is now reset after `showModal()` and when the spring starts. Visual 40/40 unchanged; sheet specs green.
+**Tests (UI):** e2e `app/report.spec.ts` 7 (post: Send disabled until a reason, body has exactly target / reason /
+details / token, 201, Thank you, post still shown; masjid from Masjid Detail; offline sends nothing; 4 locales, Urdu
+mirrored, axe clean) on Pixel 7 and iPhone 14; app unit `useReport` 2.
+

@@ -15,7 +15,7 @@
 | 05 | Donations, chanda & UPI change-lock | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): CI green on `997a914`, phase-verifier findings fixed, security re-review clean. Waiting: O43 → merge to `main` / staging → O45 → O50 (guide 5.1–5.22) + O28 | [final](reports/PHASE_05_REPORT.md) | – |
 | 06 | Bayan videos | **DONE — owner checks pending** (12 Nov 2026, DECISIONS #162): CI green on `main` `402e7f8` (run 43237107240), on staging; security review #165, phase-verifier fixes #167 (reach `main` with Phase 07). Waiting: O49 (real YouTube links), O48 (purge token, before May 2027) | [final](reports/PHASE_06_REPORT.md) | – |
 | 07 | Qibla compass | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): security review #167, phase-verifier FAIL → fixed (#169), e2e 12/12 on Pixel 7 + iPhone 14; CI + staging with the merge into `main`. Waiting: O29 (mihrab check) | [final](reports/PHASE_07_REPORT.md) | – |
-| 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
+| 08 | Moderation, grievance, legal pages, QR posters | **IN PROGRESS** — started 13 Nov 2026 on `feat/phase-08`; T8.1 done (#170) | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
 ## ▶ Next session — start here (13 Nov 2026 — Phases 06 + 07 closed on our side; Phase 08 next)
@@ -39,6 +39,10 @@ prerequisite: Grievance Officer details (drafts can use placeholders).
 `routeTree.gen.ts`. WebKit e2e only in the Linux image (scratchpad `wk-linux.sh`, run with
 `--network container:mc-dev-caddy-1` like `scripts/visual.mjs`). `pnpm test:visual:update` rewrites every baseline —
 keep only the ones that really changed. The first e2e run right after a stack rebuild can fail on cold start; re-run.
+Integration suites: run with `--maxWorkers=4` locally (`node ../../scripts/vitest-int.mjs --maxWorkers=4` in the
+package) — 12 workers overload the local MongoDB and `beforeAll` hooks time out. Specs that send as a device need
+`registerDevice(page)` first (the fixture device has not finished onboarding). Feed-count specs can fail on old local
+data: `pnpm db:reset`.
 `screens.perf` "Home → Masjid Detail" fails ~1 in 3 locally (one ~70 ms tap), green on CI.
 
 ## ▶ Previous hand-off (13 Nov 2026, late — Phase 05 closed, Phase 06 closing, Phase 07 built)
@@ -882,6 +886,25 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   Semgrep geolocation rule, dial name in `<title>`, ~1 km rounding, media Permissions-Policy); budgets green (initial
   190 kB limit, 189.01 kB); visual 40/40.
 
+### Phase 08 — started 13 Nov 2026 (autopilot, #162; branch `feat/phase-08` on top of `feat/phase-07`)
+
+- [x] T8.1 — Reporting — **done 13 Nov 2026 (#170)**: `POST /reports` (device + Turnstile, 10/day, 404 when not public),
+  SLA constants `@mc/shared/compliance`, `report-triage` every minute (urgent alert once per report, auto-hide after
+  N distinct devices in 1 h — once, version bump, audit), migration `0023_report_triage`, 05 §1 field allow-list test;
+  "…" → Report on every post detail + Masjid Detail, lazy report sheet × 4 locales; shared Sheet scroll fix. Tests: db
+  `reports.int` 8, api `report-routes.int` 6 + `report-triage.int` 7, e2e `report.spec` 7/7 Pixel 7 + iPhone 14, visual
+  40/40, db int 406 / api int 438 (4 workers). Reporter device id never reaches admins (policy `hidden`, existing test).
+- [ ] T8.2 — Moderation queue & takedown (C5) — also: Restore of an auto-hidden post closes its reports (#170); F73, F74
+- [ ] T8.3 — SLA engine & dashboard (C1)
+- [ ] T8.4 — Grievances (form + C6 tracker)
+- [ ] T8.5 — Legal orders register (C7)
+- [ ] T8.6 — Legal texts, versions & reminders
+- [ ] T8.7 — Retention job (remaining rows of 02 §6)
+- [ ] T8.8 — QR poster generator (C3)
+- [ ] T8.9 — Kill switches & banners
+- [ ] T8.10 — Audit & stats completion
+- [ ] T8.11 — Quality gates
+
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
 | # | Found in | Description | Planned fix (phase/task) |
@@ -959,6 +982,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-13 | 08 / T8.1 | Reporting done (#170): reports API + `report-triage` job (urgent alert / auto-hide exactly once), migration 0023, 05 §1 allow-list test, "…" → Report sheet on every post + Masjid Detail (× 4 locales), shared Sheet scroll fix. `main` fast-forwarded to `30a268b` (Phases 06 + 07) after green CI — staging release running. |
 | 2026-11-13 | 06 + 07 close | Phase 06 report final ("DONE — owner checks pending", O49). Phase 07 phase-verifier FAIL → fixed (#169): location can be updated or dropped for the masjid's, glow opacity-only, arrowhead, rAF writes, 5 new e2e states + `useHeading` unit; Pixel 7 12/12 (×3), iPhone 14 12/12, perf 3/3, visual `qibla` × 8 regenerated. Phase 07 "DONE — owner checks pending" (O29). Next: CI → `main` → staging, then Phase 08. |
 | 2026-11-12 | 07 / T7.3–T7.4 + 06 fixes | Qibla verified on Pixel 7 + iPhone 14 (WebKit headless screen angle pinned), perf 3/3 opened from Home; security review 0H/1M/5L all fixed; Qibla button + manifest shortcut in every build; Phase 06 verifier fixes (log-absence test, video contract) — #167. Paused at the owner's request for the owner's pending list. |
 | 2026-11-12 | 05 / T5.9 | My zakat done (#158): phone-only tracker in the device document, A24 screen, "Log this in My zakat?" after a UPI payment to a zakat-eligible person, e2e with a network assertion, 4 locales. Before it: last night's red CI fixed in tests (`2df8d6d` — axe read two CSS state fades in the needy spec, the voice spec hung on a disabled Play button; the VPS deploy test failed on CI only and now annotates its reason — it passed on the next run, so the cause was outside the repo). **`main` `de50397` CI was red in that same step, so F61 is not on staging yet.** |

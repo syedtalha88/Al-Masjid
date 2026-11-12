@@ -34,11 +34,13 @@ export interface CampaignDetailProps {
   readonly masjidName: string | undefined;
   /** Share button (the item detail's own). */
   readonly share: ReactNode;
+  /** The "…" menu (Report — PHASE_08 T8.1); nothing on the landing. */
+  readonly more?: ReactNode;
   /** The post landing's actions (Follow, get the app); nothing in the app. */
   readonly footer: ReactNode;
 }
 
-export function CampaignDetail({ item, masjidName, share, footer }: CampaignDetailProps) {
+export function CampaignDetail({ item, masjidName, share, more, footer }: CampaignDetailProps) {
   const { t } = useTranslation('content');
   const { format } = useLocale();
   const toast = useToast();
@@ -102,7 +104,11 @@ export function CampaignDetail({ item, masjidName, share, footer }: CampaignDeta
   };
 
   return (
-    <Screen title={t('campaign.detailTitle')} {...(masjidName ? { subtitle: masjidName } : {})}>
+    <Screen
+      title={t('campaign.detailTitle')}
+      {...(masjidName ? { subtitle: masjidName } : {})}
+      {...(more ? { actions: more } : {})}
+    >
       <article className="flex flex-col pt-2 pb-6" data-campaign={campaign.status}>
         <div className="relative overflow-hidden rounded-lg">
           <CampaignCover

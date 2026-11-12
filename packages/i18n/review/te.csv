@@ -984,6 +984,31 @@ common,qibla.motionButton,Turn on compass,కంపాస్ ఆన్ చేయ
 common,qibla.motionDenied,The compass is off. The direction is shown in degrees instead.,కంపాస్ ఆఫ్‌లో ఉంది. దిశ డిగ్రీలలో చూపబడింది.,no
 common,qibla.noCompass,Face {degrees}° from North — use your phone's compass app if you need to,ఉత్తరం నుండి {degrees}° వైపు తిరగండి — అవసరమైతే మీ ఫోన్ కంపాస్ యాప్ ఉపయోగించండి,no
 common,qibla.dialLabel,Compass: the Kaaba is {degrees}° from North,కంపాస్: కాబా ఉత్తరం నుండి {degrees}° వద్ద ఉంది,no
+common,report.more,More options,మరిన్ని ఎంపికలు,no
+common,report.menuTitle,Options,ఎంపికలు,no
+common,report.action,Report,రిపోర్ట్ చేయండి,no
+common,report.titlePost,Report this post,ఈ పోస్ట్‌ను రిపోర్ట్ చేయండి,no
+common,report.titleMasjid,Report this masjid,ఈ మస్జిద్‌ను రిపోర్ట్ చేయండి,no
+common,report.reasonLegend,What is wrong with it?,ఇందులో ఏమి తప్పు ఉంది?,no
+common,report.reason.misleading,Misleading or false,తప్పుదారి పట్టించేది లేదా అబద్ధం,no
+common,report.reason.hateful,Hateful or offensive,ద్వేషపూరితం లేదా అవమానకరం,no
+common,report.reason.off_topic,Not about religion or the community,మతం లేదా సమాజానికి సంబంధం లేనిది,no
+common,report.reason.fraud,Fraud or fake donation,మోసం లేదా నకిలీ విరాళం,no
+common,report.reason.private_info,Personal or private information,వ్యక్తిగత లేదా ప్రైవేట్ సమాచారం,no
+common,report.reason.copyright,Copyright,కాపీరైట్,no
+common,report.reason.other,Something else,ఇంకేదైనా,no
+common,report.privateInfoHint,"Photos or details of someone shared without permission, or someone pretending to be another person","అనుమతి లేకుండా ఒకరి ఫోటోలు లేదా వివరాలు షేర్ చేయడం, లేదా వేరొకరిలా నటించడం",no
+common,report.details,Details,వివరాలు,no
+common,report.detailsHint,Don't write your name or phone number.,మీ పేరు లేదా ఫోన్ నంబర్ రాయకండి.,no
+common,report.send,Send report,రిపోర్ట్ పంపండి,no
+common,report.sending,Sending…,పంపుతోంది…,no
+common,report.thanksTitle,Thank you,ధన్యవాదాలు,no
+common,report.thanksBody,The app team will look at it. The masjid never sees who sent a report.,యాప్ టీమ్ దీన్ని చూస్తుంది. రిపోర్ట్ ఎవరు పంపారో మస్జిద్‌కు ఎప్పటికీ తెలియదు.,no
+common,report.done,Done,పూర్తయింది,no
+common,report.offline,You're offline. Try again when you're connected.,మీరు ఆఫ్‌లైన్‌లో ఉన్నారు. కనెక్ట్ అయ్యాక మళ్లీ ప్రయత్నించండి.,no
+common,report.limit,You have sent the most reports allowed for today. Try again tomorrow.,ఈ రోజుకు అనుమతించిన అన్ని రిపోర్ట్‌లను మీరు పంపారు. రేపు మళ్లీ ప్రయత్నించండి.,no
+common,report.gone,"This is no longer shown in the app, so there is nothing to report.","ఇది ఇప్పుడు యాప్‌లో కనిపించడం లేదు, కాబట్టి రిపోర్ట్ చేయడానికి ఏమీ లేదు.",no
+common,report.failed,The report could not be sent. Please try again.,రిపోర్ట్ పంపలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
 content,announcements,Announcements,ప్రకటనలు,no
 content,hadithQuran,Hadith & Quran,హదీస్ & ఖుర్ఆన్,no
 content,duaRequests,Dua Requests,దువా విన్నపాలు,no

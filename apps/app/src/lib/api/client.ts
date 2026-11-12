@@ -31,6 +31,7 @@ import {
   type RegisterDeviceRequest,
   type RegisterDeviceResponse,
   registerDeviceResponseSchema,
+  reportReceivedSchema,
   resolveMasjidResponseSchema,
   type RuqyahList,
   ruqyahListSchema,
@@ -39,6 +40,7 @@ import {
   type UpdateDeviceRequest,
 } from '@mc/shared/contracts/public';
 import type { PushSubscriptionInput } from '@mc/shared/contracts/push';
+import type { ReportRequest } from '@mc/shared/contracts/reports';
 import { NetworkError, ProblemError, requestJson, ResponseError } from '@mc/shared/http';
 import * as z from 'zod/mini';
 
@@ -224,6 +226,10 @@ export function createApiClient(options: ApiClientOptions) {
         itemDetailSchema,
         signal ? { signal } : {},
       ),
+    /** Reports a post or a masjid (PHASE_08 T8.1); the caller adds a fresh Turnstile token. */
+    report: async (body: ReportRequest): Promise<void> => {
+      await call('/reports', reportReceivedSchema, { method: 'POST', device: true, body });
+    },
     ameen: async (publicId: string): Promise<number> =>
       (await call(`/items/${enc(publicId)}/ameen`, ameenResponseSchema, { method: 'POST', device: true })).count,
     ameenCounts: (publicIds: readonly string[], signal?: AbortSignal): Promise<AmeenCounts> =>

@@ -56,6 +56,7 @@ import { audioUrl, mediaUrl } from '../../lib/media.ts';
 import { useLooksOffline } from '../../lib/reachability.ts';
 import { CampaignDetail } from '../campaigns/CampaignDetail.tsx';
 import { ShareSheet } from '../masjid/components/ShareSheet.tsx';
+import { MoreMenu } from '../moderation/MoreMenu.tsx';
 import { ContentGate } from './components/ContentGate.tsx';
 import { useAmeen } from './hooks/useAmeen.ts';
 import { useItem } from './hooks/useItem.ts';
@@ -77,6 +78,12 @@ export interface DetailMode {
   readonly footer?: ReactNode;
 }
 const DetailModeContext = createContext<DetailMode>({ readOnly: false });
+
+/** "…" → Report (00 §4.7, PHASE_08 T8.1) — in the app only; the read-only landing has no registered device. */
+function ReportAction({ publicId }: { readonly publicId: string }) {
+  const { readOnly } = use(DetailModeContext);
+  return readOnly ? null : <MoreMenu target={{ kind: 'item', publicId }} />;
+}
 
 export function ItemDetailScreen() {
   const { params } = useScreen();
@@ -217,7 +224,11 @@ function VideoDetail({ item, masjid, video }: DetailProps & { readonly video: No
   const description = item.body;
   const long = (description?.length ?? 0) > DESCRIPTION_FOLD;
   return (
-    <Screen title={t('bayans')} {...(name ? { subtitle: name } : {})}>
+    <Screen
+      title={t('bayans')}
+      {...(name ? { subtitle: name } : {})}
+      actions={<ReportAction publicId={item.publicId} />}
+    >
       <article className="flex flex-col gap-4 pb-6" data-bayan={item.publicId}>
         <div className="sticky top-0 z-10 bg-bg pt-2 pb-2">
           <YouTubeFacade
@@ -282,6 +293,7 @@ function CampaignItemDetail({ item, masjid }: DetailProps) {
       item={item}
       masjidName={name}
       share={<ShareButton item={item} masjid={masjid} />}
+      more={<ReportAction publicId={item.publicId} />}
       footer={<LandingFooter />}
     />
   );
@@ -296,7 +308,11 @@ function ChandaItemDetail({ item, masjid }: DetailProps) {
   const chanda = item.chanda;
   if (!chanda) return null;
   return (
-    <Screen title={t('chanda.title')} {...(name ? { subtitle: name } : {})}>
+    <Screen
+      title={t('chanda.title')}
+      {...(name ? { subtitle: name } : {})}
+      actions={<ReportAction publicId={item.publicId} />}
+    >
       <article className="flex flex-col gap-4 pt-2 pb-6" data-chanda-item>
         <header className="flex items-start gap-3">
           <ItemIcon item={item} size={56} />
@@ -349,6 +365,7 @@ function NoticeDetail({ item, masjid }: DetailProps) {
     <Screen
       title={isAnnouncement ? t('announcements') : tc(`item.${itemKind(item)}`)}
       {...(name ? { subtitle: name } : {})}
+      actions={<ReportAction publicId={item.publicId} />}
     >
       <article className="flex flex-col gap-4 pt-2 pb-6">
         <header className="flex items-start gap-3">
@@ -470,15 +487,18 @@ function Reader({ item, masjid }: DetailProps) {
       {...(name ? { subtitle: name } : {})}
       actions={
         readOnly ? undefined : (
-          <IconButton
-            label={isSaved ? t('saved') : t('save')}
-            aria-pressed={isSaved}
-            icon={<BookmarkIcon filled={isSaved} />}
-            className={isSaved ? 'text-primary-700' : undefined}
-            onPress={() => {
-              saved.toggle(item, masjid);
-            }}
-          />
+          <>
+            <IconButton
+              label={isSaved ? t('saved') : t('save')}
+              aria-pressed={isSaved}
+              icon={<BookmarkIcon filled={isSaved} />}
+              className={isSaved ? 'text-primary-700' : undefined}
+              onPress={() => {
+                saved.toggle(item, masjid);
+              }}
+            />
+            <MoreMenu target={{ kind: 'item', publicId: item.publicId }} />
+          </>
         )
       }
     >
@@ -597,7 +617,11 @@ function DuaDetail({ item, masjid }: DetailProps) {
   const count = ameen.count(item.publicId);
   const when = dua.janazaAt ? janazaWhen(dua.janazaAt, now, format, tc('home.today')) : undefined;
   return (
-    <Screen title={t('duaRequests')} {...(name ? { subtitle: name } : {})}>
+    <Screen
+      title={t('duaRequests')}
+      {...(name ? { subtitle: name } : {})}
+      actions={<ReportAction publicId={item.publicId} />}
+    >
       <article className="flex flex-col gap-4 pt-2 pb-6">
         <header className="flex items-start gap-3">
           <ItemIcon item={item} size={56} />
