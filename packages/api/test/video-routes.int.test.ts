@@ -7,13 +7,17 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { processUserHandle } from '@mc/db/testing';
 import { adminVideoListSchema, itemPublishedSchema, videoPreviewSchema } from '@mc/shared/contracts';
 import sharp from 'sharp';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { memoryRateLimiter } from '../src/http/rate-limit.ts';
-import { fileMediaStore } from '../src/media/store.ts';
+import { processRetention } from '../src/jobs/retention/run.ts';
+import { createLogger } from '../src/logger.ts';
+import type { CdnPurger } from '../src/media/cdn-purge.ts';
+import { fileMediaStore, type MediaStore } from '../src/media/store.ts';
 import { MOCK_FAILING_ID, MOCK_UNAVAILABLE_IDS, mockVideoLookup, type VideoLookup } from '../src/video/youtube.ts';
 import { CSRF, superHarness } from './super-harness.ts';
 
@@ -177,6 +181,62 @@ describe('B10 bayans', () => {
       .set('If-Match', `"${after?.updatedAt ?? ''}"`)
       .send({ title: 'Too late' });
     expect([late.status, codeOf(late)]).toEqual([409, 'EDIT_WINDOW_CLOSED']);
+  });
+
+  it('T6.4: deleted → kept 180 days → the post, our thumbnail copy and its 6 CDN URLs are purged', async () => {
+    const doc = await testDatabase().db.collection('items').findOne({ type: 'video', title: 'Test edited' });
+    const thumb = (doc?.['video'] as { thumb_key: string }).thumb_key;
+    const deleted = await request(app())
+      .delete(`/api/admin/masjids/${masjidId}/items/${itemId}`)
+      .set('Cookie', cookie)
+      .set(CSRF);
+    expect(deleted.status).toBe(204);
+    const removedKeys: string[] = [];
+    const purged: string[][] = [];
+    const files = fileMediaStore(mediaDir);
+    const media: MediaStore = {
+      ...files,
+      deleteImage: async (key) => {
+        removedKeys.push(key);
+        await files.deleteImage(key);
+      },
+    };
+    const purger: CdnPurger = {
+      purge: (urls) => {
+        purged.push([...urls]);
+        return Promise.resolve();
+      },
+    };
+    const logger = createLogger({ level: 'silent', process: 'worker', release: 't' });
+    const run = async (days: number) => {
+      const back = clock.now();
+      clock.set(new Date(back.getTime() + days * 24 * 3_600_000));
+      const system = await processUserHandle(testDatabase(), 'mc_system');
+      try {
+        return await processRetention({
+          db: system.handle,
+          clock,
+          logger,
+          media,
+          purger,
+          mediaOrigin: 'https://media.test/',
+        });
+      } finally {
+        await system.dispose();
+        clock.set(back);
+      }
+    };
+    expect(await run(179)).toMatchObject({ items: 0, mediaFiles: 0 });
+    expect(removedKeys).toEqual([]);
+    expect(await run(181)).toMatchObject({ items: 1, mediaFiles: 1 });
+    expect(removedKeys).toEqual([thumb]);
+    expect(purged).toEqual([
+      [480, 960, 1440].flatMap((width) =>
+        ['avif', 'webp'].map((format) => `https://media.test/i/${String(width)}/${format}/${thumb}`),
+      ),
+    ]);
+    expect(await testDatabase().db.collection('items').countDocuments({ public_id: doc?.['public_id'] })).toBe(0);
+    expect(await run(182)).toMatchObject({ items: 0 }); // idempotent
   });
 
   it('30 lookups per hour per masjid: the next one is 429', async () => {

@@ -2794,3 +2794,26 @@ hqdefault.jpg` is a 480 × 360 JPEG (404 when missing).
 **Consequences:** new error codes `VIDEO_INVALID` (400), `INVALID_VIDEO_LINK` (422), `VIDEO_UNAVAILABLE` (422),
 `VIDEO_LOOKUP_FAILED` (503), texts ×4. No new collection, view or DB role; no new dependency (sharp and fetch exist).
 
+### #164 — Deleted posts' media go after 180 days now (T6.4 — the items rows of T8.7 built early) — ACCEPTED (Claude Code, 13 Nov 2026)
+**Context:** PHASE_06 T6.4 wants a deleted or removed bayan's thumbnail copy deleted from storage by the retention job
+after the 180-day preservation period, and the CDN purged. The general retention job (all of 02 §6) and `cdn-purge`
+are Phase 8 (T8.7, T8.2); the thumbnail rule is the same as for every post's photo or voice note.
+**Decision:**
+- `purgeExpiredItems` (db, system scope only): posts with status `deleted` or `removed` whose `purge_after` has passed
+  (set to +180 days by delete — and by moderation in Phase 8) are deleted with their Ameens and Ameen counter, one
+  transaction per post, ≤ 1,000 a run (index `purge_after` exists). It returns the media they carried — photo, voice
+  note, bayan thumbnail, drive cover — except `seed/…` placeholders and files a remaining post still uses.
+- The `retention` job then deletes those files through the worker's own Cloudinary key and purges every delivery URL
+  (6 per image, 1 per voice note) with **Cloudflare purge by URL** — verified 13 Nov 2026:
+  `POST https://api.cloudflare.com/client/v4/zones/<zone>/purge_cache`, `{"files": [...]}`, `Authorization: Bearer`
+  (token permission "Cache Purge"), ≤ 100 URLs per request on every plan, success = 200 + `"success": true`. Fixed
+  host, 10 s timeout, no redirects; a refusal throws so BullMQ retries; the token is never logged.
+- Order: documents first, then files, then the CDN. A failure after the documents are gone leaves files behind (logged
+  as a count); Phase 8's orphan sweep (T8.7) covers them.
+- Locally there is no Cloudinary key or purge token: the job leaves files and logs it.
+- The musalli-facing takedown text ("the video stays on the masjid's YouTube channel") is Phase 8's moderation work
+  (T8.2); the admin's own delete dialog already says it.
+**Consequences:** worker deps `retention.{media, purger, mediaOrigin}` (env already has `CLOUDINARY_*`,
+`CF_API_TOKEN_PURGE`, `CF_ZONE_ID`, `MEDIA_ORIGIN`). Staging needs a **real** Cache-Purge token in the worker env —
+owner O48. T8.7 extends this job to the other rows of 02 §6.
+

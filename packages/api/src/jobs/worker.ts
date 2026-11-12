@@ -25,7 +25,7 @@ import { processPaymentActivate } from './payments/activate.ts';
 import { processFanout, PushPausedError } from './push/fanout.ts';
 import { processSendBatch } from './push/send-batch.ts';
 import { processOutboxSweep } from './push/sweeper.ts';
-import { processRetention } from './retention/run.ts';
+import { processRetention, type RetentionDeps } from './retention/run.ts';
 
 type Logger = ReturnType<typeof createLogger>;
 
@@ -69,6 +69,8 @@ export interface JobWorkerDeps {
   readonly pauseRecheckMs?: number;
   /** Per-job option overrides (tests shorten the backoff). */
   readonly jobOptions?: Partial<Record<JobName, JobsOptions>>;
+  /** `retention`'s media part (PHASE_06 T6.4): the worker's media store, the CDN purger, env MEDIA_ORIGIN. */
+  readonly retention?: Pick<RetentionDeps, 'media' | 'purger' | 'mediaOrigin'>;
 }
 
 export class JobTimeoutError extends Error {
@@ -132,7 +134,7 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
         return processCampaignClose(common);
       case 'retention':
         parseJobPayload(name, data);
-        return processRetention(common);
+        return processRetention({ ...common, ...deps.retention });
     }
   };
 

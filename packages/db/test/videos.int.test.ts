@@ -12,7 +12,7 @@ import { runMigrations } from '../src/migrate/index.ts';
 import { listFeed, listVideosForAdmin } from '../src/repos/index.ts';
 import { adminScope, systemScope } from '../src/scope.ts';
 import { buildDevSeed, seedId, writeDevSeed } from '../src/seed/index.ts';
-import { deleteItem, editVideo, publishVideo, type VideoInput } from '../src/state/index.ts';
+import { deleteItem, editVideo, publishVideo, purgeExpiredItems, type VideoInput } from '../src/state/index.ts';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '../src/testing/index.ts';
 import { idText, newId, parseId } from '../src/values.ts';
 
@@ -197,5 +197,30 @@ describe('editVideo and the admin list', () => {
         }),
       ),
     ).toBe('ITEM_NOT_FOUND');
+  });
+});
+
+describe('purgeExpiredItems (T6.4 — 02 §6 deleted posts, 180 days)', () => {
+  const DAY = 24 * HOUR;
+  it('only the system; nothing before 180 days; then the post and its Ameens go; a thumbnail still used stays', async () => {
+    const shared = { key: `m/${idText(ALPHA)}/22222222-2222-4222-8222-222222222222`, thumbhash: 'AAAA' };
+    const own = { key: `m/${idText(ALPHA)}/33333333-3333-4333-8333-333333333333`, thumbhash: 'AAAA' };
+    const gone = await publish(video({ title: 'Test purged', thumb: own }));
+    const twin = await publish(video({ title: 'Test purged twin', thumb: shared }));
+    await publish(video({ title: 'Test keeps the shared thumbnail', thumb: shared }));
+    for (const item of [gone.item, twin.item]) {
+      await deleteItem(as('admin'), alpha, { masjidId: ALPHA, itemId: idOf(item.id), now: NOW });
+    }
+    await raw('ameen_counters').insertOne({ _id: idOf(gone.item.id), count: 3, updated_at: NOW });
+    expect(await code(purgeExpiredItems(as('admin'), alpha, { now: NOW }))).toBe('FORBIDDEN');
+    const early = await purgeExpiredItems(as('system'), systemScope(), { now: new Date(NOW.getTime() + 179 * DAY) });
+    expect(early.media.images).not.toContain(own.key);
+    expect(await raw('items').countDocuments({ _id: idOf(gone.item.id) })).toBe(1);
+    const due = await purgeExpiredItems(as('system'), systemScope(), { now: new Date(NOW.getTime() + 181 * DAY) });
+    expect(due.purged).toBeGreaterThanOrEqual(2);
+    expect(due.media.images).toContain(own.key);
+    expect(due.media.images).not.toContain(shared.key); // still on a live bayan
+    expect(await raw('items').countDocuments({ _id: { $in: [idOf(gone.item.id), idOf(twin.item.id)] } })).toBe(0);
+    expect(await raw('ameen_counters').countDocuments({ _id: idOf(gone.item.id) })).toBe(0);
   });
 });

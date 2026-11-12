@@ -774,17 +774,28 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 ### Phase 06 — started 13 Nov 2026 (owner's autopilot rule, DECISIONS #162; branch `feat/phase-06` on top of `feat/phase-05`)
 
-- [ ] T6.1 — YouTube link parser + oEmbed/thumbnail adapter — **parser + adapter done 13 Nov 2026 (#163)**:
+- [x] T6.1 — YouTube link parser + oEmbed/thumbnail adapter — **parser + adapter done 13 Nov 2026 (#163)**:
   `@mc/domain/youtube` (`parseYouTubeLink`, `youTubeEmbedUrl`; 61 tests incl. fast-check, domain 100 %),
   `packages/api/src/video/youtube.ts` (fixed hosts, URL from the id, no redirects, 5 s, size limits; mock adapter;
   contract tests 26 + live opt-in `YOUTUBE_LIVE=1` green). Thumbnail → image pipeline → store at publish.
-- [ ] T6.2 — Admin flow (B10) — **server done 13 Nov 2026**: `publishVideo` / `editVideo` / `listVideosForAdmin`
+- [x] T6.2 — Admin flow (B10) — **done 13 Nov 2026**: `publishVideo` / `editVideo` / `listVideosForAdmin`
   (db `videos.int` 16), routes `GET/POST /videos`, `POST /videos/preview`, `PATCH /videos/:id` (api
   `video-routes.int` 13: invalid link 422, unavailable 422, YouTube down 503, link never stored, another masjid 404
-  without asking YouTube, 30/hour/masjid → 429, If-Match edit ≤ 24 h). Env `VIDEO_LOOKUP` (mock locally). **Left:**
-  the B10 screens ×4 locales + e2e.
-- [ ] T6.3 — Musalli Bayans & player (A12)
-- [ ] T6.4 — Deletion & retention
+  without asking YouTube, 30/hour/masjid → 429, If-Match edit ≤ 24 h). Env `VIDEO_LOOKUP` (mock locally). B10
+  screens (list with edit / delete, "Add a bayan" flow) in 4 locales; e2e `e2e/admin/video.spec.ts` 1/1 (look-alike
+  refused on the phone, private video refused by the server, Paste link, preview, Sisters-only warning, publish).
+- [x] T6.3 — Musalli Bayans & player (A12) — 13 Nov 2026: `VideoCard` + `YouTubeFacade` (`@mc/ui/content`, unit 4: no
+  iframe before Play, offline, names), Bayans section route `/masjid/:id/bayans` (the `$section` placeholder is gone),
+  player in item detail (sticky facade, folding description, Share; Report comes with Phase 8). CSP unchanged (app
+  `frame-src` already allows youtube-nocookie). E2E `e2e/app/bayans.spec.ts` (journey 10) on Pixel 7 8/8: brothers
+  device sees only the everyone bayan and gets nothing for the sisters link, **no Google / YouTube request before
+  Play** (list, detail, player), Play → only the nocookie embed (+ `start`), offline text, 4 locales, axe clean, CSP
+  fixture clean. Dev seed: two Delta bayans. Shared-element thumbnail → player not built (progressive per the phase
+  file; the screen pushes with the standard slide) — F71.
+- [x] T6.4 — Deletion & retention — 13 Nov 2026 (#164): `purgeExpiredItems` + the `retention` job deletes deleted /
+  removed posts after 180 days with their media (bayan thumbnails too) and purges the 6 CDN URLs per image
+  (Cloudflare purge by URL, verified). Tests: api `video-routes.int` (179 days nothing, 181 days post + thumbnail + 6
+  URLs, idempotent), `cdn-purge` 6, db `videos.int` purge (system only, shared thumbnail stays, Ameen counter goes).
 - [ ] T6.5 — Quality gates
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
@@ -853,6 +864,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F68 | Security review M2, image part (#160) — **accepted by the owner (#161)** | Refuse drive covers / notice photos that contain a QR code (maintained server-side decoder, e.g. `zxing-wasm`, own DECISIONS entry with size + CVE check) | Phase 8, with moderation |
 | ~~F69~~ | Security review L2, L3 (#160) | ✅ **Done 12 Nov 2026 (#161)** — owners only (`PAYMENT_OWNER_ONLY`), every owner alerted (`payment_request_owner` + decisions + activation), removal / revocation closes the open request (`reject_code`, migration 0022) | – |
 | F70 | Security review L5, L7, L9 (#160) — **accepted by the owner (#161)** | Live UPI details in a collection only `mc_system` writes; needy ciphertext bound to the person (associated data with the id); lint rule against raw `.collection(` in `repos/` | Phase 9 hardening |
+| F71 | PHASE_06 T6.3 — shared-element thumbnail → player (08 §3.5, "progressive") | The player opens with the standard push; the thumbnail does not morph into the facade | Phase 9 polish (motion) |
 | F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
 
 ## Session log (newest first, one line each)
