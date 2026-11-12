@@ -3,7 +3,7 @@
 // The whole dial turns with the phone (−heading) straight from the heading value — no React render per reading; a
 // fixed indicator at the top shows where the phone points. Aligned (±3°): ring and arrow in primary-500 with a soft
 // pulse (none with reduced motion).
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect, useId, useRef } from 'react';
 
 import type { HeadingValue } from '../lib/heading.ts';
 
@@ -35,6 +35,7 @@ export interface QiblaDialProps {
 
 export function QiblaDial({ bearing, heading, aligned, label }: QiblaDialProps) {
   const dial = useRef<SVGGElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     const node = dial.current;
@@ -61,10 +62,13 @@ export function QiblaDial({ bearing, heading, aligned, label }: QiblaDialProps) 
       viewBox={`0 0 ${String(SIZE)} ${String(SIZE)}`}
       className="mx-auto block w-full max-w-[320px]"
       role="img"
-      aria-label={label}
+      // The name lives in <title>, not aria-label: error-report click breadcrumbs copy aria-label, and the bearing
+      // must not travel with them (Phase 07 review L1).
+      aria-labelledby={titleId}
       data-qibla-dial
       data-aligned={aligned ? 'true' : 'false'}
     >
+      <title id={titleId}>{label}</title>
       {/* Always in the DOM: aligning toggles paint (opacity + the pulse), never layout (08 §8). */}
       <circle
         cx={C}

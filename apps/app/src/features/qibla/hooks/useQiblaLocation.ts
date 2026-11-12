@@ -1,5 +1,5 @@
 // Where the Qibla is computed from (07 A14, 05 §1, PHASE_07 T7.2): "Use my location" on a tap (10 s), kept on the phone
-// only and rounded to ~100 m; otherwise the first followed masjid's location ("Using: <masjid>"). Nothing here sends
+// only and rounded to ~1 km; otherwise the first followed masjid's location ("Using: <masjid>"). Nothing here sends
 // coordinates anywhere — the bearing is computed on the phone.
 import type { Coordinates } from '@mc/domain/geo';
 import { useLocale } from '@mc/i18n/react';
@@ -19,10 +19,13 @@ export type LocationSource =
 
 export type LocationAsk = 'idle' | 'asking' | 'denied' | 'unavailable';
 
-/** Rounded to 3 decimals (~110 m): enough for a direction, less precise than the phone knows (05 §1). */
+/**
+ * Rounded to 2 decimals (~1.1 km): the bearing moves by under 0.05° anywhere in India, the distance by about 1 km — and
+ * a lost or shared phone does not hold the person's home (05 §1).
+ */
 export const roundCoordinates = (at: Coordinates): Coordinates => ({
-  lat: Math.round(at.lat * 1000) / 1000,
-  lng: Math.round(at.lng * 1000) / 1000,
+  lat: Math.round(at.lat * 100) / 100,
+  lng: Math.round(at.lng * 100) / 100,
 });
 
 export function useQiblaLocation() {

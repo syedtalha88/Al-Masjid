@@ -131,3 +131,16 @@ rules:
     paths:
       include: ['apps/*/src/**', 'packages/*/src/**']
       exclude: ['**/*.test.ts', '**/*.test.tsx']
+
+  - id: mc-geolocation-only-in-qibla
+    message: >-
+      The phone's location is read only by the Qibla page (apps/app/src/features/qibla/**) and never leaves the phone
+      (05 §1, Phase 07 review M1). A new use needs its own DECISIONS entry and a 05 §1 review.
+    severity: ERROR
+    languages: [typescript]
+    pattern-either:
+      - pattern: navigator.geolocation
+      - pattern: $W.navigator.geolocation
+    paths:
+      include: ['apps/**', 'packages/**']
+      exclude: ['apps/app/src/features/qibla/**']

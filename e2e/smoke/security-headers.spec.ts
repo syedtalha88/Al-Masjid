@@ -24,6 +24,10 @@ const PERMISSIONS =
  */
 const ADMIN_PERMISSIONS =
   'camera=(self), geolocation=(), accelerometer=(), gyroscope=(), magnetometer=(), microphone=(self), payment=(), usb=(), bluetooth=()';
+/** The media origin serves only images and audio: no device feature at all (Phase 07 review L5). */
+const MEDIA_URL = process.env['E2E_MEDIA_URL'] ?? 'https://media.localhost:8443';
+const MEDIA_PERMISSIONS =
+  'camera=(), geolocation=(), accelerometer=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), bluetooth=()';
 
 /** Parses a CSP header into directive → sources. */
 function csp(response: APIResponse): Map<string, string[]> {
@@ -99,6 +103,15 @@ test.describe('static responses (Caddy)', () => {
     expect(policy.get('script-src')).toEqual(["'self'"]);
     expect(policy.get('frame-src')).toEqual(["'none'"]);
     expect(response.headers()['content-security-policy']).not.toMatch(/cloudflare|youtube/);
+  });
+
+  test('media: no device feature, nothing runs, not indexed (Phase 07 review L5)', async ({ request }) => {
+    const response = await request.get(`${MEDIA_URL}/`);
+    const headers = response.headers();
+    expect(headers['permissions-policy']?.replace(/\s/g, '')).toBe(MEDIA_PERMISSIONS.replace(/\s/g, ''));
+    expect(headers['content-security-policy']).toBe("default-src 'none'; frame-ancestors 'none'");
+    expect(headers['x-content-type-options']).toBe('nosniff');
+    expect(headers['x-robots-tag']).toBe('noindex');
   });
 
   test('entry scripts are always revalidated (no CDN override of no-cache — re-review L3)', async ({ request }) => {

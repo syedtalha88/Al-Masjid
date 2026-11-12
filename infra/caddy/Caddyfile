@@ -279,6 +279,8 @@ https://{$ADMIN_HOST} {
 		# Loaded as <img> / <audio> by the app and admin origins (another site than media.*, for the CORP check).
 		Cross-Origin-Resource-Policy "cross-origin"
 		Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
+		# Nothing on this origin may use a device feature (Phase 07 review L5 — defence in depth: no script runs here).
+		Permissions-Policy "camera=(), geolocation=(), accelerometer=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), bluetooth=()"
 		Referrer-Policy "no-referrer"
 		X-Robots-Tag "noindex"
 	}

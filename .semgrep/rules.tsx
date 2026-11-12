@@ -60,3 +60,10 @@ const cache = new Map();
 console.log('debug');
 // ok: mc-no-console-log
 logger.info('fine');
+
+// ruleid: mc-geolocation-only-in-qibla
+navigator.geolocation.getCurrentPosition(onPosition);
+// ruleid: mc-geolocation-only-in-qibla
+window.navigator.geolocation.watchPosition(onPosition);
+// ok: mc-geolocation-only-in-qibla
+navigator.onLine;

@@ -3,7 +3,7 @@ import { distanceToKaabaKm, qiblaBearing } from '@mc/domain/qibla';
 import type { Page, Request } from '@playwright/test';
 
 import { APP_URL } from '../../playwright.config.ts';
-import { followByCode } from '../support/device.ts';
+import { followByCode, gotoAfterStart } from '../support/device.ts';
 
 // PHASE_07 T7.2 / T7.3 — A14 Qibla (07 A14, DECISIONS #118) with mocked sensors: from the first followed masjid's
 // location ("Using: Test Masjid Delta"), the bearing and distance; a synthetic absolute-orientation stream turns the
@@ -30,9 +30,17 @@ async function headingTo(page: Page, heading: number) {
 }
 
 async function openQibla(page: Page) {
+  // A phone held upright: headless WebKit on Linux reports `screen.orientation.angle` 90 (with type
+  // "portrait-primary"), which the heading rule adds to every reading. Pinned on the prototype — WebKit recreates the
+  // `screen.orientation` object, so an own property is lost. Rotation itself is covered by the domain unit tests.
+  await page.addInitScript(() => {
+    if (typeof ScreenOrientation === 'function') {
+      Object.defineProperty(ScreenOrientation.prototype, 'angle', { configurable: true, get: () => 0 });
+    }
+  });
   await page.goto(APP_URL);
   await followByCode(page, APP_URL, ['TESTD004']);
-  await page.goto(`${APP_URL}/qibla`);
+  await gotoAfterStart(page, `${APP_URL}/qibla`);
   await expect(screen(page).locator('[data-qibla-dial]')).toBeVisible();
 }
 
@@ -80,18 +88,19 @@ test.describe('A14 Qibla', () => {
 
   test('"Use my location": the source changes and no request carries the coordinates', async ({ page, context }) => {
     const sent: string[] = [];
-    page.on('request', (request: Request) => {
-      sent.push(`${request.url()}\n${request.postData() ?? ''}`);
+    // The context sees the service worker's own requests too; headers are checked with the URL and body.
+    context.on('request', (request: Request) => {
+      sent.push(`${request.url()}\n${JSON.stringify(request.headers())}\n${request.postData() ?? ''}`);
     });
     await context.grantPermissions(['geolocation'], { origin: APP_URL });
     await context.setGeolocation(HERE);
     await openQibla(page);
     await screen(page).getByRole('button', { name: 'Use my location' }).click();
     await expect(screen(page).locator('[data-qibla-source]')).toContainText('Using your location');
-    const bearing = Math.round(qiblaBearing({ lat: 28.614, lng: 77.209 }));
+    const bearing = Math.round(qiblaBearing({ lat: 28.61, lng: 77.21 }));
     await expect(screen(page).locator('[data-qibla-bearing]')).toHaveText(`Qibla is ${String(bearing)}° from North`);
     await page.waitForLoadState('networkidle');
-    for (const entry of sent) expect(entry).not.toMatch(/28\.61|77\.20/u);
+    for (const entry of sent) expect(entry).not.toMatch(/28\.61|77\.2[01]/u);
   });
 
   test.describe('as an iPhone', () => {

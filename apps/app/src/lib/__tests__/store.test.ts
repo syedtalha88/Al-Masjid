@@ -42,6 +42,24 @@ describe('migrateDeviceState', () => {
     expect(migrateDeviceState({ version: 99, locale: 'hi' }, 'en').state.locale).toBe('hi');
     expect(migrateDeviceState({ version: 99, locale: 'xx' }, 'te').state.locale).toBe('te');
   });
+
+  it('Qibla location (07 A14): kept when valid, reset when out of range or not a finite number', () => {
+    const valid = { ...initialDeviceState('en'), qibla: { lat: 17.39, lng: 78.49 } };
+    expect(migrateDeviceState(valid, 'en')).toEqual({ state: valid, reset: false });
+    const bad = [
+      { lat: 91, lng: 0 },
+      { lat: 0, lng: -181 },
+      { lat: '17.39', lng: 78.49 },
+      { lat: Number.NaN, lng: 78.49 },
+      { lat: 17.39, lng: Number.POSITIVE_INFINITY },
+      { lat: 17.39 },
+    ];
+    for (const qibla of bad) {
+      const { state, reset } = migrateDeviceState({ ...initialDeviceState('en'), qibla }, 'en');
+      expect(reset).toBe(true);
+      expect(state.qibla).toBeUndefined();
+    }
+  });
 });
 
 describe('createDeviceStore', () => {
@@ -118,8 +136,14 @@ describe('createDeviceStore', () => {
     const backend = memoryBackend();
     const store = createDeviceStore(backend, 'en');
     await store.load();
-    await store.update((current) => ({ ...current, locale: 'te', privacyVersion: 'draft-1' }));
+    await store.update((current) => ({
+      ...current,
+      locale: 'te',
+      privacyVersion: 'draft-1',
+      qibla: { lat: 17.39, lng: 78.49 },
+    }));
     const cleared = await store.clear();
+    expect(cleared.qibla).toBeUndefined();
     expect(cleared).toEqual(initialDeviceState('te'));
     expect(await backend.get('device')).toBeUndefined();
   });

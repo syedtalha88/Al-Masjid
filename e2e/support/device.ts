@@ -100,6 +100,20 @@ export async function followByCode(page: Page, appUrl: string, codes: readonly s
 }
 
 /**
+ * `page.goto` right after {@link followByCode}: on WebKit the reload's own load can still be on its way and interrupt
+ * the next navigation ("is interrupted by another navigation"). Waits for that load, then navigates once more.
+ */
+export async function gotoAfterStart(page: Page, url: string): Promise<void> {
+  try {
+    await page.goto(url);
+  } catch (error: unknown) {
+    if (!(error instanceof Error) || !error.message.includes('is interrupted by another navigation')) throw error;
+    await page.waitForLoadState('load');
+    await page.goto(url);
+  }
+}
+
+/**
  * Registers this device through the app's own origin (Cloudflare's test Turnstile key locally — DECISIONS #93) and
  * stores the credentials in the device document, so follow changes reach the server. Call before `followByCode`.
  * `locale` / `audiencePref` are the server record's (the language of its notifications; default en, brothers).

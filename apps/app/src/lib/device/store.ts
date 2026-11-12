@@ -110,7 +110,7 @@ const stateSchema = z.object({
   /** My zakat (07 A24): absent until the person uses it. Never sent anywhere. */
   zakat: z.optional(zakatSchema),
   /**
-   * The Qibla page's last "Use my location" (07 A14, 05 §1): rounded to 3 decimals (~100 m — plenty for a direction),
+   * The Qibla page's last "Use my location" (07 A14, 05 §1): rounded to 2 decimals (~1 km — plenty for a direction),
    * kept on this phone only and never sent anywhere. Absent → the first followed masjid's location is used.
    */
   qibla: z.optional(
