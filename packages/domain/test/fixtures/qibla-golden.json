@@ -1,0 +1,65 @@
+{
+  "description": "Qibla bearings (degrees clockwise from true North) and distances to the Kaaba (21.4225 N, 39.8262 E) for the 7 prayer-golden cities (10_TESTING §4). Tolerance ±0.5° on the bearing (both sources), ±1 % on the distance (our spherical figure vs the ellipsoidal one).",
+  "sources": {
+    "aladhan": "Independent calculator 1: the Aladhan Qibla API — GET https://api.aladhan.com/v1/qibla/<lat>/<lng>, field data.direction; queried 13 Nov 2026 (spherical great circle).",
+    "geographiclib": "Independent calculator 2: GeographicLib 2.0 (C. F. F. Karney), Geodesic.WGS84.Inverse(lat, lng, 21.4225, 39.8262) — azi1 mod 360 and s12 / 1000; computed 13 Nov 2026 (WGS84 ellipsoid)."
+  },
+  "cases": [
+    {
+      "city": "Hyderabad",
+      "lat": 17.385,
+      "lng": 78.4867,
+      "aladhan": 282.7287,
+      "geographiclib": 282.693,
+      "distanceKm": 4075.3
+    },
+    {
+      "city": "Delhi",
+      "lat": 28.6139,
+      "lng": 77.209,
+      "aladhan": 266.5967,
+      "geographiclib": 266.662,
+      "distanceKm": 3840.2
+    },
+    {
+      "city": "Mumbai",
+      "lat": 19.076,
+      "lng": 72.8777,
+      "aladhan": 280.0713,
+      "geographiclib": 280.047,
+      "distanceKm": 3456.8
+    },
+    {
+      "city": "Chennai",
+      "lat": 13.0827,
+      "lng": 80.2707,
+      "aladhan": 287.9297,
+      "geographiclib": 287.859,
+      "distanceKm": 4386.0
+    },
+    {
+      "city": "Kolkata",
+      "lat": 22.5726,
+      "lng": 88.3639,
+      "aladhan": 278.2108,
+      "geographiclib": 278.222,
+      "distanceKm": 4991.3
+    },
+    {
+      "city": "Srinagar",
+      "lat": 34.0837,
+      "lng": 74.7973,
+      "aladhan": 256.8159,
+      "geographiclib": 256.921,
+      "distanceKm": 3699.1
+    },
+    {
+      "city": "Thiruvananthapuram",
+      "lat": 8.5241,
+      "lng": 76.9366,
+      "aladhan": 294.0934,
+      "geographiclib": 293.981,
+      "distanceKm": 4224.9
+    }
+  ]
+}

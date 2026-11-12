@@ -15,6 +15,7 @@
     "./money": "./src/money.ts",
     "./phone": "./src/phone.ts",
     "./prayer": "./src/prayer.ts",
+    "./qibla": "./src/qibla.ts",
     "./rotation": "./src/rotation.ts",
     "./search": "./src/search.ts",
     "./special": "./src/special.ts",
