@@ -2871,3 +2871,41 @@ the device's own choice (#3), as the B10 warning and #39 say.
   them (04 §7, smoke test).
 **Consequences:** no new dependency; device document field `qibla` (optional); `HAPTICS.qibla`.
 
+
+### #167 — Phase 07 security review fixes, Phase 06 verifier fixes, Qibla in every build — ACCEPTED (Claude Code, 12 Nov 2026)
+**Context:** the Phase 07 security review (0 HIGH · 1 MEDIUM · 5 LOW) and the Phase 06 phase-verifier (FAIL: 5 required
+fixes) ran on `feat/phase-07`; the iPhone 14 Qibla e2e failed in the Linux image.
+**Phase 07 — fixed:**
+- **M1** 05 §1's "test asserts no API contract has lat/lng fields from the device" now exists:
+  `packages/api/test/no-device-location.test.ts` walks every `/api/v1/…` request (parameters and bodies, `$ref`s
+  followed) in the generated OpenAPI document and refuses lat / lng / latitude / longitude / coords / location /
+  position / accuracy / geo. Semgrep `mc-geolocation-only-in-qibla`: `navigator.geolocation` only under
+  `apps/app/src/features/qibla/**`.
+- **L1** the dial's name moved from `aria-label` to an SVG `<title>` (`aria-labelledby`): error-report click
+  breadcrumbs copy `aria-label`, so the bearing no longer travels with them. **L2** the kept location is rounded to 2
+  decimals (~1.1 km; the bearing moves < 0.05° anywhere in India — unit test) instead of 3 (#166 amended). **L3** the
+  e2e network check watches the whole context (service-worker requests too) and the headers. **L4** unit tests: the
+  device schema refuses a bad `qibla` (range, string, NaN, ∞, missing field), "Clear all data" removes it,
+  `roundCoordinates`. **L5** the media origin sends a deny-all Permissions-Policy (smoke test).
+- **Qibla in every build:** the Home compass button was still gated by `SHOW_COMING_SOON` (dev / staging only, Phase 2)
+  — it now ships everywhere, and the manifest has the Qibla shortcut (`/qibla?source=shortcut`) promised by #30.
+  Visual baselines `home`, `donations-home` (the button) and `qibla` (taken before the last layout change) regenerated.
+- **iPhone e2e:** headless WebKit on Linux reports `screen.orientation.angle` 90 with type "portrait-primary", which
+  the heading rule adds to `webkitCompassHeading`; the spec pins 0 on `ScreenOrientation.prototype` (WebKit recreates
+  the object, so an own property is lost). The app is unchanged (a real upright iPhone reports 0). New e2e helper
+  `gotoAfterStart` for WebKit's start-up load interrupting the next `goto`.
+- **Perf spec** opens Qibla from a settled Home (as people do): a deep link to `/qibla` mounts Home's content under the
+  modal ~0.5 s later — a one-off full layout (large-title header) that is not the compass's cost. 3/3 green.
+- **Budget:** musalli initial JS 189.01 kB → limit 190 kB (+0.07 kB: the button and the contract checks below; owner
+  rule "quality over budgets").
+**Phase 06 — fixed:** int test that the pasted link, its id and its share token never reach a log line (the test
+harness takes a capturing logger; debug level, no redaction); the public `video` contract checks the id (11
+characters) and the start second (0..86,400) so a bad value is refused, not thrown by the player.
+**Phase 06 — decided:** (a) admin B10 screens keep per-locale screenshot attachments + axe like every admin screen so
+far; the visual baseline suite stays musalli-only until it can sign an admin in — F75, Phase 9. (b) The thumbnail →
+player shared-element morph (F71) is a "progressive" motion item; deferred to Phase 9 polish with F44 (same navigator
+hook). (c) The musalli-facing takedown text ("the video stays on the masjid's YouTube channel") is Phase 8 T8.2 —
+F74 and a line in PHASE_08.
+**Kept, LOW (Phase 06):** the 30 / hour test does not pin the 31st call (earlier tests share the budget); the oEmbed
+read uses a cast instead of Zod; the admin missing-fields list joins with ", " (Urdu "،"); focus after Play; the play
+glyph's inline size — Phase 9 polish (F75 list).

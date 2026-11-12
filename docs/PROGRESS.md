@@ -13,8 +13,8 @@
 | 03 | Masjid Admin content tools | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`, with Phase 04); O39 PASS + O27 OK (10 Nov 2026); left: O25 rest (photos 3.7 / voice 3.14) + O26 (usability) — #150 | [report](reports/PHASE_03_REPORT.md) | – |
 | 04 | Push notifications | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`); T4.6 acceptance = the owner's O38 (real phones) | [report](reports/PHASE_04_REPORT.md) | – |
 | 05 | Donations, chanda & UPI change-lock | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): CI green on `997a914`, phase-verifier findings fixed, security re-review clean. Waiting: O43 → merge to `main` / staging → O45 → O50 (guide 5.1–5.22) + O28 | [final](reports/PHASE_05_REPORT.md) | – |
-| 06 | Bayan videos | **Closing** — all tasks built; security review fixed (#165); on `main` `402e7f8`, CI green, **on staging**; left: phase-verifier, report → then "DONE — owner checks pending" (O49) | [draft](reports/PHASE_06_REPORT.md) | – |
-| 07 | Qibla compass | **IN PROGRESS** — T7.1–T7.3 built on `feat/phase-07` (#166); left: iPhone e2e + perf re-run, security review, verifier, report | [draft](reports/PHASE_07_REPORT.md) | – |
+| 06 | Bayan videos | **Closing** — on `main` `402e7f8`, CI green, **on staging**; phase-verifier ran 12 Nov (FAIL → fixed on `feat/phase-07`, #167); left: those fixes to `main`, final report → "DONE — owner checks pending" (O49) | [draft](reports/PHASE_06_REPORT.md) | – |
+| 07 | Qibla compass | **IN PROGRESS** — T7.1–T7.3 done, security review fixed (#167) on `feat/phase-07`; left: phase-verifier, report, CI | [draft](reports/PHASE_07_REPORT.md) | – |
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
@@ -848,10 +848,12 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [x] T7.1 — Qibla math — `@mc/domain/qibla`, golden 7 cities vs Aladhan + GeographicLib (±0.5°), domain 100 % (306).
 - [x] T7.2 — Location & heading — `useQiblaLocation` (device-only, ~100 m), `useHeading` + `listenHeading` (unit 7:
   wrap-around, noise, no-compass, stop); e2e: no request carries coordinates.
-- [ ] T7.3 — Qibla page (A14) — built (#166); e2e `e2e/app/qibla.spec.ts` 8/8 (masjid source, live stream, aligned,
-  no compass, Use my location, iOS card, 4 locales, not mirrored); perf `qibla.perf.spec.ts` (fixed a 110–140 ms
-  re-render per alignment change); visual `qibla`. Being verified.
-- [ ] T7.4 — Quality gates — Permissions-Policy: admin origin refuses location / sensors (smoke test updated).
+- [x] T7.3 — Qibla page (A14) — **verified 12 Nov 2026** (#166, #167): e2e `e2e/app/qibla.spec.ts` 8/8 on Pixel 7
+  **and iPhone 14** (Linux image; WebKit's headless screen angle pinned), perf `qibla.perf.spec.ts` 3/3 (60 Hz, 4× CPU,
+  opened from Home), visual `qibla` × 4 × 2 regenerated. Home compass button + manifest shortcut now in every build.
+- [ ] T7.4 — Quality gates — **security review done** (0 H · 1 M · 5 L, all fixed — #167: no-location contract test,
+  Semgrep geolocation rule, dial name in `<title>`, ~1 km rounding, media Permissions-Policy); budgets green (initial
+  190 kB limit, 189.01 kB); visual 40/40. **Left:** phase-verifier, report, CI on the pushed branch.
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
@@ -919,7 +921,9 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F68 | Security review M2, image part (#160) — **accepted by the owner (#161)** | Refuse drive covers / notice photos that contain a QR code (maintained server-side decoder, e.g. `zxing-wasm`, own DECISIONS entry with size + CVE check) | Phase 8, with moderation |
 | ~~F69~~ | Security review L2, L3 (#160) | ✅ **Done 12 Nov 2026 (#161)** — owners only (`PAYMENT_OWNER_ONLY`), every owner alerted (`payment_request_owner` + decisions + activation), removal / revocation closes the open request (`reject_code`, migration 0022) | – |
 | F70 | Security review L5, L7, L9 (#160) — **accepted by the owner (#161)** | Live UPI details in a collection only `mc_system` writes; needy ciphertext bound to the person (associated data with the id); lint rule against raw `.collection(` in `repos/` | Phase 9 hardening |
-| F71 | PHASE_06 T6.3 — shared-element thumbnail → player (08 §3.5, "progressive") | The player opens with the standard push; the thumbnail does not morph into the facade | Phase 9 polish (motion) |
+| F71 | PHASE_06 T6.3 — shared-element thumbnail → player (08 §3.5, "progressive") | The player opens with the standard push; the thumbnail does not morph into the facade | Phase 9 polish (motion), with F44 — DECISIONS #167 |
+| F74 | Phase 06 verifier (#164, #167) | Musalli-facing takedown text for a removed bayan ("may still be on the masjid's YouTube channel") | Phase 8 T8.2 (line added to PHASE_08) |
+| F75 | Phase 06 verifier (#167) | Admin B10 visual baselines (visual suite is musalli-only; admin screens use per-locale attachments + axe); LOW polish: oEmbed read through Zod, `Intl.ListFormat` for the missing-fields list (Urdu "،"), focus after Play, play-glyph size from tokens, pin the 31st lookup in the 30/hour test | Phase 9 polish |
 | F72 | #165 L12 — `sandbox` on the bayan iframe | Add `allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox` once real-device checks show playback, fullscreen and "Watch on YouTube" still work | Phase 9 hardening |
 | F73 | #165 L13 — removed posts' media deliverable during preservation | Make removed items' media undeliverable at removal (Cloudinary access control or private type) and purge the CDN then, keeping the copy for 180 days | Phase 8 T8.2 |
 | F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
@@ -928,6 +932,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-12 | 07 / T7.3–T7.4 + 06 fixes | Qibla verified on Pixel 7 + iPhone 14 (WebKit headless screen angle pinned), perf 3/3 opened from Home; security review 0H/1M/5L all fixed; Qibla button + manifest shortcut in every build; Phase 06 verifier fixes (log-absence test, video contract) — #167. Paused at the owner's request for the owner's pending list. |
 | 2026-11-12 | 05 / T5.9 | My zakat done (#158): phone-only tracker in the device document, A24 screen, "Log this in My zakat?" after a UPI payment to a zakat-eligible person, e2e with a network assertion, 4 locales. Before it: last night's red CI fixed in tests (`2df8d6d` — axe read two CSS state fades in the needy spec, the voice spec hung on a disabled Play button; the VPS deploy test failed on CI only and now annotates its reason — it passed on the next run, so the cause was outside the repo). **`main` `de50397` CI was red in that same step, so F61 is not on staging yet.** |
 | 2026-11-11 | 05 / T5.8 (part 2) | Needy people screens (#157): admin B19 (list + form), musalli A23 (list, pay sheet, QR reuse), strings ×4, seed, e2e journey green on Pixel 7, visual 24/24. F61 fast-forwarded onto `main` (`de50397`) after green CI. App initial JS budget 189 kB. |
 | 2026-11-11 | 05 / T5.8 (part 1) | Needy people: data layer, API and the `retention` job (#156). Migration 0019; policy matrix 48 namespaces; db int 365, api int 371, `verify:quick` green. UI (B19, A23), seed, e2e left. Owner approved merging the F61 fix into `main` once its CI is green. |
