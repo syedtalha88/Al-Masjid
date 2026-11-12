@@ -3233,6 +3233,12 @@
           },
           "rejectReason": {
             "type": "string"
+          },
+          "rejectCode": {
+            "type": "string",
+            "enum": [
+              "requester_removed"
+            ]
           }
         },
         "required": [
@@ -5040,6 +5046,12 @@
           },
           "rejectReason": {
             "type": "string"
+          },
+          "rejectCode": {
+            "type": "string",
+            "enum": [
+              "requester_removed"
+            ]
           },
           "masjid": {
             "type": "object",

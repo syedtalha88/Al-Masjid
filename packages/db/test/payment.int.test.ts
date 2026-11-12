@@ -3,7 +3,9 @@
 // a fresh step-up (→ on hold until `effective_at`) or rejects — also during the hold (DECISIONS #146); only the
 // system job activates, at `effective_at`, superseding the previous profile, bumping the version and publishing the
 // locked "Payment details updated" notice with a quota-free push. There is no other write path. Fake VPAs only.
-import { type Long, UUID } from 'mongodb';
+import { randomBytes } from 'node:crypto';
+
+import { Binary, type Long, UUID } from 'mongodb';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { MIGRATIONS } from '../migrations/index.ts';
@@ -18,11 +20,15 @@ import { buildDevSeed, seedId, writeDevSeed } from '../src/seed/index.ts';
 import {
   activateDuePaymentProfiles,
   approvePaymentChange,
+  createAdminForMasjid,
   deleteItem,
   editItem,
   PAYMENT_NOTICE_TEMPLATE,
   rejectPaymentChange,
+  removeAdminFromMasjid,
   requestPaymentChange,
+  revokeAdminSessions,
+  revokeSessions,
 } from '../src/state/index.ts';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '../src/testing/index.ts';
 import { idText, newId, parseId } from '../src/values.ts';
@@ -57,7 +63,13 @@ const code = async (promise: Promise<unknown>) => {
     throw error;
   }
 };
-const adminOf = (masjid: UUID) => adminScope({ adminId: newId(), masjids: [{ id: masjid, role: 'owner' }] });
+/** One real, active owner per test masjid (approval and activation check the requester again — #161 L1). */
+const owners = new Map<string, ReturnType<typeof adminScope>>();
+const adminOf = (masjid: UUID) => {
+  const owner = owners.get(idText(masjid));
+  if (!owner) throw new Error('no owner for this masjid');
+  return owner;
+};
 const SUPER = newId();
 const fresh = (at = NOW) => superScope(SUPER, new Date(at.getTime() - MINUTE));
 const version = async (id: UUID) =>
@@ -78,6 +90,8 @@ const request = (masjid: UUID, vpa = 'masjid.test@okbank', admin = adminOf(masji
   });
 const approve = (id: string, at = NOW) =>
   approvePaymentChange(as('admin'), fresh(at), { profileId: idOf(id), holdMinutes: HOLD, now: at });
+const ownersOf = async (masjid: UUID) =>
+  (await raw('masjid_admins').find({ masjid_id: masjid, role: 'owner' }).toArray()).map((row) => row['admin_id']);
 const run = (at: Date) => activateDuePaymentProfiles(as('system'), systemScope(), { now: at });
 const activate = async (at: Date) => (await run(at)).activated;
 
@@ -88,7 +102,22 @@ beforeAll(async () => {
   handles.public = await processUserHandle(t(), 'mc_public');
   handles.system = await processUserHandle(t(), 'mc_system');
   await writeDevSeed(as('system'), systemScope(), buildDevSeed({ now: NOW, today: TODAY }));
+  for (const masjid of [ALPHA, BETA, GAMMA]) owners.set(idText(masjid), await member(masjid, 'owner'));
 });
+
+/** A real, active admin with a membership (the seed has none), through the Super Admin's own state function. */
+async function member(masjid: UUID, role: 'owner' | 'editor') {
+  const { adminId } = await createAdminForMasjid(as('admin'), superScope(SUPER), {
+    displayName: `Test ${role}`,
+    uiLocale: 'en',
+    masjidId: masjid,
+    role,
+    inviteTokenHash: randomBytes(32),
+    now: NOW,
+  });
+  await raw('admin_users').updateOne({ _id: adminId }, { $set: { status: 'active' } }); // as after registration
+  return adminScope({ adminId, masjids: [{ id: masjid, role }] });
+}
 
 afterAll(async () => {
   for (const entry of Object.values(handles)) await entry.dispose();
@@ -201,6 +230,7 @@ describe('approve / reject (Super Admin)', () => {
     expect(result).toEqual({
       masjidId: GAMMA,
       requestedBy: pending?.['requested_by'],
+      ownerIds: await ownersOf(GAMMA),
       effectiveAt: new Date(NOW.getTime() + HOLD * MINUTE),
     });
     expect(await raw('payment_profiles').findOne({ _id: idOf(id) })).toMatchObject({
@@ -232,7 +262,7 @@ describe('approve / reject (Super Admin)', () => {
       reason: 'Payee name does not match the committee account',
       now: NOW,
     });
-    expect(result).toEqual({ masjidId: BETA, requestedBy: pending?.['requested_by'] });
+    expect(result).toEqual({ masjidId: BETA, requestedBy: pending?.['requested_by'], ownerIds: await ownersOf(BETA) });
     expect(await raw('payment_profiles').findOne({ _id: idOf(id) })).toMatchObject({
       status: 'rejected',
       open: false,
@@ -449,8 +479,144 @@ describe('followers are always told (DECISIONS #160, security review M1 + L1)', 
       await setTemplate('active');
     }
     const live = await run(due);
-    expect(live).toMatchObject({ heldBack: [], activated: [{ masjidId: BETA }] });
+    expect(live).toMatchObject({ heldBack: [], activated: [{ masjidId: BETA, ownerIds: await ownersOf(BETA) }] });
     expect(await status()).toBe('active');
     expect(await notices()).toBe(1);
+  });
+});
+
+describe('owners only; a request closes with its admin (DECISIONS #161 — F69, security review L2 + L3)', () => {
+  const closeOpen = (masjid: UUID) =>
+    raw('payment_profiles').updateMany(
+      { masjid_id: masjid, open: true },
+      { $set: { open: false, status: 'rejected', updated_at: NOW } },
+    );
+  /** A session row for `adminId` (what a passkey sign-in creates). */
+  const sessionFor = async (adminId: UUID) => {
+    const id = newId();
+    await raw('admin_sessions').insertOne({
+      _id: id,
+      admin_id: adminId,
+      token_hash: new Binary(randomBytes(32)),
+      created_at: NOW,
+      last_seen_at: NOW,
+      idle_expires_at: new Date(NOW.getTime() + HOLD * MINUTE),
+      absolute_expires_at: new Date(NOW.getTime() + 30 * HOLD * MINUTE),
+    });
+    return id;
+  };
+  const statusOf = async (id: string) => (await raw('payment_profiles').findOne({ _id: idOf(id) }))?.['status'];
+
+  it('an editor cannot ask; an owner can, and every owner (the requester too) is named for the alert', async () => {
+    await closeOpen(ALPHA);
+    const editor = await member(ALPHA, 'editor');
+    expect(await code(request(ALPHA, 'editor.try@okbank', editor))).toBe('PAYMENT_OWNER_ONLY');
+    expect(await raw('payment_profiles').countDocuments({ masjid_id: ALPHA, open: true })).toBe(0);
+    const owner = await member(ALPHA, 'owner');
+    const created = await request(ALPHA, 'owner.asks@okbank', owner);
+    expect(created.ownerIds).toEqual(await ownersOf(ALPHA));
+    expect(created.ownerIds).toContainEqual(owner.adminId);
+    expect(created.ownerIds).not.toContainEqual(editor.adminId);
+    // Removing the requester from the masjid closes their request in the same transaction, with the caller's id.
+    await removeAdminFromMasjid(as('admin'), fresh(), {
+      masjidId: ALPHA,
+      adminId: owner.adminId,
+      requestId: 'req-remove-1',
+      now: NOW,
+    });
+    expect(await raw('payment_profiles').findOne({ _id: idOf(created.id) })).toMatchObject({
+      status: 'rejected',
+      open: false,
+      reject_code: 'requester_removed',
+    });
+    expect(await raw('audit_log').findOne({ action: 'payment.reject', target_id: created.id })).toMatchObject({
+      masjid_id: ALPHA,
+      request_id: 'req-remove-1',
+      meta: { from: 'pending', code: 'requester_removed' },
+    });
+    const b8 = await getAdminPayment(as('admin'), adminOf(ALPHA), ALPHA);
+    expect(b8.request).toMatchObject({ id: created.id, status: 'rejected', rejectCode: 'requester_removed' });
+  });
+
+  it('revoking the requester’s sessions stops a change even during the hold — it never goes live', async () => {
+    await closeOpen(ALPHA);
+    const owner = await member(ALPHA, 'owner');
+    const created = await request(ALPHA, 'hold.then.revoked@okbank', owner);
+    await approve(created.id);
+    await revokeAdminSessions(as('admin'), fresh(), { adminId: owner.adminId, now: NOW });
+    expect(await raw('payment_profiles').findOne({ _id: idOf(created.id) })).toMatchObject({
+      status: 'rejected',
+      open: false,
+      reject_code: 'requester_removed',
+    });
+    const later = await run(new Date(NOW.getTime() + 20 * HOLD * MINUTE));
+    expect(later.activated.map((entry) => idText(entry.profileId))).not.toContain(created.id);
+  });
+
+  it('a request that slipped past a removal (committed alongside it) is refused at approval and closed', async () => {
+    await closeOpen(ALPHA);
+    const owner = await member(ALPHA, 'owner');
+    const created = await request(ALPHA, 'race.approve@okbank', owner);
+    // The race: the membership disappears without the removal seeing the request.
+    await raw('masjid_admins').deleteOne({ masjid_id: ALPHA, admin_id: owner.adminId });
+    expect(await code(approve(created.id))).toBe('PAYMENT_REQUESTER_REMOVED');
+    expect(await raw('payment_profiles').findOne({ _id: idOf(created.id) })).toMatchObject({
+      status: 'rejected',
+      open: false,
+      reject_code: 'requester_removed',
+    });
+  });
+
+  it('activation checks again: a requester disabled during the hold is stopped, never live', async () => {
+    await closeOpen(ALPHA);
+    const owner = await member(ALPHA, 'owner');
+    const created = await request(ALPHA, 'race.activate@okbank', owner);
+    await approve(created.id);
+    await raw('admin_users').updateOne({ _id: owner.adminId }, { $set: { status: 'disabled' } });
+    const result = await run(new Date(NOW.getTime() + 21 * HOLD * MINUTE));
+    expect(result.stopped.map((id) => idText(id))).toEqual([created.id]);
+    expect(result.activated.map((entry) => idText(entry.profileId))).not.toContain(created.id);
+    expect(await statusOf(created.id)).toBe('rejected');
+  });
+
+  it('the session that asked: a plain logout keeps the request; shutting the session out stops it', async () => {
+    await closeOpen(GAMMA);
+    const owner = await member(GAMMA, 'owner');
+    const asked = await sessionFor(owner.adminId);
+    const ask = (vpa: string) =>
+      requestPaymentChange(as('admin'), owner, {
+        masjidId: GAMMA,
+        vpa,
+        payeeName: 'Test Masjid Committee',
+        sessionId: asked,
+        now: NOW,
+      });
+    const first = await ask('session.logout@okbank');
+    expect((await raw('payment_profiles').findOne({ _id: idOf(first.id) }))?.['requested_session']).toEqual(asked);
+    await revokeSessions(as('admin'), owner, { sessionId: asked, reason: 'logout', now: NOW });
+    expect(await statusOf(first.id)).toBe('pending');
+    await approve(first.id); // still the owner's request after a sign-out
+    expect(await statusOf(first.id)).toBe('approved_on_hold');
+
+    await closeOpen(GAMMA);
+    const other = await sessionFor(owner.adminId);
+    const second = await requestPaymentChange(as('admin'), owner, {
+      masjidId: GAMMA,
+      vpa: 'session.revoked@okbank',
+      payeeName: 'Test Masjid Committee',
+      sessionId: other,
+      now: NOW,
+    });
+    // "Sign out that device" from another phone — a hijacked session is cut off, and its change with it.
+    await revokeSessions(as('admin'), owner, {
+      sessionId: other,
+      reason: 'revoked_by_admin',
+      requestId: 'r',
+      now: NOW,
+    });
+    expect(await raw('payment_profiles').findOne({ _id: idOf(second.id) })).toMatchObject({
+      status: 'rejected',
+      reject_code: 'requester_removed',
+    });
   });
 });

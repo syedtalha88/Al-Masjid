@@ -1,7 +1,7 @@
 // The UPI change-lock over HTTP (03 §4 "Payment", §5 "Payments", 04 R1, PHASE_05 T5.2). An admin reads the status and
-// requests a change (the Super Admin is alerted); the Super Admin lists open requests, approves ★ (fresh step-up — at
-// the route and again in the state function) or rejects (the requesting admin is alerted either way). Nothing here
-// makes details live: only the worker's `payment-activate` job does, after the hold.
+// a masjid owner requests a change (the Super Admin and the other owners are alerted — #161); the Super Admin lists
+// open requests, approves ★ (fresh step-up — at the route and again in the state function) or rejects (every owner is
+// alerted either way). Nothing here makes details live: only the worker's `payment-activate` job does, after the hold.
 import { type DbHandle, idText, parseId } from '@mc/db';
 import { getAdminPayment, listOpenPayments } from '@mc/db/repos';
 import {
@@ -26,7 +26,7 @@ import type { AlertService } from '../queue/alerts.ts';
 
 export interface PaymentRouteDeps {
   readonly db: DbHandle;
-  /** Alert pushes (T4.6): the Super Admin on a request, the requesting admin on a decision. */
+  /** Alert pushes (T4.6): the Super Admin and the other owners on a request, every owner on a decision (#161). */
   readonly alerts?: AlertService | undefined;
   /** env `PAYMENT_HOLD_MINUTES` (≥ 1440 in production — env.ts); 24 h when not given. */
   readonly paymentHoldMinutes?: number | undefined;
@@ -47,6 +47,15 @@ function profileIdOf(text: string) {
   const id = parseId(text);
   if (!id) throw new ApiProblem(404, 'PAYMENT_NOT_FOUND');
   return id;
+}
+
+/**
+ * Who hears about a decision (DECISIONS #161, F69): every owner of the masjid, and the requester (an owner when they
+ * asked; kept if they were since made an editor). At most 5 admins per masjid.
+ */
+type Id = Parameters<typeof idText>[0];
+function recipients(decided: { readonly requestedBy: Id; readonly ownerIds: readonly Id[] }): string[] {
+  return [...new Set([decided.requestedBy, ...decided.ownerIds].map((id) => idText(id)))].sort(); // stable order
 }
 
 /** B8: the masjid admin's routes (mounted under `/api/admin/v1`). */
@@ -80,11 +89,19 @@ export function adminPaymentRoutes(deps: PaymentRouteDeps): RouteDefinition[] {
           vpa: body.vpa,
           payeeName: body.payeeName,
           note: body.note,
+          sessionId: auth.session.sessionId,
           now: clock.now(),
           requestId,
         });
         await deps.alerts?.raise({ type: 'payment_request', to: { kind: 'super' }, key: created.id });
-        return reply(201, created);
+        // #161: every owner hears about it at once — the requester's other phones too, so a hijacked session is
+        // noticed even in a masjid with a single owner.
+        await deps.alerts?.raise({
+          type: 'payment_request_owner',
+          to: { kind: 'admins', adminIds: created.ownerIds.map((id) => idText(id)).sort() },
+          key: created.id,
+        });
+        return reply(201, { id: created.id });
       },
     }),
   ];
@@ -123,7 +140,7 @@ export function superPaymentRoutes(deps: PaymentRouteDeps): RouteDefinition[] {
         });
         await deps.alerts?.raise({
           type: 'payment_approved',
-          to: { kind: 'admins', adminIds: [idText(approved.requestedBy)] },
+          to: { kind: 'admins', adminIds: recipients(approved) },
           key: params.id,
         });
         return reply(200, { effectiveAt: approved.effectiveAt.toISOString() });
@@ -147,7 +164,7 @@ export function superPaymentRoutes(deps: PaymentRouteDeps): RouteDefinition[] {
         });
         await deps.alerts?.raise({
           type: 'payment_rejected',
-          to: { kind: 'admins', adminIds: [idText(rejected.requestedBy)] },
+          to: { kind: 'admins', adminIds: recipients(rejected) },
           key: params.id,
         });
         return reply(204, {});

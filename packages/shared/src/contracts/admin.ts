@@ -864,6 +864,8 @@ export const paymentRequestRowSchema = z
     /** When approved: the moment the details go live (approval + hold). */
     effectiveAt: z.string().optional(),
     rejectReason: z.string().optional(),
+    /** Closed without a decision because the admin who asked was removed or shut out (DECISIONS #161). */
+    rejectCode: z.enum(['requester_removed']).optional(),
   })
   .meta({ id: 'PaymentRequestRow' });
 export type PaymentRequestRow = z.infer<typeof paymentRequestRowSchema>;

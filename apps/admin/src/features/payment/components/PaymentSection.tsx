@@ -14,7 +14,14 @@ import { liveAtText, stepsDone } from '../lib/payment.ts';
 
 const STEPS = ['requested', 'approved', 'live'] as const;
 
-export function PaymentSection({ masjidId }: { readonly masjidId: string | undefined }) {
+export function PaymentSection({
+  masjidId,
+  isOwner,
+}: {
+  readonly masjidId: string | undefined;
+  /** Only an owner may ask for a change (DECISIONS #161); an editor sees who to ask instead of the button. */
+  readonly isOwner: boolean;
+}) {
   const { t } = useTranslation('admin');
   const { t: tc } = useTranslation();
   const navigator = useNavigator();
@@ -48,16 +55,22 @@ export function PaymentSection({ masjidId }: { readonly masjidId: string | undef
         <>
           <LiveDetails payment={payment.data} />
           {payment.data.request ? <RequestStatus request={payment.data.request} /> : null}
-          <Button
-            variant="secondary"
-            size="lg"
-            fullWidth
-            onPress={() => {
-              navigator.push('/payment');
-            }}
-          >
-            {t(payment.data.active ? 'payment.change' : 'payment.setUp')}
-          </Button>
+          {isOwner ? (
+            <Button
+              variant="secondary"
+              size="lg"
+              fullWidth
+              onPress={() => {
+                navigator.push('/payment');
+              }}
+            >
+              {t(payment.data.active ? 'payment.change' : 'payment.setUp')}
+            </Button>
+          ) : (
+            <p className="type-callout text-text-secondary" data-payment-owner-only>
+              {t('payment.ownerOnly')}
+            </p>
+          )}
         </>
       )}
     </section>
@@ -92,7 +105,9 @@ function RequestStatus({ request }: { readonly request: NonNullable<AdminPayment
     request.status === 'approved_on_hold' && request.effectiveAt
       ? t('payment.status.approved_on_hold', { time: liveAtText(request.effectiveAt, formatters(locale)) })
       : request.status === 'rejected'
-        ? t('payment.status.rejected', { reason: request.rejectReason ?? '' })
+        ? request.rejectCode === 'requester_removed'
+          ? t('payment.status.requester_removed')
+          : t('payment.status.rejected', { reason: request.rejectReason ?? '' })
         : t('payment.status.pending');
   return (
     <div

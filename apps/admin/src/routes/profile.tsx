@@ -54,7 +54,7 @@ function ProfileScreen() {
             <PhotoSection masjidId={masjid?.id} profile={profile.data} />
             <NamesSection masjidId={masjid?.id} profile={profile.data} />
             <HijriSection masjidId={masjid?.id} profile={profile.data} now={now} />
-            <PaymentSection masjidId={masjid?.id} />
+            <PaymentSection masjidId={masjid?.id} isOwner={masjid?.role === 'owner'} />
             <ContactsSection masjidId={masjid?.id} />
           </>
         ) : (

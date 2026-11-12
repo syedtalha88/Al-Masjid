@@ -684,10 +684,12 @@
       "payee": "the payee name"
     },
     "waiting": "A change is waiting. You can ask again once it is decided.",
+    "ownerOnly": "Only an owner of the masjid can change the UPI details. Ask the owner, or the Super Admin.",
     "status": {
       "pending": "Requested — waiting for approval",
       "approved_on_hold": "Approved — goes live {time}",
-      "rejected": "Not approved: {reason}"
+      "rejected": "Not approved: {reason}",
+      "requester_removed": "Stopped — the admin who asked no longer has access. An owner can ask again."
     },
     "step": {
       "requested": "Requested",

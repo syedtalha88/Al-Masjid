@@ -18,30 +18,24 @@
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (12 Nov 2026, evening — T5.7: all our fixes in; waiting for CI + the owner's O46)
+## ▶ Next session — start here (13 Nov 2026 — autopilot: Phase 05 closing, then Phase 06)
 
-**Blocked on GitHub (O47):** CI run 43097793481 on `main` `1f051fa`: unit ✅, typecheck/lint ✅, build · budgets ·
-Lighthouse · e2e · visual ✅ — but Security scans, Integration tests and CodeQL never started (stayed *queued*) and the
-run was marked failed; `ci/phase-05` runs 43095626682 / 43097520749 queued for hours. githubstatus green, repo
-public. Only the owner can see why (Billing / Actions notice) and re-run. When jobs start again: re-run `main`'s
-failed jobs (or push an empty commit) → "Release to staging" → F61; then push `feat/phase-05` to `ci/phase-05`.
+**Owner rule (DECISIONS #162, 12 Nov 2026):** close each phase when our own checks pass, list every owner step in
+`owner/MY_PENDING_TASKS.md` at once, and move straight on to the next phase — never stop at "awaiting owner".
 
-**State:** `main` = **`1f051fa`** — run 43089866763 on `a30f9f8` passed every gate (unit, integration, security
-scans incl. the VPS deploy test, budgets, Lighthouse, e2e, visual) but its *report upload* failed, which failed the
-job and skipped "Release to staging". `1f051fa` makes that upload `continue-on-error` (actionlint clean); its CI run
-(43097793481) was queued at hand-off. **Green → F61 reaches staging**: check `/health` on both origins shows
-`1f051fa`, then remove `infra/trivy/mc-server.trivyignore.yaml` + the Nightly `--ignorefile` (#155) — **by 15 Nov**.
-`feat/phase-05` = `7214e99` (same CI change); `ci/phase-05` = `d9e8329`, its run (43097520749) queued — push
-`feat/phase-05` there again once it starts or finishes.
+**State:** `main` = **`a6f2969`** (empty commit that restarted CI after GitHub left jobs queued — O47 solved; billing
+fine, public repo = free CI). Its run: security scans, integration, unit, typecheck, CodeQL ✅; build/e2e was still
+running at this note → when green, "Release to staging" ships F61 → check `/health` on both origins → remove
+`infra/trivy/mc-server.trivyignore.yaml` + the Nightly `--ignorefile` (#155) **by 15 Nov**.
 
-**Done since the previous update:** phase-verifier ran (FAIL → our items fixed: Urdu change-lock time `3859c15`,
-journey 9 part 2 re-run green on the #160 code, report corrected `d9e8329`, extra tests `142bedd`). Local verify
-stages: dev-proxy, dist, bundle scan, size ✅; `db:schema:check` ✅ after `db:reset` (the local DB had applied an
-earlier 0021 snapshot — local only); **local misses known from before:** Lighthouse app cold LCP 2.85 s > 2.5 s and
-motion perf long tasks on push / swipe — both passed on CI for `a30f9f8`; judge them on the Phase 05 CI run.
+**Done now:** owner answered O46 (yes to a–d) → **#161 / F69 built**: UPI change requests by owners only
+(`PAYMENT_OWNER_ONLY` 403), other owners alerted (`payment_request_owner`), every owner alerted on approval / rejection
+/ activation, removal or session / passkey revocation closes the admin's open request in the same transaction
+(`reject_code: requester_removed`, migration `0022_payment_reject_code`, B8 text ×4). F68 → Phase 8, F70 → Phase 9.
 
-**Next:** CI results (above) → owner O46 (a–d) → F69 (L2/L3) if accepted → re-run `security-reviewer` on R1 →
-report final → O43 → staging → O28 ₹1 tests → AWAITING OWNER VERIFICATION.
+**Next (Phase 05 close-out):** security-reviewer re-run on R1 (#161 diff) → push `feat/phase-05` to `ci/phase-05`
+and act on CI → `pnpm verify` → report final → merge Phase 05 into `main` → mark Phase 05 `DONE — owner checks
+pending` (O43 Atlas roles + staging deploy, O28 ₹1 tests, O45, guide 5.1–5.20) → **start Phase 06** (bayan videos).
 
 **Earlier update the same day:**
 - **`main` = `a30f9f8`** (test-only: the deploy-test annotation + voice spec fix, built on `de50397` with a temporary
@@ -553,8 +547,8 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O27 | **Phase 03 checks on staging** (`owner/PHASE_TESTING_GUIDE.md` → Phase 03) | Phase 03 DONE | 45 min | **OK — owner, 10 Nov 2026** (photos / voice wait for O25) |
 | O28 | **UPI ID for a ₹1 test** | Phase 05 exit | 5 min | Phase 05 |
 | O44 | **Two answers (12 Nov 2026):** (a) #159 — the Super Admin's phone keeps getting alerts for **30 days** after the admin app was last used on it (sign-out stops them at once): OK, or shorter? (b) #158 — "Log this in My zakat?" is asked only after paying a person the masjid marked **zakat-eligible**: OK, or ask for everyone? | F65 / T5.9 defaults stand until answered | 2 answers | open — not blocking |
-| O47 | **GitHub Actions jobs not starting** (12 Nov 2026): `main` `1f051fa` — unit, typecheck/lint and the build/e2e/Lighthouse/visual job passed; Security scans, Integration tests and CodeQL never left *queued*, run marked failed; `ci/phase-05` runs queued for hours; githubstatus green; repo public. Owner checks Billing / Actions notices, then **Re-run failed jobs** on `main` | F61 to staging (by 15 Nov) and every CI result | 5 min | open — asked 12 Nov 2026 |
-| O46 | **Phase 05 security decisions** (#160): (a) UPI change requests by owners only + alert every owner (L2 / F69); (b) refuse photos with a QR code (M2 image / F68); (c) live UPI details writable only by the worker, Phase 9 (L5 / F70); (d) acknowledge consent → 400 not 422 (#156) | R1 exit criterion | 5 min | open — asked 12 Nov 2026 |
+| ~~O47~~ | GitHub Actions jobs stayed queued (12 Nov 2026) — **solved**: billing fine (public repo, $0); an empty commit `a6f2969` on `main` started a fresh run that got machines | – | – | ✅ 12 Nov 2026 |
+| ~~O46~~ | Phase 05 security decisions (#160) — **owner: yes to (a)–(d)** → DECISIONS #161 | – | – | ✅ 12 Nov 2026 |
 | O45 | **Open the admin app once on each phone that should get alerts** (after Phase 05 is on staging) | F65: older alert subscriptions are no longer used; opening the app links the phone again | 1 min | before O38's alert checks on the Phase 05 build |
 | O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | Phase 07 (map-tile decision dropped — #118) |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
@@ -839,9 +833,9 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F65 | Review M2 rest (DECISIONS #142, #144) | ~~Admin alerts keep arriving after a session ends~~ — **closed 12 Nov 2026 (#159)**: every subscription hangs on the session that saved it (`session_id`, migration 0020); `getAlertTargets` skips phones whose session is revoked or expired (Super Admin: not used for 30 days); ending one session deletes its subscriptions; `retention` prunes the rest. Original text: Link each admin push subscription to its session (or have `getAlertTargets` require a live session), so revoking one session (another device) **or a session expiring** stops that phone's alerts too | **Before Phase 5's first alert to masjid admins** ("UPI change approved"); today masjid admins receive only test alerts (#144) |
 | F66 | Audit 11 Nov 2026 H1 (DECISIONS #153) | `defineRoute`: a default per-IP rate limit for routes that declare none (44 GET routes today rely on the CDN cache or the session alone); keep explicit rules as they are | Phase 9 T9.1 |
 | F67 | Security review M4 (DECISIONS #160) | Purge the CDN tag `m-<masjidId>` when a needy person is closed, removed or purged (the list is cached one day until then) | Phase 8 (CDN purge job) |
-| F68 | Security review M2, image part (#160) — **owner decision** | Refuse drive covers / notice photos that contain a QR code (maintained server-side decoder, e.g. `zxing-wasm`), or accept the risk | Owner answer (O46); then Phase 8 with moderation |
-| F69 | Security review L2, L3 (#160) — **owner decision for L2** | UPI change requests by masjid `owner`s only; alert every owner on request and approval; revoking / removing an admin rejects their open request in the same transaction | Owner answer (O46); before Phase 05 is DONE if accepted |
-| F70 | Security review L5, L7, L9 (#160) | Live UPI details in a collection only `mc_system` writes; needy ciphertext bound to the person (associated data with the id); lint rule against raw `.collection(` in `repos/` | Phase 9 hardening |
+| F68 | Security review M2, image part (#160) — **accepted by the owner (#161)** | Refuse drive covers / notice photos that contain a QR code (maintained server-side decoder, e.g. `zxing-wasm`, own DECISIONS entry with size + CVE check) | Phase 8, with moderation |
+| ~~F69~~ | Security review L2, L3 (#160) | ✅ **Done 12 Nov 2026 (#161)** — owners only (`PAYMENT_OWNER_ONLY`), every owner alerted (`payment_request_owner` + decisions + activation), removal / revocation closes the open request (`reject_code`, migration 0022) | – |
+| F70 | Security review L5, L7, L9 (#160) — **accepted by the owner (#161)** | Live UPI details in a collection only `mc_system` writes; needy ciphertext bound to the person (associated data with the id); lint rule against raw `.collection(` in `repos/` | Phase 9 hardening |
 | F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
 
 ## Session log (newest first, one line each)

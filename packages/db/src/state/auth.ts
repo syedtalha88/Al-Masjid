@@ -12,6 +12,7 @@ import type { Scope } from '../scope.ts';
 import { newId } from '../values.ts';
 import { INVITE_TTL_MS, type InvitePurpose } from './admins.ts';
 import { STEP_UP_WINDOW_MS } from './guards.ts';
+import { closeRequestsOfRemovedAdmin } from './payment.ts';
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -602,6 +603,11 @@ export async function revokeSessions(
           { admin_id: adminId, ...(input.sessionId ? { session_id: input.sessionId } : {}) },
           { session: ctx.session },
         );
+    // Review #161 L1: shutting a session out (not a plain logout) stops a UPI change asked for from it — from any of
+    // them when signing out everywhere.
+    if (result.modifiedCount > 0 && input.reason !== 'logout') {
+      await closeRequestsOfRemovedAdmin(ctx, { adminId, sessionId: input.sessionId, requestId: input.requestId, now });
+    }
     const requestId = input.requestId ? { requestId: input.requestId } : {};
     if (result.modifiedCount > 0) {
       await writeAudit(

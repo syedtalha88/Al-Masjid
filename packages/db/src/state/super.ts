@@ -7,6 +7,7 @@ import { contentWrite, StateError, writeAudit } from '../effects.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { requireSuper } from './guards.ts';
+import { closeRequestsOfRemovedAdmin } from './payment.ts';
 
 /** Masjid fields the Super Admin edits through `PATCH /masjids/:id` (status/code/counters never — 04 §5). */
 export interface MasjidPatch {
@@ -116,6 +117,8 @@ export async function revokeAdminSessions(
     await ctx.db
       .collection<{ admin_id: UUID }>('admin_push_subscriptions')
       .deleteMany({ admin_id: input.adminId }, { session: ctx.session });
+    // Review L3 (#161): a UPI change asked for from a session being shut out never goes live.
+    await closeRequestsOfRemovedAdmin(ctx, { adminId: input.adminId, requestId: input.requestId, now });
     await writeAudit(ctx, {
       action: 'session.revoke',
       targetType: 'admin',
@@ -158,6 +161,7 @@ export async function revokeAdminPasskeys(
     await ctx.db
       .collection<{ admin_id: UUID }>('admin_push_subscriptions')
       .deleteMany({ admin_id: input.adminId }, session);
+    await closeRequestsOfRemovedAdmin(ctx, { adminId: input.adminId, requestId: input.requestId, now }); // #161
     const requestId = input.requestId ? { requestId: input.requestId } : {};
     await writeAudit(ctx, {
       action: 'credential.revoke',

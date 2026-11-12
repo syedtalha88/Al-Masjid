@@ -22,6 +22,7 @@ const ALERT_PATH: Readonly<Record<AdminAlertPayload['type'], string>> = {
   push_job_stuck: '/super',
   test: '/',
   payment_request: '/super/payments',
+  payment_request_owner: '/profile',
   payment_approved: '/payment',
   payment_rejected: '/payment',
   payment_active: '/payment',

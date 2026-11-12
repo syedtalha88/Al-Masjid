@@ -28,6 +28,8 @@ export interface PaymentRequestRow {
   readonly reviewedAt?: string;
   readonly effectiveAt?: string;
   readonly rejectReason?: string;
+  /** Closed without a decision: the admin who asked was removed or shut out (DECISIONS #161). */
+  readonly rejectCode?: 'requester_removed';
 }
 
 const iso = (doc: Document, key: string): string | undefined => {
@@ -46,6 +48,7 @@ const requestOf = (doc: Document): PaymentRequestRow => {
   const reviewedAt = iso(doc, 'reviewed_at');
   const effectiveAt = iso(doc, 'effective_at');
   const rejectReason = text(doc, 'reject_reason');
+  const rejectCode = text(doc, 'reject_code') === 'requester_removed' ? 'requester_removed' : undefined;
   return {
     id: idText(doc['_id'] as UUID), // a UUID by schema
     status: doc['status'] as PaymentRequestStatus, // the caller's filter
@@ -56,6 +59,7 @@ const requestOf = (doc: Document): PaymentRequestRow => {
     ...(reviewedAt === undefined ? {} : { reviewedAt }),
     ...(effectiveAt === undefined ? {} : { effectiveAt }),
     ...(rejectReason === undefined ? {} : { rejectReason }),
+    ...(rejectCode === undefined ? {} : { rejectCode }),
   };
 };
 
@@ -82,7 +86,10 @@ export async function getAdminPayment(
   // A rejection decided after the live details went live is news for the admin; an older one is history.
   const liveSince = active ? iso(active, 'effective_at') : undefined;
   const recentRejection =
-    rejected && (liveSince === undefined || (iso(rejected, 'reviewed_at') ?? '') >= liveSince) ? rejected : undefined;
+    rejected &&
+    (liveSince === undefined || (iso(rejected, 'reviewed_at') ?? iso(rejected, 'updated_at') ?? '') >= liveSince)
+      ? rejected
+      : undefined; // a request closed without a review (#161) counts from its closing
   const request = open ?? recentRejection;
   return { active: active ? liveOf(active) : null, request: request ? requestOf(request) : null };
 }

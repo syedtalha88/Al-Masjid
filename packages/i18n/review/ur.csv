@@ -591,9 +591,11 @@ admin,payment.missing,Still needed: {fields},ابھی چاہیے: {fields},no
 admin,payment.issue.vpa,a valid UPI ID,درست UPI ID,no
 admin,payment.issue.payee,the payee name,وصول کنندہ کا نام,no
 admin,payment.waiting,A change is waiting. You can ask again once it is decided.,ایک تبدیلی انتظار میں ہے۔ اس کا فیصلہ ہونے کے بعد دوبارہ درخواست کر سکتے ہیں۔,no
+admin,payment.ownerOnly,"Only an owner of the masjid can change the UPI details. Ask the owner, or the Super Admin.",UPI تفصیلات صرف مسجد کے مالک بدل سکتے ہیں۔ مالک یا سپر ایڈمن سے کہیں۔,no
 admin,payment.status.pending,Requested — waiting for approval,درخواست بھیجی — منظوری کا انتظار,no
 admin,payment.status.approved_on_hold,Approved — goes live {time},منظور — {time} سے نافذ,no
 admin,payment.status.rejected,Not approved: {reason},منظور نہیں: {reason},no
+admin,payment.status.requester_removed,Stopped — the admin who asked no longer has access. An owner can ask again.,روک دیا گیا — درخواست کرنے والے ایڈمن کی رسائی اب نہیں ہے۔ مالک دوبارہ درخواست کر سکتے ہیں۔,no
 admin,payment.step.requested,Requested,درخواست,no
 admin,payment.step.approved,Approved,منظور,no
 admin,payment.step.live,Live,نافذ,no
@@ -1157,11 +1159,13 @@ errors,CONTACT_LIMIT_REACHED,You can list up to 10 contacts. Remove one to add a
 errors,PUSH_ENDPOINT_IN_USE,Notifications could not be turned on on this phone. Please try again.,اس فون پر اطلاعات آن نہیں ہو سکیں۔ براہِ کرم دوبارہ کوشش کریں۔,no
 errors,PAYMENT_INVALID,"Check the UPI ID and the payee name, then try again.",UPI ID اور وصول کنندہ کا نام چیک کریں، پھر دوبارہ کوشش کریں۔,no
 errors,PAYMENT_UNCHANGED,These are already the payment details shown to everyone.,یہی ادائیگی کی تفصیلات پہلے سے سب کو دکھ رہی ہیں۔,no
+errors,PAYMENT_OWNER_ONLY,Only an owner of the masjid can ask to change the UPI details.,UPI تفصیلات بدلنے کی درخواست صرف مسجد کے مالک کر سکتے ہیں۔,no
 errors,PAYMENT_REQUEST_OPEN,A change is already waiting. You can ask again once it is decided.,ایک تبدیلی پہلے سے انتظار میں ہے۔ اس کا فیصلہ ہونے کے بعد دوبارہ درخواست کریں۔,no
 errors,PAYMENT_NOTICE_UNAVAILABLE,"Activate the “Payment details updated” notice template first, so followers are told about the change.",پہلے “ادائیگی کی تفصیلات بدل گئیں” نوٹس ٹیمپلیٹ فعال کریں، تاکہ فالوورز کو تبدیلی کا پتہ چلے۔,no
 errors,PAYMENT_DETAILS_IN_TEXT,Please remove the UPI ID or payment link from the text. Followers pay only to the masjid's verified UPI details.,براہ کرم متن سے UPI ID یا ادائیگی کا لنک ہٹا دیں۔ فالوورز صرف مسجد کی تصدیق شدہ UPI تفصیلات پر ادائیگی کرتے ہیں۔,no
 errors,PAYMENT_NOT_FOUND,This payment request no longer exists.,یہ ادائیگی کی درخواست اب موجود نہیں ہے۔,no
 errors,PAYMENT_NOT_PENDING,This request was already decided.,اس درخواست کا فیصلہ پہلے ہی ہو چکا ہے۔,no
+errors,PAYMENT_REQUESTER_REMOVED,"The admin who asked no longer has access, so this request was stopped.",درخواست کرنے والے ایڈمن کی رسائی اب نہیں ہے، اس لیے یہ درخواست روک دی گئی۔,no
 errors,PAYMENT_NOT_OPEN,This request is already live or closed.,یہ درخواست پہلے سے نافذ ہے یا بند ہو چکی ہے۔,no
 errors,ITEM_LOCKED,This notice was sent by the app and cannot be changed or deleted.,یہ اطلاع ایپ نے بھیجی ہے، اسے بدلا یا ہٹایا نہیں جا سکتا۔,no
 errors,CAMPAIGN_INVALID,"Check the title, the target (at least ₹1,000) and the dates, then try again.","عنوان، ہدف (کم از کم ₹1,000) اور تاریخیں چیک کریں، پھر کوشش کریں۔",no
@@ -1310,12 +1314,14 @@ push,alert.super_passkey_added.title,New passkey on a Super Admin account,سپر
 push,alert.super_passkey_added.body,"A passkey was just added to a Super Admin account. If this wasn't you, remove it in Account now.",ابھی ایک سپر ایڈمن اکاؤنٹ میں پاس کی شامل کی گئی۔ اگر یہ آپ نہیں تھے تو ابھی اکاؤنٹ میں اسے ہٹا دیں۔,no
 push,alert.payment_request.title,UPI change requested,UPI تبدیلی کی درخواست,no
 push,alert.payment_request.body,A masjid asked to change its UPI payment details. Review it in Payment approvals.,ایک مسجد نے اپنی UPI ادائیگی کی تفصیلات بدلنے کی درخواست کی ہے۔ ادائیگی کی منظوری میں دیکھیں۔,no
+push,alert.payment_request_owner.title,UPI change asked for your masjid,آپ کی مسجد کی UPI تبدیلی کی درخواست,no
+push,alert.payment_request_owner.body,"An owner of your masjid asked to change its UPI details. If you don't know about it, tell the Super Admin now.",آپ کی مسجد کے ایک مالک نے UPI تفصیلات بدلنے کی درخواست کی ہے۔ اگر آپ کو اس کا علم نہیں ہے تو ابھی سپر ایڈمن کو بتائیں۔,no
 push,alert.payment_approved.title,UPI change approved,UPI تبدیلی منظور,no
-push,alert.payment_approved.body,Your new UPI details were approved. They go live after the waiting period.,آپ کی نئی UPI تفصیلات منظور ہو گئیں۔ انتظار کی مدت کے بعد یہ نافذ ہوں گی۔,no
+push,alert.payment_approved.body,"A UPI change for your masjid was approved. It goes live after the waiting period. If you didn't ask for it, tell the Super Admin now.",آپ کی مسجد کی ایک UPI تبدیلی منظور ہوئی۔ یہ انتظار کی مدت کے بعد نافذ ہوگی۔ اگر آپ نے یہ درخواست نہیں کی تو ابھی سپر ایڈمن کو بتائیں۔,no
 push,alert.payment_rejected.title,UPI change not approved,UPI تبدیلی منظور نہیں,no
 push,alert.payment_rejected.body,Your UPI change was not approved. Open Payment to see why.,آپ کی UPI تبدیلی منظور نہیں ہوئی۔ وجہ دیکھنے کے لیے ادائیگی کھولیں۔,no
 push,alert.payment_active.title,New UPI details are live,نئی UPI تفصیلات نافذ,no
-push,alert.payment_active.body,Your new UPI details are now shown to everyone. Followers were told.,آپ کی نئی UPI تفصیلات اب سب کو دکھ رہی ہیں۔ فالوورز کو اطلاع دے دی گئی۔,no
+push,alert.payment_active.body,"Your masjid's new UPI details are now shown to everyone, and followers were told. If you didn't ask for this, tell the Super Admin now.",آپ کی مسجد کی نئی UPI تفصیلات اب سب کو دکھ رہی ہیں اور فالوورز کو بتا دیا گیا۔ اگر آپ نے یہ درخواست نہیں کی تو ابھی سپر ایڈمن کو بتائیں۔,no
 settings,language,Language,زبان,no
 settings,languageSheet,Choose your language,اپنی زبان منتخب کریں,no
 settings,audience,Brother / Sister,بھائی / بہن,no

@@ -33,6 +33,18 @@ const session = (ctx: TxContext) => ({ session: ctx.session });
 const isDuplicateKey = (error: unknown) => error instanceof MongoServerError && error.code === 11000;
 const audit = (requestId: string | undefined) => (requestId ? { requestId } : {});
 
+/**
+ * The masjid's owners (≤ 5 admins per masjid) — every one of them hears about a UPI change (DECISIONS #161, F69).
+ * Disabled or removed admins are skipped later by the alert targets.
+ */
+async function ownersOf(ctx: TxContext, masjidId: UUID): Promise<UUID[]> {
+  const owners = await ctx.db
+    .collection<{ admin_id: UUID }>('masjid_admins')
+    .find({ masjid_id: masjidId, role: 'owner' }, { ...session(ctx), projection: { admin_id: 1 } })
+    .toArray();
+  return owners.map((owner) => owner.admin_id);
+}
+
 /** The masjid as a change request needs it: exists, not suspended or deleted. */
 async function requestableMasjid(ctx: TxContext, masjidId: UUID): Promise<{ visible: boolean }> {
   const masjid = await ctx.db.collection<ProfileDoc>('masjids').findOne({ _id: masjidId }, session(ctx));
@@ -42,13 +54,16 @@ async function requestableMasjid(ctx: TxContext, masjidId: UUID): Promise<{ visi
 }
 
 /**
- * An admin asks to set or change the masjid's UPI details (07 B8). Nothing becomes public: the request waits for the
- * Super Admin. The VPA is normalized (handle lowercased), the payee name cleaned like the link builder cleans it.
+ * A masjid **owner** asks to set or change the masjid's UPI details (07 B8; owners only — DECISIONS #161, F69). Nothing
+ * becomes public: the request waits for the Super Admin. The VPA is normalized (handle lowercased), the payee name
+ * cleaned like the link builder cleans it.
  *
- * @returns the request's id.
+ * @param input.sessionId - the admin session asking (stored: revoking that session stops the request — review #161 L1).
+ * @returns the request's id and the masjid's owners — every one is alerted, the requester too (their other phones are
+ *   exactly who should hear about a hijacked session — review #161 L2).
  * @throws StateError MASJID_NOT_FOUND (not this admin's masjid, not an admin scope, a suspended or deleted masjid),
- *   PAYMENT_INVALID (VPA, payee name 1–100 or note ≤ 300), PAYMENT_UNCHANGED (same as the active details),
- *   PAYMENT_REQUEST_OPEN (a request is already pending or on hold — also when requests race).
+ *   PAYMENT_OWNER_ONLY (an editor), PAYMENT_INVALID (VPA, payee name 1–100 or note ≤ 300), PAYMENT_UNCHANGED (same
+ *   as the active details), PAYMENT_REQUEST_OPEN (a request is already pending or on hold — also when requests race).
  */
 export async function requestPaymentChange(
   handle: DbHandle,
@@ -58,12 +73,16 @@ export async function requestPaymentChange(
     readonly vpa: string;
     readonly payeeName: string;
     readonly note?: string | undefined;
+    readonly sessionId?: UUID | undefined;
     readonly requestId?: string | undefined;
     readonly now?: Date | undefined;
   },
-): Promise<{ id: string }> {
+): Promise<{ id: string; ownerIds: UUID[] }> {
   requireOwnMasjid(scope, input.masjidId);
   if (scope.kind !== 'admin') throw new StateError('FORBIDDEN');
+  // Review L2: an editor's session — the weaker link — cannot redirect the masjid's donations.
+  const membership = scope.masjids.find((masjid) => masjid.id.equals(input.masjidId));
+  if (membership?.role !== 'owner') throw new StateError('PAYMENT_OWNER_ONLY');
   const vpa = normalizeVpa(input.vpa);
   const payeeName = cleanUpiText(input.payeeName);
   const note = input.note?.trim() ?? '';
@@ -73,7 +92,7 @@ export async function requestPaymentChange(
   const now = input.now ?? new Date();
   const id = newId();
 
-  await withTransaction(handle, scope, async (ctx) => {
+  return withTransaction(handle, scope, async (ctx) => {
     const { visible } = await requestableMasjid(ctx, input.masjidId);
     if (await profiles(ctx).findOne({ masjid_id: input.masjidId, open: true }, session(ctx))) {
       throw new StateError('PAYMENT_REQUEST_OPEN');
@@ -90,6 +109,7 @@ export async function requestPaymentChange(
           status: 'pending',
           open: true,
           requested_by: scope.adminId,
+          ...(input.sessionId ? { requested_session: input.sessionId } : {}),
           ...(note === '' ? {} : { request_note: note }),
           masjid_visible: visible,
           created_at: now,
@@ -109,8 +129,8 @@ export async function requestPaymentChange(
       targetId: idText(id),
       ...audit(input.requestId),
     });
+    return { id: idText(id), ownerIds: await ownersOf(ctx, input.masjidId) };
   });
-  return { id: idText(id) };
 }
 
 /**
@@ -134,9 +154,11 @@ async function missOf(ctx: TxContext, profileId: UUID, wrongState: string): Prom
  * ★ The Super Admin approves a pending request (C4): it goes live `holdMinutes` later, by the activation job.
  *
  * @param input.holdMinutes - env `PAYMENT_HOLD_MINUTES` (≥ 1440 in production, checked at boot).
- * @returns the masjid, the requesting admin (for the alert) and when the details go live.
+ * @returns the masjid, the requesting admin, the masjid's owners (every owner is alerted — #161) and when the details
+ *   go live.
  * @throws StateError FORBIDDEN (not the Super Admin), STEP_UP_REQUIRED, PAYMENT_NOT_FOUND, PAYMENT_NOT_PENDING,
- *   PAYMENT_NOTICE_UNAVAILABLE (the "Payment details updated" template is not active — followers would not be told);
+ *   PAYMENT_REQUESTER_REMOVED (the requester is no longer an active owner, or their session was shut out — the request
+ *   is closed instead, review #161 L1), PAYMENT_NOTICE_UNAVAILABLE (the "Payment details updated" template is not active — followers would not be told);
  *   RangeError for a hold that is not a positive whole number of minutes.
  */
 export async function approvePaymentChange(
@@ -148,15 +170,22 @@ export async function approvePaymentChange(
     readonly requestId?: string | undefined;
     readonly now?: Date | undefined;
   },
-): Promise<{ masjidId: UUID; requestedBy: UUID; effectiveAt: Date }> {
+): Promise<{ masjidId: UUID; requestedBy: UUID; ownerIds: UUID[]; effectiveAt: Date }> {
   const now = input.now ?? new Date();
   const reviewer = requireSuper(scope, { stepUp: true, now });
   if (!Number.isSafeInteger(input.holdMinutes) || input.holdMinutes < 1) {
     throw new RangeError('approvePaymentChange(): holdMinutes must be a positive integer');
   }
   const effectiveAt = new Date(now.getTime() + input.holdMinutes * 60_000);
-  return withTransaction(handle, scope, async (ctx) => {
+  const result = await withTransaction(handle, scope, async (ctx) => {
     if (!(await noticeTemplateActive(ctx))) throw new StateError('PAYMENT_NOTICE_UNAVAILABLE');
+    const pending = await profiles(ctx).findOne({ _id: input.profileId, status: 'pending' }, session(ctx));
+    // Review #161 L1: the rule is enforced where it decides — a request whose admin lost access in the instant it was
+    // made (a removal that committed alongside it) is closed here, not approved.
+    if (pending && (await requesterGone(ctx, pending))) {
+      await closeAsRemoved(ctx, pending, now, input.requestId);
+      return null;
+    }
     const doc = await profiles(ctx).findOneAndUpdate(
       { _id: input.profileId, status: 'pending' },
       {
@@ -180,15 +209,18 @@ export async function approvePaymentChange(
       meta: { hold_minutes: input.holdMinutes },
       ...audit(input.requestId),
     });
-    return { masjidId, requestedBy: doc['requested_by'] as UUID, effectiveAt }; // a UUID by schema
+    const requestedBy = doc['requested_by'] as UUID; // a UUID by schema
+    return { masjidId, requestedBy, ownerIds: await ownersOf(ctx, masjidId), effectiveAt };
   });
+  if (result === null) throw new StateError('PAYMENT_REQUESTER_REMOVED');
+  return result;
 }
 
 /**
  * The Super Admin turns a request down (C4) — while pending, or during the hold to stop a change that turned out to
  * be wrong (DECISIONS #146). The masjid may then request again.
  *
- * @returns the masjid and the requesting admin (for the alert).
+ * @returns the masjid, the requesting admin and the masjid's owners (for the alerts).
  * @throws StateError FORBIDDEN, PAYMENT_INVALID (reason empty or over 300), PAYMENT_NOT_FOUND, PAYMENT_NOT_OPEN
  *   (already active, rejected or superseded).
  */
@@ -201,7 +233,7 @@ export async function rejectPaymentChange(
     readonly requestId?: string | undefined;
     readonly now?: Date | undefined;
   },
-): Promise<{ masjidId: UUID; requestedBy: UUID }> {
+): Promise<{ masjidId: UUID; requestedBy: UUID; ownerIds: UUID[] }> {
   const reviewer = requireSuper(scope);
   const reason = input.reason.trim();
   if (reason.length < 1 || reason.length > 300) throw new StateError('PAYMENT_INVALID');
@@ -231,14 +263,97 @@ export async function rejectPaymentChange(
       meta: { from: doc['status'] },
       ...audit(input.requestId),
     });
-    return { masjidId, requestedBy: doc['requested_by'] as UUID }; // a UUID by schema
+    const requestedBy = doc['requested_by'] as UUID; // a UUID by schema
+    return { masjidId, requestedBy, ownerIds: await ownersOf(ctx, masjidId) };
   });
+}
+
+/** Session revocations that keep a request alive: an owner may sign out after asking. Every other reason stops it. */
+const KEEPS_REQUEST = 'logout';
+
+/**
+ * Review #161 L1: is the request's admin no longer entitled to it — not an active admin, no longer an owner of the
+ * masjid, or the session that asked shut out (revoked for any reason but a plain logout)?
+ */
+async function requesterGone(ctx: TxContext, profile: ProfileDoc): Promise<boolean> {
+  const adminId = profile['requested_by'] as UUID; // a UUID by schema
+  const membership = await ctx.db
+    .collection<{ masjid_id: UUID }>('masjid_admins')
+    .findOne({ masjid_id: profile['masjid_id'] as UUID, admin_id: adminId, role: 'owner' }, session(ctx));
+  if (!membership) return true;
+  const admin = await ctx.db.collection<ProfileDoc>('admin_users').findOne({ _id: adminId }, session(ctx));
+  if (admin?.['status'] !== 'active') return true;
+  const asked = profile['requested_session'];
+  if (asked === undefined) return false; // requests from before #161 carry no session
+  const origin = await ctx.db.collection<ProfileDoc>('admin_sessions').findOne({ _id: asked as UUID }, session(ctx));
+  if (!origin) return true;
+  return origin['revoked_at'] !== undefined && origin['revoked_reason'] !== KEEPS_REQUEST;
+}
+
+/** Closes one open request as `requester_removed` (audited); false when it was no longer open. */
+async function closeAsRemoved(
+  ctx: TxContext,
+  doc: ProfileDoc,
+  now: Date,
+  requestId: string | undefined,
+): Promise<boolean> {
+  const closed = await profiles(ctx).updateOne(
+    { _id: doc._id, open: true },
+    { $set: { status: 'rejected', open: false, reject_code: 'requester_removed', updated_at: now } },
+    session(ctx),
+  );
+  if (closed.modifiedCount !== 1) return false;
+  await writeAudit(ctx, {
+    action: 'payment.reject',
+    masjidId: doc['masjid_id'] as UUID, // a UUID by schema
+    targetType: 'payment_profiles',
+    targetId: idText(doc._id),
+    meta: { from: doc['status'], code: 'requester_removed' },
+    ...audit(requestId),
+  });
+  return true;
+}
+
+/**
+ * Review #160 L3 / #161 (F69): when an admin is removed from a masjid, the Super Admin revokes their sessions or
+ * passkeys, or the admin shuts out one or all of their own sessions, their open UPI requests close in the same
+ * transaction — a change asked for from a session that is being shut out must not go live. (Approval and activation
+ * check the requester again for a request that committed alongside the removal.) Runs inside the caller's transaction;
+ * audited per request with the caller's request id.
+ *
+ * @param masjidId - only this masjid's request (removal from one masjid); every masjid when omitted.
+ * @param sessionId - only the request made from this session (one session revoked); all of the admin's when omitted.
+ * @returns how many requests were closed.
+ */
+export async function closeRequestsOfRemovedAdmin(
+  ctx: TxContext,
+  input: {
+    readonly adminId: UUID;
+    readonly masjidId?: UUID | undefined;
+    readonly sessionId?: UUID | undefined;
+    readonly requestId?: string | undefined;
+    readonly now: Date;
+  },
+): Promise<number> {
+  const filter = {
+    requested_by: input.adminId,
+    open: true,
+    ...(input.masjidId ? { masjid_id: input.masjidId } : {}),
+    ...(input.sessionId ? { requested_session: input.sessionId } : {}),
+  };
+  let closed = 0;
+  for (const doc of await profiles(ctx).find(filter, session(ctx)).toArray()) {
+    if (await closeAsRemoved(ctx, doc, input.now, input.requestId)) closed += 1;
+  }
+  return closed;
 }
 
 export interface PaymentActivation {
   readonly masjidId: UUID;
   readonly profileId: UUID;
   readonly requestedBy: UUID;
+  /** The masjid's owners — every one is told the new details are live (DECISIONS #161). */
+  readonly ownerIds: UUID[];
   /** The notice's outbox job (`null` when the masjid is not public, so nobody is told). */
   readonly noticeJobId: string | null;
 }
@@ -255,6 +370,8 @@ export interface PaymentActivationRun {
    * template is not active. They go live, with the notice, on a later run.
    */
   readonly heldBack: UUID[];
+  /** Due but closed instead: the requester lost access (review #161 L1). They never go live. */
+  readonly stopped: UUID[];
 }
 
 /**
@@ -284,18 +401,21 @@ export async function activateDuePaymentProfiles(
     .toArray();
   const done: PaymentActivation[] = [];
   const heldBack: UUID[] = [];
+  const stopped: UUID[] = [];
   for (const profile of due) {
     try {
-      done.push(await withTransaction(handle, scope, (ctx) => activateOne(ctx, profile, now)));
+      const outcome = await withTransaction(handle, scope, (ctx) => activateOne(ctx, profile, now));
+      if (outcome === 'stopped') stopped.push(profile._id);
+      else done.push(outcome);
     } catch (error) {
       if (error instanceof HeldBack) heldBack.push(profile._id);
       else if (!(error instanceof AlreadyActivated)) throw error;
     }
   }
-  return { activated: done, heldBack };
+  return { activated: done, heldBack, stopped };
 }
 
-async function activateOne(ctx: TxContext, profile: ProfileDoc, now: Date): Promise<PaymentActivation> {
+async function activateOne(ctx: TxContext, profile: ProfileDoc, now: Date): Promise<PaymentActivation | 'stopped'> {
   const masjidId = profile['masjid_id'] as UUID; // a UUID by schema
   const masjid = await ctx.db.collection<ProfileDoc>('masjids').findOne({ _id: masjidId }, session(ctx));
   // Review L1: a suspended masjid's followers cannot be told now — and would see the new UPI ID without a notice once
@@ -303,6 +423,11 @@ async function activateOne(ctx: TxContext, profile: ProfileDoc, now: Date): Prom
   if (masjid?.['status'] === 'suspended') throw new HeldBack();
   const visible = masjid?.['status'] === 'active';
   if (visible && !(await noticeTemplateActive(ctx))) throw new HeldBack(); // review M1: never a silent change
+  // Review #161 L1: checked again at the last moment — a requester who lost access never gets a change live.
+  if (await requesterGone(ctx, profile)) {
+    if (!(await closeAsRemoved(ctx, profile, now, undefined))) throw new AlreadyActivated();
+    return 'stopped';
+  }
   await profiles(ctx).updateMany(
     { masjid_id: masjidId, status: 'active' },
     { $set: { status: 'superseded', updated_at: now } },
@@ -363,6 +488,7 @@ async function activateOne(ctx: TxContext, profile: ProfileDoc, now: Date): Prom
     masjidId,
     profileId: profile._id,
     requestedBy: profile['requested_by'] as UUID, // a UUID by schema
+    ownerIds: await ownersOf(ctx, masjidId),
     noticeJobId: jobId,
   };
 }

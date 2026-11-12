@@ -1,8 +1,8 @@
-// PHASE_05 T5.2 (API) — the UPI change-lock over HTTP against a migrated MongoDB as api-admin's own database user: the
-// admin requests (400 for a bad VPA, 409 for a second open request; the Super Admin is alerted), the Super Admin lists,
-// approves ★ (403 without a fresh step-up; the requester is alerted; live after PAYMENT_HOLD_MINUTES) or rejects; the
-// worker's `payment-activate` run puts the details live, starts the notice's fan-out and alerts the requester; the
-// notice cannot be deleted (409 ITEM_LOCKED). Fake VPAs only.
+// PHASE_05 T5.2 (API) — the UPI change-lock over HTTP against a migrated MongoDB as api-admin's own database user: an
+// owner requests (an editor gets 403 — #161; 400 for a bad VPA, 409 for a second open request; the Super Admin and every
+// owner are alerted), the Super Admin lists, approves ★ (403 without a fresh step-up; every owner is alerted; live
+// after PAYMENT_HOLD_MINUTES) or rejects; the worker's `payment-activate` run puts the details live, starts the notice's
+// fan-out and alerts every owner; the notice cannot be deleted (409 ITEM_LOCKED). Fake VPAs only.
 import { randomUUID } from 'node:crypto';
 
 import { parseId } from '@mc/db';
@@ -34,6 +34,9 @@ const { app, asSuper, stepUp, register, testDatabase, clock, activatePaymentNoti
 let masjidId = '';
 let adminCookie = '';
 let adminId = '';
+let secondOwnerId = '';
+let editorCookie = '';
+const owners = () => [adminId, secondOwnerId].sort(); // alerts list recipients in a stable order
 
 const offset = (jamaatOffsetMin: number) => ({
   adhanMode: 'auto',
@@ -94,9 +97,26 @@ beforeAll(async () => {
   });
   adminId = (admin.body as { adminId: string }).adminId;
   adminCookie = await register((admin.body as { inviteUrl: string }).inviteUrl);
+  // DECISIONS #161 (F69): a second owner (alerted, never signed in here) and an editor (refused).
+  const second = await asSuper('post', '/admins').send({
+    displayName: 'Test Mutawalli',
+    uiLocale: 'en',
+    masjidId,
+    role: 'owner',
+  });
+  secondOwnerId = (second.body as { adminId: string }).adminId;
+  const editor = await asSuper('post', '/admins').send({
+    displayName: 'Test Editor',
+    uiLocale: 'en',
+    masjidId,
+    role: 'editor',
+  });
+  editorCookie = await register((editor.body as { inviteUrl: string }).inviteUrl);
   const settings = await asSuper('get', '/settings');
   const version = (settings.body as { undertakingVersion: string }).undertakingVersion;
-  await request(app()).post('/api/admin/auth/undertaking').set(CSRF).set('Cookie', adminCookie).send({ version });
+  for (const cookie of [adminCookie, editorCookie]) {
+    await request(app()).post('/api/admin/auth/undertaking').set(CSRF).set('Cookie', cookie).send({ version });
+  }
   const timings = await request(app())
     .put(`/api/admin/masjids/${masjidId}/timings`)
     .set('Cookie', adminCookie)
@@ -115,6 +135,12 @@ describe('request → approve ★ → hold → live', () => {
   let requestId = '';
 
   it('the admin starts with nothing; a bad VPA is 400; a request is 201 and alerts the Super Admin', async () => {
+    const byEditor = await request(app())
+      .post(`/api/admin/masjids/${masjidId}/payment/requests`)
+      .set('Cookie', editorCookie)
+      .set(CSRF)
+      .send({ vpa: 'editor.try@okbank', payeeName: 'Test Committee' });
+    expect([byEditor.status, errorCode(byEditor)]).toEqual([403, 'PAYMENT_OWNER_ONLY']); // owners only (#161)
     const empty = await asAdmin('get', '/payment');
     expect(empty.status).toBe(200);
     expect(adminPaymentSchema.parse(empty.body)).toEqual({ active: null, request: null });
@@ -129,7 +155,11 @@ describe('request → approve ★ → hold → live', () => {
     });
     expect(created.status).toBe(201);
     requestId = (created.body as { id: string }).id;
-    expect(raised.at(-1)).toEqual({ type: 'payment_request', to: { kind: 'super' }, key: requestId });
+    expect(raised.slice(-2)).toEqual([
+      { type: 'payment_request', to: { kind: 'super' }, key: requestId },
+      // every owner — the requester's other phones too — never the editor (#161)
+      { type: 'payment_request_owner', to: { kind: 'admins', adminIds: owners() }, key: requestId },
+    ]);
     const again = await asAdmin('post', '/payment/requests').send({ vpa: 'other.vpa@okbank', payeeName: 'X' });
     expect([again.status, errorCode(again)]).toEqual([409, 'PAYMENT_REQUEST_OPEN']);
     const status = adminPaymentSchema.parse((await asAdmin('get', '/payment')).body);
@@ -160,7 +190,7 @@ describe('request → approve ★ → hold → live', () => {
     expect(approved.body).toEqual({ effectiveAt });
     expect(raised.at(-1)).toEqual({
       type: 'payment_approved',
-      to: { kind: 'admins', adminIds: [adminId] },
+      to: { kind: 'admins', adminIds: owners() }, // every owner (#161)
       key: requestId,
     });
     const twice = await asSuper('post', `/payments/${requestId}/approve`).send({});
@@ -181,7 +211,7 @@ describe('request → approve ★ → hold → live', () => {
     expect(enqueued.find((entry) => entry.name === 'alert-send')).toMatchObject({
       payload: {
         alertId: `payment_active.${requestId}`,
-        to: { kind: 'admins', adminIds: [adminId] },
+        to: { kind: 'admins', adminIds: owners() },
         alert: { type: 'payment_active' },
       },
     });
@@ -209,7 +239,11 @@ describe('request → approve ★ → hold → live', () => {
     expect(noReason.status).toBe(400);
     const rejected = await asSuper('post', `/payments/${id}/reject`).send({ reason: 'Payee name does not match' });
     expect(rejected.status).toBe(204);
-    expect(raised.at(-1)).toEqual({ type: 'payment_rejected', to: { kind: 'admins', adminIds: [adminId] }, key: id });
+    expect(raised.at(-1)).toEqual({
+      type: 'payment_rejected',
+      to: { kind: 'admins', adminIds: owners() },
+      key: id,
+    });
     const status = adminPaymentSchema.parse((await asAdmin('get', '/payment')).body);
     expect(status.request).toMatchObject({ id, status: 'rejected', rejectReason: 'Payee name does not match' });
     expect(status.active?.vpa).toBe('test.masjid@okbank');

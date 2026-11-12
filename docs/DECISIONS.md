@@ -2724,3 +2724,47 @@ T5.7 pass the 4-locale admin screenshots found two display bugs (Urdu amounts, a
 db `payment.int` (+2), `beneficiaries.int`, `campaigns.int` (+1), domain `upi` (+2), i18n `icu-format` (+2), api
 harness `activatePaymentNotice`. Follow-ups F67–F70. The R1 exit criterion now depends on the owner's answers to L2 /
 L5 (fix as recommended, or accept) — asked as O46.
+**Owner's answers (O46, 12 Nov 2026): yes to (a)–(d)** → #161.
+
+### #161 — O46 answered: UPI requests by owners only, every owner alerted; QR photos refused; Phase 9 hardening — ACCEPTED (owner, 12 Nov 2026)
+**Context:** #160 left four owner decisions (O46). The owner said yes to all of them.
+**Decision:**
+- **(a) F69 — security review L2 + L3, done now.** Only a masjid `owner` may ask to change the masjid's UPI details
+  (`requestPaymentChange` → `PAYMENT_OWNER_ONLY`, 403, text ×4; B8 shows an editor who to ask instead of the button).
+  The masjid's **other owners** get a new alert `payment_request_owner` ("UPI change asked for your masjid … if you
+  don't know about it, tell the Super Admin now", ×4, opens Masjid Profile); approval, rejection and activation alert
+  **every owner** and the requester (≤ 5 admins per masjid). Removing an admin from a masjid, or revoking their
+  sessions or passkeys, closes their open request **in the same transaction** — also during the hold — with
+  `reject_code: requester_removed` (migration `0022_payment_reject_code`; B8 says "Stopped — the admin who asked no
+  longer has access"); audited as `payment.reject` with `code`. No new collection, view or DB role (the worker and the
+  admin API already read `masjid_admins`), so **no Atlas change** beyond O43.
+- **(b) F68 — refuse photos that contain a QR code.** Accepted; built with the moderation work of Phase 8 (a maintained
+  server-side decoder such as `zxing-wasm`, its own DECISIONS entry with the size and CVE check). Until then the
+  moderation queue removes such posts. Tracked as F68 (now "accepted — Phase 8").
+- **(c) F70 — live UPI details writable only by the worker** (plus needy ciphertext bound to the person and the lint
+  rule for raw reads). Accepted for Phase 9 hardening.
+- **(d) Needy consent missing → 400** (#156) acknowledged.
+- **Security re-review of (a) (same day): 0 HIGH · 0 MEDIUM · 3 LOW + 1 nit — all fixed.** L1: a request committed in
+  the same instant as its admin's removal would have survived (no shared document) — approval and activation now check
+  the requester again inside their transaction (active admin, still an owner, the asking session not shut out); a
+  failed check closes the request (`PAYMENT_REQUESTER_REMOVED` 409 at approval, `stopped` in the activation run). The
+  request stores `requested_session`; revoking that session for any reason but a plain logout (an owner's own "sign
+  out that device / everywhere" too) closes it. L2: `payment_request_owner` goes to **every** owner including the
+  requester (their other phones — a single-owner masjid is covered), and the approval / live alerts now read "… If you
+  didn't ask for it, tell the Super Admin now" (×4). L3: the closing audit row carries the caller's request id; the
+  helper returns what it really closed. Nit: B8 shows the owner-only note only for an editor. Recipients are sorted.
+**Consequences:** the R1 exit criterion no longer waits on the owner; security-reviewer re-ran on the change-lock.
+db `payment.int` +5 (editor refused, owners named; removal, revocation, the race at approval and at activation, logout vs. shut-out session), api
+`payment-routes.int` (editor 403, owner alerts). F69 closed; F68 → Phase 8; F70 → Phase 9.
+
+### #162 — Phases close without waiting for the owner's checks; Claude Code keeps going — ACCEPTED (owner, 12 Nov 2026)
+**Context:** CLAUDE.md §3 / §5 stop at "AWAITING OWNER VERIFICATION" until the owner has run the manual checks. The
+owner wants continuous progress and will do all manual testing in one batch later.
+**Decision:** when a phase's own work is done (tasks, tests, `pnpm verify`, phase-verifier, security-reviewer, report),
+Claude Code marks it **`DONE — owner checks pending`**, lists every owner step (staging deploys that need the server,
+Atlas roles, real-phone checks, ₹1 UPI tests, usability sessions, credentials) in `owner/MY_PENDING_TASKS.md` and
+PROGRESS "Waiting for the owner" at once, and starts the next phase. A problem the owner finds later is fixed as a
+tracked follow-up (F-entry) in whichever phase is current. Everything else in CLAUDE.md stays binding, including §4
+"STOP and ask" — such a question is recorded as `OPEN` and Claude Code continues with work it does not block.
+**Consequences:** CLAUDE.md §3's "do not start the next phase" and §5 steps 6–7 are replaced by this rule for now;
+PROGRESS shows each phase's pending owner checks next to its status.

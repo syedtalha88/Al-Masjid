@@ -144,7 +144,7 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   // The UPI change-lock (04 R1, T5.2): never the VPA or payee name in meta — the profile documents are the history.
   'payment.request': [],
   'payment.approve': ['hold_minutes'],
-  'payment.reject': ['from'],
+  'payment.reject': ['from', 'code'],
   'payment.activate': [],
   // Donation campaigns (T5.3): amounts are in the item and its history, not in the audit meta.
   'campaign.create': ['purpose', 'notify'],

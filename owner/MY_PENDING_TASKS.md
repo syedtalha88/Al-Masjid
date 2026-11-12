@@ -45,8 +45,10 @@
 
 ## Still to do
 
-> Nothing here blocks Claude Code's work right now (3 Nov 2026). Do them whenever you have time — the "When" column
-> says by when each one is needed. Tell Claude Code "O<n> done" and it checks.
+> Nothing here blocks Claude Code's work right now. **Owner rule (12 Nov 2026, DECISIONS #162):** Claude Code closes
+> each phase when its own work is done and moves on; every check that needs me is listed here, and I do them in one go
+> later. Do them whenever you have time — the "When" column says by when each one is needed. Tell Claude Code
+> "O<n> done" and it checks.
 
 ### Now — staging has Phases 03 + 04 (9 Nov 2026)
 
@@ -106,8 +108,8 @@
 | O41 | **Second Super Admin passkey** on another phone (Account → Add device) and **a backup person for grievances** | 15 min | before pilot |
 | O43 | **Atlas roles for Phase 05** — needy people add two collections and a view. Before Phase 05 is deployed to staging: apply the new `infra/mongo/atlas-roles.json` in Atlas (same steps as O36), then run `deploy.sh staging --verify-roles` — it must PASS. Claude Code tells you when | 15 min | before Phase 05 on staging |
 | O44 | **Two answers for Claude Code** — (a) Your Super Admin phone keeps getting alerts for **30 days** after you last opened the admin app on it; signing out stops them at once. OK, or a shorter time? (b) After paying a needy person, the app asks "Log this in My zakat?" **only if the masjid marked that person zakat-eligible**. OK, or should it ask for every person? | 2 min | any time |
-| O47 | **GitHub Actions jobs are not starting** (12 Nov 2026) — on `main` `1f051fa` three jobs ran and passed, but "Security scans", "Integration tests" and CodeQL stayed *queued* and the run was marked failed; two Phase 05 runs have been queued for hours. GitHub's status page is green. Please look at github.com → your profile → **Settings → Billing and plans** (any spending limit, payment problem or Actions notice) and the repository's **Actions** tab (any banner). If all looks fine, open the failed `main` run and press **Re-run failed jobs**. A green `main` run releases the security fix F61 to staging — wanted before **15 Nov** | 5 min | **now** |
-| O46 | **Three security decisions for Phase 05** (DECISIONS #160; Claude Code recommends "yes" to all three): (a) only a masjid **owner** may ask to change the masjid's UPI ID, and **every owner** of that masjid gets an alert when someone asks and when it is approved; (b) refuse donation-drive / notice **photos that contain a QR code** (adds a small QR reader to the server) — or accept that the moderation queue removes such posts; (c) later hardening (Phase 9): keep the live UPI details where only the background worker can write them; (d) just a note to acknowledge: adding a needy person without the consent tick is answered with the app's usual "check your details" error code (400) instead of the 422 the phase plan named | 5 min | before Phase 05 is closed |
+| ~~O47~~ | ✅ **Solved 12 Nov 2026** — billing was fine (public repository: CI is free, $0 billed). GitHub had left jobs queued; Claude Code started a fresh run with an empty commit and every job got a machine. | – | – |
+| ~~O46~~ | ✅ **Answered 12 Nov 2026: yes to (a)–(d)** (DECISIONS #161). (a) built the same day; (b) comes with Phase 8 moderation; (c) Phase 9 | – | – |
 | O45 | **Open the admin app once on each phone that should get alerts** — after Phase 05 is on staging (Claude Code tells you). Older alert settings stop working with that update; opening the app switches them on again | 1 min | before the alert checks of O38 on the new version |
 | O42 | **Independent penetration test** — hire a person or firm that did not build the app; send Claude Code the findings | depends | before pilot |
 

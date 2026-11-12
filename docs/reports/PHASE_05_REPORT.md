@@ -4,9 +4,11 @@
 > are verified, or with the owner's OK, and after **O43** (Atlas roles) — DECISIONS #145.
 >
 > What the owner should know first:
-> - Three security decisions are waiting for you (**O46**, DECISIONS #160). The phase's own exit rule says "no
->   security finding of any severity on the UPI change-lock"; two of the open items (L2, L5) are on that path, so
->   the phase closes after your answers.
+> - Your security decisions (O46) are answered — yes to all (DECISIONS #161): UPI changes by owners only with every
+>   owner alerted is built (F69); QR-in-photo refusal comes with Phase 8 moderation (F68); worker-only live UPI details
+>   with Phase 9 hardening (F70).
+> - Per your rule of 12 Nov (DECISIONS #162) the phase closes when our checks pass; your manual checks are listed in
+>   `owner/MY_PENDING_TASKS.md`.
 > - A real ₹1 payment from Donate Now and from a saved QR, on Android and iPhone, is yours (**O28** + guide checks
 >   5.5–5.7) — test browsers have no UPI app.
 
@@ -86,7 +88,9 @@ screen 12, `ref-3…png` screen 13 and `e2e/visual/__screenshots__/visual-pixel-
 - Payee QR scan Android-only, admin CSP unchanged (#147, owner).
 - Journey 9 part 2 runs the activation through a test hook on api-admin's settable clock (#151).
 - Needy consent missing → **400**, not 422 as the phase file says — 03 §0 uses 400 for every validation failure
-  (#156, Claude Code's choice: **owner to acknowledge**).
+  (#156; acknowledged by the owner, #161).
+- UPI change requests by masjid **owners** only (editors get `PAYMENT_OWNER_ONLY`); every owner is alerted; removing
+  or revoking the requester closes the request (#161, F69 — review L2 / L3).
 - Needy UPI changes (04 R13): recorded old → new in the person's history, the audit says only "changed" (#160 M3).
 - The public needy list is cached one day, not immutable (#160 M4).
 - "Log this in My zakat?" only for zakat-eligible people (#158, O44); Super Admin alerts reach the phone for 30 days
@@ -96,8 +100,8 @@ screen 12, `ref-3…png` screen 13 and `e2e/visual/__screenshots__/visual-pixel-
 ## 6. Known limitations / follow-ups
 
 From the security review (#160), not fixed in this phase: **F67** CDN purge when a needy person leaves (Phase 8) ·
-**F68** refuse photos that contain a QR code (owner, O46) · **F69** UPI requests by owners only, all owners alerted,
-open requests rejected when their admin is revoked (owner, O46) · **F70** live UPI details writable only by the worker,
+**F68** refuse photos that contain a QR code (accepted, Phase 8 with moderation) · **F70** live UPI details writable
+only by the worker,
 needy ciphertext bound to the person, lint rule for raw reads (Phase 9). L10 / L11 (consent detail, phone-number UPI
 IDs) go to the lawyer review (O34).
 

@@ -76,8 +76,10 @@ export const ADMIN_ALERT_TYPES = [
   'super_passkey_added',
   'push_job_stuck',
   'test',
-  // The UPI change-lock (04 R1, T5.2): Super Admin on every request; the requesting admin on each decision.
+  // The UPI change-lock (04 R1, T5.2): Super Admin on every request; every owner of the masjid on the request and each
+  // decision (DECISIONS #161 — F69).
   'payment_request',
+  'payment_request_owner',
   'payment_approved',
   'payment_rejected',
   'payment_active',

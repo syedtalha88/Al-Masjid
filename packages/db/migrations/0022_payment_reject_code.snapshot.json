@@ -1,0 +1,135 @@
+{
+  "collections": [
+    {
+      "name": "payment_profiles",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "masjid_id",
+          "vpa",
+          "payee_name",
+          "status",
+          "open",
+          "requested_by",
+          "masjid_visible",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "vpa": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "100"
+            },
+            "pattern": "^[a-zA-Z0-9.\\-_]{2,256}@[a-zA-Z][a-zA-Z0-9.\\-]{1,64}$"
+          },
+          "payee_name": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "100"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["pending", "approved_on_hold", "active", "rejected", "superseded"]
+          },
+          "open": {
+            "bsonType": "bool"
+          },
+          "requested_by": {
+            "bsonType": "binData"
+          },
+          "requested_session": {
+            "bsonType": "binData"
+          },
+          "request_note": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "300"
+            }
+          },
+          "reviewed_by": {
+            "bsonType": "binData"
+          },
+          "reviewed_at": {
+            "bsonType": "date"
+          },
+          "effective_at": {
+            "bsonType": "date"
+          },
+          "reject_reason": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "300"
+            }
+          },
+          "reject_code": {
+            "bsonType": "string",
+            "enum": ["requester_removed"]
+          },
+          "masjid_visible": {
+            "bsonType": "bool"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "one_active_per_masjid",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true,
+          "partialFilterExpression": {
+            "status": "active"
+          }
+        },
+        {
+          "name": "one_open_per_masjid",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "open": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true,
+          "partialFilterExpression": {
+            "open": true
+          }
+        },
+        {
+          "name": "status_effective",
+          "key": {
+            "status": {
+              "$numberInt": "1"
+            },
+            "effective_at": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "views": []
+}

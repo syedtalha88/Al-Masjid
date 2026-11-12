@@ -77,4 +77,7 @@ export const SCHEMA_AREAS: Readonly<
   // DECISIONS #160 (security review M3, L6): a needy person's UPI old → new record moves into their purged history;
   // the chanda filter of v_pub_items fails closed.
   '0021_beneficiary_upi_history': { collections: ['beneficiary_amount_history'], views: ['v_pub_items'] },
+  // DECISIONS #161 (F69): a UPI request records the session that asked (`requested_session`) and, when closed because
+  // its admin lost access, says so (`reject_code`).
+  '0022_payment_reject_code': { collections: ['payment_profiles'] },
 };

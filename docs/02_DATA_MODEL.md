@@ -47,6 +47,7 @@ template_status:      draft | active | retired   -- draft: DECISIONS #111 (unrev
 campaign_purpose:     renovation | repair | utilities | welfare | other
 campaign_status:      active | completed | closed
 payment_status:       pending | approved_on_hold | active | rejected | superseded
+payment_reject_code:  requester_removed   (DECISIONS #161)
 push_status:          active | dead | none
 job_status:           pending | running | completed | failed
 report_reason:        misleading | hateful | off_topic | fraud | private_info | copyright | other
@@ -164,7 +165,7 @@ Indexes: `{public_id:1}` unique · `{masjid_id:1, status:1, published_at:-1, _id
 ### Payments
 **beneficiaries** (needy people, Phase 5 — DECISIONS #104): `_id`, `public_id string(12)` unique, `masjid_id`, `display_name ≤40` (first name or initials — the admin UI says so), `category beneficiary_category`, `reason ≤300`, `reason_locale locale`, `vpa ≤100` (payment_profiles pattern), `payee_name ≤100`, `cap_paise long 100..10^9`, `received_paise long ≥ 0 default 0`, `received_updated_at` optional, `funded_permille int 0..1000` (= min(1000, received × 1000 ÷ cap), maintained by the data layer for ordering), `zakat_eligible bool default false`, `consent_confirmed true` (required; a guardian's for minors), `private_enc` optional (AES-256-GCM like `phone_enc`: `{phone?, note?}` — admin-only, never in a view), `status beneficiary_status`, `fulfilled_at` / `closed_at` optional, `purge_after` optional (fulfilled/closed + 90 days → document and history deleted by `retention`), `masjid_visible bool`, `created_by`, timestamps. Reaching `cap_paise` sets `fulfilled` in the same transaction. **No change-lock** on `vpa` (owner, #104) — every change is audited. ≤ 100 active per masjid. Indexes: `{public_id:1}` unique · `{masjid_id:1, status:1, funded_permille:1, created_at:1}` · `{purge_after:1}` partial.
 **beneficiary_amount_history**: `_id`, `beneficiary_id`, `masjid_id`, `received_paise long`, `updated_by`, `created_at`. Append-only like `campaign_amount_history`. Index `{beneficiary_id:1, created_at:-1}`.
-**payment_profiles**: `_id`, `masjid_id`, `vpa ≤100` (pattern `^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z][a-zA-Z0-9.\-]{1,64}$`), `payee_name ≤100`, `status payment_status`, `open bool` (true while `pending|approved_on_hold`), `requested_by`, `request_note ≤300`, `reviewed_by` optional, `reviewed_at` optional, `effective_at Date` optional (approved + hold), `reject_reason ≤300` optional, `masjid_visible bool`, timestamps.
+**payment_profiles**: `_id`, `masjid_id`, `vpa ≤100` (pattern `^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z][a-zA-Z0-9.\-]{1,64}$`), `payee_name ≤100`, `status payment_status`, `open bool` (true while `pending|approved_on_hold`), `requested_by`, `requested_session` optional (the admin session that asked — #161), `request_note ≤300`, `reviewed_by` optional, `reviewed_at` optional, `effective_at Date` optional (approved + hold), `reject_reason ≤300` optional, `reject_code payment_reject_code` optional (`requester_removed` — closed without a decision because the requesting admin was removed from the masjid or had their sessions / passkeys revoked, DECISIONS #161), `masjid_visible bool`, timestamps. Only a masjid **owner** may request (#161).
 Indexes: unique partial `{masjid_id:1}` where `{status:'active'}` (one active per masjid) · unique partial `{masjid_id:1, open:1}` where `{open:true}` (one pending/on-hold per masjid) · `{status:1, effective_at:1}` (activation job).
 State machine (enforced **only** by `packages/db/src/state/payment.ts` — §3): `pending → approved_on_hold (super admin) → active (system job at effective_at; previous active → superseded)`; `pending → rejected`; `approved_on_hold → rejected` (the Super Admin stops a change during the hold — DECISIONS #146). First-ever profile for a masjid: same flow (no shortcut). There is no generic update method for this collection.
 
@@ -217,7 +218,7 @@ S = find, I = insert, U = update, D = delete. "own" = scope's device / scope's m
 | chanda_weeks | S via `v_pub_chanda_weeks` (`visible` and masjid visible) | – | S/I/U own | all |
 | content_library | S via `v_pub_library` (`verified`) | – | S verified | all |
 | notice_templates | S via `v_pub_templates` (active) | – | S active non-system | all |
-| payment_profiles | S via `v_pub_payment_profiles` (`active`; `vpa`, `payee_name`, `effective_at` only) | – | S own; I own via `requestPaymentChange` only | S all; U via state functions only |
+| payment_profiles | S via `v_pub_payment_profiles` (`active`; `vpa`, `payee_name`, `effective_at` only) | – | S own; I own via `requestPaymentChange` only (owners — #161) | S all; U via state functions only |
 | devices | – | S/U/D own (`_id = scope.deviceId`); I via registration | – | S aggregate only via `stats_snapshots` (never endpoints) |
 | device_follows | – | S/I/U/D own device | count only via `v_admin_follow_audience` (no device ids) | count only via `v_admin_follow_audience` + `stats_snapshots` |
 | notification_jobs, push_quota_usage | – | – | S own masjid | S |

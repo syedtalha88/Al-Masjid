@@ -24,9 +24,13 @@
       "title": "UPI change requested",
       "body": "A masjid asked to change its UPI payment details. Review it in Payment approvals."
     },
+    "payment_request_owner": {
+      "title": "UPI change asked for your masjid",
+      "body": "An owner of your masjid asked to change its UPI details. If you don't know about it, tell the Super Admin now."
+    },
     "payment_approved": {
       "title": "UPI change approved",
-      "body": "Your new UPI details were approved. They go live after the waiting period."
+      "body": "A UPI change for your masjid was approved. It goes live after the waiting period. If you didn't ask for it, tell the Super Admin now."
     },
     "payment_rejected": {
       "title": "UPI change not approved",
@@ -34,7 +38,7 @@
     },
     "payment_active": {
       "title": "New UPI details are live",
-      "body": "Your new UPI details are now shown to everyone. Followers were told."
+      "body": "Your masjid's new UPI details are now shown to everyone, and followers were told. If you didn't ask for this, tell the Super Admin now."
     }
   }
 }

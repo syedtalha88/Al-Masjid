@@ -49,6 +49,11 @@ function PaymentScreen() {
           <p className="type-body text-text-secondary" data-payment-waiting>
             {t('payment.waiting')}
           </p>
+        ) : masjid?.role === 'editor' ? (
+          // DECISIONS #161 (F69): only an owner may ask; the API refuses an editor with PAYMENT_OWNER_ONLY anyway.
+          <p className="type-body text-text-secondary" data-payment-owner-only>
+            {t('payment.ownerOnly')}
+          </p>
         ) : (
           <Form masjidId={masjid?.id} />
         )}
