@@ -59,7 +59,7 @@ export interface Tile {
 export const TILES: readonly Tile[] = TILE_LIST;
 
 /** The phase being built now: tiles of later phases are placeholders. */
-export const CURRENT_PHASE = 5;
+export const CURRENT_PHASE = 6;
 
 export const isTileKey = (value: string): value is TileKey => TILES.some((tile) => tile.key === value);
 

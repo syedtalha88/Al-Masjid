@@ -104,12 +104,12 @@ afterAll(async () => {
 });
 
 describe('dev seed (T2.2)', () => {
-  it('writes 4 active masjids, 13 placeholder library entries, 18 templates and 42 items — idempotently', async () => {
+  it('writes 4 active masjids, 13 placeholder library entries, 18 templates and 44 items (2 bayans — PHASE_06) — idempotently', async () => {
     expect(await raw('masjids').countDocuments({ status: 'active' })).toBe(4);
     expect(await raw('content_library').countDocuments({ status: 'verified' })).toBe(13);
     expect(await raw('notice_templates').countDocuments({ status: 'active' })).toBe(SEED_TEMPLATES.length);
     expect(SEED_TEMPLATES).toHaveLength(18);
-    expect(await raw('items').countDocuments({ status: 'published' })).toBe(42);
+    expect(await raw('items').countDocuments({ status: 'published' })).toBe(44);
     // T5.4: Delta's fake UPI details (the 10 §5 fixture VPA) and its campaigns in every state.
     expect(await raw('payment_profiles').countDocuments({ status: 'active', vpa: 'testmasjid@okexample' })).toBe(1);
     const statuses = await raw('items').distinct('campaign.status', { type: 'campaign' });
@@ -144,7 +144,7 @@ describe('dev seed (T2.2)', () => {
     const before = (await raw('masjids').findOne({ _id: ALPHA }))?.['content_version'];
     if (!asSystem) throw new Error('no system handle');
     await writeDevSeed(asSystem.handle, systemScope(), buildDevSeed({ now: NOW, today: TODAY }));
-    expect(await raw('items').countDocuments({})).toBe(42);
+    expect(await raw('items').countDocuments({})).toBe(44);
     expect(await raw('chanda_weeks').countDocuments({})).toBe(6);
     expect(await raw('masjids').countDocuments({})).toBe(4);
     expect(await raw('payment_profiles').countDocuments({})).toBe(1);

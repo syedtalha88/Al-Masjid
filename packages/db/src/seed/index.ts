@@ -300,10 +300,20 @@ type ItemSpec =
       startsInDays: number;
       endsInDays?: number;
       status: 'active' | 'completed' | 'closed';
+    }
+  | {
+      /** A bayan (PHASE_06): a made-up YouTube id; the thumbnail is the masjid's gradient "photo" (ThumbHash only). */
+      kind: 'video';
+      title: string;
+      youtubeId: string;
+      speaker?: string;
+      body?: string;
+      audience: 'everyone' | 'brothers' | 'sisters';
+      startS?: number;
     };
 
 /**
- * 31 items, 10 per masjid + one archived dua request (Gamma), and Delta's 5 donation campaigns; `hoursAgo` spreads them
+ * 31 items, 10 per masjid + one archived dua request (Gamma), Delta's 5 donation campaigns and 2 bayans; `hoursAgo` spreads them
  * over the last weeks.
  */
 const ITEMS: Readonly<Record<SeedMasjidKey, readonly (ItemSpec & { hoursAgo: number })[]>> = {
@@ -537,6 +547,25 @@ const ITEMS: Readonly<Record<SeedMasjidKey, readonly (ItemSpec & { hoursAgo: num
       startsInDays: -70,
       endsInDays: -40,
       status: 'closed',
+    },
+    // Bayans (07 A12, PHASE_06): one for everyone, one for sisters only (never shown to a brothers device). Made-up ids.
+    {
+      hoursAgo: 8,
+      kind: 'video',
+      title: 'Test bayan for everyone',
+      youtubeId: 'TestBayan01',
+      speaker: 'Test Speaker',
+      body: 'Sample description for development. Not a real bayan.',
+      audience: 'everyone',
+    },
+    {
+      hoursAgo: 4,
+      kind: 'video',
+      title: 'Test bayan for sisters',
+      youtubeId: 'TestBayan02',
+      speaker: 'Test Speaker',
+      audience: 'sisters',
+      startS: 90,
     },
   ],
 };
@@ -839,6 +868,26 @@ export function buildDevSeed(input: { readonly now: Date; readonly today: string
               payment_profile_id: SEED_PAYMENT.id,
             },
           };
+        case 'video': {
+          const thumb = seedPhoto(masjid.key);
+          return {
+            ...base,
+            type: 'video',
+            audience: spec.audience,
+            title: spec.title,
+            ...(spec.body ? { body: spec.body } : {}),
+            content_locale: 'en',
+            is_important: false,
+            rights_confirmed: true,
+            video: {
+              youtube_id: spec.youtubeId,
+              ...(spec.startS === undefined ? {} : { start_s: spec.startS }),
+              ...(spec.speaker ? { speaker: spec.speaker } : {}),
+              thumb_key: thumb.key,
+              thumb_thumbhash: thumb.thumbhash,
+            },
+          };
+        }
       }
     }),
   );
