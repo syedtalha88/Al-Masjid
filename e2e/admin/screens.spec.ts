@@ -495,6 +495,22 @@ for (const locale of LOCALES) {
         await settled(adminPage, '/needy');
         await expect(adminPage.locator('[data-needy]')).toBeVisible();
         await adminShot('b19-needy-empty');
+        // PHASE_06 T6.5 (07 B10): the empty bayan list, and "Add a bayan" with a checked link (mock adapter), the
+        // preview card and the Sisters-only warning — in this locale.
+        await settled(adminPage, '/videos');
+        await expect(adminPage.locator('[data-videos]')).toBeVisible();
+        await adminShot('b10-videos-empty');
+        await settled(adminPage, '/videos/new');
+        const videoEditor = adminPage.locator('[data-video-editor]');
+        await videoEditor
+          .getByRole('textbox', { name: label(locale, 'admin', 'video.linkLabel') })
+          .fill('https://youtu.be/AbC_123-xYz');
+        await videoEditor.getByRole('button', { name: label(locale, 'admin', 'video.check') }).click();
+        await expect(videoEditor.locator('[data-video-preview]')).toBeVisible();
+        await videoEditor.getByText(label(locale, 'admin', 'video.audience.sisters'), { exact: true }).click();
+        await expect(videoEditor.locator('[data-video-sisters-warning]')).toBeVisible();
+        await adminPage.waitForTimeout(400); // the warning's entrance settles before the shot
+        await adminShot('b10-video-new');
         await adminPage.goto(`${ADMIN_URL}/account`);
         await adminPage.waitForLoadState('networkidle');
         await adminShot('b13-account-admin');

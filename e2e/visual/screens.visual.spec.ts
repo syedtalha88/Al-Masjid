@@ -116,6 +116,22 @@ for (const locale of LOCALES) {
       }
     });
 
+    // PHASE_06 T6.5 (07 A12): the Bayans list (our thumbnail copies — ThumbHash here — with the play glyph and the
+    // "YouTube" tag) and the player's facade before Play (no iframe, nothing from YouTube). A brothers device: one bayan.
+    test(`bayans (${locale})`, async ({ page }) => {
+      await pinClock(page);
+      await page.goto(APP_URL);
+      const [delta] = await followByCode(page, APP_URL, ['TESTD004']);
+      if (delta === undefined) throw new Error('seed masjid Delta missing');
+      for (const [name, path] of [
+        ['bayans', `/masjid/${delta}/bayans`],
+        ['bayan-player', '/items/seedD0000005'],
+      ] as const) {
+        await page.goto(`${APP_URL}${path}`);
+        await shot(page, locale, name);
+      }
+    });
+
     test.describe('first launch', () => {
       test.use({ appDevice: 'fresh' });
 
