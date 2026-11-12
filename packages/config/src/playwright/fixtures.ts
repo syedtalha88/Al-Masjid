@@ -229,7 +229,13 @@ export const test = base.extend<McFixtures>({
       else await target.screenshot(options);
       // Playwright injects a <style> element while screenshotting (caret, animations, `style`); the page CSP
       // reports it (WebKit always, Chromium for `style`). Drop exactly those reports — everything else still fails.
-      await page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 50)));
+      // WebKit delivers its console report asynchronously — under CI load well after 50 ms, which leaked into the
+      // test as a "violation". Wait until no new report arrived for 150 ms (at most 1.5 s).
+      let seen = -1;
+      for (let waited = 0; waited < 1500 && seen !== cspViolations.length; waited += 150) {
+        seen = cspViolations.length;
+        await page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 150)));
+      }
       const during = cspViolations.splice(before);
       cspViolations.push(...during.filter((violation) => !SCREENSHOT_STYLE.test(violation)));
       await testInfo.attach(`${locale}/${name}`, { path, contentType: 'image/png' });
