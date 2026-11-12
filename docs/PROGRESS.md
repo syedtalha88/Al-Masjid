@@ -613,10 +613,11 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | ~~O47~~ | GitHub Actions jobs stayed queued (12 Nov 2026) — **solved**: billing fine (public repo, $0); an empty commit `a6f2969` on `main` started a fresh run that got machines | – | – | ✅ 12 Nov 2026 |
 | ~~O46~~ | Phase 05 security decisions (#160) — **owner: yes to (a)–(d)** → DECISIONS #161 | – | – | ✅ 12 Nov 2026 |
 | O48 | Real Cloudflare **Cache Purge** token + zone id in the staging worker env (#164) | deleted posts' media purge | 10 min | before May 2027 |
-| O49 | **Phase 06 checks** on staging (guide Phase 06 — real Unlisted / Public links, sisters only, weak network) | Phase 06 exit | 20 min | after Phase 06 is on staging |
+| O49 | **Phase 06 checks** on staging (guide Phase 06 — real Unlisted / Public links, sisters only, weak network) | Phase 06 exit | 20 min | **now** — staging has Phase 06 |
 | O50 | **Phase 05 checks** on staging (guide 5.1–5.22) with the ₹1 test O28 | Phase 05 exit | 60 min | after O43 + deploy |
 | O45 | **Open the admin app once on each phone that should get alerts** (after Phase 05 is on staging) | F65: older alert subscriptions are no longer used; opening the app links the phone again | 1 min | before O38's alert checks on the Phase 05 build |
-| O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | Phase 07 (map-tile decision dropped — #118) |
+| O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | **now** — staging has Phase 07 (`30a268b`, 13 Nov 2026) |
+| O51 | **Takedown check on staging**: report → remove; old link "no longer available" within a minute; the photo URL stops loading (#171, F76) | Phase 08 exit | 15 min | after Phase 08 is on staging |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
 | O31 | **Translation review** of `packages/i18n/review/{hi,ur,te}.csv` (≈ 920 draft strings each) | pilot | translators | before pilot |
 | O32 | **Verified Content Library file** (`docs/content-library-format.md`) | pilot | — | before pilot |
@@ -894,10 +895,10 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   "…" → Report on every post detail + Masjid Detail, lazy report sheet × 4 locales; shared Sheet scroll fix. Tests: db
   `reports.int` 8, api `report-routes.int` 6 + `report-triage.int` 7, e2e `report.spec` 7/7 Pixel 7 + iPhone 14, visual
   40/40, db int 406 / api int 438 (4 workers). Reporter device id never reaches admins (policy `hidden`, existing test).
-- [ ] T8.2 — Moderation queue & takedown (C5) — **built 13 Nov 2026 (#171)**: remove / restore / dismiss (step-up),
+- [x] T8.2 — Moderation queue & takedown (C5) — **done 13 Nov 2026 (#171)**: remove / restore / dismiss (step-up),
   C5 `/super/reports`, `cdn-purge` by cache tag, `item_removed` alert, My Posts hidden + category, removed posts vanish
-  after the next poll (app fix), F74 done. Journey 11 green on Pixel 7. **Left:** F73 (media undeliverable at removal —
-  Cloudinary access type), owner staging check of the purge (F76).
+  after the next poll (app fix), F74 (removed bayan text), **F73** (`media-access`: files to Cloudinary `authenticated`
+  at removal, back on restore; shared files kept). Journey 11 green on Pixel 7. Staging purge check = owner (F76).
 - [ ] T8.3 — SLA engine & dashboard (C1)
 - [ ] T8.4 — Grievances (form + C6 tracker)
 - [ ] T8.5 — Legal orders register (C7)
@@ -979,7 +980,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F76 | T8.2 (#171) | Automated staging check that a removed post's cached detail URL answers "gone" within a minute (needs a staging-only Super Admin check account) — owner check meanwhile | Phase 9 hardening |
 | F75 | Phase 06 verifier (#167) | Admin B10 visual baselines (visual suite is musalli-only; admin screens use per-locale attachments + axe); LOW polish: oEmbed read through Zod, `Intl.ListFormat` for the missing-fields list (Urdu "،"), focus after Play, play-glyph size from tokens, pin the 31st lookup in the 30/hour test | Phase 9 polish |
 | F72 | #165 L12 — `sandbox` on the bayan iframe | Add `allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox` once real-device checks show playback, fullscreen and "Watch on YouTube" still work | Phase 9 hardening |
-| F73 | #165 L13 — removed posts' media deliverable during preservation | Make removed items' media undeliverable at removal (Cloudinary access control or private type) and purge the CDN then, keeping the copy for 180 days | Phase 8 T8.2 |
+| F73 | ~~#165 L13 — removed posts' media deliverable during preservation~~ — **closed 13 Nov 2026 (#171)** | Make removed items' media undeliverable at removal (Cloudinary access control or private type) and purge the CDN then, keeping the copy for 180 days | Phase 8 T8.2 |
 | F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
 
 ## Session log (newest first, one line each)

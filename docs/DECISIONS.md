@@ -3028,8 +3028,16 @@ days, the masjid told, and the CDN's cached copies dropped (05 §3, IT Rules 3(1
   a 404 always means gone, and when a versions poll finds a masjid's version moved on, its opened posts are re-checked at
   once (`pruneStaleVersions`). **F74:** when the phone had the post as a bayan, the gone screen says "This video was
   removed from the app — it may still be on the masjid's YouTube channel".
-**Not done here (tracked):** F73 (removed posts' media undeliverable at removal) — next, its own step, after verifying
-Cloudinary's rename / access-type API. The acceptance's **automated staging check** (a removed post's cached detail URL
+**F73 (done, same task):** at removal the post's files stop being delivered at once instead of after 180 days: the
+worker job `media-access` (enqueued with the tag purge; `cdnPurgeQueued` means both were queued) moves each image from
+Cloudinary's `upload` to `authenticated` type (and a recording from `private` to `authenticated`) with the Upload API
+`rename` (`type` → `to_type`, same public id, `invalidate: true` — verified against Cloudinary's docs 13 Nov 2026:
+`access_mode` is no longer supported and token access needs the Advanced plan), then purges the six delivery URLs at
+Cloudflare. Only files no published post, masjid photo or Ruqyah recording also uses are restricted (a shared bayan
+thumbnail keeps working — #165); a restore moves all of the post's files back. Retention now destroys both delivery
+types. Locally the file store moves files under `restricted/` (never served); the local worker has no store (as for
+retention) and logs it. **Owner check (staging):** a removed post's photo URL stops loading (Phase 08 guide).
+The acceptance's **automated staging check** (a removed post's cached detail URL
 answers "gone" within a minute) needs a Super Admin session on staging, which automation cannot hold: it becomes an
 owner check in the Phase 08 guide plus F76 (Phase 9: a staging-only check account). The legal-order link on removal
 (`legalOrderId`) comes with T8.5.

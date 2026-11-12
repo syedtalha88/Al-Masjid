@@ -2,8 +2,8 @@
 // its strict named transformations make the delivery sizes; the local file store (dev, tests, the local stack) writes
 // the same six variants itself, at the paths Caddy's media site serves (`/i/<width>/<format>/<key>.<format>`).
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve, sep } from 'node:path';
+import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 
 import { AUDIO_KEY, IMAGE_KEY } from '@mc/shared/contracts';
 
@@ -30,6 +30,17 @@ export interface MediaStore {
   putAudio(key: string, bytes: Buffer, type: SniffedAudio): Promise<{ readonly durationS?: number }>;
   /** Removes the recording and its delivery copy (missing is fine). */
   deleteAudio(key: string): Promise<void>;
+  /**
+   * Takedown (F73, PHASE_08 T8.2): the image is no longer delivered at all — kept privately for the 180-day
+   * preservation — until `unrestrictImage` (missing or already restricted is fine).
+   */
+  restrictImage(key: string): Promise<void>;
+  /** Restore after a takedown: delivered again (missing or not restricted is fine). */
+  unrestrictImage(key: string): Promise<void>;
+  /** Takedown (F73): the recording is no longer delivered (missing or already restricted is fine). */
+  restrictAudio(key: string): Promise<void>;
+  /** Restore after a takedown (missing or not restricted is fine). */
+  unrestrictAudio(key: string): Promise<void>;
 }
 
 function assertKey(key: string): void {
@@ -55,6 +66,21 @@ export function fileMediaStore(dir: string): MediaStore {
     IMAGE_WIDTHS.flatMap((width) =>
       IMAGE_FORMATS.map((format) => ({ width, format, path: inside('i', String(width), format, `${key}.${format}`) })),
     );
+  const imagePaths = (key: string) => [
+    inside('masters', `${key}.jpg`),
+    ...variants(key).map((variant) => variant.path),
+  ];
+  /** The same file under `restricted/` (checked to stay inside the directory). */
+  const restricted = (path: string) => inside('restricted', relative(root, path));
+  /** Moves a file if it is there (a missing one is fine — takedown and restore are idempotent). */
+  const move = async (from: string, to: string) => {
+    try {
+      await mkdir(dirname(to), { recursive: true });
+      await rename(from, to);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; // fs errors carry `code`
+    }
+  };
   return {
     async putImage(key, master) {
       assertKey(key);
@@ -68,8 +94,9 @@ export function fileMediaStore(dir: string): MediaStore {
     },
     async deleteImage(key) {
       assertKey(key);
-      for (const path of [inside('masters', `${key}.jpg`), ...variants(key).map((variant) => variant.path)]) {
+      for (const path of imagePaths(key)) {
         await rm(path, { force: true });
+        await rm(restricted(path), { force: true });
       }
     },
     // Locally the recording is served as uploaded at its delivery path (no AAC re-encode — the browser that recorded
@@ -84,6 +111,27 @@ export function fileMediaStore(dir: string): MediaStore {
     async deleteAudio(key) {
       assertAudioKey(key);
       await rm(inside('a', 'm4a', key), { force: true });
+      await rm(restricted(inside('a', 'm4a', key)), { force: true });
+    },
+    // Takedown locally: the files move under `restricted/`, which the media site never serves (Caddy serves
+    // `/i/…` and `/a/…` only).
+    async restrictImage(key) {
+      assertKey(key);
+      for (const path of imagePaths(key)) await move(path, restricted(path));
+    },
+    async unrestrictImage(key) {
+      assertKey(key);
+      for (const path of imagePaths(key)) await move(restricted(path), path);
+    },
+    async restrictAudio(key) {
+      assertAudioKey(key);
+      const path = inside('a', 'm4a', key);
+      await move(path, restricted(path));
+    },
+    async unrestrictAudio(key) {
+      assertAudioKey(key);
+      const path = inside('a', 'm4a', key);
+      await move(restricted(path), path);
     },
   };
 }
@@ -130,16 +178,42 @@ export function cloudinaryMediaStore(config: CloudinaryConfig): MediaStore {
     form.set('signature', cloudinarySignature(params, config.apiSecret));
     return form;
   };
-  const post = async (action: 'upload' | 'destroy', form: FormData, resource: 'image' | 'video' = 'image') => {
+  const post = async (
+    action: 'upload' | 'destroy' | 'rename',
+    form: FormData,
+    resource: 'image' | 'video' = 'image',
+    options: { readonly missingIsFine?: boolean } = {},
+  ) => {
     const response = await call(`${CLOUDINARY_API}/${encodeURIComponent(config.cloudName)}/${resource}/${action}`, {
       method: 'POST',
       body: form,
       redirect: 'error',
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
+    if (options.missingIsFine && response.status === 404) return response;
     if (!response.ok) throw new Error(`cloudinary ${action} failed with HTTP ${String(response.status)}`);
     return response;
   };
+  /**
+   * Takedown / restore (F73): the Upload API `rename` to the same public id with a new delivery type — `authenticated`
+   * is never delivered without a signed URL (we sign none), and `invalidate` drops Cloudinary's CDN copies of the
+   * asset and its transformations (verified against Cloudinary's docs, 13 Nov 2026). A missing asset (already moved,
+   * or never stored) is fine: both directions are idempotent.
+   */
+  const moveType = (key: string, from: string, to: string, resource: 'image' | 'video') =>
+    post(
+      'rename',
+      signedForm({
+        from_public_id: key,
+        invalidate: 'true',
+        timestamp: String(now()),
+        to_public_id: key,
+        to_type: to,
+        type: from,
+      }),
+      resource,
+      { missingIsFine: true },
+    );
   return {
     async putImage(key, master) {
       assertKey(key);
@@ -149,7 +223,10 @@ export function cloudinaryMediaStore(config: CloudinaryConfig): MediaStore {
     },
     async deleteImage(key) {
       assertKey(key);
-      await post('destroy', signedForm({ invalidate: 'true', public_id: key, timestamp: String(now()) }));
+      // Both delivery types: a removed post's image was moved to `authenticated` at its takedown (F73).
+      for (const type of ['upload', 'authenticated']) {
+        await post('destroy', signedForm({ invalidate: 'true', public_id: key, timestamp: String(now()), type }));
+      }
     },
     // Audio is Cloudinary's `video` resource type, uploaded as `private`: the original (as recorded — container
     // metadata, a video track in an MP4) is never deliverable without a signed URL; only the derived AAC rendition
@@ -166,11 +243,30 @@ export function cloudinaryMediaStore(config: CloudinaryConfig): MediaStore {
     },
     async deleteAudio(key) {
       assertAudioKey(key);
-      await post(
-        'destroy',
-        signedForm({ invalidate: 'true', public_id: key, timestamp: String(now()), type: 'private' }),
-        'video',
-      );
+      for (const type of ['private', 'authenticated']) {
+        await post(
+          'destroy',
+          signedForm({ invalidate: 'true', public_id: key, timestamp: String(now()), type }),
+          'video',
+        );
+      }
+    },
+    async restrictImage(key) {
+      assertKey(key);
+      await moveType(key, 'upload', 'authenticated', 'image');
+    },
+    async unrestrictImage(key) {
+      assertKey(key);
+      await moveType(key, 'authenticated', 'upload', 'image');
+    },
+    // Recordings are stored `private` (their public AAC rendition is derived): restricted = `authenticated`.
+    async restrictAudio(key) {
+      assertAudioKey(key);
+      await moveType(key, 'private', 'authenticated', 'video');
+    },
+    async unrestrictAudio(key) {
+      assertAudioKey(key);
+      await moveType(key, 'authenticated', 'private', 'video');
     },
   };
 }

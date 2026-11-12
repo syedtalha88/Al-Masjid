@@ -210,7 +210,10 @@ describe('media stores', () => {
     expect(calls.map((call) => call.url)).toEqual([
       'https://api.cloudinary.com/v1_1/testcloud/image/upload',
       'https://api.cloudinary.com/v1_1/testcloud/image/destroy',
+      'https://api.cloudinary.com/v1_1/testcloud/image/destroy',
     ]);
+    // Both delivery types: a taken-down image lives as `authenticated` (F73).
+    expect(calls.slice(1).map((call) => call.form.get('type'))).toEqual(['upload', 'authenticated']);
     const upload = calls[0]?.form;
     expect(upload?.get('public_id')).toBe(key);
     expect(upload?.get('overwrite')).toBe('false');
@@ -228,6 +231,75 @@ describe('media stores', () => {
         fetch: () => Promise.resolve(new Response('no', { status: 401 })),
       }).putImage(key, Buffer.alloc(1)),
     ).rejects.toThrow(/HTTP 401/);
+  });
+
+  it('takedown (F73), file store: the files move out of what the media site serves, and back on restore', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'mc-media-'));
+    dirs.push(dir);
+    const store = fileMediaStore(dir);
+    const key = newImageKey(MASJID);
+    const { master } = await sanitizeImage(await picture(800, 600).jpeg().toBuffer());
+    await store.putImage(key, master);
+    const [, , id] = key.split('/');
+    const served = join(dir, 'i', '480', 'webp', 'm', MASJID, `${id ?? ''}.webp`);
+    await store.restrictImage(key);
+    await expect(readFile(served)).rejects.toThrow(/ENOENT/);
+    await store.restrictImage(key); // twice is fine
+    await store.unrestrictImage(key);
+    expect((await readFile(served)).length).toBeGreaterThan(0);
+    await store.restrictImage(key);
+    await store.deleteImage(key); // retention deletes a restricted file too
+    await store.unrestrictImage(key);
+    await expect(readFile(served)).rejects.toThrow(/ENOENT/);
+  });
+
+  it('takedown (F73), Cloudinary: a signed rename to `authenticated` with CDN invalidation; a missing asset is fine', async () => {
+    const calls: { url: string; form: FormData }[] = [];
+    let status = 200;
+    const fakeFetch: typeof fetch = (input, init) => {
+      calls.push({ url: input instanceof Request ? input.url : input.toString(), form: init?.body as FormData }); // always FormData
+      return Promise.resolve(new Response('{}', { status }));
+    };
+    const store = cloudinaryMediaStore({
+      cloudName: 'testcloud',
+      apiKey: '123456789',
+      apiSecret: FAKE_SECRET,
+      fetch: fakeFetch,
+      now: () => 1_700_000_000,
+    });
+    const key = newImageKey(MASJID);
+    await store.restrictImage(key);
+    await store.unrestrictImage(key);
+    expect(calls.map((call) => call.url)).toEqual([
+      'https://api.cloudinary.com/v1_1/testcloud/image/rename',
+      'https://api.cloudinary.com/v1_1/testcloud/image/rename',
+    ]);
+    const restrict = calls[0]?.form;
+    expect({
+      from: restrict?.get('from_public_id'),
+      to: restrict?.get('to_public_id'),
+      type: restrict?.get('type'),
+      toType: restrict?.get('to_type'),
+      invalidate: restrict?.get('invalidate'),
+    }).toEqual({ from: key, to: key, type: 'upload', toType: 'authenticated', invalidate: 'true' });
+    expect(restrict?.get('signature')).toBe(
+      cloudinarySignature(
+        {
+          from_public_id: key,
+          invalidate: 'true',
+          timestamp: '1700000000',
+          to_public_id: key,
+          to_type: 'authenticated',
+          type: 'upload',
+        },
+        FAKE_SECRET,
+      ),
+    );
+    expect([calls[1]?.form.get('type'), calls[1]?.form.get('to_type')]).toEqual(['authenticated', 'upload']);
+    status = 404; // already moved / never stored
+    await expect(store.restrictImage(key)).resolves.toBeUndefined();
+    status = 500;
+    await expect(store.restrictImage(key)).rejects.toThrow(/HTTP 500/);
   });
 
   it('MEDIA_STORE picks the adapter; cloudinary without keys is refused', () => {

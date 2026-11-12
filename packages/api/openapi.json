@@ -14652,6 +14652,28 @@
             "required": true,
             "name": "masjid",
             "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "item",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "true"
+            },
+            "required": false,
+            "name": "removed",
+            "in": "query"
           }
         ],
         "responses": {

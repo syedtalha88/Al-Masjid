@@ -22,6 +22,7 @@ import {
 import { createJobQueues, type JobQueues } from '../queue/queues.ts';
 import { processAlertSend } from './alerts/send.ts';
 import { processCampaignClose } from './campaigns/close.ts';
+import { processMediaAccess } from './cdn/media-access.ts';
 import { processCdnPurge } from './cdn/purge.ts';
 import { processPaymentActivate } from './payments/activate.ts';
 import { processFanout, PushPausedError } from './push/fanout.ts';
@@ -41,6 +42,7 @@ export const DEFAULT_CONCURRENCY: Readonly<Record<JobName, number>> = {
   'alert-send': 2,
   'outbox-sweeper': 1,
   'cdn-purge': 1,
+  'media-access': 1,
   'report-triage': 1,
   'payment-activate': 1,
   'campaign-close': 1,
@@ -136,6 +138,19 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
         return processOutboxSweep({ ...common, queues });
       case 'cdn-purge':
         return processCdnPurge({ purger: deps.cdnPurger, logger: deps.logger }, parseJobPayload(name, data));
+      case 'media-access': {
+        const payload = parseJobPayload(name, data);
+        return processMediaAccess(
+          {
+            db: deps.db,
+            media: deps.retention?.media,
+            purger: deps.cdnPurger,
+            mediaOrigin: deps.retention?.mediaOrigin,
+            logger: deps.logger,
+          },
+          payload,
+        );
+      }
       case 'report-triage':
         parseJobPayload(name, data);
         return processReportTriage({ ...common, queues });

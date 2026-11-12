@@ -2,11 +2,11 @@
 
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
-> Last updated: 13 Nov 2026 — **Phases 03, 04, 05 and 06 are on staging**; **Phases 05, 06 and 07 are closed on our
-> side** ("DONE — owner checks pending", DECISIONS #162). Phase 07 (Qibla) reaches staging with the next `main` CI run;
-> **Phase 08 (moderation, grievance, legal pages, QR posters) is next.** Your checks, in any order: O45 → O50 + O28
-> (Phase 05), O49 (Phase 06, possible now), O29 (Phase 07, once it is on staging). Older items: O25 rest → O26
-> (Phase 03), O38 (Phase 04).
+> Last updated: 13 Nov 2026 — **staging runs `30a268b`: Phases 03–07 are all there** (Phase 07 Qibla included).
+> Phases 05, 06 and 07 are closed on our side ("DONE — owner checks pending", DECISIONS #162). **Phase 08 (moderation,
+> grievance, legal pages, QR posters) is being built** — reporting (T8.1) and takedown (T8.2) are done on its branch.
+> Your checks, in any order: O45 → O50 + O28 (Phase 05), **O49 (Phase 06 bayans) and O29 (Phase 07 Qibla) — both
+> possible now**. Older items: O25 rest → O26 (Phase 03), O38 (Phase 04).
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
 > Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.
@@ -95,7 +95,8 @@
 
 | # | What | Time | When |
 |---|---|---|---|
-| O29 | **Qibla check** — compare the arrow with a masjid's mihrab direction on one Android and one iPhone | 10 min | Phase 07 |
+| O29 | **Qibla check** — compare the arrow with a masjid's mihrab direction on one Android and one iPhone (`owner/PHASE_TESTING_GUIDE.md` → Phase 07). Staging has Phase 07 since 13 Nov 2026 | 10 min | **now** |
+| O51 | **Phase 08 takedown check on staging** (after Phase 08 reaches staging) — report a test post from a phone, remove it in Super Admin → Reports; within a minute the post's old link says "no longer available" (also when opened in a private window), and its photo's address no longer loads. Steps will be in `owner/PHASE_TESTING_GUIDE.md` → Phase 08 (DECISIONS #171, F76) | 15 min | Phase 08 |
 
 ### Before the pilot launch
 

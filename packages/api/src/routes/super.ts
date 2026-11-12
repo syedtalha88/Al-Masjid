@@ -481,9 +481,15 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
           .slice(0, 20);
         if (adminIds.length > 0)
           await deps.alerts?.raise({ type: 'item_removed', to: { kind: 'admins', adminIds }, key });
-        const cdnPurgeQueued =
+        // Cached responses (tags) and the post's files (F73: no longer delivered) — both must be queued.
+        const tagsQueued =
           (await deps.cdn?.purgeTags([`i-${removed.publicId}`, `m-${idText(removed.masjidId)}`], key)) ?? false;
-        return reply(200, { publicId: removed.publicId, reports: removed.reportsClosed, cdnPurgeQueued });
+        const mediaQueued = (await deps.cdn?.mediaAccess(params.id, true, key)) ?? false;
+        return reply(200, {
+          publicId: removed.publicId,
+          reports: removed.reportsClosed,
+          cdnPurgeQueued: tagsQueued && mediaQueued,
+        });
       },
     }),
     defineRoute({
@@ -502,12 +508,15 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
           now,
           requestId,
         });
-        const cdnPurgeQueued =
-          (await deps.cdn?.purgeTags(
-            [`i-${restored.publicId}`, `m-${idText(restored.masjidId)}`],
-            `${restored.publicId}.${String(now.getTime())}`,
-          )) ?? false;
-        return reply(200, { publicId: restored.publicId, reports: restored.reportsDismissed, cdnPurgeQueued });
+        const key = `${restored.publicId}.${String(now.getTime())}`;
+        const tagsQueued =
+          (await deps.cdn?.purgeTags([`i-${restored.publicId}`, `m-${idText(restored.masjidId)}`], key)) ?? false;
+        const mediaQueued = (await deps.cdn?.mediaAccess(params.id, false, key)) ?? false;
+        return reply(200, {
+          publicId: restored.publicId,
+          reports: restored.reportsDismissed,
+          cdnPurgeQueued: tagsQueued && mediaQueued,
+        });
       },
     }),
     defineRoute({
@@ -519,17 +528,17 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       rateLimit: writes,
       request: {
         params: z.object({ publicId: z.string().regex(/^[A-Za-z0-9_-]{12}$/) }),
-        query: z.object({ masjid: Id }),
+        query: z.object({ masjid: Id, item: Id, removed: z.enum(['true', 'false']).default('true') }),
       },
       responses: { 200: z.object({ cdnPurgeQueued: z.boolean() }) },
       handler: async ({ params, query, clock, reply }) => {
         const masjidId = idOr404(query.masjid, 'MASJID_NOT_FOUND');
-        const cdnPurgeQueued =
-          (await deps.cdn?.purgeTags(
-            [`i-${params.publicId}`, `m-${idText(masjidId)}`],
-            `${params.publicId}.${String(clock.now().getTime())}`,
-          )) ?? false;
-        return reply(200, { cdnPurgeQueued });
+        const key = `${params.publicId}.${String(clock.now().getTime())}`;
+        const tagsQueued = (await deps.cdn?.purgeTags([`i-${params.publicId}`, `m-${idText(masjidId)}`], key)) ?? false;
+        const mediaQueued =
+          (await deps.cdn?.mediaAccess(idText(idOr404(query.item, 'ITEM_NOT_FOUND')), query.removed === 'true', key)) ??
+          false;
+        return reply(200, { cdnPurgeQueued: tagsQueued && mediaQueued });
       },
     }),
     defineRoute({

@@ -111,11 +111,15 @@ export const superApi = {
   /** ★ */
   restoreItem: (itemId: string) =>
     call(`${SUPER_API}/items/${id(itemId)}/restore`, moderationResultSchema, { method: 'POST', body: {} }),
-  purgeAgain: (publicId: string, masjidId: string) =>
-    call(`${SUPER_API}/items/${id(publicId)}/purge${query({ masjid: masjidId })}`, cdnPurgeSchema, {
-      method: 'POST',
-      body: {},
-    }),
+  purgeAgain: (publicId: string, masjidId: string, itemId: string, removed: boolean) =>
+    call(
+      `${SUPER_API}/items/${id(publicId)}/purge${query({ masjid: masjidId, item: itemId, removed: String(removed) })}`,
+      cdnPurgeSchema,
+      {
+        method: 'POST',
+        body: {},
+      },
+    ),
   dismissReport: (reportId: string, note?: string) =>
     call(`${SUPER_API}/reports/${id(reportId)}/dismiss`, dismissedSchema, {
       method: 'POST',

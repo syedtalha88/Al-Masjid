@@ -169,3 +169,60 @@ export async function deleteExpiredItem(
     return true;
   });
 }
+
+/**
+ * The files whose access changes with a takedown (F73, PHASE_08 T8.2): on removal, the post's files no published post,
+ * masjid photo or Ruqyah recording also uses (those must keep working); on restore, all of its files (live again).
+ *
+ * @throws StateError FORBIDDEN outside the system scope; ITEM_NOT_FOUND.
+ */
+export async function mediaForTakedown(
+  handle: DbHandle,
+  scope: Scope,
+  input: { readonly itemId: UUID; readonly restrict: boolean },
+): Promise<PurgedMedia> {
+  if (scope.kind !== 'system') throw new StateError('FORBIDDEN');
+  const db = await handle.db();
+  const item = await db
+    .collection<ItemDoc>('items')
+    .findOne({ _id: input.itemId }, { projection: { image_key: 1, video: 1, campaign: 1, voice: 1 } });
+  if (!item) throw new StateError('ITEM_NOT_FOUND');
+  const media = mediaOf(item);
+  if (!input.restrict || media.images.length + media.audio.length === 0) return media;
+  const inUse = new Set<string>();
+  for (const row of await db
+    .collection<ItemDoc>('items')
+    .find(
+      {
+        _id: { $ne: input.itemId },
+        status: 'published',
+        $or: [
+          { image_key: { $in: media.images } },
+          { 'video.thumb_key': { $in: media.images } },
+          { 'campaign.cover_key': { $in: media.images } },
+          { 'voice.key': { $in: media.audio } },
+        ],
+      },
+      { projection: { image_key: 1, video: 1, campaign: 1, voice: 1 } },
+    )
+    .toArray()) {
+    const other = mediaOf(row);
+    for (const key of [...other.images, ...other.audio]) inUse.add(key);
+  }
+  for (const row of await db
+    .collection<{ photo_key?: string }>('masjids')
+    .find({ photo_key: { $in: media.images } }, { projection: { photo_key: 1 } })
+    .toArray()) {
+    if (row.photo_key) inUse.add(row.photo_key);
+  }
+  for (const row of await db
+    .collection<{ audio?: { key?: string } }>('ruqyah_entries')
+    .find({ 'audio.key': { $in: media.audio } }, { projection: { audio: 1 } })
+    .toArray()) {
+    if (row.audio?.key) inUse.add(row.audio.key);
+  }
+  return {
+    images: media.images.filter((key) => !inUse.has(key)),
+    audio: media.audio.filter((key) => !inUse.has(key)),
+  };
+}

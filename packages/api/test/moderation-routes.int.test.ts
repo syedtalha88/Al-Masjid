@@ -31,10 +31,15 @@ const alerts: AlertService = {
     return Promise.resolve(true);
   },
 };
+const access: { itemId: string; restrict: boolean }[] = [];
 const cdn: CdnPurgeService = {
   purgeTags: (tags, key) => {
     purges.push({ tags, key });
     return Promise.resolve(purgeWorks);
+  },
+  mediaAccess: (itemId, restrict) => {
+    access.push({ itemId, restrict });
+    return Promise.resolve(true);
   },
 };
 const harness = superHarness('moderation-routes', NOW, { alerts, cdn });
@@ -122,6 +127,7 @@ describe('moderation (C5)', () => {
     expect(moderationResultSchema.parse(response.body)).toEqual({ publicId, reports: 2, cdnPurgeQueued: true });
     expect(await getPublicItem(pub(), publicId, ['everyone', 'brothers', 'sisters'])).toBeNull();
     expect(purges.at(-1)?.tags).toEqual([`i-${publicId}`, `m-${idText(ALPHA)}`]);
+    expect(access.at(-1)).toEqual({ itemId: id, restrict: true }); // F73: its files stop being delivered
     expect(raised.at(-1)).toMatchObject({ type: 'item_removed', to: { kind: 'admins', adminIds: [idText(OWNER)] } });
     const open = await asSuper('get', '/reports');
     const queue = moderationQueueSchema.parse(open.body);
@@ -163,9 +169,10 @@ describe('moderation (C5)', () => {
     const response = await asSuper('post', `/items/${id}/remove`).send({ category: 'copyright' });
     expect(response.body).toMatchObject({ cdnPurgeQueued: false });
     purgeWorks = true;
-    const again = await asSuper('post', `/items/${publicId}/purge?masjid=${idText(ALPHA)}`);
+    const again = await asSuper('post', `/items/${publicId}/purge?masjid=${idText(ALPHA)}&item=${id}`);
     expect(again.status).toBe(200);
     expect(again.body).toEqual({ cdnPurgeQueued: true });
+    expect(access.at(-1)).toEqual({ itemId: id, restrict: true });
   });
 
   it('★ Restore publishes it again; Dismiss closes one report', async () => {
@@ -173,6 +180,7 @@ describe('moderation (C5)', () => {
     const id = await itemIdOf(publicId);
     const restored = await asSuper('post', `/items/${id}/restore`);
     expect(restored.status).toBe(200);
+    expect(access.at(-1)).toEqual({ itemId: id, restrict: false });
     expect(await getPublicItem(pub(), publicId, ['everyone', 'brothers', 'sisters'])).not.toBeNull();
     expect((await asSuper('post', `/items/${id}/restore`)).status).toBe(404);
 

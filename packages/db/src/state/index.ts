@@ -112,6 +112,7 @@ export {
   type ExpiredItem,
   ITEM_PURGE_BATCH,
   listExpiredItems,
+  mediaForTakedown,
   mediaOf,
   type PurgedMedia,
 } from './item-retention.ts';

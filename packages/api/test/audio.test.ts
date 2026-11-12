@@ -131,11 +131,13 @@ describe('stores', () => {
       'https://api.cloudinary.com/v1_1/testcloud/video/upload',
       'https://api.cloudinary.com/v1_1/testcloud/video/upload',
       'https://api.cloudinary.com/v1_1/testcloud/video/destroy',
+      'https://api.cloudinary.com/v1_1/testcloud/video/destroy',
     ]);
     expect(calls[0]?.form.get('public_id')).toBe(key);
     // Private: the original is never deliverable unsigned; only the derived AAC rendition is (#135).
     expect(calls[0]?.form.get('type')).toBe('private');
-    expect(calls[2]?.form.get('type')).toBe('private');
+    // Both types: a taken-down recording lives as `authenticated` (F73).
+    expect([calls[2]?.form.get('type'), calls[3]?.form.get('type')]).toEqual(['private', 'authenticated']);
     expect((calls[0]?.form.get('file') as Blob | null)?.type).toBe('audio/ogg'); // the form's file part
     expect(calls[2]?.form.get('invalidate')).toBe('true');
   });

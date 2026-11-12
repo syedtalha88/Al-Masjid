@@ -20,6 +20,7 @@ import {
   autoHideItem,
   createReport,
   dismissReport,
+  mediaForTakedown,
   registerDevice,
   removeItem,
   restoreItem,
@@ -198,6 +199,25 @@ describe('removeItem / restoreItem / dismissReport', () => {
     expect(target).toMatchObject({ targetType: 'item', itemStatus: 'published' });
     expect(target?.masjid.removals90d).toBe(1);
     expect(await code(listModerationQueue(as('mc_admin'), admin(), { status: 'open', now: NOW, windowMs: 1 }))).toBe(
+      'FORBIDDEN',
+    );
+  });
+
+  it('F73: on removal only files no published post also uses are restricted; on restore all of them', async () => {
+    const key = `m/${String(ALPHA)}/${String(newId())}`;
+    const removedId = await itemOf(seedPublicId('alpha', 4));
+    const liveId = await itemOf(seedPublicId('alpha', 5));
+    const items = t().db.collection<{ _id: UUID }>('items');
+    await items.updateOne({ _id: removedId }, { $set: { image_key: key } });
+    await items.updateOne({ _id: liveId }, { $set: { image_key: key } });
+    const takedown = (restrict: boolean) =>
+      mediaForTakedown(as('mc_system'), systemScope(), { itemId: removedId, restrict });
+    // Shared with a published post: it must keep working.
+    expect(await takedown(true)).toEqual({ images: [], audio: [] });
+    expect(await takedown(false)).toEqual({ images: [key], audio: [] });
+    await items.updateOne({ _id: liveId }, { $unset: { image_key: '' } });
+    expect(await takedown(true)).toEqual({ images: [key], audio: [] });
+    expect(await code(mediaForTakedown(as('mc_admin'), stepped(), { itemId: removedId, restrict: true }))).toBe(
       'FORBIDDEN',
     );
   });
