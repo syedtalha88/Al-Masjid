@@ -16,12 +16,14 @@ import { type PublicRouteDeps, publicRoutes } from './public.ts';
 import { type SuperRouteDeps, superRoutes } from './super.ts';
 import { superLibraryRoutes } from './super-library.ts';
 import { superTemplateRoutes } from './super-templates.ts';
+import { adminVideoRoutes, type VideoRouteDeps } from './videos.ts';
 
 export type AdminRouteDeps = AdminAuthDeps &
   AdminPasskeyDeps &
   SuperRouteDeps &
   PaymentRouteDeps &
-  Pick<AdminMasjidRouteDeps, 'media' | 'notifier'>;
+  Pick<AdminMasjidRouteDeps, 'media' | 'notifier'> &
+  Pick<VideoRouteDeps, 'video'>;
 export type { PublicRouteDeps };
 
 /** api-public feature routes (03 §3, PHASE_02 T2.2). */
@@ -46,6 +48,7 @@ export function adminRoutes(deps: AdminRouteDeps): { routes: RouteDefinition[]; 
       ...adminCampaignRoutes(deps),
       ...adminChandaRoutes(deps),
       ...adminBeneficiaryRoutes(deps),
+      ...adminVideoRoutes(deps),
     ],
     superRoutes: [
       ...superRoutes(deps),

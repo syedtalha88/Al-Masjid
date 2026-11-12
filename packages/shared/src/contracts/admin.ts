@@ -1009,3 +1009,77 @@ export const adminChandaSchema = z
   })
   .meta({ id: 'AdminChanda' });
 export type AdminChanda = z.infer<typeof adminChandaSchema>;
+
+// --- Bayan videos (07 B10, DECISIONS #39, PHASE_06 T6.2) ----------------------------------------------------------
+
+export const VIDEO_TITLE_MAX = 120;
+export const VIDEO_SPEAKER_MAX = 80;
+export const VIDEO_DESCRIPTION_MAX = 1500;
+/** A pasted link is parsed on the server (`parseYouTubeLink`); it is never stored or logged. */
+const videoLink = z.string().max(2048);
+const videoAudience = z.enum(['everyone', 'brothers', 'sisters']);
+
+/** Body of `POST /masjids/:masjidId/videos/preview` (B10 "Paste link" → preview card). */
+export const videoPreviewRequestSchema = z.strictObject({ url: videoLink }).meta({ id: 'VideoPreviewRequest' });
+
+/**
+ * The preview card: YouTube's title (editable) and our sanitized copy of the thumbnail as a `data:image/jpeg` URL — the
+ * admin's phone never contacts YouTube either.
+ */
+export const videoPreviewSchema = z
+  .object({
+    youtubeId: z.string(),
+    startS: z.number().int().optional(),
+    title: z.string(),
+    thumbnail: z.string(),
+  })
+  .meta({ id: 'VideoPreview' });
+export type VideoPreview = z.infer<typeof videoPreviewSchema>;
+
+/** Body of `POST /masjids/:masjidId/videos` (B10 → Publish). The audience has no default (07 B10). */
+export const videoCreateSchema = z
+  .strictObject({
+    url: videoLink,
+    title: safeText(VIDEO_TITLE_MAX, { min: 1 }),
+    speaker: safeText(VIDEO_SPEAKER_MAX).optional(),
+    description: safeText(VIDEO_DESCRIPTION_MAX, { multiline: true }).optional(),
+    audience: videoAudience,
+    locale: z.enum(['en', 'hi', 'ur', 'te']),
+    /** The B10 ownership checkbox (05 §9). */
+    rightsConfirmed: z.literal(true),
+    notify: z.boolean(),
+  })
+  .meta({ id: 'VideoCreate' });
+export type VideoCreate = z.infer<typeof videoCreateSchema>;
+
+/** Body of `PATCH /masjids/:masjidId/videos/:id` (≤ 24 h, `If-Match`): the texts only. */
+export const videoPatchSchema = z
+  .strictObject({
+    title: safeText(VIDEO_TITLE_MAX, { min: 1 }),
+    speaker: safeText(VIDEO_SPEAKER_MAX).optional(),
+    description: safeText(VIDEO_DESCRIPTION_MAX, { multiline: true }).optional(),
+  })
+  .meta({ id: 'VideoPatch' });
+export type VideoPatch = z.infer<typeof videoPatchSchema>;
+
+export const adminVideoSchema = z
+  .object({
+    id: z.string(),
+    publicId: z.string(),
+    status: z.enum(['published', 'removed', 'deleted']),
+    title: z.string(),
+    speaker: z.string().optional(),
+    description: z.string().optional(),
+    audience: videoAudience,
+    youtubeId: z.string(),
+    startS: z.number().int().optional(),
+    thumb: z.object({ key: z.string(), thumbhash: z.string() }),
+    publishedAt: z.string(),
+    updatedAt: z.string(),
+  })
+  .meta({ id: 'AdminVideo' });
+export type AdminVideo = z.infer<typeof adminVideoSchema>;
+
+/** `GET /masjids/:masjidId/videos`: newest first — published, removed by moderation, deleted. */
+export const adminVideoListSchema = z.object({ videos: z.array(adminVideoSchema) }).meta({ id: 'AdminVideoList' });
+export type AdminVideoList = z.infer<typeof adminVideoListSchema>;

@@ -56,3 +56,4 @@ export { type AdminPasskeyDeps, adminPasskeyRoutes } from './routes/admin-passke
 export { type HealthProbes, PROBE_TIMEOUT_MS } from './routes/health.ts';
 export { type AdminRouteDeps, adminRoutes, apiPublicRoutes, type PublicRouteDeps } from './routes/index.ts';
 export { CACHE as PUBLIC_CACHE } from './routes/public.ts';
+export { mockVideoLookup, type VideoLookup, videoLookupFromEnv, youTubeLookup } from './video/youtube.ts';

@@ -13,7 +13,7 @@
 | 03 | Masjid Admin content tools | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`, with Phase 04); O39 PASS + O27 OK (10 Nov 2026); left: O25 rest (photos 3.7 / voice 3.14) + O26 (usability) — #150 | [report](reports/PHASE_03_REPORT.md) | – |
 | 04 | Push notifications | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`); T4.6 acceptance = the owner's O38 (real phones) | [report](reports/PHASE_04_REPORT.md) | – |
 | 05 | Donations, chanda & UPI change-lock | **IN PROGRESS** (T5.1 – T5.6, T5.8, T5.9 done; T5.7 quality gates left) — started 9 Nov 2026 on `feat/phase-05` while Phases 03 + 04 await the owner's checks (DECISIONS #145) | – | – |
-| 06 | Bayan videos | NOT STARTED | – | – |
+| 06 | Bayan videos | **IN PROGRESS** — started 13 Nov 2026 on `feat/phase-06` (autopilot, DECISIONS #162): T6.1 + T6.2 server done | – | – |
 | 07 | Qibla compass | NOT STARTED | – | – |
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
@@ -769,6 +769,23 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   check:dist, `db:schema:check`), CI green on Pixel 7 + iPhone 14, then O43 → staging → O28. The verifier's
   non-blocking recommendations are done: scheduler test for `payment-activate` / `campaign-close` / `retention`
   (`push-pipeline.int`), campaign PATCH with fixed fields → 400, templates + item pages in the `private_enc` sweep.
+  **13 Nov:** owner answered O46 (yes a–d) → F69 built (#161, `997a914`); security re-review 0 HIGH / 0 MEDIUM, its
+  3 LOW + nit fixed; db 376, api int 399 (+ the known Windows worker crash, re-run green). CI for `997a914` running.
+
+### Phase 06 — started 13 Nov 2026 (owner's autopilot rule, DECISIONS #162; branch `feat/phase-06` on top of `feat/phase-05`)
+
+- [ ] T6.1 — YouTube link parser + oEmbed/thumbnail adapter — **parser + adapter done 13 Nov 2026 (#163)**:
+  `@mc/domain/youtube` (`parseYouTubeLink`, `youTubeEmbedUrl`; 61 tests incl. fast-check, domain 100 %),
+  `packages/api/src/video/youtube.ts` (fixed hosts, URL from the id, no redirects, 5 s, size limits; mock adapter;
+  contract tests 26 + live opt-in `YOUTUBE_LIVE=1` green). Thumbnail → image pipeline → store at publish.
+- [ ] T6.2 — Admin flow (B10) — **server done 13 Nov 2026**: `publishVideo` / `editVideo` / `listVideosForAdmin`
+  (db `videos.int` 16), routes `GET/POST /videos`, `POST /videos/preview`, `PATCH /videos/:id` (api
+  `video-routes.int` 13: invalid link 422, unavailable 422, YouTube down 503, link never stored, another masjid 404
+  without asking YouTube, 30/hour/masjid → 429, If-Match edit ≤ 24 h). Env `VIDEO_LOOKUP` (mock locally). **Left:**
+  the B10 screens ×4 locales + e2e.
+- [ ] T6.3 — Musalli Bayans & player (A12)
+- [ ] T6.4 — Deletion & retention
+- [ ] T6.5 — Quality gates
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 

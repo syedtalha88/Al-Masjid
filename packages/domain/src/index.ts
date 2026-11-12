@@ -11,3 +11,4 @@ export * from './search.ts';
 export * from './thumbhash.ts';
 export * from './time.ts';
 export * from './upi.ts';
+export * from './youtube.ts';

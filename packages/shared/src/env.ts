@@ -313,6 +313,16 @@ const mediaStoreShape = (isLocal: boolean) => ({
   MEDIA_DIR: isLocal ? nonEmpty.optional() : z.undefined({ error: 'is for local only' }).optional(),
 });
 
+/**
+ * How api-admin checks bayan links (PHASE_06 T6.1): `youtube` — YouTube's oEmbed + thumbnail (required outside local) —
+ * or `mock` (local default: no network, every id playable except the test ids that stand for private / deleted ones).
+ */
+const videoLookupShape = (isLocal: boolean) => ({
+  VIDEO_LOOKUP: isLocal
+    ? z.enum(['youtube', 'mock'], { error: 'must be youtube or mock' }).default('mock')
+    : z.literal('youtube', { error: 'must be youtube outside local' }).default('youtube'),
+});
+
 const SERVER_SCHEMAS = {
   'api-public': (appEnv: AppEnv) => {
     const isLocal = appEnv === 'local';
@@ -335,6 +345,7 @@ const SERVER_SCHEMAS = {
       RP_ID: hostname,
       ...cloudinaryShape(isLocal),
       ...mediaStoreShape(isLocal),
+      ...videoLookupShape(isLocal),
       TURNSTILE_SECRET: requiredOutsideLocal(nonEmpty, isLocal),
       VAPID_PUBLIC_KEY: vapidPublicKey,
       PAYMENT_HOLD_MINUTES: paymentHoldMinutes(appEnv === 'production'),

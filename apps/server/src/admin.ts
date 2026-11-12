@@ -12,6 +12,7 @@ import {
   redisChallengeStore,
   sessionAuthenticator,
   startHttpServer,
+  videoLookupFromEnv,
 } from '@mc/api';
 import { BRAND } from '@mc/shared/brand';
 import { systemClock } from '@mc/shared/clock';
@@ -63,6 +64,8 @@ const { app } = createAdminApp({
     logger,
     // T3.6: Cloudinary on staging/production, a local directory locally (MEDIA_STORE).
     media: { store: mediaStoreFromEnv(env), origin: env.MEDIA_ORIGIN },
+    // T6.1: YouTube oEmbed + thumbnail copies on staging/production; a mock without network locally (VIDEO_LOOKUP).
+    video: await videoLookupFromEnv(env),
     notifier: pushNotifier(queues, logger),
     // T4.6: alerts are enqueued here, sent by the worker; the Super Admin's test alert exists outside production only.
     alerts: alertService(queues, logger),

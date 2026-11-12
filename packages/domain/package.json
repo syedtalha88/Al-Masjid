@@ -21,7 +21,8 @@
     "./thumbhash": "./src/thumbhash.ts",
     "./time": "./src/time.ts",
     "./timings": "./src/timings.ts",
-    "./upi": "./src/upi.ts"
+    "./upi": "./src/upi.ts",
+    "./youtube": "./src/youtube.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

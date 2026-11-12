@@ -3963,6 +3963,212 @@
           "private"
         ]
       },
+      "AdminVideoList": {
+        "type": "object",
+        "properties": {
+          "videos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminVideo"
+            }
+          }
+        },
+        "required": [
+          "videos"
+        ]
+      },
+      "AdminVideo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "publicId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "published",
+              "removed",
+              "deleted"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "speaker": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "audience": {
+            "type": "string",
+            "enum": [
+              "everyone",
+              "brothers",
+              "sisters"
+            ]
+          },
+          "youtubeId": {
+            "type": "string"
+          },
+          "startS": {
+            "type": "integer"
+          },
+          "thumb": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "thumbhash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "key",
+              "thumbhash"
+            ]
+          },
+          "publishedAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "publicId",
+          "status",
+          "title",
+          "audience",
+          "youtubeId",
+          "thumb",
+          "publishedAt",
+          "updatedAt"
+        ]
+      },
+      "VideoPreview": {
+        "type": "object",
+        "properties": {
+          "youtubeId": {
+            "type": "string"
+          },
+          "startS": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "thumbnail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "youtubeId",
+          "title",
+          "thumbnail"
+        ]
+      },
+      "VideoPreviewRequest": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "maxLength": 2048
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      },
+      "VideoCreate": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "speaker": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 80
+          },
+          "description": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1500
+          },
+          "audience": {
+            "type": "string",
+            "enum": [
+              "everyone",
+              "brothers",
+              "sisters"
+            ]
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
+          },
+          "rightsConfirmed": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "url",
+          "title",
+          "audience",
+          "locale",
+          "rightsConfirmed",
+          "notify"
+        ],
+        "additionalProperties": false
+      },
+      "VideoPatch": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "speaker": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 80
+          },
+          "description": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1500
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false
+      },
       "SuperDashboard": {
         "type": "object",
         "properties": {
@@ -12550,6 +12756,167 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BeneficiaryPrivateResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/videos": {
+      "get": {
+        "summary": "Bayans — published, removed by moderation, deleted; newest first (B10)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminVideoList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Publish a bayan from a YouTube link — only the id, start second and our thumbnail copy are kept",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemPublished"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/videos/preview": {
+      "post": {
+        "summary": "Check a pasted YouTube link: playable in other apps? Title and our copy of the thumbnail (B10)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoPreviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoPreview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/videos/{id}": {
+      "patch": {
+        "summary": "Edit a bayan’s title, speaker and description within 24 h (If-Match: \"<updatedAt>\"; never notifies)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemEdited"
                 }
               }
             }

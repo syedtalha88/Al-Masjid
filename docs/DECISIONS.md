@@ -2768,3 +2768,29 @@ tracked follow-up (F-entry) in whichever phase is current. Everything else in CL
 "STOP and ask" — such a question is recorded as `OPEN` and Claude Code continues with work it does not block.
 **Consequences:** CLAUDE.md §3's "do not start the next phase" and §5 steps 6–7 are replaced by this rule for now;
 PROGRESS shows each phase's pending owner checks next to its status.
+
+### #163 — Bayan links: YouTube oEmbed as verified, the preview thumbnail as a data URL, `VIDEO_LOOKUP` — ACCEPTED (Claude Code, 13 Nov 2026)
+**Context:** PHASE_06 T6.1 asks to verify YouTube's oEmbed behaviour before relying on it (DECISIONS #39) and to keep
+every outbound request on fixed hosts (04 §6).
+**Verified 13 Nov 2026** (`curl`, and the opt-in live contract test `YOUTUBE_LIVE=1`):
+`GET https://www.youtube.com/oembed?format=json&url=https://www.youtube.com/watch?v=<id>` answers **200 JSON**
+(`title`, `author_name`, `thumbnail_url` …) for a public video and **404** for an id that does not exist; private
+videos and videos whose owner turned embedding off are commonly reported as 401 / 403 (not reproducible without such a
+video — the owner's Phase 06 test uses one Unlisted video, which must answer 200). `https://i.ytimg.com/vi/<id>/
+hqdefault.jpg` is a 480 × 360 JPEG (404 when missing).
+**Decision:**
+- Any oEmbed answer 400–499 = "cannot play in the app" → `422 VIDEO_UNAVAILABLE`; 5xx, network, timeout (5 s), a
+  redirect (`redirect: 'error'`), oversized (oEmbed 64 KB, thumbnail 512 KB), non-JSON or a non-JPEG thumbnail →
+  `503 VIDEO_LOOKUP_FAILED` ("try again"). The URL is always rebuilt from the validated id.
+- **Preview** (`POST /videos/preview`) returns our sanitized thumbnail as a `data:image/jpeg` URL (admin CSP already
+  allows `data:` images): the admin's phone never contacts YouTube, and nothing is stored for a link that is never
+  published. **Publish** asks YouTube again (the video may have turned private) and stores the thumbnail copy then.
+- The lookup runs only after the admin's own masjid is checked, and counts against `adminUploads` (30 / hour / masjid)
+  plus the session's write budget.
+- Env `VIDEO_LOOKUP`: `youtube` (required on staging / production — default there) or `mock` (local default; ids
+  `privateVid1`, `deletedVid1`, `noEmbedVid1` stand for unplayable videos, `failingVid1` for YouTube being down).
+- Delete uses the common `DELETE /masjids/:id/items/:itemId` (no separate `DELETE /videos/:id`); 03 reads so.
+- The audit row of a publish names the audience and notify only — never the title or the id.
+**Consequences:** new error codes `VIDEO_INVALID` (400), `INVALID_VIDEO_LINK` (422), `VIDEO_UNAVAILABLE` (422),
+`VIDEO_LOOKUP_FAILED` (503), texts ×4. No new collection, view or DB role; no new dependency (sharp and fetch exist).
+

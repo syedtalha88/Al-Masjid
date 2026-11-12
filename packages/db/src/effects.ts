@@ -148,6 +148,7 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'payment.activate': [],
   // Donation campaigns (T5.3): amounts are in the item and its history, not in the audit meta.
   'campaign.create': ['purpose', 'notify'],
+  'video.publish': ['audience', 'notify'],
   'campaign.update': ['fields', 'target_raised'],
   'campaign.received': ['notify'],
   // PHASE_05 T5.5: never the amount (the week and whether followers were told).

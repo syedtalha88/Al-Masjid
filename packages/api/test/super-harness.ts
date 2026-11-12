@@ -15,7 +15,7 @@ import { afterAll, beforeAll } from 'vitest';
 import { createAdminApp } from '../src/app.ts';
 import { sessionAuthenticator } from '../src/auth/session.ts';
 import { type FieldKeyRing, hashToken, newToken } from '../src/crypto/field.ts';
-import { memoryRateLimiter } from '../src/http/rate-limit.ts';
+import { memoryRateLimiter, type RateLimiter } from '../src/http/rate-limit.ts';
 import { bootstrapSuperAdminInvite } from '../src/jobs/bootstrap-super-admin.ts';
 import { type AdminRouteDeps, adminRoutes } from '../src/routes/index.ts';
 import { passkeyDeps, silentLogger } from './helpers.ts';
@@ -32,7 +32,11 @@ export function superHarness(
   name: string,
   now = new Date('2026-10-28T08:00:00Z'),
   /** Extra route dependencies (alerts, the test-alert switch — T4.6); read on every request, so tests may change them. */
-  extra: Partial<Pick<AdminRouteDeps, 'alerts' | 'testAlerts' | 'notifier' | 'paymentHoldMinutes'>> = {},
+  extra: Partial<
+    Pick<AdminRouteDeps, 'alerts' | 'testAlerts' | 'notifier' | 'paymentHoldMinutes' | 'media' | 'video'>
+  > = {},
+  /** A rate limiter kept across requests (a test of a limit); a fresh, empty one per request otherwise. */
+  options: { readonly rateLimiter?: RateLimiter } = {},
 ) {
   const pepper = randomBytes(32);
   const keyRing: FieldKeyRing = { currentId: 'k1', keys: new Map([['k1', randomBytes(32)]]) };
@@ -65,7 +69,7 @@ export function superHarness(
       trustedProxyMode: 'none',
       adminOrigin: ORIGIN,
       clock,
-      rateLimiter: memoryRateLimiter(),
+      rateLimiter: options.rateLimiter ?? memoryRateLimiter(),
       authenticate: sessionAuthenticator({ db: h(), pepper, clock }),
       routes: built.routes,
       superRoutes: built.superRoutes,

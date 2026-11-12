@@ -1167,6 +1167,10 @@ errors,PAYMENT_NOT_FOUND,This payment request no longer exists.,ఈ చెల్
 errors,PAYMENT_NOT_PENDING,This request was already decided.,ఈ అభ్యర్థనపై ఇప్పటికే నిర్ణయం జరిగింది.,no
 errors,PAYMENT_REQUESTER_REMOVED,"The admin who asked no longer has access, so this request was stopped.","అడిగిన అడ్మిన్‌కు ఇప్పుడు యాక్సెస్ లేదు, కాబట్టి ఈ అభ్యర్థన ఆపివేయబడింది.",no
 errors,PAYMENT_NOT_OPEN,This request is already live or closed.,ఈ అభ్యర్థన ఇప్పటికే అమలులో ఉంది లేదా ముగిసింది.,no
+errors,VIDEO_INVALID,"Check the title and the audience, then try again.","శీర్షిక మరియు ప్రేక్షకులను తనిఖీ చేసి, మళ్ళీ ప్రయత్నించండి.",no
+errors,INVALID_VIDEO_LINK,This is not a YouTube video link.,ఇది YouTube వీడియో లింక్ కాదు.,no
+errors,VIDEO_UNAVAILABLE,This video is private or can't be shown in other apps.,ఈ వీడియో ప్రైవేట్‌గా ఉంది లేదా ఇతర యాప్‌లలో చూపించలేము.,no
+errors,VIDEO_LOOKUP_FAILED,YouTube could not be reached. Try again in a minute.,YouTube‌ను చేరుకోలేకపోయాం. ఒక నిమిషం తర్వాత మళ్ళీ ప్రయత్నించండి.,no
 errors,ITEM_LOCKED,This notice was sent by the app and cannot be changed or deleted.,"ఈ ప్రకటనను యాప్ పంపింది, దీన్ని మార్చలేరు లేదా తొలగించలేరు.",no
 errors,CAMPAIGN_INVALID,"Check the title, the target (at least ₹1,000) and the dates, then try again.","శీర్షిక, లక్ష్యం (కనీసం ₹1,000) మరియు తేదీలను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.",no
 errors,CAMPAIGN_NO_PAYMENT,Set up your masjid's UPI first (Masjid Profile → UPI payment details).,ముందు మీ మసీదు UPI సెట్ చేయండి (మసీదు ప్రొఫైల్ → UPI చెల్లింపు వివరాలు).,no

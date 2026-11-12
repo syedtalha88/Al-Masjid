@@ -214,3 +214,11 @@ export {
   TIMINGS_UPDATED_TEMPLATE,
   type TimingsInput,
 } from './timings.ts';
+export {
+  editVideo,
+  publishVideo,
+  VIDEO_DESCRIPTION_MAX,
+  VIDEO_SPEAKER_MAX,
+  VIDEO_TITLE_MAX,
+  type VideoInput,
+} from './videos.ts';

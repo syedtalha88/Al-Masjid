@@ -92,3 +92,4 @@ export {
   listTemplatesForSuper,
   type SuperTemplateRow,
 } from './templates.ts';
+export { type AdminVideoRow, type AdminVideoStatus, listVideosForAdmin } from './videos.ts';
