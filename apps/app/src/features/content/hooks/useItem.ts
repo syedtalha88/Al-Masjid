@@ -46,7 +46,8 @@ function cachedProfile(client: QueryClient, masjidId: string): MasjidSummary | n
 
 export type ItemState =
   | { readonly state: 'loading' }
-  | { readonly state: 'gone' }
+  /** `video`: the phone had it as a bayan — it may still be on the masjid's YouTube channel (F74). */
+  | { readonly state: 'gone'; readonly video?: boolean }
   | { readonly state: 'failed'; readonly retry: () => void }
   | { readonly state: 'ready'; readonly item: FeedItem; readonly masjid: MasjidSummary | null };
 
@@ -58,6 +59,12 @@ export function useItem(publicId: string): ItemState {
   const cached = findCachedItem(queryClient, publicId);
   const query = useQuery({ ...itemQuery(api, publicId, audience), enabled: cached === undefined });
 
+  // The server says it is gone (deleted, or removed by moderation — T8.2): never show the copy kept from before.
+  if (query.error instanceof ProblemError && query.error.status === 404) {
+    // The copy kept from before says what it was: a removed bayan may still be on YouTube (F74, 07 A12).
+    const before = query.data?.item ?? cached;
+    return before?.type === 'video' ? { state: 'gone', video: true } : { state: 'gone' };
+  }
   const item: FeedItem | undefined = cached ?? query.data?.item;
   if (item) {
     const followed = home.masjids.find((entry) => entry.id === item.masjidId);
@@ -67,7 +74,6 @@ export function useItem(publicId: string): ItemState {
         : (query.data?.masjid ?? cachedProfile(queryClient, item.masjidId));
     return { state: 'ready', item, masjid };
   }
-  if (query.error instanceof ProblemError && query.error.status === 404) return { state: 'gone' };
   if (query.isError) {
     return {
       state: 'failed',

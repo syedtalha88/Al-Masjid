@@ -1086,6 +1086,8 @@ content,source,Source: {name},स्रोत: {name},no
 content,license,Licence: {license},लाइसेंस: {license},no
 content,gone,This post is no longer available,यह पोस्ट अब उपलब्ध नहीं है,no
 content,goneBody,The masjid may have removed it.,हो सकता है मस्जिद ने इसे हटा दिया हो।,no
+content,goneVideo,This video was removed from the app,यह वीडियो ऐप से हटा दिया गया,no
+content,goneVideoBody,It may still be on the masjid's YouTube channel.,यह अब भी मस्जिद के YouTube चैनल पर हो सकता है।,no
 content,back,Go back,वापस जाएँ,no
 content,adhkarTitle,Adhkar after salah,नमाज़ के बाद के अज़कार,no
 content,emptyAdhkar,No adhkar yet,अभी कोई अज़कार नहीं,no

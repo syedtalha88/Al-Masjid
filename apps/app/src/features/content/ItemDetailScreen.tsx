@@ -121,13 +121,14 @@ function ItemDetail({ publicId }: { readonly publicId: string }) {
   }
   if (state.state !== 'ready') {
     const gone = state.state === 'gone';
+    const video = state.state === 'gone' && state.video === true;
     return (
       <Screen title={tc('home.updates')}>
         <EmptyState
           className="pt-8"
           illustration={gone ? <MosqueIllustration width={160} /> : undefined}
-          title={gone ? t('gone') : tc('appError.title')}
-          body={gone ? t('goneBody') : tc('appError.body')}
+          title={gone ? t(video ? 'goneVideo' : 'gone') : tc('appError.title')}
+          body={gone ? t(video ? 'goneVideoBody' : 'goneBody') : tc('appError.body')}
           action={
             gone ? (
               <Button

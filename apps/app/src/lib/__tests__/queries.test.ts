@@ -172,3 +172,20 @@ describe('a new bundle version keeps the screen (T3.3)', () => {
     expect(client.getQueryData(queryKeys.bundle(A, 3))).toBeUndefined();
   });
 });
+
+describe('opened posts follow their masjid version (PHASE_08 T8.2)', () => {
+  it("a masjid's new version marks its opened posts stale; other masjids' posts are left alone", () => {
+    const client = createQueryClient();
+    const detail = (masjidId: string) => ({ item: { masjidId, publicId: 'x' }, masjid: null });
+    client.setQueryData(queryKeys.item('postOfA0001', 'brothers'), detail(A));
+    client.setQueryData(queryKeys.item('postOfB0001', 'brothers'), detail(B));
+    client.setQueryData(['feed', A, 3, 'brothers'], { items: [], next: null });
+    client.setQueryData(['feed', B, 7, 'brothers'], { items: [], next: null });
+    const stale = (key: readonly unknown[]) => client.getQueryState(key)?.isInvalidated === true;
+    pruneStaleVersions(client, { [A]: { v: 3, status: 'active' }, [B]: { v: 7, status: 'active' } });
+    expect(stale(queryKeys.item('postOfA0001', 'brothers'))).toBe(false);
+    pruneStaleVersions(client, { [A]: { v: 4, status: 'active' }, [B]: { v: 7, status: 'active' } });
+    expect(stale(queryKeys.item('postOfA0001', 'brothers'))).toBe(true);
+    expect(stale(queryKeys.item('postOfB0001', 'brothers'))).toBe(false);
+  });
+});

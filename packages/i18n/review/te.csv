@@ -1086,6 +1086,8 @@ content,source,Source: {name},మూలం: {name},no
 content,license,Licence: {license},లైసెన్స్: {license},no
 content,gone,This post is no longer available,ఈ పోస్ట్ ఇక అందుబాటులో లేదు,no
 content,goneBody,The masjid may have removed it.,మస్జిద్ దీన్ని తీసేసి ఉండవచ్చు.,no
+content,goneVideo,This video was removed from the app,ఈ వీడియో యాప్ నుండి తొలగించబడింది,no
+content,goneVideoBody,It may still be on the masjid's YouTube channel.,ఇది ఇంకా మస్జిద్ YouTube ఛానెల్‌లో ఉండవచ్చు.,no
 content,back,Go back,వెనక్కి వెళ్ళండి,no
 content,adhkarTitle,Adhkar after salah,నమాజ్ తర్వాత అజ్కార్,no
 content,emptyAdhkar,No adhkar yet,ఇంకా అజ్కార్ లేవు,no

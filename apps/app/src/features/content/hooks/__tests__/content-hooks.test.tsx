@@ -241,6 +241,37 @@ describe('useItem', () => {
   });
 });
 
+describe('useItem after a takedown (PHASE_08 T8.2)', () => {
+  it('an opened post the server now answers 404 for is gone at once — a kept bayan says it was a video (F74)', async () => {
+    const { data, wrapper } = await setup({ follow: false });
+    server.use(
+      http.get(`${BASE}/items/:id`, () =>
+        HttpResponse.json(
+          { type: 'about:blank', title: 'x', status: 404, code: 'ITEM_NOT_FOUND' },
+          { status: 404, headers: { 'Content-Type': 'application/problem+json' } },
+        ),
+      ),
+    );
+    const kept = (publicId: string, type: string) =>
+      data.queryClient.setQueryData(queryKeys.item(publicId, 'brothers'), {
+        item: { ...NOTICE, publicId, type },
+        masjid: profile(A, 'Linked Masjid'),
+      });
+    kept('vidAAAAAAAAA', 'video');
+    kept('ntcAAAAAAAAA', 'announcement');
+    const video = renderHook(() => useItem('vidAAAAAAAAA'), { wrapper });
+    const notice = renderHook(() => useItem('ntcAAAAAAAAA'), { wrapper });
+    expect(video.result.current.state).toBe('ready'); // the kept copy, until the app checks again
+    await act(async () => {
+      await data.queryClient.invalidateQueries({ queryKey: ['item'] });
+    });
+    await waitFor(() => {
+      expect(video.result.current).toEqual({ state: 'gone', video: true });
+      expect(notice.result.current).toEqual({ state: 'gone' });
+    });
+  });
+});
+
 describe('useAmeen', () => {
   it('shows the live count, says Ameen once (optimistic, then the confirmed count)', async () => {
     const { data, wrapper, ameens } = await setup();

@@ -2999,3 +2999,40 @@ off-screen and scrolls the `overflow: hidden` dialog to show it; the offset stay
 details / token, 201, Thank you, post still shown; masjid from Masjid Detail; offline sends nothing; 4 locales, Urdu
 mirrored, axe clean) on Pixel 7 and iPhone 14; app unit `useReport` 2.
 
+
+### #171 — Takedown (PHASE_08 T8.2): state functions, tag purge, what the masjid sees, removed posts in the app — ACCEPTED (Claude Code, 13 Nov 2026)
+**Context:** C5 needs ★ Remove / ★ Restore / Dismiss with the post gone everywhere at once, preserved privately for 180
+days, the masjid told, and the CDN's cached copies dropped (05 §3, IT Rules 3(1)(g)).
+**Decision:**
+- `removeItem` / `restoreItem` (`@mc/db/state/moderation.ts`, stepped-up Super Admin) write the moderation fields
+  directly in one transaction (generic writes refuse them — `itemCheck` now also refuses `status: hidden`,
+  `removed_note`, `hidden_at`): status `removed`, `removed_reason` = **category** (`MODERATION_CATEGORIES` = the report
+  reasons + `legal_order`), private `removed_note` (≤ 500, migration `0024_removed_note`, stripped from the masjid's
+  reads), purge marker +180 days, version bump; every open report on the post closed as actioned. Restore clears all of
+  it and **dismisses the reports that auto-hid a post** (#170). Audit `item.remove` / `item.restore` / `report.dismiss`
+  (category and counts only). The placeholder stubs (`later.ts`) are gone.
+- **CDN:** Cloudflare purge **by cache tag** (verified 13 Nov 2026 — every plan incl. Free, `{"tags": [...]}`, ≤ 100 a
+  request, Free 5 requests / minute): api-admin enqueues `cdn-purge` with `i-<publicId>` and `m-<masjidId>` (the tags
+  api-public already sets); the worker purges (8 attempts, backoff). If the enqueue fails three times the answer says
+  `cdnPurgeQueued: false` and C5 offers "Clear the cache again" (`POST /items/:publicId/purge`).
+- **The masjid's admins** get the `item_removed` alert (fixed words — alert texts carry no parameters, T4.6 — "Open My
+  Posts to see the reason"); My Posts shows "Removed by moderation" with the category's label, and now also **hidden**
+  posts ("Hidden for review — many people reported it; you don't need to do anything"). An "inbox" of its own is not
+  built: My Posts is the inbox (07 B3's banner can come with the admin dashboard work).
+- **C5 screen** `/super/reports`: Open / Removed / Dismissed, cards urgent first then by due time with a due pill
+  (amber < 6 h, red overdue), the post as musallis see it (`FeedItemCard`), the masjid's removals in 90 days, the
+  reports (reason + details), ★ Remove (category + private note + "Hidden for everyone now; preserved privately for 180
+  days"), ★ Restore, Dismiss, Open masjid (Suspend / Revoke admin live on the masjid page).
+- **Musalli app — a removed post vanishes after the next poll:** found by journey 11: an opened post stayed visible for
+  up to 5 minutes (item query freshness) and even after its refetch failed (the hook preferred old data over a 404). Now
+  a 404 always means gone, and when a versions poll finds a masjid's version moved on, its opened posts are re-checked at
+  once (`pruneStaleVersions`). **F74:** when the phone had the post as a bayan, the gone screen says "This video was
+  removed from the app — it may still be on the masjid's YouTube channel".
+**Not done here (tracked):** F73 (removed posts' media undeliverable at removal) — next, its own step, after verifying
+Cloudinary's rename / access-type API. The acceptance's **automated staging check** (a removed post's cached detail URL
+answers "gone" within a minute) needs a Super Admin session on staging, which automation cannot hold: it becomes an
+owner check in the Phase 08 guide plus F76 (Phase 9: a staging-only check account). The legal-order link on removal
+(`legalOrderId`) comes with T8.5.
+**Tests:** db `moderation.int` 7, api `moderation-routes.int` 6, `cdn-purge` 9 (tag batches, 1134 → retry, job),
+e2e journey 11 `admin/moderation.spec.ts` (Pixel 7: report → C5 → ★ Remove → musalli "no longer available" → My Posts
+category, no note), app unit `queries` (version → posts re-checked), `content-hooks` (404 beats the kept copy; F74).
