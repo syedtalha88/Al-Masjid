@@ -89,14 +89,16 @@ describe('listenHeading', () => {
 });
 
 describe('platform', () => {
-  it('iOS needs a permission tap; Android and desktop do not', () => {
-    const ios = { DeviceOrientationEvent: { requestPermission: () => Promise.resolve('granted') } };
-    expect(needsMotionPermission(ios)).toBe(true);
-    expect(needsMotionPermission({ DeviceOrientationEvent: {} })).toBe(false);
-    expect(needsMotionPermission({})).toBe(false);
-    expect(headingPlatform('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0)', {})).toBe('ios');
-    expect(headingPlatform('Mozilla/5.0 (Linux; Android 15; Pixel 7)', {})).toBe('android');
-    expect(headingPlatform('Mozilla/5.0 (X11; Linux x86_64)', {})).toBe('other');
-    expect(headingPlatform('anything', ios)).toBe('ios');
+  it('only iOS needs a permission tap (Chromium has the method too but never asks)', () => {
+    const withMethod = { DeviceOrientationEvent: { requestPermission: () => Promise.resolve('granted') } };
+    expect(needsMotionPermission('ios', withMethod)).toBe(true);
+    expect(needsMotionPermission('android', withMethod)).toBe(false);
+    expect(needsMotionPermission('ios', { DeviceOrientationEvent: {} })).toBe(false);
+    expect(needsMotionPermission('other', {})).toBe(false);
+    expect(headingPlatform('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0)')).toBe('ios');
+    expect(headingPlatform('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', 5)).toBe('ios'); // iPadOS
+    expect(headingPlatform('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', 0)).toBe('other');
+    expect(headingPlatform('Mozilla/5.0 (Linux; Android 15; Pixel 7)')).toBe('android');
+    expect(headingPlatform('Mozilla/5.0 (X11; Linux x86_64)')).toBe('other');
   });
 });

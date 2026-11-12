@@ -132,6 +132,17 @@ for (const locale of LOCALES) {
       }
     });
 
+    // PHASE_07 T7.4 (07 A14): the Qibla page from Delta's location without a compass (no sensors in the visual run) —
+    // the dial North-up with the Kaaba at the bearing, the bearing large and the hint; never mirrored.
+    test(`qibla (${locale})`, async ({ page }) => {
+      await pinClock(page);
+      await page.goto(APP_URL);
+      await followByCode(page, APP_URL, ['TESTD004']);
+      await page.goto(`${APP_URL}/qibla`);
+      await expect(page.locator('[data-qibla-status="none"]')).toBeVisible({ timeout: 5000 });
+      await shot(page, locale, 'qibla');
+    });
+
     test.describe('first launch', () => {
       test.use({ appDevice: 'fresh' });
 

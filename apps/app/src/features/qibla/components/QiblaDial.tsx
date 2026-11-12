@@ -3,7 +3,7 @@
 // The whole dial turns with the phone (−heading) straight from the heading value — no React render per reading; a
 // fixed indicator at the top shows where the phone points. Aligned (±3°): ring and arrow in primary-500 with a soft
 // pulse (none with reduced motion).
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 
 import type { HeadingValue } from '../lib/heading.ts';
 
@@ -50,8 +50,9 @@ export function QiblaDial({ bearing, heading, aligned, label }: QiblaDialProps) 
     return heading.on('change', turn);
   }, [heading]);
 
-  const tip = at(bearing, 92);
-  const marker = at(bearing, RING - 22);
+  // Letters (r 88) and the Kaaba (r 114) never meet — Indian bearings (256°–294°) sit right next to W.
+  const tip = at(bearing, 74);
+  const marker = at(bearing, RING - 18);
   const ringTone = aligned ? 'stroke-primary-500' : 'stroke-border';
   const arrowTone = aligned ? 'fill-primary-500 stroke-primary-500' : 'fill-primary-700 stroke-primary-700';
 
@@ -64,51 +65,20 @@ export function QiblaDial({ bearing, heading, aligned, label }: QiblaDialProps) 
       data-qibla-dial
       data-aligned={aligned ? 'true' : 'false'}
     >
-      {aligned ? (
-        <circle
-          cx={C}
-          cy={C}
-          r={RING + 8}
-          className="pulse-dot fill-none stroke-primary-500 opacity-40"
-          strokeWidth={8}
-        />
-      ) : null}
+      {/* Always in the DOM: aligning toggles paint (opacity + the pulse), never layout (08 §8). */}
+      <circle
+        cx={C}
+        cy={C}
+        r={RING + 8}
+        className={`fill-none stroke-primary-500 ${aligned ? 'pulse-dot opacity-40' : 'opacity-0'}`}
+        strokeWidth={8}
+      />
+
       {/* The fixed indicator: where the top of the phone points. */}
       <path d={`M ${String(C)} 6 l -9 14 h 18 Z`} className={aligned ? 'fill-primary-500' : 'fill-text'} />
       <g ref={dial} style={{ transformOrigin: `${String(C)}px ${String(C)}px`, transformBox: 'view-box' }}>
         <circle cx={C} cy={C} r={RING} className={`fill-surface ${ringTone}`} strokeWidth={3} />
-        {TICKS.map((angle) => {
-          const long = angle % 30 === 0;
-          const from = at(angle, RING - 2);
-          const to = at(angle, RING - (angle % 90 === 0 ? 16 : long ? 11 : 6));
-          return (
-            <line
-              key={angle}
-              x1={from.x}
-              y1={from.y}
-              x2={to.x}
-              y2={to.y}
-              className={long ? 'stroke-text-secondary' : 'stroke-border'}
-              strokeWidth={long ? 2 : 1}
-            />
-          );
-        })}
-        {LETTERS.map(({ text, angle }) => {
-          const point = at(angle, RING - 32);
-          return (
-            <text
-              key={text}
-              x={point.x}
-              y={point.y}
-              textAnchor="middle"
-              dominantBaseline="central"
-              className={`type-headline ${text === 'N' ? 'fill-danger' : 'fill-text-secondary'}`}
-              transform={`rotate(${String(angle)} ${String(point.x)} ${String(point.y)})`}
-            >
-              {text}
-            </text>
-          );
-        })}
+        <DialFace />
         <line x1={C} y1={C} x2={tip.x} y2={tip.y} className={arrowTone} strokeWidth={6} strokeLinecap="round" />
         <circle cx={C} cy={C} r={7} className={arrowTone} />
         {/* The Kaaba: a small dark cube with its gold band. */}
@@ -120,3 +90,43 @@ export function QiblaDial({ bearing, heading, aligned, label }: QiblaDialProps) 
     </svg>
   );
 }
+
+/** Ticks and letters — static, rendered once (an alignment change repaints colours, not 76 elements). */
+const DialFace = memo(function DialFace() {
+  return (
+    <>
+      {TICKS.map((angle) => {
+        const long = angle % 30 === 0;
+        const from = at(angle, RING - 2);
+        const to = at(angle, RING - (angle % 90 === 0 ? 16 : long ? 11 : 6));
+        return (
+          <line
+            key={angle}
+            x1={from.x}
+            y1={from.y}
+            x2={to.x}
+            y2={to.y}
+            className={long ? 'stroke-text-secondary' : 'stroke-border'}
+            strokeWidth={long ? 2 : 1}
+          />
+        );
+      })}
+      {LETTERS.map(({ text, angle }) => {
+        const point = at(angle, RING - 44);
+        return (
+          <text
+            key={text}
+            x={point.x}
+            y={point.y}
+            textAnchor="middle"
+            dominantBaseline="central"
+            className={`type-headline ${text === 'N' ? 'fill-danger' : 'fill-text-secondary'}`}
+            transform={`rotate(${String(angle)} ${String(point.x)} ${String(point.y)})`}
+          >
+            {text}
+          </text>
+        );
+      })}
+    </>
+  );
+});

@@ -963,6 +963,25 @@ common,updates.new,New,కొత్తది,no
 common,updates.loadingMore,Loading more…,మరిన్ని లోడ్ అవుతున్నాయి…,no
 common,summary.raisedOf,{received} raised of {target},{target}లో {received} వచ్చింది,no
 common,summary.collected,{amount} collected in the week of {date},{date} వారంలో {amount} వసూలైంది,no
+common,qibla.title,Qibla Direction,ఖిబ్లా దిశ,no
+common,qibla.facing,You are facing the Qibla,మీరు ఖిబ్లా వైపు ఉన్నారు,no
+common,qibla.turn,Turn until the arrow points up,బాణం పైకి చూపే వరకు తిరగండి,no
+common,qibla.bearing,Qibla is {degrees}° from North,ఖిబ్లా ఉత్తరం నుండి {degrees}° వద్ద ఉంది,no
+common,qibla.distance,Distance to Makkah: {km} km,మక్కాకు దూరం: {km} కి.మీ,no
+common,qibla.usingDevice,Using your location,మీ లొకేషన్‌తో,no
+common,qibla.usingMasjid,Using: {name},ఉపయోగిస్తోంది: {name},no
+common,qibla.useMyLocation,Use my location,నా లొకేషన్ ఉపయోగించండి,no
+common,qibla.locating,Finding your location…,మీ లొకేషన్ కనుగొంటోంది…,no
+common,qibla.needLocationTitle,Where are you?,మీరు ఎక్కడ ఉన్నారు?,no
+common,qibla.needLocationBody,Your location stays on this phone. It is only used to work out the direction.,మీ లొకేషన్ ఈ ఫోన్‌లోనే ఉంటుంది. దిశను లెక్కించడానికి మాత్రమే ఉపయోగిస్తాం.,no
+common,qibla.denied,"Location is off for this app. Allow it in your phone's settings, or follow a masjid to use its location.","ఈ యాప్‌కు లొకేషన్ ఆఫ్‌లో ఉంది. ఫోన్ సెట్టింగ్స్‌లో అనుమతించండి, లేదా ఏదైనా మసీదును ఫాలో చేసి దాని లొకేషన్ ఉపయోగించండి.",no
+common,qibla.unavailable,Your location could not be found. Try again near a window or outside.,మీ లొకేషన్ కనుగొనలేకపోయాం. కిటికీ దగ్గర లేదా బయట మళ్ళీ ప్రయత్నించండి.,no
+common,qibla.motionTitle,Turn on the compass,కంపాస్ ఆన్ చేయండి,no
+common,qibla.motionBody,Allow motion and orientation so the arrow can turn with your phone.,బాణం మీ ఫోన్‌తో పాటు తిరగడానికి మోషన్ మరియు ఓరియంటేషన్‌కు అనుమతి ఇవ్వండి.,no
+common,qibla.motionButton,Turn on compass,కంపాస్ ఆన్ చేయండి,no
+common,qibla.motionDenied,The compass is off. The direction is shown in degrees instead.,కంపాస్ ఆఫ్‌లో ఉంది. దిశ డిగ్రీలలో చూపబడింది.,no
+common,qibla.noCompass,Face {degrees}° from North — use your phone's compass app if you need to,ఉత్తరం నుండి {degrees}° వైపు తిరగండి — అవసరమైతే మీ ఫోన్ కంపాస్ యాప్ ఉపయోగించండి,no
+common,qibla.dialLabel,Compass: the Kaaba is {degrees}° from North,కంపాస్: కాబా ఉత్తరం నుండి {degrees}° వద్ద ఉంది,no
 content,announcements,Announcements,ప్రకటనలు,no
 content,hadithQuran,Hadith & Quran,హదీస్ & ఖుర్ఆన్,no
 content,duaRequests,Dua Requests,దువా విన్నపాలు,no

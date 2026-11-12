@@ -24,7 +24,9 @@ type PermissionCtor = { requestPermission?: () => Promise<string> };
 export function useHeading(bearing: number | null) {
   const reduced = useReducedMotionPref();
   const [heading] = useState(() => createHeadingValue(0));
-  const needsPermission = typeof window !== 'undefined' && needsMotionPermission(window);
+  const platform =
+    typeof navigator === 'undefined' ? 'other' : headingPlatform(navigator.userAgent, navigator.maxTouchPoints);
+  const needsPermission = typeof window !== 'undefined' && needsMotionPermission(platform, window);
   const [granted, setGranted] = useState(!needsPermission);
   const [status, setStatus] = useState<HeadingStatus>(needsPermission ? 'needs-permission' : 'waiting');
   const [aligned, setAligned] = useState(false);
@@ -34,7 +36,6 @@ export function useHeading(bearing: number | null) {
 
   useEffect(() => {
     if (!granted || typeof window === 'undefined') return;
-    const platform = headingPlatform(navigator.userAgent, window);
     let stop: (() => void) | null = null;
     const start = () => {
       stop?.();
@@ -69,7 +70,7 @@ export function useHeading(bearing: number | null) {
       stop?.();
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [granted, reduced, heading]);
+  }, [granted, reduced, heading, platform]);
 
   // Entering / leaving the aligned zone — the only per-reading work that reaches React.
   useEffect(() => {

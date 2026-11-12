@@ -218,8 +218,9 @@ https://{$ADMIN_HOST} {
 	}
 	handle {
 		import security-headers
-		# The admin app records voice notes (B14, DECISIONS #128): the microphone for this origin only.
-		header Permissions-Policy "camera=(self), geolocation=(self), accelerometer=(self), gyroscope=(self), magnetometer=(self), microphone=(self), payment=(), usb=(), bluetooth=()"
+		# The admin app records voice notes (B14, DECISIONS #128): the microphone for this origin only. Location and motion
+		# sensors are the musalli app's (Qibla, PHASE_07 T7.4) — never the admin's.
+		header Permissions-Policy "camera=(self), geolocation=(), accelerometer=(), gyroscope=(), magnetometer=(), microphone=(self), payment=(), usb=(), bluetooth=()"
 		import csp-admin
 		import spa /srv/admin
 	}

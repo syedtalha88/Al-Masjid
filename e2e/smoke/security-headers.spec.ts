@@ -18,8 +18,12 @@ const COMMON = {
 };
 const PERMISSIONS =
   'camera=(self), geolocation=(self), accelerometer=(self), gyroscope=(self), magnetometer=(self), microphone=(), payment=(), usb=(), bluetooth=()';
-/** The admin app records voice notes (B14, DECISIONS #128): the microphone for its own origin only. */
-const ADMIN_PERMISSIONS = PERMISSIONS.replace('microphone=()', 'microphone=(self)');
+/**
+ * The admin app records voice notes (B14, DECISIONS #128): the microphone for its own origin only; location and the
+ * motion sensors are the musalli app's alone (Qibla, PHASE_07 T7.4).
+ */
+const ADMIN_PERMISSIONS =
+  'camera=(self), geolocation=(), accelerometer=(), gyroscope=(), magnetometer=(), microphone=(self), payment=(), usb=(), bluetooth=()';
 
 /** Parses a CSP header into directive → sources. */
 function csp(response: APIResponse): Map<string, string[]> {

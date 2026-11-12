@@ -8,6 +8,7 @@ import { useLocale, useTranslation } from '@mc/i18n/react';
 import { Button, Card, InfoNote } from '@mc/ui/components';
 import { CompassIcon, MapPinIcon } from '@mc/ui/icons';
 import { Screen } from '@mc/ui/navigation';
+import { memo } from 'react';
 
 import { QiblaDial } from './components/QiblaDial.tsx';
 import { useHeading } from './hooks/useHeading.ts';
@@ -19,7 +20,6 @@ export function QiblaScreen() {
   const { source, ask, locateMe } = useQiblaLocation();
   const from = source.kind === 'none' ? null : source.at;
   const bearing = from ? qiblaBearing(from) : null;
-  const { heading, status, aligned, enable } = useHeading(bearing);
   const degrees = bearing === null ? '' : format.number(Math.round(bearing));
 
   const locationButton = (
@@ -38,7 +38,7 @@ export function QiblaScreen() {
 
   return (
     <Screen title={t('qibla.title')}>
-      <div className="flex flex-col gap-5 pt-2 pb-8" data-qibla data-qibla-status={status} lang={locale}>
+      <div className="flex flex-col gap-5 pt-2 pb-8" data-qibla lang={locale}>
         {from === null || bearing === null ? (
           <Card className="flex flex-col gap-3" data-qibla-need-location>
             <h2 className="type-headline text-text">{t('qibla.needLocationTitle')}</h2>
@@ -52,45 +52,7 @@ export function QiblaScreen() {
           </Card>
         ) : (
           <>
-            <QiblaDial
-              bearing={bearing}
-              heading={status === 'live' ? heading : null}
-              aligned={status === 'live' && aligned}
-              label={t('qibla.dialLabel', { degrees })}
-            />
-            <p
-              className={`text-center type-title2 ${status === 'live' && aligned ? 'text-primary-700' : 'text-text'}`}
-              aria-live="polite"
-              data-qibla-facing
-            >
-              {status === 'live' ? (aligned ? t('qibla.facing') : t('qibla.turn')) : null}
-            </p>
-            {status === 'needs-permission' ? (
-              <Card className="flex flex-col gap-3" data-qibla-motion>
-                <h2 className="type-headline text-text">{t('qibla.motionTitle')}</h2>
-                <p className="type-body text-text-secondary">{t('qibla.motionBody')}</p>
-                <Button
-                  size="lg"
-                  fullWidth
-                  leadingIcon={<CompassIcon />}
-                  onPress={() => {
-                    void enable();
-                  }}
-                >
-                  {t('qibla.motionButton')}
-                </Button>
-              </Card>
-            ) : null}
-            {status === 'none' || status === 'denied' ? (
-              <div className="flex flex-col items-center gap-2 text-center" data-qibla-no-compass>
-                <p className="type-large-title text-text" dir="ltr">
-                  {`${degrees}°`}
-                </p>
-                <InfoNote icon={<CompassIcon />}>
-                  {status === 'denied' ? t('qibla.motionDenied') : t('qibla.noCompass', { degrees })}
-                </InfoNote>
-              </div>
-            ) : null}
+            <Compass bearing={bearing} degrees={degrees} />
             <dl className="flex flex-col gap-1 text-center">
               <dt className="sr-only">{t('qibla.title')}</dt>
               <dd className="type-headline text-text" data-qibla-bearing>
@@ -120,3 +82,56 @@ export function QiblaScreen() {
     </Screen>
   );
 }
+
+/**
+ * The live part — the only component that hears about the heading's state changes (live / no compass / aligned), so an
+ * alignment change re-renders the dial and its line, not the page (08 §8: no long task while the phone turns).
+ */
+const Compass = memo(function Compass({ bearing, degrees }: { readonly bearing: number; readonly degrees: string }) {
+  const { t } = useTranslation();
+  const { heading, status, aligned, enable } = useHeading(bearing);
+  const live = status === 'live';
+  return (
+    <div className="flex flex-col gap-5" data-qibla-status={status}>
+      <QiblaDial
+        bearing={bearing}
+        heading={live ? heading : null}
+        aligned={live && aligned}
+        label={t('qibla.dialLabel', { degrees })}
+      />
+      {/* Both lines stay in the same grid cell; aligning flips visibility (paint, not layout — 08 §8). */}
+      <p className="grid text-center type-title2" aria-live="polite" data-qibla-facing>
+        <span className={`[grid-area:1/1] text-text ${live && !aligned ? '' : 'invisible'}`}>{t('qibla.turn')}</span>
+        <span className={`[grid-area:1/1] text-primary-700 ${live && aligned ? '' : 'invisible'}`}>
+          {t('qibla.facing')}
+        </span>
+      </p>
+      {status === 'needs-permission' ? (
+        <Card className="flex flex-col gap-3" data-qibla-motion>
+          <h2 className="type-headline text-text">{t('qibla.motionTitle')}</h2>
+          <p className="type-body text-text-secondary">{t('qibla.motionBody')}</p>
+          <Button
+            size="lg"
+            fullWidth
+            leadingIcon={<CompassIcon />}
+            onPress={() => {
+              void enable();
+            }}
+          >
+            {t('qibla.motionButton')}
+          </Button>
+        </Card>
+      ) : null}
+      {status === 'none' || status === 'denied' ? (
+        <div className="flex flex-col items-center gap-2 text-center" data-qibla-no-compass>
+          <p className="type-large-title text-text" dir="ltr">
+            {`${degrees}°`}
+          </p>
+          <InfoNote icon={<CompassIcon />}>
+            {status === 'denied' ? t('qibla.motionDenied') : t('qibla.noCompass', { degrees })}
+          </InfoNote>
+        </div>
+      ) : null}
+    </div>
+  );
+});

@@ -963,6 +963,25 @@ common,updates.new,New,नया,no
 common,updates.loadingMore,Loading more…,और लोड हो रहा है…,no
 common,summary.raisedOf,{received} raised of {target},{target} में से {received} जमा,no
 common,summary.collected,{amount} collected in the week of {date},{date} वाले हफ़्ते में {amount} जमा हुए,no
+common,qibla.title,Qibla Direction,क़िब्ला की दिशा,no
+common,qibla.facing,You are facing the Qibla,आप क़िब्ला की ओर हैं,no
+common,qibla.turn,Turn until the arrow points up,तब तक घूमें जब तक तीर ऊपर की ओर न हो,no
+common,qibla.bearing,Qibla is {degrees}° from North,क़िब्ला उत्तर से {degrees}° पर है,no
+common,qibla.distance,Distance to Makkah: {km} km,मक्का की दूरी: {km} किमी,no
+common,qibla.usingDevice,Using your location,आपकी लोकेशन से,no
+common,qibla.usingMasjid,Using: {name},इस्तेमाल: {name},no
+common,qibla.useMyLocation,Use my location,मेरी लोकेशन इस्तेमाल करें,no
+common,qibla.locating,Finding your location…,आपकी लोकेशन ढूँढी जा रही है…,no
+common,qibla.needLocationTitle,Where are you?,आप कहाँ हैं?,no
+common,qibla.needLocationBody,Your location stays on this phone. It is only used to work out the direction.,आपकी लोकेशन इसी फ़ोन पर रहती है। इसका इस्तेमाल सिर्फ़ दिशा निकालने के लिए होता है।,no
+common,qibla.denied,"Location is off for this app. Allow it in your phone's settings, or follow a masjid to use its location.","इस ऐप के लिए लोकेशन बंद है। फ़ोन की सेटिंग में इसे चालू करें, या किसी मस्जिद को फ़ॉलो करके उसकी लोकेशन इस्तेमाल करें।",no
+common,qibla.unavailable,Your location could not be found. Try again near a window or outside.,आपकी लोकेशन नहीं मिल सकी। खिड़की के पास या बाहर जाकर फिर कोशिश करें।,no
+common,qibla.motionTitle,Turn on the compass,कंपास चालू करें,no
+common,qibla.motionBody,Allow motion and orientation so the arrow can turn with your phone.,मोशन और ओरिएंटेशन की अनुमति दें ताकि तीर आपके फ़ोन के साथ घूम सके।,no
+common,qibla.motionButton,Turn on compass,कंपास चालू करें,no
+common,qibla.motionDenied,The compass is off. The direction is shown in degrees instead.,कंपास बंद है। दिशा डिग्री में दिखाई गई है।,no
+common,qibla.noCompass,Face {degrees}° from North — use your phone's compass app if you need to,उत्तर से {degrees}° की ओर मुँह करें — ज़रूरत हो तो फ़ोन का कंपास ऐप इस्तेमाल करें,no
+common,qibla.dialLabel,Compass: the Kaaba is {degrees}° from North,कंपास: काबा उत्तर से {degrees}° पर है,no
 content,announcements,Announcements,सूचनाएँ,no
 content,hadithQuran,Hadith & Quran,हदीस और क़ुरआन,no
 content,duaRequests,Dua Requests,दुआ की गुज़ारिशें,no

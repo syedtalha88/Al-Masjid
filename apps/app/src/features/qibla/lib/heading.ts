@@ -10,19 +10,25 @@ export const NO_COMPASS_MS = 2000;
 /** 08 §5.9: low-pass α ≈ 0.15 (reduced motion: 1 — no gliding). */
 export const SMOOTHING = 0.15;
 
-/** iOS needs `DeviceOrientationEvent.requestPermission()` from a tap before it sends events. */
-export function needsMotionPermission(scope: { readonly DeviceOrientationEvent?: unknown }): boolean {
-  const ctor = scope.DeviceOrientationEvent as { requestPermission?: unknown } | undefined;
-  return typeof ctor?.requestPermission === 'function';
+/**
+ * Which heading rule applies: iOS (compass heading), Android (absolute alpha), anything else. iPadOS says "Macintosh"
+ * but has touch points.
+ */
+export function headingPlatform(userAgent: string, maxTouchPoints = 0): HeadingPlatform {
+  if (/iPhone|iPad|iPod/u.test(userAgent) || (/Macintosh/u.test(userAgent) && maxTouchPoints > 1)) return 'ios';
+  return /Android/u.test(userAgent) ? 'android' : 'other';
 }
 
-/** Which heading rule applies: iOS (compass heading), Android (absolute alpha), anything else. */
-export function headingPlatform(
-  userAgent: string,
+/**
+ * iOS needs `DeviceOrientationEvent.requestPermission()` from a tap before it sends events. (Chromium has the method
+ * too but grants without asking — Android never shows the card.)
+ */
+export function needsMotionPermission(
+  platform: HeadingPlatform,
   scope: { readonly DeviceOrientationEvent?: unknown },
-): HeadingPlatform {
-  if (needsMotionPermission(scope) || /iPhone|iPad|iPod/u.test(userAgent)) return 'ios';
-  return /Android/u.test(userAgent) ? 'android' : 'other';
+): boolean {
+  const ctor = scope.DeviceOrientationEvent as { requestPermission?: unknown } | undefined;
+  return platform === 'ios' && typeof ctor?.requestPermission === 'function';
 }
 
 interface Timers {

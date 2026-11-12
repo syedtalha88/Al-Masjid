@@ -2845,3 +2845,29 @@ allow-list only and never logs bodies (code-verified). **L12** no `sandbox` on t
 T8.2 (makes it undeliverable at removal and purges the CDN), tracked as F73. Note: sisters-only is a display filter by
 the device's own choice (#3), as the B10 warning and #39 say.
 
+### #166 — Qibla page: how it is built (PHASE_07) — ACCEPTED (Claude Code, 13 Nov 2026)
+**Context:** PHASE_07 asks for a simple, beautiful Qibla page (DECISIONS #118) with the location kept on the phone.
+**Decision:**
+- **Math:** great-circle initial bearing and haversine distance to the Kaaba (21.4225 N, 39.8262 E) in
+  `@mc/domain/qibla`; golden values for the 7 test cities from two independent calculators — the Aladhan Qibla API
+  and GeographicLib 2.0 on WGS84 (13 Nov 2026) — all within ±0.5° (`test/fixtures/qibla-golden.json`).
+- **Location:** "Use my location" on a tap (10 s, `enableHighAccuracy: false`), rounded to 3 decimals (~100 m — enough
+  for a direction, less precise than the phone knows) and kept only in the device document (`qibla`); otherwise the
+  first followed masjid's coordinates. No request carries coordinates (e2e network assertion). "Clear all data" removes it.
+- **Heading:** iOS → `webkitCompassHeading` after the `DeviceOrientationEvent.requestPermission()` tap; the card is
+  shown on iOS (and iPadOS — "Macintosh" with touch) only: Chromium now has the same method but grants without asking,
+  so Android never sees the card. Android → `deviceorientationabsolute` (and absolute `deviceorientation`):
+  heading = (360 − alpha + screen angle) mod 360. No reading in 2 s → no-compass mode. Smoothing α 0.15 along the short
+  way (1 with reduced motion — no gliding). Listeners removed on leave and while hidden.
+- **Rendering:** the heading goes into a small observable (not React state; the app does not depend on Motion
+  directly — no new dependency) and the SVG dial's transform is written per reading. Only the `Compass` component
+  hears about state changes (live / none / aligned) and the 76 static ticks and letters are memoised: the perf trace
+  (60 Hz stream, 4× CPU) showed a 110–140 ms task per alignment change when the whole page re-rendered.
+- **Aligned ±3°:** primary ring and arrow, the existing `pulse-dot` utility (1.2 s, off with reduced motion), one 30 ms
+  vibration per entry at most every 1.5 s (`HAPTICS.qibla`).
+- **Dial:** N / E / S / W in Latin, never mirrored (SVG coordinates); letters (r 88) and the Kaaba marker (r 114) are
+  apart so Indian bearings (256°–294°, next to W) never overlap.
+- **Permissions-Policy:** geolocation and motion sensors only on the app origin; the admin origin now says `()` for
+  them (04 §7, smoke test).
+**Consequences:** no new dependency; device document field `qibla` (optional); `HAPTICS.qibla`.
+

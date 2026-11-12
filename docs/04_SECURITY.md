@@ -99,7 +99,7 @@ Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
 X-Content-Type-Options: nosniff
 Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: camera=(self), geolocation=(self), accelerometer=(self), gyroscope=(self), magnetometer=(self), microphone=(), payment=(), usb=(), bluetooth=(), interest-cohort=()
-  (admin app: microphone=(self) — the voice-note recorder B14, DECISIONS #128)
+  (admin app: microphone=(self) — the voice-note recorder B14, DECISIONS #128; geolocation=(), accelerometer=(), gyroscope=(), magnetometer=() — only the musalli app's Qibla page uses them, PHASE_07 T7.4)
 Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Resource-Policy: same-site
 X-Frame-Options: DENY

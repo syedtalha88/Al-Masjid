@@ -14,7 +14,7 @@
 | 04 | Push notifications | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`); T4.6 acceptance = the owner's O38 (real phones) | [report](reports/PHASE_04_REPORT.md) | – |
 | 05 | Donations, chanda & UPI change-lock | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): CI green on `997a914`, phase-verifier findings fixed, security re-review clean. Waiting: O43 → merge to `main` / staging → O45 → O50 (guide 5.1–5.22) + O28 | [final](reports/PHASE_05_REPORT.md) | – |
 | 06 | Bayan videos | **IN PROGRESS** — started 13 Nov 2026 on `feat/phase-06` (autopilot, DECISIONS #162): T6.1 + T6.2 server done | – | – |
-| 07 | Qibla compass | NOT STARTED | – | – |
+| 07 | Qibla compass | **IN PROGRESS** — started 13 Nov 2026 on `feat/phase-07` (autopilot, #162): T7.1–T7.3 built (#166) | – | – |
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
@@ -804,7 +804,18 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   removed posts after 180 days with their media (bayan thumbnails too) and purges the 6 CDN URLs per image
   (Cloudflare purge by URL, verified). Tests: api `video-routes.int` (179 days nothing, 181 days post + thumbnail + 6
   URLs, idempotent), `cdn-purge` 6, db `videos.int` purge (system only, shared thumbnail stays, Ameen counter goes).
-- [ ] T6.5 — Quality gates
+- [ ] T6.5 — Quality gates — visual `bayans` / `bayan-player` × 4 × 2, admin B10 screens × 4 (8/8), budgets green,
+  security review 0 HIGH · 2 MEDIUM (fixed) · 13 LOW (#165). Left: CI on `main` (`3a0c88a`), phase-verifier, report.
+
+### Phase 07 — started 13 Nov 2026 (autopilot, #162; branch `feat/phase-07` on top of `feat/phase-06`)
+
+- [x] T7.1 — Qibla math — `@mc/domain/qibla`, golden 7 cities vs Aladhan + GeographicLib (±0.5°), domain 100 % (306).
+- [x] T7.2 — Location & heading — `useQiblaLocation` (device-only, ~100 m), `useHeading` + `listenHeading` (unit 7:
+  wrap-around, noise, no-compass, stop); e2e: no request carries coordinates.
+- [ ] T7.3 — Qibla page (A14) — built (#166); e2e `e2e/app/qibla.spec.ts` 8/8 (masjid source, live stream, aligned,
+  no compass, Use my location, iOS card, 4 locales, not mirrored); perf `qibla.perf.spec.ts` (fixed a 110–140 ms
+  re-render per alignment change); visual `qibla`. Being verified.
+- [ ] T7.4 — Quality gates — Permissions-Policy: admin origin refuses location / sensors (smoke test updated).
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
