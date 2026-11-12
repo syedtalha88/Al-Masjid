@@ -2,10 +2,11 @@
 
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
-> Last updated: 13 Nov 2026 — **Phases 03 + 04 are on staging**; **Phase 05 is closed on our side** ("DONE — owner
-> checks pending", DECISIONS #162) and **Phase 06 (bayan videos) is being built**. What Phase 05 needs from you is the
-> block "Phase 05 — closing on staging" below (O43 → deploy → O45 → checks 5.1–5.22 with O28). Older items: O25 rest →
-> O26 (closes Phase 03), O38 (closes Phase 04).
+> Last updated: 13 Nov 2026 — **Phases 03, 04, 05 and 06 are on staging**; **Phases 05, 06 and 07 are closed on our
+> side** ("DONE — owner checks pending", DECISIONS #162). Phase 07 (Qibla) reaches staging with the next `main` CI run;
+> **Phase 08 (moderation, grievance, legal pages, QR posters) is next.** Your checks, in any order: O45 → O50 + O28
+> (Phase 05), O49 (Phase 06, possible now), O29 (Phase 07, once it is on staging). Older items: O25 rest → O26
+> (Phase 03), O38 (Phase 04).
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
 > Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.

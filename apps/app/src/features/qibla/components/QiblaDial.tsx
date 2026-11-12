@@ -48,11 +48,25 @@ export function QiblaDial({ bearing, heading, aligned, label }: QiblaDialProps) 
       return;
     }
     turn(heading.get());
-    return heading.on('change', turn);
+    // One style write per frame, however fast the sensor fires (08 §5.9).
+    let frame = 0;
+    const stop = heading.on('change', () => {
+      if (frame !== 0) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        turn(heading.get());
+      });
+    });
+    return () => {
+      stop();
+      cancelAnimationFrame(frame);
+    };
   }, [heading]);
 
+  // The arrow runs from the centre to its head (tip r 101), just inside the Kaaba (r 114, inner edge ~r 103).
   // Letters (r 88) and the Kaaba (r 114) never meet — Indian bearings (256°–294°) sit right next to W.
-  const tip = at(bearing, 74);
+  const tip = at(bearing, 84);
+  const head = at(bearing, 91);
   const marker = at(bearing, RING - 18);
   const ringTone = aligned ? 'stroke-primary-500' : 'stroke-border';
   const arrowTone = aligned ? 'fill-primary-500 stroke-primary-500' : 'fill-primary-700 stroke-primary-700';
@@ -74,8 +88,9 @@ export function QiblaDial({ bearing, heading, aligned, label }: QiblaDialProps) 
         cx={C}
         cy={C}
         r={RING + 8}
-        className={`fill-none stroke-primary-500 ${aligned ? 'pulse-dot opacity-40' : 'opacity-0'}`}
+        className={`fill-none stroke-primary-500 ${aligned ? 'pulse-glow opacity-40' : 'opacity-0'}`}
         strokeWidth={8}
+        data-qibla-glow
       />
 
       {/* The fixed indicator: where the top of the phone points. */}
@@ -84,6 +99,13 @@ export function QiblaDial({ bearing, heading, aligned, label }: QiblaDialProps) 
         <circle cx={C} cy={C} r={RING} className={`fill-surface ${ringTone}`} strokeWidth={3} />
         <DialFace />
         <line x1={C} y1={C} x2={tip.x} y2={tip.y} className={arrowTone} strokeWidth={6} strokeLinecap="round" />
+        <path
+          d="M 0 -10 L 8 6 L -8 6 Z"
+          transform={`translate(${String(head.x)} ${String(head.y)}) rotate(${String(bearing)})`}
+          className={arrowTone}
+          strokeLinejoin="round"
+          data-qibla-arrowhead
+        />
         <circle cx={C} cy={C} r={7} className={arrowTone} />
         {/* The Kaaba: a small dark cube with its gold band. */}
         <g transform={`translate(${String(marker.x)} ${String(marker.y)}) rotate(${String(bearing)})`} data-kaaba>

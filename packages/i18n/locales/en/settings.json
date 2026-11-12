@@ -41,10 +41,12 @@
     "saved": "Saved posts",
     "ameens": "Ameens said",
     "zakat": "My zakat payments",
+    "qibla": "Qibla location",
     "reader": "Reader and vibration"
   },
   "pushOn": "On",
   "pushOff": "Off",
+  "qiblaSaved": "Saved (accurate to about {km} km)",
   "platform": {
     "android": "Android",
     "ios": "iPhone or iPad",

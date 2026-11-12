@@ -198,6 +198,25 @@ ${shakeFrames.join('\n')}
   }
 }
 
+/* Qibla aligned glow (08 §5.9): opacity 0.4 ↔ 0 every 1.2 s — opacity only (a scale on an SVG ring grows from the
+   drawing's corner, not its centre); a steady 0.4 with reduced motion. */
+@keyframes mc-glow {
+  from,
+  to {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@utility pulse-glow {
+  animation: mc-glow ${String(loop.pulseMs)}ms ease-in-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 /* Skeleton (08 §5.4, §6): a highlight sweeps across on the compositor; static with reduced motion. */
 @keyframes mc-shimmer {
   from {

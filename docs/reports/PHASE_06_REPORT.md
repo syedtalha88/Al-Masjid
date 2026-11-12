@@ -1,11 +1,13 @@
 # PHASE 06 REPORT — Bayan videos
 
-> **Status: DRAFT — T6.5 quality gates in progress** (security review running; CI for the branch next). Phase 06 closes
-> as "DONE — owner checks pending" under DECISIONS #162; the owner's real-YouTube checks are **O49**.
+> **Status: FINAL — DONE, owner checks pending** (DECISIONS #162). CI green on `main` `402e7f8` (run 43237107240) and
+> on staging; the phase-verifier's fixes (#167) are green on `ci/phase-07` `f4b9231` (run 43258177290) and reach `main`
+> with Phase 07. The owner's real-YouTube checks are **O49**.
 
 **Date:** 13 Nov 2026 · **Commits:** `7e1f839..feat/phase-06` (branch on top of Phase 05; T6.1–T6.4 merged into
-`main` with Phase 05 on 13 Nov — `5d3123e`) · **Staging:** deploying from `main` `73bb506` (O43 done by the owner) ·
-**CI:** pending for the branch.
+`main` with Phase 05 on 13 Nov — `5d3123e`; T6.5 + review fixes `07f124f`..`402e7f8`; verifier fixes `c751159`) ·
+**Staging:** `402e7f8` (`/health` on both origins, db + redis ok — O43 verified) · **CI:** run 43237107240 all green
+(incl. iPhone 14 e2e, Lighthouse, Security scans, Release to staging).
 
 ## 1. Summary
 
@@ -27,7 +29,7 @@ preservation period, with the CDN purged.
 | T6.2 Admin flow (B10) | ✅ | `db/src/state/videos.ts`, `routes/videos.ts`, `apps/admin/src/routes/videos.{index,new}.tsx` | db `videos.int` 17, api `video-routes.int` 14 (422 invalid / unavailable, 503, link never stored, other masjid 404 without a lookup, 429 after 30/h), admin unit 5, e2e `admin/video.spec.ts` |
 | T6.3 Musalli Bayans & player (A12) | ✅ | `packages/ui/src/content/VideoCard.tsx`, `apps/app/src/features/content/{BayansScreen,ItemDetailScreen}.tsx` | ui `video-card.test.tsx` 4; e2e `app/bayans.spec.ts` 8 (journey 10, no Google request before Play, offline, 4 locales) |
 | T6.4 Deletion & retention | ✅ | `db/src/state/item-retention.ts`, `api/src/jobs/retention/run.ts`, `api/src/media/cdn-purge.ts` | api `video-routes.int` (179 days nothing / 181 days post + thumbnail + 6 URLs), `cdn-purge.test.ts` 6, db purge test — #164 |
-| T6.5 Quality gates | ⏳ | visual `bayans`, `bayan-player`; admin screens B10 ×4 | visual 32/32, screens 8/8, budgets green; security review running |
+| T6.5 Quality gates | ✅ | visual `bayans`, `bayan-player`; admin screens B10 ×4 | visual 32/32, screens 8/8, budgets green; security review 0 H · 2 M (fixed) · 13 L (#165); phase-verifier fixes (#167) |
 
 ## 3. Verification results
 
@@ -42,9 +44,9 @@ preservation period, with the CDN purged.
 | Visual regression | ✅ | 32/32 incl. `bayans`, `bayan-player` × 4 locales × 2 phones |
 | Bundle budgets | ✅ | bayans route 0.6 kB, VideoCard 1.1 kB, admin videos.new 1.7 kB (≤ 60 kB); app initial 188.94 / 189 kB |
 | CSP | ✅ | the e2e CSP fixture saw no violation; app `frame-src https://www.youtube-nocookie.com` (unchanged), admin `frame-src 'none'` |
-| Lighthouse / motion | ⏳ | CI |
-| phase-verifier | ⏳ | |
-| security-reviewer | ⏳ | link parsing, outbound fetches, CSP, retention |
+| Lighthouse / motion | ✅ CI | run 43237107240 "Build · budgets · images · e2e · Lighthouse" green |
+| phase-verifier | ✅ after fixes | first run FAIL (5 required) → fixed (#167): log-absence int test for the pasted link / id / share token, public `video` contract checks the id and start second; decided: B10 visual baselines → F75, shared-element morph → F71, takedown text → F74 (Phase 8 T8.2) |
+| security-reviewer | ✅ | 0 HIGH · 2 MEDIUM (fixed: retention never strands media, per-masjid lookup budget only for its admins) · 13 LOW (most fixed; L12 → F72, L13 → F73) — #165 |
 
 ## 4. Screenshots
 
@@ -64,12 +66,13 @@ speaker · date, "YouTube" text tag; the player's facade with "Plays from YouTub
 
 ## 6. Known limitations / follow-ups
 
-F71 (shared-element morph, Phase 9 polish). Owner: **O48** real Cloudflare purge token in the worker env (nothing is
+F71 (shared-element morph, Phase 9 polish), F72 (iframe `sandbox`, Phase 9), F73 (removed posts' media undeliverable
+at removal, Phase 8 T8.2), F74 (musalli takedown text, Phase 8 T8.2), F75 (admin visual baselines + LOW polish, Phase 9). Owner: **O48** real Cloudflare purge token in the worker env (nothing is
 due before May 2027), **O49** Phase 06 checks with real YouTube links. Anyone with an Unlisted link can watch it outside
 the app — accepted by the owner (#39); the admin is warned.
 
 ## 7. What the owner should test now
 
-After staging has Phase 06: `owner/PHASE_TESTING_GUIDE.md` → Phase 06 (6.1–6.7). Use a channel you control: one
+Staging has Phase 06 (`402e7f8`): `owner/PHASE_TESTING_GUIDE.md` → Phase 06 (6.1–6.7). Use a channel you control: one
 **Unlisted** video published as Sisters only, one **Public** as Everyone; a brothers phone must see only the second.
 On staging the server asks the real YouTube (`VIDEO_LOOKUP=youtube`).

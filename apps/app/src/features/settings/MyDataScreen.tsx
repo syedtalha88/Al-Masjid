@@ -133,6 +133,8 @@ function MyData() {
             <Field label={t('field.ameens')}>{format.number(state.ameens.length)}</Field>
             {/* My zakat (07 A24) is kept here and nowhere else — listed so "everything kept" stays true (05 §4). */}
             {state.zakat ? <Field label={t('field.zakat')}>{format.number(state.zakat.payments.length)}</Field> : null}
+            {/* The Qibla page's "Use my location" (07 A14) — kept on this phone only, rounded (05 §1). */}
+            {state.qibla ? <Field label={t('field.qibla')}>{t('qiblaSaved', { km: format.number(1) })}</Field> : null}
             <Field label={t('field.reader')}>
               {t('readerSettings', {
                 size: format.number(Math.round(state.settings.arabicScale * 100)),

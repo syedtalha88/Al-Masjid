@@ -17,7 +17,7 @@ import { useQiblaLocation } from './hooks/useQiblaLocation.ts';
 export function QiblaScreen() {
   const { t } = useTranslation();
   const { locale, format } = useLocale();
-  const { source, ask, locateMe } = useQiblaLocation();
+  const { source, ask, locateMe, forget, fallbackName } = useQiblaLocation();
   const from = source.kind === 'none' ? null : source.at;
   const bearing = from ? qiblaBearing(from) : null;
   const degrees = bearing === null ? '' : format.number(Math.round(bearing));
@@ -31,7 +31,11 @@ export function QiblaScreen() {
       loading={ask === 'asking'}
       onPress={locateMe}
     >
-      {ask === 'asking' ? t('qibla.locating') : t('qibla.useMyLocation')}
+      {ask === 'asking'
+        ? t('qibla.locating')
+        : source.kind === 'device'
+          ? t('qibla.updateLocation')
+          : t('qibla.useMyLocation')}
     </Button>
   );
   const askProblem = ask === 'denied' ? t('qibla.denied') : ask === 'unavailable' ? t('qibla.unavailable') : null;
@@ -74,7 +78,13 @@ export function QiblaScreen() {
                   {askProblem}
                 </p>
               ) : null}
-              {source.kind === 'masjid' ? locationButton : null}
+              {/* Travelling: refresh the phone's location, or go back to the masjid's (07 A14 "location line with change"). */}
+              {locationButton}
+              {fallbackName ? (
+                <Button variant="ghost" size="lg" fullWidth onPress={forget} data-qibla-use-masjid>
+                  {t('qibla.useMasjidInstead', { name: fallbackName })}
+                </Button>
+              ) : null}
             </Card>
           </>
         )}
@@ -99,13 +109,14 @@ const Compass = memo(function Compass({ bearing, degrees }: { readonly bearing: 
         aligned={live && aligned}
         label={t('qibla.dialLabel', { degrees })}
       />
-      {/* Both lines stay in the same grid cell; aligning flips visibility (paint, not layout — 08 §8). */}
-      <p className="grid text-center type-title2" aria-live="polite" data-qibla-facing>
-        <span className={`[grid-area:1/1] text-text ${live && !aligned ? '' : 'invisible'}`}>{t('qibla.turn')}</span>
-        <span className={`[grid-area:1/1] text-primary-700 ${live && aligned ? '' : 'invisible'}`}>
-          {t('qibla.facing')}
-        </span>
-      </p>
+      {/* Both lines stay in the same grid cell; aligning flips visibility (paint, not layout — 08 §8). Without a live
+          compass the row is not there at all (no empty gap above the large bearing). */}
+      {live ? (
+        <p className="grid text-center type-title2" aria-live="polite" data-qibla-facing>
+          <span className={`[grid-area:1/1] text-text ${aligned ? 'invisible' : ''}`}>{t('qibla.turn')}</span>
+          <span className={`[grid-area:1/1] text-primary-700 ${aligned ? '' : 'invisible'}`}>{t('qibla.facing')}</span>
+        </p>
+      ) : null}
       {status === 'needs-permission' ? (
         <Card className="flex flex-col gap-3" data-qibla-motion>
           <h2 className="type-headline text-text">{t('qibla.motionTitle')}</h2>

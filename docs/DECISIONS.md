@@ -2924,3 +2924,26 @@ person's own record.
 until the owner revokes its session from another device — the second passkey (O41) makes that possible. Any future
 session-cleanup job must keep Super Admin sessions that still carry a subscription (02 §4 admin_push_subscriptions
 updated). Tests: db `notifications.int` (a year-old Super Admin session still a target; prune keeps it).
+
+### #169 — Phase 07 phase-verifier: location change, opacity-only glow, missing state tests — ACCEPTED (Claude Code, 13 Nov 2026)
+**Context:** the Phase 07 phase-verifier (12–13 Nov) returned FAIL with 4 required fixes (plus stale docs) and 7 LOW
+items.
+**Fixed:**
+- **Location change (A14 "location line with change"):** once "Use my location" was used, nothing could refresh it —
+  a traveller saw "Using your location" with a stale bearing. The source card now always has the location button
+  ("Update my location" when the phone's location is in use) and, when a masjid is followed, "Use <masjid> instead",
+  which deletes the saved location from the phone (privacy too). Strings × 4.
+- **Aligned glow:** it reused `pulse-dot` (opacity + `scale`); on an SVG circle the scale grows from the drawing's
+  corner, so the ring drifted off-centre. New `pulse-glow` utility (opacity 0.4 ↔ 0, 1.2 s — 08 §5.9 exactly; none with
+  reduced motion, generated from `packages/ui/src/motion/css.ts`).
+- **Tests added:** e2e — reduced motion (the dial snaps to each reading: transform = −heading; glow `animation-name:
+  none`, opacity 0.4), location refused (alert text, masjid kept), iOS motion refused (`denied`: large bearing + hint),
+  no followed masjid ("Where are you?" → Use my location), travelling (Update / Use Delta instead; the saved location
+  leaves the device document), My data lists the saved location. Unit — `useHeading` (live, no compass after 2 s, one
+  vibration per entry with the 1.5 s debounce, stops while hidden, listeners removed on unmount). Pixel 7 12/12 (×3
+  runs), iPhone 14 12/12 (Linux image), perf 3/3.
+**LOW items done:** My data → "On this phone" lists "Qibla location: Saved (accurate to about 1 km)"; iOS before 16.4
+(no `screen.orientation`) reads angle 0 instead of throwing per event; the dial's transform is written once per
+animation frame (rAF) however fast the sensor fires; the empty "facing" row is not rendered without a live compass;
+the arrow now has a head and reaches just inside the Kaaba marker (07 A14 "big arrow from center to Kaaba marker").
+Visual `qibla` × 4 × 2 regenerated (only those 8 files; the others were left as they were).

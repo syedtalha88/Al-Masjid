@@ -36,15 +36,17 @@ export function useQiblaLocation() {
   const [ask, setAsk] = useState<LocationAsk>('idle');
 
   const first = home.masjids.find((entry) => entry.state === 'active');
-  const source: LocationSource = saved
-    ? { kind: 'device', at: saved }
-    : first?.state === 'active'
+  const masjid: LocationSource | null =
+    first?.state === 'active'
       ? {
           kind: 'masjid',
           at: { lat: first.bundle.masjid.lat, lng: first.bundle.masjid.lng },
           name: masjidName(first.bundle.masjid, locale),
         }
-      : { kind: 'none' };
+      : null;
+  const source: LocationSource = saved ? { kind: 'device', at: saved } : (masjid ?? { kind: 'none' });
+  /** The followed masjid's name while the phone's location is used — "Use <masjid> instead" (07 A14). */
+  const fallbackName = saved && masjid?.kind === 'masjid' ? masjid.name : null;
 
   /** "Use my location": the browser asks for permission on first use; the result stays on this phone. */
   const locateMe = () => {
@@ -69,5 +71,11 @@ export function useQiblaLocation() {
     );
   };
 
-  return { source, ask, locateMe };
+  /** Forgets the phone's location (travel, privacy): the page goes back to the followed masjid's location. */
+  const forget = () => {
+    setAsk('idle');
+    void store.update(({ qibla: _dropped, ...state }) => state);
+  };
+
+  return { source, ask, locateMe, forget, fallbackName };
 }

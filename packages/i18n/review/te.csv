@@ -971,6 +971,8 @@ common,qibla.distance,Distance to Makkah: {km} km,మక్కాకు దూ�
 common,qibla.usingDevice,Using your location,మీ లొకేషన్‌తో,no
 common,qibla.usingMasjid,Using: {name},ఉపయోగిస్తోంది: {name},no
 common,qibla.useMyLocation,Use my location,నా లొకేషన్ ఉపయోగించండి,no
+common,qibla.updateLocation,Update my location,నా లొకేషన్ మళ్లీ తీసుకోండి,no
+common,qibla.useMasjidInstead,Use {name} instead,బదులుగా {name} ఉపయోగించండి,no
 common,qibla.locating,Finding your location…,మీ లొకేషన్ కనుగొంటోంది…,no
 common,qibla.needLocationTitle,Where are you?,మీరు ఎక్కడ ఉన్నారు?,no
 common,qibla.needLocationBody,Your location stays on this phone. It is only used to work out the direction.,మీ లొకేషన్ ఈ ఫోన్‌లోనే ఉంటుంది. దిశను లెక్కించడానికి మాత్రమే ఉపయోగిస్తాం.,no
@@ -1436,9 +1438,11 @@ settings,field.lastSeen,Last used,చివరిసారి ఉపయోగం
 settings,field.saved,Saved posts,సేవ్ చేసిన పోస్ట్‌లు,no
 settings,field.ameens,Ameens said,అన్న ఆమీన్‌లు,no
 settings,field.zakat,My zakat payments,నా జకాత్ చెల్లింపులు,no
+settings,field.qibla,Qibla location,ఖిబ్లా కోసం లొకేషన్,no
 settings,field.reader,Reader and vibration,"చదివే, వైబ్రేషన్ సెట్టింగ్‌లు",no
 settings,pushOn,On,ఆన్,no
 settings,pushOff,Off,ఆఫ్,no
+settings,qiblaSaved,Saved (accurate to about {km} km),సేవ్ అయింది (సుమారు {km} కి.మీ. వరకు ఖచ్చితం),no
 settings,platform.android,Android,ఆండ్రాయిడ్,no
 settings,platform.ios,iPhone or iPad,ఐఫోన్ లేదా ఐప్యాడ్,no
 settings,platform.desktop,Computer,కంప్యూటర్,no

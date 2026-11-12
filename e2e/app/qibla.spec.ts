@@ -3,13 +3,14 @@ import { distanceToKaabaKm, qiblaBearing } from '@mc/domain/qibla';
 import type { Page, Request } from '@playwright/test';
 
 import { APP_URL } from '../../playwright.config.ts';
-import { followByCode, gotoAfterStart } from '../support/device.ts';
+import { followByCode, gotoAfterStart, storedDevice } from '../support/device.ts';
 
 // PHASE_07 T7.2 / T7.3 — A14 Qibla (07 A14, DECISIONS #118) with mocked sensors: from the first followed masjid's
 // location ("Using: Test Masjid Delta"), the bearing and distance; a synthetic absolute-orientation stream turns the
 // dial and, within ±3°, says "You are facing the Qibla"; no reading within 2 s → no-compass mode (bearing large +
 // hint); "Use my location" (mocked geolocation) switches the source and NO request carries the coordinates; iOS-style
-// permission card; 4 locales, the dial never mirrored, axe clean.
+// permission card (granted / denied); location refused; no followed masjid; travelling (update or back to the masjid);
+// reduced motion (no smoothing, no pulse); 4 locales, the dial never mirrored, axe clean.
 
 const DELTA = { lat: 18.9535, lng: 72.8336 }; // Test Masjid Delta (dev seed, Mumbai)
 const HERE = { latitude: 28.6139, longitude: 77.209 }; // the mocked phone: Delhi
@@ -29,7 +30,30 @@ async function headingTo(page: Page, heading: number) {
   }, heading);
 }
 
-async function openQibla(page: Page) {
+/** The turning part of the dial: its rotation in degrees (`rotate(-243deg)` → −243). */
+async function dialRotation(page: Page): Promise<number> {
+  const transform = await screen(page)
+    .locator('[data-qibla-dial] > g')
+    .first()
+    .evaluate((node) => (node as SVGGElement).style.transform);
+  return Number(/rotate\((-?[\d.e-]+)deg\)/u.exec(transform)?.[1] ?? Number.NaN);
+}
+
+/** Geolocation answering with an error (1 = permission denied) — what a phone with location off for the app does. */
+async function refuseLocation(page: Page) {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator.geolocation, 'getCurrentPosition', {
+      configurable: true,
+      value: (_ok: unknown, fail: (error: { code: number; PERMISSION_DENIED: number }) => void) => {
+        setTimeout(() => {
+          fail({ code: 1, PERMISSION_DENIED: 1 });
+        }, 50);
+      },
+    });
+  });
+}
+
+async function openQibla(page: Page, { follow = true }: { follow?: boolean } = {}) {
   // A phone held upright: headless WebKit on Linux reports `screen.orientation.angle` 90 (with type
   // "portrait-primary"), which the heading rule adds to every reading. Pinned on the prototype — WebKit recreates the
   // `screen.orientation` object, so an own property is lost. Rotation itself is covered by the domain unit tests.
@@ -39,9 +63,9 @@ async function openQibla(page: Page) {
     }
   });
   await page.goto(APP_URL);
-  await followByCode(page, APP_URL, ['TESTD004']);
+  if (follow) await followByCode(page, APP_URL, ['TESTD004']);
   await gotoAfterStart(page, `${APP_URL}/qibla`);
-  await expect(screen(page).locator('[data-qibla-dial]')).toBeVisible();
+  await expect(screen(page).locator(follow ? '[data-qibla-dial]' : '[data-qibla-need-location]')).toBeVisible();
 }
 
 test.describe('A14 Qibla', () => {
@@ -101,6 +125,72 @@ test.describe('A14 Qibla', () => {
     await expect(screen(page).locator('[data-qibla-bearing]')).toHaveText(`Qibla is ${String(bearing)}° from North`);
     await page.waitForLoadState('networkidle');
     for (const entry of sent) expect(entry).not.toMatch(/28\.61|77\.2[01]/u);
+
+    // My data lists it under "On this phone" (05 §4: everything kept is shown).
+    await page.goto(`${APP_URL}/settings/data`);
+    await expect(
+      screen(page).locator('div', { hasText: /^Qibla locationSaved \(accurate to about 1 km\)$/u }),
+    ).toBeVisible();
+    await page.goBack();
+
+    // Travelling: the phone's location can be taken again, or dropped for the masjid's (07 A14).
+    const source = screen(page).locator('[data-qibla-source]');
+    await expect(source.getByRole('button', { name: 'Update my location' })).toBeVisible();
+    await source.getByRole('button', { name: 'Use Test Masjid Delta instead' }).click();
+    await expect(source).toContainText('Using: Test Masjid Delta');
+    await expect(source.getByRole('button', { name: 'Use my location' })).toBeVisible();
+    await expect(source.locator('[data-qibla-use-masjid]')).toHaveCount(0);
+    await expect.poll(async () => (await storedDevice(page))?.['qibla']).toBeUndefined();
+    await expect(screen(page).locator('[data-qibla-bearing]')).toHaveText(
+      `Qibla is ${String(Math.round(qiblaBearing(DELTA)))}° from North`,
+    );
+  });
+
+  test('location refused: the masjid stays the source and the page says how to allow it', async ({ page }) => {
+    await refuseLocation(page);
+    await openQibla(page);
+    const source = screen(page).locator('[data-qibla-source]');
+    await source.getByRole('button', { name: 'Use my location' }).click();
+    await expect(source.getByRole('alert')).toHaveText(
+      "Location is off for this app. Allow it in your phone's settings, or follow a masjid to use its location.",
+    );
+    await expect(source).toContainText('Using: Test Masjid Delta');
+  });
+
+  test('no followed masjid: "Where are you?" until the phone gives its location', async ({
+    page,
+    context,
+    expectAxeClean,
+  }) => {
+    await context.grantPermissions(['geolocation'], { origin: APP_URL });
+    await context.setGeolocation(HERE);
+    await openQibla(page, { follow: false });
+    const card = screen(page).locator('[data-qibla-need-location]');
+    await expect(card).toContainText('Where are you?');
+    await expect(screen(page).locator('[data-qibla-dial]')).toHaveCount(0);
+    await expectAxeClean();
+    await card.getByRole('button', { name: 'Use my location' }).click();
+    await expect(screen(page).locator('[data-qibla-source]')).toContainText('Using your location');
+    // Nothing to go back to: no "Use … instead" without a followed masjid.
+    await expect(screen(page).locator('[data-qibla-use-masjid]')).toHaveCount(0);
+  });
+
+  test.describe('with reduced motion', () => {
+    test.use({ reducedMotion: 'reduce' });
+
+    test('the dial snaps to each reading (no smoothing) and the aligned glow does not pulse', async ({ page }) => {
+      await openQibla(page);
+      const bearing = Math.round(qiblaBearing(DELTA));
+      await headingTo(page, bearing - 40);
+      await expect(screen(page).locator('[data-qibla-status]')).toHaveAttribute('data-qibla-status', 'live');
+      await expect.poll(() => dialRotation(page)).toBeCloseTo(-(bearing - 40), 1);
+      await headingTo(page, bearing + 1);
+      await expect.poll(() => dialRotation(page)).toBeCloseTo(-(bearing + 1), 1);
+      await expect(screen(page).locator('[data-qibla-dial]')).toHaveAttribute('data-aligned', 'true');
+      const glow = screen(page).locator('[data-qibla-glow]');
+      expect(await glow.evaluate((node) => getComputedStyle(node).animationName)).toBe('none');
+      expect(await glow.evaluate((node) => getComputedStyle(node).opacity)).toBe('0.4');
+    });
   });
 
   test.describe('as an iPhone', () => {
@@ -117,6 +207,20 @@ test.describe('A14 Qibla', () => {
       await expect(card).toBeVisible();
       await card.getByRole('button', { name: 'Turn on compass' }).click();
       await expect(card).toHaveCount(0);
+    });
+
+    test('iOS: motion refused → the bearing large with the "compass is off" hint', async ({ page }) => {
+      await page.addInitScript(() => {
+        Object.assign(window.DeviceOrientationEvent, { requestPermission: () => Promise.resolve('denied') });
+      });
+      await openQibla(page);
+      await screen(page).locator('[data-qibla-motion]').getByRole('button', { name: 'Turn on compass' }).click();
+      await expect(screen(page).locator('[data-qibla-status]')).toHaveAttribute('data-qibla-status', 'denied');
+      const fallback = screen(page).locator('[data-qibla-no-compass]');
+      await expect(fallback).toContainText(`${String(Math.round(qiblaBearing(DELTA)))}°`);
+      await expect(fallback).toContainText('The compass is off. The direction is shown in degrees instead.');
+      await expect(screen(page).locator('[data-qibla-motion]')).toHaveCount(0);
+      await expect(screen(page).locator('[data-qibla-facing]')).toHaveCount(0);
     });
   });
 });

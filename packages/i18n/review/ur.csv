@@ -971,6 +971,8 @@ common,qibla.distance,Distance to Makkah: {km} km,مکہ کا فاصلہ: {km} �
 common,qibla.usingDevice,Using your location,آپ کی لوکیشن سے,no
 common,qibla.usingMasjid,Using: {name},استعمال: {name},no
 common,qibla.useMyLocation,Use my location,میری لوکیشن استعمال کریں,no
+common,qibla.updateLocation,Update my location,میری لوکیشن دوبارہ لیں,no
+common,qibla.useMasjidInstead,Use {name} instead,اس کے بجائے {name} استعمال کریں,no
 common,qibla.locating,Finding your location…,آپ کی لوکیشن تلاش کی جا رہی ہے…,no
 common,qibla.needLocationTitle,Where are you?,آپ کہاں ہیں؟,no
 common,qibla.needLocationBody,Your location stays on this phone. It is only used to work out the direction.,آپ کی لوکیشن اسی فون پر رہتی ہے۔ یہ صرف سمت معلوم کرنے کے لیے استعمال ہوتی ہے۔,no
@@ -1436,9 +1438,11 @@ settings,field.lastSeen,Last used,آخری بار استعمال,no
 settings,field.saved,Saved posts,محفوظ پوسٹس,no
 settings,field.ameens,Ameens said,کہے گئے آمین,no
 settings,field.zakat,My zakat payments,میری زکوٰۃ کی ادائیگیاں,no
+settings,field.qibla,Qibla location,قبلہ کے لیے لوکیشن,no
 settings,field.reader,Reader and vibration,پڑھنے اور وائبریشن کی ترتیبات,no
 settings,pushOn,On,آن,no
 settings,pushOff,Off,آف,no
+settings,qiblaSaved,Saved (accurate to about {km} km),محفوظ ہے (تقریباً {km} کلومیٹر تک درست),no
 settings,platform.android,Android,اینڈرائیڈ,no
 settings,platform.ios,iPhone or iPad,آئی فون یا آئی پیڈ,no
 settings,platform.desktop,Computer,کمپیوٹر,no

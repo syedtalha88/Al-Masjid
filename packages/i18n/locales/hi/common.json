@@ -221,6 +221,8 @@
     "usingDevice": "आपकी लोकेशन से",
     "usingMasjid": "इस्तेमाल: {name}",
     "useMyLocation": "मेरी लोकेशन इस्तेमाल करें",
+    "updateLocation": "मेरी लोकेशन फिर से लें",
+    "useMasjidInstead": "इसके बजाय {name} इस्तेमाल करें",
     "locating": "आपकी लोकेशन ढूँढी जा रही है…",
     "needLocationTitle": "आप कहाँ हैं?",
     "needLocationBody": "आपकी लोकेशन इसी फ़ोन पर रहती है। इसका इस्तेमाल सिर्फ़ दिशा निकालने के लिए होता है।",

@@ -42,7 +42,8 @@ export function useHeading(bearing: number | null) {
       stop = listenHeading({
         target: window,
         platform,
-        screenAngle: () => (typeof screen === 'undefined' ? 0 : screen.orientation.angle),
+        // iOS before 16.4 has no screen.orientation: an upright phone (0) rather than an exception per event.
+        screenAngle: () => (typeof screen === 'undefined' || !('orientation' in screen) ? 0 : screen.orientation.angle),
         factor: reduced ? 1 : SMOOTHING,
         onHeading: (value) => {
           heading.set(value);

@@ -221,6 +221,8 @@
     "usingDevice": "Using your location",
     "usingMasjid": "Using: {name}",
     "useMyLocation": "Use my location",
+    "updateLocation": "Update my location",
+    "useMasjidInstead": "Use {name} instead",
     "locating": "Finding your location…",
     "needLocationTitle": "Where are you?",
     "needLocationBody": "Your location stays on this phone. It is only used to work out the direction.",
