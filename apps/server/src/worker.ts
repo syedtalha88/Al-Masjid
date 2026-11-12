@@ -51,7 +51,8 @@ const jobs = await startJobWorkers({
   // T6.4: deleted posts' files go with them after 180 days — the worker's own Cloudinary key and the Cloudflare purge
   // token (both required outside local); locally there is neither, and the job leaves files (logged).
   retention: {
-    ...(env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET
+    // Never locally — local work must not delete in the real account even with real keys (#165 L8).
+    ...(env.APP_ENV !== 'local' && env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET
       ? {
           media: cloudinaryMediaStore({
             cloudName: env.CLOUDINARY_CLOUD_NAME,
@@ -60,7 +61,7 @@ const jobs = await startJobWorkers({
           }),
         }
       : {}),
-    ...(env.CF_API_TOKEN_PURGE && env.CF_ZONE_ID
+    ...(env.APP_ENV !== 'local' && env.CF_API_TOKEN_PURGE && env.CF_ZONE_ID
       ? { purger: cloudflarePurger({ token: env.CF_API_TOKEN_PURGE, zoneId: env.CF_ZONE_ID }) }
       : {}),
     mediaOrigin: env.MEDIA_ORIGIN,

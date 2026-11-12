@@ -97,10 +97,11 @@ test('Home and Updates: money lines, the Donations and Chanda chips, a chanda ro
 
   await page.goto(`${APP_URL}/updates`);
   const chips = screen(page).getByRole('radiogroup', { name: 'Filter updates' });
-  await expect(chips.getByRole('radio')).toHaveText(['All', 'Donations', 'Chanda']);
+  await expect(chips.getByRole('radio')).toHaveText(['All', 'Donations', 'Bayans', 'Chanda']); // Delta's seed bayans (PHASE_06)
   const rows = screen(page).locator('li[data-key]');
   await expect(rows.filter({ hasText: 'Test Masjid Renovation Fund' })).toContainText('₹72,000 raised of ₹1,00,000');
-  await expect(rows.filter({ hasText: /₹18,500 collected in the week of/ })).toContainText('Weekly chanda');
+  // .last(): the row itself, not the day group around it (the group holds Delta's seed bayan too).
+  await expect(rows.filter({ hasText: /₹18,500 collected in the week of/ }).last()).toContainText('Weekly chanda');
   await expectAxeClean();
   await capture('updates-donations');
 

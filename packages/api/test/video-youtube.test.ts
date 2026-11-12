@@ -56,6 +56,25 @@ describe('youTubeLookup (fake fetch)', () => {
     expect(calls).toHaveLength(1);
   });
 
+  it.each([408, 429])('oEmbed %i (throttled / timed out) → VideoLookupFailed, never "unavailable"', async (status) => {
+    const { fetch } = fakeFetch(() => new Response('', { status }));
+    await expect(youTubeLookup({ fetch }).lookup(ID)).rejects.toBeInstanceOf(VideoLookupFailed);
+  });
+
+  it('a thumbnail body that cannot be read (timeout) → VideoLookupFailed', async () => {
+    const { fetch } = fakeFetch(
+      () => json({ title: 'T' }),
+      () => {
+        const response = jpeg(JPEG);
+        Object.defineProperty(response, 'arrayBuffer', {
+          value: () => Promise.reject(new DOMException('timeout', 'TimeoutError')),
+        });
+        return response;
+      },
+    );
+    await expect(youTubeLookup({ fetch }).lookup(ID)).rejects.toBeInstanceOf(VideoLookupFailed);
+  });
+
   it('no thumbnail (404) → the title alone', async () => {
     const { fetch } = fakeFetch(
       () => json({ title: 'T' }),

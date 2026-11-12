@@ -215,6 +215,7 @@ export function defineRoute<
     await enforceRateLimits(req, rateLimit, {
       session: authed?.session.sessionId.toHexString(),
       device: device?.deviceId,
+      masjids: authed?.scope.kind === 'admin' ? authed.scope.masjids.map((m) => m.id.toHexString(true)) : undefined,
     });
     const params = parsePart('params', paramsSchema, req.params) as z.output<P>; // parsed by P's schema
     const query = parsePart('query', querySchema, req.query) as z.output<Q>; // parsed by Q's schema

@@ -5,7 +5,7 @@
 // collections' periods (02 §6) join here in Phase 8. Idempotent — a missed run is the next run's work. Logs counts
 // only, never who or which file.
 import { type DbHandle, systemScope } from '@mc/db';
-import { pruneAdminPushSubscriptions, purgeBeneficiaries, purgeExpiredItems } from '@mc/db/state';
+import { deleteExpiredItem, listExpiredItems, pruneAdminPushSubscriptions, purgeBeneficiaries } from '@mc/db/state';
 import type { Clock } from '@mc/shared/clock';
 
 import type { createLogger } from '../../logger.ts';
@@ -42,22 +42,64 @@ export async function processRetention(
 }
 
 /**
- * Posts deleted / removed 180 days ago (02 §6, PHASE_06 T6.4): the documents first (one transaction each), then their
- * files in storage and every delivery URL at the CDN. A storage or CDN failure throws after the documents are gone, so
- * BullMQ retries the job; the next attempt finds no more documents for those files — they are logged as left behind
- * (counts only) and Phase 8's orphan sweep (T8.7) catches them.
+ * Posts deleted / removed 180 days ago (02 §6, PHASE_06 T6.4, security review #165 M1): for every due post its own
+ * files are deleted first (carrying on past a failed file), then the CDN copies of all of them are purged in one go,
+ * and only then are the documents of the posts whose files are all gone deleted. Anything that failed keeps its
+ * document, so the next attempt / run does the whole post again (deleting a missing file and purging twice are
+ * harmless); the job then fails, so BullMQ retries and the failure is reported.
  */
 async function purgeItems(deps: RetentionDeps, now: Date): Promise<{ purged: number; mediaFiles: number }> {
-  const { purged, media } = await purgeExpiredItems(deps.db, systemScope(), { now });
-  const files = media.images.length + media.audio.length;
-  if (purged > 0) deps.logger.info({ items: purged, mediaFiles: files }, 'retention: deleted posts purged');
-  if (files === 0) return { purged, mediaFiles: 0 };
-  if (!deps.media) {
-    deps.logger.warn({ mediaFiles: files }, 'retention: no media store — files left in storage');
-    return { purged, mediaFiles: 0 };
+  const due = await listExpiredItems(deps.db, systemScope(), { now });
+  if (due.length === 0) return { purged: 0, mediaFiles: 0 };
+  const store = deps.media;
+  const ready: typeof due = [];
+  let failedFiles = 0;
+  for (const item of due) {
+    const files = item.media.images.length + item.media.audio.length;
+    if (files > 0 && !store) {
+      failedFiles += files; // no store configured (local): the post waits — nothing is stranded
+      continue;
+    }
+    let ok = true;
+    for (const key of item.media.images) {
+      ok = (await attempt(() => store?.deleteImage(key))) && ok;
+    }
+    for (const key of item.media.audio) {
+      ok = (await attempt(() => store?.deleteAudio(key))) && ok;
+    }
+    if (ok) ready.push(item);
+    else failedFiles += files;
   }
-  for (const key of media.images) await deps.media.deleteImage(key);
-  for (const key of media.audio) await deps.media.deleteAudio(key);
-  if (deps.purger && deps.mediaOrigin) await deps.purger.purge(mediaDeliveryUrls(deps.mediaOrigin, media));
-  return { purged, mediaFiles: files };
+  const media = {
+    images: ready.flatMap((item) => item.media.images),
+    audio: ready.flatMap((item) => item.media.audio),
+  };
+  const mediaFiles = media.images.length + media.audio.length;
+  if (mediaFiles > 0 && deps.purger && deps.mediaOrigin) {
+    await deps.purger.purge(mediaDeliveryUrls(deps.mediaOrigin, media)); // throws → no document deleted, retried
+  }
+  let purged = 0;
+  for (const item of ready) {
+    if (await deleteExpiredItem(deps.db, systemScope(), { itemId: item.id, now })) purged += 1;
+  }
+  if (purged > 0) deps.logger.info({ items: purged, mediaFiles }, 'retention: deleted posts purged');
+  if (failedFiles > 0) {
+    deps.logger.warn(
+      { items: due.length - ready.length, mediaFiles: failedFiles },
+      'retention: posts kept — files not deleted',
+    );
+    if (store)
+      throw new Error('retention: some media files could not be deleted; their posts wait for the next attempt');
+  }
+  return { purged, mediaFiles };
+}
+
+/** Runs one storage call; false when it failed (the caller keeps the post for the next attempt). */
+async function attempt(call: () => Promise<void> | undefined): Promise<boolean> {
+  try {
+    await call();
+    return true;
+  } catch {
+    return false;
+  }
 }

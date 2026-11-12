@@ -92,6 +92,9 @@ export function youTubeLookup(input: { readonly fetch?: Fetch } = {}): VideoLook
       if (!YOUTUBE_ID_PATTERN.test(id)) throw new RangeError('youTubeLookup(): not a YouTube video id');
       const watch = `https://www.youtube.com/watch?v=${id}`;
       const oembed = await get(`${OEMBED_URL}?format=json&url=${encodeURIComponent(watch)}`, 'application/json');
+      // Throttled or timed out at YouTube: try again — never "this video is private" (#165 L4).
+      if (oembed.status === 408 || oembed.status === 429)
+        throw new VideoLookupFailed(`oembed ${String(oembed.status)}`);
       if (oembed.status >= 400 && oembed.status < 500) return null; // private, deleted, embedding off, unknown
       if (oembed.status !== 200) throw new VideoLookupFailed(`oembed ${String(oembed.status)}`);
       let answer: unknown;
@@ -110,7 +113,12 @@ export function youTubeLookup(input: { readonly fetch?: Fetch } = {}): VideoLook
       if (image.status !== 200) throw new VideoLookupFailed(`thumbnail ${String(image.status)}`);
       const type = image.headers.get('content-type') ?? '';
       if (!type.startsWith('image/jpeg')) throw new VideoLookupFailed('thumbnail not a JPEG');
-      return { title, thumbnail: await limitedBody(image, THUMBNAIL_MAX_BYTES) };
+      try {
+        return { title, thumbnail: await limitedBody(image, THUMBNAIL_MAX_BYTES) };
+      } catch (error) {
+        if (error instanceof VideoLookupFailed) throw error;
+        throw new VideoLookupFailed('thumbnail body'); // a timeout while reading → 503, not 500 (#165 L5)
+      }
     },
   };
 }

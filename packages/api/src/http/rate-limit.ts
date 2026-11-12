@@ -163,18 +163,37 @@ const pointsOf = (bucket: RateLimitBucket) => ({ points: bucket.points, duration
 const hasWide = (bucket: BucketName): boolean => 'wide' in RATE_LIMITS[bucket];
 
 /** How a route names the client a bucket counts. */
-export type RateLimitKey = 'ip' | 'session' | 'device' | 'device_or_ip' | ((req: Request) => string | undefined);
+export type RateLimitKey =
+  | 'ip'
+  | 'session'
+  | 'device'
+  | 'device_or_ip'
+  /**
+   * The `:masjidId` of the path — counted only when the session belongs to that masjid, so an admin of another masjid
+   * cannot spend its budget with requests that end in 404 (security review #165 M2). Others are counted by their
+   * session rules alone.
+   */
+  | 'own_masjid'
+  | ((req: Request) => string | undefined);
 
 /** The authenticated principal's keys for `session` / `device` rules (absent → the rule is skipped). */
 export interface PrincipalKeys {
   readonly session?: string | undefined;
   readonly device?: string | undefined;
+  /** The session's masjids (lower-case ids) — `own_masjid` rules. */
+  readonly masjids?: readonly string[] | undefined;
 }
 
 /** One rate-limit rule of a route (`defineRoute({ rateLimit: [...] })`). */
 export interface RateLimitRule {
   readonly bucket: BucketName;
   readonly key: RateLimitKey;
+}
+
+/** `own_masjid`: the path's masjid id (lower-cased as `parseId` does) when it is one of the session's masjids. */
+function ownMasjidKey(req: Request, masjids: readonly string[] | undefined): string | undefined {
+  const id = req.params['masjidId']?.toString().toLowerCase();
+  return id !== undefined && masjids?.includes(id) ? id : undefined;
 }
 
 const LIMITER = 'rateLimiter';
@@ -230,7 +249,9 @@ export async function enforceRateLimits(
           ? principal.session
           : rule.key === 'device' || rule.key === 'device_or_ip'
             ? principal.device
-            : rule.key(req);
+            : rule.key === 'own_masjid'
+              ? ownMasjidKey(req, principal.masjids)
+              : rule.key(req);
       if (key !== undefined) counts.push([key, 'narrow']);
     }
     for (const [key, width] of counts) {

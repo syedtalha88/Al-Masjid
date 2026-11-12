@@ -283,6 +283,8 @@ https://{$ADMIN_HOST} {
 	}
 	@image {
 		method GET HEAD
+		# No query string: Cloudflare caches per query, and purge by URL could never reach such copies (#165 L9).
+		expression {query} == ""
 		path_regexp media ^/i/(480|960|1440)/(avif|webp)/m/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$
 	}
 	handle @image {
@@ -291,6 +293,8 @@ https://{$ADMIN_HOST} {
 	}
 	@audio {
 		method GET HEAD
+		# No query string: Cloudflare caches per query, and purge by URL could never reach such copies (#165 L9).
+		expression {query} == ""
 		path_regexp audio ^/a/m4a/m/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/a/([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$
 	}
 	handle @audio {

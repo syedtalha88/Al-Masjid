@@ -16,7 +16,6 @@ import {
   videoPreviewRequestSchema,
   videoPreviewSchema,
 } from '@mc/shared/contracts';
-import type { Request } from 'express';
 import { z } from 'zod';
 
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
@@ -64,7 +63,7 @@ export function adminVideoRoutes(deps: VideoRouteDeps): RouteDefinition[] {
   // 03 §2 / PHASE_06 T6.2: 30 per hour per masjid (whichever admin), plus the session's write budget — each preview and
   // publish makes requests to YouTube on the masjid's behalf.
   const lookups = [
-    { bucket: 'adminUploads', key: (req: Request) => req.params['masjidId']?.toString().toLowerCase() },
+    { bucket: 'adminUploads', key: 'own_masjid' }, // only the masjid's own admins spend it (#165 M2)
     ...writes,
   ] as const;
 
@@ -152,7 +151,9 @@ export function adminVideoRoutes(deps: VideoRouteDeps): RouteDefinition[] {
         // Asked again at publish: the video may have turned private since the preview.
         const { link, thumbnail } = await lookUp(auth.scope, masjidId, body.url);
         const key = newImageKey(idText(masjidId));
-        await deps.media.store.putImage(key, thumbnail.master);
+        const store = deps.media.store;
+        await store.putImage(key, thumbnail.master);
+        // A refused publish (quota, masjid status) must not leave the copy behind (#165 L7) — best effort.
         const published = await publishVideo(db, auth.scope, {
           masjidId,
           video: {
@@ -169,6 +170,9 @@ export function adminVideoRoutes(deps: VideoRouteDeps): RouteDefinition[] {
           notify: body.notify,
           now: clock.now(),
           requestId,
+        }).catch(async (error: unknown) => {
+          await store.deleteImage(key).catch(() => undefined);
+          throw error;
         });
         await (deps.notifier?.afterCommit(published.notificationJobId) ?? Promise.resolve());
         const notification =
