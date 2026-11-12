@@ -131,6 +131,12 @@
       "title": "خون کے عطیے کا کیمپ",
       "when": "{date} · {start} – {end}",
       "contact": "واٹس ایپ پر رابطہ کریں"
+    },
+    "video": {
+      "youtube": "YouTube",
+      "play": "{title} چلائیں",
+      "playsFromYouTube": "YouTube سے چلتی ہے",
+      "offline": "دیکھنے کے لیے انٹرنیٹ سے جڑیں"
     }
   },
   "hijri": {
@@ -201,5 +207,9 @@
     "yesterday": "کل",
     "new": "نیا",
     "loadingMore": "مزید لوڈ ہو رہا ہے…"
+  },
+  "summary": {
+    "raisedOf": "{target} میں سے {received} جمع",
+    "collected": "{date} والے ہفتے میں {amount} جمع ہوئے"
   }
 }

@@ -143,7 +143,14 @@ const DETAILS = {
     cover_key: opt(f.string(200)),
     cover_thumbhash: opt(f.string(64)),
   }),
-  chanda: f.object({ chanda_week_id: f.uuid() }),
+  // DECISIONS #152: the week's figures are copied onto its feed item (public feed without a join) and `visible` mirrors
+  // masjids.show_chanda — v_pub_items never returns a hidden week's item.
+  chanda: f.object({
+    chanda_week_id: f.uuid(),
+    week_start: f.date(),
+    amount_paise: f.long(0, MAX_PAISE),
+    visible: f.bool(),
+  }),
   video: f.object({
     youtube_id: f.string(11, { pattern: YOUTUBE_ID_PATTERN }),
     start_s: opt(f.int(0, 86_400)),

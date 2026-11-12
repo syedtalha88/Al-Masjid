@@ -43,6 +43,7 @@ const ADMIN_WRITABLE: readonly CollectionName[] = [
   'content_library',
   'notice_templates',
   'payment_profiles',
+  'beneficiaries',
   'admin_users',
   'masjid_admins',
   'webauthn_credentials',
@@ -94,6 +95,7 @@ const ROLES: Readonly<Record<DbUser, readonly Privilege[]>> = {
       actions: namespace === 'masjid_admins' || namespace === 'admin_push_subscriptions' ? ALL_CRUD : FIU,
     })),
     { namespace: 'campaign_amount_history', actions: ['find', 'insert'] },
+    { namespace: 'beneficiary_amount_history', actions: ['find', 'insert'] },
     { namespace: 'audit_log', actions: ['find', 'insert'] },
     { namespace: 'reports', actions: ['find', 'update'] },
     { namespace: 'grievances', actions: ['find', 'update'] },
@@ -108,13 +110,23 @@ const ROLES: Readonly<Record<DbUser, readonly Privilege[]>> = {
     ...grant(ADMIN_WRITABLE, ALL_CRUD),
     ...grant(SYSTEM_ALL, ALL_CRUD),
     { namespace: 'campaign_amount_history', actions: ['find', 'insert', 'remove'] },
+    // Append-only for the admin API; the worker removes a purged person's rows (02 §6, 90 days).
+    { namespace: 'beneficiary_amount_history', actions: ['find', 'insert', 'remove'] },
     { namespace: 'audit_log', actions: ['find', 'insert', 'remove'] },
   ],
   // migrations only: schema on every namespace + the runner's own collection; seeds app_settings (02 §2).
   mc_migrator: [
     { namespace: null, actions: ['listCollections'] },
     ...grant(
-      [...ADMIN_WRITABLE, ...SYSTEM_ALL, 'campaign_amount_history', 'audit_log', ...PUBLIC_VIEWS, ...ADMIN_VIEWS],
+      [
+        ...ADMIN_WRITABLE,
+        ...SYSTEM_ALL,
+        'campaign_amount_history',
+        'beneficiary_amount_history',
+        'audit_log',
+        ...PUBLIC_VIEWS,
+        ...ADMIN_VIEWS,
+      ],
       SCHEMA_ACTIONS,
     ),
     { namespace: '_migrations', actions: [...ALL_CRUD, ...SCHEMA_ACTIONS] },

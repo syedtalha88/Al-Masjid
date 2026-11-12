@@ -7,7 +7,8 @@
     "settings": "Settings",
     "audit": "Audit log",
     "library": "Content Library",
-    "templates": "Notice templates"
+    "templates": "Notice templates",
+    "payments": "Payment approvals"
   },
   "status": {
     "pending": "Pending",
@@ -19,6 +20,7 @@
     "pending": "Waiting for activation",
     "noPending": "No masjids are waiting for activation.",
     "counts": "Masjids",
+    "campaigns": "Active donation campaigns",
     "passkeyAlert": "{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.",
     "changeRequests": "Requested changes",
     "noChangeRequests": "No change requests from admins."
@@ -312,5 +314,30 @@
     "testAlertHint": "Sends an alert to your own phones that have alerts on (not in production).",
     "testSent": "Test alert sent. It should arrive within a minute.",
     "testFailed": "The test alert could not be sent."
+  },
+  "payments": {
+    "title": "Payment approvals",
+    "empty": "No UPI changes waiting",
+    "requestedBy": "Requested by {name} · {when}",
+    "now": "Now",
+    "new": "Requested",
+    "none": "Not set up",
+    "note": "Note from the masjid",
+    "pending": "Waiting for review",
+    "onHold": "On hold — goes live {time}",
+    "checkCommittee": "I phoned the committee and they confirmed this change",
+    "checkName": "The payee name matches the masjid or committee account",
+    "approve": "Approve",
+    "approved": "Approved — goes live {time}",
+    "reject": "Reject",
+    "stop": "Stop this change",
+    "rejectTitle": "Turn down this change?",
+    "rejectReason": "Reason (the masjid sees it)",
+    "rejected": "Turned down. The masjid was told.",
+    "history": "Earlier UPI details",
+    "historyStatus": {
+      "superseded": "Was live until {date}",
+      "rejected": "Not approved · {date}"
+    }
   }
 }

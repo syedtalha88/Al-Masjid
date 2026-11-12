@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { livePaymentSchema, paymentRequestRowSchema } from './admin.ts';
 import { inviteLinkSchema } from './admin-auth.ts';
 import { safeText } from './text.ts';
 
@@ -226,6 +227,8 @@ export const superDashboardSchema = z
     counts: z.object({ pending: z.number(), active: z.number(), suspended: z.number(), deleted: z.number() }),
     /** Passkeys revoked in the last 30 days because their sign counter went backwards (possible clone, 04 §3). */
     passkeyAlerts: z.number().int().min(0),
+    /** Donation campaigns that are active and visible to followers now, across all masjids (C1 Stats, T5.6). */
+    activeCampaigns: z.number().int().min(0),
     /** Push delivery over the last 24 hours and the kill switch (C1 Stats, T4.5 / T4.7). */
     push: z.object({
       jobs: z.number().int().min(0),
@@ -252,3 +255,36 @@ export const superDashboardSchema = z
 export type SuperDashboard = z.infer<typeof superDashboardSchema>;
 
 export { inviteLinkSchema as superInviteSchema };
+
+// --- Payment approvals (C4, 04 R1, PHASE_05 T5.2) ----------------------------------------------------------------------
+
+export const superPaymentRowSchema = paymentRequestRowSchema
+  .extend({
+    masjid: z.object({ id: z.string(), name: z.string(), city: z.string() }),
+    requestedBy: z.object({ id: z.string(), displayName: z.string() }),
+    /** The details live now (old vs new side by side); `null` for a masjid's first UPI details. */
+    current: livePaymentSchema.nullable(),
+    /**
+     * 07 C4 "history": the masjid's earlier details and refused requests, newest first (at most 5) — a masjid that
+     * keeps changing its UPI ID, or was refused before, is worth a second look.
+     */
+    history: z.array(
+      z.object({
+        vpa: z.string(),
+        payeeName: z.string(),
+        status: z.enum(['superseded', 'rejected']),
+        at: z.string(),
+      }),
+    ),
+  })
+  .meta({ id: 'SuperPaymentRow' });
+export type SuperPaymentRow = z.infer<typeof superPaymentRowSchema>;
+
+/** `GET /payments/pending`: open requests (pending, and on hold — which can still be stopped), oldest first. */
+export const superPaymentListSchema = z
+  .object({ requests: z.array(superPaymentRowSchema) })
+  .meta({ id: 'SuperPaymentList' });
+export type SuperPaymentList = z.infer<typeof superPaymentListSchema>;
+
+/** `POST /payments/:id/approve` (★): when the details go live. */
+export const paymentApprovedSchema = z.object({ effectiveAt: z.string() }).meta({ id: 'PaymentApproved' });

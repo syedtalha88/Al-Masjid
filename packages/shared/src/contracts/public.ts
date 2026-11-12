@@ -251,7 +251,12 @@ export const masjidBundleSchema = z.discriminatedUnion('status', [
     /** Phase 5 (donations): present but empty until then. */
     payment: z.nullable(z.object({ vpa: z.string(), payeeName: z.string(), effectiveAt: instant })),
     campaigns: z.array(z.object({ publicId: publicIdText })),
-    chanda: z.nullable(z.object({ weeks: z.array(z.object({ weekStart: calendarDate, amountPaise: z.int() })) })),
+    /** A11 (DECISIONS #152): the last 8 weeks, oldest first — `null` while the masjid does not show its chanda. */
+    chanda: z.nullable(
+      z.object({
+        weeks: z.array(z.object({ weekStart: calendarDate, amountPaise: z.int(), note: z.optional(z.string()) })),
+      }),
+    ),
   }),
   /** A followed masjid that was suspended: the app shows "temporarily unavailable" (00 §4.1). */
   z.object({ status: z.literal('suspended'), v: version }),
@@ -301,6 +306,47 @@ export const ruqyahListSchema = z.object({
   sections: z.array(z.object({ category: z.enum(RUQYAH_CATEGORY_VALUES), entries: z.array(ruqyahEntrySchema) })),
 });
 export type RuqyahList = z.infer<typeof ruqyahListSchema>;
+
+// --- needy people (A23, DECISIONS #104, PHASE_05 T5.8) -------------------------------------------------------------------
+
+export const BENEFICIARY_CATEGORY_VALUES = [
+  'widow',
+  'orphan',
+  'disability',
+  'illness',
+  'elderly',
+  'homeless',
+  'debt',
+  'student',
+  'other',
+] as const;
+
+/**
+ * A person the masjid has verified as in need — public fields only (first name or initials, never a phone or note).
+ * `vpa` / `payeeName` are the person's own UPI details: payments go straight to them (CLAUDE.md §2.2). Amounts are
+ * integer paise; "received" is what the masjid reports.
+ */
+export const beneficiarySchema = z.object({
+  publicId: publicIdText,
+  displayName: z.string(),
+  category: z.enum(BENEFICIARY_CATEGORY_VALUES),
+  reason: z.string(),
+  reasonLocale: LOCALE,
+  vpa: z.string(),
+  payeeName: z.string(),
+  capPaise: z.int(),
+  receivedPaise: z.int(),
+  receivedUpdatedAt: z.optional(instant),
+  /** min(1000, received × 1000 ÷ cap) — the list's order (least-funded first) and the progress bar. */
+  fundedPermille: intIn(0, 1000),
+  /** The masjid's statement that zakat may be given to this person. */
+  zakatEligible: z.boolean(),
+});
+export type Beneficiary = z.infer<typeof beneficiarySchema>;
+
+/** `GET /masjids/:id/beneficiaries?v=&zakat=` — listed people, least-funded first, then oldest. */
+export const beneficiaryListSchema = z.object({ people: z.array(beneficiarySchema) });
+export type BeneficiaryList = z.infer<typeof beneficiaryListSchema>;
 
 // --- follows -----------------------------------------------------------------------------------------------------------
 
@@ -383,6 +429,8 @@ export const feedItemSchema = z.object({
       cover: z.optional(mediaImageSchema),
     }),
   ),
+  /** A `chanda_update`: the week and its total as the masjid reported it (DECISIONS #152). */
+  chanda: z.optional(z.object({ weekStart: calendarDate, amountPaise: z.int() })),
   video: z.optional(
     z.object({
       youtubeId: z.string(),

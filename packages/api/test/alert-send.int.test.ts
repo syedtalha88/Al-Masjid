@@ -1,6 +1,7 @@
 // PHASE_04 T4.6 — the `alert-send` processor on the Docker MongoDB with the mock push service: who receives an alert
 // (active Super Admins, or the named active admins), in each admin's app language with the fixed path of its type;
 // gone subscriptions deleted, delivered ones noted; a retryable answer retries the job until its last attempt.
+// F65 (DECISIONS #159): a phone whose session was signed out, revoked or has expired gets nothing.
 import { createECDH, randomBytes } from 'node:crypto';
 
 import { type DbHandle, idText, newId } from '@mc/db';
@@ -64,12 +65,28 @@ async function admin(
   return id;
 }
 
-/** A subscription of `adminId`; returns its endpoint. */
-async function phone(adminId: Id): Promise<string> {
+const HOUR = 3_600_000;
+/**
+ * A subscription of `adminId`, saved in a session of theirs that is open at NOW (idle for one more hour) unless
+ * `session` says otherwise; returns its endpoint.
+ */
+async function phone(adminId: Id, session: Record<string, unknown> = {}): Promise<string> {
   const endpoint = `https://fcm.googleapis.com/fcm/send/alert-${randomBytes(8).toString('hex')}`;
+  const sessionId = newId();
+  await raw('admin_sessions').insertOne({
+    _id: sessionId,
+    admin_id: adminId,
+    token_hash: randomBytes(32), // stored as BSON binary by the driver
+    created_at: NOW,
+    last_seen_at: NOW,
+    idle_expires_at: new Date(NOW.getTime() + HOUR),
+    absolute_expires_at: new Date(NOW.getTime() + 2 * HOUR),
+    ...session,
+  });
   await raw('admin_push_subscriptions').insertOne({
     _id: newId(),
     admin_id: adminId,
+    session_id: sessionId,
     endpoint,
     ...KEYS,
     created_at: NOW,
@@ -103,6 +120,7 @@ afterAll(async () => {
 beforeEach(async () => {
   service.reset();
   await raw('admin_push_subscriptions').deleteMany({});
+  await raw('admin_sessions').deleteMany({});
   await raw('admin_users').deleteMany({});
 });
 
@@ -168,6 +186,31 @@ describe('alert-send', () => {
 
     await raw('admin_push_subscriptions').deleteMany({});
     expect(await processAlertSend(deps(), payload, { final: false })).toEqual({ delivered: 0, pruned: 0 });
+  });
+
+  it('F65: signed out, revoked or expired — that phone gets nothing; the Super Admin is reached after the short session', async () => {
+    const masjidAdmin = await admin('masjid_admin', 'en');
+    const owner = await admin('super_admin', 'en');
+    const open = await phone(masjidAdmin);
+    const signedOut = await phone(masjidAdmin, { revoked_at: NOW, revoked_reason: 'logout' });
+    const expired = await phone(masjidAdmin, { idle_expires_at: new Date(NOW.getTime() - 1) });
+    // The Super Admin's session ran out hours ago (30 minutes idle), but it was used within the last 30 days.
+    const ownerPhone = await phone(owner, {
+      last_seen_at: new Date(NOW.getTime() - 6 * HOUR),
+      idle_expires_at: new Date(NOW.getTime() - 5 * HOUR),
+      absolute_expires_at: new Date(NOW.getTime() - HOUR),
+    });
+    const ownerSignedOut = await phone(owner, { revoked_at: NOW, revoked_reason: 'logout' });
+
+    const result = await processAlertSend(
+      deps(),
+      alert('test.5', 'test', { kind: 'admins', adminIds: [idText(masjidAdmin), idText(owner)] }),
+      { final: false },
+    );
+
+    expect(result).toEqual({ delivered: 2, pruned: 0 });
+    expect(service.requests.map((entry) => entry.endpoint).sort()).toEqual([open, ownerPhone].sort());
+    for (const silent of [signedOut, expired, ownerSignedOut]) expect(service.delivered(silent)).toHaveLength(0);
   });
 
   it('named admins of whom none is active: nothing is read or sent', async () => {

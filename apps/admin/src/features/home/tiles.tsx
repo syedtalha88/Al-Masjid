@@ -27,14 +27,14 @@ const TILE_LIST = [
   { key: 'notice', icon: <MegaphoneIcon size={28} />, tone: 'danger', phase: 3, route: '/notice' },
   { key: 'hadithAyah', icon: <BookOpenIcon size={28} />, tone: 'info', phase: 3, route: '/daily' },
   { key: 'dua', icon: <HandsPrayingIcon size={28} />, tone: 'rose', phase: 3, route: '/dua' },
-  { key: 'donation', icon: <HeartIcon size={28} filled />, tone: 'heart', phase: 5, route: null },
-  { key: 'chanda', icon: <ChartBarIcon size={28} />, tone: 'purple', phase: 5, route: null },
-  { key: 'video', icon: <PlayCircleIcon size={28} />, tone: 'primary', phase: 6, route: null },
+  { key: 'donation', icon: <HeartIcon size={28} filled />, tone: 'heart', phase: 5, route: '/donation' },
+  { key: 'chanda', icon: <ChartBarIcon size={28} />, tone: 'purple', phase: 5, route: '/chanda' },
+  { key: 'video', icon: <PlayCircleIcon size={28} />, tone: 'primary', phase: 6, route: '/videos' },
   { key: 'specialDates', icon: <CrescentIcon size={28} />, tone: 'sun', phase: 3, route: '/special' },
   { key: 'adhkar', icon: <MoonStarsIcon size={28} />, tone: 'primary', phase: 3, route: '/adhkar' },
   { key: 'ruqyah', icon: <ShieldCheckIcon size={28} />, tone: 'info', phase: 3, route: '/ruqyah' },
   { key: 'bloodCamp', icon: <DropIcon size={28} />, tone: 'danger', phase: 3, route: '/blood-camp' },
-  { key: 'needy', icon: <HandsPrayingIcon size={28} />, tone: 'heart', phase: 5, route: null },
+  { key: 'needy', icon: <HandsPrayingIcon size={28} />, tone: 'heart', phase: 5, route: '/needy' },
   { key: 'myPosts', icon: <ListBulletsIcon size={28} />, tone: 'neutral', phase: 3, route: '/posts' },
   { key: 'profile', icon: <GearIcon size={28} />, tone: 'slate', phase: 3, route: '/profile' },
 ] as const satisfies readonly {
@@ -59,10 +59,13 @@ export interface Tile {
 export const TILES: readonly Tile[] = TILE_LIST;
 
 /** The phase being built now: tiles of later phases are placeholders. */
-export const CURRENT_PHASE = 3;
+export const CURRENT_PHASE = 6;
 
 export const isTileKey = (value: string): value is TileKey => TILES.some((tile) => tile.key === value);
 
-/** Tiles to show: later-phase placeholders only where "Coming soon" screens are allowed (dev / staging). */
+/**
+ * Tiles to show: in production only built screens (a tile of the current phase whose task has not landed yet stays
+ * hidden); "Coming soon" placeholders only where they are allowed (dev / staging).
+ */
 export const visibleTiles = (showComingSoon: boolean) =>
-  TILES.filter((tile) => showComingSoon || tile.phase <= CURRENT_PHASE);
+  TILES.filter((tile) => showComingSoon || (tile.phase <= CURRENT_PHASE && tile.route !== null));

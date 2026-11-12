@@ -1,0 +1,76 @@
+{
+  "collections": [
+    {
+      "name": "admin_push_subscriptions",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "admin_id", "endpoint", "p256dh", "auth", "created_at"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "admin_id": {
+            "bsonType": "binData"
+          },
+          "session_id": {
+            "bsonType": "binData"
+          },
+          "endpoint": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "1000"
+            },
+            "pattern": "^https://"
+          },
+          "p256dh": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "200"
+            }
+          },
+          "auth": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "100"
+            }
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "last_ok_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "endpoint_unique",
+          "key": {
+            "endpoint": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "admin",
+          "key": {
+            "admin_id": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "session",
+          "key": {
+            "session_id": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "views": []
+}

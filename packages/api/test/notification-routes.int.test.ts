@@ -240,6 +240,13 @@ describe('admin push subscriptions (T4.6)', () => {
     expect((await asSuperOnAdmin('put', '/auth/push').send({ endpoint, keys: KEYS })).status).toBe(204);
     expect((await asSuperOnAdmin('put', '/auth/push').send({ endpoint, keys: KEYS })).status).toBe(204);
     expect(await db().collection('admin_push_subscriptions').countDocuments({ endpoint })).toBe(1);
+    // F65: it hangs on the session of the request (from the cookie — the body cannot name one), so alerts stop with it.
+    const saved = await db().collection('admin_push_subscriptions').findOne({ endpoint });
+    const session = await db()
+      .collection('admin_sessions')
+      .findOne({ _id: saved?.['session_id'] as never });
+    expect(session).toMatchObject({ admin_id: saved?.['admin_id'] as unknown });
+    expect(session?.['revoked_at']).toBeUndefined();
     expect((await asSuperOnAdmin('delete', '/auth/push').send({ endpoint })).status).toBe(204);
     expect(await db().collection('admin_push_subscriptions').countDocuments({ endpoint })).toBe(0);
   });

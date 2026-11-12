@@ -2,6 +2,7 @@
   "voice": "🎤 Voice message",
   "fallbackTitle": "Masjid update",
   "fallbackBody": "Open the app to see it.",
+  "campaignNew": "New donation campaign · Goal {target}",
   "alert": {
     "credential_counter_regression": {
       "title": "Security check needed",
@@ -18,6 +19,26 @@
     "super_passkey_added": {
       "title": "New passkey on a Super Admin account",
       "body": "A passkey was just added to a Super Admin account. If this wasn't you, remove it in Account now."
+    },
+    "payment_request": {
+      "title": "UPI change requested",
+      "body": "A masjid asked to change its UPI payment details. Review it in Payment approvals."
+    },
+    "payment_request_owner": {
+      "title": "UPI change asked for your masjid",
+      "body": "An owner of your masjid asked to change its UPI details. If you don't know about it, tell the Super Admin now."
+    },
+    "payment_approved": {
+      "title": "UPI change approved",
+      "body": "A UPI change for your masjid was approved. It goes live after the waiting period. If you didn't ask for it, tell the Super Admin now."
+    },
+    "payment_rejected": {
+      "title": "UPI change not approved",
+      "body": "Your UPI change was not approved. Open Payment to see why."
+    },
+    "payment_active": {
+      "title": "New UPI details are live",
+      "body": "Your masjid's new UPI details are now shown to everyone, and followers were told. If you didn't ask for this, tell the Super Admin now."
     }
   }
 }

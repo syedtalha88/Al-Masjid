@@ -129,7 +129,7 @@ masjid-connect/
 | Video | **YouTube links** (DECISIONS #39): oEmbed check, copied thumbnail, `youtube-nocookie.com` embed after tap | No video hosting, no player library |
 | Images | `sharp` sanitize/re-encode → **Cloudinary** signed server-side upload (DECISIONS #40) | Named transformations 480/960/1440 × AVIF/WebP; strict transformations ON |
 | Multipart | `@fastify/busboy` (streaming, hard limits — DECISIONS #107) | Admin uploads only (images, audio, library import) |
-| QR generate | `qrcode` (SVG output) | Posters, UPI QR |
+| QR generate | `lean-qr` 2.7.4 (nano encoder + SVG path; DECISIONS #149 — `qrcode` had no release in 18 months) | Posters, UPI QR (`@mc/ui/qr`, lazy chunk) |
 | QR scan | `BarcodeDetector` where available, else `barcode-detector` ponyfill over `zxing-wasm` (lazy chunk + self-hosted `.wasm`; CSP `'wasm-unsafe-eval'` on the app origin) | DECISIONS #94 (`qr-scanner` is unmaintained) |
 | Prayer times | `adhan` (adhan-js) | Wrapped in `packages/domain/prayer` |
 | Bot protection | Cloudflare Turnstile (invisible/managed) | Server verifies token |
@@ -217,7 +217,7 @@ Delivery (DECISIONS #40): `media.<domain>/i/<480|960|1440>/<avif|webp>/<key>` �
 | `push-send-batch` | from fanout | BullMQ job id `<jobId>.<page>.<locale>` + Redis sent-set |
 | `payment-activate` | scheduler every 10 min | state machine (02 §2 Payments) |
 | `campaign-close` | scheduler daily 00:10 IST | state machine |
-| `retention` | scheduler daily 03:00 IST | per-collection batches |
+| `retention` | scheduler daily 03:00 IST | per-collection batches (built in T5.8 with needy people; the rest in Phase 8) |
 | `sla-alerts` | scheduler every 15 min | one alert per (target, threshold) recorded |
 | `outbox-sweeper` | scheduler every 1 min (also runs the stuck-job detector) | status check |
 | `report-triage` | scheduler every 1 min | sends the immediate Super Admin alert for each new urgent report and auto-hides an item once ≥ `report_autohide_threshold` distinct devices reported it within 1 h (the public API may only insert reports, so this runs in the worker); one alert/hide per report/item, recorded |

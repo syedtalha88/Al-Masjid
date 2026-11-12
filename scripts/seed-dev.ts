@@ -1,5 +1,6 @@
-// `pnpm db:seed` — the dev seed (PHASE_02 T2.2) into the LOCAL Docker database only: 3 fake masjids (follow codes
-// TESTA001 / TESTB002 / TESTC003), placeholder library entries (10 §5), 8 notice templates and 30 items, written as
+// `pnpm db:seed` — the dev seed (PHASE_02 T2.2) into the LOCAL Docker database only: 4 fake masjids (follow codes
+// TESTA001 / TESTB002 / TESTC003, and TESTD004 with fake UPI details and donation campaigns), placeholder library
+// entries (10 §5), the starter notice templates and 36 items, written as
 // mc_system. Idempotent; `pnpm db:reset` runs it after the migrations. Never prints a password.
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';

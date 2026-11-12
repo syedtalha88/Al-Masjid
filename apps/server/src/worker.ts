@@ -1,6 +1,6 @@
 // Entrypoint: worker (BullMQ processors + schedulers, 01 §5.8): the push pipeline and alerts (Phase 4 — the only
 // process with the VAPID private key), the outbox sweeper schedule, the heartbeat; later phases add their jobs.
-import { createLogger, createPushSender, redisSendLedger } from '@mc/api';
+import { cloudflarePurger, cloudinaryMediaStore, createLogger, createPushSender, redisSendLedger } from '@mc/api';
 import { ensureDevSeed } from '@mc/api/jobs/seed';
 import { startJobWorkers } from '@mc/api/jobs/worker';
 import { createDbHandle } from '@mc/db';
@@ -48,6 +48,23 @@ const jobs = await startJobWorkers({
   }),
   logger,
   ...(sentry ? { report: sentry.report } : {}),
+  // T6.4: deleted posts' files go with them after 180 days — the worker's own Cloudinary key and the Cloudflare purge
+  // token (both required outside local); locally there is neither, and the job leaves files (logged).
+  retention: {
+    ...(env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET
+      ? {
+          media: cloudinaryMediaStore({
+            cloudName: env.CLOUDINARY_CLOUD_NAME,
+            apiKey: env.CLOUDINARY_API_KEY,
+            apiSecret: env.CLOUDINARY_API_SECRET,
+          }),
+        }
+      : {}),
+    ...(env.CF_API_TOKEN_PURGE && env.CF_ZONE_ID
+      ? { purger: cloudflarePurger({ token: env.CF_API_TOKEN_PURGE, zoneId: env.CF_ZONE_ID }) }
+      : {}),
+    mediaOrigin: env.MEDIA_ORIGIN,
+  },
 });
 await jobs.ready();
 

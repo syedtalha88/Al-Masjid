@@ -10,6 +10,7 @@ import { StateError, writeAudit } from '../effects.ts';
 import type { Scope } from '../scope.ts';
 import { newId } from '../values.ts';
 import { requireSuper } from './guards.ts';
+import { closeRequestsOfRemovedAdmin } from './payment.ts';
 
 type IdDoc = { _id: UUID } & Record<string, unknown>;
 
@@ -113,7 +114,8 @@ export async function addAdminToMasjid(
 }
 
 /**
- * Removes an admin from a masjid (Super Admin, ★ step-up): deletes the membership and decrements `admin_count`.
+ * Removes an admin from a masjid (Super Admin, ★ step-up): deletes the membership, decrements `admin_count` and closes
+ * the admin's open UPI change request for that masjid (DECISIONS #161).
  *
  * @throws StateError FORBIDDEN, STEP_UP_REQUIRED, NOT_MEMBER.
  */
@@ -132,6 +134,13 @@ export async function removeAdminFromMasjid(
     await ctx.db
       .collection<{ _id: UUID; admin_count: number }>('masjids')
       .updateOne({ _id: input.masjidId }, { $inc: { admin_count: -1 }, $set: { updated_at: new Date() } }, session);
+    // Review L3 (#161): their open UPI request for this masjid closes with them.
+    await closeRequestsOfRemovedAdmin(ctx, {
+      adminId: input.adminId,
+      masjidId: input.masjidId,
+      requestId: input.requestId,
+      now: input.now ?? new Date(),
+    });
     await writeAudit(ctx, {
       action: 'admin.remove_from_masjid',
       masjidId: input.masjidId,

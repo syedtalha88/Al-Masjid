@@ -13,6 +13,12 @@ export const DEVICE_STATE_VERSION = 1;
 export const MAX_FOLLOWS = 20;
 const MAX_SAVED = 500;
 const MAX_AMEENS = 2000;
+/** My zakat (07 A24, PHASE_05 T5.9): the limits of the phone-only tracker. */
+export const MAX_ZAKAT_PAYMENTS = 500;
+export const MAX_ZAKAT_LABEL = 20;
+export const MAX_ZAKAT_NOTE = 60;
+/** Largest amount anywhere (CLAUDE.md §6 Money: ≤ 10^12 paise) — also the most one tracker's payments may add up to. */
+const MAX_PAISE = 1_000_000_000_000;
 
 const LOCALE = z.enum(['en', 'hi', 'ur', 'te']);
 const credentialsSchema = z.object({
@@ -32,6 +38,35 @@ const followSchema = z.object({
   sync: z.enum(['synced', 'follow', 'unfollow']),
 });
 export type LocalFollow = z.infer<typeof followSchema>;
+
+const paise = z.int().check(z.minimum(0), z.maximum(MAX_PAISE));
+/**
+ * My zakat (00 §4.15, 07 A24, 05 §1): the amount the person says they owe and the payments they logged. It exists only
+ * in this document — no API contract carries it — and "Clear all data" removes it with everything else.
+ */
+const zakatSchema = z
+  .object({
+    /** The year the person tracks, e.g. "1448 AH" (free text). */
+    label: z.string().check(z.maxLength(MAX_ZAKAT_LABEL)),
+    owedPaise: paise,
+    /** Oldest first. `beneficiaryPublicId`: the needy person (A23) the payment went to. */
+    payments: z
+      .array(
+        z.object({
+          at: instant,
+          amountPaise: z.int().check(z.minimum(1), z.maximum(MAX_PAISE)),
+          note: z.optional(z.string().check(z.minLength(1), z.maxLength(MAX_ZAKAT_NOTE))),
+          beneficiaryPublicId: z.optional(publicIdText),
+        }),
+      )
+      .check(z.maxLength(MAX_ZAKAT_PAYMENTS)),
+  })
+  .check(
+    // The total stays a displayable amount.
+    z.refine((zakat) => zakat.payments.reduce((sum, payment) => sum + payment.amountPaise, 0) <= MAX_PAISE),
+  );
+export type Zakat = z.infer<typeof zakatSchema>;
+export type ZakatPayment = Zakat['payments'][number];
 
 const stateSchema = z.object({
   version: z.literal(DEVICE_STATE_VERSION),
@@ -72,6 +107,8 @@ const stateSchema = z.object({
   /** Dua requests this device said Ameen on (button state), and those still to be sent (08 §5.6). */
   ameens: z.array(publicIdText).check(z.maxLength(MAX_AMEENS)),
   pendingAmeens: z.array(publicIdText).check(z.maxLength(MAX_AMEENS)),
+  /** My zakat (07 A24): absent until the person uses it. Never sent anywhere. */
+  zakat: z.optional(zakatSchema),
   settings: z.object({
     /** 08 §7 — Android haptics (F16). */
     vibration: z.boolean(),

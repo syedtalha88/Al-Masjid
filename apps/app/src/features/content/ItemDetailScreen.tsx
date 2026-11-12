@@ -1,8 +1,10 @@
 // `/items/:publicId` (07 Navigation map: any item detail). Announcement detail (07 A7: icon + title, masjid row, full
 // body, photo → full-screen pinch-zoom viewer, event date with "Add to calendar" (.ics), Share, "edited"), the Read
 // Full reader for hadith / ayah (07 A8: Arabic size A−/A+ remembered, transliteration toggle, translation, reference,
-// source + licence, copy, Share, Save) and the dua detail (07 A9: full message, full dua, large Ameen, janaza). Other
-// types (campaigns, videos, chanda — Phases 5/6) show their title and text for now. Report ("…") arrives with Phase 8.
+// source + licence, copy, Share, Save), the dua detail (07 A9: full message, full dua, large Ameen, janaza) and the
+// donation campaign (07 A10, `../campaigns/CampaignDetail.tsx`). Other types (videos, chanda — Phases 5/6) show their
+// title and text for now. Report ("…") arrives with Phase 8.
+import { youTubeEmbedUrl } from '@mc/domain/youtube';
 import { useLocale, useTranslation } from '@mc/i18n/react';
 import type { FeedItem, MasjidSummary } from '@mc/shared/contracts/public';
 import { MosqueIllustration } from '@mc/ui';
@@ -16,6 +18,7 @@ import {
   IconButton,
   Image,
   ImageViewer,
+  InfoNote,
   Skeleton,
   SkeletonText,
   Switch,
@@ -37,6 +40,7 @@ import {
   templatePhones,
   useNoticeBody,
   WhatsAppButton,
+  YouTubeFacade,
 } from '@mc/ui/content';
 import { BookmarkIcon, CalendarIcon, ClockIcon, CopyIcon, DownloadIcon, ShareIcon } from '@mc/ui/icons';
 import { Pressable } from '@mc/ui/motion';
@@ -49,6 +53,8 @@ import { now as correctedNow, useNow } from '../../lib/clock.ts';
 import { useAppData, useDeviceSelector } from '../../lib/data.tsx';
 import { masjidName } from '../../lib/masjid.ts';
 import { audioUrl, mediaUrl } from '../../lib/media.ts';
+import { useLooksOffline } from '../../lib/reachability.ts';
+import { CampaignDetail } from '../campaigns/CampaignDetail.tsx';
 import { ShareSheet } from '../masjid/components/ShareSheet.tsx';
 import { ContentGate } from './components/ContentGate.tsx';
 import { useAmeen } from './hooks/useAmeen.ts';
@@ -138,6 +144,9 @@ function ItemDetail({ publicId }: { readonly publicId: string }) {
   const { item, masjid } = state;
   if (item.type === 'daily_content' && item.daily?.library) return <Reader item={item} masjid={masjid} />;
   if (item.type === 'dua_request' && item.dua) return <DuaDetail item={item} masjid={masjid} />;
+  if (item.type === 'campaign' && item.campaign) return <CampaignItemDetail item={item} masjid={masjid} />;
+  if (item.type === 'chanda_update' && item.chanda) return <ChandaItemDetail item={item} masjid={masjid} />;
+  if (item.type === 'video' && item.video) return <VideoDetail item={item} masjid={masjid} video={item.video} />;
   return <NoticeDetail item={item} masjid={masjid} />;
 }
 
@@ -190,6 +199,128 @@ function ShareButton({ item, masjid }: DetailProps) {
       </Button>
       <ShareSheet target={share.target} title={t('share')} onClose={share.close} />
     </>
+  );
+}
+
+/**
+ * A12 player (07 A12, DECISIONS #39, PHASE_06 T6.3): the YouTube facade sticky at the top — our thumbnail and Play; the
+ * youtube-nocookie iframe only after the tap (no request to Google before) — then title, speaker, date, the description
+ * (longer ones expand) and Share. Offline: "Connect to the internet to watch" instead of Play.
+ */
+function VideoDetail({ item, masjid, video }: DetailProps & { readonly video: NonNullable<FeedItem['video']> }) {
+  const { t } = useTranslation('content');
+  const { format } = useLocale();
+  const name = useMasjidLabel(masjid);
+  const offline = useLooksOffline();
+  const [expanded, setExpanded] = useState(false);
+  const title = item.title ?? '';
+  const description = item.body;
+  const long = (description?.length ?? 0) > DESCRIPTION_FOLD;
+  return (
+    <Screen title={t('bayans')} {...(name ? { subtitle: name } : {})}>
+      <article className="flex flex-col gap-4 pb-6" data-bayan={item.publicId}>
+        <div className="sticky top-0 z-10 bg-bg pt-2 pb-2">
+          <YouTubeFacade
+            title={title}
+            thumbSrc={mediaUrl(video.thumb.key, 960)}
+            thumbhash={video.thumb.thumbhash}
+            embedSrc={youTubeEmbedUrl(video.youtubeId, video.startS)}
+            offline={offline}
+          />
+        </div>
+        <header className="flex flex-col gap-1">
+          <h2 dir="auto" className="type-title2 text-text">
+            {title}
+          </h2>
+          <p className="type-footnote text-text-secondary">
+            {video.speaker ? (
+              <>
+                <bdi dir="auto">{video.speaker}</bdi>
+                {' · '}
+              </>
+            ) : null}
+            {format.date(new Date(item.publishedAt), 'medium')}
+            {item.editedAt ? ` · ${t('edited')}` : ''}
+          </p>
+        </header>
+        {description ? (
+          <div className="flex flex-col items-start gap-1">
+            <p
+              dir="auto"
+              className={`type-body whitespace-pre-line text-text ${long && !expanded ? 'line-clamp-4' : ''}`}
+            >
+              {description}
+            </p>
+            {long ? (
+              <Button
+                variant="ghost"
+                size="md"
+                onPress={() => {
+                  setExpanded((value) => !value);
+                }}
+              >
+                {t(expanded ? 'showLess' : 'showMore')}
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
+        <ShareButton item={item} masjid={masjid} />
+        <LandingFooter />
+      </article>
+    </Screen>
+  );
+}
+
+/** Descriptions longer than this start folded to four lines. */
+const DESCRIPTION_FOLD = 240;
+
+/** A10 campaign detail with this screen's Share and the landing's actions. */
+function CampaignItemDetail({ item, masjid }: DetailProps) {
+  const name = useMasjidLabel(masjid);
+  return (
+    <CampaignDetail
+      item={item}
+      masjidName={name}
+      share={<ShareButton item={item} masjid={masjid} />}
+      footer={<LandingFooter />}
+    />
+  );
+}
+
+/** A chanda update (A11 feed entry): the week's total, and the way to the masjid's Weekly Chanda. */
+function ChandaItemDetail({ item, masjid }: DetailProps) {
+  const { t } = useTranslation('content');
+  const { format } = useLocale();
+  const navigator = useNavigator();
+  const name = useMasjidLabel(masjid);
+  const chanda = item.chanda;
+  if (!chanda) return null;
+  return (
+    <Screen title={t('chanda.title')} {...(name ? { subtitle: name } : {})}>
+      <article className="flex flex-col gap-4 pt-2 pb-6" data-chanda-item>
+        <header className="flex items-start gap-3">
+          <ItemIcon item={item} size={56} />
+          <p className="type-title2 text-text">
+            {t('chanda.collected', {
+              amount: format.money(chanda.amountPaise),
+              date: format.calendarDate(chanda.weekStart, 'medium'),
+            })}
+          </p>
+        </header>
+        <InfoNote>{t('chanda.reported')}</InfoNote>
+        <Button
+          size="lg"
+          fullWidth
+          onPress={() => {
+            navigator.push(`/masjid/${item.masjidId}/chanda`);
+          }}
+        >
+          {t('chanda.title')}
+        </Button>
+        <ShareButton item={item} masjid={masjid} />
+        <LandingFooter />
+      </article>
+    </Screen>
   );
 }
 

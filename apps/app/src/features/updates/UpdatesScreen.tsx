@@ -16,7 +16,7 @@ import {
   Spinner,
   TimelineList,
 } from '@mc/ui/components';
-import { ItemIcon, itemKind, itemTitle } from '@mc/ui/content';
+import { ItemIcon, itemKind, itemTitle, useItemSummary } from '@mc/ui/content';
 import { Screen, useNavigator, useScreen } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -197,6 +197,7 @@ const Sections = memo(
     const navigator = useNavigator();
     const { api } = useAppData();
     const templates = useQuery(templatesQuery(api)).data?.templates;
+    const summary = useItemSummary();
     return sectionsByDay(items).map((section) => (
       <section key={section.date} aria-label={dayTitle(section.date)} className="flex flex-col">
         <h2 className="py-2 type-subhead-strong text-text-secondary">{dayTitle(section.date)}</h2>
@@ -206,7 +207,8 @@ const Sections = memo(
             icon: <ItemIcon item={item} size={44} />,
             masjid: names.get(item.masjidId),
             title: itemTitle(item, locale, templates, t(`item.${itemKind(item)}`)),
-            snippet: item.templateKey ? undefined : item.title ? item.body : undefined,
+            // Donations and chanda say their figures (T5.6); a free-text notice its text.
+            snippet: summary(item) ?? (item.templateKey ? undefined : item.title ? item.body : undefined),
             time: format.relative(new Date(item.publishedAt), now),
             unseen: seenAt === undefined || item.publishedAt > seenAt,
             unseenLabel: t('updates.new'),

@@ -142,5 +142,61 @@
   "transliteration": {
     "context": "Switch label in the reader",
     "maxLength": 28
+  },
+  "campaign.title": {
+    "context": "Screen title: a masjid’s donation campaigns (list)",
+    "maxLength": 28
+  },
+  "campaign.detailTitle": {
+    "context": "Screen title: one donation campaign",
+    "maxLength": 28
+  },
+  "campaign.status.active": {
+    "context": "Status pill on a campaign photo",
+    "maxLength": 14
+  },
+  "campaign.status.completed": {
+    "context": "Status pill on a campaign photo",
+    "maxLength": 14
+  },
+  "campaign.status.closed": {
+    "context": "Status pill on a campaign photo",
+    "maxLength": 14
+  },
+  "campaign.raisedOf": {
+    "context": "Campaign card: amount received so far of the target, e.g. “₹72,000 raised of ₹1,00,000”"
+  },
+  "campaign.received": {
+    "context": "Caption under the received amount; the amount is what the masjid reported, not verified by us"
+  },
+  "campaign.lastUpdated": {
+    "context": "“when” is a date and time, e.g. “26 Sep, 8:30 PM”"
+  },
+  "campaign.daysLeft": {
+    "context": "Days until the campaign’s end date (0 = it ends today)"
+  },
+  "campaign.donateNow": {
+    "context": "Main button: opens the phone’s UPI app to pay the masjid",
+    "maxLength": 24
+  },
+  "campaign.showQr": {
+    "context": "Button: opens a sheet with the masjid’s UPI QR code",
+    "maxLength": 28
+  },
+  "campaign.disclaimer": {
+    "context": "Legal note under every campaign; {app} is the app’s name. Must stay exact in meaning (05 §8)"
+  },
+  "campaign.closedBanner": {
+    "context": "Shown instead of the donate buttons once a campaign has ended"
+  },
+  "campaign.qr.save": {
+    "context": "Button: saves the QR code picture to the phone’s photos",
+    "maxLength": 28
+  },
+  "campaign.qr.checkName": {
+    "context": "Safety hint: UPI apps show the receiver’s name before paying; {payee} is the masjid’s UPI payee name"
+  },
+  "campaign.qr.changed": {
+    "context": "Notice in the QR sheet when the masjid’s UPI ID changed in the last 30 days; {date} like “2 Oct”"
   }
 }

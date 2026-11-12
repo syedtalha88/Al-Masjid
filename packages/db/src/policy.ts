@@ -219,6 +219,31 @@ const CONTACT_WRITABLE = [
   'status',
   'deleted_at',
 ];
+/**
+ * 02 §4.1 beneficiaries (needy people, DECISIONS #104): never `masjid_id`, `public_id` or `created_by`. Written only by
+ * `state/beneficiary.ts`, which keeps `funded_permille`, the status and the history row together.
+ */
+const BENEFICIARY_WRITABLE = [
+  'display_name',
+  'category',
+  'reason',
+  'reason_locale',
+  'vpa',
+  'payee_name',
+  'cap_paise',
+  'received_paise',
+  'received_updated_at',
+  'funded_permille',
+  'zakat_eligible',
+  'consent_confirmed',
+  'private_enc',
+  'status',
+  'fulfilled_at',
+  'closed_at',
+  'purge_after',
+];
+/** A person taken off the list by the masjid (closed / deleted) is never changed again — the purge clock runs. */
+const beneficiaryOpen = { status: { $in: ['active', 'fulfilled'] } };
 const removedRedaction = (doc: Document): Document => {
   if (doc['status'] !== 'removed') return doc;
   // A taken-down recording's key too: it cannot be read back and attached elsewhere (DECISIONS #135).
@@ -352,6 +377,23 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
     admin: { find: { filter: own('masjid_id') } },
     super: { find: S },
   },
+  // `private_enc` (the person's phone / note) is hidden from every generic read: the masjid's own admins get it only
+  // through `readBeneficiaryPrivate` (audited); the Super Admin never.
+  beneficiaries: {
+    admin: {
+      find: { filter: own('masjid_id'), hidden: ['private_enc'] },
+      insert: { filter: own('masjid_id'), check: sectionInsert },
+      update: {
+        filter: (ctx) => ({ ...own('masjid_id')(ctx), ...beneficiaryOpen }),
+        writable: BENEFICIARY_WRITABLE,
+      },
+    },
+    super: { find: { hidden: ['private_enc'] } },
+  },
+  beneficiary_amount_history: {
+    admin: { find: { filter: own('masjid_id') }, insert: { filter: own('masjid_id') } },
+    super: { find: S },
+  },
   devices: {
     public: { insert: S },
     device: {
@@ -474,6 +516,7 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
   v_pub_settings: viewCells(),
   v_pub_ruqyah: viewCells(),
   v_pub_contacts: viewCells(),
+  v_pub_beneficiaries: viewCells(),
   // Counts for push audiences without device ids (02 §4.2) — admins see only their own masjids.
   v_admin_follow_audience: { admin: { find: { filter: own('masjid_id') } }, super: { find: S } },
 };

@@ -2,17 +2,33 @@
 import {
   type AdhkarPut,
   adminAdhkarSchema,
+  adminBeneficiaryListSchema,
+  adminCampaignListSchema,
+  adminChandaSchema,
   adminContactListSchema,
   adminItemListSchema,
   type AdminItemStatus,
   adminLibraryListSchema,
   adminMasjidProfileSchema,
   adminMasjidStatsSchema,
+  adminPaymentSchema,
   adminRuqyahListSchema,
   adminScheduleSchema,
   adminSpecialDatesSchema,
+  adminVideoListSchema,
   type AnnouncementPublish,
   audioUploadedSchema,
+  beneficiaryPrivateResultSchema,
+  beneficiaryReceivedResultSchema,
+  type BeneficiarySave,
+  beneficiarySavedSchema,
+  type CampaignCreate,
+  type CampaignPatchBody,
+  type CampaignReceived,
+  campaignReceivedResultSchema,
+  type ChandaSettings,
+  type ChandaWeekSave,
+  chandaWeekSavedSchema,
   type ContactSave,
   contactSavedSchema,
   type DailyContentPublish,
@@ -24,6 +40,8 @@ import {
   librarySuggestionSchema,
   noContentSchema,
   notificationJobListSchema,
+  type PaymentRequest,
+  paymentRequestedSchema,
   pushQuotaSchema,
   type RamadanSave,
   ramadanSchema,
@@ -34,6 +52,9 @@ import {
   templateListSchema,
   type TimingsSave,
   timingsSavedSchema,
+  type VideoCreate,
+  type VideoPatch,
+  videoPreviewSchema,
 } from '@mc/shared/contracts';
 
 import { ADMIN_API, call } from '../../auth/api/auth-api.ts';
@@ -80,10 +101,10 @@ export const masjidApi = {
   templates: (masjidId: string, signal?: AbortSignal) =>
     call(`${base(masjidId)}/templates`, templateListSchema, withSignal(signal)),
   /** A notice photo (multipart `file`); the caller has the ownership tick (it is sent as `rightsConfirmed`). */
-  uploadImage: (masjidId: string, file: Blob) => {
+  uploadImage: (masjidId: string, file: Blob, purpose: 'announcement' | 'campaign' = 'announcement') => {
     const form = new FormData();
     form.append('file', file);
-    return call(`${base(masjidId)}/images?purpose=announcement&rightsConfirmed=true`, imageUploadedSchema, {
+    return call(`${base(masjidId)}/images?purpose=${purpose}&rightsConfirmed=true`, imageUploadedSchema, {
       method: 'POST',
       form,
     });
@@ -126,6 +147,19 @@ export const masjidApi = {
     }),
   deleteItem: (masjidId: string, itemId: string) =>
     call(`${base(masjidId)}/items/${encodeURIComponent(itemId)}`, noContentSchema, { method: 'DELETE' }),
+  /** B10 (T6.2): the masjid's bayans; a pasted link → preview; publish; edit the texts within 24 h. */
+  videos: (masjidId: string, signal?: AbortSignal) =>
+    call(`${base(masjidId)}/videos`, adminVideoListSchema, withSignal(signal)),
+  previewVideo: (masjidId: string, url: string) =>
+    call(`${base(masjidId)}/videos/preview`, videoPreviewSchema, { method: 'POST', body: { url } }),
+  publishVideo: (masjidId: string, body: VideoCreate) =>
+    call(`${base(masjidId)}/videos`, itemPublishedSchema, { method: 'POST', body }),
+  editVideo: (masjidId: string, videoId: string, updatedAt: string, body: VideoPatch) =>
+    call(`${base(masjidId)}/videos/${encodeURIComponent(videoId)}`, itemEditedSchema, {
+      method: 'PATCH',
+      body,
+      headers: { 'If-Match': `"${updatedAt}"` },
+    }),
   /** B16 (T3.14): "Adhkar after salah" — on/off and the chosen dhikr in order. */
   adhkar: (masjidId: string, signal?: AbortSignal) =>
     call(`${base(masjidId)}/adhkar`, adminAdhkarSchema, withSignal(signal)),
@@ -152,6 +186,62 @@ export const masjidApi = {
     call(`${base(masjidId)}/contacts/${encodeURIComponent(contactId)}`, contactSavedSchema, { method: 'PATCH', body }),
   deleteContact: (masjidId: string, contactId: string) =>
     call(`${base(masjidId)}/contacts/${encodeURIComponent(contactId)}`, noContentSchema, { method: 'DELETE' }),
+  /** B8 UPI setup (T5.2): the live details and the change request in progress. */
+  payment: (masjidId: string, signal?: AbortSignal) =>
+    call(`${base(masjidId)}/payment`, adminPaymentSchema, withSignal(signal)),
+  /** Ask to set or change the UPI details — live only after Super Admin approval and the hold (04 R1). */
+  requestPayment: (masjidId: string, body: PaymentRequest) =>
+    call(`${base(masjidId)}/payment/requests`, paymentRequestedSchema, { method: 'POST', body }),
+  /** B8 donation drives (T5.3): active, then completed, then closed. */
+  campaigns: (masjidId: string, signal?: AbortSignal) =>
+    call(`${base(masjidId)}/campaigns`, adminCampaignListSchema, withSignal(signal)),
+  createCampaign: (masjidId: string, body: CampaignCreate) =>
+    call(`${base(masjidId)}/campaigns`, itemPublishedSchema, { method: 'POST', body }),
+  updateCampaign: (masjidId: string, campaignId: string, body: CampaignPatchBody) =>
+    call(`${base(masjidId)}/campaigns/${encodeURIComponent(campaignId)}`, noContentSchema, { method: 'PATCH', body }),
+  /** "Update amount" — what the masjid reports received (a history row each time). */
+  campaignReceived: (masjidId: string, campaignId: string, body: CampaignReceived) =>
+    call(`${base(masjidId)}/campaigns/${encodeURIComponent(campaignId)}/received`, campaignReceivedResultSchema, {
+      method: 'POST',
+      body,
+    }),
+  completeCampaign: (masjidId: string, campaignId: string) =>
+    call(`${base(masjidId)}/campaigns/${encodeURIComponent(campaignId)}/complete`, noContentSchema, {
+      method: 'POST',
+      body: {},
+    }),
+  /** B9 (T5.5): chanda settings and the latest weeks. */
+  chanda: (masjidId: string, signal?: AbortSignal) =>
+    call(`${base(masjidId)}/chanda`, adminChandaSchema, withSignal(signal)),
+  /** Saves one week's total ("YYYY-MM-DD" = the week's first day). */
+  saveChandaWeek: (masjidId: string, weekStart: string, body: ChandaWeekSave) =>
+    call(`${base(masjidId)}/chanda/${encodeURIComponent(weekStart)}`, chandaWeekSavedSchema, { method: 'PUT', body }),
+  chandaSettings: (masjidId: string, body: ChandaSettings) =>
+    call(`${base(masjidId)}/chanda/settings`, noContentSchema, { method: 'PATCH', body }),
+  /** B19 (T5.8): needy people — active (least-funded first), then fulfilled, then closed; never the private part. */
+  beneficiaries: (masjidId: string, signal?: AbortSignal) =>
+    call(`${base(masjidId)}/beneficiaries`, adminBeneficiaryListSchema, withSignal(signal)),
+  /** Adds a person, or replaces the details of the one with `id` (the consent tick is part of every save). */
+  saveBeneficiary: (masjidId: string, id: string | null, body: BeneficiarySave) =>
+    id === null
+      ? call(`${base(masjidId)}/beneficiaries`, beneficiarySavedSchema, { method: 'POST', body })
+      : call(`${base(masjidId)}/beneficiaries/${encodeURIComponent(id)}`, beneficiarySavedSchema, {
+          method: 'PATCH',
+          body,
+        }),
+  /** "Update received" — reaching the amount needed fulfils the person and hides them from the app. */
+  beneficiaryReceived: (masjidId: string, id: string, receivedPaise: number) =>
+    call(`${base(masjidId)}/beneficiaries/${encodeURIComponent(id)}/received`, beneficiaryReceivedResultSchema, {
+      method: 'POST',
+      body: { receivedPaise },
+    }),
+  closeBeneficiary: (masjidId: string, id: string) =>
+    call(`${base(masjidId)}/beneficiaries/${encodeURIComponent(id)}/close`, noContentSchema, { method: 'POST' }),
+  deleteBeneficiary: (masjidId: string, id: string) =>
+    call(`${base(masjidId)}/beneficiaries/${encodeURIComponent(id)}`, noContentSchema, { method: 'DELETE' }),
+  /** The person's private phone / note — the server records every view in the audit log. */
+  beneficiaryPrivate: (masjidId: string, id: string) =>
+    call(`${base(masjidId)}/beneficiaries/${encodeURIComponent(id)}/private`, beneficiaryPrivateResultSchema),
   /** B13 (T3.10): the masjid profile. */
   profile: (masjidId: string, signal?: AbortSignal) =>
     call(base(masjidId), adminMasjidProfileSchema, withSignal(signal)),
@@ -207,6 +297,11 @@ export const masjidKeys = {
   adhkar: (masjidId: string) => ['masjid', masjidId, 'adhkar'] as const,
   ruqyah: (masjidId: string) => ['masjid', masjidId, 'ruqyah'] as const,
   contacts: (masjidId: string) => ['masjid', masjidId, 'contacts'] as const,
+  payment: (masjidId: string) => ['masjid', masjidId, 'payment'] as const,
+  campaigns: (masjidId: string) => ['masjid', masjidId, 'campaigns'] as const,
+  videos: (masjidId: string) => ['masjid', masjidId, 'videos'] as const,
+  chanda: (masjidId: string) => ['masjid', masjidId, 'chanda'] as const,
+  beneficiaries: (masjidId: string) => ['masjid', masjidId, 'beneficiaries'] as const,
   suggestion: (masjidId: string, kind: 'hadith' | 'ayah') => ['masjid', masjidId, 'suggestion', kind] as const,
   library: (masjidId: string, kind: string, q: string, tag: string, category: string) =>
     ['masjid', masjidId, 'library', kind, q, tag, category] as const,

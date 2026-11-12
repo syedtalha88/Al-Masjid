@@ -5,9 +5,12 @@ export {
   type AlertTarget,
   getAlertTargets,
   MAX_ADMIN_PUSH_SUBSCRIPTIONS,
+  pruneAdminPushSubscriptions,
   recordAlertDelivery,
   removeAdminPushSubscription,
   saveAdminPushSubscription,
+  sessionCarriesAlerts,
+  SUPER_ALERT_WINDOW_MS,
 } from './admin-push.ts';
 export {
   addAdminToMasjid,
@@ -44,7 +47,42 @@ export {
   revokeSessions,
   SESSION_LIFETIMES,
 } from './auth.ts';
+export {
+  type BeneficiaryCategory,
+  type BeneficiaryInput,
+  type BeneficiaryStatus,
+  createBeneficiary,
+  endBeneficiary,
+  fundedPermille,
+  purgeBeneficiaries,
+  readBeneficiaryPrivate,
+  setBeneficiaryReceived,
+  updateBeneficiary,
+} from './beneficiary.ts';
 export { bootstrapSuperAdmin } from './bootstrap.ts';
+export {
+  CAMPAIGN_PURPOSES,
+  CAMPAIGN_TARGET_MIN_PAISE,
+  type CampaignCover,
+  type CampaignInput,
+  type CampaignPatch,
+  type CampaignPurpose,
+  CAMPAIGNS_ACTIVE_MAX,
+  closeEndedCampaigns,
+  completeCampaign,
+  createCampaign,
+  setCampaignReceived,
+  updateCampaign,
+} from './campaigns.ts';
+export {
+  CHANDA_NOTE_MAX,
+  CHANDA_WEEK_START_DEFAULT,
+  type ChandaSettingsInput,
+  type ChandaWeekInput,
+  setChandaSettings,
+  setChandaWeek,
+  setShowChanda,
+} from './chanda.ts';
 export { addContact, type ContactInput, deleteContact, updateContact } from './contacts.ts';
 export { type DailyContentInput, type DailyContentPublished, publishDailyContent } from './daily.ts';
 export {
@@ -70,6 +108,7 @@ export {
 export { type DuaRequestInput, type DuaRequestPublished, publishDuaRequest } from './duas.ts';
 export { followMasjid, MAX_FOLLOWS_PER_DEVICE, unfollowMasjid } from './follows.ts';
 export { requireSuper, STEP_UP_WINDOW_MS } from './guards.ts';
+export { ITEM_PURGE_BATCH, mediaOf, type PurgedMedia, purgeExpiredItems } from './item-retention.ts';
 export { deleteItem, EDIT_WINDOW_MS, EDITABLE_ITEM_TYPES, editItem, type ItemEdit } from './items.ts';
 export * from './later.ts';
 export {
@@ -91,6 +130,16 @@ export {
   type NewMasjid,
 } from './masjids.ts';
 export { type ImagePurpose, recordAudioUpload, recordImageUpload } from './media.ts';
+export {
+  activateDuePaymentProfiles,
+  approvePaymentChange,
+  PAYMENT_HOLD_MIN_PRODUCTION,
+  PAYMENT_NOTICE_TEMPLATE,
+  type PaymentActivation,
+  type PaymentActivationRun,
+  rejectPaymentChange,
+  requestPaymentChange,
+} from './payment.ts';
 export { type MasjidProfilePatch, requestMasjidChange, updateMasjidProfile } from './profile.ts';
 export {
   enqueueNotification,
@@ -166,3 +215,11 @@ export {
   TIMINGS_UPDATED_TEMPLATE,
   type TimingsInput,
 } from './timings.ts';
+export {
+  editVideo,
+  publishVideo,
+  VIDEO_DESCRIPTION_MAX,
+  VIDEO_SPEAKER_MAX,
+  VIDEO_TITLE_MAX,
+  type VideoInput,
+} from './videos.ts';

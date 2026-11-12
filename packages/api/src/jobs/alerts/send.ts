@@ -21,6 +21,11 @@ const ALERT_PATH: Readonly<Record<AdminAlertPayload['type'], string>> = {
   super_passkey_added: '/account',
   push_job_stuck: '/super',
   test: '/',
+  payment_request: '/super/payments',
+  payment_request_owner: '/profile',
+  payment_approved: '/payment',
+  payment_rejected: '/payment',
+  payment_active: '/payment',
 };
 
 /** Alerts live four hours at the push service and always arrive at once. */
@@ -54,7 +59,7 @@ export async function processAlertSend(
             return id ? [id] : [];
           }),
         };
-  const targets = await getAlertTargets(deps.db, scope, to);
+  const targets = await getAlertTargets(deps.db, scope, to, deps.clock.now());
   const delivered: AlertTarget['id'][] = [];
   const gone: AlertTarget['id'][] = [];
   let retry = 0;

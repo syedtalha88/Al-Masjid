@@ -3,7 +3,7 @@
 import { useLocale, useTranslation } from '@mc/i18n/react';
 import type { FeedItem, MasjidProfile } from '@mc/shared/contracts/public';
 import { ListRow, Skeleton, SkeletonText } from '@mc/ui/components';
-import { ItemIcon, itemKind, itemTitle } from '@mc/ui/content';
+import { ItemIcon, itemKind, itemTitle, useItemSummary } from '@mc/ui/content';
 import { useNavigator } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { memo } from 'react';
@@ -31,6 +31,7 @@ export const ItemList = memo(
     const navigator = useNavigator();
     const { api } = useAppData();
     const templates = useQuery(templatesQuery(api)).data?.templates;
+    const summary = useItemSummary();
 
     if (items.length === 0) {
       return loading ? (
@@ -57,7 +58,11 @@ export const ItemList = memo(
             <li key={item.publicId}>
               <ListRow
                 leading={<ItemIcon item={item} />}
-                title={itemTitle(item, locale, templates, t(`item.${itemKind(item)}`))}
+                // A weekly chanda entry has no words of its own: its row says the figure (T5.6).
+                title={
+                  (item.type === 'chanda_update' ? summary(item) : undefined) ??
+                  itemTitle(item, locale, templates, t(`item.${itemKind(item)}`))
+                }
                 textDir="auto"
                 subtitle={meta}
                 chevron

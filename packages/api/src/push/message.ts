@@ -6,6 +6,7 @@
 import type { PushContent } from '@mc/db/state';
 import { formatters } from '@mc/i18n/format';
 import type { Locale } from '@mc/i18n/locales';
+import { itemLine } from '@mc/i18n/push-item-text';
 import { itemLabel, prayerName, pushText } from '@mc/i18n/push-text';
 import { formatRuntimeMessage } from '@mc/i18n/runtime-message';
 import { templateArguments, type TemplateValue } from '@mc/i18n/template-args';
@@ -60,7 +61,37 @@ function headline(content: PushContent, locale: Locale): string {
   return firstLine?.trim() ?? itemLabel(kindOf(content), locale);
 }
 
+/**
+ * The money line of a donation campaign or a weekly chanda entry (T5.6): a new campaign names its goal, an amount
+ * update says "… raised of …", chanda "… collected in the week of …" — the sentences of the screen the push opens.
+ * Figures are what the masjid reported; `undefined` for other items.
+ */
+function moneyLine(content: PushContent, locale: Locale): string | undefined {
+  const format = formatters(locale);
+  if (content.type === 'campaign' && content.campaign) {
+    const target = format.money(content.campaign.targetPaise);
+    const line =
+      content.campaign.receivedPaise > 0
+        ? formatRuntimeMessage(itemLine('campaignRaised', locale), locale, {
+            received: format.money(content.campaign.receivedPaise),
+            target,
+          })
+        : formatRuntimeMessage(itemLine('campaignNew', locale), locale, { target });
+    return line ?? undefined;
+  }
+  if (content.type === 'chanda_update' && content.chanda) {
+    const line = formatRuntimeMessage(itemLine('chandaCollected', locale), locale, {
+      amount: format.money(content.chanda.amountPaise),
+      date: format.calendarDate(content.chanda.weekStart, 'medium'),
+    });
+    return line ?? undefined;
+  }
+  return undefined;
+}
+
 function detailText(content: PushContent, locale: Locale): string | undefined {
+  const money = moneyLine(content, locale);
+  if (money !== undefined) return money;
   if (!content.template || content.templateKey === undefined)
     return present(content.body) ? content.body.trim() : undefined;
   const message = content.template.body[locale] ?? content.template.body.en;

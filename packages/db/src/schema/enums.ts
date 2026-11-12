@@ -33,7 +33,23 @@ export const LIBRARY_STATUS = ['draft', 'verified', 'retired'] as const;
 export const TEMPLATE_STATUS = ['draft', 'active', 'retired'] as const; // draft: DECISIONS #111
 export const CAMPAIGN_PURPOSE = ['renovation', 'repair', 'utilities', 'welfare', 'other'] as const;
 export const CAMPAIGN_STATUS = ['active', 'completed', 'closed'] as const;
+/** Needy people (DECISIONS #104): why the masjid lists the person. */
+export const BENEFICIARY_CATEGORY = [
+  'widow',
+  'orphan',
+  'disability',
+  'illness',
+  'elderly',
+  'homeless',
+  'debt',
+  'student',
+  'other',
+] as const;
+/** `fulfilled` = the cap was reached (set by the data layer); `closed` / `deleted` by the masjid. */
+export const BENEFICIARY_STATUS = ['active', 'fulfilled', 'closed', 'deleted'] as const;
 export const PAYMENT_STATUS = ['pending', 'approved_on_hold', 'active', 'rejected', 'superseded'] as const;
+/** Why a request was closed without a Super Admin decision (DECISIONS #161 — F69, review L3). */
+export const PAYMENT_REJECT_CODE = ['requester_removed'] as const;
 export const PUSH_STATUS = ['active', 'dead', 'none'] as const;
 export const JOB_STATUS = ['pending', 'running', 'completed', 'failed'] as const;
 export const REPORT_REASON = [

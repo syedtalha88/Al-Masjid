@@ -730,3 +730,357 @@ export const adminContactListSchema = z
 export type AdminContactList = z.infer<typeof adminContactListSchema>;
 
 export const contactSavedSchema = z.object({ id: z.string() }).meta({ id: 'ContactSaved' });
+
+// --- needy people (B19, DECISIONS #104, PHASE_05 T5.8) -------------------------------------------------------------------
+
+export const BENEFICIARY_NAME_MAX = 40;
+export const BENEFICIARY_REASON_MAX = 300;
+export const BENEFICIARY_NOTE_MAX = 300;
+/** What a person needs: ₹1 … ₹1 crore, in paise (02 beneficiaries.cap_paise). */
+export const BENEFICIARY_CAP_MIN_PAISE = 100;
+export const BENEFICIARY_CAP_MAX_PAISE = 1_000_000_000;
+/** Most active needy people per masjid (00 §4.14) — 409 `BENEFICIARY_LIMIT_REACHED` beyond it. */
+export const BENEFICIARIES_ACTIVE_MAX = 100;
+const BENEFICIARY_CATEGORIES = [
+  'widow',
+  'orphan',
+  'disability',
+  'illness',
+  'elderly',
+  'homeless',
+  'debt',
+  'student',
+  'other',
+] as const;
+
+/** The private part of a person: seen only by the masjid's own admins, stored encrypted (never public). */
+export const beneficiaryPrivateSchema = z
+  .strictObject({
+    phone: z.string().regex(E164).optional(),
+    note: safeText(BENEFICIARY_NOTE_MAX, { min: 1, multiline: true }).optional(),
+  })
+  .meta({ id: 'BeneficiaryPrivate' });
+export type BeneficiaryPrivate = z.infer<typeof beneficiaryPrivateSchema>;
+
+/**
+ * Body of `POST /masjids/:masjidId/beneficiaries` and `PATCH …/beneficiaries/:id`: a person the masjid has verified as
+ * in need. `consentConfirmed: true` is required on every save — the admin's statement that the person (a guardian for
+ * a child) agreed to be listed with these details (05 §1). The UPI ID is checked by the data layer exactly as the
+ * database accepts it (400 `BENEFICIARY_INVALID`); here only its size is bounded. `private`: an object replaces the
+ * stored phone / note, `null` removes it, leaving it out keeps it.
+ */
+export const beneficiarySaveSchema = z
+  .strictObject({
+    displayName: safeText(BENEFICIARY_NAME_MAX, { min: 1 }),
+    category: z.enum(BENEFICIARY_CATEGORIES),
+    reason: safeText(BENEFICIARY_REASON_MAX, { min: 1, multiline: true }),
+    reasonLocale: z.enum(['en', 'hi', 'ur', 'te']),
+    vpa: z.string().min(3).max(256),
+    payeeName: safeText(100, { min: 1 }),
+    capPaise: z.number().int().min(BENEFICIARY_CAP_MIN_PAISE).max(BENEFICIARY_CAP_MAX_PAISE),
+    zakatEligible: z.boolean(),
+    consentConfirmed: z.literal(true),
+    private: beneficiaryPrivateSchema.nullable().optional(),
+  })
+  .meta({ id: 'BeneficiarySave' });
+export type BeneficiarySave = z.infer<typeof beneficiarySaveSchema>;
+
+/** One person as B19 lists them: the public fields plus the status and whether something private is stored. */
+export const adminBeneficiarySchema = z.object({
+  id: z.string(),
+  publicId: z.string(),
+  displayName: z.string(),
+  category: z.enum(BENEFICIARY_CATEGORIES),
+  reason: z.string(),
+  reasonLocale: z.enum(['en', 'hi', 'ur', 'te']),
+  vpa: z.string(),
+  payeeName: z.string(),
+  capPaise: z.number().int(),
+  receivedPaise: z.number().int(),
+  receivedUpdatedAt: z.iso.datetime().optional(),
+  fundedPermille: z.number().int().min(0).max(1000),
+  zakatEligible: z.boolean(),
+  status: z.enum(['active', 'fulfilled', 'closed']),
+  hasPrivate: z.boolean(),
+  createdAt: z.iso.datetime(),
+});
+export type AdminBeneficiary = z.infer<typeof adminBeneficiarySchema>;
+
+/** `GET /beneficiaries`: active (least-funded first), then fulfilled, then closed. */
+export const adminBeneficiaryListSchema = z
+  .object({ people: z.array(adminBeneficiarySchema) })
+  .meta({ id: 'AdminBeneficiaryList' });
+export type AdminBeneficiaryList = z.infer<typeof adminBeneficiaryListSchema>;
+
+export const beneficiarySavedSchema = z
+  .object({ id: z.string(), publicId: z.string().optional(), status: z.enum(['active', 'fulfilled']) })
+  .meta({ id: 'BeneficiarySaved' });
+
+/** Body of `POST …/beneficiaries/:id/received`: what the person has received so far, in paise. */
+export const beneficiaryReceivedSchema = z
+  .strictObject({ receivedPaise: z.number().int().min(0).max(1_000_000_000_000) })
+  .meta({ id: 'BeneficiaryReceived' });
+export const beneficiaryReceivedResultSchema = z
+  .object({ status: z.enum(['active', 'fulfilled']), fundedPermille: z.number().int().min(0).max(1000) })
+  .meta({ id: 'BeneficiaryReceivedResult' });
+
+/** `GET …/beneficiaries/:id/private`: the decrypted phone / note (each view is audited); `null` when none is stored. */
+export const beneficiaryPrivateResultSchema = z
+  .object({ private: beneficiaryPrivateSchema.nullable() })
+  .meta({ id: 'BeneficiaryPrivateResult' });
+
+// --- UPI payment details (B8, 04 R1, PHASE_05 T5.2) ----------------------------------------------------------------------
+
+/**
+ * Body of `POST /masjids/:masjidId/payment/requests`: the UPI details the masjid wants shown. Nothing goes live until
+ * the Super Admin approves and the hold has passed. The VPA is checked by the data layer exactly as the database
+ * accepts it (`@mc/domain/upi`, 400 `PAYMENT_INVALID`); here only its size is bounded.
+ */
+export const paymentRequestSchema = z
+  .strictObject({
+    vpa: z.string().min(3).max(256),
+    payeeName: safeText(100, { min: 1 }),
+    note: safeText(300, { multiline: true }).optional(),
+  })
+  .meta({ id: 'PaymentRequest' });
+export type PaymentRequest = z.infer<typeof paymentRequestSchema>;
+
+export const livePaymentSchema = z
+  .object({ vpa: z.string(), payeeName: z.string(), effectiveAt: z.string() })
+  .meta({ id: 'LivePayment' });
+export type LivePayment = z.infer<typeof livePaymentSchema>;
+
+export const PAYMENT_REQUEST_STATUSES = ['pending', 'approved_on_hold', 'rejected'] as const;
+
+export const paymentRequestRowSchema = z
+  .object({
+    id: z.string(),
+    status: z.enum(PAYMENT_REQUEST_STATUSES),
+    vpa: z.string(),
+    payeeName: z.string(),
+    note: z.string().optional(),
+    requestedAt: z.string(),
+    reviewedAt: z.string().optional(),
+    /** When approved: the moment the details go live (approval + hold). */
+    effectiveAt: z.string().optional(),
+    rejectReason: z.string().optional(),
+    /** Closed without a decision because the admin who asked was removed or shut out (DECISIONS #161). */
+    rejectCode: z.enum(['requester_removed']).optional(),
+  })
+  .meta({ id: 'PaymentRequestRow' });
+export type PaymentRequestRow = z.infer<typeof paymentRequestRowSchema>;
+
+/** `GET /masjids/:masjidId/payment`: what followers see now, and the request in progress (or the latest rejection). */
+export const adminPaymentSchema = z
+  .object({ active: livePaymentSchema.nullable(), request: paymentRequestRowSchema.nullable() })
+  .meta({ id: 'AdminPayment' });
+export type AdminPayment = z.infer<typeof adminPaymentSchema>;
+
+export const paymentRequestedSchema = z.object({ id: z.string() }).meta({ id: 'PaymentRequested' });
+
+// --- Donation campaigns (B8, 00 §4.3, PHASE_05 T5.3) ---------------------------------------------------------------
+
+export const CAMPAIGN_PURPOSES = ['renovation', 'repair', 'utilities', 'welfare', 'other'] as const;
+export type CampaignPurpose = (typeof CAMPAIGN_PURPOSES)[number];
+export const CAMPAIGN_STATUSES = ['active', 'completed', 'closed'] as const;
+/** 00 §4.3: at most 3 active campaigns; a target of at least ₹1,000 (mirrors `@mc/db/state`). */
+export const CAMPAIGNS_ACTIVE_MAX = 3;
+export const CAMPAIGN_TARGET_MIN_PAISE = 100_000;
+export const CAMPAIGN_TITLE_MAX = 120;
+export const CAMPAIGN_DESCRIPTION_MAX = 1500;
+
+/** Integer paise, 0 … 10^12 (CLAUDE.md §6 money). */
+const paise = z.int().min(0).max(1_000_000_000_000);
+
+const campaignCoverSchema = z.strictObject({
+  key: z.string().regex(IMAGE_KEY),
+  thumbhash: z
+    .string()
+    .max(64)
+    .regex(/^[A-Za-z0-9+/]+={0,2}$/),
+  /** The B8 ownership checkbox: the masjid may publish this photo (05 §9). */
+  rightsConfirmed: z.literal(true),
+});
+
+/** Body of `POST /masjids/:masjidId/campaigns` (B8 create flow → Publish). */
+export const campaignCreateSchema = z
+  .strictObject({
+    title: safeText(CAMPAIGN_TITLE_MAX, { min: 1 }),
+    description: safeText(CAMPAIGN_DESCRIPTION_MAX, { multiline: true }).optional(),
+    purpose: z.enum(CAMPAIGN_PURPOSES),
+    targetPaise: paise.min(CAMPAIGN_TARGET_MIN_PAISE),
+    startsOn: z.iso.date(),
+    endsOn: z.iso.date().optional(),
+    cover: campaignCoverSchema.optional(),
+    notify: z.boolean(),
+  })
+  .meta({ id: 'CampaignCreate' });
+export type CampaignCreate = z.infer<typeof campaignCreateSchema>;
+
+/** Body of `PATCH /masjids/:masjidId/campaigns/:id`: what may change; the target only upward. */
+export const campaignPatchSchema = z
+  .strictObject({
+    title: safeText(CAMPAIGN_TITLE_MAX, { min: 1 }).optional(),
+    description: safeText(CAMPAIGN_DESCRIPTION_MAX, { multiline: true }).optional(),
+    endsOn: z.iso.date().nullable().optional(),
+    targetPaise: paise.optional(),
+    cover: campaignCoverSchema.nullable().optional(),
+  })
+  .meta({ id: 'CampaignPatch' });
+export type CampaignPatchBody = z.infer<typeof campaignPatchSchema>;
+
+/** Body of `POST /masjids/:masjidId/campaigns/:id/received` ("Update amount"; "Notify followers" off by default). */
+export const campaignReceivedSchema = z
+  .strictObject({ receivedPaise: paise, notify: z.boolean() })
+  .meta({ id: 'CampaignReceived' });
+export type CampaignReceived = z.infer<typeof campaignReceivedSchema>;
+
+export const adminCampaignSchema = z
+  .object({
+    id: z.string(),
+    publicId: z.string(),
+    title: z.string(),
+    description: z.string().optional(),
+    purpose: z.enum(CAMPAIGN_PURPOSES),
+    status: z.enum(CAMPAIGN_STATUSES),
+    targetPaise: z.number(),
+    receivedPaise: z.number(),
+    receivedUpdatedAt: z.string().optional(),
+    startsOn: z.string(),
+    endsOn: z.string().optional(),
+    cover: z.object({ key: z.string(), thumbhash: z.string() }).optional(),
+    publishedAt: z.string(),
+  })
+  .meta({ id: 'AdminCampaign' });
+export type AdminCampaign = z.infer<typeof adminCampaignSchema>;
+
+/** `GET /masjids/:masjidId/campaigns`: active, then completed, then closed; newest first in each. */
+export const adminCampaignListSchema = z
+  .object({ campaigns: z.array(adminCampaignSchema) })
+  .meta({ id: 'AdminCampaignList' });
+export type AdminCampaignList = z.infer<typeof adminCampaignListSchema>;
+
+/** "Update amount" result: the notification when it notifies. */
+export const campaignReceivedResultSchema = z
+  .object({ notification: z.object({ queued: z.boolean(), targeted: count, quotaLeft: count }).nullable() })
+  .meta({ id: 'CampaignReceivedResult' });
+
+// --- Weekly chanda (B9, 00 §4.3, PHASE_05 T5.5) --------------------------------------------------------------------------
+
+/** 02 chanda_weeks.note. */
+export const CHANDA_NOTE_MAX = 200;
+
+/** Body of `PUT /masjids/:masjidId/chanda/:weekStart` (B9 Save; "Notify followers" off by default). */
+export const chandaWeekSaveSchema = z
+  .strictObject({
+    amountPaise: paise,
+    /** Empty removes the note. */
+    note: safeText(CHANDA_NOTE_MAX).optional(),
+    notify: z.boolean(),
+  })
+  .meta({ id: 'ChandaWeekSave' });
+export type ChandaWeekSave = z.infer<typeof chandaWeekSaveSchema>;
+
+/** `PUT /masjids/:masjidId/chanda/:weekStart`: the week's feed item, whether the week was new, the notification. */
+export const chandaWeekSavedSchema = z
+  .object({
+    item: z.object({ id: z.string(), publicId: z.string() }),
+    created: z.boolean(),
+    notification: z.object({ queued: z.boolean(), targeted: z.int().min(0), quotaLeft: z.int().min(0) }).nullable(),
+  })
+  .meta({ id: 'ChandaWeekSaved' });
+export type ChandaWeekSaved = z.infer<typeof chandaWeekSavedSchema>;
+
+/** Body of `PATCH /masjids/:masjidId/chanda/settings`: "Show chanda to followers" and the day the week starts. */
+export const chandaSettingsSchema = z
+  .strictObject({ show: z.boolean().optional(), weekStart: z.int().min(1).max(7).optional() })
+  .meta({ id: 'ChandaSettings' });
+export type ChandaSettings = z.infer<typeof chandaSettingsSchema>;
+
+/** `GET /masjids/:masjidId/chanda` (B9): settings and the latest weeks, newest first. */
+export const adminChandaSchema = z
+  .object({
+    show: z.boolean(),
+    /** 1 = Monday … 7 = Sunday. */
+    weekStart: z.int().min(1).max(7),
+    weeks: z.array(
+      z.object({ weekStart: z.iso.date(), amountPaise: z.int(), note: z.string().optional(), updatedAt: z.string() }),
+    ),
+  })
+  .meta({ id: 'AdminChanda' });
+export type AdminChanda = z.infer<typeof adminChandaSchema>;
+
+// --- Bayan videos (07 B10, DECISIONS #39, PHASE_06 T6.2) ----------------------------------------------------------
+
+export const VIDEO_TITLE_MAX = 120;
+export const VIDEO_SPEAKER_MAX = 80;
+export const VIDEO_DESCRIPTION_MAX = 1500;
+/** A pasted link is parsed on the server (`parseYouTubeLink`); it is never stored or logged. */
+const videoLink = z.string().max(2048);
+const videoAudience = z.enum(['everyone', 'brothers', 'sisters']);
+
+/** Body of `POST /masjids/:masjidId/videos/preview` (B10 "Paste link" → preview card). */
+export const videoPreviewRequestSchema = z.strictObject({ url: videoLink }).meta({ id: 'VideoPreviewRequest' });
+
+/**
+ * The preview card: YouTube's title (editable) and our sanitized copy of the thumbnail as a `data:image/jpeg` URL — the
+ * admin's phone never contacts YouTube either.
+ */
+export const videoPreviewSchema = z
+  .object({
+    youtubeId: z.string(),
+    startS: z.number().int().optional(),
+    title: z.string(),
+    thumbnail: z.string(),
+  })
+  .meta({ id: 'VideoPreview' });
+export type VideoPreview = z.infer<typeof videoPreviewSchema>;
+
+/** Body of `POST /masjids/:masjidId/videos` (B10 → Publish). The audience has no default (07 B10). */
+export const videoCreateSchema = z
+  .strictObject({
+    url: videoLink,
+    title: safeText(VIDEO_TITLE_MAX, { min: 1 }),
+    speaker: safeText(VIDEO_SPEAKER_MAX).optional(),
+    description: safeText(VIDEO_DESCRIPTION_MAX, { multiline: true }).optional(),
+    audience: videoAudience,
+    locale: z.enum(['en', 'hi', 'ur', 'te']),
+    /** The B10 ownership checkbox (05 §9). */
+    rightsConfirmed: z.literal(true),
+    notify: z.boolean(),
+  })
+  .meta({ id: 'VideoCreate' });
+export type VideoCreate = z.infer<typeof videoCreateSchema>;
+
+/** Body of `PATCH /masjids/:masjidId/videos/:id` (≤ 24 h, `If-Match`): the texts only. */
+export const videoPatchSchema = z
+  .strictObject({
+    title: safeText(VIDEO_TITLE_MAX, { min: 1 }),
+    speaker: safeText(VIDEO_SPEAKER_MAX).optional(),
+    description: safeText(VIDEO_DESCRIPTION_MAX, { multiline: true }).optional(),
+  })
+  .meta({ id: 'VideoPatch' });
+export type VideoPatch = z.infer<typeof videoPatchSchema>;
+
+export const adminVideoSchema = z
+  .object({
+    id: z.string(),
+    publicId: z.string(),
+    status: z.enum(['published', 'removed', 'deleted']),
+    title: z.string(),
+    speaker: z.string().optional(),
+    description: z.string().optional(),
+    audience: videoAudience,
+    youtubeId: z.string(),
+    startS: z.number().int().optional(),
+    /** Our thumbnail copy; `url` (480 px WebP on the media origin) when media is configured. */
+    thumb: z.object({ key: z.string(), thumbhash: z.string(), url: z.string().optional() }),
+    publishedAt: z.string(),
+    updatedAt: z.string(),
+  })
+  .meta({ id: 'AdminVideo' });
+export type AdminVideo = z.infer<typeof adminVideoSchema>;
+
+/** `GET /masjids/:masjidId/videos`: newest first — published, removed by moderation, deleted. */
+export const adminVideoListSchema = z.object({ videos: z.array(adminVideoSchema) }).meta({ id: 'AdminVideoList' });
+export type AdminVideoList = z.infer<typeof adminVideoListSchema>;

@@ -11,6 +11,11 @@ export interface ProgressBarProps {
   readonly label: string;
   /** Spoken value, e.g. "72%" (defaults to the rounded percentage). */
   readonly valueText?: string;
+  /**
+   * Inside a button or link whose text already says the amount (a campaign card): no progressbar role, hidden from
+   * assistive technology (a button's children are presentational).
+   */
+  readonly decorative?: boolean;
   readonly className?: string;
 }
 
@@ -21,12 +26,12 @@ const clamp01 = (value: number) => (Number.isFinite(value) ? Math.min(Math.max(v
  * from 0 the first time the bar scrolls into view, then from the old to the new value on updates
  * (`spring.gentle`, transform only); reduced motion shows the value directly. Mirrored in RTL.
  */
-export function ProgressBar({ value, label, valueText, className }: ProgressBarProps) {
+export function ProgressBar({ value, label, valueText, decorative = false, className }: ProgressBarProps) {
   const { reduced } = useMotionPrefs();
   const target = clamp01(value);
   const percent = Math.round(target * 100);
-  const track = useRef<HTMLDivElement>(null);
-  const fill = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLSpanElement>(null);
+  const fill = useRef<HTMLSpanElement>(null);
   const [progress] = useState(() => motionValue(reduced ? target : 0));
   const [seen, setSeen] = useState(reduced);
   // Captured once: afterwards only the motion value writes `--mc-progress` (a re-render must not reset it).
@@ -75,23 +80,29 @@ export function ProgressBar({ value, label, valueText, className }: ProgressBarP
     };
   }, [seen, reduced, target, progress]);
 
+  const a11y = decorative
+    ? { 'aria-hidden': true }
+    : {
+        role: 'progressbar',
+        'aria-label': label,
+        'aria-valuemin': 0,
+        'aria-valuemax': 100,
+        'aria-valuenow': percent,
+        'aria-valuetext': valueText ?? `${String(percent)}%`,
+      };
+  // Spans (display block): valid inside a button as well.
   return (
-    <div
+    <span
       ref={track}
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={percent}
-      aria-valuetext={valueText ?? `${String(percent)}%`}
-      className={`h-3 w-full overflow-hidden rounded-full bg-surface-muted ${className ?? ''}`}
+      {...a11y}
+      className={`block h-3 w-full overflow-hidden rounded-full bg-surface-muted ${className ?? ''}`}
     >
       {/* The fill slides in from the leading edge: translateX((p − 1) · 100%), mirrored in RTL. */}
-      <div
+      <span
         ref={fill}
-        className="h-full w-full rounded-full bg-primary-500 [transform:translateX(calc((var(--mc-progress)-1)*100%))] rtl:[transform:translateX(calc((1-var(--mc-progress))*100%))]"
+        className="block h-full w-full rounded-full bg-primary-500 [transform:translateX(calc((var(--mc-progress)-1)*100%))] rtl:[transform:translateX(calc((1-var(--mc-progress))*100%))]"
         style={fillStyle}
       />
-    </div>
+    </span>
   );
 }

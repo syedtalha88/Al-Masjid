@@ -181,7 +181,8 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
       rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
       responses: { 204: Empty },
       handler: async ({ auth, clock, requestId, res, reply }) => {
-        await revokeSessions(deps.db, auth.scope, { reason: 'logout', now: clock.now(), requestId });
+        // A security step, not a plain logout: it also stops a UPI change asked for from any session (#161 L1).
+        await revokeSessions(deps.db, auth.scope, { reason: 'revoked_by_admin', now: clock.now(), requestId });
         clearCookie(res, SESSION_COOKIE);
         return reply(204, {});
       },
@@ -289,7 +290,12 @@ export function adminSessionRoutes(deps: AdminAuthDeps): RouteDefinition[] {
         await saveAdminPushSubscription(
           deps.db,
           auth.scope,
-          { endpoint: body.endpoint, p256dh: body.keys.p256dh, auth: body.keys.auth },
+          {
+            endpoint: body.endpoint,
+            p256dh: body.keys.p256dh,
+            auth: body.keys.auth,
+            sessionId: auth.session.sessionId, // alerts stop with this session (F65)
+          },
           clock.now(),
         );
         return reply(204, {});

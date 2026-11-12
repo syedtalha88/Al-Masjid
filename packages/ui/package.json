@@ -23,7 +23,10 @@
     "./pwa": "./src/pwa/index.ts",
     "./vite": "./src/vite/pwa.ts",
     "./security": "./src/security/trusted-types.ts",
-    "./observability": "./src/observability/errors.ts"
+    "./observability": "./src/observability/errors.ts",
+    "./scanner": "./src/scanner/index.ts",
+    "./scanner/fallback": "./src/scanner/fallback.ts",
+    "./qr": "./src/qr/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -64,8 +67,11 @@
     "@mc/i18n": "workspace:*",
     "@mc/shared": "workspace:*",
     "@sentry/browser": "11.6.0",
+    "barcode-detector": "3.2.3",
+    "lean-qr": "2.7.4",
     "motion": "14.0.0",
-    "tailwindcss": "4.3.3"
+    "tailwindcss": "4.3.3",
+    "zxing-wasm": "3.1.6"
   },
   "peerDependencies": {
     "@tanstack/react-router": "1.170.41",

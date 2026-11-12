@@ -1,7 +1,5 @@
 // @vitest-environment jsdom
 import { NetworkError, ProblemError } from '@mc/shared/http';
-import { describe, expect, it, vi } from 'vitest';
-
 import {
   CameraError,
   cameraPermission,
@@ -10,7 +8,9 @@ import {
   openCamera,
   setTorch,
   torchSupported,
-} from '../camera.ts';
+} from '@mc/ui/scanner';
+import { describe, expect, it, vi } from 'vitest';
+
 import { codeInput } from '../EnterCodeSheet.tsx';
 import { lookupFailure } from '../lookup.ts';
 

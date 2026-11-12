@@ -8,6 +8,7 @@ import { useErrorText, useSignedInAdmin } from '../features/auth/hooks/use-sessi
 import { ContactsSection } from '../features/contacts/components/ContactsSection.tsx';
 import { useMinute } from '../features/home/hooks/use-minute.ts';
 import { useSelectedMasjid } from '../features/home/hooks/use-selected-masjid.ts';
+import { PaymentSection } from '../features/payment/components/PaymentSection.tsx';
 import { HijriSection, NamesSection, PhotoSection } from '../features/profile/components/ProfileParts.tsx';
 import { useProfile } from '../features/profile/hooks/use-profile.ts';
 
@@ -53,6 +54,7 @@ function ProfileScreen() {
             <PhotoSection masjidId={masjid?.id} profile={profile.data} />
             <NamesSection masjidId={masjid?.id} profile={profile.data} />
             <HijriSection masjidId={masjid?.id} profile={profile.data} now={now} />
+            <PaymentSection masjidId={masjid?.id} isOwner={masjid?.role === 'owner'} />
             <ContactsSection masjidId={masjid?.id} />
           </>
         ) : (

@@ -24,6 +24,7 @@ import {
 import { publicScope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
+import { countPublicBeneficiaries } from './beneficiaries.ts';
 import { getPublicContacts } from './contacts.ts';
 import {
   adhkarOf,
@@ -158,8 +159,9 @@ const SPECIAL_DATES_MAX = 100;
 
 /**
  * `GET /masjids/:id/bundle`: the masjid's profile, raw timings, special dates from `fromDate` on, Ramadan settings,
- * the adhkar set, the Ilm contacts (both audiences) and the section counts (Masjid Detail rows without loading the lists); payment, campaigns, chanda and
- * needy people stay empty until Phase 5 (03 §3).
+ * the adhkar set, the Ilm contacts (both audiences), the live UPI details, the active donation campaigns (newest first),
+ * the last 8 weeks of chanda when the masjid shows it, and the section counts (Masjid Detail rows without loading the
+ * lists — Ruqyah entries, needy people; 03 §3).
  *
  * @param fromDate - "YYYY-MM-DD" (today − 7 days in IST: the timetable's DateStepper range).
  * @returns `null` for unknown, pending and deleted masjids; `{status: 'suspended', v}` for a suspended one.
@@ -212,11 +214,72 @@ export async function getMasjidBundle(handle: DbHandle, id: UUID, fromDate: stri
         : null,
     adhkar: await adhkarEntries(handle, masjid),
     contacts: await getPublicContacts(handle, id),
-    sections: { ruqyah: await (await view(handle, 'v_pub_ruqyah')).count({ masjid_id: id }), needy: 0 },
-    payment: null,
-    campaigns: [],
-    chanda: null,
+    sections: {
+      ruqyah: await (await view(handle, 'v_pub_ruqyah')).count({ masjid_id: id }),
+      needy: await countPublicBeneficiaries(handle, id),
+    },
+    payment: await activePayment(handle, id),
+    campaigns: await activeCampaigns(handle, id),
+    chanda: masjid['show_chanda'] === true ? { weeks: await recentChanda(handle, id) } : null,
   };
+}
+
+/**
+ * The masjid's live UPI details (`v_pub_payment_profiles`: only `active`, only for a public masjid — never a pending,
+ * on-hold or rejected request; 04 R1). `effectiveAt` drives "changed recently" (A10 QR sheet).
+ */
+async function activePayment(
+  handle: DbHandle,
+  masjidId: UUID,
+): Promise<{ vpa: string; payeeName: string; effectiveAt: string } | null> {
+  const doc = await (await view(handle, 'v_pub_payment_profiles')).findOne({ masjid_id: masjidId });
+  if (!doc) return null;
+  const effectiveAt: unknown = doc['effective_at'];
+  return {
+    vpa: need(doc, 'vpa'),
+    payeeName: need(doc, 'payee_name'),
+    effectiveAt: effectiveAt instanceof Date ? effectiveAt.toISOString() : new Date(0).toISOString(),
+  };
+}
+
+/** A11: the chart's 8 weeks. */
+const CHANDA_WEEKS = 8;
+
+/**
+ * The bundle's chanda (A11): the masjid's 8 most recent weeks, oldest first, from `v_pub_chanda_weeks` — only weeks
+ * of a masjid that shows its chanda are in the view at all (02 §5 mirror).
+ */
+async function recentChanda(
+  handle: DbHandle,
+  masjidId: UUID,
+): Promise<{ weekStart: string; amountPaise: number; note?: string }[]> {
+  const docs = await (
+    await view(handle, 'v_pub_chanda_weeks')
+  ).find({ masjid_id: masjidId }, { sort: { week_start: -1 }, limit: CHANDA_WEEKS });
+  return docs
+    .map((doc) => {
+      const note = text(doc, 'note');
+      return {
+        weekStart: need(doc, 'week_start'),
+        amountPaise: numberOf(doc, 'amount_paise') ?? 0,
+        ...(note === undefined ? {} : { note }),
+      };
+    })
+    .reverse();
+}
+
+/** 00 §4.3: at most 3 campaigns are active at once (`state/campaigns.ts` enforces it; the read never lists more). */
+const ACTIVE_CAMPAIGNS_MAX = 3;
+
+/**
+ * The bundle's "active campaigns summary" (03 §3): the public ids of the masjid's active campaigns, newest first.
+ * Completed and closed ones stay in the feed (A10 shows them with their status), not here.
+ */
+async function activeCampaigns(handle: DbHandle, masjidId: UUID): Promise<{ publicId: string }[]> {
+  const docs = await (
+    await view(handle, 'v_pub_items')
+  ).find({ masjid_id: masjidId, type: 'campaign', 'campaign.status': 'active' }, { limit: ACTIVE_CAMPAIGNS_MAX }); // the view sorts newest first
+  return docs.map((doc) => ({ publicId: need(doc, 'public_id') }));
 }
 
 /**
@@ -326,6 +389,7 @@ export const itemOf = (doc: Document, library: ReadonlyMap<string, PublicLibrary
   const daily = objectOf(doc, 'daily');
   const dua = objectOf(doc, 'dua');
   const campaign = objectOf(doc, 'campaign');
+  const chanda = objectOf(doc, 'chanda');
   const video = objectOf(doc, 'video');
   const voice = objectOf(doc, 'voice');
   return compact({
@@ -382,6 +446,10 @@ export const itemOf = (doc: Document, library: ReadonlyMap<string, PublicLibrary
           status: oneOf(campaign, 'status', CAMPAIGN_STATUS),
           cover: image(campaign, 'cover_key', 'cover_thumbhash'),
         })
+      : undefined,
+    // The week's figures (DECISIONS #152); `v_pub_items` never returns a hidden week's item.
+    chanda: chanda
+      ? { weekStart: need(chanda, 'week_start'), amountPaise: numberOf(chanda, 'amount_paise') ?? 0 }
       : undefined,
     video: video
       ? compact({

@@ -2315,3 +2315,505 @@ showing Home's cached reach (fixed in `4392293`).
   coming; the default (no service worker) is tested.
 - **L-R5 fixed — `*.*.push_endpoint | push_p256dh | push_auth`** redacted too (unit test).
 **Consequences.** 02 `admin_push_subscriptions` lists the recovery / regression deletes; F65 re-planned.
+
+### #145 — Phase 05 starts before the owner verifies Phases 03 + 04 (owner, 9 Nov 2026) — ACCEPTED (owner, 9 Nov 2026)
+**Context:** Phases 03 + 04 are on staging (`863e064`, 9 Nov 2026) and AWAITING OWNER VERIFICATION (O39, O25 rest,
+O27, O26, O38). CLAUDE.md §3 says the next phase waits for that verification; #137 made the same exception once.
+**Decision (owner, 9 Nov 2026):** asked "start Phase 05 now anyway, like #137?" → **"Start Phase 05 now"**. Phase 05
+is built on `feat/phase-05`, branched from `feat/phase-04` = `main` (`863e064` + docs). Whatever the owner's 03/04
+checks find is fixed first (on `feat/phase-04` → `main`, then merged into `feat/phase-05`); Phases 03 + 04 are marked
+DONE only on the owner's word.
+**Consequences:** Phase 05 deploys to staging only after Phases 03 + 04 are verified, or with the owner's OK.
+
+### #146 — UPI change-lock: the data layer (PHASE_05 T5.2) — ACCEPTED (Claude Code, 9 Nov 2026)
+**Context:** 02 `payment_profiles` (state machine `pending → approved_on_hold → active`, `pending → rejected`), 04 R1.
+**Decision:**
+- `packages/db/src/state/payment.ts` is the only writer: the policy layer keeps **no** write cell for
+  `payment_profiles` (proven again in `payment.int.test.ts`); state functions write inside one transaction with the
+  audit entry (`payment.request` / `.approve` {hold_minutes} / `.reject` {from} / `.activate` — **never the VPA or payee
+  name in meta**: the profile documents are the history).
+- **Reject also during the hold** (`approved_on_hold → rejected`), a deviation from 02's diagram: the 24 h hold exists
+  so that a wrong or malicious change can be stopped before it goes live (Super Admin alert on every request) — without
+  this transition the hold could not do that. 02 updated.
+- The admin request normalizes the VPA (`@mc/domain/upi`) and cleans the payee name exactly like the link builder
+  (`cleanUpiText`), so the approved text is the text in every `upi://` link. One open request per masjid: checked, and
+  enforced by the partial unique index (a mutation without the check still passes — the index holds).
+  `PAYMENT_UNCHANGED` refuses a request equal to the active details. Suspended / deleted masjids cannot request.
+- **Activation** (system job, ≤ 50 per run, one transaction each, idempotent): previous active → `superseded`, then
+  active; version bump; when the masjid is public an **important** announcement from the **system template
+  `payment_details_updated`** (category general, audience everyone) with an outbox job `bypass_quota: true`. A masjid
+  that is not public gets no notice (nobody can see it; it is hidden with the masjid).
+- That notice is **locked**: `editItem` / `deleteItem` refuse it (`ITEM_LOCKED`) — a compromised admin account must not
+  be able to hide the change from followers.
+- Bundle `payment` = `v_pub_payment_profiles` (active only, public masjids only) `{vpa, payeeName, effectiveAt}`.
+**Consequences:** 18 starter templates (texts in 4 locales, drafts for review — O31); the template must be active in
+each environment (Super Admin "Add starter templates", as for `timings_updated`).
+
+### #147 — Admin UPI-QR scan: allow the WebAssembly QR reader on the admin origin? (PHASE_05 T5.2, B8) — ACCEPTED: option B (owner, 9 Nov 2026)
+**Context:** B8 lets the admin scan the masjid's existing UPI QR (`parseUpiUri`). The QR camera code moved from the app
+to `@mc/ui/scanner` (shared). Phones without a native `BarcodeDetector` (every iPhone, desktop) need the self-hosted
+WebAssembly reader (#94), which needs CSP `script-src 'wasm-unsafe-eval'` — today only on the app origin. #94 said
+"admin unchanged until it scans UPI QRs (Phase 5)". Loosening the admin CSP is an owner decision (CLAUDE.md §4).
+**Options:**
+- **A — add `'wasm-unsafe-eval'` to the admin CSP** (compiling WebAssembly only; JS `eval` stays blocked, Trusted
+  Types unchanged — the same as the app since #94). Scan works on every phone.
+- **B — native detector only on admin (built now, no CSP change).** Android Chrome scans; on iPhone / desktop the
+  "Scan UPI QR" button is not offered and the admin types the UPI ID (the payee name is still checked by the Super
+  Admin and shown by every UPI app before paying).
+- C — no scan at all; typing only.
+**Recommendation:** B for now (nothing loosened; most masjid admins use Android); A later if iPhone admins ask.
+**Decision (owner, 9 Nov 2026):** "Android-only scan for now" — option B as built: the admin CSP is unchanged; the
+admin app imports only `@mc/ui/scanner` (native detector), never `@mc/ui/scanner/fallback`, so the WebAssembly reader
+is neither bundled nor precached there. Revisit if iPhone admins ask.
+
+### #148 — Donation campaigns: the data layer (PHASE_05 T5.3) — ACCEPTED (Claude Code, 9 Nov 2026)
+**Context:** 00 §4.3 campaign rules; 02 items.campaign + campaign_amount_history.
+**Decision:**
+- `state/campaigns.ts`: `createCampaign` (needs the masjid's **active** UPI details — their id is recorded as
+  `payment_profile_id`; target ≥ ₹1,000; ≤ 3 active — creates that race are serialized by the version bump on the
+  masjid document, test with three parallel creates), `updateCampaign` (title, description, cover, end date; the target
+  **only upward**, audited `target_raised`), `setCampaignReceived` ("Update amount": an append-only history row with who
+  and when; allowed while active **or completed**; not once closed; notify optional), `completeCampaign`,
+  `closeEndedCampaigns` (system: `ends_on < today` → closed, one transaction per masjid).
+- **"Completed" is the admin's choice, not automatic at the target** (00 §4.3 lists both; amounts often keep coming,
+  and the bar caps at 100 % while the text shows the real figure). A completed campaign keeps Donate Now until it
+  closes.
+- Audit meta carries no amounts (`campaign.create` {purpose, notify}, `.update` {fields, target_raised},
+  `.received` {notify}, `.complete`).
+
+### #149 — Donation campaigns for musallis: QR library, Donate Now, list rules, the Delta seed masjid (PHASE_05 T5.4) — ACCEPTED (Claude Code, 10 Nov 2026)
+**Context:** 07 A10, 08 §5.7, 01 §4 (QR generate: `qrcode`), CLAUDE.md §6 dependencies (no package without a release in
+18 months; a runtime dependency of the apps needs an entry with its bundle cost).
+**Decision:**
+- **QR generator `lean-qr` 2.7.4 (MIT, no dependencies, released 7 Sep 2026) instead of `qrcode`** — `qrcode`'s last
+  release is 1.5.4 (5 Aug 2024, > 18 months) and it pulls `yargs` + `pngjs`. We use the nano encoder (a UPI link is ASCII
+  once percent-encoded) at error correction ≥ M and `toSvgPath` (one React `<path>` — no `innerHTML`, Trusted Types
+  untouched). It lives in `@mc/ui/qr` and loads only with the UPI QR sheet: the sheet chunk is **4.2 kB gzip**; the
+  musalli initial JS is 187.85 / 188 kB (+0.2 kB: the shared bundle hook and donation components). Proven by decoding
+  every generated code with the ZXing reader we already ship (`packages/ui/test/qr.test.tsx`, offline .wasm), incl.
+  non-Latin payee names (fast-check sample). 01 §4 updated.
+- **Donate Now** clicks a temporary `<a href="upi://pay?…">` inside the tap (the link from `buildUpiUri` with the
+  masjid's **live** bundle `payment`, note = campaign title), shows "Opening your UPI app…", and opens the QR sheet when
+  the page was neither hidden nor blurred within 1.5 s. An anchor (not `location.href`) so e2e can intercept the exact
+  link in every engine (a capture-phase listener; custom schemes never reach `page.route`). No UPI details in a cached
+  bundle → no buttons, "UPI details are not available right now".
+- **Closed campaigns stay listed 30 days after their end date** — a display rule in the app (`campaignsForList`), not a
+  server filter: the feed is immutable per content version, so a date-dependent server filter would serve stale pages.
+  The detail still opens from a link. List order: active → completed → closed, newest first in each.
+- **"Payment details changed on …"** shows in the QR sheet for 30 days after `bundle.payment.effectiveAt` (also after a
+  masjid's first activation — the bundle cannot tell; harmless) plus a standing "your UPI app shows the name before you
+  pay — make sure it says <payee>" hint (04 R1: the name is the last line of defence).
+- Bundle `campaigns` = the active campaigns' public ids, newest first (≤ 3; 03 "active campaigns summary").
+- The item detail now takes a cached item from the **newest** content version that lists it (a campaign's amount
+  changes under the same public id).
+- **Dev seed: a 4th masjid "Test Masjid Delta" (`TESTD004`)** with active fake UPI details (10 §5 `testmasjid@okexample`,
+  payee "Test Masjid Delta Committee", changed 10 days before the seed time) and five campaigns (2 active, completed
+  above goal, closed 10 days ago, closed 40 days ago). No earlier spec or visual baseline follows it, so they are
+  unchanged; staging gets demo data. The re-seed writes the UPI details only while no other profile is active for Delta
+  (someone may try the change-lock there).
+**Consequences:** `e2e/app/campaigns.spec.ts` (9 on Pixel 7 locally; WebKit runs in CI — this PC's WebKit cannot load
+these screens reliably, the known "style-src-elem … ?:5" error page). Visual baselines for A10 come with T5.6/T5.7.
+
+### #150 — Owner answers of 10 Nov 2026: Phase 00 closed without branch protection; O39 / O27 passed; how translations get reviewed (O31) — ACCEPTED (owner + Claude Code, 10 Nov 2026)
+**Owner, 10 Nov 2026:**
+- **#79 re-confirmed** — ≈ 9 ms VPS → Atlas on staging "works, no issue"; production (M10) is still re-measured in Phase 9.
+- **0.15 / 0.16 skipped** — no GitHub branch ruleset for now (the owner works alone). `main` stays directly pushable;
+  Claude Code still merges only after CI is green on the branch (as for Phases 02–04), and production keeps the 0.17
+  protection (required reviewer + deploy branch `main`). This was the last Phase 00 closure item → **Phase 00 DONE**.
+  Revisit when a second developer joins (then 0.15 + 0.16 as written in `owner/MY_PENDING_TASKS.md` → O6).
+- **O39 PASS** (staging privilege check after the Phase 03 + 04 deploy) and **O27 OK** (Phase 03 checks on staging).
+  Phase 03 stays AWAITING OWNER VERIFICATION until **O25** (Cloudinary templates + strict mode → checks 3.7 photos and
+  3.14 voice notes) and **O26** (usability with a real masjid person) are done; Phase 04 until **O38**.
+- **O28** (UPI ID for the ₹1 test) later, when Phase 05 is on staging.
+- **O31 — "whichever you think is better"** → Claude Code's choice:
+  1. Before the review files go out, Claude Code runs a consistency pass over all hi / ur / te drafts (glossary terms of
+     `packages/i18n/glossary.md`, placeholders, lengths from `meta/`, one style per language) — at Phase 09 start, so
+     every phase's strings are included once.
+  2. Then **one native speaker per language** (community volunteers are fine — no paid service) reviews the CSVs, in
+     this order: legal and money texts first (the "no money through us" note, UPI hints, privacy / consent, grievance —
+     05 §8 needs them exact), then admin screens (low-literacy admins rely on them), then the musalli app.
+  3. Their answers go back through `pnpm i18n:review`; strings stay marked draft until reviewed.
+
+### #151 — UPI change-lock e2e: an api-admin hook runs `payment-activate` on its settable clock; the test stack holds 24 h (PHASE_05 T5.2) — ACCEPTED (Claude Code, 10 Nov 2026)
+**Context:** 10 §6 journey 9 part 2 needs "request → approve → +23 h still old → +24 h new". The worker runs
+`payment-activate` every 10 minutes on the real clock; local/CI env files use a 2-minute hold (`setup-local.mjs`).
+**Decision:**
+- `POST /api/admin/test/payment-activate` (test-hook module only — the shipped image has none, DECISIONS #31) runs one
+  `processPaymentActivate` with api-admin's own DB handle, queues and logger, **as of api-admin's settable clock**
+  (`PUT /test/clock`). The e2e reads the approved request's `effectiveAt` and runs the job at `effectiveAt − 1 h` and
+  `effectiveAt + 1 min`.
+- The runtime-test stack (`docker-compose.stack-test.yml`) pins **`PAYMENT_HOLD_MINUTES=1440`** for api-admin and the
+  worker: approvals then go live a real day later, so the worker's own schedule can never activate them mid-test. The
+  dev stack keeps the 2-minute hold for manual tries.
+**Consequences:** `e2e/admin/payment.spec.ts` (Pixel 7: request ×2 through B8, approve ×2 through C4 with the ★ step-up,
+both holds, the follower's QR sheet before / after, the "Payment details updated" notice; mutation-checked: activating
+early fails it). The security review at T5.7 re-checks R1 incl. this hook's gating.
+
+### #152 — Weekly chanda: one feed item per week, a `visible` mirror on the item, HTML bars for the chart (PHASE_05 T5.5) — ACCEPTED (Claude Code, 10 Nov 2026)
+**Context:** 00 §4.3 / 07 A11, B9: the masjid enters one total per week; followers see it only while the masjid shows
+its chanda. `chanda_update` feed items would otherwise leak a hidden masjid's totals through `v_pub_items`.
+**Decision:**
+- **Data (migration `0018_chanda_items`):** an item's `chanda` detail is `{chanda_week_id, week_start, amount_paise
+  (long), visible}`. `visible` mirrors the masjid's `show_chanda`; **`v_pub_items` now drops items with
+  `chanda.visible = false`**, next to `v_pub_chanda_weeks`, which already filtered on the week's `visible`.
+  `setChandaSettings` / `setShowChanda` flip both mirrors (weeks + items) in the same transaction as the masjid field.
+- **One item per week.** `setChandaWeek` creates the week and its item the first time; saving the week again updates
+  the amount / note and the item's `chanda.amount_paise` + `edited_at` — no second card in Updates.
+- **Rules:** the week must start on the masjid's week-start day and not be in the future; the amount is whole paise,
+  0 … ₹10^10; the note ≤ 200 characters (`CHANDA_INVALID`, 400). **Notify is refused while chanda is hidden**
+  (`CHANDA_HIDDEN`, 409) — a push about a figure nobody can open would be noise; B9 disables the switch and says why.
+  Notify defaults to off and uses the masjid's daily push quota like every publish.
+- **Week start** offered in B9: Friday (default) or Monday — the two the spec names; the API accepts 1–7.
+- **Public bundle:** `chanda` is `null` while hidden, else the last 8 entered weeks (oldest first, with the note). The
+  Masjid Detail row and A11 follow from that; a feed item carries `chanda {weekStart, amountPaise}`.
+- **ChandaChart is HTML, not SVG** (06 §6 said "custom SVG"): eight flex columns whose bars are real buttons
+  ("6 Nov: ₹18,500", ≥ 44 px, focus ring, `aria-pressed`); a tap shows the week and amount above the chart. The flex
+  row follows the page direction, so Urdu mirrors without extra code, and text scales with the user's font size. No
+  chart library. A week that was not entered is a flat stub; 0 – 8 weeks render (component test).
+- **Audit:** `chanda.save {week_start, notify}`, `chanda.settings {show, week_start}` — never the amount.
+**Consequences:** tests — `packages/db/test/chanda.int.test.ts` (8: hidden weeks and items absent from both public
+views and the bundle, the mirror both ways, one item per week, notify refused while hidden; mutation-checked by
+removing the view filter), `packages/api/test/chanda-routes.int.test.ts` (3, incl. the public API as `mc_public`),
+`e2e/admin/chanda.spec.ts` (B9 → hidden → shown → A11 chart → hidden, axe on both screens). Left for T5.6: the
+"₹… collected" line on Updates / Home cards, the localized push text, visual baselines for A11 / B9 in 4 locales.
+
+### #153 — Production-readiness audit of 11 Nov 2026: findings are fixed before launch, per the plan in the report — ACCEPTED (owner, 11 Nov 2026)
+**Context:** the owner asked for a full audit (`docs/reports/AUDIT_2026-11-11.md`): no critical or high hole in the
+built parts; blockers are the unbuilt legal features (Phase 08), draft legal texts and translations, no production
+environment (Phase 09) and the owner's legal checklist; findings H1 – H4, M1 – M6.
+**Decision (owner: "write the plan, we'll do it before launch"):** every finding is scheduled in §8 of the report, in
+the phase where it fits. Two keep their earlier dates because they cannot wait: **F61** (Trivy ignore expires 15 Nov
+2026) and **F65** (admin alerts after a session ends — before Phase 05 reaches staging). New follow-up **F66** (default
+per-IP rate limit in `defineRoute`, Phase 09 T9.1). New owner tasks **O40** (repository visibility), **O41** (second
+Super Admin passkey + backup grievance person), **O42** (independent penetration test). O6 (Sentry) becomes required
+before the pilot.
+**Consequences:** the T9.9 launch checklist must include the 12 launch conditions of the report's §6.
+
+### #154 — Donations and chanda in mixed lists, pushes and stats; where the visual baselines live (PHASE_05 T5.6) — ACCEPTED (Claude Code, 11 Nov 2026)
+**Context:** T5.6 "Updates chips gain Donations/Chanda; unseen counts; push texts for campaign create/update and
+chanda (localized); Super Admin Stats show active campaigns count; visual baselines updated".
+**Decision:**
+- **Money lines.** Updates rows show "₹72,000 raised of ₹1,00,000" under a campaign's title and "₹18,500 collected in
+  the week of 6 Nov 2026" under "Weekly chanda"; on Home (rows have one title line) a chanda entry's title *is* that
+  sentence. The two sentences are also kept in the `common` namespace (`summary.raisedOf`, `summary.collected` —
+  copies of `content.campaign.raisedOf` / `content.chanda.collected`): Home and Updates render before `content` is
+  loaded, and loading it at start would cost the first paint. Initial JS unchanged (187.97 / 188 kB).
+- **Push text** (`packages/api/src/push/message.ts`): a campaign's push is its title plus one money line — "New
+  donation campaign · Goal ₹1,00,000" while nothing is reported yet (new string `push.campaignNew` ×4), else the
+  "raised of" sentence; the long description is not sent. Chanda: "Weekly chanda" plus the "collected" sentence. The
+  worker reads the figures with the item (`PushContent.campaign` / `.chanda`); same sentences as the lists.
+- **Unseen counts.** Masjid Detail's Weekly Chanda row now counts new `chanda_update` items (one more first-page feed
+  request, cached like the others); the row still shows by the bundle, so it never waits for that request. The chips
+  (Donations, Chanda) already existed and appear when such items are loaded — now covered by e2e.
+- **Stats.** `GET /super/dashboard` gains `activeCampaigns` (published, visible masjid, `campaign.status = active`;
+  index `campaign_status_ends`), shown on C1 under the masjid counts.
+- **Seed:** Test Masjid Delta shows its chanda — 7 weeks, one not entered, with their feed items. Ids follow the
+  week's date, so the daily staging re-seed adds the new week; a week somebody entered by hand there is left alone.
+- **Visual baselines** (`pnpm test:visual`): a second test per locale follows only Delta — Home, Updates, Masjid
+  Detail, campaign list, campaign detail, Weekly Chanda × 4 locales × 2 devices (48 new files). The earlier baselines
+  are unchanged (compared, not rewritten). **Admin screens (B9 and the rest) have no pixel baselines** — the visual
+  project covers the musalli app only (T2.14); B9 gets its 4-locale screenshots with the other admin screens in T5.7,
+  as planned in the hand-off.
+**Consequences:** tests — api `push-message` +3, ui `item-summary` 4, app `detail-view` +1, db `super.int` +1 and the
+push content in `campaigns.int` / `chanda.int`, e2e `campaigns.spec.ts` "Home and Updates…". The C1 card has not been
+looked at in a browser yet (T5.7 admin screenshots).
+
+### #155 — F61: the server image moves to the patched distroless base; the Trivy ignores leave the fresh-build scans (closes #141's exception) — ACCEPTED (Claude Code, 11 Nov 2026)
+**Context:** #141 (owner, 8 Nov) ignored two `zlib1g` CVEs in `gcr.io/distroless/nodejs24-debian13` until 15 Nov 2026,
+waiting for a rebuilt distroless digest with Debian's fix (`+deb13u1`).
+**Decision:**
+- `RUNTIME_IMAGE` = `gcr.io/distroless/nodejs24-debian13:nonroot@sha256:088a01637f22908632ba09018be2e0b516f2fa6f7869c191d29491139db43c78`
+  (index digest; Debian 13.7). The built `mc-server:local` carries `zlib1g 1:1.3.dfsg+really1.3.1-1+deb13u1` and Trivy
+  0.75.0 with CI's flags (`--severity HIGH,CRITICAL --ignore-unfixed`) and **no ignore file** reports 0 findings.
+- The CI scan and the Nightly stack-job scan (both of fresh local builds) no longer pass `--ignorefile`.
+- **The file stays for one job only:** Nightly's "Deployed staging images" scan reads it while staging still runs an
+  image on the old base. Its entries expire 15 Nov; the file and that job's `--ignorefile` + sparse checkout are
+  deleted once staging runs a new-base image. If staging is not rebuilt by 15 Nov, that one job turns red until it is
+  (correctly — the deployed image then really has the CVEs, unused by node as #141 showed).
+- To get the fix onto `main` before 15 Nov without merging Phase 05, the same commit is on branch
+  `ci/f61-base-image` (from `main`; CI only, no deploy). Merging it into `main` deploys new server images to staging
+  — the owner's call (it touches the environment the owner is verifying Phases 03 + 04 on).
+**Consequences:** verified locally on the new base: `check:image` (no test hooks in the shipped image), all
+processes healthy (api-public, api-admin, worker, db, redis), e2e Pixel 7 campaigns + chanda + payment (journey 9
+part 2, the worker's `payment-activate`) 12/12.
+
+### #156 — Needy people: the data layer and API (PHASE_05 T5.8, part 1) — ACCEPTED (Claude Code, 11 Nov 2026)
+**Context:** 00 §4.14, 02 beneficiaries, 04 R13, 05 §1, DECISIONS #104. Choices the specs leave open:
+- **Migration `0019_beneficiaries`:** `beneficiaries`, `beneficiary_amount_history`, view `v_pub_beneficiaries` (an
+  allow-list, sorted least-funded first then oldest, no internal `_id`). The validator ties the status to its dates:
+  active = no `purge_after`; fulfilled = `fulfilled_at` + `purge_after`; closed / deleted = `closed_at` + `purge_after`.
+- **`private_enc` is hidden from every generic read** — admin and Super Admin cells both. The masjid's own admins get
+  it only through `readBeneficiaryPrivate` (audited `beneficiary.private_view`); the API encrypts / decrypts with the
+  field key (context `beneficiaries.private_enc`). The Super Admin has no route to it at all.
+- **Statuses:** closed and deleted are final (the policy cell refuses any later write). **A fulfilled person can be
+  corrected:** "Update received" below the cap lists them again and clears the purge date — a typing mistake must not
+  remove a person for good. Details of a fulfilled person are not edited. Lowering the cap to what was received
+  fulfils. Closing a fulfilled person keeps the already running 90-day clock.
+- **Audit (R13):** `beneficiary.create` records the UPI ID + payee name, `beneficiary.update` records them old → new
+  when they change — the one place a UPI ID is in audit meta, because there is no change-lock here (owner, #104).
+  Never the name, reason, phone or note. The Super Admin reviews these in the audit log (C11, filter by action); no
+  separate screen.
+- **Consent without the tick answers 400 `VALIDATION_FAILED`** (the phase file says 422): the same as Ilm contacts and
+  every other body validation in this API (03 §0) — one convention.
+- **`retention` job** (01 §5.8) now exists: daily 03:00 IST, its first part purges needy people 90 days after they were
+  fulfilled / closed / deleted, with their history (`mc_system` only; the history is append-only for `mc_admin`). The
+  other collections' periods (02 §6) join it in Phase 8.
+- **Public list** `GET /masjids/:id/beneficiaries?v=&zakat=1`, immutable per version; bundle `sections.needy` = the
+  number of listed people. `beneficiaries` is a content collection (every write bumps the version).
+**Consequences:** two new collections and a view → **the Atlas roles must be updated before Phase 05 is deployed**
+(owner task O43; `infra/mongo/atlas-roles.json` regenerated). Tests: db `beneficiaries.int` 19 (incl. parallel
+"Update received", parallel adds at the limit, the purge; mutation-checked: un-hiding `private_enc` fails), policy
+matrix 48 namespaces, role and privilege tables; api `beneficiary-routes.int` 6 (incl. a sweep of every public
+response for the private part). **Left for part 2:** admin B19, musalli A23 (+ pay sheet, QR sheet reuse), strings
+×4, seed people for Delta, e2e, 02 / 03 doc touch-ups.
+
+### #157 — Needy people: the admin screen B19 and the musalli screen A23 (PHASE_05 T5.8, part 2) — ACCEPTED (Claude Code, 11 Nov 2026)
+**Context:** 07 B19 / A23, 00 §4.14, 05 §1. Choices the specs leave open:
+- **B19 is two screens**, like Ilm contacts: `/needy` (status chips Active · Fulfilled · Closed; each card: progress,
+  "Update received", "Edit details", Close / Remove with a confirmation) and `/needy/new` · `/needy/:id` (the form).
+  Only active people are edited (#156); a fulfilled person keeps "Update received" (a corrected amount lists them
+  again — the sheet says so), Close and Remove.
+- **The consent tick starts empty on every edit** — the API asks for it with every save (#156), and a scanned UPI QR
+  clears it too (the person agreed to specific details).
+- **Private phone / note:** for a listed person the fields are not loaded with the form. "Show private details"
+  fetches them (one audited view) — until then a save leaves the stored part alone; shown and emptied removes it.
+  The result is never cached.
+- **UPI QR scan** is the B8 scanner, now a shared component (`features/payment/components/UpiScanSheet.tsx`); same
+  rule as #147 (built-in QR reader only; admin CSP unchanged).
+- **A23:** the list is fetched per content version like Ruqyah (kept offline once opened; stays on screen while the
+  next version loads). The zakat filter is applied on the phone to that list (works offline; the API's `?zakat=1`
+  stays for other clients). The payment note (`tn`) is the masjid's name — the person sees where the help came from;
+  never an amount. "Show UPI QR" reuses the T5.4 sheet (it now takes any payee; the "changed recently" notice only
+  for the masjid's own change-locked details). The pay sheet closes when the QR sheet opens (one sheet at a time).
+- **Category icons:** the icon set has fitting glyphs for illness, student and orphan; the others show a heart. The
+  label always names the category. Dedicated glyphs can follow with the owner's design pass (no new follow-up — a
+  cosmetic choice).
+- **Names in an Urdu list** are isolated with `<bdi>` instead of `dir="auto"`, so a Latin name stays next to its icon.
+- **Seed:** Test Masjid Delta lists four fake people (fixture bank handle `@okexample` — no payment can reach
+  anyone), with different funded shares and two zakat tags. Every re-seed puts them back to that state.
+- **Budget:** musalli initial JS 188 → **189 kB** (188.41 kB; +0.44 kB — the list call and its validated contract in
+  the API client, like every other endpoint; the screen and pay sheet are lazy). Owner rule "quality over budgets".
+- **Fixed on the way:** `type-title-2` in `donation.index.tsx` / `donation.new.tsx` was not a class of the design
+  system (the amount fell back to body size) — now `type-title2`.
+**Consequences:** tests — admin `needy.test.ts` 8, app `needy-view.test.ts` 4 + `detail-view` +1, db `public.int` seed
+assertions (order, zakat filter, bundle count), e2e `e2e/admin/needy.spec.ts` (the T5.8 acceptance journey, axe on
+B19, the editor, A23 and the pay sheet), visual baselines `help-the-needy` × 4 locales × 2 devices and the Delta
+Masjid Detail (new row). "Log this in My zakat?" after a payment comes with T5.9.
+
+### #158 — My zakat: where it lives, when the app asks, starting a new year (PHASE_05 T5.9) — ACCEPTED (Claude Code, 12 Nov 2026)
+**Context:** 07 A24, 00 §4.15, 05 §1, PHASE_05 T5.9. Choices the specs leave open:
+- **The tracker is a field of the device document** (`zakat`, optional; `apps/app/src/lib/device/store.ts`), not a
+  second IndexedDB entry: it is validated with the document on every read (04 §11), versioned with it, and "Clear all
+  data" deletes it without separate code. Field names are camelCase like the rest of the document (`owedPaise`,
+  `amountPaise`, `beneficiaryPublicId`); limits as specified (label ≤ 20, note ≤ 60, ≤ 500 payments). An optional field
+  needs no version bump: an older app build still reads the document and keeps the field on write.
+- **Amounts:** whole paise; a payment is ≥ 1 paisa; the payments of one tracker add up to at most 10^12 paise (the
+  largest amount the app can show) — the NumberPad refuses a key past that.
+- **"Log this in My zakat?" is asked only for a person the masjid marked zakat-eligible**, and only after the page
+  was hidden and came back to the front following "Pay with UPI" (the UPI app took over). The app does not suggest
+  counting help to anyone else as zakat — whether a gift counts is not the app's call, and the tag is the masjid's
+  statement (05 §8). Anyone can still add any payment by hand in Settings → My zakat. The app never knows whether or
+  how much was paid: the musalli types the amount; the person's first name / initials becomes the note (they vanish
+  from the list once fulfilled), with their public id. *Owner may change this to "ask for everyone" — one condition.*
+  The QR path (another phone scans) has no "came back" moment: no question there.
+- **"Start a new year"** (not in 07 A24): removes the tracker after a confirmation. Without it the list of a past
+  year could only be emptied one payment at a time, or with Clear all data.
+- **A payment can be removed** (✕ → confirmation); it cannot be edited — remove and add again.
+- **The year label** starts as the current Hijri year ("1448 AH", worded per language) and is free text.
+- **Settings → My data** lists "My zakat payments" under "On this phone" once the tracker exists, and the privacy
+  notice (English draft, version unchanged — still `draft-1`, lawyer review is O34) gained one sentence (05 §1 "the
+  privacy notice says so"). No re-acceptance: nothing about what the server keeps changed.
+- **No API, contract, collection or log line knows about it.** e2e watches every request while the tracker is used.
+- **Budget:** musalli initial JS 188.41 → 188.7 kB (limit 189 kB) — the schema in the device document and the Settings
+  row; the screen, the sheet and their strings are lazy.
+**Consequences:** tests — app `zakat.test.ts` 12 (remaining never negative, integer paise, 500 cap, tampered document
+reset), `upi-actions.test.ts` +2 (return from the UPI app); e2e `e2e/app/zakat.spec.ts` (journey + network assertion +
+Clear all data; "Start a new year"; 4 locales with axe and screenshots) and the zakat step in
+`e2e/admin/needy.spec.ts`; Settings visual baselines × 4 locales × 2 devices updated (new row). Owner guide 5.18–5.20.
+
+### #159 — F65: admin alerts stop when the session ends; the Super Admin's phone is reached for 30 days (audit H3) — ACCEPTED (Claude Code, 12 Nov 2026; one point for the owner to confirm)
+**Context:** #142 M2 / #144 / audit H3 (#153): signing out one admin phone from another device, or a session
+expiring, left that phone receiving alerts. Phase 05 sends the first real alerts to masjid admins (UPI change
+approved / rejected / active), so this had to be closed before Phase 05 reaches staging.
+**Decision.**
+- **Every subscription belongs to the session that saved it** (`admin_push_subscriptions.session_id`, migration
+  `0020_admin_push_session`, index `{session_id:1}`). `PUT /auth/push` takes the session from the cookie, never from
+  the body; the data layer refuses a session that is not an open session of the same admin.
+- **Alerts go only to phones whose session still carries them** (`getAlertTargets`, checked at send time):
+  never when the session is revoked (sign-out, the session list, ★ revoke, recovery, counter regression);
+  **masjid admin** — not once the session has expired (7 days idle / 30 days absolute, 04 §4);
+  **Super Admin** — until the session was last used **30 days** ago (`SUPER_ALERT_WINDOW_MS`).
+- **Why the Super Admin differs — two docs pull apart here.** 04 R4 gives the Super Admin a session of 30 minutes
+  idle / 12 hours absolute. 05 §3 needs the Super Admin alerted at once for takedowns with deadlines of 2–36 hours,
+  and 04 §13 routes SLA and failure alerts to "Super Admin push". Tying alerts to the 30-minute session would mean no
+  alert ever reaches the owner unless the app was open in the last half hour — the legal feature would not work. So
+  for the Super Admin the *alert* lifetime is longer than the *session* lifetime: an alert only says "open the app"
+  (its type and a fixed path — no content), and acting on it needs a fresh passkey login. Revoking still stops it
+  at once, and a phone not used for 30 days falls silent. **Owner to confirm the 30 days** (shorter = safer if a
+  phone is lost without revoking; longer = fewer missed alerts after a holiday). Changing it is one constant.
+- **Ending one session deletes the subscriptions saved in it** in the same transaction (`revokeSessions` with a
+  session id) — before, only "everywhere" did, and one-device sign-out relied on the app removing its own.
+- **The app needs no change:** it already sends the subscription again on every open (#142), which moves it to the
+  new session after the next sign-in. A masjid admin whose session expired gets alerts again from that moment.
+- **Old rows** (saved before the link; staging only) are never targets; the `retention` job deletes them and every
+  other subscription whose session no longer carries alerts (data minimisation, 05 §1). The owner's phones start
+  receiving alerts again the next time the admin app is opened on them — before O38, just open the app once.
+- **No new privilege:** `mc_system` already reads `admin_sessions`; `mc_admin` already writes its own subscriptions.
+  The Atlas roles file is unchanged (O43 stays as it was).
+**Consequences:** 02 `admin_push_subscriptions` updated. Tests — db `notifications.int` (+3: session ownership on
+save, one-session revoke, expired / revoked / deleted / unlinked sessions and the prune; `sessionCarriesAlerts` cases),
+api `alert-send.int` (+1: silent phones; the Super Admin reached after the short session), `notification-routes.int`
+(the saved row carries the request's session). F65 closed.
+
+### #160 — Phase 05 security review: fixes, and what waits for the owner (PHASE_05 T5.7) — ACCEPTED (Claude Code, 12 Nov 2026; items marked "owner" are OPEN questions)
+**Context:** `security-reviewer` on `863e064..feat/phase-05` (12 Nov 2026): 0 HIGH, 4 MEDIUM, 11 LOW. R1 verdict: no
+bypass of the change-lock (no admin write path to the live UPI details; hold enforced in production; test hooks
+impossible outside local tests; audits; locked notice; followers read only the active profile). The phase exit
+criterion "no findings at any severity on R1 paths" is met only once M1 and L1–L5 are fixed or accepted. In the same
+T5.7 pass the 4-locale admin screenshots found two display bugs (Urdu amounts, a Telugu tag).
+**Fixed (with tests):**
+- **M1 — followers are always told.** `approvePaymentChange` refuses with `PAYMENT_NOTICE_UNAVAILABLE` (409, text ×4)
+  unless the system template `payment_details_updated` is `active`; `activateDuePaymentProfiles` holds a due profile
+  back (stays `approved_on_hold`, returned as `heldBack`, logged by the job, ids only) while the template is not
+  active. A migration does **not** activate the template: #111 (no unreviewed template is active) stands; the dev /
+  staging seed has it active; on production the Super Admin activates it with the other starters (O30) — approval
+  says so if it is missing.
+- **L1** — activation also waits while the masjid is suspended (no silent change after it is restored).
+- **M3 — a needy person's UPI ID and payee name no longer reach the audit log** (kept ~2 years). The old → new record
+  (04 R13) is a `upi` entry in the person's own history (`beneficiary_amount_history`, append-only for `mc_admin`,
+  deleted with the person after 90 days — migration `0021_beneficiary_upi_history`); the audit says only
+  `upi_changed: true`. No new collection, role or Atlas change. 02 / 04 R13 read accordingly.
+- **L8** — removing a person drops their encrypted phone / note at once; private details are readable only while the
+  person is listed (active or fulfilled).
+- **M4 — the public needy list is cached one day, not a year** (`public, max-age=86400, s-maxage=86400`), so a person
+  who is removed or withdraws consent leaves CDN and phone caches within a day. The immediate CDN purge on close /
+  remove comes with the Phase 8 purge job — **F67**.
+- **M2 (text part) — donation texts never name another payee.** `mentionsPaymentAddress` (`@mc/domain/upi`, 100 %
+  covered): a `upi:` link or a UPI-ID-shaped token whose handle has no dot (`name@ybl`; `info@masjid.org` passes).
+  Refused with `PAYMENT_DETAILS_IN_TEXT` (400, text ×4) in drive title / description (create and edit), chanda notes,
+  needy name / reason and free-text notices.
+- **L6** — the `v_pub_items` chanda filter fails closed (`type ≠ chanda_update OR chanda.visible = true`), same
+  migration.
+- **Urdu amounts (T5.7 screenshots):** after Urdu words the bidi algorithm turned "₹12,500" into "12,500₹" and "25%"
+  into "%25". The ICU layer now wraps every string argument in a first-strong isolate (U+2068…U+2069) in Urdu —
+  numbers, times and Latin names keep their order, Urdu names stay right to left. (Correction 13 Nov 2026: the Urdu visual baselines did change — the 0.2 % pixel threshold could not see the moved ₹ sign; they were re-taken and checked by eye at the Phase 05 close-out.)
+  Inline percentages outside sentences are `<bdi dir="ltr">`.
+- **Telugu C4:** the "On hold — goes live …" tag overflowed its card; `Tag` gains `wrap` for sentence-length text.
+**Not fixed now — reasons, and the owner's call where marked:**
+- **M2 (image part) — a QR code inside a drive cover or notice photo.** Needs a QR decoder on the server; the obvious
+  one (`jsQR`) has had no release for years (CLAUDE.md §6 forbids abandoned packages); a maintained one (`zxing-wasm`)
+  adds a WebAssembly module to api-admin. **Owner:** add it (recommended, Phase 8 with moderation, which already
+  reviews images) or accept the risk — **F68**. Meanwhile the Super Admin's moderation queue can remove such a post.
+- **L2 (owner)** — anyone with the masjid (owner or editor) may request a UPI change and only the requester hears
+  about approval. Recommended: requests by `owner` only, and an alert to every owner of the masjid on request and
+  approval — **F69** (needs a new alert type and texts ×4).
+- **L3** — revoking or removing an admin leaves their open UPI request. The Super Admin who revokes sees it in C1 / C4
+  ("Stop this change"); automatic rejection in the revoke transaction — **F69** as well.
+- **L4** — the request alert is best effort; C1 already lists open change requests (`[data-change-requests]`). Kept.
+- **L5 (owner)** — `mc_admin` can technically write `payment_profiles` (needed to record requests / approvals); a
+  remote-code bug in api-admin could set a profile active. Defence in depth (a live-details collection only
+  `mc_system` writes) is a schema + role change — recommended for Phase 9 hardening — **F70**.
+- **L7** — the needy-person ciphertext's associated data does not name the person (only a database-level writer could
+  swap it). With L8 → F70 (Phase 9 hardening).
+- **L9** — a raw read in `repos/beneficiaries.ts` (own masjid checked, `_id` only). Lint rule for raw `.collection(`
+  in `repos/` → F70.
+- **L10 / L11 (owner, legal)** — consent recorded as a tick + audit actor only (no version / guardian flag), and a
+  needy person's public UPI ID is often their phone number. Both go to the lawyer review (O34) with a recommendation:
+  store `consent_by: person | guardian` + version; warn in B19 when the UPI ID is a 10-digit number.
+**Consequences:** migrations 0021; error codes `PAYMENT_NOTICE_UNAVAILABLE`, `PAYMENT_DETAILS_IN_TEXT`; new tests in
+db `payment.int` (+2), `beneficiaries.int`, `campaigns.int` (+1), domain `upi` (+2), i18n `icu-format` (+2), api
+harness `activatePaymentNotice`. Follow-ups F67–F70. The R1 exit criterion now depends on the owner's answers to L2 /
+L5 (fix as recommended, or accept) — asked as O46.
+**Owner's answers (O46, 12 Nov 2026): yes to (a)–(d)** → #161.
+
+### #161 — O46 answered: UPI requests by owners only, every owner alerted; QR photos refused; Phase 9 hardening — ACCEPTED (owner, 12 Nov 2026)
+**Context:** #160 left four owner decisions (O46). The owner said yes to all of them.
+**Decision:**
+- **(a) F69 — security review L2 + L3, done now.** Only a masjid `owner` may ask to change the masjid's UPI details
+  (`requestPaymentChange` → `PAYMENT_OWNER_ONLY`, 403, text ×4; B8 shows an editor who to ask instead of the button).
+  The masjid's **other owners** get a new alert `payment_request_owner` ("UPI change asked for your masjid … if you
+  don't know about it, tell the Super Admin now", ×4, opens Masjid Profile); approval, rejection and activation alert
+  **every owner** and the requester (≤ 5 admins per masjid). Removing an admin from a masjid, or revoking their
+  sessions or passkeys, closes their open request **in the same transaction** — also during the hold — with
+  `reject_code: requester_removed` (migration `0022_payment_reject_code`; B8 says "Stopped — the admin who asked no
+  longer has access"); audited as `payment.reject` with `code`. No new collection, view or DB role (the worker and the
+  admin API already read `masjid_admins`), so **no Atlas change** beyond O43.
+- **(b) F68 — refuse photos that contain a QR code.** Accepted; built with the moderation work of Phase 8 (a maintained
+  server-side decoder such as `zxing-wasm`, its own DECISIONS entry with the size and CVE check). Until then the
+  moderation queue removes such posts. Tracked as F68 (now "accepted — Phase 8").
+- **(c) F70 — live UPI details writable only by the worker** (plus needy ciphertext bound to the person and the lint
+  rule for raw reads). Accepted for Phase 9 hardening.
+- **(d) Needy consent missing → 400** (#156) acknowledged.
+- **Security re-review of (a) (same day): 0 HIGH · 0 MEDIUM · 3 LOW + 1 nit — all fixed.** L1: a request committed in
+  the same instant as its admin's removal would have survived (no shared document) — approval and activation now check
+  the requester again inside their transaction (active admin, still an owner, the asking session not shut out); a
+  failed check closes the request (`PAYMENT_REQUESTER_REMOVED` 409 at approval, `stopped` in the activation run). The
+  request stores `requested_session`; revoking that session for any reason but a plain logout (an owner's own "sign
+  out that device / everywhere" too) closes it. L2: `payment_request_owner` goes to **every** owner including the
+  requester (their other phones — a single-owner masjid is covered), and the approval / live alerts now read "… If you
+  didn't ask for it, tell the Super Admin now" (×4). L3: the closing audit row carries the caller's request id; the
+  helper returns what it really closed. Nit: B8 shows the owner-only note only for an editor. Recipients are sorted.
+**Consequences:** the R1 exit criterion no longer waits on the owner; security-reviewer re-ran on the change-lock.
+db `payment.int` +5 (editor refused, owners named; removal, revocation, the race at approval and at activation, logout vs. shut-out session), api
+`payment-routes.int` (editor 403, owner alerts). F69 closed; F68 → Phase 8; F70 → Phase 9.
+
+### #162 — Phases close without waiting for the owner's checks; Claude Code keeps going — ACCEPTED (owner, 12 Nov 2026)
+**Context:** CLAUDE.md §3 / §5 stop at "AWAITING OWNER VERIFICATION" until the owner has run the manual checks. The
+owner wants continuous progress and will do all manual testing in one batch later.
+**Decision:** when a phase's own work is done (tasks, tests, `pnpm verify`, phase-verifier, security-reviewer, report),
+Claude Code marks it **`DONE — owner checks pending`**, lists every owner step (staging deploys that need the server,
+Atlas roles, real-phone checks, ₹1 UPI tests, usability sessions, credentials) in `owner/MY_PENDING_TASKS.md` and
+PROGRESS "Waiting for the owner" at once, and starts the next phase. A problem the owner finds later is fixed as a
+tracked follow-up (F-entry) in whichever phase is current. Everything else in CLAUDE.md stays binding, including §4
+"STOP and ask" — such a question is recorded as `OPEN` and Claude Code continues with work it does not block.
+**Consequences:** CLAUDE.md §3's "do not start the next phase" and §5 steps 6–7 are replaced by this rule for now;
+PROGRESS shows each phase's pending owner checks next to its status.
+
+### #163 — Bayan links: YouTube oEmbed as verified, the preview thumbnail as a data URL, `VIDEO_LOOKUP` — ACCEPTED (Claude Code, 13 Nov 2026)
+**Context:** PHASE_06 T6.1 asks to verify YouTube's oEmbed behaviour before relying on it (DECISIONS #39) and to keep
+every outbound request on fixed hosts (04 §6).
+**Verified 13 Nov 2026** (`curl`, and the opt-in live contract test `YOUTUBE_LIVE=1`):
+`GET https://www.youtube.com/oembed?format=json&url=https://www.youtube.com/watch?v=<id>` answers **200 JSON**
+(`title`, `author_name`, `thumbnail_url` …) for a public video and **404** for an id that does not exist; private
+videos and videos whose owner turned embedding off are commonly reported as 401 / 403 (not reproducible without such a
+video — the owner's Phase 06 test uses one Unlisted video, which must answer 200). `https://i.ytimg.com/vi/<id>/
+hqdefault.jpg` is a 480 × 360 JPEG (404 when missing).
+**Decision:**
+- Any oEmbed answer 400–499 = "cannot play in the app" → `422 VIDEO_UNAVAILABLE`; 5xx, network, timeout (5 s), a
+  redirect (`redirect: 'error'`), oversized (oEmbed 64 KB, thumbnail 512 KB), non-JSON or a non-JPEG thumbnail →
+  `503 VIDEO_LOOKUP_FAILED` ("try again"). The URL is always rebuilt from the validated id.
+- **Preview** (`POST /videos/preview`) returns our sanitized thumbnail as a `data:image/jpeg` URL (admin CSP already
+  allows `data:` images): the admin's phone never contacts YouTube, and nothing is stored for a link that is never
+  published. **Publish** asks YouTube again (the video may have turned private) and stores the thumbnail copy then.
+- The lookup runs only after the admin's own masjid is checked, and counts against `adminUploads` (30 / hour / masjid)
+  plus the session's write budget.
+- Env `VIDEO_LOOKUP`: `youtube` (required on staging / production — default there) or `mock` (local default; ids
+  `privateVid1`, `deletedVid1`, `noEmbedVid1` stand for unplayable videos, `failingVid1` for YouTube being down).
+- Delete uses the common `DELETE /masjids/:id/items/:itemId` (no separate `DELETE /videos/:id`); 03 reads so.
+- The audit row of a publish names the audience and notify only — never the title or the id.
+**Consequences:** new error codes `VIDEO_INVALID` (400), `INVALID_VIDEO_LINK` (422), `VIDEO_UNAVAILABLE` (422),
+`VIDEO_LOOKUP_FAILED` (503), texts ×4. No new collection, view or DB role; no new dependency (sharp and fetch exist).
+
+### #164 — Deleted posts' media go after 180 days now (T6.4 — the items rows of T8.7 built early) — ACCEPTED (Claude Code, 13 Nov 2026)
+**Context:** PHASE_06 T6.4 wants a deleted or removed bayan's thumbnail copy deleted from storage by the retention job
+after the 180-day preservation period, and the CDN purged. The general retention job (all of 02 §6) and `cdn-purge`
+are Phase 8 (T8.7, T8.2); the thumbnail rule is the same as for every post's photo or voice note.
+**Decision:**
+- `purgeExpiredItems` (db, system scope only): posts with status `deleted` or `removed` whose `purge_after` has passed
+  (set to +180 days by delete — and by moderation in Phase 8) are deleted with their Ameens and Ameen counter, one
+  transaction per post, ≤ 1,000 a run (index `purge_after` exists). It returns the media they carried — photo, voice
+  note, bayan thumbnail, drive cover — except `seed/…` placeholders and files a remaining post still uses.
+- The `retention` job then deletes those files through the worker's own Cloudinary key and purges every delivery URL
+  (6 per image, 1 per voice note) with **Cloudflare purge by URL** — verified 13 Nov 2026:
+  `POST https://api.cloudflare.com/client/v4/zones/<zone>/purge_cache`, `{"files": [...]}`, `Authorization: Bearer`
+  (token permission "Cache Purge"), ≤ 100 URLs per request on every plan, success = 200 + `"success": true`. Fixed
+  host, 10 s timeout, no redirects; a refusal throws so BullMQ retries; the token is never logged.
+- Order: documents first, then files, then the CDN. A failure after the documents are gone leaves files behind (logged
+  as a count); Phase 8's orphan sweep (T8.7) covers them.
+- Locally there is no Cloudinary key or purge token: the job leaves files and logs it.
+- The musalli-facing takedown text ("the video stays on the masjid's YouTube channel") is Phase 8's moderation work
+  (T8.2); the admin's own delete dialog already says it.
+**Consequences:** worker deps `retention.{media, purger, mediaOrigin}` (env already has `CLOUDINARY_*`,
+`CF_API_TOKEN_PURGE`, `CF_ZONE_ID`, `MEDIA_ORIGIN`). Staging needs a **real** Cache-Purge token in the worker env —
+owner O48. T8.7 extends this job to the other rows of 02 §6.
+

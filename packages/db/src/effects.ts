@@ -141,6 +141,28 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'contact.create': ['audience', 'consent_confirmed'],
   'contact.update': ['audience', 'consent_confirmed'],
   'contact.delete': [],
+  // The UPI change-lock (04 R1, T5.2): never the VPA or payee name in meta — the profile documents are the history.
+  'payment.request': [],
+  'payment.approve': ['hold_minutes'],
+  'payment.reject': ['from', 'code'],
+  'payment.activate': [],
+  // Donation campaigns (T5.3): amounts are in the item and its history, not in the audit meta.
+  'campaign.create': ['purpose', 'notify'],
+  'video.publish': ['audience', 'notify'],
+  'campaign.update': ['fields', 'target_raised'],
+  'campaign.received': ['notify'],
+  // PHASE_05 T5.5: never the amount (the week and whether followers were told).
+  'chanda.save': ['week_start', 'notify'],
+  'chanda.settings': ['show', 'week_start'],
+  'campaign.complete': [],
+  // Needy people (T5.8, 04 R13): a person's UPI details have no change-lock, so every create / change records them
+  // old → new for the Super Admin's review. Never the phone or note (`private_enc`), the name or the reason.
+  'beneficiary.create': ['category', 'zakat_eligible', 'consent_confirmed'],
+  'beneficiary.update': ['fields', 'upi_changed', 'fulfilled'],
+  'beneficiary.received': ['fulfilled'],
+  'beneficiary.close': [],
+  'beneficiary.delete': [],
+  'beneficiary.private_view': [],
   'item.publish': ['type', 'template', 'notify', 'image'],
   'item.edit': ['type'],
   'item.delete': ['type'],

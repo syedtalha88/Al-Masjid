@@ -50,13 +50,14 @@ function argumentsOf(message: string): Set<string> {
 }
 
 describe('starter notice templates', () => {
-  it('17 templates with unique keys; two system templates (timings updated, special timings — T3.3)', () => {
+  it('18 templates with unique keys; three system templates (timings updated, special timings, payment details — T5.2)', () => {
     const keys = STARTER_TEMPLATES.map((template) => template.key);
     expect(new Set(keys).size).toBe(keys.length);
-    expect(keys).toHaveLength(17);
+    expect(keys).toHaveLength(18);
     expect(STARTER_TEMPLATES.filter((template) => template.system).map((template) => template.key)).toEqual([
       'timings_updated',
       'special_timings',
+      'payment_details_updated',
     ]);
   });
 

@@ -7,16 +7,23 @@ import { adminLibraryRoutes } from './admin-library.ts';
 import { type AdminMasjidRouteDeps, adminMasjidRoutes } from './admin-masjid.ts';
 import { type AdminPasskeyDeps, adminPasskeyRoutes } from './admin-passkeys.ts';
 import { adminRuqyahRoutes } from './admin-ruqyah.ts';
+import { adminBeneficiaryRoutes } from './beneficiaries.ts';
+import { adminCampaignRoutes } from './campaigns.ts';
+import { adminChandaRoutes } from './chanda.ts';
 import { linkPreviewRoutes } from './link-preview.ts';
+import { adminPaymentRoutes, type PaymentRouteDeps, superPaymentRoutes } from './payments.ts';
 import { type PublicRouteDeps, publicRoutes } from './public.ts';
 import { type SuperRouteDeps, superRoutes } from './super.ts';
 import { superLibraryRoutes } from './super-library.ts';
 import { superTemplateRoutes } from './super-templates.ts';
+import { adminVideoRoutes, type VideoRouteDeps } from './videos.ts';
 
 export type AdminRouteDeps = AdminAuthDeps &
   AdminPasskeyDeps &
   SuperRouteDeps &
-  Pick<AdminMasjidRouteDeps, 'media' | 'notifier'>;
+  PaymentRouteDeps &
+  Pick<AdminMasjidRouteDeps, 'media' | 'notifier'> &
+  Pick<VideoRouteDeps, 'video'>;
 export type { PublicRouteDeps };
 
 /** api-public feature routes (03 §3, PHASE_02 T2.2). */
@@ -37,7 +44,17 @@ export function adminRoutes(deps: AdminRouteDeps): { routes: RouteDefinition[]; 
       ...adminLibraryRoutes(deps),
       ...adminRuqyahRoutes(deps),
       ...adminContactRoutes(deps),
+      ...adminPaymentRoutes(deps),
+      ...adminCampaignRoutes(deps),
+      ...adminChandaRoutes(deps),
+      ...adminBeneficiaryRoutes(deps),
+      ...adminVideoRoutes(deps),
     ],
-    superRoutes: [...superRoutes(deps), ...superLibraryRoutes(deps), ...superTemplateRoutes(deps)],
+    superRoutes: [
+      ...superRoutes(deps),
+      ...superLibraryRoutes(deps),
+      ...superTemplateRoutes(deps),
+      ...superPaymentRoutes(deps),
+    ],
   };
 }

@@ -15,6 +15,7 @@ import { idText } from '../values.ts';
 import { announcementContent, type AnnouncementInput } from './announcements.ts';
 import { dailyContent, type DailyContentInput } from './daily.ts';
 import { duaContent, type DuaRequestInput } from './duas.ts';
+import { PAYMENT_NOTICE_TEMPLATE } from './payment.ts';
 import { contentDocument, type ItemContent, OPTIONAL_CONTENT_FIELDS } from './publish.ts';
 
 /** 00 §4.3: a post can be edited for this long after it was first published. */
@@ -28,6 +29,12 @@ export type ItemEdit =
   | { readonly type: 'announcement'; readonly announcement: Omit<AnnouncementInput, 'notify'> }
   | { readonly type: 'daily_content'; readonly daily: Omit<DailyContentInput, 'notify'> }
   | { readonly type: 'dua_request'; readonly dua: Omit<DuaRequestInput, 'notify'> };
+
+/**
+ * Notices the masjid may not edit or delete: "Payment details updated" is how followers learn that the UPI details
+ * changed (04 R1) — a compromised admin account must not be able to hide it.
+ */
+const isLocked = (item: Document): boolean => item['template_key'] === PAYMENT_NOTICE_TEMPLATE;
 
 /** The admin's own, non-removed item (the admin cells' fences), or `null`. */
 const ownItem = (ctx: TxContext, masjidId: UUID, itemId: UUID): Promise<Document | null> =>
@@ -73,6 +80,7 @@ export async function editItem(
   return withTransaction(handle, scope, async (ctx) => {
     const item = await ownItem(ctx, input.masjidId, input.itemId);
     if (!item || item['status'] !== 'published') throw new StateError('ITEM_NOT_FOUND');
+    if (isLocked(item)) throw new StateError('ITEM_LOCKED');
     if (item['type'] !== input.edit.type) throw new StateError('ITEM_NOT_EDITABLE');
     const publishedAt: unknown = item['published_at'];
     if (!(publishedAt instanceof Date) || now.getTime() - publishedAt.getTime() > EDIT_WINDOW_MS) {
@@ -131,6 +139,7 @@ export async function deleteItem(
   await withTransaction(handle, scope, async (ctx) => {
     const item = await ownItem(ctx, input.masjidId, input.itemId);
     if (!item || item['status'] === 'removed') throw new StateError('ITEM_NOT_FOUND');
+    if (isLocked(item)) throw new StateError('ITEM_LOCKED');
     if (item['status'] === 'deleted') return;
     await contentWrite(ctx, input.masjidId, async (store) => {
       const matched = await scoped(store, 'items').updateOne(

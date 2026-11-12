@@ -4,6 +4,24 @@ export { AdhkarCard, type AdhkarCardProps } from './AdhkarCard.tsx';
 export { BloodCampCard, type BloodCampCardProps } from './BloodCampCard.tsx';
 export { BLOOD_CAMP_TEMPLATE, type BloodCamp, bloodCampOf, upcomingCamps } from './camp-view.ts';
 export {
+  campaignDaysLeft,
+  type CampaignDetail,
+  campaignListed,
+  campaignProgress,
+  campaignsForList,
+  campaignStarted,
+  CLOSED_VISIBLE_DAYS,
+  PAYMENT_CHANGED_NOTICE_DAYS,
+  paymentChangedRecently,
+} from './campaign-view.ts';
+export {
+  CampaignCover,
+  CampaignCoverPlaceholder,
+  CampaignItemCard,
+  type CampaignItemCardProps,
+  PurposeIcon,
+} from './CampaignItemCard.tsx';
+export {
   ANNOUNCEMENT_FILTERS,
   type AnnouncementFilter,
   type AnnouncementTag,
@@ -44,5 +62,7 @@ export {
 export { DUA_TONE, ItemIcon } from './ItemIcon.tsx';
 export { RuqyahCard, type RuqyahCardProps } from './RuqyahCard.tsx';
 export { SpecialDateCard, type SpecialDateCardProps } from './SpecialDateCard.tsx';
+export { useItemSummary } from './use-item-summary.ts';
 export { useNoticeBody } from './use-notice-body.ts';
+export { VideoCard, type VideoCardProps, YouTubeFacade, type YouTubeFacadeProps } from './VideoCard.tsx';
 export { WhatsAppButton, type WhatsAppButtonProps } from './WhatsAppButton.tsx';

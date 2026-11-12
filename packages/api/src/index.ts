@@ -44,7 +44,8 @@ export {
 } from './http/rate-limit.ts';
 export { DRAIN_TIMEOUT_MS, type RunningServer, SERVER_TIMEOUTS, startHttpServer } from './http/server.ts';
 export { createLogger } from './logger.ts';
-export { type MediaStore, mediaStoreFromEnv } from './media/store.ts';
+export { type CdnPurger, cloudflarePurger, mediaDeliveryUrls, noCdnPurger } from './media/cdn-purge.ts';
+export { cloudinaryMediaStore, type MediaStore, mediaStoreFromEnv } from './media/store.ts';
 export { buildOpenApiDocument } from './openapi.ts';
 export { redisSendLedger, type SendLedger } from './push/ledger.ts';
 export { createPushSender, type PushSender, type PushTransport, type VapidKeys } from './push/sender.ts';
@@ -56,3 +57,4 @@ export { type AdminPasskeyDeps, adminPasskeyRoutes } from './routes/admin-passke
 export { type HealthProbes, PROBE_TIMEOUT_MS } from './routes/health.ts';
 export { type AdminRouteDeps, adminRoutes, apiPublicRoutes, type PublicRouteDeps } from './routes/index.ts';
 export { CACHE as PUBLIC_CACHE } from './routes/public.ts';
+export { mockVideoLookup, type VideoLookup, videoLookupFromEnv, youTubeLookup } from './video/youtube.ts';

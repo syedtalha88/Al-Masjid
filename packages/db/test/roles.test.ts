@@ -36,6 +36,7 @@ const SPEC: Readonly<Record<Exclude<DbUser, 'mc_migrator'>, Readonly<Partial<Rec
     content_library: FIU,
     notice_templates: FIU,
     payment_profiles: FIU,
+    beneficiaries: FIU,
     admin_users: FIU,
     masjid_admins: 'fiur',
     webauthn_credentials: FIU,
@@ -47,6 +48,7 @@ const SPEC: Readonly<Record<Exclude<DbUser, 'mc_migrator'>, Readonly<Partial<Rec
     legal_orders: FIU,
     app_settings: FIU,
     campaign_amount_history: 'fi',
+    beneficiary_amount_history: 'fi',
     audit_log: 'fi',
     reports: 'fu',
     grievances: 'fu',
@@ -58,12 +60,12 @@ const SPEC: Readonly<Record<Exclude<DbUser, 'mc_migrator'>, Readonly<Partial<Rec
     ...Object.fromEntries(PUBLIC_VIEWS.map((view) => [view, 'f'])),
     v_admin_follow_audience: 'f',
     ...Object.fromEntries(
-      COLLECTIONS.filter((c) => !['campaign_amount_history', 'audit_log', '_migrations'].includes(c)).map((c) => [
-        c,
-        'fiur',
-      ]),
+      COLLECTIONS.filter(
+        (c) => !['campaign_amount_history', 'beneficiary_amount_history', 'audit_log', '_migrations'].includes(c),
+      ).map((c) => [c, 'fiur']),
     ),
     campaign_amount_history: 'fir',
+    beneficiary_amount_history: 'fir',
     audit_log: 'fir',
   },
 };
@@ -86,6 +88,9 @@ describe('02 §4.3 database privileges', () => {
     expect(isAllowed('mc_admin', 'audit_log', 'update')).toBe(false);
     expect(isAllowed('mc_admin', 'audit_log', 'remove')).toBe(false);
     expect(isAllowed('mc_admin', 'campaign_amount_history', 'update')).toBe(false);
+    expect(isAllowed('mc_admin', 'beneficiary_amount_history', 'update')).toBe(false);
+    expect(isAllowed('mc_admin', 'beneficiary_amount_history', 'remove')).toBe(false);
+    expect(isAllowed('mc_public', 'beneficiaries', 'find')).toBe(false); // only through v_pub_beneficiaries
     expect(isAllowed('mc_admin', 'devices', 'find')).toBe(false);
     expect(isAllowed('mc_public', 'masjids', 'find')).toBe(false); // only through v_pub_masjids
   });

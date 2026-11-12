@@ -3159,6 +3159,1019 @@
         ],
         "additionalProperties": false
       },
+      "AdminPayment": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "$ref": "#/components/schemas/LivePayment"
+          },
+          "request": {
+            "$ref": "#/components/schemas/PaymentRequestRow"
+          }
+        },
+        "required": [
+          "active",
+          "request"
+        ]
+      },
+      "LivePayment": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "vpa": {
+            "type": "string"
+          },
+          "payeeName": {
+            "type": "string"
+          },
+          "effectiveAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "vpa",
+          "payeeName",
+          "effectiveAt"
+        ]
+      },
+      "PaymentRequestRow": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved_on_hold",
+              "rejected"
+            ]
+          },
+          "vpa": {
+            "type": "string"
+          },
+          "payeeName": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "requestedAt": {
+            "type": "string"
+          },
+          "reviewedAt": {
+            "type": "string"
+          },
+          "effectiveAt": {
+            "type": "string"
+          },
+          "rejectReason": {
+            "type": "string"
+          },
+          "rejectCode": {
+            "type": "string",
+            "enum": [
+              "requester_removed"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "vpa",
+          "payeeName",
+          "requestedAt"
+        ]
+      },
+      "PaymentRequested": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "PaymentRequest": {
+        "type": "object",
+        "properties": {
+          "vpa": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 256
+          },
+          "payeeName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "note": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "vpa",
+          "payeeName"
+        ],
+        "additionalProperties": false
+      },
+      "AdminCampaignList": {
+        "type": "object",
+        "properties": {
+          "campaigns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCampaign"
+            }
+          }
+        },
+        "required": [
+          "campaigns"
+        ]
+      },
+      "AdminCampaign": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "publicId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "renovation",
+              "repair",
+              "utilities",
+              "welfare",
+              "other"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "completed",
+              "closed"
+            ]
+          },
+          "targetPaise": {
+            "type": "number"
+          },
+          "receivedPaise": {
+            "type": "number"
+          },
+          "receivedUpdatedAt": {
+            "type": "string"
+          },
+          "startsOn": {
+            "type": "string"
+          },
+          "endsOn": {
+            "type": "string"
+          },
+          "cover": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "thumbhash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "key",
+              "thumbhash"
+            ]
+          },
+          "publishedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "publicId",
+          "title",
+          "purpose",
+          "status",
+          "targetPaise",
+          "receivedPaise",
+          "startsOn",
+          "publishedAt"
+        ]
+      },
+      "CampaignCreate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1500
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "renovation",
+              "repair",
+              "utilities",
+              "welfare",
+              "other"
+            ]
+          },
+          "targetPaise": {
+            "type": "integer",
+            "minimum": 100000,
+            "maximum": 1000000000000
+          },
+          "startsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "endsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "cover": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^m\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              "thumbhash": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+              },
+              "rightsConfirmed": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              }
+            },
+            "required": [
+              "key",
+              "thumbhash",
+              "rightsConfirmed"
+            ],
+            "additionalProperties": false
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "title",
+          "purpose",
+          "targetPaise",
+          "startsOn",
+          "notify"
+        ],
+        "additionalProperties": false
+      },
+      "CampaignPatch": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1500
+          },
+          "endsOn": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "targetPaise": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000000
+          },
+          "cover": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^m\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              "thumbhash": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+              },
+              "rightsConfirmed": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              }
+            },
+            "required": [
+              "key",
+              "thumbhash",
+              "rightsConfirmed"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "CampaignReceivedResult": {
+        "type": "object",
+        "properties": {
+          "notification": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "queued": {
+                "type": "boolean"
+              },
+              "targeted": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "quotaLeft": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "queued",
+              "targeted",
+              "quotaLeft"
+            ]
+          }
+        },
+        "required": [
+          "notification"
+        ]
+      },
+      "CampaignReceived": {
+        "type": "object",
+        "properties": {
+          "receivedPaise": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000000
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "receivedPaise",
+          "notify"
+        ],
+        "additionalProperties": false
+      },
+      "AdminChanda": {
+        "type": "object",
+        "properties": {
+          "show": {
+            "type": "boolean"
+          },
+          "weekStart": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 7
+          },
+          "weeks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "weekStart": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "amountPaise": {
+                  "type": "integer"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "weekStart",
+                "amountPaise",
+                "updatedAt"
+              ]
+            }
+          }
+        },
+        "required": [
+          "show",
+          "weekStart",
+          "weeks"
+        ]
+      },
+      "ChandaWeekSaved": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "publicId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "publicId"
+            ]
+          },
+          "created": {
+            "type": "boolean"
+          },
+          "notification": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "queued": {
+                "type": "boolean"
+              },
+              "targeted": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "quotaLeft": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "queued",
+              "targeted",
+              "quotaLeft"
+            ]
+          }
+        },
+        "required": [
+          "item",
+          "created",
+          "notification"
+        ]
+      },
+      "ChandaWeekSave": {
+        "type": "object",
+        "properties": {
+          "amountPaise": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000000
+          },
+          "note": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 200
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "amountPaise",
+          "notify"
+        ],
+        "additionalProperties": false
+      },
+      "ChandaSettings": {
+        "type": "object",
+        "properties": {
+          "show": {
+            "type": "boolean"
+          },
+          "weekStart": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 7
+          }
+        },
+        "additionalProperties": false
+      },
+      "AdminBeneficiaryList": {
+        "type": "object",
+        "properties": {
+          "people": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "publicId": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string",
+                  "enum": [
+                    "widow",
+                    "orphan",
+                    "disability",
+                    "illness",
+                    "elderly",
+                    "homeless",
+                    "debt",
+                    "student",
+                    "other"
+                  ]
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "reasonLocale": {
+                  "type": "string",
+                  "enum": [
+                    "en",
+                    "hi",
+                    "ur",
+                    "te"
+                  ]
+                },
+                "vpa": {
+                  "type": "string"
+                },
+                "payeeName": {
+                  "type": "string"
+                },
+                "capPaise": {
+                  "type": "integer"
+                },
+                "receivedPaise": {
+                  "type": "integer"
+                },
+                "receivedUpdatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "fundedPermille": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000
+                },
+                "zakatEligible": {
+                  "type": "boolean"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "active",
+                    "fulfilled",
+                    "closed"
+                  ]
+                },
+                "hasPrivate": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "publicId",
+                "displayName",
+                "category",
+                "reason",
+                "reasonLocale",
+                "vpa",
+                "payeeName",
+                "capPaise",
+                "receivedPaise",
+                "fundedPermille",
+                "zakatEligible",
+                "status",
+                "hasPrivate",
+                "createdAt"
+              ]
+            }
+          }
+        },
+        "required": [
+          "people"
+        ]
+      },
+      "BeneficiarySaved": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "publicId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "fulfilled"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ]
+      },
+      "BeneficiarySave": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "widow",
+              "orphan",
+              "disability",
+              "illness",
+              "elderly",
+              "homeless",
+              "debt",
+              "student",
+              "other"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "reasonLocale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
+          },
+          "vpa": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 256
+          },
+          "payeeName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "capPaise": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 1000000000
+          },
+          "zakatEligible": {
+            "type": "boolean"
+          },
+          "consentConfirmed": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "private": {
+            "$ref": "#/components/schemas/BeneficiaryPrivate"
+          }
+        },
+        "required": [
+          "displayName",
+          "category",
+          "reason",
+          "reasonLocale",
+          "vpa",
+          "payeeName",
+          "capPaise",
+          "zakatEligible",
+          "consentConfirmed"
+        ],
+        "additionalProperties": false
+      },
+      "BeneficiaryPrivate": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "phone": {
+            "type": "string",
+            "pattern": "^\\+[1-9][0-9]{6,14}$"
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
+        },
+        "additionalProperties": false
+      },
+      "BeneficiaryReceivedResult": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "fulfilled"
+            ]
+          },
+          "fundedPermille": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "status",
+          "fundedPermille"
+        ]
+      },
+      "BeneficiaryReceived": {
+        "type": "object",
+        "properties": {
+          "receivedPaise": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000000
+          }
+        },
+        "required": [
+          "receivedPaise"
+        ],
+        "additionalProperties": false
+      },
+      "BeneficiaryPrivateResult": {
+        "type": "object",
+        "properties": {
+          "private": {
+            "$ref": "#/components/schemas/BeneficiaryPrivate"
+          }
+        },
+        "required": [
+          "private"
+        ]
+      },
+      "AdminVideoList": {
+        "type": "object",
+        "properties": {
+          "videos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminVideo"
+            }
+          }
+        },
+        "required": [
+          "videos"
+        ]
+      },
+      "AdminVideo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "publicId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "published",
+              "removed",
+              "deleted"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "speaker": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "audience": {
+            "type": "string",
+            "enum": [
+              "everyone",
+              "brothers",
+              "sisters"
+            ]
+          },
+          "youtubeId": {
+            "type": "string"
+          },
+          "startS": {
+            "type": "integer"
+          },
+          "thumb": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "thumbhash": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "key",
+              "thumbhash"
+            ]
+          },
+          "publishedAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "publicId",
+          "status",
+          "title",
+          "audience",
+          "youtubeId",
+          "thumb",
+          "publishedAt",
+          "updatedAt"
+        ]
+      },
+      "VideoPreview": {
+        "type": "object",
+        "properties": {
+          "youtubeId": {
+            "type": "string"
+          },
+          "startS": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "thumbnail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "youtubeId",
+          "title",
+          "thumbnail"
+        ]
+      },
+      "VideoPreviewRequest": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "maxLength": 2048
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      },
+      "VideoCreate": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "speaker": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 80
+          },
+          "description": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1500
+          },
+          "audience": {
+            "type": "string",
+            "enum": [
+              "everyone",
+              "brothers",
+              "sisters"
+            ]
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
+          },
+          "rightsConfirmed": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "url",
+          "title",
+          "audience",
+          "locale",
+          "rightsConfirmed",
+          "notify"
+        ],
+        "additionalProperties": false
+      },
+      "VideoPatch": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "speaker": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 80
+          },
+          "description": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1500
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false
+      },
       "SuperDashboard": {
         "type": "object",
         "properties": {
@@ -3192,6 +4205,10 @@
             ]
           },
           "passkeyAlerts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "activeCampaigns": {
             "type": "integer",
             "minimum": 0
           },
@@ -3281,6 +4298,7 @@
           "pending",
           "counts",
           "passkeyAlerts",
+          "activeCampaigns",
           "push",
           "changeRequests"
         ]
@@ -4187,6 +5205,152 @@
         },
         "required": [
           "added"
+        ]
+      },
+      "SuperPaymentList": {
+        "type": "object",
+        "properties": {
+          "requests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuperPaymentRow"
+            }
+          }
+        },
+        "required": [
+          "requests"
+        ]
+      },
+      "SuperPaymentRow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved_on_hold",
+              "rejected"
+            ]
+          },
+          "vpa": {
+            "type": "string"
+          },
+          "payeeName": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "requestedAt": {
+            "type": "string"
+          },
+          "reviewedAt": {
+            "type": "string"
+          },
+          "effectiveAt": {
+            "type": "string"
+          },
+          "rejectReason": {
+            "type": "string"
+          },
+          "rejectCode": {
+            "type": "string",
+            "enum": [
+              "requester_removed"
+            ]
+          },
+          "masjid": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "city"
+            ]
+          },
+          "requestedBy": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "displayName"
+            ]
+          },
+          "current": {
+            "$ref": "#/components/schemas/LivePayment"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "vpa": {
+                  "type": "string"
+                },
+                "payeeName": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "superseded",
+                    "rejected"
+                  ]
+                },
+                "at": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "vpa",
+                "payeeName",
+                "status",
+                "at"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "vpa",
+          "payeeName",
+          "requestedAt",
+          "masjid",
+          "requestedBy",
+          "current",
+          "history"
+        ]
+      },
+      "PaymentApproved": {
+        "type": "object",
+        "properties": {
+          "effectiveAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "effectiveAt"
         ]
       }
     },
@@ -5705,6 +6869,9 @@
                                     "type": "integer",
                                     "minimum": -9007199254740991,
                                     "maximum": 9007199254740991
+                                  },
+                                  "note": {
+                                    "type": "string"
                                   }
                                 },
                                 "required": [
@@ -6325,6 +7492,25 @@
                             ],
                             "additionalProperties": false
                           },
+                          "chanda": {
+                            "type": "object",
+                            "properties": {
+                              "weekStart": {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                              },
+                              "amountPaise": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "weekStart",
+                              "amountPaise"
+                            ],
+                            "additionalProperties": false
+                          },
                           "video": {
                             "type": "object",
                             "properties": {
@@ -6655,6 +7841,150 @@
                   },
                   "required": [
                     "sections"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "HTTP 302"
+          }
+        }
+      }
+    },
+    "/api/v1/masjids/{id}/beneficiaries": {
+      "get": {
+        "summary": "Needy people a masjid lists, least-funded first — public fields only; `zakat=1` keeps the zakat-eligible (A23; per version, cached one day)",
+        "tags": [
+          "masjids"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,15}$"
+            },
+            "required": false,
+            "name": "v",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            },
+            "required": false,
+            "name": "zakat",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "people": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "publicId": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_-]{12}$"
+                          },
+                          "displayName": {
+                            "type": "string"
+                          },
+                          "category": {
+                            "type": "string",
+                            "enum": [
+                              "widow",
+                              "orphan",
+                              "disability",
+                              "illness",
+                              "elderly",
+                              "homeless",
+                              "debt",
+                              "student",
+                              "other"
+                            ]
+                          },
+                          "reason": {
+                            "type": "string"
+                          },
+                          "reasonLocale": {
+                            "type": "string",
+                            "enum": [
+                              "en",
+                              "hi",
+                              "ur",
+                              "te"
+                            ]
+                          },
+                          "vpa": {
+                            "type": "string"
+                          },
+                          "payeeName": {
+                            "type": "string"
+                          },
+                          "capPaise": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "receivedPaise": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "receivedUpdatedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          },
+                          "fundedPermille": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 1000
+                          },
+                          "zakatEligible": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "publicId",
+                          "displayName",
+                          "category",
+                          "reason",
+                          "reasonLocale",
+                          "vpa",
+                          "payeeName",
+                          "capPaise",
+                          "receivedPaise",
+                          "fundedPermille",
+                          "zakatEligible"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "people"
                   ],
                   "additionalProperties": false
                 }
@@ -7185,6 +8515,25 @@
                             "receivedPaise",
                             "startsOn",
                             "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "chanda": {
+                          "type": "object",
+                          "properties": {
+                            "weekStart": {
+                              "type": "string",
+                              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                            },
+                            "amountPaise": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "weekStart",
+                            "amountPaise"
                           ],
                           "additionalProperties": false
                         },
@@ -9750,6 +11099,25 @@
                                 ],
                                 "additionalProperties": false
                               },
+                              "chanda": {
+                                "type": "object",
+                                "properties": {
+                                  "weekStart": {
+                                    "type": "string",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                  },
+                                  "amountPaise": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "weekStart",
+                                  "amountPaise"
+                                ],
+                                "additionalProperties": false
+                              },
                               "video": {
                                 "type": "object",
                                 "properties": {
@@ -10761,9 +12129,838 @@
         }
       }
     },
+    "/api/admin/masjids/{masjidId}/payment": {
+      "get": {
+        "summary": "UPI details shown to followers now, and the change request in progress (B8)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPayment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/payment/requests": {
+      "post": {
+        "summary": "Ask to set or change the UPI details — live only after Super Admin approval and the hold (04 R1)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequested"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/campaigns": {
+      "get": {
+        "summary": "Donation drives — active, then completed, then closed (B8)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCampaignList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Start a donation drive — needs the masjid's active UPI details; at most 3 active (00 §4.3)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemPublished"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/campaigns/{id}": {
+      "patch": {
+        "summary": "Edit a donation drive — title, description, cover, end date; the target only upward (audited)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/campaigns/{id}/received": {
+      "post": {
+        "summary": "\"Update amount\": what the masjid reports received (a history row each time; notify optional)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignReceived"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignReceivedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/campaigns/{id}/complete": {
+      "post": {
+        "summary": "Mark a donation drive completed (it stays visible until it closes)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/chanda": {
+      "get": {
+        "summary": "Weekly chanda — settings and the latest weeks, newest first (B9)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminChanda"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/chanda/{weekStart}": {
+      "put": {
+        "summary": "Save a week's chanda total — the masjid's week-start day, not a future week; one feed item per week",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 10
+            },
+            "required": true,
+            "name": "weekStart",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChandaWeekSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChandaWeekSaved"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/chanda/settings": {
+      "patch": {
+        "summary": "\"Show chanda to followers\" (mirrored onto every week) and the day the week starts",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChandaSettings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/beneficiaries": {
+      "get": {
+        "summary": "Needy people: active (least-funded first), then fulfilled, then closed — never the private part (B19)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminBeneficiaryList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a needy person — only with `consentConfirmed: true` (≤ 100 active); the UPI details are audited",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BeneficiarySave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BeneficiarySaved"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/beneficiaries/{id}": {
+      "patch": {
+        "summary": "Replace a listed person’s details (consent confirmed again; a UPI change is audited old → new; `private`: object = replace, null = remove, absent = keep)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BeneficiarySave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BeneficiarySaved"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove a person — a mistake, or they asked to be removed (final; data purged 90 days later)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/beneficiaries/{id}/received": {
+      "post": {
+        "summary": "Update what the person has received (history row; reaching the cap fulfils and hides them)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BeneficiaryReceived"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BeneficiaryReceivedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/beneficiaries/{id}/close": {
+      "post": {
+        "summary": "Close a person — help is no longer needed (final; data purged 90 days later)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/beneficiaries/{id}/private": {
+      "get": {
+        "summary": "The person’s private phone / note, decrypted for an admin of this masjid (each view is audited)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BeneficiaryPrivateResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/videos": {
+      "get": {
+        "summary": "Bayans — published, removed by moderation, deleted; newest first (B10)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminVideoList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Publish a bayan from a YouTube link — only the id, start second and our thumbnail copy are kept",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemPublished"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/videos/preview": {
+      "post": {
+        "summary": "Check a pasted YouTube link: playable in other apps? Title and our copy of the thumbnail (B10)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoPreviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoPreview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/masjids/{masjidId}/videos/{id}": {
+      "patch": {
+        "summary": "Edit a bayan’s title, speaker and description within 24 h (If-Match: \"<updatedAt>\"; never notifies)",
+        "tags": [
+          "masjid"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "masjidId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemEdited"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/super/dashboard": {
       "get": {
-        "summary": "Pending activations, masjid counts, passkey clone alerts and admins' change requests (C1)",
+        "summary": "Pending activations, masjid counts, active donation campaigns, passkey clone alerts and admins' change requests (C1)",
         "tags": [
           "super"
         ],
@@ -12887,6 +15084,112 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/super/payments/pending": {
+      "get": {
+        "summary": "Open UPI change requests — pending and on hold — oldest first, with the live details (C4)",
+        "tags": [
+          "super"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperPaymentList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/payments/{id}/approve": {
+      "post": {
+        "summary": "★ Approve a UPI change — it goes live after the hold (PAYMENT_HOLD_MINUTES, ≥ 24 h in production)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentApproved"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/payments/{id}/reject": {
+      "post": {
+        "summary": "Turn down a UPI change — while pending, or during the hold to stop it (DECISIONS #146)",
+        "tags": [
+          "super"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 300
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "HTTP 204"
           }
         }
       }

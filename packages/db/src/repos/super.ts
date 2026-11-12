@@ -257,8 +257,9 @@ export async function getSettings(handle: DbHandle, scope: Scope): Promise<Recor
 export const PASSKEY_ALERT_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
 /**
- * C1 dashboard (Phase 1 part): pending activations, counts per masjid status, and how many passkeys were revoked in
- * the last 30 days because their sign counter went backwards (possible clone, 04 §3 — the push alert is Phase 4).
+ * C1 dashboard (Phase 1 part): pending activations, counts per masjid status, how many passkeys were revoked in
+ * the last 30 days because their sign counter went backwards (possible clone, 04 §3 — the push alert is Phase 4), and
+ * how many donation campaigns are active and visible to followers right now (T5.6).
  *
  * @throws StateError FORBIDDEN (not super).
  */
@@ -270,6 +271,7 @@ export async function getDashboard(
   pending: readonly MasjidRow[];
   counts: Readonly<Record<MasjidRow['status'], number>>;
   passkeyAlerts: number;
+  activeCampaigns: number;
 }> {
   requireSuperScope(scope);
   const db = await handle.db();
@@ -284,9 +286,17 @@ export async function getDashboard(
     (['pending', 'active', 'suspended', 'deleted'] as const).map((status) => masjids.count({ status })),
   );
   const { rows } = await listMasjids(handle, scope, { status: 'pending', limit: 20 });
+  // Index `campaign_status_ends` (partial: campaigns only).
+  const activeCampaigns = await scoped({ scope, db }, 'items').count({
+    type: 'campaign',
+    'campaign.status': 'active',
+    status: 'published',
+    masjid_visible: true,
+  });
   return {
     pending: rows,
     counts: { pending: pending ?? 0, active: active ?? 0, suspended: suspended ?? 0, deleted: deleted ?? 0 },
     passkeyAlerts,
+    activeCampaigns,
   };
 }

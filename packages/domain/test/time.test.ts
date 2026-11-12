@@ -5,6 +5,7 @@ import {
   addMonths,
   calendarDateInZone,
   compareCalendarDates,
+  daysBetween,
   daysInMonth,
   from12Hour,
   isCalendarDate,
@@ -53,6 +54,14 @@ describe('calendar dates', () => {
     expect(addDays('2026-03-01', -1)).toBe('2026-02-28');
     expect(addDays('2026-09-26', 0)).toBe('2026-09-26');
     expect(addDays('2026-09-26', 400)).toBe('2027-10-31');
+  });
+
+  it('daysBetween counts whole calendar days (negative when `to` is earlier)', () => {
+    expect(daysBetween('2026-11-10', '2026-11-10')).toBe(0);
+    expect(daysBetween('2026-11-10', '2026-12-31')).toBe(51);
+    expect(daysBetween('2026-12-31', '2027-01-01')).toBe(1);
+    expect(daysBetween('2027-03-01', '2027-02-28')).toBe(-1);
+    expect(() => daysBetween('2026-02-30', '2026-03-01')).toThrow(RangeError);
   });
 
   it('adds months clamping the day', () => {

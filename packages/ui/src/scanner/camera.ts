@@ -38,21 +38,6 @@ export async function nativeQrDetector(scope: object = globalThis): Promise<QrDe
   }
 }
 
-/**
- * The detector to scan with: native where it reads QR codes, else the WebAssembly fallback (lazy chunk, DECISIONS #94).
- *
- * @returns `null` only when the fallback chunk cannot be loaded (offline before it was ever cached).
- */
-export async function loadQrDetector(): Promise<QrDetector | null> {
-  const native = await nativeQrDetector();
-  if (native) return native;
-  try {
-    return (await import('./qr-fallback.ts')).fallbackQrDetector();
-  } catch {
-    return null;
-  }
-}
-
 export type CameraPermission = 'granted' | 'prompt' | 'denied' | 'unknown';
 
 /** The camera permission without asking (`unknown` where the Permissions API cannot tell). */

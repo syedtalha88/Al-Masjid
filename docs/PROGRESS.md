@@ -7,18 +7,213 @@
 
 | Phase | Title | Status | Report | Owner verified on |
 |---|---|---|---|---|
-| 00 | Foundation, tooling & design system | **Accepted by the owner** — closure: report final, V-31 done; waiting for owner 0.15/0.16 + #79 (DECISIONS #62) | [final](reports/PHASE_00_REPORT.md) | 16 Oct 2026 |
+| 00 | Foundation, tooling & design system | **DONE** — closure complete 10 Nov 2026: #79 re-confirmed, 0.15/0.16 skipped by the owner (DECISIONS #62, #150) | [final](reports/PHASE_00_REPORT.md) | 16 Oct 2026 |
 | 01 | Database, security core, passkey auth, Super Admin | **DONE** (owner tested 1.1–1.12 on staging, 22 Oct 2026) | [final](reports/PHASE_01_REPORT.md) | 22 Oct 2026 |
 | 02 | Musalli app core (follow, timings, feed, offline, install) | **DONE** (owner tested the Phase 02 checks on staging `cdd39fa`, incl. a low-end device, 27 Oct 2026) | [final](reports/PHASE_02_REPORT.md) | 27 Oct 2026 |
-| 03 | Masjid Admin content tools | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`, with Phase 04); owner: O25 rest (photos / voice), O39, then O27 + O26 | [report](reports/PHASE_03_REPORT.md) | – |
+| 03 | Masjid Admin content tools | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`, with Phase 04); O39 PASS + O27 OK (10 Nov 2026); left: O25 rest (photos 3.7 / voice 3.14) + O26 (usability) — #150 | [report](reports/PHASE_03_REPORT.md) | – |
 | 04 | Push notifications | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`); T4.6 acceptance = the owner's O38 (real phones) | [report](reports/PHASE_04_REPORT.md) | – |
-| 05 | Donations, chanda & UPI change-lock | NOT STARTED | – | – |
-| 06 | Bayan videos | NOT STARTED | – | – |
+| 05 | Donations, chanda & UPI change-lock | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): CI green on `997a914`, phase-verifier findings fixed, security re-review clean. Waiting: O43 → merge to `main` / staging → O45 → O50 (guide 5.1–5.22) + O28 | [final](reports/PHASE_05_REPORT.md) | – |
+| 06 | Bayan videos | **IN PROGRESS** — started 13 Nov 2026 on `feat/phase-06` (autopilot, DECISIONS #162): T6.1 + T6.2 server done | – | – |
 | 07 | Qibla compass | NOT STARTED | – | – |
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (9 Nov 2026, evening — Phases 03 + 04 on staging, AWAITING OWNER VERIFICATION)
+## ▶ Next session — start here (13 Nov 2026 — autopilot: Phase 05 closing, then Phase 06)
+
+**Owner rule (DECISIONS #162, 12 Nov 2026):** close each phase when our own checks pass, list every owner step in
+`owner/MY_PENDING_TASKS.md` at once, and move straight on to the next phase — never stop at "awaiting owner".
+
+**State:** `main` = **`a6f2969`** (empty commit that restarted CI after GitHub left jobs queued — O47 solved; billing
+fine, public repo = free CI). Its run: security scans, integration, unit, typecheck, CodeQL ✅; build/e2e was still
+running at this note → when green, "Release to staging" ships F61 → check `/health` on both origins → remove
+`infra/trivy/mc-server.trivyignore.yaml` + the Nightly `--ignorefile` (#155) **by 15 Nov**.
+
+**Done now:** owner answered O46 (yes to a–d) → **#161 / F69 built**: UPI change requests by owners only
+(`PAYMENT_OWNER_ONLY` 403), other owners alerted (`payment_request_owner`), every owner alerted on approval / rejection
+/ activation, removal or session / passkey revocation closes the admin's open request in the same transaction
+(`reject_code: requester_removed`, migration `0022_payment_reject_code`, B8 text ×4). F68 → Phase 8, F70 → Phase 9.
+
+**Next (Phase 05 close-out):** security-reviewer re-run on R1 (#161 diff) → push `feat/phase-05` to `ci/phase-05`
+and act on CI → `pnpm verify` → report final → merge Phase 05 into `main` → mark Phase 05 `DONE — owner checks
+pending` (O43 Atlas roles + staging deploy, O28 ₹1 tests, O45, guide 5.1–5.20) → **start Phase 06** (bayan videos).
+
+**Earlier update the same day:**
+- **`main` = `a30f9f8`** (test-only: the deploy-test annotation + voice spec fix, built on `de50397` with a temporary
+  index — the commit hook breaks in a worktree whose path has a space). Its CI run (43089866763) was still in the e2e
+  job at this hand-off. **Green → "Release to staging" ships F61**; check `/health` on both origins, then remove the
+  Trivy ignore file + the Nightly `--ignorefile` (#155) before 15 Nov. Red → read the job annotations.
+- **`feat/phase-05` = `ci/phase-05` = `d3c4379`**: T5.7 admin screens ×4 (`eeae856`), security review fixes
+  (`242ff05`, DECISIONS #160 — M1, M3, M4, M2 text, L1, L6, L8; migration 0021), docs (`d3c4379`). CI started for it.
+- **Running at hand-off:** `phase-verifier` on Phase 05 (its findings are not yet recorded — re-run it if lost).
+- **Owner:** new **O46** (three security decisions — the R1 exit criterion depends on them), plus O44, O45.
+- **T5.7 left:** owner answers (O46 → F68 / F69 work if accepted), phase-verifier findings, `pnpm verify`, the
+  Phase 05 report (`docs/reports/PHASE_05_REPORT.md`; the A10 vs ref-3 comparison is noted: same structure; no seed
+  cover photo, "Received (reported by masjid)" + "Last updated" per spec, heart icon instead of a UPI-app logo).
+- Local notes: an api `test:int` run can lose one worker (exit 3221226505) — re-run that file alone. Raw bidi
+  characters in source: run the scratchpad `escape_bidi.py` (Prettier / the editor turn `⁦` escapes into raw
+  characters).
+
+## ▶ Hand-off (12 Nov 2026 — Phase 05: every build task done, F65 closed; left: T5.7 quality gates; `main` CI is RED → F61 not on staging)
+
+**State:** `feat/phase-05` = `ci/phase-05` = this hand-off commit (after `e1ba603`). Phases 03 + 04 **AWAITING OWNER
+VERIFICATION**. Phase 05 not deployed. **Staging runs `13d1031`** (app `/health` checked 12 Nov) — **not** `de50397`.
+
+**Done this session:**
+- Last night's red CI on `ci/phase-05` fixed in tests (`2df8d6d`): the needy spec's axe read two CSS state fades (Save
+  button, chip), the voice spec hung on a Play button that turned disabled (F59 family). Both passed locally after.
+- **T5.9 My zakat** (`2f11990`, #158) — ticked; details in the checklist.
+- **F65 closed** (`e1ba603`, #159) — admin alerts stop with the session; migration `0020_admin_push_session`.
+  Local: db int 368, api int 372, `db:schema:check` clean, app unit 228, visual 24/24, `pnpm size` green.
+
+**Check first (in this order):**
+1. **`main` `de50397` CI run 43050725455 FAILED** in "Security scans" → step "VPS deploy — verification, rolling,
+   rollback…" (`infra/vps/test/deploy-verify.test.sh`), so "Release to staging" was skipped and **F61 is not on staging;
+   the Trivy ignore expires 15 Nov.** The last hand-off wrongly said this run was green. The same step failed on two
+   `ci/phase-05` runs that evening and **passed** on `2df8d6d` the next day with no change to that code; the test also
+   passes locally (50/50) — so the cause was outside the repo (most likely `apt-get` inside the test container). The
+   test now prints its failure as a GitHub annotation (readable without a login). **Do:** get `main` green — merge
+   `feat/phase-05`'s commit `2df8d6d` is not on `main`, so the simplest is a new commit on `main` (cherry-pick
+   `2df8d6d`, test-only) and push → CI → "Release to staging" → `/health` shows the new release on both origins. Then
+   delete `infra/trivy/mc-server.trivyignore.yaml` and the Nightly deployed-image job's `--ignorefile` + sparse
+   checkout (#155). If the step fails again, read the annotation (`check-runs/<job id>/annotations`).
+2. CI of `ci/phase-05` for this hand-off commit (run 43084043680 on `2df8d6d` was still in its e2e step at hand-off:
+   Security scans, unit, integration, typecheck already green). Red → fix first. Known flaky under load, passes
+   alone: `packages/ui/test/admin-publish.test.tsx` (PreviewFrame language switch) — if CI shows it, raise its wait.
+3. Nightly: "CDN caches versioned API responses" fails — that is the owner's O23 (Cloudflare cache rule), not code.
+
+**Do next:**
+1. Owner (#150): O25 rest, O26 (Phase 03), O38 (Phase 04), O23 — ask whether they found something; those fixes come
+   first. **New for the owner:** confirm #159's 30 days (Super Admin alert window) and #158's "ask only for
+   zakat-eligible people"; before O38 open the admin app once on each phone (re-links its alert subscription).
+2. **T5.7 quality gates** (the only Phase 05 task left):
+   - `e2e/admin/screens.spec.ts`: add the Phase 05 admin screens × 4 locales before the `/account` shot — plan worked
+     out: `/payment` (`[data-payment-form]`) → request via `POST …/payment/requests {vpa, payeeName, note}` →
+     `[data-payment-waiting]`; Super `/super` (`[data-change-requests]`) and `/super/payments` (`[data-payment-row]`,
+     approve with the `payments.checkCommittee` / `checkName` / `approve` labels + step-up, poll the admin
+     `GET …/payment` for `approved_on_hold`); activate with the test hook as `payment.spec.ts` does (`PUT /test/clock`
+     + `POST /test/payment-activate`, inside a `toPass` — parallel locales share api-admin's clock); `/donation` empty →
+     `POST …/campaigns` → `[data-drive]`, the Update amount sheet (`donation.updateAmount`), `/donation/new`
+     (`[data-drive-editor]`); `/chanda` (`[data-chanda]`) → `PUT …/chanda/<latest Friday>` → `[data-chanda-row]`;
+     `/needy` (`[data-needy]`) → `POST …/beneficiaries` → `[data-person]`, `/needy/new` (`[data-needy-editor]`).
+   - Full e2e journey 9 + T5.8 / T5.9 journeys on CI (Pixel 7 local: zakat 6/6, needy, voice green); budgets; axe.
+   - `security-reviewer` on the Phase 05 diff — focus R1 (payment flow; exit criterion: no finding of any severity)
+     and R13 (needy people), plus F65 (#159). `phase-verifier` on `PHASE_05_DONATIONS_CHANDA.md`. Fix findings.
+   - `pnpm verify`, then `docs/reports/PHASE_05_REPORT.md` (side-by-side vs ref-3/4 + ref-2/3 for T5.4).
+3. Phase 05 to staging only after 03 + 04 are verified or with the owner's OK; **O43** (Atlas roles) first — the roles
+   file did not change with F65. Migrations 0018–0020 run on deploy.
+
+**Local notes (new):** a command that pipes the VPS test container's output (`docker run … | tail`) never ends — the
+test's background HTTP server keeps the pipe open; redirect to a file inside the container. Git Bash heredocs break on
+quotes in Python code — write the script to the scratchpad with the Write tool and run `python -I <file>`. The local
+stack was rebuilt with T5.9 (not with F65 — rebuild before admin e2e: `pnpm stack:up:test`, `pnpm db:seed`).
+
+## ▶ Previous hand-off (11 Nov 2026, night — T5.8 done; its "F61 is on `main`, CI green" was wrong: see above)
+
+**State:** `main` = `de50397` (= `863e064` + the F61 base-image fix, fast-forwarded 11 Nov night after its CI run was
+green; pushed → "Release to staging" redeploys the same app on the patched base image). Phases 03 + 04 **AWAITING OWNER
+VERIFICATION**. Phase 05 on `feat/phase-05` (`main` merged in), not deployed.
+
+**Done this session:** both CI runs of the last hand-off were green → F61 onto `main`; **T5.8 part 2** (#157 — admin
+B19, musalli A23 + pay sheet, strings ×4, seed, e2e, visual baselines, owner guide 5.14 – 5.17). T5.8 is ticked.
+
+**Check first:**
+1. CI of `main` `de50397` (run 43050725455) and "Release to staging"; staging `/health` on both origins. When staging
+   runs the new image: delete `infra/trivy/mc-server.trivyignore.yaml` and the Nightly deployed-image job's
+   `--ignorefile` + sparse checkout (#155). Must be done by 15 Nov.
+2. CI of `ci/phase-05` (the T5.8 part 2 push). Red → fix first.
+
+**Do next:**
+1. Owner (#150): O25 rest, O26 (Phase 03), O38 (Phase 04), O28, O31 — ask whether they found something; those fixes
+   come first. O43 (Atlas roles) before Phase 05 is deployed.
+2. **T5.9 My zakat** (A24, device only): device document `zakat` (schema-versioned, part of Clear all data), Settings
+   row + screen, "Log this in My zakat?" after "Pay with UPI" on A23 (`features/needy/NeedyScreen.tsx` `PaySheet` —
+   the page comes back from the UPI app: `visibilitychange`), network assertion e2e.
+3. **F65** (admin alerts stop with the session) — before Phase 05 reaches staging.
+4. **T5.7 quality gates:** admin B8 / B9 / `/payment` / C4 / C1 e2e + screenshots ×4 (B19 has its journey; add it to
+   `screens.spec.ts`), security-reviewer on R1 + R13, phase-verifier, the report.
+
+**Local notes (new):** after `pnpm test:visual:update`, restore only the unchanged **PNG** files — `git checkout` on
+every modified path also reverts the edited spec (it happened; two runs wasted). After `pnpm stack:up:test` do **not**
+`git checkout` the `routeTree.gen.ts` files when routes were added. Radio cards in e2e are tapped by their text.
+
+## ▶ Previous hand-off (11 Nov 2026, evening — T5.8 half done)
+
+**State:** `main` = staging = `863e064` (+ docs) — Phases 03 + 04 **AWAITING OWNER VERIFICATION**. Phase 05 on
+`feat/phase-05` (DECISIONS #145), not merged or deployed (staging only after 03 + 04 are verified, or with the owner's OK).
+
+**Done 11 Nov 2026:** T5.6 (#154); F61 on the branch (#155); **T5.8 part 1** (#156 — data layer, API, retention job;
+see the checklist for what is left).
+
+**CI:** `ci/phase-05` = `b19dd83` (T5.6 + F61) — its run (id 42979146713) had every job green except the long
+build / e2e job, still running at hand-off. `feat/phase-05` is ahead of it (T5.8 part 1, not pushed to `ci/phase-05`
+on purpose — a push cancels the running job). **First thing next session:** read that run's result, then push
+`feat/phase-05` to `ci/phase-05`.
+
+**F61 on `main` — owner said yes (11 Nov 2026: "do whichever you recommend").** Branch `ci/f61-base-image` (`de50397`
+= `main` + only the base-image fix); its CI run (id 42979141183) was in the same state — all green but the long job
+still running. **When it is green: merge `ci/f61-base-image` into `main` and push** (staging redeploys with the new
+base image; watch "Release to staging" and `/health`), then merge `main` into `feat/phase-05`. After staging runs the
+new image: delete `infra/trivy/mc-server.trivyignore.yaml` and the Nightly deployed-image job's `--ignorefile` +
+sparse checkout. Must be on `main` before 15 Nov.
+
+**Audit (#153):** F65 (admin alerts after a session ends) before Phase 05 reaches staging. New owner task **O43**
+(Atlas roles for the two new collections + view — before Phase 05 is deployed; then `deploy.sh staging --verify-roles`).
+
+**Do next:**
+1. Session start protocol. Owner (#150): still open O25 rest, O26 (Phase 03), O38 (Phase 04), O28 later, O31
+   volunteers — ask whether they found something; those fixes come first.
+2. CI results (above) → F61 merge into `main` → push `feat/phase-05` to `ci/phase-05`.
+3. **T5.8 part 2** (list in the checklist): start with the musalli A23 screen (07 A23) and the admin B19 screen (07
+   B19); patterns to copy — admin `features/campaign` (list + NumberPad sheet with live %) and `features/contacts`
+   (form with the consent tick), musalli `features/campaigns` (QR sheet, `upi-actions`).
+4. T5.9 My zakat, **F65**, then T5.7 quality gates (admin B8 / B9 / B19 / `/payment` / C4 / C1 e2e + screenshots ×4,
+   security-reviewer on R1 + R13, phase-verifier).
+
+**Local notes:** one-off edits of non-ASCII files: write a Python script to the scratchpad and run it with `python -I`
+(write with `newline=''`, or the files turn CRLF). `apps/*/src/routeTree.gen.ts` regenerates on `vite build`. After
+app/UI changes run `pnpm stack:up:test` (rebuilds the web image) and `pnpm db:seed` before e2e. `pnpm
+test:visual:update` rewrites *every* baseline (also unchanged ones, with invisible pixel noise): afterwards `git
+checkout` the modified ones and run `pnpm test:visual` to prove them; then `pnpm db:reset`. The e2e DNS shim
+(`localhost-shim.cjs`) lives in older session scratchpads — copy it. WebKit e2e on this PC: unreliable — use pixel-7
+locally, CI for iphone-14. If Docker says "unable to start": `docker desktop restart`.
+
+## ▶ Previous hand-off (9 Nov 2026, night — Phase 05 T5.1–T5.3)
+
+**State:** `main` = staging = `863e064` (+ docs commits) — Phases 03 + 04 live, **AWAITING OWNER VERIFICATION**.
+Phase 05 started early on the owner's instruction (**DECISIONS #145**) on branch **`feat/phase-05`** (pushed; branched
+from `feat/phase-04` = `main`). Nothing of Phase 05 is merged or deployed — it goes to staging only after 03 + 04 are
+verified, or with the owner's OK.
+
+**Phase 05 so far (details in the checklist below):** T5.1 done · T5.2 built (change-lock: data, API, worker
+`payment-activate`, admin B8 `/payment` + C4 `/super/payments`; #146; #147 owner: Android-only UPI-QR scan, admin CSP
+unchanged) — left: e2e journey 9 part 2, written with T5.4 · T5.3 done (#148: campaigns data, API, worker
+`campaign-close`, admin `/donation` + `/donation/new`, Home tile live). Tests green at hand-off: domain 211, db int 324
+(+ `campaigns.int` 9, `payment.int` 14), api int 352 (+ `campaign-routes.int` 6, `payment-routes.int` 5), api unit
+180, shared 193, admin unit (payment 6, campaign 5, tiles). i18n check passes (review CSVs regenerated, ~1,530 draft
+strings per locale for O31). OpenAPI regenerated. **Not yet run in a browser:** admin `/payment`, `/super/payments`,
+`/donation`, `/donation/new` — no e2e / screenshots yet (planned in T5.7 with journey 9).
+
+**Do next:**
+1. Session start protocol (CLAUDE.md §3); ask the owner whether any Phase 03/04 check (O39, O25, O27, O26, O38) found
+   something — those fixes come first (on `feat/phase-04` → `main`, then merge `main` into `feat/phase-05`).
+2. Check the Nightly runs since 9 Nov (Trivy + staging headers on `863e064` — expected green now).
+3. **T5.4 — Campaigns (musalli):** A10 list + detail per spec and refs ref-3/4 + ref-2/3 (hero, status pill,
+   AmountPair "Received (reported by masjid)", ProgressBar fill-on-view, count-up, last-updated line, MetaRow, About,
+   Donate Now → `buildUpiUri` (fallback to the QR sheet when no UPI app: `visibilitychange` not within 1.5 s), Show UPI
+   QR sheet (payee, VPA copy, QR, Save QR — iOS Web Share file / Android download, hints, "changed recently" from
+   `bundle.payment.effectiveAt`), disclaimer ×4, closed state (visible 30 days); public campaign reads (bundle
+   `campaigns` is still `[]` — wire it) + Masjid Detail row + Home/Updates entries; QR generator lazy (budget). Then
+   journey 9 part 2 (needs a way to trigger `payment-activate` in the runtime-test stack — e.g. a worker test hook or a
+   1-minute schedule under E2E_TEST_HOOKS; api-admin's clock is settable via `PUT /test/clock`).
+4. Then T5.5 chanda (`setShowChanda` is still a stub in `state/later.ts`), T5.6, T5.8 needy people, T5.9 My zakat,
+   T5.7 quality gates (security-reviewer focused on R1; admin e2e + screenshots ×4 locales; phase-verifier).
+
+**Local notes:** one-off edits of non-ASCII files: write the Python script to the scratchpad and run it with
+`python -I` (Git Bash heredocs mangle backslash-u escapes; the console cannot print Indic text). The Write tool turns a
+backslash-u2028 escape into a raw character inside regex literals — escape such characters afterwards (scratchpad
+`escape_invisible.py` did it). `apps/admin/src/routeTree.gen.ts` regenerates on `vite build`.
+
+## ▶ Previous hand-off (9 Nov 2026, evening — Phases 03 + 04 on staging, AWAITING OWNER VERIFICATION)
 
 **Done 9 Nov 2026 (evening):** CI on `f2d31af` was red in the e2e push step only — onboarding page 7 ×4 locales: the
 loop re-read privacy "Continue" before the async consent save advanced the pager, and Playwright keeps a still-attached
@@ -35,7 +230,7 @@ app + admin `/health` = `863e064`, db + redis ok; admin Permissions-Policy has `
 2. Wait for the owner: **O39** (`deploy.sh staging --verify-roles` — must PASS now), O25 rest (Cloudinary templates +
    strict mode, before photos / voice), then **O27** (Phase 03 checks), **O26** (usability), **O38** (Phase 04 real
    phones; T4.6 acceptance). Fix whatever they find; on their OK mark Phases 03 + 04 DONE.
-3. Do **not** start Phase 05 until the owner confirms (CLAUDE.md §3).
+3. ~~Do not start Phase 05 until the owner confirms~~ — the owner said start it (DECISIONS #145, 9 Nov 2026).
 
 ## ▶ Previous hand-off (9 Nov 2026, morning — Phase 04: merge to main when CI on `f2d31af` is green)
 
@@ -328,7 +523,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O3 | **Log-archive key**: `age-keygen` on the PC, public key → `/etc/masjid-connect/log-archive.pub` (T0.14 plan step 3) | The daily log archive (CERT-In 180 days) fails until it exists | 5 min | **done 16 Oct 2026** (hourly archive runs with the key) |
 | O4 | **DECISIONS #58** — showcase on staging: yes (recommended) / no | Owner checks 0.3–0.5 on the phone | 1 answer | **answered 15 Oct 2026: yes (option A)** — implemented 16 Oct 2026 (DECISIONS #58 accepted) |
 | O5 | **F27** — web-font strategy (warm-start re-layout) | Warm-start smoothness on low-end phones | 1 answer | **answered 15 Oct 2026: keep `swap`** |
-| O6 | Owner checks **0.15** (branch ruleset), **0.16** (failing PR is blocked), **0.17** (production reviewer); 0.18 Sentry optional | Phase 00 closure (DECISIONS #62) | 15 min | **0.17 done 20 Oct 2026** (production: required reviewer + branch `main` + "Allow administrators to bypass" unticked — review L8 closed). **0.15/0.16 pending — do last** (after that, `main` changes only via PRs) |
+| O6 | Owner checks **0.15** (branch ruleset), **0.16** (failing PR is blocked), **0.17** (production reviewer); 0.18 Sentry optional | Phase 00 closure (DECISIONS #62) | 15 min | **0.17 done 20 Oct 2026** (production: required reviewer + branch `main` + "Allow administrators to bypass" unticked — review L8 closed). **0.15/0.16 skipped by the owner 10 Nov 2026 (#150)** — no branch ruleset for now; merges to `main` only after green CI |
 | O7 | Phone checks **0.1–0.14** incl. **F17** (iPhone swipe-back) | Phase 00 owner verification | 30 min | **passed** (16 Oct 2026: 0.1, 0.3–0.12, 0.14 on iPhone + Poco F7; 0.2/0.13 verified in T0.14; 20 Oct 2026 owner: "mobile testing is working fine" — incl. F17). **Still open: design notes** — owner: "minor improvements, I'll tell later" (incl. the black top strip and the Scan-button ring from PHASE_00_REPORT §4.1) |
 | O8 | **Phase 1 accounts** (F31): MongoDB Atlas `mc-staging` + DB users, real Turnstile widget; later Cloudinary API keys (Phase 3), Cloudflare purge token (Phase 3/8) | Replace the staging placeholders when those phases need them | per phase | **Atlas done 16 Oct 2026**. **Turnstile widget created 20 Oct 2026** (`app-staging.almasjids.com`, Managed); site key (public) `0x4AAAAAAFch5ViHreqwA9Mu`; the secret is in the owner's password manager. **Switch over together, when Phase 2 first verifies tokens:** owner sets the GitHub `staging` environment variable `VITE_PUBLIC_TURNSTILE_SITE_KEY` to that key **and** puts the secret into `TURNSTILE_SECRET` of the staging api env files on the server (never via chat) — not one without the other. Cloudinary / purge token: later phases |
 | O9 | **Latency test** VPS → Atlas Mumbai | Phase 00 closure V-21 (T0.14 step 5) | 1 min | **done 20 Oct 2026.** curl `time_connect` per shard ×3: 0.200/0.170/0.179 · 0.009/0.181/0.174 · 0.182/0.009/0.171 s. `time_connect` includes the DNS lookup, so the two 9 ms runs (name cached) show the network round trip ≈ **9 ms** and the ~170 ms runs are DNS. Target in PHASE_00 T0.14 is ≤ 5 ms → see V-21 (drivers keep pooled connections, so DNS is paid once per connection, not per query). Optional confirmation: the same loop with `-w "$h dns %{time_namelookup}s connect %{time_connect}s\n"` |
@@ -349,8 +544,15 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O22 | ~~Host-layer update on the VPS~~ | F36, F37, F40, L-5, #86 L5 | – | **done 22 Oct 2026** — `provision.sh host aa2d1ac` (checksum confirmed), `make-env.sh staging --force`, Redis restarted; `--verify-roles` 17/17, `check.sh` 114 PASS · 0 FAIL · 2 WARN (evidence `docs/reports/evidence/PHASE_01_T1.1_verify-roles_2026-10-22.txt`, `PHASE_01_T1.12_check-sh_2026-10-22.txt`) |
 | O25 | **Cloudinary for staging** (strict transformations, 6 image + 1 audio named transformations, 2 API keys into the VPS env files, `media-staging` DNS) — steps at T3.6 | Phase 03 staging deploy (images, voice notes) | 20 min | open — not blocking local work |
 | O26 | **Usability check T3.12** with a real masjid person (5-task script) | T3.12 / Phase 03 exit | 30 min | end of Phase 03 |
-| O27 | **Phase 03 checks on staging** (`owner/PHASE_TESTING_GUIDE.md` → Phase 03) | Phase 03 DONE | 45 min | end of Phase 03 |
+| O27 | **Phase 03 checks on staging** (`owner/PHASE_TESTING_GUIDE.md` → Phase 03) | Phase 03 DONE | 45 min | **OK — owner, 10 Nov 2026** (photos / voice wait for O25) |
 | O28 | **UPI ID for a ₹1 test** | Phase 05 exit | 5 min | Phase 05 |
+| O44 | **Two answers (12 Nov 2026):** (a) #159 — the Super Admin's phone keeps getting alerts for **30 days** after the admin app was last used on it (sign-out stops them at once): OK, or shorter? (b) #158 — "Log this in My zakat?" is asked only after paying a person the masjid marked **zakat-eligible**: OK, or ask for everyone? | F65 / T5.9 defaults stand until answered | 2 answers | open — not blocking |
+| ~~O47~~ | GitHub Actions jobs stayed queued (12 Nov 2026) — **solved**: billing fine (public repo, $0); an empty commit `a6f2969` on `main` started a fresh run that got machines | – | – | ✅ 12 Nov 2026 |
+| ~~O46~~ | Phase 05 security decisions (#160) — **owner: yes to (a)–(d)** → DECISIONS #161 | – | – | ✅ 12 Nov 2026 |
+| O48 | Real Cloudflare **Cache Purge** token + zone id in the staging worker env (#164) | deleted posts' media purge | 10 min | before May 2027 |
+| O49 | **Phase 06 checks** on staging (guide Phase 06 — real Unlisted / Public links, sisters only, weak network) | Phase 06 exit | 20 min | after Phase 06 is on staging |
+| O50 | **Phase 05 checks** on staging (guide 5.1–5.22) with the ₹1 test O28 | Phase 05 exit | 60 min | after O43 + deploy |
+| O45 | **Open the admin app once on each phone that should get alerts** (after Phase 05 is on staging) | F65: older alert subscriptions are no longer used; opening the app links the phone again | 1 min | before O38's alert checks on the Phase 05 build |
 | O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | Phase 07 (map-tile decision dropped — #118) |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
 | O31 | **Translation review** of `packages/i18n/review/{hi,ur,te}.csv` (≈ 920 draft strings each) | pilot | translators | before pilot |
@@ -360,7 +562,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O34 | **Legal checklist** `owner/LEGAL_THINGS_I_NEED_TO_DO_MYSELF.md` | pilot | — | before pilot |
 | O37 | ✅ **Done 9 Nov 2026** (owner: the keys match) — **VAPID keys on staging** — `VAPID_PUBLIC_KEY` in `/etc/masjid-connect/staging/worker.env` must equal the GitHub `staging` variable `VITE_PUBLIC_VAPID_PUBLIC_KEY`; back up `VAPID_PRIVATE_KEY` (password manager; F31) | Phase 04 staging deploy — a mismatch means no push reaches any phone | 10 min | before the Phase 04 deploy |
 | O38 | **Real-device push checks** — Android + installed iPhone: turn on, receive a notice in the phone's language, tap opens it; admin "Alerts on this phone" + Super Admin test alert | Real subscription + push-service delivery (headless e2e cannot cover them — DECISIONS #139); T4.6 owner check | 20 min | Phase 04 owner verification |
-| O39 | **Database privilege check after the Phase 03 + 04 deploy** — on the server: `sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles`; send Claude Code the whole output (no secrets in it) | The new collections / views of migrations 0013–0017 must now PASS (O36 showed only the expected `extra` lines on the old release) | 5 min | now (staging live 9 Nov 2026) |
+| O39 | **Database privilege check after the Phase 03 + 04 deploy** — on the server: `sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles`; send Claude Code the whole output (no secrets in it) | The new collections / views of migrations 0013–0017 must now PASS (O36 showed only the expected `extra` lines on the old release) | 5 min | **PASS — owner, 10 Nov 2026** |
 
 ## Current phase task checklist
 
@@ -472,6 +674,138 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   fixed (#142, #143). **Done 9 Nov 2026:** CI green on `660c950` (`ci/phase-04`) and on `main` `863e064` after two
   CI-only e2e races were fixed in the tests (`dd2a557` onboarding page 7, `660c950` mute toast); the tests listed in DECISIONS #143
 
+### Phase 05 — started 9 Nov 2026 (owner's instruction, DECISIONS #145; branch `feat/phase-05`)
+
+- [x] T5.1 — UPI domain module (test-first) — `packages/domain/src/upi.ts`: `isValidVpa` (= the DB validator + ≤ 100;
+  agreement test in `db/test/schema.test.ts`), `normalizeVpa`, `buildUpiUri` (RFC 3986 incl. `!'()*`, UTF-8, control /
+  bidi characters dropped, joiners kept, ≤ 50 code points cut between graphemes, never `am`), `parseUpiUri` (`upi://pay`
+  only, exactly one valid `pa`, `pn`/`tn` cleaned ≤ 100, ≤ 2048 chars, never throws); 19 tests incl. fast-check
+  round-trip + injection; 100 % lines/branches; mutation-checked (duplicate `pa`, invisible strip)
+- [x] T5.2 — Payment profile workflow (R1 change-lock) — **done 10 Nov 2026** (built 9 Nov; #146, #147, #151). Data layer
+  `state/payment.ts` (#146: reject also during the hold; the "Payment details updated" notice locked; audit without
+  VPA), reads `repos/payments.ts`, bundle `payment`; API `routes/payments.ts`; worker `payment-activate` every 10 min;
+  admin B8 (`/payment`) and C4 (`/super/payments`); QR camera in `@mc/ui/scanner` (Android-only on admin — #147).
+  Tests: domain 19, db `payment.int` 14, api `payment-routes.int` 5, admin unit 6, **e2e journey 9 part 2**
+  (`e2e/admin/payment.spec.ts` — two requests through B8, two ★ approvals through C4, +23 h old / +24 h new on
+  api-admin's clock via the `payment-activate` test hook, the follower's QR sheet + notice; mutation-checked).
+  Owner guide Phase 05 rows 5.1–5.3, 5.7, 5.12. **At T5.7:** security-reviewer re-checks R1 (acceptance item).
+- [x] T5.3 — Campaigns (admin) — 9 Nov 2026 (#148): `state/campaigns.ts` + `repos/campaigns.ts`, routes
+  `routes/campaigns.ts`, worker `campaign-close` 00:10 IST, 7 error codes ×4; admin B8: Home "Donation Drive" tile
+  (shown in production now — tiles show when built: `route !== null`, `CURRENT_PHASE = 5`) → `/donation` (progress,
+  "Update amount" NumberPad sheet with live %, notify off, Mark completed, "New drive" ≤ 3 active, "Set up your
+  masjid's UPI first" → `/payment`) and `/donation/new` (purpose cards, title suggestions, description, NumberPad
+  target, dates, cover with ownership tick, preview, notify, Publish). Acceptance: ≤ 3 active (db race test + API 409),
+  history append-only (T1.3 privilege test), every validation rule (api `campaign-routes.int` 6, db `campaigns.int` 9,
+  mutation-checked), admin unit 5 + tiles. **Not yet run in a browser:** the admin B8 / `/payment` / C4 screens get their
+  e2e + 4-locale screenshots at T5.7 (with journey 9).
+- [x] T5.4 — Campaigns (musalli) — 10 Nov 2026 (#149): A10 list (`/masjid/:id/campaigns`, CampaignCards active →
+  completed → closed, closed ones 30 days) and detail (in `/items/:publicId` — so Updates, Home, pushes and `/p/` links
+  open it): cover + status pill, overlapping sheet, count-up "Received (reported by masjid)" vs Goal, bar fills on view
+  + %, "Last updated … by masjid admin", Started · Ends · Purpose, About, Donate Now (exact `upi://pay` link of the live
+  bundle `payment`; no UPI app within 1.5 s → QR sheet), Show UPI QR Code (lazy 4.2 kB sheet: payee, UPI ID + Copy, QR
+  via `lean-qr` fading/scaling in, Save QR — iOS share sheet / download, gallery hint, "Payment details changed on …"
+  for 30 days, check-the-name hint), closed banner, the "no money through us" note ×4. Bundle `campaigns` wired (active
+  ids). Seed masjid Delta `TESTD004` (#149). Tests: ui `qr` 4 (ZXing decode round-trip), `campaign-view` 5,
+  `campaign-card` 6; app `upi-actions` 6; domain `daysBetween` (+ property); db `campaigns.int` public reads; e2e
+  `campaigns.spec.ts` 9/9 Pixel 7 (exact link intercepted, QR fallback, Save QR PNG, closed, 4 locales + axe). Side-by-
+  side with ref-3/4 + ref-2/3: captures `test-results/screens/pixel-7/<locale>/campaign*.png` (report at phase close).
+  **Left for CI:** iphone-14 (this PC's WebKit shows its error page for these screens, as for settings.spec — known).
+  Visual baselines (`pnpm test:visual`) for A10 with T5.6.
+- [x] T5.5 — Chanda — 10 Nov 2026 (#152): `@mc/domain/chanda` (week maths, 8-week window), migration
+  `0018_chanda_items` (item `chanda {chanda_week_id, week_start, amount_paise, visible}`; `v_pub_items` drops hidden
+  chanda items), `state/chanda.ts` (`setChandaWeek` — one item per week, `setChandaSettings`, `setShowChanda` with
+  both mirrors; the `later.ts` stub is gone), `repos/chanda.ts`, bundle `chanda` (null while hidden, else ≤ 8
+  weeks), admin API `GET /masjids/:id/chanda`, `PUT …/chanda/:weekStart`, `PATCH …/chanda/settings` (OpenAPI
+  regenerated; errors `CHANDA_INVALID` 400, `CHANDA_HIDDEN` 409 ×4 locales). Admin B9 `/chanda` (Home tile live):
+  show switch with its explanation, week start Friday / Monday, week choices, NumberPad, note, notify (off; disabled
+  while hidden), history. Musalli A11 `/masjid/:id/chanda`: this / latest week card with CountUp, note, ChandaChart
+  (HTML bars as buttons, mirrored by the page direction), "Reported by masjid admin."; Masjid Detail row only while
+  shown; `chanda_update` item detail links to A11. **Acceptance:** hidden chanda never public — db int 8 (both views,
+  bundle, mirror both ways; mutation-checked) + api int 3 (public API as `mc_public`); chart 0 – 8 weeks — ui
+  component test 3 + app view test 3. e2e `e2e/admin/chanda.spec.ts` green on Pixel 7 (axe on B9 and A11).
+  With T5.6: "₹… collected" on Updates / Home cards, push text, visual baselines A11 / B9 ×4 locales.
+- [x] T5.6 — Integration polish — 11 Nov 2026 (#154): money lines on Home / Updates rows (`useItemSummary`, strings
+  in `common.summary`), Donations / Chanda chips covered by e2e, push text for a new campaign / an amount update /
+  weekly chanda in 4 locales (`PushContent.campaign` / `.chanda`, `@mc/i18n/push-item-text`), Masjid Detail counts new
+  chanda entries, C1 "Active donation campaigns" (`activeCampaigns`, OpenAPI regenerated), seed: Delta shows 6 chanda
+  weeks. **Acceptance:** `pnpm test:visual` 24/24 — 48 new baselines (Home, Updates, Masjid Detail, A10 list + detail,
+  A11 × 4 locales × 2 devices), the earlier ones unchanged. Not pixel-compared: admin screens (B9 → T5.7
+  screenshots); the C1 card not yet seen in a browser (T5.7).
+- [x] T5.8 — Needy people (B19 + A23) — 11 Nov 2026 (#156 data layer + API + retention job; #157 screens).
+  Migration `0019_beneficiaries` (2 collections, `v_pub_beneficiaries`), policy cells + roles (Atlas roles file
+  regenerated → owner O43), `state/beneficiary.ts` (create, update, `setBeneficiaryReceived` with auto-fulfil,
+  `endBeneficiary` closed / deleted, `readBeneficiaryPrivate`, `purgeBeneficiaries`), `repos/beneficiaries.ts`, bundle
+  `sections.needy`, contracts, admin routes `…/beneficiaries` (+ `/received`, `/close`, `/private`), public
+  `GET /masjids/:id/beneficiaries`, worker job `retention` (03:00 IST), 3 error codes ×4, OpenAPI regenerated.
+  Tests: db `beneficiaries.int` 19, api `beneficiary-routes.int` 6; `verify:quick` green, db int 365, api int 371.
+  **Part 2 (#157):** admin `/needy` (chips, cards, "Update received" sheet with live %, Close / Remove) and
+  `/needy/new` · `/needy/:id` (form, UPI QR scan, private details on request, consent tick), Home tile live; musalli
+  A23 `/masjid/:id/needy` (list least-funded first, zakat chip, pay sheet → `upi://pay` to the person, QR sheet
+  reuse), Masjid Detail row; strings ×4 (review CSVs regenerated — 1,721 draft strings per locale for O31); seed: 4
+  fake people on Delta. **Acceptance:** policy matrix + DB privileges, `private_enc` in no public response
+  (`beneficiary-routes.int` sweep) ✔ · ordering + auto-fulfil under parallel "Update received" (`beneficiaries.int`)
+  ✔ · consent required — 400, not 422 (#156) ✔ · retention purge ✔ · e2e `e2e/admin/needy.spec.ts` on Pixel 7: admin
+  adds → musalli sees and gets exactly the person's UPI link → received ≥ cap → gone after the next poll ✔ (axe clean
+  on B19, editor, A23, pay sheet). `pnpm test:visual` 24/24 (8 new `help-the-needy`, Delta Masjid Detail updated).
+  Tests now: admin unit 166, app unit 213, db int 365, api int 371; `verify:quick`, i18n check, `pnpm size` green
+  (app initial JS 188.41 / 189 kB — #157). "Log this in My zakat?" comes with T5.9; B19 4-locale screenshots at T5.7.
+- [x] T5.9 — My zakat (A24, device only) — 12 Nov 2026 (#158). Device document field `zakat` (validated with the
+  document, removed by Clear all data), `features/zakat` (pure arithmetic, `useZakat`, A24 screen `/settings/zakat`,
+  "Add payment" sheet), Settings row "My zakat · Only on this phone", My data line, "Log this in My zakat?" on the A23
+  pay sheet after coming back from the UPI app (zakat-eligible people only — #158, owner may widen), "Start a new
+  year", privacy notice sentence (English draft), strings ×4 (1,758 draft strings per locale for O31), owner guide
+  5.18–5.20. **Acceptance:** unit — remaining never negative, integer paise, 500-entry cap, tampered document reset
+  (`zakat.test.ts` 12) ✔ · e2e `e2e/app/zakat.spec.ts` on Pixel 7 6/6: every request while the tracker is used is
+  checked (no write, nothing about zakat in any URL) and Clear all data removes it ✔ · notice in 4 locales (axe clean,
+  Urdu mirrored, screenshots) ✔ · the zakat step in `e2e/admin/needy.spec.ts` ✔. `pnpm test:visual` 24/24 (Settings
+  × 8 updated). App unit 228; `pnpm size` green (app initial JS 188.7 / 189 kB).
+- [x] T5.7 — Quality gates — **done 13 Nov 2026** (see the report). Was in progress 12 Nov 2026: Done: admin Phase 05 screens × 4 locales in
+  `e2e/admin/screens.spec.ts` (B8 UPI setup / waiting / change, drives, update sheet, new drive, B9, B19 list /
+  received / new / empty, C1 with change requests, C4 pending and on hold — axe clean, Urdu mirrored; Delta's data
+  for the full screens); they found two display bugs, fixed (#160: Urdu amounts, Telugu tag). Security review run:
+  0 HIGH, 4 MEDIUM, 11 LOW — M1, M3, M4, M2 (text), L1, L6, L8 fixed (#160); M2 image part, L2–L5, L7, L9–L11 deferred
+  F67–F70 / owner O46. Local: e2e 25/25 (screens ×4, zakat, campaigns, needy), visual 24/24, db 371, i18n 206.
+  **phase-verifier (12 Nov): FAIL → fixed what is ours:** the Urdu time on C4 / B8 read "AM 1:24" (`liveAtText` now
+  LTR-isolates the time; unit test for Urdu), journey 9 part 2 re-run on the #160 code — green (with screens ×4 and
+  journey 7: 10/10), T5.4 written comparison with ref-2 + ref-3 and all deviations in the report draft, stale test
+  header / title fixed. **Left:** owner answers (O46 incl. the 400-vs-422 note), `pnpm verify` (lhci, perf,
+  check:dist, `db:schema:check`), CI green on Pixel 7 + iPhone 14, then O43 → staging → O28. The verifier's
+  non-blocking recommendations are done: scheduler test for `payment-activate` / `campaign-close` / `retention`
+  (`push-pipeline.int`), campaign PATCH with fixed fields → 400, templates + item pages in the `private_enc` sweep.
+  **13 Nov:** owner answered O46 (yes a–d) → F69 built (#161, `997a914`); security re-review 0 HIGH / 0 MEDIUM, its
+  3 LOW + nit fixed; db 376, api int 399 (+ the known Windows worker crash, re-run green). CI for `997a914` running.
+  **Close-out 13 Nov:** CI run 43134964131 on `997a914` all green; phase-verifier (2nd run) FAIL → fixed: Urdu visual
+  baselines re-taken (they still showed "12,500₹"), C4 "history" built (last 5 earlier / refused details), e2e
+  `payment-owners.spec.ts` (editor view, request stopped by a signed-out session) + screenshots, `db:schema:check` ✅
+  at 0022, "Sign out on every device" now stops a request too (reason `revoked_by_admin`), report final, owner block
+  O43 → O45 → O50 + O28.
+
+### Phase 06 — started 13 Nov 2026 (owner's autopilot rule, DECISIONS #162; branch `feat/phase-06` on top of `feat/phase-05`)
+
+- [x] T6.1 — YouTube link parser + oEmbed/thumbnail adapter — **parser + adapter done 13 Nov 2026 (#163)**:
+  `@mc/domain/youtube` (`parseYouTubeLink`, `youTubeEmbedUrl`; 61 tests incl. fast-check, domain 100 %),
+  `packages/api/src/video/youtube.ts` (fixed hosts, URL from the id, no redirects, 5 s, size limits; mock adapter;
+  contract tests 26 + live opt-in `YOUTUBE_LIVE=1` green). Thumbnail → image pipeline → store at publish.
+- [x] T6.2 — Admin flow (B10) — **done 13 Nov 2026**: `publishVideo` / `editVideo` / `listVideosForAdmin`
+  (db `videos.int` 16), routes `GET/POST /videos`, `POST /videos/preview`, `PATCH /videos/:id` (api
+  `video-routes.int` 13: invalid link 422, unavailable 422, YouTube down 503, link never stored, another masjid 404
+  without asking YouTube, 30/hour/masjid → 429, If-Match edit ≤ 24 h). Env `VIDEO_LOOKUP` (mock locally). B10
+  screens (list with edit / delete, "Add a bayan" flow) in 4 locales; e2e `e2e/admin/video.spec.ts` 1/1 (look-alike
+  refused on the phone, private video refused by the server, Paste link, preview, Sisters-only warning, publish).
+- [x] T6.3 — Musalli Bayans & player (A12) — 13 Nov 2026: `VideoCard` + `YouTubeFacade` (`@mc/ui/content`, unit 4: no
+  iframe before Play, offline, names), Bayans section route `/masjid/:id/bayans` (the `$section` placeholder is gone),
+  player in item detail (sticky facade, folding description, Share; Report comes with Phase 8). CSP unchanged (app
+  `frame-src` already allows youtube-nocookie). E2E `e2e/app/bayans.spec.ts` (journey 10) on Pixel 7 8/8: brothers
+  device sees only the everyone bayan and gets nothing for the sisters link, **no Google / YouTube request before
+  Play** (list, detail, player), Play → only the nocookie embed (+ `start`), offline text, 4 locales, axe clean, CSP
+  fixture clean. Dev seed: two Delta bayans. Shared-element thumbnail → player not built (progressive per the phase
+  file; the screen pushes with the standard slide) — F71.
+- [x] T6.4 — Deletion & retention — 13 Nov 2026 (#164): `purgeExpiredItems` + the `retention` job deletes deleted /
+  removed posts after 180 days with their media (bayan thumbnails too) and purges the 6 CDN URLs per image
+  (Cloudflare purge by URL, verified). Tests: api `video-routes.int` (179 days nothing, 181 days post + thumbnail + 6
+  URLs, idempotent), `cdn-purge` 6, db `videos.int` purge (system only, shared thumbnail stays, Ameen counter goes).
+- [ ] T6.5 — Quality gates
+
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
 | # | Found in | Description | Planned fix (phase/task) |
@@ -528,17 +862,34 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F58 | Phase 03 close (6 Nov 2026, DECISIONS #136) | ~~Latin times inside Urdu sentences reordered by bidi ("PM 8:45"; camp hours scrambled; voice player times on the wrong ends)~~ — **fixed 6 Nov 2026**: times LTR-isolated in template params, camp card, khutbah line, Eid card; player labels follow the page direction; Urdu baselines regenerated | Closed |
 | F59 | CI 6 Nov 2026 (`2e5eda5`) | e2e `voice.spec`: on CI's Chromium the local file store's WAV sometimes fails to play ("Available when online"); passes locally. The playback assertion is skipped on CI only; upload, publish, badge and player checks stay  | Deferred to Phase 9 (DECISIONS #143): CI run `64b0234` (8 Nov) had no voice.spec failure; the CI-only skip stays until media logs are added |
 | F60 | T4.1 (8 Nov 2026, DECISIONS #138) | `web-push` pinned at 3.6.7: 4.0.0 (6 Nov 2026) was younger than `minimumReleaseAge`. Review its changelog and move to 4.x (Renovate) — the adapter uses only `generateRequestDetails`  | Phase 9 hardening (DECISIONS #143): 4.x after its changelog review; 3.6.7 has no known advisory |
-| F61 | CI 8 Nov 2026 (DECISIONS #141) | Trivy ignores for the two distroless `zlib1g` CVEs (CVE-2026-76844, CVE-2026-85091) in `infra/trivy/mc-server.trivyignore.yaml` expire **15 Nov 2026**. Move `RUNTIME_IMAGE` (server.Dockerfile) to the first distroless digest with `zlib1g +deb13u1` and delete the entries (and the file if empty) | By 15 Nov 2026 (CI fails again after it) |
+| F61 | CI 8 Nov 2026 (DECISIONS #141) | **Fixed on `feat/phase-05` 11 Nov 2026 (#155):** `RUNTIME_IMAGE` on the patched distroless digest (`zlib1g …-1+deb13u1`, Trivy 0 HIGH/CRITICAL without ignores); CI + Nightly fresh-build scans use no ignore file. **Left:** (1) the same fix on `main` — branch `ci/f61-base-image`, merge when its CI is green and the owner agrees (it redeploys staging); (2) delete `infra/trivy/mc-server.trivyignore.yaml` and the Nightly deployed-image job's `--ignorefile` once staging runs a new-base image | `main` before 15 Nov 2026 (CI on `main` fails after it) |
 | F62 | Review L2 (8 Nov 2026, DECISIONS #142) | Job timeouts race the run but do not cancel it: pass an `AbortSignal` into the push processors and stop between sends / pages | Phase 9 hardening |
 | F63 | Review L3 (DECISIONS #142) | Honour the push service `Retry-After` (move the batch to delayed by the largest value) instead of only BullMQ backoff | Before pilot (peak traffic) |
 | F64 | Review L4 (DECISIONS #142) | Kill switch takes effect per batch (up to ~4,000 sends after pause): re-check every send round | Phase 8 (moderation incidents) |
-| F65 | Review M2 rest (DECISIONS #142, #144) | Link each admin push subscription to its session (or have `getAlertTargets` require a live session), so revoking one session (another device) **or a session expiring** stops that phone's alerts too | **Before Phase 5's first alert to masjid admins** ("UPI change approved"); today masjid admins receive only test alerts (#144) |
+| F65 | Review M2 rest (DECISIONS #142, #144) | ~~Admin alerts keep arriving after a session ends~~ — **closed 12 Nov 2026 (#159)**: every subscription hangs on the session that saved it (`session_id`, migration 0020); `getAlertTargets` skips phones whose session is revoked or expired (Super Admin: not used for 30 days); ending one session deletes its subscriptions; `retention` prunes the rest. Original text: Link each admin push subscription to its session (or have `getAlertTargets` require a live session), so revoking one session (another device) **or a session expiring** stops that phone's alerts too | **Before Phase 5's first alert to masjid admins** ("UPI change approved"); today masjid admins receive only test alerts (#144) |
+| F66 | Audit 11 Nov 2026 H1 (DECISIONS #153) | `defineRoute`: a default per-IP rate limit for routes that declare none (44 GET routes today rely on the CDN cache or the session alone); keep explicit rules as they are | Phase 9 T9.1 |
+| F67 | Security review M4 (DECISIONS #160) | Purge the CDN tag `m-<masjidId>` when a needy person is closed, removed or purged (the list is cached one day until then) | Phase 8 (CDN purge job) |
+| F68 | Security review M2, image part (#160) — **accepted by the owner (#161)** | Refuse drive covers / notice photos that contain a QR code (maintained server-side decoder, e.g. `zxing-wasm`, own DECISIONS entry with size + CVE check) | Phase 8, with moderation |
+| ~~F69~~ | Security review L2, L3 (#160) | ✅ **Done 12 Nov 2026 (#161)** — owners only (`PAYMENT_OWNER_ONLY`), every owner alerted (`payment_request_owner` + decisions + activation), removal / revocation closes the open request (`reject_code`, migration 0022) | – |
+| F70 | Security review L5, L7, L9 (#160) — **accepted by the owner (#161)** | Live UPI details in a collection only `mc_system` writes; needy ciphertext bound to the person (associated data with the id); lint rule against raw `.collection(` in `repos/` | Phase 9 hardening |
+| F71 | PHASE_06 T6.3 — shared-element thumbnail → player (08 §3.5, "progressive") | The player opens with the standard push; the thumbnail does not morph into the facade | Phase 9 polish (motion) |
 | F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-12 | 05 / T5.9 | My zakat done (#158): phone-only tracker in the device document, A24 screen, "Log this in My zakat?" after a UPI payment to a zakat-eligible person, e2e with a network assertion, 4 locales. Before it: last night's red CI fixed in tests (`2df8d6d` — axe read two CSS state fades in the needy spec, the voice spec hung on a disabled Play button; the VPS deploy test failed on CI only and now annotates its reason — it passed on the next run, so the cause was outside the repo). **`main` `de50397` CI was red in that same step, so F61 is not on staging yet.** |
+| 2026-11-11 | 05 / T5.8 (part 2) | Needy people screens (#157): admin B19 (list + form), musalli A23 (list, pay sheet, QR reuse), strings ×4, seed, e2e journey green on Pixel 7, visual 24/24. F61 fast-forwarded onto `main` (`de50397`) after green CI. App initial JS budget 189 kB. |
+| 2026-11-11 | 05 / T5.8 (part 1) | Needy people: data layer, API and the `retention` job (#156). Migration 0019; policy matrix 48 namespaces; db int 365, api int 371, `verify:quick` green. UI (B19, A23), seed, e2e left. Owner approved merging the F61 fix into `main` once its CI is green. |
+| 2026-11-11 | F61 | Server image on the patched distroless base (#155): Trivy 0 HIGH/CRITICAL without ignores, `check:image` OK, stack healthy, e2e 12/12. Same commit on `ci/f61-base-image` for `main` (owner to approve the merge — it redeploys staging). |
+| 2026-11-11 | 05 / T5.6 | Integration polish done (#154). `verify:quick` green, db int 346, api int 365, e2e Pixel 7: campaigns 10/10, chanda, updates, home, masjid-detail; visual 24/24; i18n check passes (1,617 draft strings per locale); budgets unchanged (app 187.97 / 188 kB, admin 215.32 / 220 kB). |
+| 2026-11-11 | audit | Production-readiness audit (`reports/AUDIT_2026-11-11.md`, #153): not ready (5 of 10 phases); no critical / high hole in built parts; plan agreed — everything before launch, F61 + F65 on their dates. |
+| 2026-11-10 | 05 / T5.5 | Weekly chanda done (#152): migration 0018 (item `chanda.visible` mirror, `v_pub_items` filter), `setChandaWeek` / `setChandaSettings`, admin routes, B9, A11 + ChandaChart (HTML bars instead of SVG). Unit: domain 218, shared 193, ui 328, app 207, admin 158, api 181; db int 344 (37 files), api int 362; e2e chanda green on Pixel 7. Musalli initial JS 187.97 / 188 kB, admin 215.32 / 220 kB. `db:schema:check` clean. |
+| 2026-11-10 | 05 / T5.2 | Journey 9 part 2 e2e (#151): api-admin `payment-activate` test hook on its clock, test stack holds 24 h; passes on Pixel 7 and fails when activated early. T5.2 ticked (R1 security re-check at T5.7). Owner answers recorded (#150): Phase 00 DONE, O39 PASS, O27 OK. |
+| 2026-11-10 | 05 / T5.4 | Musalli campaigns done (#149): A10 list + detail + lazy UPI QR sheet, `lean-qr` instead of the unmaintained `qrcode`, Donate Now with the 1.5 s no-app fallback, Delta seed masjid. Fixed on the way: MetaRow `<dl>` structure (axe), Urdu "PM 10:10" (LTR isolate), a T5.3 admin unit test left behind (`uploadImage` purpose). Unit: domain 213, ui 325, app 204, admin 154; db int 336, api int 358; e2e campaigns 9/9 (Pixel 7), app suite on Pixel 7 green (2 parallel-load flakes pass serially). Musalli initial JS 187.85 / 188 kB. Docker Desktop stopped mid-session; `docker desktop restart` brought it back. |
+| 2026-11-09 | 05 / T5.1–T5.3 | Phase 05 started on the owner's word (#145). T5.1 UPI domain module (100 %, fast-check, mutation-checked). T5.2 change-lock built end to end (#146 reject during hold, locked notice; #147 owner: Android-only admin QR scan; scanner moved to `@mc/ui/scanner`, WebAssembly fallback app-only). T5.3 campaigns done (#148). Journey 9 part 2 moved to T5.4; admin screens not yet run in a browser. |
+| 2026-11-09 | 03 + 04 / deploy | Two CI-only e2e races fixed in tests (`dd2a557`, `660c950`); merged `863e064` to `main`; staging live ~21:10 IST; owner checks O39, O25, O27, O26, O38 pending. |
 | 2026-11-08 | 04 / T4.9, T4.4 | T4.9 run locally after the WSL fix (a real Restart): push spec 5, journeys 6/7/8 + admin screens ×4 green; integration api 335 / db 302. **Bug fixed (#140):** send-batch counting race stranded a job (`pending_batches` balance, migration 0017, ledger claim released on a failed write) — db +1, api +1 tests (mutation-checked). Disabled `Switch` text readable (axe). Musalli initial 188 kB. Lighthouse: musalli cold LCP 2689 ms locally (known local miss) → CI on `ci/phase-04`. T4.2–T4.5, T4.7 ticked. |
 | 2026-11-05 | 03 / T3.17, T3.12, F54, F55 | Blood camp (#132): `BloodCampCard` (lazy on Home), `WhatsAppButton`, `istWindow`, `formatPhone`, B18 tile, e2e with a pinned clock; usability (#133): tap counts 6/6/4/5/3 measured by e2e, quick jamaat offsets, one-sheet time ranges; F55: library status changes bump using masjids (db +3); F54: voice badge, A8 player, pause when covered, fake-mic e2e. Local: db 289, API int green (one Windows worker crash — the file passes alone), ui 304, app 162, admin 120, i18n 199; e2e of every touched spec green. CI `4cc10d4`: e2e green (the voice flake did not repeat), **Lighthouse warm red → F56**. All Phase 03 tasks done. |
 | 2026-11-05 | 03 / T3.16 | Ilm contacts (#131): migration 0014, policy + roles (Atlas file regenerated → O36 due), admin CRUD, bundle `contacts`, `IlmContactCard` + `whatsappChatUrl`, A21 + B17; db 286 incl. 9 new, API int +4, ui +6, admin +5, domain +2, app +1; e2e B17 flow + A21 ×2 audiences ×4 locales + B17 ×4 green locally. CI on `dae7c7c` (T3.15) red at admin e2e (`voice.spec.ts`, not reproducible locally) — re-run on this push; Ruqyah spec axe settle fixed. |

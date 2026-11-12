@@ -8,366 +8,449 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root';
-import { Route as IndexRouteImport } from './routes/index';
-import { Route as AccountRouteImport } from './routes/account';
-import { Route as AdhkarRouteImport } from './routes/adhkar';
-import { Route as BloodCampRouteImport } from './routes/blood-camp';
-import { Route as NotificationsRouteImport } from './routes/notifications';
-import { Route as PostsRouteImport } from './routes/posts';
-import { Route as ProfileRouteImport } from './routes/profile';
-import { Route as TimingsRouteImport } from './routes/timings';
-import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase';
-import { Route as ContactsIdRouteImport } from './routes/contacts.$id';
-import { Route as DailyIndexRouteImport } from './routes/daily.index';
-import { Route as DailyNoteRouteImport } from './routes/daily.note';
-import { Route as DailyPreviewRouteImport } from './routes/daily.preview';
-import { Route as DuaIndexRouteImport } from './routes/dua.index';
-import { Route as DuaAttachRouteImport } from './routes/dua.attach';
-import { Route as DuaDetailsRouteImport } from './routes/dua.details';
-import { Route as DuaPreviewRouteImport } from './routes/dua.preview';
-import { Route as NoticeIndexRouteImport } from './routes/notice.index';
-import { Route as NoticeFillRouteImport } from './routes/notice.fill';
-import { Route as NoticePreviewRouteImport } from './routes/notice.preview';
-import { Route as RuqyahIndexRouteImport } from './routes/ruqyah.index';
-import { Route as RuqyahIdRouteImport } from './routes/ruqyah.$id';
-import { Route as SoonTileRouteImport } from './routes/soon.$tile';
-import { Route as SpecialIndexRouteImport } from './routes/special.index';
-import { Route as SpecialIdRouteImport } from './routes/special.$id';
-import { Route as SuperIndexRouteImport } from './routes/super.index';
-import { Route as SuperAuditRouteImport } from './routes/super.audit';
-import { Route as SuperSettingsRouteImport } from './routes/super.settings';
-import { Route as SuperLibraryIndexRouteImport } from './routes/super.library.index';
-import { Route as SuperLibraryIdRouteImport } from './routes/super.library.$id';
-import { Route as SuperLibraryImportRouteImport } from './routes/super.library.import';
-import { Route as SuperMasjidsIndexRouteImport } from './routes/super.masjids.index';
-import { Route as SuperMasjidsIdRouteImport } from './routes/super.masjids.$id';
-import { Route as SuperMasjidsNewRouteImport } from './routes/super.masjids.new';
-import { Route as SuperTemplatesIndexRouteImport } from './routes/super.templates.index';
-import { Route as SuperTemplatesKeyRouteImport } from './routes/super.templates.$key';
-import { Route as SuperTemplatesNewRouteImport } from './routes/super.templates.new';
-import { Route as SuperMasjidsIdEditRouteImport } from './routes/super.masjids.$id.edit';
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountRouteImport } from './routes/account'
+import { Route as AdhkarRouteImport } from './routes/adhkar'
+import { Route as BloodCampRouteImport } from './routes/blood-camp'
+import { Route as ChandaRouteImport } from './routes/chanda'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as PaymentRouteImport } from './routes/payment'
+import { Route as PostsRouteImport } from './routes/posts'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as TimingsRouteImport } from './routes/timings'
+import { Route as DevShowcaseRouteImport } from './routes/[_]dev.showcase'
+import { Route as ContactsIdRouteImport } from './routes/contacts.$id'
+import { Route as DailyIndexRouteImport } from './routes/daily.index'
+import { Route as DailyNoteRouteImport } from './routes/daily.note'
+import { Route as DailyPreviewRouteImport } from './routes/daily.preview'
+import { Route as DonationIndexRouteImport } from './routes/donation.index'
+import { Route as DonationNewRouteImport } from './routes/donation.new'
+import { Route as DuaIndexRouteImport } from './routes/dua.index'
+import { Route as DuaAttachRouteImport } from './routes/dua.attach'
+import { Route as DuaDetailsRouteImport } from './routes/dua.details'
+import { Route as DuaPreviewRouteImport } from './routes/dua.preview'
+import { Route as NeedyIndexRouteImport } from './routes/needy.index'
+import { Route as NeedyIdRouteImport } from './routes/needy.$id'
+import { Route as NoticeIndexRouteImport } from './routes/notice.index'
+import { Route as NoticeFillRouteImport } from './routes/notice.fill'
+import { Route as NoticePreviewRouteImport } from './routes/notice.preview'
+import { Route as RuqyahIndexRouteImport } from './routes/ruqyah.index'
+import { Route as RuqyahIdRouteImport } from './routes/ruqyah.$id'
+import { Route as SoonTileRouteImport } from './routes/soon.$tile'
+import { Route as SpecialIndexRouteImport } from './routes/special.index'
+import { Route as SpecialIdRouteImport } from './routes/special.$id'
+import { Route as SuperIndexRouteImport } from './routes/super.index'
+import { Route as SuperAuditRouteImport } from './routes/super.audit'
+import { Route as SuperPaymentsRouteImport } from './routes/super.payments'
+import { Route as SuperSettingsRouteImport } from './routes/super.settings'
+import { Route as VideosIndexRouteImport } from './routes/videos.index'
+import { Route as VideosNewRouteImport } from './routes/videos.new'
+import { Route as SuperLibraryIndexRouteImport } from './routes/super.library.index'
+import { Route as SuperLibraryIdRouteImport } from './routes/super.library.$id'
+import { Route as SuperLibraryImportRouteImport } from './routes/super.library.import'
+import { Route as SuperMasjidsIndexRouteImport } from './routes/super.masjids.index'
+import { Route as SuperMasjidsIdRouteImport } from './routes/super.masjids.$id'
+import { Route as SuperMasjidsNewRouteImport } from './routes/super.masjids.new'
+import { Route as SuperTemplatesIndexRouteImport } from './routes/super.templates.index'
+import { Route as SuperTemplatesKeyRouteImport } from './routes/super.templates.$key'
+import { Route as SuperTemplatesNewRouteImport } from './routes/super.templates.new'
+import { Route as SuperMasjidsIdEditRouteImport } from './routes/super.masjids.$id.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AccountRoute = AccountRouteImport.update({
   id: '/account',
   path: '/account',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AdhkarRoute = AdhkarRouteImport.update({
   id: '/adhkar',
   path: '/adhkar',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const BloodCampRoute = BloodCampRouteImport.update({
   id: '/blood-camp',
   path: '/blood-camp',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const ChandaRoute = ChandaRouteImport.update({
+  id: '/chanda',
+  path: '/chanda',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const PaymentRoute = PaymentRouteImport.update({
+  id: '/payment',
+  path: '/payment',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PostsRoute = PostsRouteImport.update({
   id: '/posts',
   path: '/posts',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const TimingsRoute = TimingsRouteImport.update({
   id: '/timings',
   path: '/timings',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DevShowcaseRoute = DevShowcaseRouteImport.update({
   id: '/_dev/showcase',
   path: '/_dev/showcase',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ContactsIdRoute = ContactsIdRouteImport.update({
   id: '/contacts/$id',
   path: '/contacts/$id',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DailyIndexRoute = DailyIndexRouteImport.update({
   id: '/daily/',
   path: '/daily/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DailyNoteRoute = DailyNoteRouteImport.update({
   id: '/daily/note',
   path: '/daily/note',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DailyPreviewRoute = DailyPreviewRouteImport.update({
   id: '/daily/preview',
   path: '/daily/preview',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const DonationIndexRoute = DonationIndexRouteImport.update({
+  id: '/donation/',
+  path: '/donation/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DonationNewRoute = DonationNewRouteImport.update({
+  id: '/donation/new',
+  path: '/donation/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DuaIndexRoute = DuaIndexRouteImport.update({
   id: '/dua/',
   path: '/dua/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DuaAttachRoute = DuaAttachRouteImport.update({
   id: '/dua/attach',
   path: '/dua/attach',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DuaDetailsRoute = DuaDetailsRouteImport.update({
   id: '/dua/details',
   path: '/dua/details',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DuaPreviewRoute = DuaPreviewRouteImport.update({
   id: '/dua/preview',
   path: '/dua/preview',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const NeedyIndexRoute = NeedyIndexRouteImport.update({
+  id: '/needy/',
+  path: '/needy/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NeedyIdRoute = NeedyIdRouteImport.update({
+  id: '/needy/$id',
+  path: '/needy/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NoticeIndexRoute = NoticeIndexRouteImport.update({
   id: '/notice/',
   path: '/notice/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const NoticeFillRoute = NoticeFillRouteImport.update({
   id: '/notice/fill',
   path: '/notice/fill',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const NoticePreviewRoute = NoticePreviewRouteImport.update({
   id: '/notice/preview',
   path: '/notice/preview',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const RuqyahIndexRoute = RuqyahIndexRouteImport.update({
   id: '/ruqyah/',
   path: '/ruqyah/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const RuqyahIdRoute = RuqyahIdRouteImport.update({
   id: '/ruqyah/$id',
   path: '/ruqyah/$id',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SoonTileRoute = SoonTileRouteImport.update({
   id: '/soon/$tile',
   path: '/soon/$tile',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SpecialIndexRoute = SpecialIndexRouteImport.update({
   id: '/special/',
   path: '/special/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SpecialIdRoute = SpecialIdRouteImport.update({
   id: '/special/$id',
   path: '/special/$id',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SuperIndexRoute = SuperIndexRouteImport.update({
   id: '/super/',
   path: '/super/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SuperAuditRoute = SuperAuditRouteImport.update({
   id: '/super/audit',
   path: '/super/audit',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const SuperPaymentsRoute = SuperPaymentsRouteImport.update({
+  id: '/super/payments',
+  path: '/super/payments',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuperSettingsRoute = SuperSettingsRouteImport.update({
   id: '/super/settings',
   path: '/super/settings',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const VideosIndexRoute = VideosIndexRouteImport.update({
+  id: '/videos/',
+  path: '/videos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VideosNewRoute = VideosNewRouteImport.update({
+  id: '/videos/new',
+  path: '/videos/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuperLibraryIndexRoute = SuperLibraryIndexRouteImport.update({
   id: '/super/library/',
   path: '/super/library/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SuperLibraryIdRoute = SuperLibraryIdRouteImport.update({
   id: '/super/library/$id',
   path: '/super/library/$id',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SuperLibraryImportRoute = SuperLibraryImportRouteImport.update({
   id: '/super/library/import',
   path: '/super/library/import',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SuperMasjidsIndexRoute = SuperMasjidsIndexRouteImport.update({
   id: '/super/masjids/',
   path: '/super/masjids/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SuperMasjidsIdRoute = SuperMasjidsIdRouteImport.update({
   id: '/super/masjids/$id',
   path: '/super/masjids/$id',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SuperMasjidsNewRoute = SuperMasjidsNewRouteImport.update({
   id: '/super/masjids/new',
   path: '/super/masjids/new',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SuperTemplatesIndexRoute = SuperTemplatesIndexRouteImport.update({
   id: '/super/templates/',
   path: '/super/templates/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SuperTemplatesKeyRoute = SuperTemplatesKeyRouteImport.update({
   id: '/super/templates/$key',
   path: '/super/templates/$key',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SuperTemplatesNewRoute = SuperTemplatesNewRouteImport.update({
   id: '/super/templates/new',
   path: '/super/templates/new',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SuperMasjidsIdEditRoute = SuperMasjidsIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
   getParentRoute: () => SuperMasjidsIdRoute,
-} as any);
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute;
-  '/account': typeof AccountRoute;
-  '/adhkar': typeof AdhkarRoute;
-  '/blood-camp': typeof BloodCampRoute;
-  '/notifications': typeof NotificationsRoute;
-  '/posts': typeof PostsRoute;
-  '/profile': typeof ProfileRoute;
-  '/timings': typeof TimingsRoute;
-  '/_dev/showcase': typeof DevShowcaseRoute;
-  '/contacts/$id': typeof ContactsIdRoute;
-  '/daily/note': typeof DailyNoteRoute;
-  '/daily/preview': typeof DailyPreviewRoute;
-  '/dua/attach': typeof DuaAttachRoute;
-  '/dua/details': typeof DuaDetailsRoute;
-  '/dua/preview': typeof DuaPreviewRoute;
-  '/notice/fill': typeof NoticeFillRoute;
-  '/notice/preview': typeof NoticePreviewRoute;
-  '/ruqyah/$id': typeof RuqyahIdRoute;
-  '/soon/$tile': typeof SoonTileRoute;
-  '/special/$id': typeof SpecialIdRoute;
-  '/super/audit': typeof SuperAuditRoute;
-  '/super/settings': typeof SuperSettingsRoute;
-  '/daily/': typeof DailyIndexRoute;
-  '/dua/': typeof DuaIndexRoute;
-  '/notice/': typeof NoticeIndexRoute;
-  '/ruqyah/': typeof RuqyahIndexRoute;
-  '/special/': typeof SpecialIndexRoute;
-  '/super/': typeof SuperIndexRoute;
-  '/super/library/$id': typeof SuperLibraryIdRoute;
-  '/super/library/import': typeof SuperLibraryImportRoute;
-  '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren;
-  '/super/masjids/new': typeof SuperMasjidsNewRoute;
-  '/super/templates/$key': typeof SuperTemplatesKeyRoute;
-  '/super/templates/new': typeof SuperTemplatesNewRoute;
-  '/super/library/': typeof SuperLibraryIndexRoute;
-  '/super/masjids/': typeof SuperMasjidsIndexRoute;
-  '/super/templates/': typeof SuperTemplatesIndexRoute;
-  '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute;
+  '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/adhkar': typeof AdhkarRoute
+  '/blood-camp': typeof BloodCampRoute
+  '/chanda': typeof ChandaRoute
+  '/notifications': typeof NotificationsRoute
+  '/payment': typeof PaymentRoute
+  '/posts': typeof PostsRoute
+  '/profile': typeof ProfileRoute
+  '/timings': typeof TimingsRoute
+  '/_dev/showcase': typeof DevShowcaseRoute
+  '/contacts/$id': typeof ContactsIdRoute
+  '/daily/note': typeof DailyNoteRoute
+  '/daily/preview': typeof DailyPreviewRoute
+  '/donation/new': typeof DonationNewRoute
+  '/dua/attach': typeof DuaAttachRoute
+  '/dua/details': typeof DuaDetailsRoute
+  '/dua/preview': typeof DuaPreviewRoute
+  '/needy/$id': typeof NeedyIdRoute
+  '/notice/fill': typeof NoticeFillRoute
+  '/notice/preview': typeof NoticePreviewRoute
+  '/ruqyah/$id': typeof RuqyahIdRoute
+  '/soon/$tile': typeof SoonTileRoute
+  '/special/$id': typeof SpecialIdRoute
+  '/super/audit': typeof SuperAuditRoute
+  '/super/payments': typeof SuperPaymentsRoute
+  '/super/settings': typeof SuperSettingsRoute
+  '/videos/new': typeof VideosNewRoute
+  '/daily/': typeof DailyIndexRoute
+  '/donation/': typeof DonationIndexRoute
+  '/dua/': typeof DuaIndexRoute
+  '/needy/': typeof NeedyIndexRoute
+  '/notice/': typeof NoticeIndexRoute
+  '/ruqyah/': typeof RuqyahIndexRoute
+  '/special/': typeof SpecialIndexRoute
+  '/super/': typeof SuperIndexRoute
+  '/videos/': typeof VideosIndexRoute
+  '/super/library/$id': typeof SuperLibraryIdRoute
+  '/super/library/import': typeof SuperLibraryImportRoute
+  '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren
+  '/super/masjids/new': typeof SuperMasjidsNewRoute
+  '/super/templates/$key': typeof SuperTemplatesKeyRoute
+  '/super/templates/new': typeof SuperTemplatesNewRoute
+  '/super/library/': typeof SuperLibraryIndexRoute
+  '/super/masjids/': typeof SuperMasjidsIndexRoute
+  '/super/templates/': typeof SuperTemplatesIndexRoute
+  '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute;
-  '/account': typeof AccountRoute;
-  '/adhkar': typeof AdhkarRoute;
-  '/blood-camp': typeof BloodCampRoute;
-  '/notifications': typeof NotificationsRoute;
-  '/posts': typeof PostsRoute;
-  '/profile': typeof ProfileRoute;
-  '/timings': typeof TimingsRoute;
-  '/_dev/showcase': typeof DevShowcaseRoute;
-  '/contacts/$id': typeof ContactsIdRoute;
-  '/daily/note': typeof DailyNoteRoute;
-  '/daily/preview': typeof DailyPreviewRoute;
-  '/dua/attach': typeof DuaAttachRoute;
-  '/dua/details': typeof DuaDetailsRoute;
-  '/dua/preview': typeof DuaPreviewRoute;
-  '/notice/fill': typeof NoticeFillRoute;
-  '/notice/preview': typeof NoticePreviewRoute;
-  '/ruqyah/$id': typeof RuqyahIdRoute;
-  '/soon/$tile': typeof SoonTileRoute;
-  '/special/$id': typeof SpecialIdRoute;
-  '/super/audit': typeof SuperAuditRoute;
-  '/super/settings': typeof SuperSettingsRoute;
-  '/daily': typeof DailyIndexRoute;
-  '/dua': typeof DuaIndexRoute;
-  '/notice': typeof NoticeIndexRoute;
-  '/ruqyah': typeof RuqyahIndexRoute;
-  '/special': typeof SpecialIndexRoute;
-  '/super': typeof SuperIndexRoute;
-  '/super/library/$id': typeof SuperLibraryIdRoute;
-  '/super/library/import': typeof SuperLibraryImportRoute;
-  '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren;
-  '/super/masjids/new': typeof SuperMasjidsNewRoute;
-  '/super/templates/$key': typeof SuperTemplatesKeyRoute;
-  '/super/templates/new': typeof SuperTemplatesNewRoute;
-  '/super/library': typeof SuperLibraryIndexRoute;
-  '/super/masjids': typeof SuperMasjidsIndexRoute;
-  '/super/templates': typeof SuperTemplatesIndexRoute;
-  '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute;
+  '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/adhkar': typeof AdhkarRoute
+  '/blood-camp': typeof BloodCampRoute
+  '/chanda': typeof ChandaRoute
+  '/notifications': typeof NotificationsRoute
+  '/payment': typeof PaymentRoute
+  '/posts': typeof PostsRoute
+  '/profile': typeof ProfileRoute
+  '/timings': typeof TimingsRoute
+  '/_dev/showcase': typeof DevShowcaseRoute
+  '/contacts/$id': typeof ContactsIdRoute
+  '/daily/note': typeof DailyNoteRoute
+  '/daily/preview': typeof DailyPreviewRoute
+  '/donation/new': typeof DonationNewRoute
+  '/dua/attach': typeof DuaAttachRoute
+  '/dua/details': typeof DuaDetailsRoute
+  '/dua/preview': typeof DuaPreviewRoute
+  '/needy/$id': typeof NeedyIdRoute
+  '/notice/fill': typeof NoticeFillRoute
+  '/notice/preview': typeof NoticePreviewRoute
+  '/ruqyah/$id': typeof RuqyahIdRoute
+  '/soon/$tile': typeof SoonTileRoute
+  '/special/$id': typeof SpecialIdRoute
+  '/super/audit': typeof SuperAuditRoute
+  '/super/payments': typeof SuperPaymentsRoute
+  '/super/settings': typeof SuperSettingsRoute
+  '/videos/new': typeof VideosNewRoute
+  '/daily': typeof DailyIndexRoute
+  '/donation': typeof DonationIndexRoute
+  '/dua': typeof DuaIndexRoute
+  '/needy': typeof NeedyIndexRoute
+  '/notice': typeof NoticeIndexRoute
+  '/ruqyah': typeof RuqyahIndexRoute
+  '/special': typeof SpecialIndexRoute
+  '/super': typeof SuperIndexRoute
+  '/videos': typeof VideosIndexRoute
+  '/super/library/$id': typeof SuperLibraryIdRoute
+  '/super/library/import': typeof SuperLibraryImportRoute
+  '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren
+  '/super/masjids/new': typeof SuperMasjidsNewRoute
+  '/super/templates/$key': typeof SuperTemplatesKeyRoute
+  '/super/templates/new': typeof SuperTemplatesNewRoute
+  '/super/library': typeof SuperLibraryIndexRoute
+  '/super/masjids': typeof SuperMasjidsIndexRoute
+  '/super/templates': typeof SuperTemplatesIndexRoute
+  '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  '/': typeof IndexRoute;
-  '/account': typeof AccountRoute;
-  '/adhkar': typeof AdhkarRoute;
-  '/blood-camp': typeof BloodCampRoute;
-  '/notifications': typeof NotificationsRoute;
-  '/posts': typeof PostsRoute;
-  '/profile': typeof ProfileRoute;
-  '/timings': typeof TimingsRoute;
-  '/_dev/showcase': typeof DevShowcaseRoute;
-  '/contacts/$id': typeof ContactsIdRoute;
-  '/daily/note': typeof DailyNoteRoute;
-  '/daily/preview': typeof DailyPreviewRoute;
-  '/dua/attach': typeof DuaAttachRoute;
-  '/dua/details': typeof DuaDetailsRoute;
-  '/dua/preview': typeof DuaPreviewRoute;
-  '/notice/fill': typeof NoticeFillRoute;
-  '/notice/preview': typeof NoticePreviewRoute;
-  '/ruqyah/$id': typeof RuqyahIdRoute;
-  '/soon/$tile': typeof SoonTileRoute;
-  '/special/$id': typeof SpecialIdRoute;
-  '/super/audit': typeof SuperAuditRoute;
-  '/super/settings': typeof SuperSettingsRoute;
-  '/daily/': typeof DailyIndexRoute;
-  '/dua/': typeof DuaIndexRoute;
-  '/notice/': typeof NoticeIndexRoute;
-  '/ruqyah/': typeof RuqyahIndexRoute;
-  '/special/': typeof SpecialIndexRoute;
-  '/super/': typeof SuperIndexRoute;
-  '/super/library/$id': typeof SuperLibraryIdRoute;
-  '/super/library/import': typeof SuperLibraryImportRoute;
-  '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren;
-  '/super/masjids/new': typeof SuperMasjidsNewRoute;
-  '/super/templates/$key': typeof SuperTemplatesKeyRoute;
-  '/super/templates/new': typeof SuperTemplatesNewRoute;
-  '/super/library/': typeof SuperLibraryIndexRoute;
-  '/super/masjids/': typeof SuperMasjidsIndexRoute;
-  '/super/templates/': typeof SuperTemplatesIndexRoute;
-  '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/adhkar': typeof AdhkarRoute
+  '/blood-camp': typeof BloodCampRoute
+  '/chanda': typeof ChandaRoute
+  '/notifications': typeof NotificationsRoute
+  '/payment': typeof PaymentRoute
+  '/posts': typeof PostsRoute
+  '/profile': typeof ProfileRoute
+  '/timings': typeof TimingsRoute
+  '/_dev/showcase': typeof DevShowcaseRoute
+  '/contacts/$id': typeof ContactsIdRoute
+  '/daily/note': typeof DailyNoteRoute
+  '/daily/preview': typeof DailyPreviewRoute
+  '/donation/new': typeof DonationNewRoute
+  '/dua/attach': typeof DuaAttachRoute
+  '/dua/details': typeof DuaDetailsRoute
+  '/dua/preview': typeof DuaPreviewRoute
+  '/needy/$id': typeof NeedyIdRoute
+  '/notice/fill': typeof NoticeFillRoute
+  '/notice/preview': typeof NoticePreviewRoute
+  '/ruqyah/$id': typeof RuqyahIdRoute
+  '/soon/$tile': typeof SoonTileRoute
+  '/special/$id': typeof SpecialIdRoute
+  '/super/audit': typeof SuperAuditRoute
+  '/super/payments': typeof SuperPaymentsRoute
+  '/super/settings': typeof SuperSettingsRoute
+  '/videos/new': typeof VideosNewRoute
+  '/daily/': typeof DailyIndexRoute
+  '/donation/': typeof DonationIndexRoute
+  '/dua/': typeof DuaIndexRoute
+  '/needy/': typeof NeedyIndexRoute
+  '/notice/': typeof NoticeIndexRoute
+  '/ruqyah/': typeof RuqyahIndexRoute
+  '/special/': typeof SpecialIndexRoute
+  '/super/': typeof SuperIndexRoute
+  '/videos/': typeof VideosIndexRoute
+  '/super/library/$id': typeof SuperLibraryIdRoute
+  '/super/library/import': typeof SuperLibraryImportRoute
+  '/super/masjids/$id': typeof SuperMasjidsIdRouteWithChildren
+  '/super/masjids/new': typeof SuperMasjidsNewRoute
+  '/super/templates/$key': typeof SuperTemplatesKeyRoute
+  '/super/templates/new': typeof SuperTemplatesNewRoute
+  '/super/library/': typeof SuperLibraryIndexRoute
+  '/super/masjids/': typeof SuperMasjidsIndexRoute
+  '/super/templates/': typeof SuperTemplatesIndexRoute
+  '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/account'
     | '/adhkar'
     | '/blood-camp'
+    | '/chanda'
     | '/notifications'
+    | '/payment'
     | '/posts'
     | '/profile'
     | '/timings'
@@ -375,22 +458,29 @@ export interface FileRouteTypes {
     | '/contacts/$id'
     | '/daily/note'
     | '/daily/preview'
+    | '/donation/new'
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
+    | '/needy/$id'
     | '/notice/fill'
     | '/notice/preview'
     | '/ruqyah/$id'
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
+    | '/super/payments'
     | '/super/settings'
+    | '/videos/new'
     | '/daily/'
+    | '/donation/'
     | '/dua/'
+    | '/needy/'
     | '/notice/'
     | '/ruqyah/'
     | '/special/'
     | '/super/'
+    | '/videos/'
     | '/super/library/$id'
     | '/super/library/import'
     | '/super/masjids/$id'
@@ -400,14 +490,16 @@ export interface FileRouteTypes {
     | '/super/library/'
     | '/super/masjids/'
     | '/super/templates/'
-    | '/super/masjids/$id/edit';
-  fileRoutesByTo: FileRoutesByTo;
+    | '/super/masjids/$id/edit'
+  fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/account'
     | '/adhkar'
     | '/blood-camp'
+    | '/chanda'
     | '/notifications'
+    | '/payment'
     | '/posts'
     | '/profile'
     | '/timings'
@@ -415,22 +507,29 @@ export interface FileRouteTypes {
     | '/contacts/$id'
     | '/daily/note'
     | '/daily/preview'
+    | '/donation/new'
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
+    | '/needy/$id'
     | '/notice/fill'
     | '/notice/preview'
     | '/ruqyah/$id'
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
+    | '/super/payments'
     | '/super/settings'
+    | '/videos/new'
     | '/daily'
+    | '/donation'
     | '/dua'
+    | '/needy'
     | '/notice'
     | '/ruqyah'
     | '/special'
     | '/super'
+    | '/videos'
     | '/super/library/$id'
     | '/super/library/import'
     | '/super/masjids/$id'
@@ -440,14 +539,16 @@ export interface FileRouteTypes {
     | '/super/library'
     | '/super/masjids'
     | '/super/templates'
-    | '/super/masjids/$id/edit';
+    | '/super/masjids/$id/edit'
   id:
     | '__root__'
     | '/'
     | '/account'
     | '/adhkar'
     | '/blood-camp'
+    | '/chanda'
     | '/notifications'
+    | '/payment'
     | '/posts'
     | '/profile'
     | '/timings'
@@ -455,22 +556,29 @@ export interface FileRouteTypes {
     | '/contacts/$id'
     | '/daily/note'
     | '/daily/preview'
+    | '/donation/new'
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
+    | '/needy/$id'
     | '/notice/fill'
     | '/notice/preview'
     | '/ruqyah/$id'
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
+    | '/super/payments'
     | '/super/settings'
+    | '/videos/new'
     | '/daily/'
+    | '/donation/'
     | '/dua/'
+    | '/needy/'
     | '/notice/'
     | '/ruqyah/'
     | '/special/'
     | '/super/'
+    | '/videos/'
     | '/super/library/$id'
     | '/super/library/import'
     | '/super/masjids/$id'
@@ -480,336 +588,412 @@ export interface FileRouteTypes {
     | '/super/library/'
     | '/super/masjids/'
     | '/super/templates/'
-    | '/super/masjids/$id/edit';
-  fileRoutesById: FileRoutesById;
+    | '/super/masjids/$id/edit'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  AccountRoute: typeof AccountRoute;
-  AdhkarRoute: typeof AdhkarRoute;
-  BloodCampRoute: typeof BloodCampRoute;
-  NotificationsRoute: typeof NotificationsRoute;
-  PostsRoute: typeof PostsRoute;
-  ProfileRoute: typeof ProfileRoute;
-  TimingsRoute: typeof TimingsRoute;
-  DevShowcaseRoute: typeof DevShowcaseRoute;
-  ContactsIdRoute: typeof ContactsIdRoute;
-  DailyNoteRoute: typeof DailyNoteRoute;
-  DailyPreviewRoute: typeof DailyPreviewRoute;
-  DuaAttachRoute: typeof DuaAttachRoute;
-  DuaDetailsRoute: typeof DuaDetailsRoute;
-  DuaPreviewRoute: typeof DuaPreviewRoute;
-  NoticeFillRoute: typeof NoticeFillRoute;
-  NoticePreviewRoute: typeof NoticePreviewRoute;
-  RuqyahIdRoute: typeof RuqyahIdRoute;
-  SoonTileRoute: typeof SoonTileRoute;
-  SpecialIdRoute: typeof SpecialIdRoute;
-  SuperAuditRoute: typeof SuperAuditRoute;
-  SuperSettingsRoute: typeof SuperSettingsRoute;
-  DailyIndexRoute: typeof DailyIndexRoute;
-  DuaIndexRoute: typeof DuaIndexRoute;
-  NoticeIndexRoute: typeof NoticeIndexRoute;
-  RuqyahIndexRoute: typeof RuqyahIndexRoute;
-  SpecialIndexRoute: typeof SpecialIndexRoute;
-  SuperIndexRoute: typeof SuperIndexRoute;
-  SuperLibraryIdRoute: typeof SuperLibraryIdRoute;
-  SuperLibraryImportRoute: typeof SuperLibraryImportRoute;
-  SuperMasjidsIdRoute: typeof SuperMasjidsIdRouteWithChildren;
-  SuperMasjidsNewRoute: typeof SuperMasjidsNewRoute;
-  SuperTemplatesKeyRoute: typeof SuperTemplatesKeyRoute;
-  SuperTemplatesNewRoute: typeof SuperTemplatesNewRoute;
-  SuperLibraryIndexRoute: typeof SuperLibraryIndexRoute;
-  SuperMasjidsIndexRoute: typeof SuperMasjidsIndexRoute;
-  SuperTemplatesIndexRoute: typeof SuperTemplatesIndexRoute;
+  IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
+  AdhkarRoute: typeof AdhkarRoute
+  BloodCampRoute: typeof BloodCampRoute
+  ChandaRoute: typeof ChandaRoute
+  NotificationsRoute: typeof NotificationsRoute
+  PaymentRoute: typeof PaymentRoute
+  PostsRoute: typeof PostsRoute
+  ProfileRoute: typeof ProfileRoute
+  TimingsRoute: typeof TimingsRoute
+  DevShowcaseRoute: typeof DevShowcaseRoute
+  ContactsIdRoute: typeof ContactsIdRoute
+  DailyNoteRoute: typeof DailyNoteRoute
+  DailyPreviewRoute: typeof DailyPreviewRoute
+  DonationNewRoute: typeof DonationNewRoute
+  DuaAttachRoute: typeof DuaAttachRoute
+  DuaDetailsRoute: typeof DuaDetailsRoute
+  DuaPreviewRoute: typeof DuaPreviewRoute
+  NeedyIdRoute: typeof NeedyIdRoute
+  NoticeFillRoute: typeof NoticeFillRoute
+  NoticePreviewRoute: typeof NoticePreviewRoute
+  RuqyahIdRoute: typeof RuqyahIdRoute
+  SoonTileRoute: typeof SoonTileRoute
+  SpecialIdRoute: typeof SpecialIdRoute
+  SuperAuditRoute: typeof SuperAuditRoute
+  SuperPaymentsRoute: typeof SuperPaymentsRoute
+  SuperSettingsRoute: typeof SuperSettingsRoute
+  VideosNewRoute: typeof VideosNewRoute
+  DailyIndexRoute: typeof DailyIndexRoute
+  DonationIndexRoute: typeof DonationIndexRoute
+  DuaIndexRoute: typeof DuaIndexRoute
+  NeedyIndexRoute: typeof NeedyIndexRoute
+  NoticeIndexRoute: typeof NoticeIndexRoute
+  RuqyahIndexRoute: typeof RuqyahIndexRoute
+  SpecialIndexRoute: typeof SpecialIndexRoute
+  SuperIndexRoute: typeof SuperIndexRoute
+  VideosIndexRoute: typeof VideosIndexRoute
+  SuperLibraryIdRoute: typeof SuperLibraryIdRoute
+  SuperLibraryImportRoute: typeof SuperLibraryImportRoute
+  SuperMasjidsIdRoute: typeof SuperMasjidsIdRouteWithChildren
+  SuperMasjidsNewRoute: typeof SuperMasjidsNewRoute
+  SuperTemplatesKeyRoute: typeof SuperTemplatesKeyRoute
+  SuperTemplatesNewRoute: typeof SuperTemplatesNewRoute
+  SuperLibraryIndexRoute: typeof SuperLibraryIndexRoute
+  SuperMasjidsIndexRoute: typeof SuperMasjidsIndexRoute
+  SuperTemplatesIndexRoute: typeof SuperTemplatesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/': {
-      id: '/';
-      path: '/';
-      fullPath: '/';
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/account': {
-      id: '/account';
-      path: '/account';
-      fullPath: '/account';
-      preLoaderRoute: typeof AccountRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/adhkar': {
-      id: '/adhkar';
-      path: '/adhkar';
-      fullPath: '/adhkar';
-      preLoaderRoute: typeof AdhkarRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/adhkar'
+      path: '/adhkar'
+      fullPath: '/adhkar'
+      preLoaderRoute: typeof AdhkarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blood-camp': {
-      id: '/blood-camp';
-      path: '/blood-camp';
-      fullPath: '/blood-camp';
-      preLoaderRoute: typeof BloodCampRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/blood-camp'
+      path: '/blood-camp'
+      fullPath: '/blood-camp'
+      preLoaderRoute: typeof BloodCampRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chanda': {
+      id: '/chanda'
+      path: '/chanda'
+      fullPath: '/chanda'
+      preLoaderRoute: typeof ChandaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/notifications': {
-      id: '/notifications';
-      path: '/notifications';
-      fullPath: '/notifications';
-      preLoaderRoute: typeof NotificationsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment': {
+      id: '/payment'
+      path: '/payment'
+      fullPath: '/payment'
+      preLoaderRoute: typeof PaymentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/posts': {
-      id: '/posts';
-      path: '/posts';
-      fullPath: '/posts';
-      preLoaderRoute: typeof PostsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/posts'
+      path: '/posts'
+      fullPath: '/posts'
+      preLoaderRoute: typeof PostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
-      id: '/profile';
-      path: '/profile';
-      fullPath: '/profile';
-      preLoaderRoute: typeof ProfileRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/timings': {
-      id: '/timings';
-      path: '/timings';
-      fullPath: '/timings';
-      preLoaderRoute: typeof TimingsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/timings'
+      path: '/timings'
+      fullPath: '/timings'
+      preLoaderRoute: typeof TimingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_dev/showcase': {
-      id: '/_dev/showcase';
-      path: '/_dev/showcase';
-      fullPath: '/_dev/showcase';
-      preLoaderRoute: typeof DevShowcaseRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/_dev/showcase'
+      path: '/_dev/showcase'
+      fullPath: '/_dev/showcase'
+      preLoaderRoute: typeof DevShowcaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contacts/$id': {
-      id: '/contacts/$id';
-      path: '/contacts/$id';
-      fullPath: '/contacts/$id';
-      preLoaderRoute: typeof ContactsIdRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/contacts/$id'
+      path: '/contacts/$id'
+      fullPath: '/contacts/$id'
+      preLoaderRoute: typeof ContactsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/daily/': {
-      id: '/daily/';
-      path: '/daily';
-      fullPath: '/daily/';
-      preLoaderRoute: typeof DailyIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/daily/'
+      path: '/daily'
+      fullPath: '/daily/'
+      preLoaderRoute: typeof DailyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/daily/note': {
-      id: '/daily/note';
-      path: '/daily/note';
-      fullPath: '/daily/note';
-      preLoaderRoute: typeof DailyNoteRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/daily/note'
+      path: '/daily/note'
+      fullPath: '/daily/note'
+      preLoaderRoute: typeof DailyNoteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/daily/preview': {
-      id: '/daily/preview';
-      path: '/daily/preview';
-      fullPath: '/daily/preview';
-      preLoaderRoute: typeof DailyPreviewRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/daily/preview'
+      path: '/daily/preview'
+      fullPath: '/daily/preview'
+      preLoaderRoute: typeof DailyPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donation/': {
+      id: '/donation/'
+      path: '/donation'
+      fullPath: '/donation/'
+      preLoaderRoute: typeof DonationIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donation/new': {
+      id: '/donation/new'
+      path: '/donation/new'
+      fullPath: '/donation/new'
+      preLoaderRoute: typeof DonationNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dua/': {
-      id: '/dua/';
-      path: '/dua';
-      fullPath: '/dua/';
-      preLoaderRoute: typeof DuaIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/dua/'
+      path: '/dua'
+      fullPath: '/dua/'
+      preLoaderRoute: typeof DuaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dua/attach': {
-      id: '/dua/attach';
-      path: '/dua/attach';
-      fullPath: '/dua/attach';
-      preLoaderRoute: typeof DuaAttachRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/dua/attach'
+      path: '/dua/attach'
+      fullPath: '/dua/attach'
+      preLoaderRoute: typeof DuaAttachRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dua/details': {
-      id: '/dua/details';
-      path: '/dua/details';
-      fullPath: '/dua/details';
-      preLoaderRoute: typeof DuaDetailsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/dua/details'
+      path: '/dua/details'
+      fullPath: '/dua/details'
+      preLoaderRoute: typeof DuaDetailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dua/preview': {
-      id: '/dua/preview';
-      path: '/dua/preview';
-      fullPath: '/dua/preview';
-      preLoaderRoute: typeof DuaPreviewRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/dua/preview'
+      path: '/dua/preview'
+      fullPath: '/dua/preview'
+      preLoaderRoute: typeof DuaPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/needy/': {
+      id: '/needy/'
+      path: '/needy'
+      fullPath: '/needy/'
+      preLoaderRoute: typeof NeedyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/needy/$id': {
+      id: '/needy/$id'
+      path: '/needy/$id'
+      fullPath: '/needy/$id'
+      preLoaderRoute: typeof NeedyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/notice/': {
-      id: '/notice/';
-      path: '/notice';
-      fullPath: '/notice/';
-      preLoaderRoute: typeof NoticeIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/notice/'
+      path: '/notice'
+      fullPath: '/notice/'
+      preLoaderRoute: typeof NoticeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/notice/fill': {
-      id: '/notice/fill';
-      path: '/notice/fill';
-      fullPath: '/notice/fill';
-      preLoaderRoute: typeof NoticeFillRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/notice/fill'
+      path: '/notice/fill'
+      fullPath: '/notice/fill'
+      preLoaderRoute: typeof NoticeFillRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/notice/preview': {
-      id: '/notice/preview';
-      path: '/notice/preview';
-      fullPath: '/notice/preview';
-      preLoaderRoute: typeof NoticePreviewRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/notice/preview'
+      path: '/notice/preview'
+      fullPath: '/notice/preview'
+      preLoaderRoute: typeof NoticePreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ruqyah/': {
-      id: '/ruqyah/';
-      path: '/ruqyah';
-      fullPath: '/ruqyah/';
-      preLoaderRoute: typeof RuqyahIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ruqyah/'
+      path: '/ruqyah'
+      fullPath: '/ruqyah/'
+      preLoaderRoute: typeof RuqyahIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ruqyah/$id': {
-      id: '/ruqyah/$id';
-      path: '/ruqyah/$id';
-      fullPath: '/ruqyah/$id';
-      preLoaderRoute: typeof RuqyahIdRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/ruqyah/$id'
+      path: '/ruqyah/$id'
+      fullPath: '/ruqyah/$id'
+      preLoaderRoute: typeof RuqyahIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/soon/$tile': {
-      id: '/soon/$tile';
-      path: '/soon/$tile';
-      fullPath: '/soon/$tile';
-      preLoaderRoute: typeof SoonTileRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/soon/$tile'
+      path: '/soon/$tile'
+      fullPath: '/soon/$tile'
+      preLoaderRoute: typeof SoonTileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/special/': {
-      id: '/special/';
-      path: '/special';
-      fullPath: '/special/';
-      preLoaderRoute: typeof SpecialIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/special/'
+      path: '/special'
+      fullPath: '/special/'
+      preLoaderRoute: typeof SpecialIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/special/$id': {
-      id: '/special/$id';
-      path: '/special/$id';
-      fullPath: '/special/$id';
-      preLoaderRoute: typeof SpecialIdRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/special/$id'
+      path: '/special/$id'
+      fullPath: '/special/$id'
+      preLoaderRoute: typeof SpecialIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/': {
-      id: '/super/';
-      path: '/super';
-      fullPath: '/super/';
-      preLoaderRoute: typeof SuperIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/super/'
+      path: '/super'
+      fullPath: '/super/'
+      preLoaderRoute: typeof SuperIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/audit': {
-      id: '/super/audit';
-      path: '/super/audit';
-      fullPath: '/super/audit';
-      preLoaderRoute: typeof SuperAuditRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/super/audit'
+      path: '/super/audit'
+      fullPath: '/super/audit'
+      preLoaderRoute: typeof SuperAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super/payments': {
+      id: '/super/payments'
+      path: '/super/payments'
+      fullPath: '/super/payments'
+      preLoaderRoute: typeof SuperPaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/settings': {
-      id: '/super/settings';
-      path: '/super/settings';
-      fullPath: '/super/settings';
-      preLoaderRoute: typeof SuperSettingsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/super/settings'
+      path: '/super/settings'
+      fullPath: '/super/settings'
+      preLoaderRoute: typeof SuperSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/videos/': {
+      id: '/videos/'
+      path: '/videos'
+      fullPath: '/videos/'
+      preLoaderRoute: typeof VideosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/videos/new': {
+      id: '/videos/new'
+      path: '/videos/new'
+      fullPath: '/videos/new'
+      preLoaderRoute: typeof VideosNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/library/': {
-      id: '/super/library/';
-      path: '/super/library';
-      fullPath: '/super/library/';
-      preLoaderRoute: typeof SuperLibraryIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/super/library/'
+      path: '/super/library'
+      fullPath: '/super/library/'
+      preLoaderRoute: typeof SuperLibraryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/library/$id': {
-      id: '/super/library/$id';
-      path: '/super/library/$id';
-      fullPath: '/super/library/$id';
-      preLoaderRoute: typeof SuperLibraryIdRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/super/library/$id'
+      path: '/super/library/$id'
+      fullPath: '/super/library/$id'
+      preLoaderRoute: typeof SuperLibraryIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/library/import': {
-      id: '/super/library/import';
-      path: '/super/library/import';
-      fullPath: '/super/library/import';
-      preLoaderRoute: typeof SuperLibraryImportRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/super/library/import'
+      path: '/super/library/import'
+      fullPath: '/super/library/import'
+      preLoaderRoute: typeof SuperLibraryImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/masjids/': {
-      id: '/super/masjids/';
-      path: '/super/masjids';
-      fullPath: '/super/masjids/';
-      preLoaderRoute: typeof SuperMasjidsIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/super/masjids/'
+      path: '/super/masjids'
+      fullPath: '/super/masjids/'
+      preLoaderRoute: typeof SuperMasjidsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/masjids/$id': {
-      id: '/super/masjids/$id';
-      path: '/super/masjids/$id';
-      fullPath: '/super/masjids/$id';
-      preLoaderRoute: typeof SuperMasjidsIdRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/super/masjids/$id'
+      path: '/super/masjids/$id'
+      fullPath: '/super/masjids/$id'
+      preLoaderRoute: typeof SuperMasjidsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/masjids/new': {
-      id: '/super/masjids/new';
-      path: '/super/masjids/new';
-      fullPath: '/super/masjids/new';
-      preLoaderRoute: typeof SuperMasjidsNewRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/super/masjids/new'
+      path: '/super/masjids/new'
+      fullPath: '/super/masjids/new'
+      preLoaderRoute: typeof SuperMasjidsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/templates/': {
-      id: '/super/templates/';
-      path: '/super/templates';
-      fullPath: '/super/templates/';
-      preLoaderRoute: typeof SuperTemplatesIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/super/templates/'
+      path: '/super/templates'
+      fullPath: '/super/templates/'
+      preLoaderRoute: typeof SuperTemplatesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/templates/$key': {
-      id: '/super/templates/$key';
-      path: '/super/templates/$key';
-      fullPath: '/super/templates/$key';
-      preLoaderRoute: typeof SuperTemplatesKeyRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/super/templates/$key'
+      path: '/super/templates/$key'
+      fullPath: '/super/templates/$key'
+      preLoaderRoute: typeof SuperTemplatesKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/templates/new': {
-      id: '/super/templates/new';
-      path: '/super/templates/new';
-      fullPath: '/super/templates/new';
-      preLoaderRoute: typeof SuperTemplatesNewRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/super/templates/new'
+      path: '/super/templates/new'
+      fullPath: '/super/templates/new'
+      preLoaderRoute: typeof SuperTemplatesNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/masjids/$id/edit': {
-      id: '/super/masjids/$id/edit';
-      path: '/edit';
-      fullPath: '/super/masjids/$id/edit';
-      preLoaderRoute: typeof SuperMasjidsIdEditRouteImport;
-      parentRoute: typeof SuperMasjidsIdRoute;
-    };
+      id: '/super/masjids/$id/edit'
+      path: '/edit'
+      fullPath: '/super/masjids/$id/edit'
+      preLoaderRoute: typeof SuperMasjidsIdEditRouteImport
+      parentRoute: typeof SuperMasjidsIdRoute
+    }
   }
 }
 
 interface SuperMasjidsIdRouteChildren {
-  SuperMasjidsIdEditRoute: typeof SuperMasjidsIdEditRoute;
+  SuperMasjidsIdEditRoute: typeof SuperMasjidsIdEditRoute
 }
 
 const SuperMasjidsIdRouteChildren: SuperMasjidsIdRouteChildren = {
   SuperMasjidsIdEditRoute: SuperMasjidsIdEditRoute,
-};
+}
 
-const SuperMasjidsIdRouteWithChildren = SuperMasjidsIdRoute._addFileChildren(SuperMasjidsIdRouteChildren);
+const SuperMasjidsIdRouteWithChildren = SuperMasjidsIdRoute._addFileChildren(
+  SuperMasjidsIdRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
   AdhkarRoute: AdhkarRoute,
   BloodCampRoute: BloodCampRoute,
+  ChandaRoute: ChandaRoute,
   NotificationsRoute: NotificationsRoute,
+  PaymentRoute: PaymentRoute,
   PostsRoute: PostsRoute,
   ProfileRoute: ProfileRoute,
   TimingsRoute: TimingsRoute,
@@ -817,22 +1001,29 @@ const rootRouteChildren: RootRouteChildren = {
   ContactsIdRoute: ContactsIdRoute,
   DailyNoteRoute: DailyNoteRoute,
   DailyPreviewRoute: DailyPreviewRoute,
+  DonationNewRoute: DonationNewRoute,
   DuaAttachRoute: DuaAttachRoute,
   DuaDetailsRoute: DuaDetailsRoute,
   DuaPreviewRoute: DuaPreviewRoute,
+  NeedyIdRoute: NeedyIdRoute,
   NoticeFillRoute: NoticeFillRoute,
   NoticePreviewRoute: NoticePreviewRoute,
   RuqyahIdRoute: RuqyahIdRoute,
   SoonTileRoute: SoonTileRoute,
   SpecialIdRoute: SpecialIdRoute,
   SuperAuditRoute: SuperAuditRoute,
+  SuperPaymentsRoute: SuperPaymentsRoute,
   SuperSettingsRoute: SuperSettingsRoute,
+  VideosNewRoute: VideosNewRoute,
   DailyIndexRoute: DailyIndexRoute,
+  DonationIndexRoute: DonationIndexRoute,
   DuaIndexRoute: DuaIndexRoute,
+  NeedyIndexRoute: NeedyIndexRoute,
   NoticeIndexRoute: NoticeIndexRoute,
   RuqyahIndexRoute: RuqyahIndexRoute,
   SpecialIndexRoute: SpecialIndexRoute,
   SuperIndexRoute: SuperIndexRoute,
+  VideosIndexRoute: VideosIndexRoute,
   SuperLibraryIdRoute: SuperLibraryIdRoute,
   SuperLibraryImportRoute: SuperLibraryImportRoute,
   SuperMasjidsIdRoute: SuperMasjidsIdRouteWithChildren,
@@ -842,5 +1033,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuperLibraryIndexRoute: SuperLibraryIndexRoute,
   SuperMasjidsIndexRoute: SuperMasjidsIndexRoute,
   SuperTemplatesIndexRoute: SuperTemplatesIndexRoute,
-};
-export const routeTree = rootRouteImport._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>();
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()

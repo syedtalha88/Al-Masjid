@@ -107,7 +107,9 @@ describe('HijriDate (PROGRESS F13: our own month names, Latin digits)', () => {
         </p>
       </I18nProvider>,
     );
-    expect((await screen.findByTestId('hijri')).textContent).toBe(expected);
+    // Urdu arguments arrive as invisible bidi isolates (DECISIONS #160): compare what is shown.
+    const shown = (await screen.findByTestId('hijri')).textContent.replace(/[⁦-⁩]/g, '');
+    expect(shown).toBe(expected);
   });
 
   it('names all twelve months and refuses a thirteenth', async () => {

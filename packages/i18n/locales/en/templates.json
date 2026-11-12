@@ -66,5 +66,9 @@
   "special_timings": {
     "title": "Special timings",
     "body": "This masjid has special timings for {date}. Please see Special Dates for the times."
+  },
+  "payment_details_updated": {
+    "title": "Payment details updated",
+    "body": "This masjid's UPI payment details have changed. Please check the payee name before you donate."
   }
 }

@@ -565,6 +565,237 @@ admin,push.alertsBlocked,Notifications are blocked for this app in the phone set
 admin,push.alertsUnsupported,This browser cannot show alerts.,यह ब्राउज़र अलर्ट नहीं दिखा सकता।,no
 admin,push.alertsInstallFirst,"On iPhone, alerts work only in the installed app.",iPhone पर अलर्ट सिर्फ़ इंस्टॉल किए गए ऐप में आते हैं।,no
 admin,push.alertsFailed,Could not change alerts. Please try again.,अलर्ट नहीं बदल सके। कृपया फिर से कोशिश करें।,no
+admin,payment.title,UPI payment details,UPI भुगतान विवरण,no
+admin,payment.formTitle,UPI setup,UPI सेटअप,no
+admin,payment.intro,Followers pay donations straight to this UPI ID. The app never touches the money.,फ़ॉलोअर्स दान सीधे इसी UPI ID पर भेजते हैं। ऐप पैसे को कभी नहीं छूता।,no
+admin,payment.notSet,Not set up yet,अभी सेट नहीं है,no
+admin,payment.current,Shown to followers now,अभी फ़ॉलोअर्स को दिख रहा है,no
+admin,payment.vpa,UPI ID,UPI ID,no
+admin,payment.payee,Payee name,प्राप्तकर्ता का नाम,no
+admin,payment.payeeHint,As your bank shows it — UPI apps show this name before paying.,जैसा आपका बैंक दिखाता है — UPI ऐप भुगतान से पहले यही नाम दिखाते हैं।,no
+admin,payment.note,Note for the Super Admin,सुपर एडमिन के लिए नोट,no
+admin,payment.noteHint,For example: new committee account,जैसे: कमेटी का नया खाता,no
+admin,payment.setUp,Set up UPI,UPI सेट करें,no
+admin,payment.change,Change UPI,UPI बदलें,no
+admin,payment.scan,Scan the masjid’s UPI QR,मस्जिद का UPI QR स्कैन करें,no
+admin,payment.scanHint,Point the camera at the masjid’s own UPI QR.,कैमरा मस्जिद के अपने UPI QR पर रखें।,no
+admin,payment.scanNotUpi,This is not a UPI payment QR.,यह UPI भुगतान का QR नहीं है।,no
+admin,payment.scanFilled,UPI ID filled from the QR. Check the name.,QR से UPI ID भर दी गई। नाम जाँच लें।,no
+admin,payment.scanUnavailable,The camera cannot be used here. Type the UPI ID instead.,यहाँ कैमरा इस्तेमाल नहीं हो सकता। UPI ID टाइप करें।,no
+admin,payment.scanStart,Allow camera,कैमरा की अनुमति दें,no
+admin,payment.scanClose,Close,बंद करें,no
+admin,payment.warning,"For safety, changes take 24 hours after approval. Followers will be told the payment details changed.",सुरक्षा के लिए बदलाव मंज़ूरी के 24 घंटे बाद लागू होते हैं। फ़ॉलोअर्स को बताया जाएगा कि भुगतान विवरण बदले हैं।,no
+admin,payment.submit,Send for approval,मंज़ूरी के लिए भेजें,no
+admin,payment.sent,Sent. The Super Admin will check it.,भेज दिया। सुपर एडमिन इसे जाँचेंगे।,no
+admin,payment.missing,Still needed: {fields},अभी चाहिए: {fields},no
+admin,payment.issue.vpa,a valid UPI ID,सही UPI ID,no
+admin,payment.issue.payee,the payee name,प्राप्तकर्ता का नाम,no
+admin,payment.waiting,A change is waiting. You can ask again once it is decided.,एक बदलाव इंतज़ार में है। उसका फ़ैसला होने के बाद फिर माँग सकते हैं।,no
+admin,payment.ownerOnly,"Only an owner of the masjid can change the UPI details. Ask the owner, or the Super Admin.",UPI विवरण सिर्फ़ मस्जिद के मालिक बदल सकते हैं। मालिक या सुपर एडमिन से कहें।,no
+admin,payment.status.pending,Requested — waiting for approval,अनुरोध भेजा — मंज़ूरी का इंतज़ार,no
+admin,payment.status.approved_on_hold,Approved — goes live {time},मंज़ूर — {time} से लागू,no
+admin,payment.status.rejected,Not approved: {reason},मंज़ूर नहीं: {reason},no
+admin,payment.status.requester_removed,Stopped — the admin who asked no longer has access. An owner can ask again.,रोका गया — माँगने वाले एडमिन की पहुँच अब नहीं है। मालिक फिर से माँग सकते हैं।,no
+admin,payment.step.requested,Requested,अनुरोध,no
+admin,payment.step.approved,Approved,मंज़ूर,no
+admin,payment.step.live,Live,लागू,no
+admin,donation.title,Donation Drive,दान अभियान,no
+admin,donation.intro,Run a drive and keep the amount updated. Followers pay the masjid's UPI directly.,अभियान चलाएँ और राशि अपडेट रखें। फ़ॉलोअर्स सीधे मस्जिद के UPI पर भेजते हैं।,no
+admin,donation.noUpi,Set up your masjid's UPI first,पहले अपनी मस्जिद का UPI सेट करें,no
+admin,donation.noUpiBody,Donations go straight to the masjid's verified UPI ID. Add it in Masjid Profile.,दान सीधे मस्जिद की सत्यापित UPI ID पर जाता है। इसे मस्जिद प्रोफ़ाइल में जोड़ें।,no
+admin,donation.setUpUpi,Set up UPI,UPI सेट करें,no
+admin,donation.new,New drive,नया अभियान,no
+admin,donation.limit,Up to 3 drives at a time. Mark one completed to start another.,एक साथ 3 अभियान तक। नया शुरू करने के लिए किसी एक को पूरा करें।,no
+admin,donation.empty,No drives yet,अभी कोई अभियान नहीं,no
+admin,donation.emptyBody,"Start one for repairs, renovation, bills or helping people.","मरम्मत, नवीनीकरण, बिल या लोगों की मदद के लिए एक शुरू करें।",no
+admin,donation.status.active,Active,चालू,no
+admin,donation.status.completed,Completed,पूरा,no
+admin,donation.status.closed,Closed,बंद,no
+admin,donation.amounts,{received} of {target},{target} में से {received},no
+admin,donation.receivedLabel,Received (reported by masjid),प्राप्त (मस्जिद द्वारा बताया गया),no
+admin,donation.updateAmount,Update amount,राशि अपडेट करें,no
+admin,donation.updateTitle,Received so far,अब तक प्राप्त,no
+admin,donation.notify,Notify followers,फ़ॉलोअर्स को सूचना दें,no
+admin,donation.notifyHint,Off unless it is news worth a notification.,"बंद रखें, जब तक सूचना देने लायक ख़बर न हो।",no
+admin,donation.save,Save,सेव करें,no
+admin,donation.saved,Amount saved,राशि सेव हो गई,no
+admin,donation.complete,Mark completed,पूरा चिह्नित करें,no
+admin,donation.completeTitle,Mark this drive completed?,इस अभियान को पूरा चिह्नित करें?,no
+admin,donation.completeBody,"Followers still see it until it closes, and you can still update the amount.","बंद होने तक फ़ॉलोअर्स इसे देखते रहेंगे, और आप राशि अपडेट कर सकते हैं।",no
+admin,donation.completed,Marked completed,पूरा चिह्नित किया,no
+admin,donation.newTitle,New donation drive,नया दान अभियान,no
+admin,donation.purposeQuestion,What is it for?,यह किस लिए है?,no
+admin,donation.purpose.renovation,Renovation,नवीनीकरण,no
+admin,donation.purpose.repair,Repair,मरम्मत,no
+admin,donation.purpose.utilities,Bills & utilities,बिल और सुविधाएँ,no
+admin,donation.purpose.welfare,Helping people,लोगों की मदद,no
+admin,donation.purpose.other,Other,अन्य,no
+admin,donation.titleLabel,Title,शीर्षक,no
+admin,donation.suggestions,Suggestions,सुझाव,no
+admin,donation.suggest.renovation.a,Masjid renovation,मस्जिद का नवीनीकरण,no
+admin,donation.suggest.renovation.b,New carpets,नए कालीन,no
+admin,donation.suggest.repair.a,Roof repair,छत की मरम्मत,no
+admin,donation.suggest.repair.b,Wudu area repair,वुज़ू की जगह की मरम्मत,no
+admin,donation.suggest.utilities.a,Electricity bill,बिजली का बिल,no
+admin,donation.suggest.utilities.b,Water tank,पानी की टंकी,no
+admin,donation.suggest.welfare.a,Ration kits for families,परिवारों के लिए राशन किट,no
+admin,donation.suggest.welfare.b,Help for families in need,ज़रूरतमंद परिवारों की मदद,no
+admin,donation.suggest.other.a,Masjid fund,मस्जिद फ़ंड,no
+admin,donation.suggest.other.b,Masjid development,मस्जिद का विकास,no
+admin,donation.description,About this drive,इस अभियान के बारे में,no
+admin,donation.target,Target amount,लक्ष्य राशि,no
+admin,donation.targetHint,"At least ₹1,000","कम से कम ₹1,000",no
+admin,donation.startsOn,Starts,शुरू,no
+admin,donation.endsOn,Ends (optional),ख़त्म (वैकल्पिक),no
+admin,donation.preview,Preview,पूर्वावलोकन,no
+admin,donation.publish,Publish,प्रकाशित करें,no
+admin,donation.published,Drive published,अभियान प्रकाशित हुआ,no
+admin,donation.missing,Still needed: {fields},अभी चाहिए: {fields},no
+admin,donation.issue.purpose,what it is for,यह किस लिए है,no
+admin,donation.issue.title,a title,शीर्षक,no
+admin,donation.issue.target,"a target of at least ₹1,000","कम से कम ₹1,000 का लक्ष्य",no
+admin,donation.issue.dates,an end date after the start,शुरू के बाद की ख़त्म तारीख़,no
+admin,video.title,Bayan Video,बयान वीडियो,no
+admin,video.new,Add a bayan,बयान जोड़ें,no
+admin,video.empty,No bayans yet,अभी कोई बयान नहीं,no
+admin,video.emptyBody,"Upload a bayan to your masjid's YouTube channel, then add its link here.","बयान को अपनी मस्जिद के YouTube चैनल पर अपलोड करें, फिर उसका लिंक यहाँ जोड़ें।",no
+admin,video.helpTitle,Upload to YouTube first,पहले YouTube पर अपलोड करें,no
+admin,video.helpBody,"Upload the bayan to your masjid's YouTube channel, then copy its link.","बयान को अपनी मस्जिद के YouTube चैनल पर अपलोड करें, फिर उसका लिंक कॉपी करें।",no
+admin,video.paste,Paste link,लिंक पेस्ट करें,no
+admin,video.pasteFailed,Could not read the copied link. Long-press the box and paste.,कॉपी किया गया लिंक पढ़ा नहीं जा सका। बॉक्स को दबाकर रखें और पेस्ट करें।,no
+admin,video.linkLabel,YouTube link,YouTube लिंक,no
+admin,video.linkInvalid,This is not a YouTube video link,यह YouTube वीडियो का लिंक नहीं है,no
+admin,video.check,Check link,लिंक जाँचें,no
+admin,video.checking,Checking the video…,वीडियो जाँचा जा रहा है…,no
+admin,video.previewTitle,Preview,पूर्वावलोकन,no
+admin,video.playsFromYouTube,Plays from YouTube,YouTube से चलता है,no
+admin,video.titleLabel,Title,शीर्षक,no
+admin,video.speaker,Speaker,वक्ता,no
+admin,video.description,Description,विवरण,no
+admin,video.audienceQuestion,Who is it for?,यह किसके लिए है?,no
+admin,video.audience.everyone,Everyone,सभी,no
+admin,video.audience.brothers,Brothers only,सिर्फ़ भाई,no
+admin,video.audience.sisters,Sisters only,सिर्फ़ बहनें,no
+admin,video.sistersWarning,Anyone who has this YouTube link can watch it outside the app. Upload it as Unlisted.,"जिसके पास भी यह YouTube लिंक है, वह इसे ऐप के बाहर देख सकता है। इसे Unlisted के रूप में अपलोड करें।",no
+admin,video.rights,"This bayan is our masjid's, or we may share it","यह बयान हमारी मस्जिद का है, या हम इसे साझा कर सकते हैं",no
+admin,video.rightsHint,Share only bayans your masjid is allowed to publish.,सिर्फ़ वही बयान साझा करें जिन्हें प्रकाशित करने की आपकी मस्जिद को अनुमति है।,no
+admin,video.missing,Still needed: {fields},अभी चाहिए: {fields},no
+admin,video.issue.link,a checked YouTube link,जाँचा हुआ YouTube लिंक,no
+admin,video.issue.title,a title,शीर्षक,no
+admin,video.issue.audience,who it is for,यह किसके लिए है,no
+admin,video.issue.rights,the tick above,ऊपर का निशान,no
+admin,video.status.published,Published,प्रकाशित,no
+admin,video.status.removed,Removed by moderation,मॉडरेशन द्वारा हटाया गया,no
+admin,video.status.deleted,Deleted,हटाया गया,no
+admin,video.edit,Edit,बदलें,no
+admin,video.editTitle,Edit bayan,बयान बदलें,no
+admin,video.editHint,You can change the texts for 24 hours after publishing.,प्रकाशित करने के बाद 24 घंटे तक आप लिखा हुआ बदल सकते हैं।,no
+admin,video.save,Save,सहेजें,no
+admin,video.saved,Saved,सहेजा गया,no
+admin,video.delete,Delete,हटाएँ,no
+admin,video.deleteTitle,Delete this bayan?,यह बयान हटाएँ?,no
+admin,video.deleteBody,Followers will no longer see it in the app. The video itself stays on your YouTube channel.,फ़ॉलोअर्स इसे ऐप में अब नहीं देखेंगे। वीडियो आपके YouTube चैनल पर बना रहेगा।,no
+admin,video.deleted,Deleted,हटाया गया,no
+admin,chanda.title,Chanda,चंदा,no
+admin,chanda.intro,Enter the total collected each week. Followers see it only when “Show chanda to followers” is on.,हर हफ़्ते जमा हुई कुल राशि डालें। फ़ॉलोअर्स इसे तभी देखते हैं जब “फ़ॉलोअर्स को चंदा दिखाएँ” चालू हो।,no
+admin,chanda.show,Show chanda to followers,फ़ॉलोअर्स को चंदा दिखाएँ,no
+admin,chanda.showHint,Followers see the weekly totals and a chart on your masjid page.,फ़ॉलोअर्स आपकी मस्जिद के पेज पर हर हफ़्ते का कुल और एक चार्ट देखते हैं।,no
+admin,chanda.shownToast,Chanda is now shown to followers,अब चंदा फ़ॉलोअर्स को दिख रहा है,no
+admin,chanda.hiddenToast,Chanda is now hidden from followers,अब चंदा फ़ॉलोअर्स से छिपा है,no
+admin,chanda.weekStartsOn,Week starts on,हफ़्ता शुरू होता है,no
+admin,chanda.day.1,Monday,सोमवार,no
+admin,chanda.day.5,Friday,शुक्रवार,no
+admin,chanda.weekStartSaved,Week start saved,हफ़्ते की शुरुआत सेव हो गई,no
+admin,chanda.thisWeek,This week,यह हफ़्ता,no
+admin,chanda.week,Week,हफ़्ता,no
+admin,chanda.range,{start} – {end},{start} – {end},no
+admin,chanda.previous,Previous week,पिछला हफ़्ता,no
+admin,chanda.next,Next week,अगला हफ़्ता,no
+admin,chanda.amount,Total collected,कुल जमा,no
+admin,chanda.note,Note,नोट,no
+admin,chanda.noteHint,For example: thanks to everyone who gave,उदाहरण: देने वाले सभी का शुक्रिया,no
+admin,chanda.notify,Notify followers,फ़ॉलोअर्स को सूचना दें,no
+admin,chanda.notifyHint,Uses one of today’s notifications.,आज की सूचनाओं में से एक इस्तेमाल होगी।,no
+admin,chanda.notifyHidden,Turn on “Show chanda to followers” to notify them.,सूचना देने के लिए “फ़ॉलोअर्स को चंदा दिखाएँ” चालू करें।,no
+admin,chanda.save,Save,सेव करें,no
+admin,chanda.update,Save changes,बदलाव सेव करें,no
+admin,chanda.saved,Saved,सेव हो गया,no
+admin,chanda.history,Earlier weeks,पिछले हफ़्ते,no
+admin,chanda.empty,No weeks entered yet.,अभी कोई हफ़्ता नहीं डाला गया।,no
+admin,needy.title,Needy people,ज़रूरतमंद लोग,no
+admin,needy.intro,People your masjid has verified as in need. Followers pay them directly by UPI — the app never touches the money.,वे लोग जिन्हें आपकी मस्जिद ने ज़रूरतमंद के रूप में जाँचा है। फ़ॉलोअर्स उन्हें सीधे UPI से भेजते हैं — ऐप पैसे को कभी नहीं छूता।,no
+admin,needy.statusFilter,Status,स्थिति,no
+admin,needy.status.active,Active,चालू,no
+admin,needy.status.fulfilled,Fulfilled,ज़रूरत पूरी,no
+admin,needy.status.closed,Closed,बंद,no
+admin,needy.empty.active,No one listed yet,अभी कोई सूची में नहीं,no
+admin,needy.empty.fulfilled,No one fulfilled yet,अभी किसी की ज़रूरत पूरी नहीं हुई,no
+admin,needy.empty.closed,No one closed yet,अभी कोई बंद नहीं,no
+admin,needy.emptyBody,Add a person your masjid has verified. Ask them first.,ऐसे व्यक्ति को जोड़ें जिसे आपकी मस्जिद ने जाँचा है। पहले उनसे पूछें।,no
+admin,needy.category.widow,Widow,विधवा,no
+admin,needy.category.orphan,Orphan,यतीम,no
+admin,needy.category.disability,Disability,विकलांगता,no
+admin,needy.category.illness,Illness,बीमारी,no
+admin,needy.category.elderly,Elderly,बुज़ुर्ग,no
+admin,needy.category.homeless,Homeless,बेघर,no
+admin,needy.category.debt,Debt,क़र्ज़,no
+admin,needy.category.student,Student,विद्यार्थी,no
+admin,needy.category.other,Other,अन्य,no
+admin,needy.zakat,Zakat-eligible,ज़कात के पात्र,no
+admin,needy.amounts,{received} of {target},{target} में से {received},no
+admin,needy.receivedLabel,Received (reported by masjid),प्राप्त (मस्जिद द्वारा बताया गया),no
+admin,needy.fulfilledNote,Fulfilled — hidden from the app,ज़रूरत पूरी — ऐप में नहीं दिखेगा,no
+admin,needy.relistNote,"Below the amount needed, this person is listed in the app again.",ज़रूरत की राशि से कम होने पर यह व्यक्ति ऐप में फिर दिखेगा।,no
+admin,needy.updateReceived,Update received,प्राप्त राशि अपडेट करें,no
+admin,needy.updateTitle,Received so far,अब तक प्राप्त,no
+admin,needy.needed,Needed: {amount},ज़रूरत: {amount},no
+admin,needy.save,Save,सेव करें,no
+admin,needy.saved,Amount saved,राशि सेव हो गई,no
+admin,needy.edit,Edit details,विवरण बदलें,no
+admin,needy.close,Close,बंद करें,no
+admin,needy.closeTitle,Close this person?,इस व्यक्ति को बंद करें?,no
+admin,needy.closeBody,Use this when help is no longer needed. They are hidden from the app. This cannot be undone.,जब मदद की ज़रूरत न रहे तब इसे चुनें। वे ऐप में नहीं दिखेंगे। इसे वापस नहीं किया जा सकता।,no
+admin,needy.closed,Closed,बंद किया गया,no
+admin,needy.remove,Remove,हटाएँ,no
+admin,needy.removeTitle,Remove this person?,इस व्यक्ति को हटाएँ?,no
+admin,needy.removeBody,"Use this for a mistake, or when the person asks to be removed. This cannot be undone.","ग़लती होने पर, या जब व्यक्ति हटाने को कहे, तब इसे चुनें। इसे वापस नहीं किया जा सकता।",no
+admin,needy.removed,Removed,हटाया गया,no
+admin,needy.add,Add person,व्यक्ति जोड़ें,no
+admin,needy.full,"You have {max} active people, the most allowed. Close one to add another.","आपके {max} चालू व्यक्ति हैं, जो सबसे ज़्यादा है। नया जोड़ने के लिए एक को बंद करें।",no
+admin,needy.retention,"Details of fulfilled, closed and removed people are deleted after 90 days.","ज़रूरत पूरी हुए, बंद और हटाए गए लोगों का विवरण 90 दिन बाद मिटा दिया जाता है।",no
+admin,needy.newTitle,Add a person,नया व्यक्ति जोड़ें,no
+admin,needy.editTitle,Edit person,व्यक्ति का विवरण बदलें,no
+admin,needy.name,Name shown in the app,ऐप में दिखने वाला नाम,no
+admin,needy.nameHint,First name or initials only,सिर्फ़ पहला नाम या नाम के पहले अक्षर,no
+admin,needy.categoryQuestion,What kind of need?,किस तरह की ज़रूरत है?,no
+admin,needy.reason,Why they need help,मदद क्यों चाहिए,no
+admin,needy.reasonHint,"Short and respectful. No address, phone number or family names.","छोटा और सम्मानजनक लिखें। पता, फ़ोन नंबर या परिवार के नाम न लिखें।",no
+admin,needy.upiTitle,The person’s own UPI,व्यक्ति का अपना UPI,no
+admin,needy.upiHint,Money goes straight to this UPI ID. Check it with the person.,पैसा सीधे इसी UPI ID पर जाता है। व्यक्ति से इसे जाँच लें।,no
+admin,needy.scan,Scan the person’s UPI QR,व्यक्ति का UPI QR स्कैन करें,no
+admin,needy.scanHint,Point the camera at the person’s own UPI QR.,कैमरा व्यक्ति के अपने UPI QR पर रखें।,no
+admin,needy.cap,Amount needed,ज़रूरत की राशि,no
+admin,needy.capHint,From ₹1 to ₹1 crore,₹1 से ₹1 करोड़ तक,no
+admin,needy.zakatLabel,Zakat can be given to this person,इस व्यक्ति को ज़कात दी जा सकती है,no
+admin,needy.zakatHint,Your masjid’s statement. The app shows “Zakat-eligible”.,यह आपकी मस्जिद का बयान है। ऐप में “ज़कात के पात्र” दिखेगा।,no
+admin,needy.privateTitle,Private details,निजी विवरण,no
+admin,needy.privateHint,Only admins of this masjid see this. It is stored encrypted and never shown in the app.,इसे सिर्फ़ इस मस्जिद के एडमिन देखते हैं। यह एन्क्रिप्ट करके रखा जाता है और ऐप में कभी नहीं दिखता।,no
+admin,needy.phone,Phone number,फ़ोन नंबर,no
+admin,needy.note,Private note,निजी नोट,no
+admin,needy.showPrivate,Show private details,निजी विवरण दिखाएँ,no
+admin,needy.showPrivateHint,"Each time someone views them, it is recorded.","जब भी कोई इन्हें देखता है, वह दर्ज होता है।",no
+admin,needy.consent,The person — or a guardian for a child — agreed to be listed with these details,इस व्यक्ति ने — या बच्चे के लिए उसके अभिभावक ने — इन विवरणों के साथ सूची में आने की सहमति दी है,no
+admin,needy.consentHint,"Ask them first. Their name, reason and UPI ID will be visible to app users.","पहले उनसे पूछें। उनका नाम, कारण और UPI ID ऐप के उपयोगकर्ताओं को दिखेंगे।",no
+admin,needy.missing,Still needed: {fields},अभी चाहिए: {fields},no
+admin,needy.issue.name,a name,नाम,no
+admin,needy.issue.category,the kind of need,ज़रूरत का प्रकार,no
+admin,needy.issue.reason,the reason,कारण,no
+admin,needy.issue.vpa,a valid UPI ID,सही UPI ID,no
+admin,needy.issue.payee,the payee name,प्राप्तकर्ता का नाम,no
+admin,needy.issue.cap,the amount needed,ज़रूरत की राशि,no
+admin,needy.issue.phone,a valid phone number,सही फ़ोन नंबर,no
+admin,needy.issue.consent,the tick that they agreed,सहमति का टिक,no
+admin,needy.personSaved,Person saved,व्यक्ति सेव हो गया,no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no
@@ -669,6 +900,10 @@ common,ui.ilm.messageLabel,Message {name} on WhatsApp,{name} को व्हा
 common,ui.camp.title,Blood donation camp,रक्तदान शिविर,no
 common,ui.camp.when,{date} · {start} – {end},{date} · {start} – {end},no
 common,ui.camp.contact,Contact on WhatsApp,व्हाट्सऐप पर संपर्क करें,no
+common,ui.video.youtube,YouTube,YouTube,no
+common,ui.video.play,Play {title},{title} चलाएँ,no
+common,ui.video.playsFromYouTube,Plays from YouTube,YouTube से चलता है,no
+common,ui.video.offline,Connect to the internet to watch,देखने के लिए इंटरनेट से जुड़ें,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,मग़रिब के बाद,no
 common,hijri.months.m1,Muharram,मुहर्रम,no
@@ -726,6 +961,8 @@ common,updates.filters,Filter updates,अपडेट छाँटें,no
 common,updates.yesterday,Yesterday,कल,no
 common,updates.new,New,नया,no
 common,updates.loadingMore,Loading more…,और लोड हो रहा है…,no
+common,summary.raisedOf,{received} raised of {target},{target} में से {received} जमा,no
+common,summary.collected,{amount} collected in the week of {date},{date} वाले हफ़्ते में {amount} जमा हुए,no
 content,announcements,Announcements,सूचनाएँ,no
 content,hadithQuran,Hadith & Quran,हदीस और क़ुरआन,no
 content,duaRequests,Dua Requests,दुआ की गुज़ारिशें,no
@@ -809,6 +1046,94 @@ content,emptyIlm,No contacts yet,अभी कोई संपर्क नह�
 content,emptyIlmBody,"When the masjid lists people you can ask, they will appear here.","जब मस्जिद उन लोगों को जोड़ेगी जिनसे आप पूछ सकते हैं, वे यहाँ दिखेंगे।",no
 content,ruqyahFailed,Ruqyah could not be loaded,रुक़्या लोड नहीं हो सका,no
 content,ruqyahFailedBody,"Check your connection and try again. Once opened, it stays available offline.",अपना कनेक्शन जाँचें और फिर से कोशिश करें। एक बार खुलने के बाद यह ऑफ़लाइन भी मिलेगा।,no
+content,campaign.title,Donation Campaigns,दान अभियान,no
+content,campaign.detailTitle,Donation Campaign,दान अभियान,no
+content,campaign.status.active,Active,जारी,no
+content,campaign.status.completed,Completed,पूरा,no
+content,campaign.status.closed,Closed,बंद,no
+content,campaign.purpose.renovation,Renovation,नवीनीकरण,no
+content,campaign.purpose.repair,Repair,मरम्मत,no
+content,campaign.purpose.utilities,Bills & utilities,बिल और सुविधाएँ,no
+content,campaign.purpose.welfare,Helping people,लोगों की मदद,no
+content,campaign.purpose.other,Other,अन्य,no
+content,campaign.raisedOf,{received} raised of {target},{target} में से {received} जमा,no
+content,campaign.received,Received (reported by masjid),प्राप्त (मस्जिद द्वारा बताया गया),no
+content,campaign.goal,Goal,लक्ष्य,no
+content,campaign.progressLabel,Received so far,अब तक प्राप्त,no
+content,campaign.percent,{percent}%,{percent}%,no
+content,campaign.lastUpdated,Last updated {when} by masjid admin,"आख़िरी अपडेट {when}, मस्जिद एडमिन द्वारा",no
+content,campaign.started,Started,शुरू हुआ,no
+content,campaign.starts,Starts,शुरू होगा,no
+content,campaign.ends,Ends,समाप्ति,no
+content,campaign.noEnd,No end date,कोई अंतिम तिथि नहीं,no
+content,campaign.purposeLabel,Purpose,उद्देश्य,no
+content,campaign.daysLeft,"{count, plural, =0 {Ends today} one {# day left} other {# days left}}","{count, plural, =0 {आज आख़िरी दिन} one {# दिन बाक़ी} other {# दिन बाक़ी}}",no
+content,campaign.endedOn,Ended {date},{date} को समाप्त,no
+content,campaign.about,About this campaign,इस अभियान के बारे में,no
+content,campaign.donateNow,Donate Now,अभी दान करें,no
+content,campaign.showQr,Show UPI QR Code,UPI QR कोड दिखाएँ,no
+content,campaign.opening,Opening your UPI app…,आपका UPI ऐप खुल रहा है…,no
+content,campaign.disclaimer,Payments go directly to the masjid’s verified UPI account. {app} does not receive or handle any money.,"भुगतान सीधे मस्जिद के सत्यापित UPI खाते में जाता है। {app} कोई पैसा न लेता है, न संभालता है।",no
+content,campaign.closedBanner,This campaign has ended. JazakAllah Khair to everyone who contributed.,यह अभियान समाप्त हो गया है। योगदान देने वाले सभी लोगों को जज़ाकल्लाह ख़ैर।,no
+content,campaign.noUpi,The masjid’s UPI details are not available right now. Please try again later.,मस्जिद की UPI जानकारी अभी उपलब्ध नहीं है। कृपया बाद में फिर कोशिश करें।,no
+content,campaign.empty,No donation campaigns yet,अभी कोई दान अभियान नहीं,no
+content,campaign.emptyBody,"When the masjid starts a donation campaign, you will see it here.","जब मस्जिद कोई दान अभियान शुरू करेगी, वह यहाँ दिखेगा।",no
+content,campaign.qr.title,Pay with UPI,UPI से भुगतान करें,no
+content,campaign.qr.copy,Copy UPI ID,UPI ID कॉपी करें,no
+content,campaign.qr.copied,UPI ID copied,UPI ID कॉपी हो गई,no
+content,campaign.qr.label,UPI QR code for {payee},{payee} का UPI QR कोड,no
+content,campaign.qr.scanHint,Scan with any UPI app from another phone,दूसरे फ़ोन के किसी भी UPI ऐप से स्कैन करें,no
+content,campaign.qr.save,Save QR to gallery,QR गैलरी में सेव करें,no
+content,campaign.qr.saveHint,Or save it and use “Scan from gallery” in your UPI app.,या इसे सेव करके अपने UPI ऐप में “गैलरी से स्कैन करें” चुनें।,no
+content,campaign.qr.saved,QR code saved,QR कोड सेव हो गया,no
+content,campaign.qr.saveFailed,Couldn’t save the QR code. Take a screenshot instead.,QR कोड सेव नहीं हो सका। इसके बजाय स्क्रीनशॉट ले लें।,no
+content,campaign.qr.changed,Payment details changed on {date},भुगतान की जानकारी {date} को बदली गई,no
+content,campaign.qr.checkName,Your UPI app shows the name before you pay — make sure it says {payee}.,भुगतान से पहले आपका UPI ऐप नाम दिखाता है — देख लें कि उसमें {payee} लिखा हो।,no
+content,chanda.title,Weekly Chanda,हफ़्ते का चंदा,no
+content,chanda.thisWeek,This week,यह हफ़्ता,no
+content,chanda.lastWeek,Latest week,ताज़ा हफ़्ता,no
+content,chanda.range,{start} – {end},{start} – {end},no
+content,chanda.reported,Reported by masjid admin.,मस्जिद एडमिन द्वारा बताया गया।,no
+content,chanda.chartLabel,"Chanda of the last {count, plural, one {week} other {# weeks}}","पिछले {count, plural, one {# हफ़्ते} other {# हफ़्तों}} का चंदा",no
+content,chanda.bar,{week}: {amount},{week}: {amount},no
+content,chanda.empty,No chanda reported yet,अभी कोई चंदा नहीं बताया गया,no
+content,chanda.emptyBody,"When the masjid enters a week’s total, it appears here.","जब मस्जिद किसी हफ़्ते का कुल डालेगी, वह यहाँ दिखेगा।",no
+content,chanda.collected,{amount} collected in the week of {date},{date} वाले हफ़्ते में {amount} जमा हुए,no
+content,needy.intro,Verified by {masjid}. Payments go directly to the person.,{masjid} द्वारा जाँचा गया। भुगतान सीधे उस व्यक्ति को जाता है।,no
+content,needy.filter,Filter,फ़िल्टर,no
+content,needy.all,All,सभी,no
+content,needy.zakat,Zakat-eligible,ज़कात के पात्र,no
+content,needy.amounts,{received} of {target},{target} में से {received},no
+content,needy.progressLabel,Received so far,अब तक प्राप्त,no
+content,needy.stillNeeded,Still needed: {amount},अभी ज़रूरत: {amount},no
+content,needy.help,Help {name},{name} की मदद करें,no
+content,needy.pay,Pay with UPI,UPI से भुगतान करें,no
+content,needy.showQr,Show UPI QR,UPI QR दिखाएँ,no
+content,needy.reported,Amount received is reported by the masjid.,प्राप्त राशि मस्जिद द्वारा बताई गई है।,no
+content,needy.zakatAsk,Log this in My zakat?,इसे मेरी ज़कात में दर्ज करें?,no
+content,needy.zakatAskBody,My zakat is a private list kept only on this phone.,मेरी ज़कात एक निजी सूची है जो सिर्फ़ इस फ़ोन पर रहती है।,no
+content,needy.zakatLog,Log it,दर्ज करें,no
+content,needy.zakatNotNow,Not now,अभी नहीं,no
+content,needy.disclaimer,Payments go directly to each person’s own UPI account. {app} does not receive or handle any money.,"भुगतान सीधे हर व्यक्ति के अपने UPI खाते में जाता है। {app} कोई पैसा न लेता है, न संभालता है।",no
+content,needy.empty,No one is listed right now,अभी कोई सूची में नहीं है,no
+content,needy.emptyBody,"When the masjid lists people it has verified as in need, you will see them here.","जब मस्जिद उन लोगों को सूची में डालेगी जिन्हें उसने ज़रूरतमंद के रूप में जाँचा है, वे यहाँ दिखेंगे।",no
+content,needy.emptyZakat,No one here is marked zakat-eligible right now.,अभी यहाँ कोई ज़कात का पात्र चिह्नित नहीं है।,no
+content,needy.failed,Couldn’t load the list,सूची लोड नहीं हो सकी,no
+content,needy.failedBody,"Check your connection and try again. Once opened, it is available offline too.",अपना कनेक्शन जाँचें और फिर से कोशिश करें। एक बार खुलने के बाद यह ऑफ़लाइन भी मिलेगी।,no
+content,needy.category.widow,Widow,विधवा,no
+content,needy.category.orphan,Orphan,यतीम,no
+content,needy.category.disability,Disability,विकलांगता,no
+content,needy.category.illness,Illness,बीमारी,no
+content,needy.category.elderly,Elderly,बुज़ुर्ग,no
+content,needy.category.homeless,Homeless,बेघर,no
+content,needy.category.debt,Debt,क़र्ज़,no
+content,needy.category.student,Student,विद्यार्थी,no
+content,needy.category.other,Other,अन्य,no
+content,bayans,Bayans,बयान,no
+content,emptyBayans,No bayans yet,अभी कोई बयान नहीं,no
+content,emptyBayansBody,"When the masjid shares a bayan, it shows here.","जब मस्जिद कोई बयान साझा करेगी, वह यहाँ दिखेगा।",no
+content,showMore,Show more,और दिखाएँ,no
+content,showLess,Show less,कम दिखाएँ,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,हमारी बिरादरी के एक सदस्य बीमार हैं। कृपया उन्हें अपनी दुआओं में याद रखें।,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,हमारी बिरादरी के एक सदस्य अस्पताल में हैं। कृपया उनकी सेहत के लिए दुआ करें।,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,हमारी बिरादरी के एक सदस्य का ऑपरेशन है। कृपया दुआ करें कि सब ठीक हो।,no
@@ -882,6 +1207,33 @@ errors,CONTACT_INVALID,"Please tick that this person agreed, and check the Whats
 errors,CONTACT_NOT_FOUND,This contact was removed. Please go back to the list.,यह संपर्क हटा दिया गया है। कृपया सूची पर वापस जाएँ।,no
 errors,CONTACT_LIMIT_REACHED,You can list up to 10 contacts. Remove one to add another.,आप अधिकतम 10 संपर्क जोड़ सकते हैं। नया जोड़ने के लिए एक हटाएँ।,no
 errors,PUSH_ENDPOINT_IN_USE,Notifications could not be turned on on this phone. Please try again.,इस फ़ोन पर सूचनाएँ चालू नहीं हो सकीं। कृपया फिर से कोशिश करें।,no
+errors,PAYMENT_INVALID,"Check the UPI ID and the payee name, then try again.","UPI ID और प्राप्तकर्ता का नाम जाँचें, फिर से कोशिश करें।",no
+errors,PAYMENT_UNCHANGED,These are already the payment details shown to everyone.,यही भुगतान विवरण पहले से सबको दिख रहे हैं।,no
+errors,PAYMENT_OWNER_ONLY,Only an owner of the masjid can ask to change the UPI details.,UPI विवरण बदलने का अनुरोध सिर्फ़ मस्जिद के मालिक कर सकते हैं।,no
+errors,PAYMENT_REQUEST_OPEN,A change is already waiting. You can ask again once it is decided.,एक बदलाव पहले से इंतज़ार में है। उसका फ़ैसला होने के बाद फिर से माँगें।,no
+errors,PAYMENT_NOTICE_UNAVAILABLE,"Activate the “Payment details updated” notice template first, so followers are told about the change.","पहले “भुगतान विवरण बदला गया” सूचना टेम्पलेट चालू करें, ताकि फ़ॉलोअर्स को बदलाव की जानकारी मिले।",no
+errors,PAYMENT_DETAILS_IN_TEXT,Please remove the UPI ID or payment link from the text. Followers pay only to the masjid's verified UPI details.,कृपया टेक्स्ट से UPI ID या भुगतान लिंक हटाएँ। फ़ॉलोअर्स सिर्फ़ मस्जिद के सत्यापित UPI विवरण पर भुगतान करते हैं।,no
+errors,PAYMENT_NOT_FOUND,This payment request no longer exists.,यह भुगतान अनुरोध अब मौजूद नहीं है।,no
+errors,PAYMENT_NOT_PENDING,This request was already decided.,इस अनुरोध पर पहले ही फ़ैसला हो चुका है।,no
+errors,PAYMENT_REQUESTER_REMOVED,"The admin who asked no longer has access, so this request was stopped.","माँगने वाले एडमिन की पहुँच अब नहीं है, इसलिए यह अनुरोध रोक दिया गया।",no
+errors,PAYMENT_NOT_OPEN,This request is already live or closed.,यह अनुरोध पहले से लागू है या बंद हो चुका है।,no
+errors,VIDEO_INVALID,"Check the title and the audience, then try again.","शीर्षक और दर्शक जाँचें, फिर से कोशिश करें।",no
+errors,INVALID_VIDEO_LINK,This is not a YouTube video link.,यह YouTube वीडियो का लिंक नहीं है।,no
+errors,VIDEO_UNAVAILABLE,This video is private or can't be shown in other apps.,यह वीडियो प्राइवेट है या दूसरे ऐप्स में नहीं दिखाया जा सकता।,no
+errors,VIDEO_LOOKUP_FAILED,YouTube could not be reached. Try again in a minute.,YouTube से संपर्क नहीं हो पाया। एक मिनट बाद फिर कोशिश करें।,no
+errors,ITEM_LOCKED,This notice was sent by the app and cannot be changed or deleted.,"यह सूचना ऐप ने भेजी है, इसे बदला या हटाया नहीं जा सकता।",no
+errors,CAMPAIGN_INVALID,"Check the title, the target (at least ₹1,000) and the dates, then try again.","शीर्षक, लक्ष्य (कम से कम ₹1,000) और तारीखें जाँचें, फिर कोशिश करें।",no
+errors,CAMPAIGN_NO_PAYMENT,Set up your masjid's UPI first (Masjid Profile → UPI payment details).,पहले अपनी मस्जिद का UPI सेट करें (मस्जिद प्रोफ़ाइल → UPI भुगतान विवरण)।,no
+errors,CAMPAIGN_LIMIT_REACHED,You can run up to 3 donation drives at once. Mark one completed first.,एक साथ 3 दान अभियान तक चला सकते हैं। पहले किसी एक को पूरा करें।,no
+errors,CAMPAIGN_NOT_FOUND,This donation drive no longer exists.,यह दान अभियान अब मौजूद नहीं है।,no
+errors,CAMPAIGN_NOT_ACTIVE,This donation drive is already completed or closed.,यह दान अभियान पहले ही पूरा या बंद हो चुका है।,no
+errors,CAMPAIGN_CLOSED,This donation drive has closed. The amount can no longer be changed.,यह दान अभियान बंद हो गया है। राशि अब नहीं बदली जा सकती।,no
+errors,CAMPAIGN_TARGET_LOWER,"The target can only be raised, not lowered.","लक्ष्य सिर्फ़ बढ़ाया जा सकता है, घटाया नहीं।",no
+errors,CHANDA_INVALID,Please check the week and the amount.,कृपया हफ़्ता और राशि जाँच लें।,no
+errors,CHANDA_HIDDEN,Turn on “Show chanda to followers” before notifying them.,सूचना भेजने से पहले “फ़ॉलोअर्स को चंदा दिखाएँ” चालू करें।,no
+errors,BENEFICIARY_INVALID,"Please check the UPI ID, the name on the UPI account and the amount needed.","कृपया UPI ID, UPI खाते का नाम और ज़रूरत की रक़म जाँचें।",no
+errors,BENEFICIARY_NOT_FOUND,This person is no longer on the list.,यह व्यक्ति अब सूची में नहीं है।,no
+errors,BENEFICIARY_LIMIT_REACHED,You can list up to 100 people at a time. Close one to add another.,आप एक समय में अधिकतम 100 लोग जोड़ सकते हैं। नया जोड़ने के लिए एक बंद करें।,no
 follow,scan.title,Scan masjid QR,मस्जिद का QR स्कैन करें,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,अपना कैमरा मस्जिद के पोस्टर पर लगे QR कोड की ओर करें।,no
 follow,scan.torch,Flashlight,टॉर्च,no
@@ -937,6 +1289,7 @@ masjid,adhkar,Adhkar after salah,नमाज़ के बाद के अज�
 masjid,ruqyah,Ruqyah,रुक़्या,no
 masjid,ilm,Ask the masjid,मस्जिद से पूछें,no
 masjid,campaigns,Donation Campaigns,चंदा अभियान,no
+masjid,needy,Help the needy,ज़रूरतमंदों की मदद,no
 masjid,chanda,Weekly Chanda,हफ़्ते का चंदा,no
 masjid,bayans,Bayans,बयान,no
 masjid,suspended,This masjid is temporarily unavailable,यह मस्जिद अभी कुछ समय के लिए उपलब्ध नहीं है,no
@@ -1004,6 +1357,7 @@ onboarding,notifications.turnOn,Turn on notifications,सूचनाएँ च�
 push,voice,🎤 Voice message,🎤 वॉइस मैसेज,no
 push,fallbackTitle,Masjid update,मस्जिद की ख़बर,no
 push,fallbackBody,Open the app to see it.,देखने के लिए ऐप खोलें।,no
+push,campaignNew,New donation campaign · Goal {target},नया चंदा अभियान · लक्ष्य {target},no
 push,alert.credential_counter_regression.title,Security check needed,सुरक्षा जाँच ज़रूरी,no
 push,alert.credential_counter_regression.body,A passkey reported an unexpected sign-in count. Check your passkeys and remove any you don't recognise.,एक पासकी ने अनपेक्षित साइन-इन गिनती दिखाई। अपनी पासकी जाँचें और जिसे न पहचानें उसे हटा दें।,no
 push,alert.push_job_stuck.title,Notification delivery stuck,सूचना भेजना अटका,no
@@ -1012,6 +1366,16 @@ push,alert.test.title,Test alert,परीक्षण अलर्ट,no
 push,alert.test.body,Alerts reach this phone.,अलर्ट इस फ़ोन पर आते हैं।,no
 push,alert.super_passkey_added.title,New passkey on a Super Admin account,सुपर एडमिन खाते पर नई पासकी,no
 push,alert.super_passkey_added.body,"A passkey was just added to a Super Admin account. If this wasn't you, remove it in Account now.","अभी एक सुपर एडमिन खाते में पासकी जोड़ी गई। अगर यह आप नहीं थे, तो अभी अकाउंट में इसे हटा दें।",no
+push,alert.payment_request.title,UPI change requested,UPI बदलाव का अनुरोध,no
+push,alert.payment_request.body,A masjid asked to change its UPI payment details. Review it in Payment approvals.,एक मस्जिद ने अपने UPI भुगतान विवरण बदलने का अनुरोध किया है। भुगतान मंज़ूरी में देखें।,no
+push,alert.payment_request_owner.title,UPI change asked for your masjid,आपकी मस्जिद के UPI बदलाव का अनुरोध,no
+push,alert.payment_request_owner.body,"An owner of your masjid asked to change its UPI details. If you don't know about it, tell the Super Admin now.","आपकी मस्जिद के एक मालिक ने UPI विवरण बदलने का अनुरोध किया है। अगर आपको इसकी जानकारी नहीं है, तो अभी सुपर एडमिन को बताएँ।",no
+push,alert.payment_approved.title,UPI change approved,UPI बदलाव मंज़ूर,no
+push,alert.payment_approved.body,"A UPI change for your masjid was approved. It goes live after the waiting period. If you didn't ask for it, tell the Super Admin now.","आपकी मस्जिद का एक UPI बदलाव मंज़ूर हुआ। यह प्रतीक्षा अवधि के बाद लागू होगा। अगर आपने यह नहीं माँगा, तो अभी सुपर एडमिन को बताएँ।",no
+push,alert.payment_rejected.title,UPI change not approved,UPI बदलाव मंज़ूर नहीं,no
+push,alert.payment_rejected.body,Your UPI change was not approved. Open Payment to see why.,आपका UPI बदलाव मंज़ूर नहीं हुआ। कारण देखने के लिए भुगतान खोलें।,no
+push,alert.payment_active.title,New UPI details are live,नए UPI विवरण लागू,no
+push,alert.payment_active.body,"Your masjid's new UPI details are now shown to everyone, and followers were told. If you didn't ask for this, tell the Super Admin now.","आपकी मस्जिद के नए UPI विवरण अब सबको दिख रहे हैं और फ़ॉलोअर्स को बताया गया। अगर आपने यह नहीं माँगा, तो अभी सुपर एडमिन को बताएँ।",no
 settings,language,Language,भाषा,no
 settings,languageSheet,Choose your language,अपनी भाषा चुनें,no
 settings,audience,Brother / Sister,भाई / बहन,no
@@ -1052,6 +1416,7 @@ settings,field.createdAt,First used,पहली बार इस्तेमा
 settings,field.lastSeen,Last used,आख़िरी बार इस्तेमाल,no
 settings,field.saved,Saved posts,सेव की गई पोस्ट,no
 settings,field.ameens,Ameens said,कहे गए आमीन,no
+settings,field.zakat,My zakat payments,मेरी ज़कात के भुगतान,no
 settings,field.reader,Reader and vibration,पढ़ने और वाइब्रेशन की सेटिंग,no
 settings,pushOn,On,चालू,no
 settings,pushOff,Off,बंद,no
@@ -1080,6 +1445,38 @@ settings,aboutCommunity,Made for the community.,समुदाय के लि
 settings,appVersion,Version {version},संस्करण {version},no
 settings,landingTitle,Shared post,शेयर की गई पोस्ट,no
 settings,landingApp,Get the app,ऐप पाएँ,no
+settings,zakat.title,My zakat,मेरी ज़कात,no
+settings,zakat.onlyHere,Only on this phone,सिर्फ़ इस फ़ोन पर,no
+settings,zakat.onlyHereLong,Kept only on this phone. Nothing is sent to anyone.,सिर्फ़ इस फ़ोन पर रहता है। किसी को कुछ नहीं भेजा जाता।,no
+settings,zakat.notice,Saved only on this phone. Clear all data or a new phone removes it. The app does not calculate zakat.,सिर्फ़ इस फ़ोन पर सेव है। सारा डेटा मिटाने या नया फ़ोन लेने पर यह हट जाता है। ऐप ज़कात का हिसाब नहीं लगाता।,no
+settings,zakat.yearLabel,{year} AH,{year} हिजरी,no
+settings,zakat.remaining,Remaining,बाक़ी,no
+settings,zakat.given,Given so far,अब तक दिया,no
+settings,zakat.owed,Amount owed,देय राशि,no
+settings,zakat.givenOf,{given} of {owed},{owed} में से {given},no
+settings,zakat.setOwed,Set amount owed,देय राशि लिखें,no
+settings,zakat.changeOwed,Change amount owed,देय राशि बदलें,no
+settings,zakat.owedHint,Enter the amount yourself. The app does not calculate zakat.,राशि ख़ुद लिखें। ऐप ज़कात का हिसाब नहीं लगाता।,no
+settings,zakat.label,Year,साल,no
+settings,zakat.labelHint,"For example, the Hijri year.","जैसे, हिजरी साल।",no
+settings,zakat.save,Save,सेव करें,no
+settings,zakat.owedSaved,Saved,सेव हो गया,no
+settings,zakat.payments,Payments,भुगतान,no
+settings,zakat.noPayments,No payments logged yet.,अभी कोई भुगतान दर्ज नहीं है।,no
+settings,zakat.add,Add payment,भुगतान जोड़ें,no
+settings,zakat.amount,Amount given,दी गई राशि,no
+settings,zakat.note,Note,नोट,no
+settings,zakat.paymentSaved,Saved in My zakat,मेरी ज़कात में सेव हो गया,no
+settings,zakat.full,"The list is full (500 payments). Remove one, or start a new year.","सूची भर गई है (500 भुगतान)। एक हटाएँ, या नया साल शुरू करें।",no
+settings,zakat.removeLabel,Remove payment of {amount},{amount} का भुगतान हटाएँ,no
+settings,zakat.removeTitle,Remove this payment?,यह भुगतान हटाएँ?,no
+settings,zakat.removeBody,{amount} · {date},{amount} · {date},no
+settings,zakat.removeConfirm,Remove,हटाएँ,no
+settings,zakat.removed,Removed,हटा दिया गया,no
+settings,zakat.reset,Start a new year,नया साल शुरू करें,no
+settings,zakat.resetTitle,Start a new year?,नया साल शुरू करें?,no
+settings,zakat.resetBody,This removes the amount owed and every payment in this list from this phone.,इससे देय राशि और इस सूची का हर भुगतान इस फ़ोन से हट जाएगा।,no
+settings,zakat.resetConfirm,Start again,फिर से शुरू करें,no
 settings,push.title,Notifications,सूचनाएँ,no
 settings,push.status.on,On,चालू,no
 settings,push.status.off,Off,बंद,no
@@ -1110,6 +1507,7 @@ super,nav.settings,Settings,सेटिंग,no
 super,nav.audit,Audit log,ऑडिट लॉग,no
 super,nav.library,Content Library,सामग्री लाइब्रेरी,no
 super,nav.templates,Notice templates,सूचना टेम्पलेट,no
+super,nav.payments,Payment approvals,भुगतान मंज़ूरी,no
 super,status.pending,Pending,बाक़ी,no
 super,status.active,Active,चालू,no
 super,status.suspended,Suspended,रोकी गई,no
@@ -1117,6 +1515,7 @@ super,status.deleted,Deleted,हटाई गई,no
 super,dashboard.pending,Waiting for activation,चालू होने का इंतज़ार,no
 super,dashboard.noPending,No masjids are waiting for activation.,कोई मस्जिद चालू होने का इंतज़ार नहीं कर रही।,no
 super,dashboard.counts,Masjids,मस्जिदें,no
+super,dashboard.campaigns,Active donation campaigns,चालू चंदा अभियान,no
 super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","पिछले 30 दिनों में {count, plural, one {# लॉग इन} other {# लॉग इन}} रोका गया, क्योंकि किसी फ़ोन की नकल हुई हो सकती है। हर प्रभावित एडमिन को नया लॉग इन लिंक दें।",no
 super,dashboard.changeRequests,Requested changes,बदलाव की गुज़ारिशें,no
 super,dashboard.noChangeRequests,No change requests from admins.,एडमिन की ओर से बदलाव की कोई गुज़ारिश नहीं।,no
@@ -1366,6 +1765,27 @@ super,push.testAlert,Send a test alert,परीक्षण अलर्ट भ
 super,push.testAlertHint,Sends an alert to your own phones that have alerts on (not in production).,आपके उन फ़ोन पर अलर्ट भेजता है जिन पर अलर्ट चालू हैं (प्रोडक्शन में नहीं)।,no
 super,push.testSent,Test alert sent. It should arrive within a minute.,परीक्षण अलर्ट भेजा गया। एक मिनट में आ जाना चाहिए।,no
 super,push.testFailed,The test alert could not be sent.,परीक्षण अलर्ट नहीं भेजा जा सका।,no
+super,payments.title,Payment approvals,भुगतान मंज़ूरी,no
+super,payments.empty,No UPI changes waiting,कोई UPI बदलाव इंतज़ार में नहीं,no
+super,payments.requestedBy,Requested by {name} · {when},{name} ने अनुरोध किया · {when},no
+super,payments.now,Now,अभी,no
+super,payments.new,Requested,अनुरोधित,no
+super,payments.none,Not set up,सेट नहीं,no
+super,payments.note,Note from the masjid,मस्जिद का नोट,no
+super,payments.pending,Waiting for review,जाँच का इंतज़ार,no
+super,payments.onHold,On hold — goes live {time},रुका हुआ — {time} से लागू,no
+super,payments.checkCommittee,I phoned the committee and they confirmed this change,मैंने कमेटी को फ़ोन किया और उन्होंने यह बदलाव पक्का किया,no
+super,payments.checkName,The payee name matches the masjid or committee account,प्राप्तकर्ता का नाम मस्जिद या कमेटी के खाते से मिलता है,no
+super,payments.approve,Approve,मंज़ूर करें,no
+super,payments.approved,Approved — goes live {time},मंज़ूर — {time} से लागू,no
+super,payments.reject,Reject,नामंज़ूर करें,no
+super,payments.stop,Stop this change,यह बदलाव रोकें,no
+super,payments.rejectTitle,Turn down this change?,यह बदलाव नामंज़ूर करें?,no
+super,payments.rejectReason,Reason (the masjid sees it),कारण (मस्जिद इसे देखेगी),no
+super,payments.rejected,Turned down. The masjid was told.,नामंज़ूर किया। मस्जिद को बता दिया गया।,no
+super,payments.history,Earlier UPI details,पहले के UPI विवरण,no
+super,payments.historyStatus.superseded,Was live until {date},{date} तक लागू था,no
+super,payments.historyStatus.rejected,Not approved · {date},मंज़ूर नहीं · {date},no
 templates,no_water_time_range.title,No water supply,पानी की आपूर्ति बंद,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} से {hours_end} तक पानी उपलब्ध नहीं रहेगा।,no
 templates,electricity_cut_time_range.title,Power cut,बिजली कटौती,no
@@ -1400,3 +1820,5 @@ templates,timings_updated.title,Prayer timings updated,नमाज़ के �
 templates,timings_updated.body,The prayer timings of this masjid have been updated. Please check the new times.,इस मस्जिद की नमाज़ के समय अपडेट किए गए हैं। कृपया नए समय देख लें।,no
 templates,special_timings.title,Special timings,ख़ास समय,no
 templates,special_timings.body,This masjid has special timings for {date}. Please see Special Dates for the times.,इस मस्जिद में {date} के लिए ख़ास समय हैं। समय देखने के लिए कृपया ख़ास तारीख़ें देखें।,no
+templates,payment_details_updated.title,Payment details updated,भुगतान विवरण बदला गया,no
+templates,payment_details_updated.body,This masjid's UPI payment details have changed. Please check the payee name before you donate.,इस मस्जिद के UPI भुगतान विवरण बदल गए हैं। दान करने से पहले कृपया प्राप्तकर्ता का नाम जाँच लें।,no

@@ -1,0 +1,153 @@
+{
+  "collections": [
+    {
+      "name": "beneficiary_amount_history",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "beneficiary_id", "masjid_id", "updated_by", "created_at"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "beneficiary_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "received_paise": {
+            "bsonType": "long",
+            "minimum": {
+              "$numberLong": "0"
+            },
+            "maximum": {
+              "$numberLong": "1000000000000"
+            }
+          },
+          "upi": {
+            "bsonType": "object",
+            "required": ["vpa_new", "payee_new"],
+            "additionalProperties": false,
+            "properties": {
+              "vpa_old": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "100"
+                },
+                "pattern": "^[a-zA-Z0-9.\\-_]{2,256}@[a-zA-Z][a-zA-Z0-9.\\-]{1,64}$"
+              },
+              "vpa_new": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "100"
+                },
+                "pattern": "^[a-zA-Z0-9.\\-_]{2,256}@[a-zA-Z][a-zA-Z0-9.\\-]{1,64}$"
+              },
+              "payee_old": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "100"
+                },
+                "minLength": {
+                  "$numberInt": "1"
+                }
+              },
+              "payee_new": {
+                "bsonType": "string",
+                "maxLength": {
+                  "$numberInt": "100"
+                },
+                "minLength": {
+                  "$numberInt": "1"
+                }
+              }
+            }
+          },
+          "updated_by": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "beneficiary_created",
+          "key": {
+            "beneficiary_id": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "-1"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "views": [
+    {
+      "name": "v_pub_items",
+      "viewOn": "items",
+      "pipeline": [
+        {
+          "$match": {
+            "status": "published",
+            "masjid_visible": true,
+            "$or": [
+              {
+                "type": {
+                  "$ne": "chanda_update"
+                }
+              },
+              {
+                "chanda.visible": true
+              }
+            ]
+          }
+        },
+        {
+          "$sort": {
+            "published_at": {
+              "$numberInt": "-1"
+            },
+            "_id": {
+              "$numberInt": "-1"
+            }
+          }
+        },
+        {
+          "$unset": [
+            "created_by",
+            "notify",
+            "rights_confirmed",
+            "deleted_at",
+            "removed_at",
+            "removed_reason",
+            "purge_after"
+          ]
+        },
+        {
+          "$set": {
+            "dua": {
+              "$cond": {
+                "if": {
+                  "$eq": ["$dua.name_private", true]
+                },
+                "then": {
+                  "$unsetField": {
+                    "field": "person_name",
+                    "input": "$dua"
+                  }
+                },
+                "else": "$dua"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

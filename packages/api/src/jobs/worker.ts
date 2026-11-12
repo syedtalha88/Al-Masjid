@@ -20,9 +20,12 @@ import {
 } from '../queue/jobs.ts';
 import { createJobQueues, type JobQueues } from '../queue/queues.ts';
 import { processAlertSend } from './alerts/send.ts';
+import { processCampaignClose } from './campaigns/close.ts';
+import { processPaymentActivate } from './payments/activate.ts';
 import { processFanout, PushPausedError } from './push/fanout.ts';
 import { processSendBatch } from './push/send-batch.ts';
 import { processOutboxSweep } from './push/sweeper.ts';
+import { processRetention, type RetentionDeps } from './retention/run.ts';
 
 type Logger = ReturnType<typeof createLogger>;
 
@@ -34,10 +37,16 @@ export const DEFAULT_CONCURRENCY: Readonly<Record<JobName, number>> = {
   'push-send-batch': 4,
   'alert-send': 2,
   'outbox-sweeper': 1,
+  'payment-activate': 1,
+  'campaign-close': 1,
+  retention: 1,
 };
 /** Schedulers (01 §5.8), cron in India time. */
 export const SCHEDULES: readonly { readonly job: JobName; readonly pattern: string }[] = [
   { job: 'outbox-sweeper', pattern: '* * * * *' },
+  { job: 'payment-activate', pattern: '*/10 * * * *' },
+  { job: 'campaign-close', pattern: '10 0 * * *' },
+  { job: 'retention', pattern: '0 3 * * *' },
 ];
 export const SCHEDULE_TIME_ZONE = 'Asia/Kolkata';
 
@@ -60,6 +69,8 @@ export interface JobWorkerDeps {
   readonly pauseRecheckMs?: number;
   /** Per-job option overrides (tests shorten the backoff). */
   readonly jobOptions?: Partial<Record<JobName, JobsOptions>>;
+  /** `retention`'s media part (PHASE_06 T6.4): the worker's media store, the CDN purger, env MEDIA_ORIGIN. */
+  readonly retention?: Pick<RetentionDeps, 'media' | 'purger' | 'mediaOrigin'>;
 }
 
 export class JobTimeoutError extends Error {
@@ -115,6 +126,15 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
       case 'outbox-sweeper':
         parseJobPayload(name, data);
         return processOutboxSweep({ ...common, queues });
+      case 'payment-activate':
+        parseJobPayload(name, data);
+        return processPaymentActivate({ ...common, queues });
+      case 'campaign-close':
+        parseJobPayload(name, data);
+        return processCampaignClose(common);
+      case 'retention':
+        parseJobPayload(name, data);
+        return processRetention({ ...common, ...deps.retention });
     }
   };
 

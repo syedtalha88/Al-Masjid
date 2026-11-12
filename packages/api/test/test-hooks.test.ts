@@ -1,11 +1,13 @@
 import { readFileSync } from 'node:fs';
 
+import type { DbHandle } from '@mc/db';
 import { ShiftableClock } from '@mc/shared/clock';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 
 import { createAdminApp, createPublicApp } from '../src/app.ts';
-import { TEST_HOOKS_MARKER, testHookRoutes } from '../src/test-hooks/index.ts';
+import type { JobQueues } from '../src/queue/queues.ts';
+import { type AdminHookContext, TEST_HOOKS_MARKER, testHookRoutes } from '../src/test-hooks/index.ts';
 import { captureLogger, silentLogger } from './helpers.ts';
 
 // 10 §3: e2e test hooks work when an entrypoint mounts them, and are absent from the route table and the
@@ -94,6 +96,35 @@ describe('test hooks mounted (test-hook mode)', () => {
       testRoutes: testHookRoutes({ service: 'api-admin', clock }),
     });
     expect((await request(without.app).get('/api/admin/test/rate-limits')).status).toBe(404);
+  });
+
+  it('POST /test/payment-activate exists only when api-admin hands over its queues and logger', async () => {
+    const clock = new ShiftableClock();
+    // Routing only: the handler would run the job against a database, which this unit test has not got.
+    const db = Object.create(null) as DbHandle; // never called successfully here
+    const queues: JobQueues = {
+      enqueue: () => Promise.resolve(),
+      queue: () => {
+        throw new Error('not used');
+      },
+      close: () => Promise.resolve(),
+    };
+    const appWith = (extra: Partial<AdminHookContext>) =>
+      createAdminApp({
+        ...base,
+        logger: silentLogger(),
+        adminOrigin: 'https://admin.test',
+        testRoutes: testHookRoutes({
+          service: 'api-admin',
+          clock,
+          admin: { db, pepper: Buffer.alloc(32), adminOrigin: 'https://admin.test', ...extra },
+        }),
+      }).app;
+    const post = (app: ReturnType<typeof appWith>) =>
+      request(app).post('/api/admin/test/payment-activate').set({ Origin: 'https://admin.test', 'X-MC-CSRF': '1' });
+    expect((await post(appWith({}))).status).toBe(404);
+    // Mounted: the handler runs (and fails here without a database — a 500 problem, not a 404).
+    expect((await post(appWith({ queues, logger: silentLogger() }))).status).toBe(500);
   });
 
   it('are never registered in the OpenAPI registry', () => {

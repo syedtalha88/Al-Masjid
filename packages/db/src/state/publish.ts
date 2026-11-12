@@ -25,10 +25,15 @@ export interface ItemContent {
   readonly image?: { readonly key: string; readonly thumbhash: string; readonly rightsConfirmed: boolean };
   /** A voice note from `POST /audio` (T3.13); the item then always has a `title`. */
   readonly voice?: VoiceNote;
+  /** The ownership tick of content without a photo of its own (a bayan — 05 §9, PHASE_06 T6.2). */
+  readonly rightsConfirmed?: boolean;
   readonly detail:
     | { readonly announcement: Readonly<Record<string, unknown>> }
     | { readonly daily: Readonly<Record<string, unknown>> }
-    | { readonly dua: Readonly<Record<string, unknown>> };
+    | { readonly dua: Readonly<Record<string, unknown>> }
+    | { readonly campaign: Readonly<Record<string, unknown>> }
+    | { readonly chanda: Readonly<Record<string, unknown>> }
+    | { readonly video: Readonly<Record<string, unknown>> };
 }
 
 /** A voice note as a post carries it (02 items.voice). */
@@ -65,7 +70,8 @@ export function voiceContent(
 
 /** The common fields of a published item. */
 export interface PublishedItemInput extends ItemContent {
-  readonly type: 'announcement' | 'timing_update' | 'daily_content' | 'dua_request';
+  readonly type:
+    'announcement' | 'timing_update' | 'daily_content' | 'dua_request' | 'campaign' | 'chanda_update' | 'video';
   readonly audience: ItemAudience;
   readonly notify: boolean;
 }
@@ -92,6 +98,7 @@ export function contentDocument(content: ItemContent): Record<string, unknown> {
     ...(content.templateKey === undefined ? {} : { template_key: content.templateKey }),
     ...(content.templateParams === undefined ? {} : { template_params: { ...content.templateParams } }),
     is_important: content.isImportant,
+    ...(content.rightsConfirmed === undefined ? {} : { rights_confirmed: content.rightsConfirmed }),
     ...(content.image === undefined
       ? {}
       : {

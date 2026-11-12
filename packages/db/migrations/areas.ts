@@ -65,4 +65,19 @@ export const SCHEMA_AREAS: Readonly<
   '0016_push_fanout': { collections: ['notification_jobs'] },
   // PHASE_04 T4.9 (DECISIONS #140): `pending_batches` is a balance that may dip below 0 for a moment.
   '0017_push_batch_balance': { collections: ['notification_jobs'] },
+  // PHASE_05 T5.5 (DECISIONS #152): a chanda update carries its week's figures and visibility; hidden ones never public.
+  '0018_chanda_items': { collections: ['items'], views: ['v_pub_items'] },
+  // PHASE_05 T5.8 (DECISIONS #104, #156): needy people, their append-only amount history and the public view.
+  '0019_beneficiaries': {
+    collections: ['beneficiaries', 'beneficiary_amount_history'],
+    views: ['v_pub_beneficiaries'],
+  },
+  // F65 (DECISIONS #159): an admin alert subscription belongs to the session that saved it (`session_id`, indexed).
+  '0020_admin_push_session': { collections: ['admin_push_subscriptions'] },
+  // DECISIONS #160 (security review M3, L6): a needy person's UPI old → new record moves into their purged history;
+  // the chanda filter of v_pub_items fails closed.
+  '0021_beneficiary_upi_history': { collections: ['beneficiary_amount_history'], views: ['v_pub_items'] },
+  // DECISIONS #161 (F69): a UPI request records the session that asked (`requested_session`) and, when closed because
+  // its admin lost access, says so (`reject_code`).
+  '0022_payment_reject_code': { collections: ['payment_profiles'] },
 };

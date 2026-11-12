@@ -131,6 +131,12 @@
       "title": "रक्तदान शिविर",
       "when": "{date} · {start} – {end}",
       "contact": "व्हाट्सऐप पर संपर्क करें"
+    },
+    "video": {
+      "youtube": "YouTube",
+      "play": "{title} चलाएँ",
+      "playsFromYouTube": "YouTube से चलता है",
+      "offline": "देखने के लिए इंटरनेट से जुड़ें"
     }
   },
   "hijri": {
@@ -201,5 +207,9 @@
     "yesterday": "कल",
     "new": "नया",
     "loadingMore": "और लोड हो रहा है…"
+  },
+  "summary": {
+    "raisedOf": "{target} में से {received} जमा",
+    "collected": "{date} वाले हफ़्ते में {amount} जमा हुए"
   }
 }

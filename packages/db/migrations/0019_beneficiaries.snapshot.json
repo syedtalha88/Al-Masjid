@@ -1,0 +1,367 @@
+{
+  "collections": [
+    {
+      "name": "beneficiaries",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "public_id",
+          "masjid_id",
+          "display_name",
+          "category",
+          "reason",
+          "reason_locale",
+          "vpa",
+          "payee_name",
+          "cap_paise",
+          "received_paise",
+          "funded_permille",
+          "zakat_eligible",
+          "consent_confirmed",
+          "status",
+          "masjid_visible",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "public_id": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "12"
+            },
+            "pattern": "^[A-Za-z0-9_-]{12}$"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "display_name": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "40"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "category": {
+            "bsonType": "string",
+            "enum": ["widow", "orphan", "disability", "illness", "elderly", "homeless", "debt", "student", "other"]
+          },
+          "reason": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "300"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "reason_locale": {
+            "bsonType": "string",
+            "enum": ["en", "hi", "ur", "te"]
+          },
+          "vpa": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "100"
+            },
+            "pattern": "^[a-zA-Z0-9.\\-_]{2,256}@[a-zA-Z][a-zA-Z0-9.\\-]{1,64}$"
+          },
+          "payee_name": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "100"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "cap_paise": {
+            "bsonType": "long",
+            "minimum": {
+              "$numberLong": "100"
+            },
+            "maximum": {
+              "$numberLong": "1000000000"
+            }
+          },
+          "received_paise": {
+            "bsonType": "long",
+            "minimum": {
+              "$numberLong": "0"
+            },
+            "maximum": {
+              "$numberLong": "1000000000000"
+            }
+          },
+          "received_updated_at": {
+            "bsonType": "date"
+          },
+          "funded_permille": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "1000"
+            }
+          },
+          "zakat_eligible": {
+            "bsonType": "bool"
+          },
+          "consent_confirmed": {
+            "bsonType": "bool",
+            "enum": [true]
+          },
+          "private_enc": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "1200"
+            },
+            "pattern": "^v1:[A-Za-z0-9_-]{1,32}:[A-Za-z0-9_-]{16}:[A-Za-z0-9_-]{22,}$"
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["active", "fulfilled", "closed", "deleted"]
+          },
+          "fulfilled_at": {
+            "bsonType": "date"
+          },
+          "closed_at": {
+            "bsonType": "date"
+          },
+          "purge_after": {
+            "bsonType": "date"
+          },
+          "masjid_visible": {
+            "bsonType": "bool"
+          },
+          "created_by": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "status": {
+                "enum": ["active"]
+              }
+            },
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["fulfilled_at"]
+                },
+                {
+                  "required": ["closed_at"]
+                },
+                {
+                  "required": ["purge_after"]
+                }
+              ]
+            }
+          },
+          {
+            "properties": {
+              "status": {
+                "enum": ["fulfilled"]
+              }
+            },
+            "required": ["fulfilled_at", "purge_after"],
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["closed_at"]
+                }
+              ]
+            }
+          },
+          {
+            "properties": {
+              "status": {
+                "enum": ["closed", "deleted"]
+              }
+            },
+            "required": ["closed_at", "purge_after"]
+          }
+        ]
+      },
+      "indexes": [
+        {
+          "name": "public_id_unique",
+          "key": {
+            "public_id": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "masjid_status_funded",
+          "key": {
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "status": {
+              "$numberInt": "1"
+            },
+            "funded_permille": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "name": "purge_after",
+          "key": {
+            "purge_after": {
+              "$numberInt": "1"
+            }
+          },
+          "partialFilterExpression": {
+            "purge_after": {
+              "$type": "date"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "beneficiary_amount_history",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "beneficiary_id", "masjid_id", "received_paise", "updated_by", "created_at"],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "beneficiary_id": {
+            "bsonType": "binData"
+          },
+          "masjid_id": {
+            "bsonType": "binData"
+          },
+          "received_paise": {
+            "bsonType": "long",
+            "minimum": {
+              "$numberLong": "0"
+            },
+            "maximum": {
+              "$numberLong": "1000000000000"
+            }
+          },
+          "updated_by": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "beneficiary_created",
+          "key": {
+            "beneficiary_id": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "-1"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "views": [
+    {
+      "name": "v_pub_beneficiaries",
+      "viewOn": "beneficiaries",
+      "pipeline": [
+        {
+          "$match": {
+            "status": "active",
+            "masjid_visible": true
+          }
+        },
+        {
+          "$sort": {
+            "funded_permille": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "1"
+            },
+            "_id": {
+              "$numberInt": "1"
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": {
+              "$numberInt": "0"
+            },
+            "public_id": {
+              "$numberInt": "1"
+            },
+            "masjid_id": {
+              "$numberInt": "1"
+            },
+            "display_name": {
+              "$numberInt": "1"
+            },
+            "category": {
+              "$numberInt": "1"
+            },
+            "reason": {
+              "$numberInt": "1"
+            },
+            "reason_locale": {
+              "$numberInt": "1"
+            },
+            "vpa": {
+              "$numberInt": "1"
+            },
+            "payee_name": {
+              "$numberInt": "1"
+            },
+            "cap_paise": {
+              "$numberInt": "1"
+            },
+            "received_paise": {
+              "$numberInt": "1"
+            },
+            "received_updated_at": {
+              "$numberInt": "1"
+            },
+            "funded_permille": {
+              "$numberInt": "1"
+            },
+            "zakat_eligible": {
+              "$numberInt": "1"
+            },
+            "created_at": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

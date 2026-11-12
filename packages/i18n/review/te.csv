@@ -565,6 +565,237 @@ admin,push.alertsBlocked,Notifications are blocked for this app in the phone set
 admin,push.alertsUnsupported,This browser cannot show alerts.,ఈ బ్రౌజర్ హెచ్చరికలను చూపించలేదు.,no
 admin,push.alertsInstallFirst,"On iPhone, alerts work only in the installed app.",iPhoneలో హెచ్చరికలు ఇన్‌స్టాల్ చేసిన యాప్‌లో మాత్రమే వస్తాయి.,no
 admin,push.alertsFailed,Could not change alerts. Please try again.,హెచ్చరికలను మార్చలేకపోయాం. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+admin,payment.title,UPI payment details,UPI చెల్లింపు వివరాలు,no
+admin,payment.formTitle,UPI setup,UPI సెటప్,no
+admin,payment.intro,Followers pay donations straight to this UPI ID. The app never touches the money.,అనుచరులు విరాళాలను నేరుగా ఈ UPI IDకి పంపుతారు. యాప్ డబ్బును ఎప్పుడూ తాకదు.,no
+admin,payment.notSet,Not set up yet,ఇంకా సెట్ చేయలేదు,no
+admin,payment.current,Shown to followers now,ఇప్పుడు అనుచరులకు కనిపిస్తోంది,no
+admin,payment.vpa,UPI ID,UPI ID,no
+admin,payment.payee,Payee name,స్వీకర్త పేరు,no
+admin,payment.payeeHint,As your bank shows it — UPI apps show this name before paying.,మీ బ్యాంక్ చూపినట్లే — UPI యాప్‌లు చెల్లించే ముందు ఈ పేరునే చూపుతాయి.,no
+admin,payment.note,Note for the Super Admin,సూపర్ అడ్మిన్ కోసం గమనిక,no
+admin,payment.noteHint,For example: new committee account,ఉదా: కమిటీ కొత్త ఖాతా,no
+admin,payment.setUp,Set up UPI,UPI సెట్ చేయండి,no
+admin,payment.change,Change UPI,UPI మార్చండి,no
+admin,payment.scan,Scan the masjid’s UPI QR,మసీదు UPI QR స్కాన్ చేయండి,no
+admin,payment.scanHint,Point the camera at the masjid’s own UPI QR.,కెమెరాను మసీదు స్వంత UPI QR వైపు చూపండి.,no
+admin,payment.scanNotUpi,This is not a UPI payment QR.,ఇది UPI చెల్లింపు QR కాదు.,no
+admin,payment.scanFilled,UPI ID filled from the QR. Check the name.,QR నుండి UPI ID నింపబడింది. పేరును తనిఖీ చేయండి.,no
+admin,payment.scanUnavailable,The camera cannot be used here. Type the UPI ID instead.,ఇక్కడ కెమెరా ఉపయోగించలేరు. UPI ID టైప్ చేయండి.,no
+admin,payment.scanStart,Allow camera,కెమెరాకు అనుమతి ఇవ్వండి,no
+admin,payment.scanClose,Close,మూసివేయండి,no
+admin,payment.warning,"For safety, changes take 24 hours after approval. Followers will be told the payment details changed.",భద్రత కోసం మార్పులు ఆమోదం తర్వాత 24 గంటలకు అమలులోకి వస్తాయి. చెల్లింపు వివరాలు మారాయని అనుచరులకు తెలియజేస్తాం.,no
+admin,payment.submit,Send for approval,ఆమోదం కోసం పంపండి,no
+admin,payment.sent,Sent. The Super Admin will check it.,పంపాం. సూపర్ అడ్మిన్ దీన్ని తనిఖీ చేస్తారు.,no
+admin,payment.missing,Still needed: {fields},ఇంకా కావాలి: {fields},no
+admin,payment.issue.vpa,a valid UPI ID,సరైన UPI ID,no
+admin,payment.issue.payee,the payee name,స్వీకర్త పేరు,no
+admin,payment.waiting,A change is waiting. You can ask again once it is decided.,ఒక మార్పు వేచి ఉంది. దానిపై నిర్ణయం వచ్చాక మళ్ళీ అడగవచ్చు.,no
+admin,payment.ownerOnly,"Only an owner of the masjid can change the UPI details. Ask the owner, or the Super Admin.",UPI వివరాలను మసీదు యజమాని మాత్రమే మార్చగలరు. యజమానిని లేదా సూపర్ అడ్మిన్‌ను అడగండి.,no
+admin,payment.status.pending,Requested — waiting for approval,అభ్యర్థించారు — ఆమోదం కోసం వేచి ఉంది,no
+admin,payment.status.approved_on_hold,Approved — goes live {time},ఆమోదించబడింది — {time} నుండి అమలు,no
+admin,payment.status.rejected,Not approved: {reason},ఆమోదించబడలేదు: {reason},no
+admin,payment.status.requester_removed,Stopped — the admin who asked no longer has access. An owner can ask again.,ఆపివేయబడింది — అడిగిన అడ్మిన్‌కు ఇప్పుడు యాక్సెస్ లేదు. యజమాని మళ్ళీ అడగవచ్చు.,no
+admin,payment.step.requested,Requested,అభ్యర్థన,no
+admin,payment.step.approved,Approved,ఆమోదం,no
+admin,payment.step.live,Live,అమలు,no
+admin,donation.title,Donation Drive,విరాళ ప్రచారం,no
+admin,donation.intro,Run a drive and keep the amount updated. Followers pay the masjid's UPI directly.,"ప్రచారం నడపండి, మొత్తాన్ని తాజాగా ఉంచండి. అనుచరులు నేరుగా మసీదు UPIకి పంపుతారు.",no
+admin,donation.noUpi,Set up your masjid's UPI first,ముందు మీ మసీదు UPI సెట్ చేయండి,no
+admin,donation.noUpiBody,Donations go straight to the masjid's verified UPI ID. Add it in Masjid Profile.,విరాళాలు నేరుగా మసీదు ధృవీకరించిన UPI IDకి వెళ్తాయి. దాన్ని మసీదు ప్రొఫైల్‌లో జోడించండి.,no
+admin,donation.setUpUpi,Set up UPI,UPI సెట్ చేయండి,no
+admin,donation.new,New drive,కొత్త ప్రచారం,no
+admin,donation.limit,Up to 3 drives at a time. Mark one completed to start another.,ఒకేసారి 3 ప్రచారాల వరకు. కొత్తది మొదలుపెట్టడానికి ఒకదాన్ని పూర్తి చేయండి.,no
+admin,donation.empty,No drives yet,ఇంకా ప్రచారాలు లేవు,no
+admin,donation.emptyBody,"Start one for repairs, renovation, bills or helping people.","మరమ్మతులు, పునరుద్ధరణ, బిల్లులు లేదా ప్రజలకు సహాయం కోసం ఒకటి మొదలుపెట్టండి.",no
+admin,donation.status.active,Active,చురుకుగా,no
+admin,donation.status.completed,Completed,పూర్తయింది,no
+admin,donation.status.closed,Closed,ముగిసింది,no
+admin,donation.amounts,{received} of {target},{target}లో {received},no
+admin,donation.receivedLabel,Received (reported by masjid),అందినది (మసీదు తెలిపినది),no
+admin,donation.updateAmount,Update amount,మొత్తాన్ని నవీకరించండి,no
+admin,donation.updateTitle,Received so far,ఇప్పటివరకు అందినది,no
+admin,donation.notify,Notify followers,అనుచరులకు తెలియజేయండి,no
+admin,donation.notifyHint,Off unless it is news worth a notification.,తెలియజేయదగిన వార్త అయితేనే ఆన్ చేయండి.,no
+admin,donation.save,Save,సేవ్ చేయండి,no
+admin,donation.saved,Amount saved,మొత్తం సేవ్ అయింది,no
+admin,donation.complete,Mark completed,పూర్తయినట్లు గుర్తించండి,no
+admin,donation.completeTitle,Mark this drive completed?,ఈ ప్రచారాన్ని పూర్తయినట్లు గుర్తించాలా?,no
+admin,donation.completeBody,"Followers still see it until it closes, and you can still update the amount.","ముగిసే వరకు అనుచరులు దీన్ని చూస్తారు, మీరు మొత్తాన్ని నవీకరించవచ్చు.",no
+admin,donation.completed,Marked completed,పూర్తయినట్లు గుర్తించాం,no
+admin,donation.newTitle,New donation drive,కొత్త విరాళ ప్రచారం,no
+admin,donation.purposeQuestion,What is it for?,ఇది దేని కోసం?,no
+admin,donation.purpose.renovation,Renovation,పునరుద్ధరణ,no
+admin,donation.purpose.repair,Repair,మరమ్మతు,no
+admin,donation.purpose.utilities,Bills & utilities,బిల్లులు & సౌకర్యాలు,no
+admin,donation.purpose.welfare,Helping people,ప్రజలకు సహాయం,no
+admin,donation.purpose.other,Other,ఇతర,no
+admin,donation.titleLabel,Title,శీర్షిక,no
+admin,donation.suggestions,Suggestions,సూచనలు,no
+admin,donation.suggest.renovation.a,Masjid renovation,మసీదు పునరుద్ధరణ,no
+admin,donation.suggest.renovation.b,New carpets,కొత్త తివాచీలు,no
+admin,donation.suggest.repair.a,Roof repair,పైకప్పు మరమ్మతు,no
+admin,donation.suggest.repair.b,Wudu area repair,వుజూ ప్రాంతం మరమ్మతు,no
+admin,donation.suggest.utilities.a,Electricity bill,విద్యుత్ బిల్లు,no
+admin,donation.suggest.utilities.b,Water tank,నీటి ట్యాంక్,no
+admin,donation.suggest.welfare.a,Ration kits for families,కుటుంబాలకు రేషన్ కిట్లు,no
+admin,donation.suggest.welfare.b,Help for families in need,అవసరమున్న కుటుంబాలకు సహాయం,no
+admin,donation.suggest.other.a,Masjid fund,మసీదు నిధి,no
+admin,donation.suggest.other.b,Masjid development,మసీదు అభివృద్ధి,no
+admin,donation.description,About this drive,ఈ ప్రచారం గురించి,no
+admin,donation.target,Target amount,లక్ష్య మొత్తం,no
+admin,donation.targetHint,"At least ₹1,000","కనీసం ₹1,000",no
+admin,donation.startsOn,Starts,మొదలు,no
+admin,donation.endsOn,Ends (optional),ముగింపు (ఐచ్ఛికం),no
+admin,donation.preview,Preview,ముందుచూపు,no
+admin,donation.publish,Publish,ప్రచురించండి,no
+admin,donation.published,Drive published,ప్రచారం ప్రచురించబడింది,no
+admin,donation.missing,Still needed: {fields},ఇంకా కావాలి: {fields},no
+admin,donation.issue.purpose,what it is for,ఇది దేని కోసం,no
+admin,donation.issue.title,a title,శీర్షిక,no
+admin,donation.issue.target,"a target of at least ₹1,000","కనీసం ₹1,000 లక్ష్యం",no
+admin,donation.issue.dates,an end date after the start,మొదలు తర్వాతి ముగింపు తేదీ,no
+admin,video.title,Bayan Video,బయాన్ వీడియో,no
+admin,video.new,Add a bayan,బయాన్ జోడించండి,no
+admin,video.empty,No bayans yet,ఇంకా బయాన్‌లు లేవు,no
+admin,video.emptyBody,"Upload a bayan to your masjid's YouTube channel, then add its link here.","బయాన్‌ను మీ మసీదు YouTube ఛానెల్‌లో అప్‌లోడ్ చేసి, దాని లింక్‌ను ఇక్కడ జోడించండి.",no
+admin,video.helpTitle,Upload to YouTube first,ముందుగా YouTubeలో అప్‌లోడ్ చేయండి,no
+admin,video.helpBody,"Upload the bayan to your masjid's YouTube channel, then copy its link.","బయాన్‌ను మీ మసీదు YouTube ఛానెల్‌లో అప్‌లోడ్ చేసి, దాని లింక్‌ను కాపీ చేయండి.",no
+admin,video.paste,Paste link,లింక్ పేస్ట్ చేయండి,no
+admin,video.pasteFailed,Could not read the copied link. Long-press the box and paste.,కాపీ చేసిన లింక్‌ను చదవలేకపోయాం. బాక్స్‌ను నొక్కి పట్టుకుని పేస్ట్ చేయండి.,no
+admin,video.linkLabel,YouTube link,YouTube లింక్,no
+admin,video.linkInvalid,This is not a YouTube video link,ఇది YouTube వీడియో లింక్ కాదు,no
+admin,video.check,Check link,లింక్ తనిఖీ చేయండి,no
+admin,video.checking,Checking the video…,వీడియో తనిఖీ అవుతోంది…,no
+admin,video.previewTitle,Preview,ప్రివ్యూ,no
+admin,video.playsFromYouTube,Plays from YouTube,YouTube నుండి ప్లే అవుతుంది,no
+admin,video.titleLabel,Title,శీర్షిక,no
+admin,video.speaker,Speaker,వక్త,no
+admin,video.description,Description,వివరణ,no
+admin,video.audienceQuestion,Who is it for?,ఇది ఎవరి కోసం?,no
+admin,video.audience.everyone,Everyone,అందరూ,no
+admin,video.audience.brothers,Brothers only,సోదరులు మాత్రమే,no
+admin,video.audience.sisters,Sisters only,సోదరీమణులు మాత్రమే,no
+admin,video.sistersWarning,Anyone who has this YouTube link can watch it outside the app. Upload it as Unlisted.,ఈ YouTube లింక్ ఉన్న ఎవరైనా దీన్ని యాప్ బయట చూడవచ్చు. దీన్ని Unlistedగా అప్‌లోడ్ చేయండి.,no
+admin,video.rights,"This bayan is our masjid's, or we may share it","ఈ బయాన్ మా మసీదుది, లేదా మేము దీన్ని పంచుకోవచ్చు",no
+admin,video.rightsHint,Share only bayans your masjid is allowed to publish.,మీ మసీదుకు ప్రచురించడానికి అనుమతి ఉన్న బయాన్‌లను మాత్రమే పంచుకోండి.,no
+admin,video.missing,Still needed: {fields},ఇంకా కావాలి: {fields},no
+admin,video.issue.link,a checked YouTube link,తనిఖీ చేసిన YouTube లింక్,no
+admin,video.issue.title,a title,శీర్షిక,no
+admin,video.issue.audience,who it is for,ఇది ఎవరి కోసం,no
+admin,video.issue.rights,the tick above,పైన ఉన్న టిక్,no
+admin,video.status.published,Published,ప్రచురించబడింది,no
+admin,video.status.removed,Removed by moderation,మోడరేషన్ ద్వారా తీసివేయబడింది,no
+admin,video.status.deleted,Deleted,తొలగించబడింది,no
+admin,video.edit,Edit,మార్చండి,no
+admin,video.editTitle,Edit bayan,బయాన్‌ను మార్చండి,no
+admin,video.editHint,You can change the texts for 24 hours after publishing.,ప్రచురించిన తర్వాత 24 గంటల వరకు మీరు వచనాన్ని మార్చవచ్చు.,no
+admin,video.save,Save,సేవ్ చేయండి,no
+admin,video.saved,Saved,సేవ్ అయింది,no
+admin,video.delete,Delete,తొలగించండి,no
+admin,video.deleteTitle,Delete this bayan?,ఈ బయాన్‌ను తొలగించాలా?,no
+admin,video.deleteBody,Followers will no longer see it in the app. The video itself stays on your YouTube channel.,ఫాలోవర్లు దీన్ని ఇకపై యాప్‌లో చూడరు. వీడియో మీ YouTube ఛానెల్‌లోనే ఉంటుంది.,no
+admin,video.deleted,Deleted,తొలగించబడింది,no
+admin,chanda.title,Chanda,చందా,no
+admin,chanda.intro,Enter the total collected each week. Followers see it only when “Show chanda to followers” is on.,ప్రతి వారం వసూలైన మొత్తాన్ని నమోదు చేయండి. “ఫాలోవర్లకు చందా చూపించు” ఆన్‌లో ఉన్నప్పుడే ఫాలోవర్లు దీన్ని చూస్తారు.,no
+admin,chanda.show,Show chanda to followers,ఫాలోవర్లకు చందా చూపించు,no
+admin,chanda.showHint,Followers see the weekly totals and a chart on your masjid page.,"ఫాలోవర్లు మీ మస్జిద్ పేజీలో వారపు మొత్తాలు, ఒక చార్ట్ చూస్తారు.",no
+admin,chanda.shownToast,Chanda is now shown to followers,ఇప్పుడు చందా ఫాలోవర్లకు కనిపిస్తోంది,no
+admin,chanda.hiddenToast,Chanda is now hidden from followers,ఇప్పుడు చందా ఫాలోవర్ల నుండి దాచబడింది,no
+admin,chanda.weekStartsOn,Week starts on,వారం మొదలయ్యే రోజు,no
+admin,chanda.day.1,Monday,సోమవారం,no
+admin,chanda.day.5,Friday,శుక్రవారం,no
+admin,chanda.weekStartSaved,Week start saved,వారం మొదలు సేవ్ అయింది,no
+admin,chanda.thisWeek,This week,ఈ వారం,no
+admin,chanda.week,Week,వారం,no
+admin,chanda.range,{start} – {end},{start} – {end},no
+admin,chanda.previous,Previous week,మునుపటి వారం,no
+admin,chanda.next,Next week,తర్వాతి వారం,no
+admin,chanda.amount,Total collected,మొత్తం వసూలు,no
+admin,chanda.note,Note,గమనిక,no
+admin,chanda.noteHint,For example: thanks to everyone who gave,ఉదాహరణ: ఇచ్చిన అందరికీ ధన్యవాదాలు,no
+admin,chanda.notify,Notify followers,ఫాలోవర్లకు తెలియజేయండి,no
+admin,chanda.notifyHint,Uses one of today’s notifications.,ఈరోజు నోటిఫికేషన్లలో ఒకటి వాడబడుతుంది.,no
+admin,chanda.notifyHidden,Turn on “Show chanda to followers” to notify them.,తెలియజేయడానికి “ఫాలోవర్లకు చందా చూపించు” ఆన్ చేయండి.,no
+admin,chanda.save,Save,సేవ్ చేయండి,no
+admin,chanda.update,Save changes,మార్పులు సేవ్ చేయండి,no
+admin,chanda.saved,Saved,సేవ్ అయింది,no
+admin,chanda.history,Earlier weeks,మునుపటి వారాలు,no
+admin,chanda.empty,No weeks entered yet.,ఇంకా ఏ వారమూ నమోదు కాలేదు.,no
+admin,needy.title,Needy people,అవసరంలో ఉన్నవారు,no
+admin,needy.intro,People your masjid has verified as in need. Followers pay them directly by UPI — the app never touches the money.,అవసరంలో ఉన్నారని మీ మస్జిద్ నిర్ధారించిన వ్యక్తులు. అనుచరులు వారికి నేరుగా UPI ద్వారా పంపుతారు — యాప్ డబ్బును ఎప్పుడూ తాకదు.,no
+admin,needy.statusFilter,Status,స్థితి,no
+admin,needy.status.active,Active,చురుకుగా,no
+admin,needy.status.fulfilled,Fulfilled,అవసరం తీరింది,no
+admin,needy.status.closed,Closed,ముగిసింది,no
+admin,needy.empty.active,No one listed yet,ఇంకా ఎవరూ జాబితాలో లేరు,no
+admin,needy.empty.fulfilled,No one fulfilled yet,ఇంకా ఎవరి అవసరం తీరలేదు,no
+admin,needy.empty.closed,No one closed yet,ఇంకా ఎవరినీ ముగించలేదు,no
+admin,needy.emptyBody,Add a person your masjid has verified. Ask them first.,మీ మస్జిద్ నిర్ధారించిన వ్యక్తిని చేర్చండి. ముందుగా వారిని అడగండి.,no
+admin,needy.category.widow,Widow,వితంతువు,no
+admin,needy.category.orphan,Orphan,అనాథ,no
+admin,needy.category.disability,Disability,వైకల్యం,no
+admin,needy.category.illness,Illness,అనారోగ్యం,no
+admin,needy.category.elderly,Elderly,వృద్ధులు,no
+admin,needy.category.homeless,Homeless,నిరాశ్రయులు,no
+admin,needy.category.debt,Debt,అప్పు,no
+admin,needy.category.student,Student,విద్యార్థి,no
+admin,needy.category.other,Other,ఇతర,no
+admin,needy.zakat,Zakat-eligible,జకాత్‌కు అర్హులు,no
+admin,needy.amounts,{received} of {target},{target}లో {received},no
+admin,needy.receivedLabel,Received (reported by masjid),అందినది (మస్జిద్ తెలిపినది),no
+admin,needy.fulfilledNote,Fulfilled — hidden from the app,అవసరం తీరింది — యాప్‌లో కనిపించరు,no
+admin,needy.relistNote,"Below the amount needed, this person is listed in the app again.",కావలసిన మొత్తం కంటే తక్కువైతే ఈ వ్యక్తి యాప్‌లో మళ్ళీ కనిపిస్తారు.,no
+admin,needy.updateReceived,Update received,అందిన మొత్తాన్ని నవీకరించండి,no
+admin,needy.updateTitle,Received so far,ఇప్పటివరకు అందినది,no
+admin,needy.needed,Needed: {amount},కావలసినది: {amount},no
+admin,needy.save,Save,సేవ్ చేయండి,no
+admin,needy.saved,Amount saved,మొత్తం సేవ్ అయింది,no
+admin,needy.edit,Edit details,వివరాలు మార్చండి,no
+admin,needy.close,Close,ముగించండి,no
+admin,needy.closeTitle,Close this person?,ఈ వ్యక్తిని ముగించాలా?,no
+admin,needy.closeBody,Use this when help is no longer needed. They are hidden from the app. This cannot be undone.,సహాయం ఇక అవసరం లేనప్పుడు దీన్ని వాడండి. వారు యాప్‌లో కనిపించరు. దీన్ని వెనక్కి తీసుకోలేరు.,no
+admin,needy.closed,Closed,ముగించబడింది,no
+admin,needy.remove,Remove,తీసివేయండి,no
+admin,needy.removeTitle,Remove this person?,ఈ వ్యక్తిని తీసివేయాలా?,no
+admin,needy.removeBody,"Use this for a mistake, or when the person asks to be removed. This cannot be undone.","పొరపాటు జరిగినప్పుడు, లేదా ఆ వ్యక్తి తీసివేయమని అడిగినప్పుడు దీన్ని వాడండి. దీన్ని వెనక్కి తీసుకోలేరు.",no
+admin,needy.removed,Removed,తీసివేయబడింది,no
+admin,needy.add,Add person,వ్యక్తిని చేర్చండి,no
+admin,needy.full,"You have {max} active people, the most allowed. Close one to add another.","మీకు {max} మంది చురుకుగా ఉన్నారు, ఇదే గరిష్ఠం. కొత్తవారిని చేర్చడానికి ఒకరిని ముగించండి.",no
+admin,needy.retention,"Details of fulfilled, closed and removed people are deleted after 90 days.","అవసరం తీరిన, ముగించిన, తీసివేసిన వ్యక్తుల వివరాలు 90 రోజుల తర్వాత తొలగించబడతాయి.",no
+admin,needy.newTitle,Add a person,కొత్త వ్యక్తిని చేర్చండి,no
+admin,needy.editTitle,Edit person,వ్యక్తి వివరాలు మార్చండి,no
+admin,needy.name,Name shown in the app,యాప్‌లో కనిపించే పేరు,no
+admin,needy.nameHint,First name or initials only,మొదటి పేరు లేదా పేరులోని మొదటి అక్షరాలు మాత్రమే,no
+admin,needy.categoryQuestion,What kind of need?,ఏ రకమైన అవసరం?,no
+admin,needy.reason,Why they need help,సహాయం ఎందుకు కావాలి,no
+admin,needy.reasonHint,"Short and respectful. No address, phone number or family names.","చిన్నగా, గౌరవంగా రాయండి. చిరునామా, ఫోన్ నంబర్ లేదా కుటుంబ సభ్యుల పేర్లు రాయకండి.",no
+admin,needy.upiTitle,The person’s own UPI,వ్యక్తి స్వంత UPI,no
+admin,needy.upiHint,Money goes straight to this UPI ID. Check it with the person.,డబ్బు నేరుగా ఈ UPI IDకి వెళ్తుంది. దీన్ని ఆ వ్యక్తితో సరిచూసుకోండి.,no
+admin,needy.scan,Scan the person’s UPI QR,వ్యక్తి UPI QR స్కాన్ చేయండి,no
+admin,needy.scanHint,Point the camera at the person’s own UPI QR.,కెమెరాను వ్యక్తి స్వంత UPI QR వైపు చూపండి.,no
+admin,needy.cap,Amount needed,కావలసిన మొత్తం,no
+admin,needy.capHint,From ₹1 to ₹1 crore,₹1 నుండి ₹1 కోటి వరకు,no
+admin,needy.zakatLabel,Zakat can be given to this person,ఈ వ్యక్తికి జకాత్ ఇవ్వవచ్చు,no
+admin,needy.zakatHint,Your masjid’s statement. The app shows “Zakat-eligible”.,ఇది మీ మస్జిద్ ప్రకటన. యాప్‌లో “జకాత్‌కు అర్హులు” అని కనిపిస్తుంది.,no
+admin,needy.privateTitle,Private details,ప్రైవేట్ వివరాలు,no
+admin,needy.privateHint,Only admins of this masjid see this. It is stored encrypted and never shown in the app.,"వీటిని ఈ మస్జిద్ అడ్మిన్‌లు మాత్రమే చూస్తారు. ఇవి ఎన్‌క్రిప్ట్ చేసి భద్రపరచబడతాయి, యాప్‌లో ఎప్పుడూ కనిపించవు.",no
+admin,needy.phone,Phone number,ఫోన్ నంబర్,no
+admin,needy.note,Private note,ప్రైవేట్ గమనిక,no
+admin,needy.showPrivate,Show private details,ప్రైవేట్ వివరాలు చూపండి,no
+admin,needy.showPrivateHint,"Each time someone views them, it is recorded.",ఎవరైనా వీటిని చూసిన ప్రతిసారీ అది నమోదవుతుంది.,no
+admin,needy.consent,The person — or a guardian for a child — agreed to be listed with these details,ఈ వ్యక్తి — లేదా పిల్లల విషయంలో వారి సంరక్షకుడు — ఈ వివరాలతో జాబితాలో ఉండటానికి అంగీకరించారు,no
+admin,needy.consentHint,"Ask them first. Their name, reason and UPI ID will be visible to app users.","ముందుగా వారిని అడగండి. వారి పేరు, కారణం, UPI ID యాప్ వాడేవారికి కనిపిస్తాయి.",no
+admin,needy.missing,Still needed: {fields},ఇంకా కావాలి: {fields},no
+admin,needy.issue.name,a name,పేరు,no
+admin,needy.issue.category,the kind of need,అవసరం రకం,no
+admin,needy.issue.reason,the reason,కారణం,no
+admin,needy.issue.vpa,a valid UPI ID,సరైన UPI ID,no
+admin,needy.issue.payee,the payee name,స్వీకర్త పేరు,no
+admin,needy.issue.cap,the amount needed,కావలసిన మొత్తం,no
+admin,needy.issue.phone,a valid phone number,సరైన ఫోన్ నంబర్,no
+admin,needy.issue.consent,the tick that they agreed,అంగీకార టిక్,no
+admin,needy.personSaved,Person saved,వ్యక్తి వివరాలు సేవ్ అయ్యాయి,no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -669,6 +900,10 @@ common,ui.ilm.messageLabel,Message {name} on WhatsApp,{name}కు వాట్�
 common,ui.camp.title,Blood donation camp,రక్తదాన శిబిరం,no
 common,ui.camp.when,{date} · {start} – {end},{date} · {start} – {end},no
 common,ui.camp.contact,Contact on WhatsApp,వాట్సాప్‌లో సంప్రదించండి,no
+common,ui.video.youtube,YouTube,YouTube,no
+common,ui.video.play,Play {title},{title} ప్లే చేయండి,no
+common,ui.video.playsFromYouTube,Plays from YouTube,YouTube నుండి ప్లే అవుతుంది,no
+common,ui.video.offline,Connect to the internet to watch,చూడటానికి ఇంటర్నెట్‌కు కనెక్ట్ అవ్వండి,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,మగ్రిబ్ తర్వాత,no
 common,hijri.months.m1,Muharram,ముహర్రం,no
@@ -726,6 +961,8 @@ common,updates.filters,Filter updates,అప్‌డేట్‌లను ఫ�
 common,updates.yesterday,Yesterday,నిన్న,no
 common,updates.new,New,కొత్తది,no
 common,updates.loadingMore,Loading more…,మరిన్ని లోడ్ అవుతున్నాయి…,no
+common,summary.raisedOf,{received} raised of {target},{target}లో {received} వచ్చింది,no
+common,summary.collected,{amount} collected in the week of {date},{date} వారంలో {amount} వసూలైంది,no
 content,announcements,Announcements,ప్రకటనలు,no
 content,hadithQuran,Hadith & Quran,హదీస్ & ఖుర్ఆన్,no
 content,duaRequests,Dua Requests,దువా విన్నపాలు,no
@@ -809,6 +1046,94 @@ content,emptyIlm,No contacts yet,ఇంకా పరిచయాలు లేవ
 content,emptyIlmBody,"When the masjid lists people you can ask, they will appear here.","మీరు అడగగల వ్యక్తులను మస్జిద్ చేర్చినప్పుడు, వారు ఇక్కడ కనిపిస్తారు.",no
 content,ruqyahFailed,Ruqyah could not be loaded,రుఖ్యా లోడ్ కాలేదు,no
 content,ruqyahFailedBody,"Check your connection and try again. Once opened, it stays available offline.","మీ కనెక్షన్ తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి. ఒకసారి తెరిచాక, ఇది ఆఫ్‌లైన్‌లో కూడా అందుబాటులో ఉంటుంది.",no
+content,campaign.title,Donation Campaigns,విరాళాల ప్రచారాలు,no
+content,campaign.detailTitle,Donation Campaign,విరాళ ప్రచారం,no
+content,campaign.status.active,Active,కొనసాగుతోంది,no
+content,campaign.status.completed,Completed,పూర్తయింది,no
+content,campaign.status.closed,Closed,ముగిసింది,no
+content,campaign.purpose.renovation,Renovation,పునరుద్ధరణ,no
+content,campaign.purpose.repair,Repair,మరమ్మతు,no
+content,campaign.purpose.utilities,Bills & utilities,బిల్లులు & సౌకర్యాలు,no
+content,campaign.purpose.welfare,Helping people,ప్రజలకు సహాయం,no
+content,campaign.purpose.other,Other,ఇతర,no
+content,campaign.raisedOf,{received} raised of {target},{target}లో {received} వచ్చింది,no
+content,campaign.received,Received (reported by masjid),అందినది (మస్జిద్ తెలిపినది),no
+content,campaign.goal,Goal,లక్ష్యం,no
+content,campaign.progressLabel,Received so far,ఇప్పటివరకు అందినది,no
+content,campaign.percent,{percent}%,{percent}%,no
+content,campaign.lastUpdated,Last updated {when} by masjid admin,"చివరి నవీకరణ {when}, మస్జిద్ అడ్మిన్ ద్వారా",no
+content,campaign.started,Started,ప్రారంభమైంది,no
+content,campaign.starts,Starts,ప్రారంభం,no
+content,campaign.ends,Ends,ముగింపు,no
+content,campaign.noEnd,No end date,ముగింపు తేదీ లేదు,no
+content,campaign.purposeLabel,Purpose,ఉద్దేశ్యం,no
+content,campaign.daysLeft,"{count, plural, =0 {Ends today} one {# day left} other {# days left}}","{count, plural, =0 {ఈరోజే చివరి రోజు} one {# రోజు మిగిలి ఉంది} other {# రోజులు మిగిలి ఉన్నాయి}}",no
+content,campaign.endedOn,Ended {date},{date}న ముగిసింది,no
+content,campaign.about,About this campaign,ఈ ప్రచారం గురించి,no
+content,campaign.donateNow,Donate Now,ఇప్పుడే విరాళం ఇవ్వండి,no
+content,campaign.showQr,Show UPI QR Code,UPI QR కోడ్ చూపించు,no
+content,campaign.opening,Opening your UPI app…,మీ UPI యాప్ తెరుచుకుంటోంది…,no
+content,campaign.disclaimer,Payments go directly to the masjid’s verified UPI account. {app} does not receive or handle any money.,"చెల్లింపులు నేరుగా మస్జిద్ ధృవీకరించిన UPI ఖాతాకు వెళ్తాయి. {app} ఎలాంటి డబ్బునూ తీసుకోదు, నిర్వహించదు.",no
+content,campaign.closedBanner,This campaign has ended. JazakAllah Khair to everyone who contributed.,ఈ ప్రచారం ముగిసింది. సహకరించిన అందరికీ జజాకల్లాహ్ ఖైర్.,no
+content,campaign.noUpi,The masjid’s UPI details are not available right now. Please try again later.,మస్జిద్ UPI వివరాలు ప్రస్తుతం అందుబాటులో లేవు. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి.,no
+content,campaign.empty,No donation campaigns yet,ఇంకా విరాళ ప్రచారాలు లేవు,no
+content,campaign.emptyBody,"When the masjid starts a donation campaign, you will see it here.","మస్జిద్ విరాళ ప్రచారం ప్రారంభించినప్పుడు, అది ఇక్కడ కనిపిస్తుంది.",no
+content,campaign.qr.title,Pay with UPI,UPIతో చెల్లించండి,no
+content,campaign.qr.copy,Copy UPI ID,UPI ID కాపీ చేయండి,no
+content,campaign.qr.copied,UPI ID copied,UPI ID కాపీ అయింది,no
+content,campaign.qr.label,UPI QR code for {payee},{payee} UPI QR కోడ్,no
+content,campaign.qr.scanHint,Scan with any UPI app from another phone,మరో ఫోన్‌లోని ఏ UPI యాప్‌తోనైనా స్కాన్ చేయండి,no
+content,campaign.qr.save,Save QR to gallery,QRను గ్యాలరీలో సేవ్ చేయండి,no
+content,campaign.qr.saveHint,Or save it and use “Scan from gallery” in your UPI app.,"లేదా దీన్ని సేవ్ చేసి, మీ UPI యాప్‌లో “గ్యాలరీ నుండి స్కాన్” ఉపయోగించండి.",no
+content,campaign.qr.saved,QR code saved,QR కోడ్ సేవ్ అయింది,no
+content,campaign.qr.saveFailed,Couldn’t save the QR code. Take a screenshot instead.,QR కోడ్ సేవ్ కాలేదు. బదులుగా స్క్రీన్‌షాట్ తీసుకోండి.,no
+content,campaign.qr.changed,Payment details changed on {date},చెల్లింపు వివరాలు {date}న మారాయి,no
+content,campaign.qr.checkName,Your UPI app shows the name before you pay — make sure it says {payee}.,చెల్లించే ముందు మీ UPI యాప్ పేరు చూపిస్తుంది — అందులో {payee} అని ఉందో లేదో చూసుకోండి.,no
+content,chanda.title,Weekly Chanda,వారపు చందా,no
+content,chanda.thisWeek,This week,ఈ వారం,no
+content,chanda.lastWeek,Latest week,తాజా వారం,no
+content,chanda.range,{start} – {end},{start} – {end},no
+content,chanda.reported,Reported by masjid admin.,మస్జిద్ అడ్మిన్ తెలిపినది.,no
+content,chanda.chartLabel,"Chanda of the last {count, plural, one {week} other {# weeks}}","గత {count, plural, one {# వారం} other {# వారాల}} చందా",no
+content,chanda.bar,{week}: {amount},{week}: {amount},no
+content,chanda.empty,No chanda reported yet,ఇంకా చందా తెలియజేయలేదు,no
+content,chanda.emptyBody,"When the masjid enters a week’s total, it appears here.","మస్జిద్ ఒక వారం మొత్తాన్ని నమోదు చేసినప్పుడు, అది ఇక్కడ కనిపిస్తుంది.",no
+content,chanda.collected,{amount} collected in the week of {date},{date} వారంలో {amount} వసూలైంది,no
+content,needy.intro,Verified by {masjid}. Payments go directly to the person.,{masjid} నిర్ధారించింది. చెల్లింపులు నేరుగా ఆ వ్యక్తికే వెళ్తాయి.,no
+content,needy.filter,Filter,ఫిల్టర్,no
+content,needy.all,All,అందరూ,no
+content,needy.zakat,Zakat-eligible,జకాత్‌కు అర్హులు,no
+content,needy.amounts,{received} of {target},{target}లో {received},no
+content,needy.progressLabel,Received so far,ఇప్పటివరకు అందినది,no
+content,needy.stillNeeded,Still needed: {amount},ఇంకా కావలసినది: {amount},no
+content,needy.help,Help {name},{name}కు సహాయం చేయండి,no
+content,needy.pay,Pay with UPI,UPIతో చెల్లించండి,no
+content,needy.showQr,Show UPI QR,UPI QR చూపించు,no
+content,needy.reported,Amount received is reported by the masjid.,అందిన మొత్తం మస్జిద్ తెలిపినది.,no
+content,needy.zakatAsk,Log this in My zakat?,దీన్ని నా జకాత్‌లో నమోదు చేయాలా?,no
+content,needy.zakatAskBody,My zakat is a private list kept only on this phone.,నా జకాత్ ఈ ఫోన్‌లో మాత్రమే ఉండే వ్యక్తిగత జాబితా.,no
+content,needy.zakatLog,Log it,నమోదు చేయండి,no
+content,needy.zakatNotNow,Not now,ఇప్పుడు కాదు,no
+content,needy.disclaimer,Payments go directly to each person’s own UPI account. {app} does not receive or handle any money.,"చెల్లింపులు నేరుగా ప్రతి వ్యక్తి స్వంత UPI ఖాతాకు వెళ్తాయి. {app} ఎలాంటి డబ్బునూ తీసుకోదు, నిర్వహించదు.",no
+content,needy.empty,No one is listed right now,ప్రస్తుతం ఎవరూ జాబితాలో లేరు,no
+content,needy.emptyBody,"When the masjid lists people it has verified as in need, you will see them here.","అవసరంలో ఉన్నారని మస్జిద్ నిర్ధారించిన వ్యక్తులను జాబితాలో చేర్చినప్పుడు, వారు ఇక్కడ కనిపిస్తారు.",no
+content,needy.emptyZakat,No one here is marked zakat-eligible right now.,ప్రస్తుతం ఇక్కడ ఎవరూ జకాత్‌కు అర్హులుగా గుర్తించబడలేదు.,no
+content,needy.failed,Couldn’t load the list,జాబితా లోడ్ కాలేదు,no
+content,needy.failedBody,"Check your connection and try again. Once opened, it is available offline too.","మీ కనెక్షన్ తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి. ఒకసారి తెరిచాక, ఇది ఆఫ్‌లైన్‌లో కూడా అందుబాటులో ఉంటుంది.",no
+content,needy.category.widow,Widow,వితంతువు,no
+content,needy.category.orphan,Orphan,అనాథ,no
+content,needy.category.disability,Disability,వైకల్యం,no
+content,needy.category.illness,Illness,అనారోగ్యం,no
+content,needy.category.elderly,Elderly,వృద్ధులు,no
+content,needy.category.homeless,Homeless,నిరాశ్రయులు,no
+content,needy.category.debt,Debt,అప్పు,no
+content,needy.category.student,Student,విద్యార్థి,no
+content,needy.category.other,Other,ఇతర,no
+content,bayans,Bayans,బయాన్‌లు,no
+content,emptyBayans,No bayans yet,ఇంకా బయాన్‌లు లేవు,no
+content,emptyBayansBody,"When the masjid shares a bayan, it shows here.","మసీదు బయాన్‌ను పంచుకున్నప్పుడు, అది ఇక్కడ కనిపిస్తుంది.",no
+content,showMore,Show more,మరింత చూపించు,no
+content,showLess,Show less,తక్కువ చూపించు,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,మన సమాజంలోని ఒకరు అనారోగ్యంతో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,మన సమాజంలోని ఒకరు ఆసుపత్రిలో ఉన్నారు. దయచేసి వారు కోలుకోవాలని దువా చేయండి.,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,మన సమాజంలోని ఒకరికి ఆపరేషన్ జరుగుతోంది. అంతా బాగా జరగాలని దయచేసి దువా చేయండి.,no
@@ -882,6 +1207,33 @@ errors,CONTACT_INVALID,"Please tick that this person agreed, and check the Whats
 errors,CONTACT_NOT_FOUND,This contact was removed. Please go back to the list.,ఈ పరిచయం తీసివేయబడింది. దయచేసి జాబితాకు తిరిగి వెళ్ళండి.,no
 errors,CONTACT_LIMIT_REACHED,You can list up to 10 contacts. Remove one to add another.,మీరు గరిష్ఠంగా 10 పరిచయాలు ఉంచవచ్చు. కొత్తది చేర్చడానికి ఒకటి తీసివేయండి.,no
 errors,PUSH_ENDPOINT_IN_USE,Notifications could not be turned on on this phone. Please try again.,ఈ ఫోన్‌లో నోటిఫికేషన్‌లను ఆన్ చేయలేకపోయాం. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+errors,PAYMENT_INVALID,"Check the UPI ID and the payee name, then try again.","UPI ID మరియు స్వీకర్త పేరును తనిఖీ చేసి, మళ్ళీ ప్రయత్నించండి.",no
+errors,PAYMENT_UNCHANGED,These are already the payment details shown to everyone.,ఇవే చెల్లింపు వివరాలు ఇప్పటికే అందరికీ కనిపిస్తున్నాయి.,no
+errors,PAYMENT_OWNER_ONLY,Only an owner of the masjid can ask to change the UPI details.,UPI వివరాలను మార్చమని మసీదు యజమాని మాత్రమే అడగగలరు.,no
+errors,PAYMENT_REQUEST_OPEN,A change is already waiting. You can ask again once it is decided.,ఒక మార్పు ఇప్పటికే వేచి ఉంది. దానిపై నిర్ణయం వచ్చాక మళ్ళీ అడగండి.,no
+errors,PAYMENT_NOTICE_UNAVAILABLE,"Activate the “Payment details updated” notice template first, so followers are told about the change.","ముందుగా “చెల్లింపు వివరాలు మారాయి” నోటీసు టెంప్లేట్‌ను యాక్టివేట్ చేయండి, తద్వారా ఫాలోవర్లకు మార్పు తెలుస్తుంది.",no
+errors,PAYMENT_DETAILS_IN_TEXT,Please remove the UPI ID or payment link from the text. Followers pay only to the masjid's verified UPI details.,దయచేసి టెక్స్ట్ నుండి UPI ID లేదా చెల్లింపు లింక్‌ను తీసివేయండి. ఫాలోవర్లు మస్జిద్ ధృవీకరించిన UPI వివరాలకు మాత్రమే చెల్లిస్తారు.,no
+errors,PAYMENT_NOT_FOUND,This payment request no longer exists.,ఈ చెల్లింపు అభ్యర్థన ఇప్పుడు లేదు.,no
+errors,PAYMENT_NOT_PENDING,This request was already decided.,ఈ అభ్యర్థనపై ఇప్పటికే నిర్ణయం జరిగింది.,no
+errors,PAYMENT_REQUESTER_REMOVED,"The admin who asked no longer has access, so this request was stopped.","అడిగిన అడ్మిన్‌కు ఇప్పుడు యాక్సెస్ లేదు, కాబట్టి ఈ అభ్యర్థన ఆపివేయబడింది.",no
+errors,PAYMENT_NOT_OPEN,This request is already live or closed.,ఈ అభ్యర్థన ఇప్పటికే అమలులో ఉంది లేదా ముగిసింది.,no
+errors,VIDEO_INVALID,"Check the title and the audience, then try again.","శీర్షిక మరియు ప్రేక్షకులను తనిఖీ చేసి, మళ్ళీ ప్రయత్నించండి.",no
+errors,INVALID_VIDEO_LINK,This is not a YouTube video link.,ఇది YouTube వీడియో లింక్ కాదు.,no
+errors,VIDEO_UNAVAILABLE,This video is private or can't be shown in other apps.,ఈ వీడియో ప్రైవేట్‌గా ఉంది లేదా ఇతర యాప్‌లలో చూపించలేము.,no
+errors,VIDEO_LOOKUP_FAILED,YouTube could not be reached. Try again in a minute.,YouTube‌ను చేరుకోలేకపోయాం. ఒక నిమిషం తర్వాత మళ్ళీ ప్రయత్నించండి.,no
+errors,ITEM_LOCKED,This notice was sent by the app and cannot be changed or deleted.,"ఈ ప్రకటనను యాప్ పంపింది, దీన్ని మార్చలేరు లేదా తొలగించలేరు.",no
+errors,CAMPAIGN_INVALID,"Check the title, the target (at least ₹1,000) and the dates, then try again.","శీర్షిక, లక్ష్యం (కనీసం ₹1,000) మరియు తేదీలను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.",no
+errors,CAMPAIGN_NO_PAYMENT,Set up your masjid's UPI first (Masjid Profile → UPI payment details).,ముందు మీ మసీదు UPI సెట్ చేయండి (మసీదు ప్రొఫైల్ → UPI చెల్లింపు వివరాలు).,no
+errors,CAMPAIGN_LIMIT_REACHED,You can run up to 3 donation drives at once. Mark one completed first.,ఒకేసారి 3 విరాళ ప్రచారాల వరకు నడపవచ్చు. ముందు ఒకదాన్ని పూర్తయినట్లు గుర్తించండి.,no
+errors,CAMPAIGN_NOT_FOUND,This donation drive no longer exists.,ఈ విరాళ ప్రచారం ఇప్పుడు లేదు.,no
+errors,CAMPAIGN_NOT_ACTIVE,This donation drive is already completed or closed.,ఈ విరాళ ప్రచారం ఇప్పటికే పూర్తయింది లేదా ముగిసింది.,no
+errors,CAMPAIGN_CLOSED,This donation drive has closed. The amount can no longer be changed.,ఈ విరాళ ప్రచారం ముగిసింది. మొత్తాన్ని ఇక మార్చలేరు.,no
+errors,CAMPAIGN_TARGET_LOWER,"The target can only be raised, not lowered.","లక్ష్యాన్ని పెంచవచ్చు మాత్రమే, తగ్గించలేరు.",no
+errors,CHANDA_INVALID,Please check the week and the amount.,దయచేసి వారం మరియు మొత్తాన్ని తనిఖీ చేయండి.,no
+errors,CHANDA_HIDDEN,Turn on “Show chanda to followers” before notifying them.,తెలియజేసే ముందు “ఫాలోవర్లకు చందా చూపించు” ఆన్ చేయండి.,no
+errors,BENEFICIARY_INVALID,"Please check the UPI ID, the name on the UPI account and the amount needed.","దయచేసి UPI ID, UPI ఖాతా పేరు, అవసరమైన మొత్తం సరిచూడండి.",no
+errors,BENEFICIARY_NOT_FOUND,This person is no longer on the list.,ఈ వ్యక్తి ఇప్పుడు జాబితాలో లేరు.,no
+errors,BENEFICIARY_LIMIT_REACHED,You can list up to 100 people at a time. Close one to add another.,మీరు ఒకేసారి గరిష్ఠంగా 100 మందిని ఉంచవచ్చు. కొత్తవారిని చేర్చడానికి ఒకరిని ముగించండి.,no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no
@@ -937,6 +1289,7 @@ masjid,adhkar,Adhkar after salah,నమాజ్ తర్వాత అజ్క
 masjid,ruqyah,Ruqyah,రుఖ్యా,no
 masjid,ilm,Ask the masjid,మస్జిద్‌ను అడగండి,no
 masjid,campaigns,Donation Campaigns,విరాళాల ప్రచారాలు,no
+masjid,needy,Help the needy,అవసరంలో ఉన్నవారికి సహాయం,no
 masjid,chanda,Weekly Chanda,వారపు చందా,no
 masjid,bayans,Bayans,బయాన్‌లు,no
 masjid,suspended,This masjid is temporarily unavailable,ఈ మసీదు ప్రస్తుతం అందుబాటులో లేదు,no
@@ -1004,6 +1357,7 @@ onboarding,notifications.turnOn,Turn on notifications,నోటిఫికే�
 push,voice,🎤 Voice message,🎤 వాయిస్ సందేశం,no
 push,fallbackTitle,Masjid update,మసీదు సమాచారం,no
 push,fallbackBody,Open the app to see it.,చూడటానికి యాప్ తెరవండి.,no
+push,campaignNew,New donation campaign · Goal {target},కొత్త విరాళాల ప్రచారం · లక్ష్యం {target},no
 push,alert.credential_counter_regression.title,Security check needed,భద్రతా తనిఖీ అవసరం,no
 push,alert.credential_counter_regression.body,A passkey reported an unexpected sign-in count. Check your passkeys and remove any you don't recognise.,"ఒక పాస్‌కీ ఊహించని సైన్-ఇన్ లెక్కను చూపింది. మీ పాస్‌కీలను తనిఖీ చేసి, మీరు గుర్తించని వాటిని తీసివేయండి.",no
 push,alert.push_job_stuck.title,Notification delivery stuck,నోటిఫికేషన్ పంపడం ఆగిపోయింది,no
@@ -1012,6 +1366,16 @@ push,alert.test.title,Test alert,పరీక్ష హెచ్చరిక,no
 push,alert.test.body,Alerts reach this phone.,హెచ్చరికలు ఈ ఫోన్‌కు వస్తాయి.,no
 push,alert.super_passkey_added.title,New passkey on a Super Admin account,సూపర్ అడ్మిన్ ఖాతాలో కొత్త పాస్‌కీ,no
 push,alert.super_passkey_added.body,"A passkey was just added to a Super Admin account. If this wasn't you, remove it in Account now.","ఇప్పుడే ఒక సూపర్ అడ్మిన్ ఖాతాకు పాస్‌కీ జోడించబడింది. ఇది మీరు కాకపోతే, ఇప్పుడే ఖాతాలో దాన్ని తీసివేయండి.",no
+push,alert.payment_request.title,UPI change requested,UPI మార్పు అభ్యర్థన,no
+push,alert.payment_request.body,A masjid asked to change its UPI payment details. Review it in Payment approvals.,ఒక మసీదు తన UPI చెల్లింపు వివరాలను మార్చమని అడిగింది. చెల్లింపు ఆమోదాలలో చూడండి.,no
+push,alert.payment_request_owner.title,UPI change asked for your masjid,మీ మసీదు UPI మార్పు అభ్యర్థన,no
+push,alert.payment_request_owner.body,"An owner of your masjid asked to change its UPI details. If you don't know about it, tell the Super Admin now.","మీ మసీదు యజమానులలో ఒకరు UPI వివరాలను మార్చమని అడిగారు. ఇది మీకు తెలియకపోతే, ఇప్పుడే సూపర్ అడ్మిన్‌కు చెప్పండి.",no
+push,alert.payment_approved.title,UPI change approved,UPI మార్పు ఆమోదించబడింది,no
+push,alert.payment_approved.body,"A UPI change for your masjid was approved. It goes live after the waiting period. If you didn't ask for it, tell the Super Admin now.","మీ మసీదు UPI మార్పు ఒకటి ఆమోదించబడింది. వేచి ఉండే సమయం తర్వాత అది అమలులోకి వస్తుంది. మీరు అడగకపోతే, ఇప్పుడే సూపర్ అడ్మిన్‌కు చెప్పండి.",no
+push,alert.payment_rejected.title,UPI change not approved,UPI మార్పు ఆమోదించబడలేదు,no
+push,alert.payment_rejected.body,Your UPI change was not approved. Open Payment to see why.,మీ UPI మార్పు ఆమోదించబడలేదు. కారణం చూడటానికి చెల్లింపు తెరవండి.,no
+push,alert.payment_active.title,New UPI details are live,కొత్త UPI వివరాలు అమలులో ఉన్నాయి,no
+push,alert.payment_active.body,"Your masjid's new UPI details are now shown to everyone, and followers were told. If you didn't ask for this, tell the Super Admin now.","మీ మసీదు కొత్త UPI వివరాలు ఇప్పుడు అందరికీ కనిపిస్తున్నాయి, ఫాలోవర్లకు తెలియజేయబడింది. మీరు అడగకపోతే, ఇప్పుడే సూపర్ అడ్మిన్‌కు చెప్పండి.",no
 settings,language,Language,భాష,no
 settings,languageSheet,Choose your language,మీ భాషను ఎంచుకోండి,no
 settings,audience,Brother / Sister,సోదరుడు / సోదరి,no
@@ -1052,6 +1416,7 @@ settings,field.createdAt,First used,మొదటిసారి ఉపయోగ�
 settings,field.lastSeen,Last used,చివరిసారి ఉపయోగం,no
 settings,field.saved,Saved posts,సేవ్ చేసిన పోస్ట్‌లు,no
 settings,field.ameens,Ameens said,అన్న ఆమీన్‌లు,no
+settings,field.zakat,My zakat payments,నా జకాత్ చెల్లింపులు,no
 settings,field.reader,Reader and vibration,"చదివే, వైబ్రేషన్ సెట్టింగ్‌లు",no
 settings,pushOn,On,ఆన్,no
 settings,pushOff,Off,ఆఫ్,no
@@ -1080,6 +1445,38 @@ settings,aboutCommunity,Made for the community.,సమాజం కోసం త
 settings,appVersion,Version {version},వెర్షన్ {version},no
 settings,landingTitle,Shared post,షేర్ చేసిన పోస్ట్,no
 settings,landingApp,Get the app,యాప్ పొందండి,no
+settings,zakat.title,My zakat,నా జకాత్,no
+settings,zakat.onlyHere,Only on this phone,ఈ ఫోన్‌లో మాత్రమే,no
+settings,zakat.onlyHereLong,Kept only on this phone. Nothing is sent to anyone.,ఈ ఫోన్‌లో మాత్రమే ఉంటుంది. ఎవరికీ ఏమీ పంపబడదు.,no
+settings,zakat.notice,Saved only on this phone. Clear all data or a new phone removes it. The app does not calculate zakat.,ఈ ఫోన్‌లో మాత్రమే సేవ్ అవుతుంది. మొత్తం డేటా తొలగించినా లేదా కొత్త ఫోన్ తీసుకున్నా ఇది పోతుంది. యాప్ జకాత్‌ను లెక్కించదు.,no
+settings,zakat.yearLabel,{year} AH,{year} హిజ్రీ,no
+settings,zakat.remaining,Remaining,మిగిలినది,no
+settings,zakat.given,Given so far,ఇప్పటివరకు ఇచ్చినది,no
+settings,zakat.owed,Amount owed,చెల్లించాల్సిన మొత్తం,no
+settings,zakat.givenOf,{given} of {owed},{owed} లో {given},no
+settings,zakat.setOwed,Set amount owed,చెల్లించాల్సిన మొత్తం నమోదు చేయండి,no
+settings,zakat.changeOwed,Change amount owed,చెల్లించాల్సిన మొత్తం మార్చండి,no
+settings,zakat.owedHint,Enter the amount yourself. The app does not calculate zakat.,మొత్తాన్ని మీరే నమోదు చేయండి. యాప్ జకాత్‌ను లెక్కించదు.,no
+settings,zakat.label,Year,సంవత్సరం,no
+settings,zakat.labelHint,"For example, the Hijri year.","ఉదాహరణకు, హిజ్రీ సంవత్సరం.",no
+settings,zakat.save,Save,సేవ్ చేయండి,no
+settings,zakat.owedSaved,Saved,సేవ్ అయింది,no
+settings,zakat.payments,Payments,చెల్లింపులు,no
+settings,zakat.noPayments,No payments logged yet.,ఇంకా చెల్లింపులేవీ నమోదు కాలేదు.,no
+settings,zakat.add,Add payment,చెల్లింపు జోడించండి,no
+settings,zakat.amount,Amount given,ఇచ్చిన మొత్తం,no
+settings,zakat.note,Note,గమనిక,no
+settings,zakat.paymentSaved,Saved in My zakat,నా జకాత్‌లో సేవ్ అయింది,no
+settings,zakat.full,"The list is full (500 payments). Remove one, or start a new year.","జాబితా నిండింది (500 చెల్లింపులు). ఒకటి తొలగించండి, లేదా కొత్త సంవత్సరం ప్రారంభించండి.",no
+settings,zakat.removeLabel,Remove payment of {amount},{amount} చెల్లింపును తొలగించండి,no
+settings,zakat.removeTitle,Remove this payment?,ఈ చెల్లింపును తొలగించాలా?,no
+settings,zakat.removeBody,{amount} · {date},{amount} · {date},no
+settings,zakat.removeConfirm,Remove,తొలగించండి,no
+settings,zakat.removed,Removed,తొలగించబడింది,no
+settings,zakat.reset,Start a new year,కొత్త సంవత్సరం ప్రారంభించండి,no
+settings,zakat.resetTitle,Start a new year?,కొత్త సంవత్సరం ప్రారంభించాలా?,no
+settings,zakat.resetBody,This removes the amount owed and every payment in this list from this phone.,"ఇది చెల్లించాల్సిన మొత్తాన్ని, ఈ జాబితాలోని ప్రతి చెల్లింపును ఈ ఫోన్ నుండి తొలగిస్తుంది.",no
+settings,zakat.resetConfirm,Start again,మళ్లీ ప్రారంభించండి,no
 settings,push.title,Notifications,నోటిఫికేషన్‌లు,no
 settings,push.status.on,On,ఆన్,no
 settings,push.status.off,Off,ఆఫ్,no
@@ -1110,6 +1507,7 @@ super,nav.settings,Settings,సెట్టింగ్స్,no
 super,nav.audit,Audit log,ఆడిట్ లాగ్,no
 super,nav.library,Content Library,కంటెంట్ లైబ్రరీ,no
 super,nav.templates,Notice templates,నోటీసు టెంప్లేట్‌లు,no
+super,nav.payments,Payment approvals,చెల్లింపు ఆమోదాలు,no
 super,status.pending,Pending,పెండింగ్,no
 super,status.active,Active,యాక్టివ్,no
 super,status.suspended,Suspended,నిలిపివేయబడింది,no
@@ -1117,6 +1515,7 @@ super,status.deleted,Deleted,తొలగించబడింది,no
 super,dashboard.pending,Waiting for activation,యాక్టివేషన్ కోసం ఎదురుచూస్తున్నవి,no
 super,dashboard.noPending,No masjids are waiting for activation.,యాక్టివేషన్ కోసం ఏ మస్జిద్ ఎదురుచూడటం లేదు.,no
 super,dashboard.counts,Masjids,మస్జిద్‌లు,no
+super,dashboard.campaigns,Active donation campaigns,నడుస్తున్న విరాళాల ప్రచారాలు,no
 super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","గత 30 రోజుల్లో {count, plural, one {# లాగిన్} other {# లాగిన్‌లు}} నిలిపివేయబడింది, ఎందుకంటే ఒక ఫోన్ కాపీ చేయబడి ఉండవచ్చు. ప్రభావితమైన ప్రతి అడ్మిన్‌కు కొత్త లాగిన్ లింక్ ఇవ్వండి.",no
 super,dashboard.changeRequests,Requested changes,మార్పు అభ్యర్థనలు,no
 super,dashboard.noChangeRequests,No change requests from admins.,అడ్మిన్ల నుండి మార్పు అభ్యర్థనలు లేవు.,no
@@ -1366,6 +1765,27 @@ super,push.testAlert,Send a test alert,పరీక్ష హెచ్చరి�
 super,push.testAlertHint,Sends an alert to your own phones that have alerts on (not in production).,హెచ్చరికలు ఆన్‌లో ఉన్న మీ ఫోన్‌లకు ఒక హెచ్చరిక పంపుతుంది (ప్రొడక్షన్‌లో కాదు).,no
 super,push.testSent,Test alert sent. It should arrive within a minute.,పరీక్ష హెచ్చరిక పంపబడింది. ఒక నిమిషంలో రావాలి.,no
 super,push.testFailed,The test alert could not be sent.,పరీక్ష హెచ్చరికను పంపలేకపోయాం.,no
+super,payments.title,Payment approvals,చెల్లింపు ఆమోదాలు,no
+super,payments.empty,No UPI changes waiting,వేచి ఉన్న UPI మార్పులు లేవు,no
+super,payments.requestedBy,Requested by {name} · {when},{name} అభ్యర్థించారు · {when},no
+super,payments.now,Now,ఇప్పుడు,no
+super,payments.new,Requested,అభ్యర్థించినది,no
+super,payments.none,Not set up,సెట్ కాలేదు,no
+super,payments.note,Note from the masjid,మసీదు గమనిక,no
+super,payments.pending,Waiting for review,సమీక్ష కోసం వేచి ఉంది,no
+super,payments.onHold,On hold — goes live {time},నిలిపివేయబడింది — {time} నుండి అమలు,no
+super,payments.checkCommittee,I phoned the committee and they confirmed this change,"నేను కమిటీకి ఫోన్ చేశాను, వారు ఈ మార్పును ధృవీకరించారు",no
+super,payments.checkName,The payee name matches the masjid or committee account,స్వీకర్త పేరు మసీదు లేదా కమిటీ ఖాతాతో సరిపోతుంది,no
+super,payments.approve,Approve,ఆమోదించండి,no
+super,payments.approved,Approved — goes live {time},ఆమోదించబడింది — {time} నుండి అమలు,no
+super,payments.reject,Reject,తిరస్కరించండి,no
+super,payments.stop,Stop this change,ఈ మార్పును ఆపండి,no
+super,payments.rejectTitle,Turn down this change?,ఈ మార్పును తిరస్కరించాలా?,no
+super,payments.rejectReason,Reason (the masjid sees it),కారణం (మసీదు దీన్ని చూస్తుంది),no
+super,payments.rejected,Turned down. The masjid was told.,తిరస్కరించాం. మసీదుకు తెలియజేశాం.,no
+super,payments.history,Earlier UPI details,మునుపటి UPI వివరాలు,no
+super,payments.historyStatus.superseded,Was live until {date},{date} వరకు అమలులో ఉంది,no
+super,payments.historyStatus.rejected,Not approved · {date},ఆమోదించబడలేదు · {date},no
 templates,no_water_time_range.title,No water supply,నీటి సరఫరా నిలిపివేత,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.,no
 templates,electricity_cut_time_range.title,Power cut,విద్యుత్ నిలిపివేత,no
@@ -1400,3 +1820,5 @@ templates,timings_updated.title,Prayer timings updated,నమాజ్ సమయ
 templates,timings_updated.body,The prayer timings of this masjid have been updated. Please check the new times.,ఈ మస్జిద్ నమాజ్ సమయాలు నవీకరించబడ్డాయి. దయచేసి కొత్త సమయాలు చూడండి.,no
 templates,special_timings.title,Special timings,ప్రత్యేక సమయాలు,no
 templates,special_timings.body,This masjid has special timings for {date}. Please see Special Dates for the times.,ఈ మస్జిద్‌లో {date} కోసం ప్రత్యేక సమయాలు ఉన్నాయి. సమయాల కోసం దయచేసి ప్రత్యేక రోజులు చూడండి.,no
+templates,payment_details_updated.title,Payment details updated,చెల్లింపు వివరాలు మారాయి,no
+templates,payment_details_updated.body,This masjid's UPI payment details have changed. Please check the payee name before you donate.,ఈ మసీదు UPI చెల్లింపు వివరాలు మారాయి. విరాళం ఇచ్చే ముందు దయచేసి స్వీకర్త పేరును తనిఖీ చేయండి.,no

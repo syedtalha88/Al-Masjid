@@ -69,7 +69,7 @@ describe('/api/super/templates (C9)', () => {
 
   it('adds the starter templates once, as unreviewed drafts', async () => {
     const first = await asSuper('post', '/templates/starters');
-    expect(first.body).toEqual({ added: STARTER_TEMPLATES.length }); // 17 since T3.3 (`special_timings`)
+    expect(first.body).toEqual({ added: STARTER_TEMPLATES.length }); // 18 since T5.2 (`payment_details_updated`)
     expect((await asSuper('post', '/templates/starters')).body).toEqual({ added: 0 });
     expect(
       await db().collection<{ _id: string }>('notice_templates').findOne({ _id: 'blood_donation_camp' }),

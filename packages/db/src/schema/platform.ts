@@ -15,6 +15,7 @@ import {
   LIBRARY_KIND,
   LIBRARY_STATUS,
   LOCALE,
+  PAYMENT_REJECT_CODE,
   PAYMENT_STATUS,
   PLATFORM,
   PUSH_STATUS,
@@ -86,11 +87,13 @@ const paymentProfiles = documentSchema({
   status: f.enum(PAYMENT_STATUS),
   open: f.bool(),
   requested_by: f.uuid(),
+  requested_session: opt(f.uuid()),
   request_note: opt(f.string(300)),
   reviewed_by: opt(f.uuid()),
   reviewed_at: opt(f.instant()),
   effective_at: opt(f.instant()),
   reject_reason: opt(f.string(300)),
+  reject_code: opt(f.enum(PAYMENT_REJECT_CODE)),
   masjid_visible: f.bool(),
   ...timestamps,
 });
@@ -126,6 +129,9 @@ const deviceFollows = documentSchema({
 const adminPushSubscriptions = documentSchema({
   _id: f.uuid(),
   admin_id: f.uuid(),
+  // The session that saved it (F65): alerts go to the phone only while this session carries them. Absent on
+  // subscriptions saved before the link existed — never a target, deleted by the `retention` job.
+  session_id: opt(f.uuid()),
   endpoint: f.string(1000, { pattern: HTTPS_PATTERN }),
   p256dh: f.string(200),
   auth: f.string(100),
@@ -332,6 +338,7 @@ export const PLATFORM_COLLECTIONS: readonly CollectionSpec[] = [
     indexes: [
       { name: 'endpoint_unique', key: { endpoint: 1 }, unique: true },
       { name: 'admin', key: { admin_id: 1 } },
+      { name: 'session', key: { session_id: 1 } },
     ],
   },
   {

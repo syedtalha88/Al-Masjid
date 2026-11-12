@@ -2,6 +2,7 @@
 // its params (checked against the template's declared params) or the admin's own title + body, an optional photo of
 // the admin's own masjid, the version bump, the audit entry and — with "Notify followers" — the quota count and the
 // pending outbox job. One transaction.
+import { mentionsPaymentAddress } from '@mc/domain/upi';
 import { templateValueProblems } from '@mc/i18n/template-args';
 import type { Document, UUID } from 'mongodb';
 
@@ -84,6 +85,10 @@ export async function announcementContent(
     (eventAt.getTime() < now.getTime() - DAY_MS || eventAt.getTime() > now.getTime() + EVENT_AHEAD_DAYS * DAY_MS)
   ) {
     throw new StateError('ANNOUNCEMENT_INVALID');
+  }
+  // A notice never names a payee: followers pay only the masjid's change-locked UPI details (04 R1, #160).
+  if (content.kind === 'text' && (mentionsPaymentAddress(content.title) || mentionsPaymentAddress(content.body))) {
+    throw new StateError('PAYMENT_DETAILS_IN_TEXT');
   }
   if (content.kind === 'template') {
     const template = await scoped(ctx, 'notice_templates').findOne({ _id: content.key });

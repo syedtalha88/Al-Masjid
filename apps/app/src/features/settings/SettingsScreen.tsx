@@ -21,6 +21,7 @@ import {
   DeviceMobileIcon,
   DownloadIcon,
   GlobeIcon,
+  HeartIcon,
   InfoIcon,
   ListBulletsIcon,
   MegaphoneIcon,
@@ -127,6 +128,15 @@ function Settings() {
   ];
   const content: SettingsRow[] = [
     { key: 'saved', icon: <BookmarkIcon />, title: t('saved'), onPress: go('/settings/saved') },
+    {
+      // 07 A24: "My zakat (only on this phone)".
+      key: 'zakat',
+      icon: <HeartIcon />,
+      tone: 'heart' as const,
+      title: t('zakat.title'),
+      subtitle: t('zakat.onlyHere'),
+      onPress: go('/settings/zakat'),
+    },
     ...(canVibrate
       ? [
           {

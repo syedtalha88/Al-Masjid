@@ -12,6 +12,7 @@ import {
   redisChallengeStore,
   sessionAuthenticator,
   startHttpServer,
+  videoLookupFromEnv,
 } from '@mc/api';
 import { BRAND } from '@mc/shared/brand';
 import { systemClock } from '@mc/shared/clock';
@@ -44,7 +45,7 @@ const queues = createJobQueues(connections.redis);
 const pepper = Buffer.from(env.SESSION_PEPPER, 'base64'); // validated: ≥ 32 bytes (env.ts)
 // e2e hooks only for APP_ENV=local + NODE_ENV=test AND a runtime-test build (10 §3, DECISIONS #31).
 const hooks = await loadTestHooks(env, 'api-admin', logger, undefined, {
-  admin: { db: connections.db, pepper, adminOrigin: env.ADMIN_ORIGIN },
+  admin: { db: connections.db, pepper, adminOrigin: env.ADMIN_ORIGIN, queues, logger },
   resetRateLimits: () => clearRedisRateLimits(connections.redis, 'rl:adm:'),
   redis: connections.redis,
 });
@@ -63,10 +64,14 @@ const { app } = createAdminApp({
     logger,
     // T3.6: Cloudinary on staging/production, a local directory locally (MEDIA_STORE).
     media: { store: mediaStoreFromEnv(env), origin: env.MEDIA_ORIGIN },
+    // T6.1: YouTube oEmbed + thumbnail copies on staging/production; a mock without network locally (VIDEO_LOOKUP).
+    video: await videoLookupFromEnv(env),
     notifier: pushNotifier(queues, logger),
     // T4.6: alerts are enqueued here, sent by the worker; the Super Admin's test alert exists outside production only.
     alerts: alertService(queues, logger),
     testAlerts: env.APP_ENV !== 'production',
+    // T5.2: the UPI change-lock hold (env.ts refuses < 1440 in production).
+    paymentHoldMinutes: env.PAYMENT_HOLD_MINUTES,
   }),
   rateLimiter: connections.rateLimiter,
   health: connections.health,

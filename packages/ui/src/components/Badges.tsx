@@ -6,16 +6,18 @@ import { type Tone, TONE_CLASS } from './tone.ts';
 export interface TagProps {
   readonly tone?: Tone;
   readonly children: string;
+  /** A sentence rather than a word ("On hold — goes live 13 Nov, 1:24 AM"): wraps instead of overflowing its card. */
+  readonly wrap?: boolean;
   readonly className?: string;
 }
 
 /** Category tag (06 §2): radius 8, `caption`, tinted ("Important" danger, "Event" mint, "General" grey…). */
-export function Tag({ tone = 'neutral', children, className }: TagProps) {
+export function Tag({ tone = 'neutral', children, wrap = false, className }: TagProps) {
   return (
     <span
-      className={`inline-flex items-center rounded-xs px-2 py-0.5 type-caption whitespace-nowrap ${TONE_CLASS[tone]} ${
-        className ?? ''
-      }`}
+      className={`inline-flex items-center rounded-xs px-2 py-0.5 type-caption ${
+        wrap ? 'max-w-full whitespace-normal' : 'whitespace-nowrap'
+      } ${TONE_CLASS[tone]} ${className ?? ''}`}
     >
       {children}
     </span>

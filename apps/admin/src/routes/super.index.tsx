@@ -89,6 +89,14 @@ function Dashboard() {
         )}
       </section>
 
+      {dashboard.data ? (
+        // T5.6: donation campaigns running right now, across all masjids.
+        <Card className="mt-3 flex items-center gap-3" data-active-campaigns>
+          <span className="type-amount-large text-text">{format.number(dashboard.data.activeCampaigns)}</span>
+          <span className="type-callout text-text-secondary">{t('dashboard.campaigns')}</span>
+        </Card>
+      ) : null}
+
       <section className="mt-8 flex flex-col gap-3" data-push-stats>
         <SectionHeader title={t('push.stats')} />
         {dashboard.data ? (

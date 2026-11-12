@@ -57,7 +57,15 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
     { $project: keep('masjid_id', 'type', 'date', 'label', 'times', 'note') },
   ],
   v_pub_items: [
-    { $match: { status: 'published', masjid_visible: true } },
+    // A chanda update of a masjid that hides its chanda is never public (00 §4.3, DECISIONS #152) — and one without the
+    // flag is not public either: the filter fails closed (DECISIONS #160, security review L6).
+    {
+      $match: {
+        status: 'published',
+        masjid_visible: true,
+        $or: [{ type: { $ne: 'chanda_update' } }, { 'chanda.visible': true }],
+      },
+    },
     // Newest first = the feed indexes' order (see v_pub_special_timings).
     { $sort: { published_at: -1, _id: -1 } },
     {
@@ -139,6 +147,26 @@ const PIPELINES: Readonly<Record<ViewName, readonly Readonly<Record<string, unkn
     { $match: { status: 'active', masjid_visible: true } },
     { $sort: { audience: 1, sort: 1, _id: 1 } },
     { $project: keep('_id', 'masjid_id', 'name', 'role', 'topics', 'whatsapp', 'audience', 'sort') },
+  ],
+  // Needy people (DECISIONS #104): listed ones only, least-funded first then oldest (the index's order). An allow-list
+  // — never `private_enc` (phone / note), who added the person, or the consent flag; no internal id either.
+  v_pub_beneficiaries: [
+    { $match: { status: 'active', masjid_visible: true } },
+    { $sort: { funded_permille: 1, created_at: 1, _id: 1 } },
+    {
+      $project: {
+        _id: 0,
+        ...keep('public_id', 'masjid_id', 'display_name', 'category', 'reason', 'reason_locale', 'vpa', 'payee_name'),
+        ...keep(
+          'cap_paise',
+          'received_paise',
+          'received_updated_at',
+          'funded_permille',
+          'zakat_eligible',
+          'created_at',
+        ),
+      },
+    },
   ],
   v_admin_follow_audience: [{ $project: { _id: 0, ...keep('masjid_id', 'muted', 'push_active', 'audience_pref') } }],
 };

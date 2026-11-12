@@ -28,6 +28,9 @@ export const COLLECTIONS = [
   'notice_templates',
   // payments
   'payment_profiles',
+  // needy people (DECISIONS #104, Phase 5)
+  'beneficiaries',
+  'beneficiary_amount_history',
   // devices & push
   'devices',
   'device_follows',
@@ -60,6 +63,7 @@ export const PUBLIC_VIEWS = [
   'v_pub_settings',
   'v_pub_ruqyah',
   'v_pub_contacts',
+  'v_pub_beneficiaries',
 ] as const;
 
 /** Views for admin reads that must never expose device ids (02 §4.2). */
@@ -83,6 +87,7 @@ export const CONTENT_COLLECTIONS: readonly CollectionName[] = [
   'payment_profiles',
   'ruqyah_entries',
   'masjid_contacts',
+  'beneficiaries',
 ];
 
 /** Every namespace (collections + views), in a stable order. */
@@ -102,5 +107,6 @@ export const VIEW_SOURCES: Readonly<Record<ViewName, CollectionName>> = {
   v_pub_settings: 'app_settings',
   v_pub_ruqyah: 'ruqyah_entries',
   v_pub_contacts: 'masjid_contacts',
+  v_pub_beneficiaries: 'beneficiaries',
   v_admin_follow_audience: 'device_follows',
 };
