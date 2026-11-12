@@ -62,10 +62,10 @@
 
 | # | What | Time | When |
 |---|---|---|---|
-| ~~O43~~ | ✅ **Done by you 13 Nov 2026** — Claude Code verifies it on the next staging deploy (`main` `402e7f8`: the needy-people endpoints must answer). If it cannot confirm, it asks you for the `deploy.sh staging --verify-roles` output | – | – |
-| – | ✅ Phases 05 + 06 merged into `main` (13 Nov 2026); staging deploys when CI is green — Claude Code tells you the release | – | – |
-| O45 | **Open the admin app once on each phone that should get alerts** (older alert settings stop with that update) | 1 min | right after the deploy |
-| O50 | **Phase 05 checks on staging** — `owner/PHASE_TESTING_GUIDE.md` → Phase 05, rows **5.1–5.22** (UPI change-lock, drives, chanda, needy people, My zakat, owners only). Includes **O28** below (₹1 test) | 60 min | after the deploy |
+| ~~O43~~ | ✅ **Done by you and verified 13 Nov 2026** — staging runs `402e7f8`; the needy-people endpoint answers from the new view with your Atlas roles | – | – |
+| – | ✅ **Phases 05 + 06 are on staging** (13 Nov 2026, release `402e7f8`) | – | – |
+| O45 | **Open the admin app once on each phone that should get alerts** (older alert settings stop with that update) | 1 min | **now** |
+| O50 | **Phase 05 checks on staging** — `owner/PHASE_TESTING_GUIDE.md` → Phase 05, rows **5.1–5.22** (UPI change-lock, drives, chanda, needy people, My zakat, owners only). Includes **O28** below (₹1 test) | 60 min | **now** |
 | O28 | **₹1 UPI test** from Donate Now and from a saved QR, on Android and iPhone, to **your own** UPI ID (never to the fake `@okexample` ones) | 10 min | with O50 |
 
 ### Needed for photos and voice notes on staging

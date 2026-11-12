@@ -13,7 +13,7 @@
 | 03 | Masjid Admin content tools | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`, with Phase 04); O39 PASS + O27 OK (10 Nov 2026); left: O25 rest (photos 3.7 / voice 3.14) + O26 (usability) — #150 | [report](reports/PHASE_03_REPORT.md) | – |
 | 04 | Push notifications | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`); T4.6 acceptance = the owner's O38 (real phones) | [report](reports/PHASE_04_REPORT.md) | – |
 | 05 | Donations, chanda & UPI change-lock | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): CI green on `997a914`, phase-verifier findings fixed, security re-review clean. Waiting: O43 → merge to `main` / staging → O45 → O50 (guide 5.1–5.22) + O28 | [final](reports/PHASE_05_REPORT.md) | – |
-| 06 | Bayan videos | **Closing** — all tasks built; security review fixed (#165); on `main` `402e7f8`; left: CI green, phase-verifier, report → then "DONE — owner checks pending" (O49) | [draft](reports/PHASE_06_REPORT.md) | – |
+| 06 | Bayan videos | **Closing** — all tasks built; security review fixed (#165); on `main` `402e7f8`, CI green, **on staging**; left: phase-verifier, report → then "DONE — owner checks pending" (O49) | [draft](reports/PHASE_06_REPORT.md) | – |
 | 07 | Qibla compass | **IN PROGRESS** — T7.1–T7.3 built on `feat/phase-07` (#166); left: iPhone e2e + perf re-run, security review, verifier, report | [draft](reports/PHASE_07_REPORT.md) | – |
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
@@ -27,19 +27,16 @@
 `feat/phase-07` = Phase 07 on top (Qibla — T7.1–T7.3 built, T7.4 partly) · `.claude/settings.json` is the owner's own
 uncommitted change — never commit it.
 
-**Running at hand-off (check first):**
-1. **CI on `main` `402e7f8`** — the previous run (`3a0c88a`, 43195385206) failed only on the iPhone 14 e2e
-   `e2e/app/content.spec.ts:104` (A8 reader): a CSP report from Playwright's own screenshot `<style>` that WebKit
-   delivers late (fixed in `402e7f8`: the capture filter now waits for it) **and** "Larger Arabic text" did not grow the
-   font (28 → 28) — NOT reproduced locally, even in the pinned Linux image running all of `e2e/app` on iPhone 14
-   (where it passed). If it fails again, get the Playwright report artifact (needs a GitHub login — ask the owner, or
-   push a diagnostic branch that logs `getComputedStyle` + the device `settings.arabicScale` after the click).
-2. **O43 verification** (owner did O43 on 13 Nov): when `main` is green, "Release to staging" deploys it. Verify:
-   `/api/v1/health` + `/api/admin/health` show `402e7f8…`, `GET /api/v1/masjids/e749ce62-2e46-431d-afd1-a5327db67b6c/beneficiaries`
-   answers 200 (reads the new collections with the new Atlas roles), and `masjids/resolve/TESTD004` exists (the seed's
-   new masjid). Then mark O43 done; otherwise ask the owner for the `deploy.sh staging --verify-roles` output.
-3. **Phase 06 phase-verifier** did not finish (the usage limit stopped it) — run it again (#162 close-out), then
-   finalise `docs/reports/PHASE_06_REPORT.md` and set Phase 06 to "DONE — owner checks pending" (O49).
+**Verified at hand-off (13 Nov 2026, late):**
+- **CI on `main` `402e7f8` all green** (run 43237107240 — incl. iPhone 14 e2e, so the A8 reader failure is gone with
+  the screenshot-CSP fix) and **"Release to staging" done**: `/health` on both origins shows `402e7f8…`, db + redis ok.
+- **O43 verified:** `GET /api/v1/masjids/<Alpha>/beneficiaries` → 302 to `?v=22` → **200** `{"people":[]}` (the new
+  needy view read with the new Atlas roles); the bayan feed answers 200. Test Masjid Delta appears on staging with the
+  next seed check (every 6 h — DECISIONS #91).
+
+**Next (in order):** run the **Phase 06 phase-verifier** again (the usage limit stopped it), finalise
+`docs/reports/PHASE_06_REPORT.md` (CI run 43237107240, staging `402e7f8`), set Phase 06 "DONE — owner checks pending"
+(O49); tell the owner Phases 05 + 06 are on staging (O45 → O50 + O28, O49). Then Phase 07 below.
 
 **Phase 07 next steps:** rebuild the stack (`pnpm stack:up:test`, then `pnpm db:seed`, then `git checkout` the two
 `routeTree.gen.ts`), then:
