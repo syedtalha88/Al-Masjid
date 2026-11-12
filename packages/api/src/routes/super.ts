@@ -12,6 +12,7 @@ import {
   listAudit,
   listChangeRequests,
   listMasjids,
+  listModerationQueue,
   type MasjidRow,
 } from '@mc/db/repos';
 import {
@@ -19,15 +20,19 @@ import {
   createAdminForMasjid,
   createInvite,
   createMasjid,
+  dismissReport,
   readAdminPhone,
   recordAuditExport,
   removeAdminFromMasjid,
+  removeItem,
+  restoreItem,
   revokeAdminPasskeys,
   revokeAdminSessions,
   setPushPaused,
   updateMasjid,
   updateSettings,
 } from '@mc/db/state';
+import { REPEAT_VIOLATION_WINDOW_MS } from '@mc/shared/compliance';
 import {
   adminPhoneSchema,
   type ASR_MADHABS,
@@ -36,14 +41,19 @@ import {
   type CALC_METHODS,
   changedSchema,
   countSchema,
+  dismissReportRequestSchema,
   type hijriOffsetSchema,
   inviteLinkSchema,
   invitePurposeSchema,
   MASJID_STATUSES,
+  moderationQueueSchema,
+  moderationResultSchema,
   nameI18nSchema,
   pushPauseRequestSchema,
   pushPauseResponseSchema,
   reasonSchema,
+  removeItemRequestSchema,
+  REPORT_STATUS_VALUES,
   superAdminCreatedSchema,
   superAdminCreateSchema,
   superAdminListSchema,
@@ -64,6 +74,7 @@ import { decryptField, encryptField, type FieldKeyRing, hashToken, newToken } fr
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
 import { ApiProblem } from '../http/problem.ts';
 import type { AlertService } from '../queue/alerts.ts';
+import type { CdnPurgeService } from '../queue/cdn.ts';
 
 export interface SuperRouteDeps {
   readonly db: DbHandle;
@@ -77,6 +88,8 @@ export interface SuperRouteDeps {
   readonly alerts?: AlertService | undefined;
   /** `POST /alerts/test` answers only outside production (the dev-only trigger, T4.6). */
   readonly testAlerts?: boolean | undefined;
+  /** Cache purges after a takedown / restore (T8.2); the worker purges. */
+  readonly cdn?: CdnPurgeService | undefined;
 }
 
 const PHONE_CONTEXT = 'admin_users.phone_enc';
@@ -120,7 +133,7 @@ function defined<T extends object>(value: T): { [K in keyof T]?: Exclude<T[K], u
 }
 
 /** Resolves an id path parameter; malformed ids answer like unknown ones. */
-function idOr404(text: string, code: 'MASJID_NOT_FOUND' | 'ADMIN_NOT_FOUND') {
+function idOr404(text: string, code: 'MASJID_NOT_FOUND' | 'ADMIN_NOT_FOUND' | 'ITEM_NOT_FOUND' | 'REPORT_NOT_FOUND') {
   const id = parseId(text);
   if (!id) throw new ApiProblem(404, code);
   return id;
@@ -423,6 +436,119 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
           requestId,
         });
         return reply(201, { inviteUrl: inviteUrl(deps.adminOrigin, token), expiresAt: expiresAt.toISOString() });
+      },
+    }),
+    // --- Moderation (07 C5, 05 §3, PHASE_08 T8.2) ---------------------------------------------------------------
+    defineRoute({
+      method: 'get',
+      path: '/reports',
+      summary: 'The moderation queue: reports grouped by post / masjid, urgent first, then by SLA due time',
+      tags: ['super', 'moderation'],
+      auth: 'super',
+      request: { query: z.object({ status: z.enum(REPORT_STATUS_VALUES).default('open') }) },
+      responses: { 200: moderationQueueSchema },
+      handler: async ({ auth, query, clock, reply }) => {
+        const targets = await listModerationQueue(db, auth.scope, {
+          status: query.status,
+          now: clock.now(),
+          windowMs: REPEAT_VIOLATION_WINDOW_MS,
+        });
+        return reply(200, { targets });
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/items/:id/remove',
+      summary: '★ Remove a post for everyone now (preserved privately 180 days); its open reports are closed',
+      tags: ['super', 'moderation'],
+      auth: 'super_step_up',
+      rateLimit: writes,
+      request: { params: z.object({ id: Id }), body: removeItemRequestSchema },
+      responses: { 200: moderationResultSchema },
+      handler: async ({ auth, params, body, clock, requestId, reply }) => {
+        const now = clock.now();
+        const removed = await removeItem(db, auth.scope, {
+          itemId: idOr404(params.id, 'ITEM_NOT_FOUND'),
+          category: body.category,
+          note: body.note === '' ? undefined : body.note,
+          now,
+          requestId,
+        });
+        const key = `${removed.publicId}.${String(now.getTime())}`;
+        const adminIds = removed.adminIds
+          .map((id) => idText(id))
+          .sort()
+          .slice(0, 20);
+        if (adminIds.length > 0)
+          await deps.alerts?.raise({ type: 'item_removed', to: { kind: 'admins', adminIds }, key });
+        const cdnPurgeQueued =
+          (await deps.cdn?.purgeTags([`i-${removed.publicId}`, `m-${idText(removed.masjidId)}`], key)) ?? false;
+        return reply(200, { publicId: removed.publicId, reports: removed.reportsClosed, cdnPurgeQueued });
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/items/:id/restore',
+      summary: '★ Restore a removed or auto-hidden post (published again; the reports that hid it are dismissed)',
+      tags: ['super', 'moderation'],
+      auth: 'super_step_up',
+      rateLimit: writes,
+      request: { params: z.object({ id: Id }) },
+      responses: { 200: moderationResultSchema },
+      handler: async ({ auth, params, clock, requestId, reply }) => {
+        const now = clock.now();
+        const restored = await restoreItem(db, auth.scope, {
+          itemId: idOr404(params.id, 'ITEM_NOT_FOUND'),
+          now,
+          requestId,
+        });
+        const cdnPurgeQueued =
+          (await deps.cdn?.purgeTags(
+            [`i-${restored.publicId}`, `m-${idText(restored.masjidId)}`],
+            `${restored.publicId}.${String(now.getTime())}`,
+          )) ?? false;
+        return reply(200, { publicId: restored.publicId, reports: restored.reportsDismissed, cdnPurgeQueued });
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/items/:publicId/purge',
+      summary: 'Clear the CDN cache of a post and its masjid again (when a purge could not be queued)',
+      tags: ['super', 'moderation'],
+      auth: 'super',
+      rateLimit: writes,
+      request: {
+        params: z.object({ publicId: z.string().regex(/^[A-Za-z0-9_-]{12}$/) }),
+        query: z.object({ masjid: Id }),
+      },
+      responses: { 200: z.object({ cdnPurgeQueued: z.boolean() }) },
+      handler: async ({ params, query, clock, reply }) => {
+        const masjidId = idOr404(query.masjid, 'MASJID_NOT_FOUND');
+        const cdnPurgeQueued =
+          (await deps.cdn?.purgeTags(
+            [`i-${params.publicId}`, `m-${idText(masjidId)}`],
+            `${params.publicId}.${String(clock.now().getTime())}`,
+          )) ?? false;
+        return reply(200, { cdnPurgeQueued });
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/reports/:id/dismiss',
+      summary: 'Dismiss one open report (nothing wrong), with an optional private note',
+      tags: ['super', 'moderation'],
+      auth: 'super',
+      rateLimit: writes,
+      request: { params: z.object({ id: Id }), body: dismissReportRequestSchema },
+      responses: { 200: z.object({ dismissed: z.literal(true) }) },
+      handler: async ({ auth, params, body, clock, requestId, reply }) => {
+        await dismissReport(db, auth.scope, {
+          reportId: idOr404(params.id, 'REPORT_NOT_FOUND'),
+          note: body.note === '' ? undefined : body.note,
+          now: clock.now(),
+          requestId,
+        });
+        return reply(200, { dismissed: true });
       },
     }),
     defineRoute({

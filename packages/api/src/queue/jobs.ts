@@ -39,6 +39,13 @@ export const JOB_SCHEMAS = {
   }),
   /** Scheduled every minute: re-enqueue lost outbox jobs, fail stuck ones (01 §5.3 step 7). */
   'outbox-sweeper': z.strictObject({}),
+  /** After a takedown / restore (T8.2): purge the post's and masjid's cached responses (`i-<publicId>`, `m-<id>`). */
+  'cdn-purge': z.strictObject({
+    tags: z
+      .array(z.string().regex(/^[im]-[A-Za-z0-9_-]{1,40}$/))
+      .min(1)
+      .max(10),
+  }),
   /** Scheduled every minute: urgent-report alerts and auto-hide after many reports (05 §3, PHASE_08 T8.1). */
   'report-triage': z.strictObject({}),
   /** Scheduled every 10 minutes: approved UPI details whose hold has passed go live (04 R1, T5.2). */
@@ -72,6 +79,8 @@ export const JOB_DEFAULTS: Readonly<Record<JobName, JobsOptions>> = {
   },
   'alert-send': { attempts: 5, backoff: { type: 'exponential', delay: 30_000 }, ...REMOVAL },
   'outbox-sweeper': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
+  // Cloudflare Free allows 5 tag purges a minute: back off over minutes; purging twice is harmless.
+  'cdn-purge': { attempts: 8, backoff: { type: 'exponential', delay: 15_000 }, ...REMOVAL },
   // Idempotent and scheduled: a failed run is simply the next run's work.
   'report-triage': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
   'payment-activate': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
@@ -86,6 +95,7 @@ export const JOB_TIMEOUT_MS: Readonly<Record<JobName, number>> = {
   'push-send-batch': 240_000,
   'alert-send': 60_000,
   'outbox-sweeper': 50_000,
+  'cdn-purge': 30_000,
   'report-triage': 50_000,
   'payment-activate': 120_000,
   'campaign-close': 120_000,

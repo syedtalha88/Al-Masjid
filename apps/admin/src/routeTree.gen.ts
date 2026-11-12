@@ -43,6 +43,7 @@ import { Route as SpecialIdRouteImport } from './routes/special.$id'
 import { Route as SuperIndexRouteImport } from './routes/super.index'
 import { Route as SuperAuditRouteImport } from './routes/super.audit'
 import { Route as SuperPaymentsRouteImport } from './routes/super.payments'
+import { Route as SuperReportsRouteImport } from './routes/super.reports'
 import { Route as SuperSettingsRouteImport } from './routes/super.settings'
 import { Route as VideosIndexRouteImport } from './routes/videos.index'
 import { Route as VideosNewRouteImport } from './routes/videos.new'
@@ -227,6 +228,11 @@ const SuperPaymentsRoute = SuperPaymentsRouteImport.update({
   path: '/super/payments',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperReportsRoute = SuperReportsRouteImport.update({
+  id: '/super/reports',
+  path: '/super/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuperSettingsRoute = SuperSettingsRouteImport.update({
   id: '/super/settings',
   path: '/super/settings',
@@ -320,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/payments': typeof SuperPaymentsRoute
+  '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
   '/videos/new': typeof VideosNewRoute
   '/daily/': typeof DailyIndexRoute
@@ -369,6 +376,7 @@ export interface FileRoutesByTo {
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/payments': typeof SuperPaymentsRoute
+  '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
   '/videos/new': typeof VideosNewRoute
   '/daily': typeof DailyIndexRoute
@@ -419,6 +427,7 @@ export interface FileRoutesById {
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/payments': typeof SuperPaymentsRoute
+  '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
   '/videos/new': typeof VideosNewRoute
   '/daily/': typeof DailyIndexRoute
@@ -470,6 +479,7 @@ export interface FileRouteTypes {
     | '/special/$id'
     | '/super/audit'
     | '/super/payments'
+    | '/super/reports'
     | '/super/settings'
     | '/videos/new'
     | '/daily/'
@@ -519,6 +529,7 @@ export interface FileRouteTypes {
     | '/special/$id'
     | '/super/audit'
     | '/super/payments'
+    | '/super/reports'
     | '/super/settings'
     | '/videos/new'
     | '/daily'
@@ -568,6 +579,7 @@ export interface FileRouteTypes {
     | '/special/$id'
     | '/super/audit'
     | '/super/payments'
+    | '/super/reports'
     | '/super/settings'
     | '/videos/new'
     | '/daily/'
@@ -618,6 +630,7 @@ export interface RootRouteChildren {
   SpecialIdRoute: typeof SpecialIdRoute
   SuperAuditRoute: typeof SuperAuditRoute
   SuperPaymentsRoute: typeof SuperPaymentsRoute
+  SuperReportsRoute: typeof SuperReportsRoute
   SuperSettingsRoute: typeof SuperSettingsRoute
   VideosNewRoute: typeof VideosNewRoute
   DailyIndexRoute: typeof DailyIndexRoute
@@ -880,6 +893,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperPaymentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/super/reports': {
+      id: '/super/reports'
+      path: '/super/reports'
+      fullPath: '/super/reports'
+      preLoaderRoute: typeof SuperReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/settings': {
       id: '/super/settings'
       path: '/super/settings'
@@ -1013,6 +1033,7 @@ const rootRouteChildren: RootRouteChildren = {
   SpecialIdRoute: SpecialIdRoute,
   SuperAuditRoute: SuperAuditRoute,
   SuperPaymentsRoute: SuperPaymentsRoute,
+  SuperReportsRoute: SuperReportsRoute,
   SuperSettingsRoute: SuperSettingsRoute,
   VideosNewRoute: VideosNewRoute,
   DailyIndexRoute: DailyIndexRoute,

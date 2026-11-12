@@ -216,6 +216,7 @@ describe('B10 bayans', () => {
         purged.push([...urls]);
         return Promise.resolve();
       },
+      purgeTags: () => Promise.resolve(),
     };
     const logger = createLogger({ level: 'silent', process: 'worker', release: 't' });
     const run = async (days: number) => {

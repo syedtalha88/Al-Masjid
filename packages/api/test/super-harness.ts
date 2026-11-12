@@ -34,7 +34,7 @@ export function superHarness(
   now = new Date('2026-10-28T08:00:00Z'),
   /** Extra route dependencies (alerts, the test-alert switch — T4.6); read on every request, so tests may change them. */
   extra: Partial<
-    Pick<AdminRouteDeps, 'alerts' | 'testAlerts' | 'notifier' | 'paymentHoldMinutes' | 'media' | 'video'>
+    Pick<AdminRouteDeps, 'alerts' | 'testAlerts' | 'notifier' | 'paymentHoldMinutes' | 'media' | 'video' | 'cdn'>
   > = {},
   /**
    * `rateLimiter`: kept across requests (a test of a limit); a fresh, empty one per request otherwise. `logger`: for the

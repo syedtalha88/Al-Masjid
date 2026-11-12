@@ -3,16 +3,22 @@ import {
   adminPhoneSchema,
   auditPageSchema,
   type AuditQuery,
+  cdnPurgeSchema,
   changedSchema,
   countSchema,
+  dismissedSchema,
   inviteLinkSchema,
   type LIBRARY_KINDS,
   type LIBRARY_STATUSES,
   libraryImportReportSchema,
+  moderationQueueSchema,
+  moderationResultSchema,
   noContentSchema,
   paymentApprovedSchema,
   problemSchema,
   pushPauseResponseSchema,
+  type RemoveItemRequest,
+  type REPORT_STATUS_VALUES,
   starterTemplatesAddedSchema,
   type SuperAdminCreate,
   superAdminCreatedSchema,
@@ -96,6 +102,25 @@ export const superApi = {
   setPushPaused: (paused: boolean) =>
     call(`${SUPER_API}/settings/push-pause`, pushPauseResponseSchema, { method: 'POST', body: { paused } }),
   /** C4 (T5.2): open UPI change requests, oldest first. */
+  // --- Moderation (07 C5, PHASE_08 T8.2) ---
+  reports: (status: (typeof REPORT_STATUS_VALUES)[number], signal?: AbortSignal) =>
+    call(`${SUPER_API}/reports${query({ status })}`, moderationQueueSchema, signal ? { signal } : {}),
+  /** ★ */
+  removeItem: (itemId: string, body: RemoveItemRequest) =>
+    call(`${SUPER_API}/items/${id(itemId)}/remove`, moderationResultSchema, { method: 'POST', body }),
+  /** ★ */
+  restoreItem: (itemId: string) =>
+    call(`${SUPER_API}/items/${id(itemId)}/restore`, moderationResultSchema, { method: 'POST', body: {} }),
+  purgeAgain: (publicId: string, masjidId: string) =>
+    call(`${SUPER_API}/items/${id(publicId)}/purge${query({ masjid: masjidId })}`, cdnPurgeSchema, {
+      method: 'POST',
+      body: {},
+    }),
+  dismissReport: (reportId: string, note?: string) =>
+    call(`${SUPER_API}/reports/${id(reportId)}/dismiss`, dismissedSchema, {
+      method: 'POST',
+      body: note ? { note } : {},
+    }),
   payments: (signal?: AbortSignal) =>
     call(`${SUPER_API}/payments/pending`, superPaymentListSchema, signal ? { signal } : {}),
   /** ★ Approve a UPI change — live after the hold. */

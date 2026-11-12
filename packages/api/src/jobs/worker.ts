@@ -8,6 +8,7 @@ import { DelayedError, type Job, type JobsOptions, UnrecoverableError, Worker } 
 import type { Redis } from 'ioredis';
 
 import type { createLogger } from '../logger.ts';
+import type { CdnPurger } from '../media/cdn-purge.ts';
 import type { SendLedger } from '../push/ledger.ts';
 import type { PushSender } from '../push/sender.ts';
 import {
@@ -21,6 +22,7 @@ import {
 import { createJobQueues, type JobQueues } from '../queue/queues.ts';
 import { processAlertSend } from './alerts/send.ts';
 import { processCampaignClose } from './campaigns/close.ts';
+import { processCdnPurge } from './cdn/purge.ts';
 import { processPaymentActivate } from './payments/activate.ts';
 import { processFanout, PushPausedError } from './push/fanout.ts';
 import { processSendBatch } from './push/send-batch.ts';
@@ -38,6 +40,7 @@ export const DEFAULT_CONCURRENCY: Readonly<Record<JobName, number>> = {
   'push-send-batch': 4,
   'alert-send': 2,
   'outbox-sweeper': 1,
+  'cdn-purge': 1,
   'report-triage': 1,
   'payment-activate': 1,
   'campaign-close': 1,
@@ -72,6 +75,8 @@ export interface JobWorkerDeps {
   readonly pauseRecheckMs?: number;
   /** Per-job option overrides (tests shorten the backoff). */
   readonly jobOptions?: Partial<Record<JobName, JobsOptions>>;
+  /** Cloudflare purge by tag for takedowns (T8.2); absent locally (nothing in front to purge). */
+  readonly cdnPurger?: CdnPurger | undefined;
   /** `retention`'s media part (PHASE_06 T6.4): the worker's media store, the CDN purger, env MEDIA_ORIGIN. */
   readonly retention?: Pick<RetentionDeps, 'media' | 'purger' | 'mediaOrigin'>;
 }
@@ -129,6 +134,8 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
       case 'outbox-sweeper':
         parseJobPayload(name, data);
         return processOutboxSweep({ ...common, queues });
+      case 'cdn-purge':
+        return processCdnPurge({ purger: deps.cdnPurger, logger: deps.logger }, parseJobPayload(name, data));
       case 'report-triage':
         parseJobPayload(name, data);
         return processReportTriage({ ...common, queues });

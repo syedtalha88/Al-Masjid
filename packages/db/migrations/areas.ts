@@ -83,4 +83,6 @@ export const SCHEMA_AREAS: Readonly<
   // PHASE_08 T8.1 (DECISIONS #170): `report-triage` marks the reports it has looked at (`triaged_at`) and records when
   // it auto-hid an item (`hidden_at`).
   '0023_report_triage': { collections: ['reports', 'items'] },
+  // PHASE_08 T8.2 (DECISIONS #171): the Super Admin's private note on a takedown (`removed_note`).
+  '0024_removed_note': { collections: ['items'] },
 };

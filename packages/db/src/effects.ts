@@ -168,6 +168,10 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'item.delete': ['type'],
   // PHASE_08 T8.1: `report-triage` hid a post many devices reported within an hour (system actor).
   'item.autohide': ['type', 'reporters'],
+  // PHASE_08 T8.2 (C5): takedown and restore by the Super Admin — the category and counts, never the private note.
+  'item.remove': ['type', 'category', 'reports', 'was'],
+  'item.restore': ['type', 'was', 'reports'],
+  'report.dismiss': [],
 };
 const META_LIMIT_BYTES = 4096;
 

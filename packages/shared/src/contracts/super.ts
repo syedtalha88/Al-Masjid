@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { MODERATION_CATEGORIES, MODERATION_NOTE_MAX } from '../compliance.ts';
 import { livePaymentSchema, paymentRequestRowSchema } from './admin.ts';
 import { inviteLinkSchema } from './admin-auth.ts';
 import { safeText } from './text.ts';
@@ -288,3 +289,16 @@ export type SuperPaymentList = z.infer<typeof superPaymentListSchema>;
 
 /** `POST /payments/:id/approve` (★): when the details go live. */
 export const paymentApprovedSchema = z.object({ effectiveAt: z.string() }).meta({ id: 'PaymentApproved' });
+
+// --- Moderation (07 C5, 03 §5, PHASE_08 T8.2) -------------------------------------------------------------------
+/** ★ Remove: the category the masjid sees and the Super Admin's private note. */
+export const removeItemRequestSchema = z.strictObject({
+  category: z.enum(MODERATION_CATEGORIES),
+  note: safeText(MODERATION_NOTE_MAX, { multiline: true }).optional(),
+});
+export type RemoveItemRequest = z.input<typeof removeItemRequestSchema>;
+
+/** Dismiss a report: an optional private note. */
+export const dismissReportRequestSchema = z.strictObject({
+  note: safeText(MODERATION_NOTE_MAX, { multiline: true }).optional(),
+});

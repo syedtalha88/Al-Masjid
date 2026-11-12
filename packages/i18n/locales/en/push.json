@@ -47,6 +47,10 @@
     "report_autohide": {
       "title": "Post hidden after many reports",
       "body": "A post was hidden automatically because many people reported it. Review it in Reports."
+    },
+    "item_removed": {
+      "title": "A post was removed",
+      "body": "A post from your masjid was removed by the app team. Open My Posts to see the reason."
     }
   }
 }

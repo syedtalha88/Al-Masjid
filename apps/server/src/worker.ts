@@ -38,7 +38,13 @@ const db = createDbHandle({
 });
 // The runtime-test stack records pushes instead of sending them (PHASE_04 T4.9); everywhere else: the real service.
 const testTransport = await loadWorkerPushTransport(env, logger, redis);
+// Cloudflare purge (T6.4 media by URL, T8.2 takedowns by tag): never locally — nothing is in front of the local stack.
+const purger =
+  env.APP_ENV !== 'local' && env.CF_API_TOKEN_PURGE && env.CF_ZONE_ID
+    ? cloudflarePurger({ token: env.CF_API_TOKEN_PURGE, zoneId: env.CF_ZONE_ID })
+    : undefined;
 const jobs = await startJobWorkers({
+  ...(purger ? { cdnPurger: purger } : {}),
   db,
   connection: redis,
   ledger: redisSendLedger(redis),
@@ -61,9 +67,7 @@ const jobs = await startJobWorkers({
           }),
         }
       : {}),
-    ...(env.APP_ENV !== 'local' && env.CF_API_TOKEN_PURGE && env.CF_ZONE_ID
-      ? { purger: cloudflarePurger({ token: env.CF_API_TOKEN_PURGE, zoneId: env.CF_ZONE_ID }) }
-      : {}),
+    ...(purger ? { purger } : {}),
     mediaOrigin: env.MEDIA_ORIGIN,
   },
 });

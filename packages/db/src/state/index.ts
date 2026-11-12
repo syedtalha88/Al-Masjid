@@ -116,7 +116,6 @@ export {
   type PurgedMedia,
 } from './item-retention.ts';
 export { deleteItem, EDIT_WINDOW_MS, EDITABLE_ITEM_TYPES, editItem, type ItemEdit } from './items.ts';
-export * from './later.ts';
 export {
   findLibraryDuplicates,
   importLibraryEntries,
@@ -136,6 +135,7 @@ export {
   type NewMasjid,
 } from './masjids.ts';
 export { type ImagePurpose, recordAudioUpload, recordImageUpload } from './media.ts';
+export { dismissReport, type RemovedItem, removeItem, restoreItem } from './moderation.ts';
 export {
   activateDuePaymentProfiles,
   approvePaymentChange,

@@ -224,6 +224,8 @@ const itemFields = {
   /** Auto-hidden pending review (status `hidden`, PHASE_08 T8.1): when `report-triage` hid it. */
   hidden_at: opt(f.instant()),
   removed_reason: opt(f.string(300)),
+  /** The Super Admin's private note on a takedown (C5) — never shown to the masjid (policy redaction). */
+  removed_note: opt(f.string(500)),
   purge_after: opt(f.instant()),
   voice: opt(voice),
   ...Object.fromEntries(detailNames.map((detail) => [detail, optionalField(DETAILS[detail])])),

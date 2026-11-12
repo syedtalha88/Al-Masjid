@@ -50,6 +50,7 @@ export { buildOpenApiDocument } from './openapi.ts';
 export { redisSendLedger, type SendLedger } from './push/ledger.ts';
 export { createPushSender, type PushSender, type PushTransport, type VapidKeys } from './push/sender.ts';
 export { type AlertService, alertService } from './queue/alerts.ts';
+export { type CdnPurgeService, cdnPurgeService } from './queue/cdn.ts';
 export { QUEUE_PREFIX } from './queue/jobs.ts';
 export { createJobQueues, type JobQueues, type PushNotifier, pushNotifier } from './queue/queues.ts';
 export { adminSessionRoutes } from './routes/admin-auth.ts';

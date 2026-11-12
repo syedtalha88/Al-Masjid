@@ -361,6 +361,7 @@ admin,posts.types.daily_content,Hadith / Ayah,حدیث / آیت,no
 admin,posts.types.dua_request,Dua requests,دعا کی درخواستیں,no
 admin,posts.types.timing_update,Timing updates,اوقات میں تبدیلی,no
 admin,posts.status.published,Published,شائع شدہ,no
+admin,posts.status.hidden,Hidden for review,جانچ کے لیے چھپائی گئی,no
 admin,posts.status.deleted,Deleted,ہٹائی گئی,no
 admin,posts.status.removed,Removed by moderation,موڈریشن نے ہٹائی,no
 admin,posts.removedReason,Reason: {reason},وجہ: {reason},no
@@ -384,6 +385,15 @@ admin,posts.staleBody,Someone saved it after you opened it. Please open it again
 admin,posts.openPosts,Open My Posts,میری پوسٹس کھولیں,no
 admin,posts.viewPosts,View in My Posts,میری پوسٹس میں دیکھیں,no
 admin,posts.editTitle,Edit post,پوسٹ بدلیں,no
+admin,posts.hiddenHint,"Many people reported this post, so it is hidden while the app team checks it. You don't need to do anything.",کئی لوگوں نے اس پوسٹ کی رپورٹ کی، اس لیے ایپ ٹیم کے جانچنے تک یہ چھپی ہے۔ آپ کو کچھ کرنے کی ضرورت نہیں۔,no
+admin,posts.category.misleading,Misleading or false,گمراہ کن یا جھوٹ,no
+admin,posts.category.hateful,Hateful or offensive,نفرت انگیز یا توہین آمیز,no
+admin,posts.category.off_topic,Not about religion or the community,دین یا کمیونٹی سے متعلق نہیں,no
+admin,posts.category.fraud,Fraud or fake donation,دھوکا یا جعلی چندہ,no
+admin,posts.category.private_info,Personal or private information,ذاتی یا نجی معلومات,no
+admin,posts.category.copyright,Copyright,کاپی رائٹ,no
+admin,posts.category.other,Against the content policy,مواد کی پالیسی کے خلاف,no
+admin,posts.category.legal_order,Court or government order,عدالت یا سرکاری حکم,no
 admin,profile.title,Masjid Profile,مسجد پروفائل,no
 admin,profile.photo,Photo,تصویر,no
 admin,profile.photoNone,No photo yet,ابھی کوئی تصویر نہیں,no
@@ -1224,6 +1234,8 @@ errors,NETWORK,You seem to be offline. Please check your connection and try agai
 errors,ITEM_NOT_FOUND,This post is no longer available.,یہ پوسٹ اب دستیاب نہیں ہے۔,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,ہم یہ جانچ نہیں سکے کہ یہ اصلی فون ہے۔ براہِ کرم دوبارہ کوشش کریں۔,no
 errors,REPORT_TARGET_NOT_FOUND,"This is no longer shown in the app, so there is nothing to report.",یہ اب ایپ میں نہیں دکھتا، اس لیے رپورٹ کرنے کو کچھ نہیں ہے۔,no
+errors,REPORT_NOT_FOUND,This report is already closed.,یہ رپورٹ پہلے ہی بند ہو چکی ہے۔,no
+errors,ITEM_ALREADY_REMOVED,This post was already removed.,یہ پوسٹ پہلے ہی ہٹائی جا چکی ہے۔,no
 errors,LIBRARY_ENTRY_NOT_FOUND,This library entry no longer exists.,یہ لائبریری اندراج اب موجود نہیں ہے۔,no
 errors,LIBRARY_DUPLICATE,An entry with this kind and reference is already in the library.,اسی قسم اور حوالے والا اندراج لائبریری میں پہلے سے موجود ہے۔,no
 errors,TEMPLATE_NOT_FOUND,This template no longer exists.,یہ ٹیمپلیٹ اب موجود نہیں ہے۔,no
@@ -1427,6 +1439,8 @@ push,alert.report_urgent.title,Urgent report,فوری رپورٹ,no
 push,alert.report_urgent.body,A post or masjid was reported for personal or private information. Review it in Reports within 2 hours.,کسی پوسٹ یا مسجد کی ذاتی یا نجی معلومات کی وجہ سے رپورٹ آئی ہے۔ 2 گھنٹے کے اندر رپورٹس میں دیکھیں۔,no
 push,alert.report_autohide.title,Post hidden after many reports,کئی رپورٹس کے بعد پوسٹ چھپا دی گئی,no
 push,alert.report_autohide.body,A post was hidden automatically because many people reported it. Review it in Reports.,کئی لوگوں نے ایک پوسٹ کی رپورٹ کی، اس لیے وہ خود بخود چھپ گئی۔ رپورٹس میں دیکھیں۔,no
+push,alert.item_removed.title,A post was removed,ایک پوسٹ ہٹا دی گئی,no
+push,alert.item_removed.body,A post from your masjid was removed by the app team. Open My Posts to see the reason.,ایپ ٹیم نے آپ کی مسجد کی ایک پوسٹ ہٹا دی ہے۔ وجہ دیکھنے کے لیے میری پوسٹس کھولیں۔,no
 settings,language,Language,زبان,no
 settings,languageSheet,Choose your language,اپنی زبان منتخب کریں,no
 settings,audience,Brother / Sister,بھائی / بہن,no
@@ -1555,6 +1569,7 @@ settings,push.askLater,Not now,ابھی نہیں,no
 super,title,Super Admin,سپر ایڈمن,no
 super,nav.label,Super Admin sections,سپر ایڈمن کے حصے,no
 super,nav.dashboard,Dashboard,ڈیش بورڈ,no
+super,nav.reports,Reports,رپورٹس,no
 super,nav.masjids,Masjids,مساجد,no
 super,nav.settings,Settings,سیٹنگز,no
 super,nav.audit,Audit log,آڈٹ لاگ,no
@@ -1839,6 +1854,36 @@ super,payments.rejected,Turned down. The masjid was told.,نامنظور کیا�
 super,payments.history,Earlier UPI details,پہلے کی UPI تفصیلات,no
 super,payments.historyStatus.superseded,Was live until {date},{date} تک نافذ تھی,no
 super,payments.historyStatus.rejected,Not approved · {date},منظور نہیں · {date},no
+super,reports.title,Reports,رپورٹس,no
+super,reports.empty,Nothing here.,یہاں کچھ نہیں ہے۔,no
+super,reports.filter.label,Show,دکھائیں,no
+super,reports.filter.open,Open,کھلی,no
+super,reports.filter.actioned,Removed,ہٹائی گئیں,no
+super,reports.filter.dismissed,Dismissed,مسترد,no
+super,reports.urgent,Urgent,فوری,no
+super,reports.due,Due {when},آخری وقت {when},no
+super,reports.overdue,Overdue — due {when},وقت گزر گیا — آخری وقت {when},no
+super,reports.removals,Removals in 90 days: {count},90 دنوں میں ہٹائی گئی پوسٹس: {count},no
+super,reports.reportCount,"{count, plural, one {# report} other {# reports}}","{count, plural, one {# رپورٹ} other {# رپورٹس}}",no
+super,reports.aboutMasjid,Report about the masjid itself,خود مسجد کے بارے میں رپورٹ,no
+super,reports.status.published,Shown,دکھ رہی ہے,no
+super,reports.status.hidden,Hidden for review,جانچ کے لیے چھپی,no
+super,reports.status.removed,Removed,ہٹائی گئی,no
+super,reports.status.deleted,Deleted by the masjid,مسجد نے ہٹائی,no
+super,reports.remove,Remove,ہٹائیں,no
+super,reports.removeTitle,Remove this post?,یہ پوسٹ ہٹائیں؟,no
+super,reports.removeCategory,Reason the masjid will see,وجہ جو مسجد دیکھے گی,no
+super,reports.removeNote,Private note (only you see it),نجی نوٹ (صرف آپ دیکھیں گے),no
+super,reports.removeBody,Hidden for everyone now; preserved privately for 180 days.,ابھی سب کے لیے چھپ جائے گی؛ 180 دن تک نجی طور پر محفوظ رہے گی۔,no
+super,reports.removed,Removed. It is hidden for everyone now.,ہٹا دی گئی۔ اب یہ کسی کو نہیں دکھے گی۔,no
+super,reports.purgeFailed,"Removed, but the cached copy could not be cleared. Clear it again.",ہٹا دی گئی، لیکن کیش کی کاپی صاف نہیں ہو سکی۔ دوبارہ صاف کریں۔,no
+super,reports.clearCache,Clear the cache again,کیش دوبارہ صاف کریں,no
+super,reports.cacheCleared,The cache is being cleared.,کیش صاف کیا جا رہا ہے۔,no
+super,reports.restore,Restore,واپس لائیں,no
+super,reports.restored,Restored. It is shown again.,واپس آ گئی۔ اب دوبارہ دکھ رہی ہے۔,no
+super,reports.dismiss,Dismiss,مسترد کریں,no
+super,reports.dismissed,Report dismissed.,رپورٹ مسترد کر دی گئی۔,no
+super,reports.openMasjid,Open masjid,مسجد کھولیں,no
 templates,no_water_time_range.title,No water supply,پانی کی فراہمی بند,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} سے {hours_end} تک پانی دستیاب نہیں ہوگا۔,no
 templates,electricity_cut_time_range.title,Power cut,بجلی بند,no

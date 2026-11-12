@@ -3,6 +3,7 @@
   "nav": {
     "label": "Super Admin sections",
     "dashboard": "Dashboard",
+    "reports": "Reports",
     "masjids": "Masjids",
     "settings": "Settings",
     "audit": "Audit log",
@@ -339,5 +340,41 @@
       "superseded": "Was live until {date}",
       "rejected": "Not approved · {date}"
     }
+  },
+  "reports": {
+    "title": "Reports",
+    "empty": "Nothing here.",
+    "filter": {
+      "label": "Show",
+      "open": "Open",
+      "actioned": "Removed",
+      "dismissed": "Dismissed"
+    },
+    "urgent": "Urgent",
+    "due": "Due {when}",
+    "overdue": "Overdue — due {when}",
+    "removals": "Removals in 90 days: {count}",
+    "reportCount": "{count, plural, one {# report} other {# reports}}",
+    "aboutMasjid": "Report about the masjid itself",
+    "status": {
+      "published": "Shown",
+      "hidden": "Hidden for review",
+      "removed": "Removed",
+      "deleted": "Deleted by the masjid"
+    },
+    "remove": "Remove",
+    "removeTitle": "Remove this post?",
+    "removeCategory": "Reason the masjid will see",
+    "removeNote": "Private note (only you see it)",
+    "removeBody": "Hidden for everyone now; preserved privately for 180 days.",
+    "removed": "Removed. It is hidden for everyone now.",
+    "purgeFailed": "Removed, but the cached copy could not be cleared. Clear it again.",
+    "clearCache": "Clear the cache again",
+    "cacheCleared": "The cache is being cleared.",
+    "restore": "Restore",
+    "restored": "Restored. It is shown again.",
+    "dismiss": "Dismiss",
+    "dismissed": "Report dismissed.",
+    "openMasjid": "Open masjid"
   }
 }

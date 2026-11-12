@@ -44,6 +44,8 @@ export const API_ERRORS = {
   TURNSTILE_FAILED: 403,
   // Reports (03 §3, Phase 8): the post or masjid is not public (anymore).
   REPORT_TARGET_NOT_FOUND: 404,
+  ITEM_ALREADY_REMOVED: 409,
+  REPORT_NOT_FOUND: 404,
   // Content Library (03 §5, Phase 3)
   LIBRARY_ENTRY_NOT_FOUND: 404,
   LIBRARY_DUPLICATE: 409,

@@ -86,6 +86,8 @@ export const ADMIN_ALERT_TYPES = [
   // Moderation (PHASE_08 T8.1): an urgent report (05 §3: 2 hours) and a post hidden after many reports — Super Admin.
   'report_urgent',
   'report_autohide',
+  // Takedown (T8.2): the masjid's admins — fixed words; the category is in My Posts.
+  'item_removed',
 ] as const;
 
 /**

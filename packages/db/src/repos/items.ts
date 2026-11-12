@@ -26,8 +26,8 @@ import { idOf, iso, objectOf, text } from './read.ts';
 const EDIT_WINDOW_MS = 24 * 60 * 60 * 1000;
 const EDITABLE = new Set(['announcement', 'daily_content', 'dua_request']);
 
-export type AdminItemStatus = 'published' | 'deleted' | 'removed';
-const STATUSES: readonly AdminItemStatus[] = ['published', 'deleted', 'removed'];
+export type AdminItemStatus = 'published' | 'hidden' | 'deleted' | 'removed';
+const STATUSES: readonly AdminItemStatus[] = ['published', 'hidden', 'deleted', 'removed'];
 
 export interface AdminItemRow {
   readonly id: string;
@@ -46,7 +46,7 @@ export interface AdminItemRow {
 
 const statusOf = (doc: Document): AdminItemStatus => {
   const status: unknown = doc['status'];
-  return status === 'deleted' || status === 'removed' ? status : 'published';
+  return status === 'deleted' || status === 'removed' || status === 'hidden' ? status : 'published';
 };
 
 /**

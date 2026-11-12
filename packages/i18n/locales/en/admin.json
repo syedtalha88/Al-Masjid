@@ -417,6 +417,7 @@
     },
     "status": {
       "published": "Published",
+      "hidden": "Hidden for review",
       "deleted": "Deleted",
       "removed": "Removed by moderation"
     },
@@ -440,7 +441,18 @@
     "staleBody": "Someone saved it after you opened it. Please open it again from My Posts.",
     "openPosts": "Open My Posts",
     "viewPosts": "View in My Posts",
-    "editTitle": "Edit post"
+    "editTitle": "Edit post",
+    "hiddenHint": "Many people reported this post, so it is hidden while the app team checks it. You don't need to do anything.",
+    "category": {
+      "misleading": "Misleading or false",
+      "hateful": "Hateful or offensive",
+      "off_topic": "Not about religion or the community",
+      "fraud": "Fraud or fake donation",
+      "private_info": "Personal or private information",
+      "copyright": "Copyright",
+      "other": "Against the content policy",
+      "legal_order": "Court or government order"
+    }
   },
   "profile": {
     "title": "Masjid Profile",

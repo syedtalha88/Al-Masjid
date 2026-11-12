@@ -33,6 +33,13 @@ export {
   type SuperLibraryRow,
 } from './library.ts';
 export {
+  listModerationQueue,
+  QUEUE_REPORTS_MAX,
+  type QueueReport,
+  type QueueTarget,
+  type ReportStatusValue,
+} from './moderation.ts';
+export {
   getNotificationStatus,
   getPushStats,
   listNotificationJobs,

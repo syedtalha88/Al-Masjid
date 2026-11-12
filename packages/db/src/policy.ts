@@ -153,9 +153,11 @@ const ITEM_WRITABLE = [
  * `status: removed`, the moderation fields, or the purge marker (its 180-day evidence clock, IT Rules 3(1)(g)) —
  * takedown, restore and purge are state functions (Phase 8) and the retention job.
  */
-const ITEM_MODERATION_FIELDS = ['purge_after', 'removed_at', 'removed_reason'];
+const ITEM_MODERATION_FIELDS = ['purge_after', 'removed_at', 'removed_reason', 'removed_note', 'hidden_at'];
 const itemCheck = (fields: Readonly<Record<string, unknown>>): string | undefined => {
-  if (fields['status'] === 'removed') return 'status removed is set by moderation only';
+  if (fields['status'] === 'removed' || fields['status'] === 'hidden') {
+    return `status ${fields['status']} is set by moderation only`;
+  }
   const guarded = ITEM_MODERATION_FIELDS.find((field) => field in fields);
   return guarded ? `${guarded} is set by moderation / retention only` : undefined;
 };
@@ -245,9 +247,11 @@ const BENEFICIARY_WRITABLE = [
 /** A person taken off the list by the masjid (closed / deleted) is never changed again — the purge clock runs. */
 const beneficiaryOpen = { status: { $in: ['active', 'fulfilled'] } };
 const removedRedaction = (doc: Document): Document => {
-  if (doc['status'] !== 'removed') return doc;
+  // The Super Admin's moderation note is never the masjid's to read (C5, #171).
+  const { removed_note: _note, ...withoutNote } = doc;
+  if (withoutNote['status'] !== 'removed') return withoutNote;
   // A taken-down recording's key too: it cannot be read back and attached elsewhere (DECISIONS #135).
-  const { title: _t, body: _b, image_key: _i, image_thumbhash: _h, voice: _v, ...rest } = doc;
+  const { title: _t, body: _b, image_key: _i, image_thumbhash: _h, voice: _v, ...rest } = withoutNote;
   return rest;
 };
 

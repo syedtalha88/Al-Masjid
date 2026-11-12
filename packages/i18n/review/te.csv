@@ -361,6 +361,7 @@ admin,posts.types.daily_content,Hadith / Ayah,హదీస్ / ఆయత్,no
 admin,posts.types.dua_request,Dua requests,దువా విన్నపాలు,no
 admin,posts.types.timing_update,Timing updates,సమయ మార్పులు,no
 admin,posts.status.published,Published,ప్రచురించబడింది,no
+admin,posts.status.hidden,Hidden for review,సమీక్ష కోసం దాచబడింది,no
 admin,posts.status.deleted,Deleted,తొలగించబడింది,no
 admin,posts.status.removed,Removed by moderation,మోడరేషన్ తొలగించింది,no
 admin,posts.removedReason,Reason: {reason},కారణం: {reason},no
@@ -384,6 +385,15 @@ admin,posts.staleBody,Someone saved it after you opened it. Please open it again
 admin,posts.openPosts,Open My Posts,నా పోస్ట్‌లు తెరవండి,no
 admin,posts.viewPosts,View in My Posts,నా పోస్ట్‌లలో చూడండి,no
 admin,posts.editTitle,Edit post,పోస్ట్‌ను మార్చండి,no
+admin,posts.hiddenHint,"Many people reported this post, so it is hidden while the app team checks it. You don't need to do anything.","చాలా మంది ఈ పోస్ట్‌ను రిపోర్ట్ చేశారు, అందుకే యాప్ టీమ్ పరిశీలించే వరకు ఇది దాచబడింది. మీరు ఏమీ చేయనవసరం లేదు.",no
+admin,posts.category.misleading,Misleading or false,తప్పుదారి పట్టించేది లేదా అబద్ధం,no
+admin,posts.category.hateful,Hateful or offensive,ద్వేషపూరితం లేదా అవమానకరం,no
+admin,posts.category.off_topic,Not about religion or the community,మతం లేదా సమాజానికి సంబంధం లేనిది,no
+admin,posts.category.fraud,Fraud or fake donation,మోసం లేదా నకిలీ విరాళం,no
+admin,posts.category.private_info,Personal or private information,వ్యక్తిగత లేదా ప్రైవేట్ సమాచారం,no
+admin,posts.category.copyright,Copyright,కాపీరైట్,no
+admin,posts.category.other,Against the content policy,కంటెంట్ విధానానికి విరుద్ధం,no
+admin,posts.category.legal_order,Court or government order,కోర్టు లేదా ప్రభుత్వ ఆదేశం,no
 admin,profile.title,Masjid Profile,మస్జిద్ ప్రొఫైల్,no
 admin,profile.photo,Photo,ఫోటో,no
 admin,profile.photoNone,No photo yet,ఇంకా ఫోటో లేదు,no
@@ -1224,6 +1234,8 @@ errors,NETWORK,You seem to be offline. Please check your connection and try agai
 errors,ITEM_NOT_FOUND,This post is no longer available.,ఈ పోస్ట్ ఇప్పుడు అందుబాటులో లేదు.,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,ఇది నిజమైన ఫోన్ అని మేము నిర్ధారించలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
 errors,REPORT_TARGET_NOT_FOUND,"This is no longer shown in the app, so there is nothing to report.","ఇది ఇప్పుడు యాప్‌లో కనిపించడం లేదు, కాబట్టి రిపోర్ట్ చేయడానికి ఏమీ లేదు.",no
+errors,REPORT_NOT_FOUND,This report is already closed.,ఈ రిపోర్ట్ ఇప్పటికే మూసివేయబడింది.,no
+errors,ITEM_ALREADY_REMOVED,This post was already removed.,ఈ పోస్ట్ ఇప్పటికే తొలగించబడింది.,no
 errors,LIBRARY_ENTRY_NOT_FOUND,This library entry no longer exists.,ఈ లైబ్రరీ ఎంట్రీ ఇప్పుడు లేదు.,no
 errors,LIBRARY_DUPLICATE,An entry with this kind and reference is already in the library.,ఇదే రకం మరియు రిఫరెన్స్‌తో ఉన్న ఎంట్రీ ఇప్పటికే లైబ్రరీలో ఉంది.,no
 errors,TEMPLATE_NOT_FOUND,This template no longer exists.,ఈ టెంప్లేట్ ఇప్పుడు లేదు.,no
@@ -1427,6 +1439,8 @@ push,alert.report_urgent.title,Urgent report,అత్యవసర రిపో�
 push,alert.report_urgent.body,A post or masjid was reported for personal or private information. Review it in Reports within 2 hours.,ఒక పోస్ట్ లేదా మస్జిద్‌పై వ్యక్తిగత లేదా ప్రైవేట్ సమాచారం గురించి రిపోర్ట్ వచ్చింది. 2 గంటల్లోపు రిపోర్ట్స్‌లో చూడండి.,no
 push,alert.report_autohide.title,Post hidden after many reports,చాలా రిపోర్ట్‌ల తర్వాత పోస్ట్ దాచబడింది,no
 push,alert.report_autohide.body,A post was hidden automatically because many people reported it. Review it in Reports.,"చాలా మంది ఒక పోస్ట్‌ను రిపోర్ట్ చేశారు, అందుకే అది ఆటోమేటిక్‌గా దాచబడింది. రిపోర్ట్స్‌లో చూడండి.",no
+push,alert.item_removed.title,A post was removed,ఒక పోస్ట్ తొలగించబడింది,no
+push,alert.item_removed.body,A post from your masjid was removed by the app team. Open My Posts to see the reason.,యాప్ టీమ్ మీ మస్జిద్ పోస్ట్‌ను ఒకదాన్ని తొలగించింది. కారణం చూడటానికి నా పోస్ట్‌లు తెరవండి.,no
 settings,language,Language,భాష,no
 settings,languageSheet,Choose your language,మీ భాషను ఎంచుకోండి,no
 settings,audience,Brother / Sister,సోదరుడు / సోదరి,no
@@ -1555,6 +1569,7 @@ settings,push.askLater,Not now,ఇప్పుడు కాదు,no
 super,title,Super Admin,సూపర్ అడ్మిన్,no
 super,nav.label,Super Admin sections,సూపర్ అడ్మిన్ విభాగాలు,no
 super,nav.dashboard,Dashboard,డాష్‌బోర్డ్,no
+super,nav.reports,Reports,రిపోర్ట్‌లు,no
 super,nav.masjids,Masjids,మస్జిద్‌లు,no
 super,nav.settings,Settings,సెట్టింగ్స్,no
 super,nav.audit,Audit log,ఆడిట్ లాగ్,no
@@ -1839,6 +1854,36 @@ super,payments.rejected,Turned down. The masjid was told.,తిరస్కర�
 super,payments.history,Earlier UPI details,మునుపటి UPI వివరాలు,no
 super,payments.historyStatus.superseded,Was live until {date},{date} వరకు అమలులో ఉంది,no
 super,payments.historyStatus.rejected,Not approved · {date},ఆమోదించబడలేదు · {date},no
+super,reports.title,Reports,రిపోర్ట్‌లు,no
+super,reports.empty,Nothing here.,ఇక్కడ ఏమీ లేదు.,no
+super,reports.filter.label,Show,చూపించు,no
+super,reports.filter.open,Open,తెరిచినవి,no
+super,reports.filter.actioned,Removed,తొలగించినవి,no
+super,reports.filter.dismissed,Dismissed,తిరస్కరించినవి,no
+super,reports.urgent,Urgent,అత్యవసరం,no
+super,reports.due,Due {when},గడువు {when},no
+super,reports.overdue,Overdue — due {when},గడువు మించింది — గడువు {when},no
+super,reports.removals,Removals in 90 days: {count},90 రోజుల్లో తొలగించినవి: {count},no
+super,reports.reportCount,"{count, plural, one {# report} other {# reports}}","{count, plural, one {# రిపోర్ట్} other {# రిపోర్ట్‌లు}}",no
+super,reports.aboutMasjid,Report about the masjid itself,మస్జిద్ గురించే రిపోర్ట్,no
+super,reports.status.published,Shown,కనిపిస్తోంది,no
+super,reports.status.hidden,Hidden for review,సమీక్ష కోసం దాచబడింది,no
+super,reports.status.removed,Removed,తొలగించబడింది,no
+super,reports.status.deleted,Deleted by the masjid,మస్జిద్ తొలగించింది,no
+super,reports.remove,Remove,తొలగించు,no
+super,reports.removeTitle,Remove this post?,ఈ పోస్ట్‌ను తొలగించాలా?,no
+super,reports.removeCategory,Reason the masjid will see,మస్జిద్ చూసే కారణం,no
+super,reports.removeNote,Private note (only you see it),ప్రైవేట్ నోట్ (మీరు మాత్రమే చూస్తారు),no
+super,reports.removeBody,Hidden for everyone now; preserved privately for 180 days.,ఇప్పుడే అందరికీ దాచబడుతుంది; 180 రోజులు ప్రైవేట్‌గా భద్రపరచబడుతుంది.,no
+super,reports.removed,Removed. It is hidden for everyone now.,తొలగించబడింది. ఇప్పుడు ఎవరికీ కనిపించదు.,no
+super,reports.purgeFailed,"Removed, but the cached copy could not be cleared. Clear it again.","తొలగించబడింది, కానీ కాష్ కాపీని తీసివేయలేకపోయాము. మళ్లీ తీసివేయండి.",no
+super,reports.clearCache,Clear the cache again,కాష్‌ను మళ్లీ తీసివేయండి,no
+super,reports.cacheCleared,The cache is being cleared.,కాష్ తీసివేయబడుతోంది.,no
+super,reports.restore,Restore,పునరుద్ధరించు,no
+super,reports.restored,Restored. It is shown again.,పునరుద్ధరించబడింది. మళ్లీ కనిపిస్తోంది.,no
+super,reports.dismiss,Dismiss,తిరస్కరించు,no
+super,reports.dismissed,Report dismissed.,రిపోర్ట్ తిరస్కరించబడింది.,no
+super,reports.openMasjid,Open masjid,మస్జిద్ తెరవండి,no
 templates,no_water_time_range.title,No water supply,నీటి సరఫరా నిలిపివేత,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.,no
 templates,electricity_cut_time_range.title,Power cut,విద్యుత్ నిలిపివేత,no

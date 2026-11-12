@@ -16,6 +16,19 @@ export const REPORT_REASONS = [
 ] as const;
 export type ReportReason = (typeof REPORT_REASONS)[number];
 
+/**
+ * Why the Super Admin removed a post (C5 "reason category", 05 §3): a report reason, or a court / government order.
+ * Stored on the item as `removed_reason`; the masjid's admins see the category (never the private note).
+ */
+export const MODERATION_CATEGORIES = [...REPORT_REASONS, 'legal_order'] as const;
+export type ModerationCategory = (typeof MODERATION_CATEGORIES)[number];
+
+/** The Super Admin's private moderation note on a removal or a dismissal. */
+export const MODERATION_NOTE_MAX = 500;
+
+/** Repeat violations (05 §3): removals per masjid counted over this window, shown on its Super Admin page. */
+export const REPEAT_VIOLATION_WINDOW_MS = 90 * 24 * HOUR_MS;
+
 /** Free-text details a reporter may add (02 §2 reports.details). */
 export const REPORT_DETAILS_MAX = 500;
 
