@@ -18,22 +18,22 @@
 | 08 | Moderation, grievance, legal pages, QR posters | **IN PROGRESS** — started 13 Nov 2026 on `feat/phase-08`; T8.1 done (#170) | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (13 Nov 2026 — Phases 06 + 07 closed on our side; Phase 08 next)
+## ▶ Next session — start here (13 Nov 2026, later — Phase 08 in progress: T8.1–T8.3 done)
 
 **Owner rule (DECISIONS #162):** close each phase when our own checks pass, list every owner step in
 `owner/MY_PENDING_TASKS.md`, move straight on.
 
-**State:** Phase 06 report final (CI green on `main` `402e7f8`, on staging). Phase 07 phase-verifier fixes done
-(#169) on `feat/phase-07`; pushed to `ci/phase-07` for CI. **When that CI is green:** fast-forward `main` to
-`feat/phase-07` and push → CI on `main` → "Release to staging" → check `/health` on both origins shows the new commit
-→ tell the owner O29 (Qibla) + O49 (bayans) can be done on staging. `.claude/settings.json` is the owner's own
-uncommitted change — never commit it.
+**State:** `main` = `30a268b` (Phases 05–07), **on staging** (`/health` both origins checked 13 Nov 2026). Phase 08 on
+`feat/phase-08` (= `ci/phase-08`, pushed): T8.1 reporting (#170), T8.2 takedown + C5 + tag purge + F73 media access +
+F74 (#171), T8.3 SLA alerts + C1 card (#172). CI was green for T8.1 (`40df342`); check the latest `ci/phase-08` run.
+`.claude/settings.json` is the owner's own uncommitted change — never commit it.
 
-**Then Phase 08** (`docs/phases/PHASE_08_MODERATION_LEGAL_POSTERS.md`) on a new branch `feat/phase-08` from
-`feat/phase-07`. Some scaffolding exists already (reports / grievances in `schema/platform.ts`, `policy.ts`,
-`roles.ts`, `routes/public.ts` + `super.ts`, app `LegalScreens.tsx`, `settings_.grievance.tsx`, admin
-`super.settings.tsx`) — read what is there before planning T8.1. Phase 08 also carries F73 + F74 (T8.2). Owner
-prerequisite: Grievance Officer details (drafts can use placeholders).
+**Next:** T8.4 Grievances (musalli form in Settings → Contact & Grievance + C6 tracker; contact encrypted with the field
+key ring like admin phones; `GR-YYYY-NNNNNN` from `grievance_seq`; plug its ack / resolve timers into
+`listSlaTimers` (`@mc/db/state/sla.ts`) with a `sla_alerted` field + migration; `POST /grievances` is public + Turnstile
+with the `grievancesIp` rate bucket). Then T8.5 legal orders (busboy upload, AES-256-GCM, Cloudinary raw +
+authenticated, `legalOrderId` on removal), T8.6 legal texts, T8.7 retention rows, T8.8 posters, T8.9 kill switches,
+T8.10 audit / stats, T8.11 gates (visual baselines for C5 / report sheet, security review, phase-verifier).
 
 **Local notes:** local stack rebuild = `pnpm stack:up:test`, then `pnpm db:seed`, then `git checkout` the two
 `routeTree.gen.ts`. WebKit e2e only in the Linux image (scratchpad `wk-linux.sh`, run with
