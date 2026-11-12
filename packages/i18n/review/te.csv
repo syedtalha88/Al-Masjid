@@ -900,6 +900,10 @@ common,ui.ilm.messageLabel,Message {name} on WhatsApp,{name}కు వాట్�
 common,ui.camp.title,Blood donation camp,రక్తదాన శిబిరం,no
 common,ui.camp.when,{date} · {start} – {end},{date} · {start} – {end},no
 common,ui.camp.contact,Contact on WhatsApp,వాట్సాప్‌లో సంప్రదించండి,no
+common,ui.video.youtube,YouTube,YouTube,no
+common,ui.video.play,Play {title},{title} ప్లే చేయండి,no
+common,ui.video.playsFromYouTube,Plays from YouTube,YouTube నుండి ప్లే అవుతుంది,no
+common,ui.video.offline,Connect to the internet to watch,చూడటానికి ఇంటర్నెట్‌కు కనెక్ట్ అవ్వండి,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,మగ్రిబ్ తర్వాత,no
 common,hijri.months.m1,Muharram,ముహర్రం,no
@@ -1125,6 +1129,11 @@ content,needy.category.homeless,Homeless,నిరాశ్రయులు,no
 content,needy.category.debt,Debt,అప్పు,no
 content,needy.category.student,Student,విద్యార్థి,no
 content,needy.category.other,Other,ఇతర,no
+content,bayans,Bayans,బయాన్‌లు,no
+content,emptyBayans,No bayans yet,ఇంకా బయాన్‌లు లేవు,no
+content,emptyBayansBody,"When the masjid shares a bayan, it shows here.","మసీదు బయాన్‌ను పంచుకున్నప్పుడు, అది ఇక్కడ కనిపిస్తుంది.",no
+content,showMore,Show more,మరింత చూపించు,no
+content,showLess,Show less,తక్కువ చూపించు,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,మన సమాజంలోని ఒకరు అనారోగ్యంతో ఉన్నారు. దయచేసి వారిని మీ దువాలలో గుర్తుంచుకోండి.,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,మన సమాజంలోని ఒకరు ఆసుపత్రిలో ఉన్నారు. దయచేసి వారు కోలుకోవాలని దువా చేయండి.,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,మన సమాజంలోని ఒకరికి ఆపరేషన్ జరుగుతోంది. అంతా బాగా జరగాలని దయచేసి దువా చేయండి.,no

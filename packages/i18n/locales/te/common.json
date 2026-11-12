@@ -131,6 +131,12 @@
       "title": "రక్తదాన శిబిరం",
       "when": "{date} · {start} – {end}",
       "contact": "వాట్సాప్‌లో సంప్రదించండి"
+    },
+    "video": {
+      "youtube": "YouTube",
+      "play": "{title} ప్లే చేయండి",
+      "playsFromYouTube": "YouTube నుండి ప్లే అవుతుంది",
+      "offline": "చూడటానికి ఇంటర్నెట్‌కు కనెక్ట్ అవ్వండి"
     }
   },
   "hijri": {

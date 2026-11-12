@@ -131,6 +131,12 @@
       "title": "خون کے عطیے کا کیمپ",
       "when": "{date} · {start} – {end}",
       "contact": "واٹس ایپ پر رابطہ کریں"
+    },
+    "video": {
+      "youtube": "YouTube",
+      "play": "{title} چلائیں",
+      "playsFromYouTube": "YouTube سے چلتی ہے",
+      "offline": "دیکھنے کے لیے انٹرنیٹ سے جڑیں"
     }
   },
   "hijri": {

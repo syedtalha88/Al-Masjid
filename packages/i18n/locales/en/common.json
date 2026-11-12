@@ -131,6 +131,12 @@
       "title": "Blood donation camp",
       "when": "{date} · {start} – {end}",
       "contact": "Contact on WhatsApp"
+    },
+    "video": {
+      "youtube": "YouTube",
+      "play": "Play {title}",
+      "playsFromYouTube": "Plays from YouTube",
+      "offline": "Connect to the internet to watch"
     }
   },
   "hijri": {

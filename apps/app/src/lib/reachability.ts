@@ -44,3 +44,26 @@ export function useServerUnreachable(): boolean {
 export function resetReachability(): void {
   set(false);
 }
+
+const subscribeOnline = (listener: () => void) => {
+  window.addEventListener('online', listener);
+  window.addEventListener('offline', listener);
+  return () => {
+    window.removeEventListener('online', listener);
+    window.removeEventListener('offline', listener);
+  };
+};
+
+/**
+ * React: whether this phone looks offline — the browser says so, or the last request got no answer (A12: the bayan
+ * player then offers no Play, only "Connect to the internet to watch").
+ */
+export function useLooksOffline(): boolean {
+  const browserOffline = useSyncExternalStore(
+    subscribeOnline,
+    () => !navigator.onLine,
+    () => false,
+  );
+  const unreachable = useServerUnreachable();
+  return browserOffline || unreachable;
+}

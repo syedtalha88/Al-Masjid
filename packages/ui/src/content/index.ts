@@ -64,4 +64,5 @@ export { RuqyahCard, type RuqyahCardProps } from './RuqyahCard.tsx';
 export { SpecialDateCard, type SpecialDateCardProps } from './SpecialDateCard.tsx';
 export { useItemSummary } from './use-item-summary.ts';
 export { useNoticeBody } from './use-notice-body.ts';
+export { VideoCard, type VideoCardProps, YouTubeFacade, type YouTubeFacadeProps } from './VideoCard.tsx';
 export { WhatsAppButton, type WhatsAppButtonProps } from './WhatsAppButton.tsx';

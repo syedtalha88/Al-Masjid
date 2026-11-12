@@ -900,6 +900,10 @@ common,ui.ilm.messageLabel,Message {name} on WhatsApp,{name} کو واٹس ای�
 common,ui.camp.title,Blood donation camp,خون کے عطیے کا کیمپ,no
 common,ui.camp.when,{date} · {start} – {end},{date} · {start} – {end},no
 common,ui.camp.contact,Contact on WhatsApp,واٹس ایپ پر رابطہ کریں,no
+common,ui.video.youtube,YouTube,YouTube,no
+common,ui.video.play,Play {title},{title} چلائیں,no
+common,ui.video.playsFromYouTube,Plays from YouTube,YouTube سے چلتی ہے,no
+common,ui.video.offline,Connect to the internet to watch,دیکھنے کے لیے انٹرنیٹ سے جڑیں,no
 common,hijri.date,{day} {month} {year},{day} {month} {year},no
 common,hijri.afterMaghrib,after Maghrib,مغرب کے بعد,no
 common,hijri.months.m1,Muharram,محرم,no
@@ -1125,6 +1129,11 @@ content,needy.category.homeless,Homeless,بے گھر,no
 content,needy.category.debt,Debt,قرض,no
 content,needy.category.student,Student,طالب علم,no
 content,needy.category.other,Other,دیگر,no
+content,bayans,Bayans,بیانات,no
+content,emptyBayans,No bayans yet,ابھی کوئی بیان نہیں,no
+content,emptyBayansBody,"When the masjid shares a bayan, it shows here.",جب مسجد کوئی بیان شیئر کرے گی تو وہ یہاں دکھے گا۔,no
+content,showMore,Show more,مزید دکھائیں,no
+content,showLess,Show less,کم دکھائیں,no
 dua-messages,illness.unwell,A member of our community is unwell. Please remember them in your duas.,ہماری برادری کے ایک رکن بیمار ہیں۔ براہِ کرم انہیں اپنی دعاؤں میں یاد رکھیں۔,no
 dua-messages,illness.hospital,A member of our community is in hospital. Please make dua for their recovery.,ہماری برادری کے ایک رکن اسپتال میں ہیں۔ براہِ کرم ان کی صحت یابی کے لیے دعا کریں۔,no
 dua-messages,illness.surgery,A member of our community is having an operation. Please make dua that it goes well.,ہماری برادری کے ایک رکن کا آپریشن ہے۔ براہِ کرم دعا کریں کہ سب خیریت سے ہو۔,no
