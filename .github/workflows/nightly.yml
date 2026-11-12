@@ -82,10 +82,6 @@ jobs:
       contents: read # the staging-current pre-release
       packages: read # pull the deployed images from GHCR
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 — only for infra/trivy (DECISIONS #141)
-        with:
-          persist-credentials: false
-          sparse-checkout: infra/trivy
       - name: Deployed digests from the published manifest
         env:
           GH_TOKEN: ${{ github.token }}
@@ -105,10 +101,9 @@ jobs:
           for image in $IMAGES; do
             case "$image" in ghcr.io/syedtalha88/*@sha256:*) ;; *) echo "::error::unexpected image $image"; exit 1 ;; esac
             docker pull -q "$image"
-            ignore=()
-            case "$image" in */al-masjid-server@*) ignore=(--ignorefile /trivy/mc-server.trivyignore.yaml) ;; esac
-            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD/infra/trivy:/trivy:ro" "$TRIVY_IMAGE" \
-              image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "${ignore[@]}" "$image"
+            # F61 (DECISIONS #155): staging runs an image built from the fixed base — no exceptions any more.
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" \
+              image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "$image"
           done
 
   staging:
