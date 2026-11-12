@@ -17,13 +17,6 @@ export const MAX_ADMIN_PUSH_SUBSCRIPTIONS = 5;
 const LOCALES = ['en', 'hi', 'ur', 'te'] as const;
 const ROLES = ['super_admin', 'masjid_admin'] as const;
 type AdminRole = (typeof ROLES)[number];
-const DAY_MS = 86_400_000;
-/**
- * How long a Super Admin's phone keeps receiving alerts after its session was last used (DECISIONS #159). The Super
- * Admin's session itself is short (30 minutes idle, 04 §4), but takedown and legal-order alerts have deadlines of
- * hours (05 §3) and must reach the owner who is not in the app. Signing out or a revoke still stops them at once.
- */
-export const SUPER_ALERT_WINDOW_MS = 30 * DAY_MS;
 
 export interface AdminPushSubscription {
   readonly endpoint: string;
@@ -44,7 +37,10 @@ interface SessionRow {
 
 /**
  * Is the session a subscription hangs on still good for alerts? Never when revoked. A masjid admin's: until it
- * expires (idle or absolute). A Super Admin's: until {@link SUPER_ALERT_WINDOW_MS} after it was last used.
+ * expires (idle or absolute). A Super Admin's: until it is revoked — however long ago it was used (owner, O44 —
+ * DECISIONS #168): the Super Admin's session is short (30 minutes idle, 04 §4), but takedown and legal-order alerts
+ * have deadlines of hours (05 §3) and must always reach the owner. Signing out, the session list or a ★ revoke stop
+ * them at once.
  *
  * @returns whether alerts may still go to the phone that saved its subscription in this session.
  */
@@ -54,7 +50,7 @@ export function sessionCarriesAlerts(
   now: Date,
 ): boolean {
   if (session.revoked_at) return false;
-  if (role === 'super_admin') return now.getTime() - session.last_seen_at.getTime() < SUPER_ALERT_WINDOW_MS;
+  if (role === 'super_admin') return true;
   return session.idle_expires_at > now && session.absolute_expires_at > now;
 }
 

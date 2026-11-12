@@ -32,7 +32,6 @@ import {
   revokeSessions,
   saveAdminPushSubscription,
   sessionCarriesAlerts,
-  SUPER_ALERT_WINDOW_MS,
 } from '../src/state/index.ts';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '../src/testing/index.ts';
 import { newId, newPublicId } from '../src/values.ts';
@@ -395,7 +394,7 @@ describe('admin push subscriptions (mc_admin) and alert targets (mc_system)', ()
     await recordAlertDelivery(sys(), SYSTEM, { delivered: [], gone: [] }, NOW); // nothing to do
   });
 
-  it('F65: a session carries alerts until it is revoked or expires — a Super Admin’s for 30 days after its last use', () => {
+  it('F65: a session carries alerts until it is revoked or expires — a Super Admin’s until it is revoked (#168)', () => {
     const at = (ms: number) => new Date(NOW.getTime() + ms);
     const open = { last_seen_at: NOW, idle_expires_at: at(HOUR), absolute_expires_at: at(2 * HOUR) };
     expect(sessionCarriesAlerts(open, 'masjid_admin', NOW)).toBe(true);
@@ -404,9 +403,9 @@ describe('admin push subscriptions (mc_admin) and alert targets (mc_system)', ()
     expect(sessionCarriesAlerts({ ...open, revoked_at: NOW }, 'masjid_admin', NOW)).toBe(false);
     // The Super Admin's short session has long expired: takedown alerts still reach the phone…
     expect(sessionCarriesAlerts(open, 'super_admin', at(5 * DAY))).toBe(true);
-    expect(sessionCarriesAlerts(open, 'super_admin', at(SUPER_ALERT_WINDOW_MS - 1))).toBe(true);
-    // …until it was not used for 30 days, or it is revoked (sign-out, the session list, a ★ revoke).
-    expect(sessionCarriesAlerts(open, 'super_admin', at(SUPER_ALERT_WINDOW_MS))).toBe(false);
+    // …however long it has not been used (owner, O44)…
+    expect(sessionCarriesAlerts(open, 'super_admin', at(400 * DAY))).toBe(true);
+    // …until it is revoked (sign-out, the session list, a ★ revoke).
     expect(sessionCarriesAlerts({ ...open, revoked_at: NOW }, 'super_admin', NOW)).toBe(false);
   });
 
@@ -436,10 +435,11 @@ describe('admin push subscriptions (mc_admin) and alert targets (mc_system)', ()
       created_at: NOW,
     });
     const superPhone = await save(superScope(superAdmin), 'super', await session(superAdmin));
-    const superStale = await save(
+    // A Super Admin phone whose session was last used a year ago still hears alerts (owner, O44 — #168).
+    const superOld = await save(
       superScope(superAdmin),
-      'super-stale',
-      await session(superAdmin, { last_seen_at: new Date(NOW.getTime() - SUPER_ALERT_WINDOW_MS) }),
+      'super-old',
+      await session(superAdmin, { last_seen_at: new Date(NOW.getTime() - 365 * DAY) }),
     );
 
     // Things happen to the sessions after the phones subscribed (raw writes: what time and other code paths do).
@@ -457,21 +457,21 @@ describe('admin push subscriptions (mc_admin) and alert targets (mc_system)', ()
 
     const to = { kind: 'admins', adminIds: [masjidAdmin, superAdmin] } as const;
     const endpoints = async (now: Date) => (await getAlertTargets(sys(), SYSTEM, to, now)).map((row) => row.endpoint);
-    expect((await endpoints(NOW)).sort()).toEqual([live, superPhone].sort());
-    // Two hours on, the masjid admin's session has run out; the Super Admin's phone still hears alerts.
-    expect(await endpoints(new Date(NOW.getTime() + 2 * HOUR))).toEqual([superPhone]);
+    expect((await endpoints(NOW)).sort()).toEqual([live, superPhone, superOld].sort());
+    // Two hours on, the masjid admin's session has run out; the Super Admin's phones still hear alerts.
+    expect((await endpoints(new Date(NOW.getTime() + 2 * HOUR))).sort()).toEqual([superPhone, superOld].sort());
 
-    expect(await pruneAdminPushSubscriptions(sys(), SYSTEM, NOW)).toBe(5);
+    expect(await pruneAdminPushSubscriptions(sys(), SYSTEM, NOW)).toBe(4);
     const left = await raw('admin_push_subscriptions')
       .find({ admin_id: { $in: [masjidAdmin, superAdmin] } })
       .toArray();
-    expect(left.map((row) => row['endpoint']).sort()).toEqual([live, superPhone].sort());
-    for (const gone of [expired, revoked, orphan, legacy, superStale])
+    expect(left.map((row) => row['endpoint']).sort()).toEqual([live, superPhone, superOld].sort());
+    for (const gone of [expired, revoked, orphan, legacy])
       expect(await raw('admin_push_subscriptions').findOne({ endpoint: gone })).toBeNull();
     expect(await pruneAdminPushSubscriptions(sys(), SYSTEM, NOW)).toBe(0); // idempotent
     // An admin who is disabled later: their phone is not a target, and the next prune removes it.
     await raw('admin_users').updateOne({ _id: masjidAdmin }, { $set: { status: 'disabled' } });
-    expect(await endpoints(NOW)).toEqual([superPhone]);
+    expect((await endpoints(NOW)).sort()).toEqual([superPhone, superOld].sort());
     expect(await pruneAdminPushSubscriptions(sys(), SYSTEM, NOW)).toBe(1);
   });
 });

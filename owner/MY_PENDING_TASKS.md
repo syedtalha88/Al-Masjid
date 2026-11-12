@@ -5,7 +5,7 @@
 > Last updated: 13 Nov 2026 — **Phases 03 + 04 are on staging**; **Phase 05 is closed on our side** ("DONE — owner
 > checks pending", DECISIONS #162) and **Phase 06 (bayan videos) is being built**. What Phase 05 needs from you is the
 > block "Phase 05 — closing on staging" below (O43 → deploy → O45 → checks 5.1–5.22 with O28). Older items: O25 rest →
-> O26 (closes Phase 03), O38 (closes Phase 04), O44 (two quick answers).
+> O26 (closes Phase 03), O38 (closes Phase 04).
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
 > Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.
@@ -117,7 +117,7 @@
 | O6 | 0.18 Sentry error reporting (steps below) — **required before the pilot** (audit 11 Nov 2026) | 15 min | before pilot |
 | O40 | **GitHub repository is public** — decide: make it private, or keep it public and let Claude Code move the `owner/` notes (host names, SSH user name) out. Check first what private changes on your GitHub plan (deploy approvals) | 10 min | before pilot |
 | O41 | **Second Super Admin passkey** on another phone (Account → Add device) and **a backup person for grievances** | 15 min | before pilot |
-| O44 | **Two answers for Claude Code** — (a) Your Super Admin phone keeps getting alerts for **30 days** after you last opened the admin app on it; signing out stops them at once. OK, or a shorter time? (b) After paying a needy person, the app asks "Log this in My zakat?" **only if the masjid marked that person zakat-eligible**. OK, or should it ask for every person? | 2 min | any time |
+| ~~O44~~ | ✅ **Answered 12 Nov 2026** (DECISIONS #168): (a) Super Admin alerts never stop on their own — only signing out or revoking that phone's session stops them; (b) "Log this in My zakat?" stays as built (asked only for zakat-eligible people) | – | – |
 | ~~O47~~ | ✅ **Solved 12 Nov 2026** — billing was fine (public repository: CI is free, $0 billed). GitHub had left jobs queued; Claude Code started a fresh run with an empty commit and every job got a machine. | – | – |
 | ~~O46~~ | ✅ **Answered 12 Nov 2026: yes to (a)–(d)** (DECISIONS #161). (a) built the same day; (b) comes with Phase 8 moderation; (c) Phase 9 | – | – |
 | O48 | **Cloudflare purge token for the worker (staging, later production)** — deleted posts' photos and bayan thumbnails are now removed 180 days later and purged from Cloudflare (DECISIONS #164). Check that `CF_API_TOKEN_PURGE` in `/etc/masjid-connect/staging/worker.env` is a real token (Cloudflare → My Profile → API Tokens → Create → permission **Zone · Cache Purge · Purge**, zone almasjids.com) and `CF_ZONE_ID` is the zone's id (Cloudflare → almasjids.com → Overview, right side). Never paste the token into chat. Nothing is due for purging before May 2027, so no rush | 10 min | before May 2027 |

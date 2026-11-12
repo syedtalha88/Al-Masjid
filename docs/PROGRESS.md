@@ -582,7 +582,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O26 | **Usability check T3.12** with a real masjid person (5-task script) | T3.12 / Phase 03 exit | 30 min | end of Phase 03 |
 | O27 | **Phase 03 checks on staging** (`owner/PHASE_TESTING_GUIDE.md` → Phase 03) | Phase 03 DONE | 45 min | **OK — owner, 10 Nov 2026** (photos / voice wait for O25) |
 | O28 | **UPI ID for a ₹1 test** | Phase 05 exit | 5 min | Phase 05 |
-| O44 | **Two answers (12 Nov 2026):** (a) #159 — the Super Admin's phone keeps getting alerts for **30 days** after the admin app was last used on it (sign-out stops them at once): OK, or shorter? (b) #158 — "Log this in My zakat?" is asked only after paying a person the masjid marked **zakat-eligible**: OK, or ask for everyone? | F65 / T5.9 defaults stand until answered | 2 answers | open — not blocking |
+| ~~O44~~ | ✅ **Answered 12 Nov 2026 (#168):** (a) Super Admin phones keep alerts until a sign-out or revoke — no 30-day stop; (b) the My zakat prompt stays for zakat-eligible people only | – | – |
 | ~~O47~~ | GitHub Actions jobs stayed queued (12 Nov 2026) — **solved**: billing fine (public repo, $0); an empty commit `a6f2969` on `main` started a fresh run that got machines | – | – | ✅ 12 Nov 2026 |
 | ~~O46~~ | Phase 05 security decisions (#160) — **owner: yes to (a)–(d)** → DECISIONS #161 | – | – | ✅ 12 Nov 2026 |
 | O48 | Real Cloudflare **Cache Purge** token + zone id in the staging worker env (#164) | deleted posts' media purge | 10 min | before May 2027 |

@@ -2909,3 +2909,18 @@ F74 and a line in PHASE_08.
 **Kept, LOW (Phase 06):** the 30 / hour test does not pin the 31st call (earlier tests share the budget); the oEmbed
 read uses a cast instead of Zod; the admin missing-fields list joins with ", " (Urdu "،"); focus after Play; the play
 glyph's inline size — Phase 9 polish (F75 list).
+
+### #168 — O44 answered: Super Admin alerts never stop on their own; the My zakat prompt stays as built — ACCEPTED (owner, 12 Nov 2026)
+**Context:** #159 let a Super Admin phone keep alerts for 30 days after its session was last used; T5.9 asks "Log this
+in My zakat?" after a payment only when the masjid marked the person zakat-eligible. The owner was asked whether both
+were right (O44).
+**Decision:** (a) "For the Super Admin don't restrict or stop anything": a Super Admin's subscription carries alerts for
+as long as its session is not revoked — no inactivity window (`SUPER_ALERT_WINDOW_MS` removed). Signing out, the session
+list, a ★ revoke-sessions / revoke-passkeys or a `recovery` redeem still stop that phone at once (the owner's own
+actions). Masjid admins are unchanged (alerts end with the session). (b) "Whichever is better": the prompt stays for
+zakat-eligible people only — logging a payment to a person the masjid did not mark eligible as zakat would mislead the
+person's own record.
+**Consequences:** a lost Super Admin phone keeps receiving alerts (short texts: what needs attention, no personal data)
+until the owner revokes its session from another device — the second passkey (O41) makes that possible. Any future
+session-cleanup job must keep Super Admin sessions that still carry a subscription (02 §4 admin_push_subscriptions
+updated). Tests: db `notifications.int` (a year-old Super Admin session still a target; prune keeps it).

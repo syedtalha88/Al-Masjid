@@ -10,7 +10,6 @@ export {
   removeAdminPushSubscription,
   saveAdminPushSubscription,
   sessionCarriesAlerts,
-  SUPER_ALERT_WINDOW_MS,
 } from './admin-push.ts';
 export {
   addAdminToMasjid,

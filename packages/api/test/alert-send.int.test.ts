@@ -194,7 +194,7 @@ describe('alert-send', () => {
     const open = await phone(masjidAdmin);
     const signedOut = await phone(masjidAdmin, { revoked_at: NOW, revoked_reason: 'logout' });
     const expired = await phone(masjidAdmin, { idle_expires_at: new Date(NOW.getTime() - 1) });
-    // The Super Admin's session ran out hours ago (30 minutes idle), but it was used within the last 30 days.
+    // The Super Admin's session ran out hours ago (30 minutes idle): their phone still hears alerts until a revoke (#168).
     const ownerPhone = await phone(owner, {
       last_seen_at: new Date(NOW.getTime() - 6 * HOUR),
       idle_expires_at: new Date(NOW.getTime() - 5 * HOUR),
