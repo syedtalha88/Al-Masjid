@@ -2,8 +2,10 @@
 
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
-> Last updated: 12 Nov 2026 — **Phases 03 + 04 are on staging**. O39 ✅ and O27 ✅ done. Left: O25 rest → O26 (closes Phase 03) and O38 (closes Phase 04).
-> Phase 05 is built except its final checks (done: UPI change-lock, donation campaigns, weekly chanda, needy people, My zakat) — two small answers wanted (**O44** below); O28 (a UPI ID for the ₹1 test) and O43 when Phase 05 reaches staging. On staging, the demo masjid **TESTD004** (Test Masjid Delta) will show donation campaigns with a fake UPI ID — never pay to it.
+> Last updated: 13 Nov 2026 — **Phases 03 + 04 are on staging**; **Phase 05 is closed on our side** ("DONE — owner
+> checks pending", DECISIONS #162) and **Phase 06 (bayan videos) is being built**. What Phase 05 needs from you is the
+> block "Phase 05 — closing on staging" below (O43 → deploy → O45 → checks 5.1–5.22 with O28). Older items: O25 rest →
+> O26 (closes Phase 03), O38 (closes Phase 04), O44 (two quick answers).
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
 > Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.
@@ -56,6 +58,16 @@
 |---|---|---|---|
 | ~~O39~~ | ✅ **Done 10 Nov 2026 — PASS.** **Database privilege check** — connect the WireGuard tunnel, `ssh talha@10.66.0.1`, then run `sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles` and send Claude Code the whole output (no secrets in it). It must PASS now that the new collections exist | 5 min | now, before testing |
 
+### Phase 05 — closing on staging (in this order; Claude Code closed its side 13 Nov 2026)
+
+| # | What | Time | When |
+|---|---|---|---|
+| O43 | **Atlas roles for Phase 05** — apply the new `infra/mongo/atlas-roles.json` in Atlas (same steps as O36), then `deploy.sh staging --verify-roles` → must PASS. **This unblocks merging Phases 05 + 06 into `main`** (main deploys to staging automatically). Tell Claude Code "O43 done" | 15 min | now |
+| – | Claude Code merges Phases 05 + 06 into `main` → staging deploys itself; it tells you the release | – | after O43 |
+| O45 | **Open the admin app once on each phone that should get alerts** (older alert settings stop with that update) | 1 min | right after the deploy |
+| O50 | **Phase 05 checks on staging** — `owner/PHASE_TESTING_GUIDE.md` → Phase 05, rows **5.1–5.22** (UPI change-lock, drives, chanda, needy people, My zakat, owners only). Includes **O28** below (₹1 test) | 60 min | after the deploy |
+| O28 | **₹1 UPI test** from Donate Now and from a saved QR, on Android and iPhone, to **your own** UPI ID (never to the fake `@okexample` ones) | 10 min | with O50 |
+
 ### Needed for photos and voice notes on staging
 
 | # | What | Time | When |
@@ -82,7 +94,6 @@
 
 | # | What | Time | When |
 |---|---|---|---|
-| O28 | **A UPI ID for a ₹1 test** (your own or a masjid's; a business/merchant UPI ID is best for real masjids) | 5 min | Phase 05 |
 | O29 | **Qibla check** — compare the arrow with a masjid's mihrab direction on one Android and one iPhone | 10 min | Phase 07 |
 
 ### Before the pilot launch
@@ -106,13 +117,11 @@
 | O6 | 0.18 Sentry error reporting (steps below) — **required before the pilot** (audit 11 Nov 2026) | 15 min | before pilot |
 | O40 | **GitHub repository is public** — decide: make it private, or keep it public and let Claude Code move the `owner/` notes (host names, SSH user name) out. Check first what private changes on your GitHub plan (deploy approvals) | 10 min | before pilot |
 | O41 | **Second Super Admin passkey** on another phone (Account → Add device) and **a backup person for grievances** | 15 min | before pilot |
-| O43 | **Atlas roles for Phase 05** — needy people add two collections and a view. Before Phase 05 is deployed to staging: apply the new `infra/mongo/atlas-roles.json` in Atlas (same steps as O36), then run `deploy.sh staging --verify-roles` — it must PASS. Claude Code tells you when | 15 min | before Phase 05 on staging |
 | O44 | **Two answers for Claude Code** — (a) Your Super Admin phone keeps getting alerts for **30 days** after you last opened the admin app on it; signing out stops them at once. OK, or a shorter time? (b) After paying a needy person, the app asks "Log this in My zakat?" **only if the masjid marked that person zakat-eligible**. OK, or should it ask for every person? | 2 min | any time |
 | ~~O47~~ | ✅ **Solved 12 Nov 2026** — billing was fine (public repository: CI is free, $0 billed). GitHub had left jobs queued; Claude Code started a fresh run with an empty commit and every job got a machine. | – | – |
 | ~~O46~~ | ✅ **Answered 12 Nov 2026: yes to (a)–(d)** (DECISIONS #161). (a) built the same day; (b) comes with Phase 8 moderation; (c) Phase 9 | – | – |
 | O48 | **Cloudflare purge token for the worker (staging, later production)** — deleted posts' photos and bayan thumbnails are now removed 180 days later and purged from Cloudflare (DECISIONS #164). Check that `CF_API_TOKEN_PURGE` in `/etc/masjid-connect/staging/worker.env` is a real token (Cloudflare → My Profile → API Tokens → Create → permission **Zone · Cache Purge · Purge**, zone almasjids.com) and `CF_ZONE_ID` is the zone's id (Cloudflare → almasjids.com → Overview, right side). Never paste the token into chat. Nothing is due for purging before May 2027, so no rush | 10 min | before May 2027 |
 | O49 | **Phase 06 checks (bayans) on staging** — after Phases 05 + 06 reach staging: from your phone paste a real link of an **Unlisted** video on a channel you control and publish it as **Sisters only**, and a Public one as **Everyone**; a brothers phone must see only the second; play it on a weak network. Steps: `owner/PHASE_TESTING_GUIDE.md` → Phase 06 | 20 min | after Phase 06 is on staging |
-| O45 | **Open the admin app once on each phone that should get alerts** — after Phase 05 is on staging (Claude Code tells you). Older alert settings stop working with that update; opening the app switches them on again | 1 min | before the alert checks of O38 on the new version |
 | O42 | **Independent penetration test** — hire a person or firm that did not build the app; send Claude Code the findings | depends | before pilot |
 
 ### Done since the last update

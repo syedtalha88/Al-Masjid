@@ -2696,7 +2696,7 @@ T5.7 pass the 4-locale admin screenshots found two display bugs (Urdu amounts, a
   migration.
 - **Urdu amounts (T5.7 screenshots):** after Urdu words the bidi algorithm turned "₹12,500" into "12,500₹" and "25%"
   into "%25". The ICU layer now wraps every string argument in a first-strong isolate (U+2068…U+2069) in Urdu —
-  numbers, times and Latin names keep their order, Urdu names stay right to left; invisible, baselines unchanged.
+  numbers, times and Latin names keep their order, Urdu names stay right to left. (Correction 13 Nov 2026: the Urdu visual baselines did change — the 0.2 % pixel threshold could not see the moved ₹ sign; they were re-taken and checked by eye at the Phase 05 close-out.)
   Inline percentages outside sentences are `<bdi dir="ltr">`.
 - **Telugu C4:** the "On hold — goes live …" tag overflowed its card; `Tag` gains `wrap` for sentence-length text.
 **Not fixed now — reasons, and the owner's call where marked:**

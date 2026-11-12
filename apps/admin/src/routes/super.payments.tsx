@@ -130,6 +130,23 @@ function RequestCard({ row }: { readonly row: SuperPaymentRow }) {
         />
         <Details label={t('payments.new')} vpa={row.vpa} payee={row.payeeName} none="" highlight />
       </div>
+      {row.history.length > 0 ? (
+        <section className="flex flex-col gap-1" data-payment-history>
+          <h3 className="type-footnote text-text-secondary">{t('payments.history')}</h3>
+          <ul className="flex flex-col gap-1">
+            {row.history.map((entry) => (
+              <li key={`${entry.vpa}-${entry.at}`} className="type-callout text-text">
+                <bdi dir="ltr">{entry.vpa}</bdi>
+                {' · '}
+                <bdi dir="auto">{entry.payeeName}</bdi>
+                <span className="block type-caption text-text-secondary">
+                  {t(`payments.historyStatus.${entry.status}`, { date: format.date(new Date(entry.at), 'medium') })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       {row.note ? (
         <div>
           <p className="type-footnote text-text-secondary">{t('payments.note')}</p>

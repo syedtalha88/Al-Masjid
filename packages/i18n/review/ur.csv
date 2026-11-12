@@ -1783,6 +1783,9 @@ super,payments.stop,Stop this change,یہ تبدیلی روکیں,no
 super,payments.rejectTitle,Turn down this change?,یہ تبدیلی نامنظور کریں؟,no
 super,payments.rejectReason,Reason (the masjid sees it),وجہ (مسجد اسے دیکھے گی),no
 super,payments.rejected,Turned down. The masjid was told.,نامنظور کیا۔ مسجد کو بتا دیا گیا۔,no
+super,payments.history,Earlier UPI details,پہلے کی UPI تفصیلات,no
+super,payments.historyStatus.superseded,Was live until {date},{date} تک نافذ تھی,no
+super,payments.historyStatus.rejected,Not approved · {date},منظور نہیں · {date},no
 templates,no_water_time_range.title,No water supply,پانی کی فراہمی بند,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} سے {hours_end} تک پانی دستیاب نہیں ہوگا۔,no
 templates,electricity_cut_time_range.title,Power cut,بجلی بند,no

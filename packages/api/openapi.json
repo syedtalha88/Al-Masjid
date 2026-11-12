@@ -5298,6 +5298,36 @@
           },
           "current": {
             "$ref": "#/components/schemas/LivePayment"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "vpa": {
+                  "type": "string"
+                },
+                "payeeName": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "superseded",
+                    "rejected"
+                  ]
+                },
+                "at": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "vpa",
+                "payeeName",
+                "status",
+                "at"
+              ]
+            }
           }
         },
         "required": [
@@ -5308,7 +5338,8 @@
           "requestedAt",
           "masjid",
           "requestedBy",
-          "current"
+          "current",
+          "history"
         ]
       },
       "PaymentApproved": {

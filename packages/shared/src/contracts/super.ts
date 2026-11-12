@@ -264,6 +264,18 @@ export const superPaymentRowSchema = paymentRequestRowSchema
     requestedBy: z.object({ id: z.string(), displayName: z.string() }),
     /** The details live now (old vs new side by side); `null` for a masjid's first UPI details. */
     current: livePaymentSchema.nullable(),
+    /**
+     * 07 C4 "history": the masjid's earlier details and refused requests, newest first (at most 5) — a masjid that
+     * keeps changing its UPI ID, or was refused before, is worth a second look.
+     */
+    history: z.array(
+      z.object({
+        vpa: z.string(),
+        payeeName: z.string(),
+        status: z.enum(['superseded', 'rejected']),
+        at: z.string(),
+      }),
+    ),
   })
   .meta({ id: 'SuperPaymentRow' });
 export type SuperPaymentRow = z.infer<typeof superPaymentRowSchema>;

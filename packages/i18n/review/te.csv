@@ -1783,6 +1783,9 @@ super,payments.stop,Stop this change,ఈ మార్పును ఆపండ�
 super,payments.rejectTitle,Turn down this change?,ఈ మార్పును తిరస్కరించాలా?,no
 super,payments.rejectReason,Reason (the masjid sees it),కారణం (మసీదు దీన్ని చూస్తుంది),no
 super,payments.rejected,Turned down. The masjid was told.,తిరస్కరించాం. మసీదుకు తెలియజేశాం.,no
+super,payments.history,Earlier UPI details,మునుపటి UPI వివరాలు,no
+super,payments.historyStatus.superseded,Was live until {date},{date} వరకు అమలులో ఉంది,no
+super,payments.historyStatus.rejected,Not approved · {date},ఆమోదించబడలేదు · {date},no
 templates,no_water_time_range.title,No water supply,నీటి సరఫరా నిలిపివేత,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.,no
 templates,electricity_cut_time_range.title,Power cut,విద్యుత్ నిలిపివేత,no

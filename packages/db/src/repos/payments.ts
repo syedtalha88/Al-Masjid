@@ -94,12 +94,24 @@ export async function getAdminPayment(
   return { active: active ? liveOf(active) : null, request: request ? requestOf(request) : null };
 }
 
+export interface PaymentHistoryEntry {
+  readonly vpa: string;
+  readonly payeeName: string;
+  readonly status: 'superseded' | 'rejected';
+  readonly at: string;
+}
+
 export interface SuperPaymentRow extends PaymentRequestRow {
   readonly masjid: { readonly id: string; readonly name: string; readonly city: string };
   readonly requestedBy: { readonly id: string; readonly displayName: string };
   /** The details live now — C4 shows old and new side by side. */
   readonly current: LivePayment | null;
+  /** 07 C4: earlier details and refused requests of the masjid, newest first (≤ {@link HISTORY_MAX}). */
+  readonly history: PaymentHistoryEntry[];
 }
+
+/** History entries C4 shows per request. */
+const HISTORY_MAX = 5;
 
 /** Most open requests C4 lists at once (oldest first). */
 const QUEUE_MAX = 100;
@@ -121,11 +133,28 @@ export async function listOpenPayments(handle: DbHandle, scope: Scope): Promise<
   if (open.length === 0) return { requests: [] };
   const masjidIds = open.map((doc) => doc['masjid_id'] as UUID); // UUIDs by schema
   const adminIds = open.map((doc) => doc['requested_by'] as UUID);
-  const [masjids, admins, live] = await Promise.all([
+  const [masjids, admins, live, past] = await Promise.all([
     scoped(ctx, 'masjids').find({ _id: { $in: masjidIds } }),
     scoped(ctx, 'admin_users').find({ _id: { $in: adminIds } }),
     scoped(ctx, 'payment_profiles').find({ masjid_id: { $in: masjidIds }, status: 'active' }),
+    scoped(ctx, 'payment_profiles').find(
+      { masjid_id: { $in: masjidIds }, status: { $in: ['superseded', 'rejected'] } },
+      { sort: { updated_at: -1 }, limit: QUEUE_MAX * HISTORY_MAX },
+    ),
   ]);
+  const historyOf = new Map<string, PaymentHistoryEntry[]>();
+  for (const doc of past) {
+    const key = idText(doc['masjid_id'] as UUID); // a UUID by schema
+    const list = historyOf.get(key) ?? [];
+    if (list.length >= HISTORY_MAX) continue;
+    list.push({
+      vpa: need(doc, 'vpa'),
+      payeeName: need(doc, 'payee_name'),
+      status: doc['status'] as PaymentHistoryEntry['status'], // the filter above
+      at: iso(doc, 'updated_at') ?? new Date(0).toISOString(),
+    });
+    historyOf.set(key, list);
+  }
   const byId = (docs: Document[]) => new Map(docs.map((doc) => [idText(doc['_id'] as UUID), doc])); // UUIDs by schema
   const masjidMap = byId(masjids);
   const adminMap = byId(admins);
@@ -145,6 +174,7 @@ export async function listOpenPayments(handle: DbHandle, scope: Scope): Promise<
         },
         requestedBy: { id: adminId, displayName: text(adminMap.get(adminId) ?? {}, 'display_name') ?? '' },
         current: current ? liveOf(current) : null,
+        history: historyOf.get(masjidId) ?? [],
       };
     }),
   };

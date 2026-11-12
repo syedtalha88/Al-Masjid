@@ -1783,6 +1783,9 @@ super,payments.stop,Stop this change,यह बदलाव रोकें,no
 super,payments.rejectTitle,Turn down this change?,यह बदलाव नामंज़ूर करें?,no
 super,payments.rejectReason,Reason (the masjid sees it),कारण (मस्जिद इसे देखेगी),no
 super,payments.rejected,Turned down. The masjid was told.,नामंज़ूर किया। मस्जिद को बता दिया गया।,no
+super,payments.history,Earlier UPI details,पहले के UPI विवरण,no
+super,payments.historyStatus.superseded,Was live until {date},{date} तक लागू था,no
+super,payments.historyStatus.rejected,Not approved · {date},मंज़ूर नहीं · {date},no
 templates,no_water_time_range.title,No water supply,पानी की आपूर्ति बंद,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} से {hours_end} तक पानी उपलब्ध नहीं रहेगा।,no
 templates,electricity_cut_time_range.title,Power cut,बिजली कटौती,no

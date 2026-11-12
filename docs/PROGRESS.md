@@ -12,7 +12,7 @@
 | 02 | Musalli app core (follow, timings, feed, offline, install) | **DONE** (owner tested the Phase 02 checks on staging `cdd39fa`, incl. a low-end device, 27 Oct 2026) | [final](reports/PHASE_02_REPORT.md) | 27 Oct 2026 |
 | 03 | Masjid Admin content tools | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`, with Phase 04); O39 PASS + O27 OK (10 Nov 2026); left: O25 rest (photos 3.7 / voice 3.14) + O26 (usability) — #150 | [report](reports/PHASE_03_REPORT.md) | – |
 | 04 | Push notifications | **AWAITING OWNER VERIFICATION** — on staging since 9 Nov 2026 (`863e064`); T4.6 acceptance = the owner's O38 (real phones) | [report](reports/PHASE_04_REPORT.md) | – |
-| 05 | Donations, chanda & UPI change-lock | **IN PROGRESS** (T5.1 – T5.6, T5.8, T5.9 done; T5.7 quality gates left) — started 9 Nov 2026 on `feat/phase-05` while Phases 03 + 04 await the owner's checks (DECISIONS #145) | – | – |
+| 05 | Donations, chanda & UPI change-lock | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): CI green on `997a914`, phase-verifier findings fixed, security re-review clean. Waiting: O43 → merge to `main` / staging → O45 → O50 (guide 5.1–5.22) + O28 | [final](reports/PHASE_05_REPORT.md) | – |
 | 06 | Bayan videos | **IN PROGRESS** — started 13 Nov 2026 on `feat/phase-06` (autopilot, DECISIONS #162): T6.1 + T6.2 server done | – | – |
 | 07 | Qibla compass | NOT STARTED | – | – |
 | 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
@@ -549,6 +549,9 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O44 | **Two answers (12 Nov 2026):** (a) #159 — the Super Admin's phone keeps getting alerts for **30 days** after the admin app was last used on it (sign-out stops them at once): OK, or shorter? (b) #158 — "Log this in My zakat?" is asked only after paying a person the masjid marked **zakat-eligible**: OK, or ask for everyone? | F65 / T5.9 defaults stand until answered | 2 answers | open — not blocking |
 | ~~O47~~ | GitHub Actions jobs stayed queued (12 Nov 2026) — **solved**: billing fine (public repo, $0); an empty commit `a6f2969` on `main` started a fresh run that got machines | – | – | ✅ 12 Nov 2026 |
 | ~~O46~~ | Phase 05 security decisions (#160) — **owner: yes to (a)–(d)** → DECISIONS #161 | – | – | ✅ 12 Nov 2026 |
+| O48 | Real Cloudflare **Cache Purge** token + zone id in the staging worker env (#164) | deleted posts' media purge | 10 min | before May 2027 |
+| O49 | **Phase 06 checks** on staging (guide Phase 06 — real Unlisted / Public links, sisters only, weak network) | Phase 06 exit | 20 min | after Phase 06 is on staging |
+| O50 | **Phase 05 checks** on staging (guide 5.1–5.22) with the ₹1 test O28 | Phase 05 exit | 60 min | after O43 + deploy |
 | O45 | **Open the admin app once on each phone that should get alerts** (after Phase 05 is on staging) | F65: older alert subscriptions are no longer used; opening the app links the phone again | 1 min | before O38's alert checks on the Phase 05 build |
 | O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | Phase 07 (map-tile decision dropped — #118) |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
@@ -756,7 +759,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   checked (no write, nothing about zakat in any URL) and Clear all data removes it ✔ · notice in 4 locales (axe clean,
   Urdu mirrored, screenshots) ✔ · the zakat step in `e2e/admin/needy.spec.ts` ✔. `pnpm test:visual` 24/24 (Settings
   × 8 updated). App unit 228; `pnpm size` green (app initial JS 188.7 / 189 kB).
-- [ ] T5.7 — Quality gates — **in progress 12 Nov 2026.** Done: admin Phase 05 screens × 4 locales in
+- [x] T5.7 — Quality gates — **done 13 Nov 2026** (see the report). Was in progress 12 Nov 2026: Done: admin Phase 05 screens × 4 locales in
   `e2e/admin/screens.spec.ts` (B8 UPI setup / waiting / change, drives, update sheet, new drive, B9, B19 list /
   received / new / empty, C1 with change requests, C4 pending and on hold — axe clean, Urdu mirrored; Delta's data
   for the full screens); they found two display bugs, fixed (#160: Urdu amounts, Telugu tag). Security review run:
@@ -771,6 +774,11 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   (`push-pipeline.int`), campaign PATCH with fixed fields → 400, templates + item pages in the `private_enc` sweep.
   **13 Nov:** owner answered O46 (yes a–d) → F69 built (#161, `997a914`); security re-review 0 HIGH / 0 MEDIUM, its
   3 LOW + nit fixed; db 376, api int 399 (+ the known Windows worker crash, re-run green). CI for `997a914` running.
+  **Close-out 13 Nov:** CI run 43134964131 on `997a914` all green; phase-verifier (2nd run) FAIL → fixed: Urdu visual
+  baselines re-taken (they still showed "12,500₹"), C4 "history" built (last 5 earlier / refused details), e2e
+  `payment-owners.spec.ts` (editor view, request stopped by a signed-out session) + screenshots, `db:schema:check` ✅
+  at 0022, "Sign out on every device" now stops a request too (reason `revoked_by_admin`), report final, owner block
+  O43 → O45 → O50 + O28.
 
 ### Phase 06 — started 13 Nov 2026 (owner's autopilot rule, DECISIONS #162; branch `feat/phase-06` on top of `feat/phase-05`)
 

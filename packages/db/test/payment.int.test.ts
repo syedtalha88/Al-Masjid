@@ -430,6 +430,9 @@ describe('reads (B8 status, C4 queue)', () => {
       masjid: { name: expect.any(String) as string },
       current: null,
     });
+    // 07 C4 history: Beta's request refused earlier in this file is shown with the new one.
+    expect(beta?.history).toEqual([expect.objectContaining({ status: 'rejected', vpa: expect.any(String) as string })]);
+    expect(requests.every((row) => row.history.length <= 5)).toBe(true);
     expect(requests.every((row) => row.status === 'pending' || row.status === 'approved_on_hold')).toBe(true);
     expect(await code(listOpenPayments(as('admin'), adminOf(BETA)))).toBe('FORBIDDEN');
   });

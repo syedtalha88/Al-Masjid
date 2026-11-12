@@ -1,20 +1,21 @@
 # PHASE 05 REPORT — Donations, chanda & UPI change-lock
 
-> **Status: DRAFT — T5.7 (quality gates) in progress.** Not deployed. Phase 05 goes to staging only after Phases 03 + 04
-> are verified, or with the owner's OK, and after **O43** (Atlas roles) — DECISIONS #145.
+> **Status: FINAL — DONE on our side, owner checks pending (DECISIONS #162).** Not deployed: Phases 05 + 06 reach
+> staging when they are merged into `main`, which waits for **O43** (Atlas roles — the needy-people collections need
+> them; `main` deploys to staging automatically). Then O45, guide checks 5.1–5.22 and the ₹1 UPI test (O50, O28).
 >
 > What the owner should know first:
 > - Your security decisions (O46) are answered — yes to all (DECISIONS #161): UPI changes by owners only with every
->   owner alerted is built (F69); QR-in-photo refusal comes with Phase 8 moderation (F68); worker-only live UPI details
->   with Phase 9 hardening (F70).
-> - Per your rule of 12 Nov (DECISIONS #162) the phase closes when our checks pass; your manual checks are listed in
->   `owner/MY_PENDING_TASKS.md`.
-> - A real ₹1 payment from Donate Now and from a saved QR, on Android and iPhone, is yours (**O28** + guide checks
->   5.5–5.7) — test browsers have no UPI app.
+>   owner alerted is built and re-reviewed (F69); QR-in-photo refusal comes with Phase 8 moderation (F68); worker-only
+>   live UPI details with Phase 9 hardening (F70).
+> - A real ₹1 payment from Donate Now and from a saved QR, on Android and iPhone, is yours (O28) — test browsers have
+>   no UPI app.
 
-**Date:** 12 Nov 2026 · **Commit range:** `863e064..feat/phase-05` (57 commits, started 9 Nov 2026 — #145) ·
-**Staging:** not deployed (release `13d1031` / Phases 03 + 04 there) · **CI:** `ci/phase-05` = `d3c4379`, run in
-progress at this draft.
+**Date:** 13 Nov 2026 · **Commits:** `863e064..feat/phase-05` (`997a914`) plus the close-out fixes on `feat/phase-06`
+(Urdu baselines, C4 history, owner-only e2e, sign-out-everywhere) · **Staging:** not deployed (O43) · **CI:** run
+43134964131 on `997a914` — every job green (typecheck · lint · format · i18n; unit + coverage gates; integration +
+db tests; security scans; build · budgets · images · e2e Pixel 7 + iPhone 14 · admin e2e · motion perf · Lighthouse
+· visual).
 
 ## 1. Summary
 
@@ -39,7 +40,7 @@ keep a personal zakat tracker that never leaves the phone.
 | T5.6 Integration polish | ✅ | Updates chips, push texts, Super stats | visual baselines updated (#154) |
 | T5.8 Needy people | ✅ | `db/src/state/beneficiary.ts`, B19 `/needy`, A23 | db `beneficiaries.int` 19, api `beneficiary-routes.int` (private part in no public response), e2e `needy.spec.ts` |
 | T5.9 My zakat | ✅ | `apps/app/src/features/zakat/*`, device document `zakat` | `zakat.test.ts` 12, e2e `zakat.spec.ts` (network assertion, Clear all data, 4 locales) |
-| T5.7 Quality gates | ⏳ | `e2e/admin/screens.spec.ts` (Phase 05 screens ×4) | see §3 — open: `pnpm verify`, phase-verifier, owner O46 |
+| T5.7 Quality gates | ✅ | `e2e/admin/screens.spec.ts` (Phase 05 screens ×4), `e2e/admin/payment-owners.spec.ts` | §3 |
 
 ## 3. Verification results
 
@@ -47,15 +48,15 @@ keep a personal zakat tracker that never leaves the phone.
 |---|---|---|
 | Typecheck / lint / format | ✅ local | 0 warnings |
 | Unit + component | ✅ local | app 228 · admin 166 · ui 332 · i18n 206 · domain 220 (100 % gate) |
-| DB policy matrix + privileges | ✅ local | `pnpm db:test` 371 |
+| DB policy matrix + privileges | ✅ local + CI | `pnpm db:test` 376; `db:schema:check` ✅ on a database at 0022 |
 | API integration | ✅ local | 372 |
 | E2E (Pixel 7, local, 12 Nov) | ✅ | admin screens ×4 locales, zakat 6, campaigns, needy (25/25); journey 9 part 2 (`payment.spec.ts`) re-run after #160 — see the T5.7 checklist; iPhone 14 / WebKit only on CI (pending) |
 | Accessibility (axe) | ✅ | every Phase 05 screen in en / hi / ur / te: 0 violations |
-| Visual regression | ✅ | `pnpm test:visual` 24/24 (key screens × 4 locales × 2 phones) |
+| Visual regression | ✅ | `pnpm test:visual` 24/24; Urdu baselines re-taken 13 Nov (₹ now before the digits) — #160's "baselines unchanged" was wrong |
 | Bundle budgets | ✅ | app initial JS 188.7 / 189 kB (raised 188 → 189, #157 — owner rule "quality over budgets"); QR generator lazy |
-| Lighthouse / motion | ⏳ | CI |
-| phase-verifier | ❌ → fixing (12 Nov) | FAIL on: T5.7 open, journey 9 stale after #160, Urdu time "AM 1:24" on C4 / B8 (fixed: LTR isolate + unit test), T5.4 evidence (now §4), report gaps (fixed). Open: `pnpm verify`, CI, owner O28 / O46 |
-| security-reviewer | 0 HIGH · 4 MEDIUM (3 fixed, 1 half) · 11 LOW | DECISIONS #160 — see §6 |
+| Lighthouse / motion | ✅ CI | run 43134964131 (local runs on this PC miss the cold-LCP budget by ~0.35 s — CI is the gate) |
+| phase-verifier | ✅ after fixes (13 Nov) | 12 Nov FAIL → fixed (Urdu time, journey 9, report). 13 Nov FAIL on: stale Urdu visual baselines (they still showed "12,500₹" — the 0.2 % pixel threshold could not see the moved sign; re-taken and checked by eye), C4 history missing (built), no test for the B8 editor view / stopped request (e2e `payment-owners.spec.ts` + screenshots), `db:schema:check` (✅ on 0022), report + owner list (done) |
+| security-reviewer | ✅ | #160: 0 HIGH · 4 MEDIUM (fixed) · 11 LOW; #161 re-review of R1: 0 HIGH · 0 MEDIUM · 3 LOW + nit, all fixed — see §6 for the LOWs kept |
 
 ## 4. Screenshots
 
@@ -96,8 +97,18 @@ screen 12, `ref-3…png` screen 13 and `e2e/visual/__screenshots__/visual-pixel-
 - "Log this in My zakat?" only for zakat-eligible people (#158, O44); Super Admin alerts reach the phone for 30 days
   after its last use, admins' end with the session (#159, O44).
 - App initial JS budget 188.7 / **189 kB** (raised during this phase, #157; 01 §9's original target is 170 kB).
+- UPI change requests by masjid **owners** only, every owner alerted, a request stops with its admin (#161) — beyond
+  the phase file, the owner's choice.
+- C4 shows the masjid's last 5 earlier / refused UPI details as its "history" (07 C4) — added at close-out.
 
 ## 6. Known limitations / follow-ups
+
+**LOW findings kept on R1 paths (accepted risk, with reasons):** L4 (#160) — the Super Admin's request alert is
+best-effort; C1 lists every open change request, so a lost alert never hides one. L7 — the needy-person ciphertext's
+associated data does not name the person; only a database-level writer could swap two ciphertexts of the same masjid,
+and that writer could change far more (F70, Phase 9). L9 — one raw read in `repos/beneficiaries.ts` (own masjid
+checked, `_id` only); the lint rule against raw reads comes with F70. L5 — `mc_admin` can technically write
+`payment_profiles`; the worker-only live-details collection is F70 (owner-accepted for Phase 9).
 
 From the security review (#160), not fixed in this phase: **F67** CDN purge when a needy person leaves (Phase 8) ·
 **F68** refuse photos that contain a QR code (accepted, Phase 8 with moderation) · **F70** live UPI details writable

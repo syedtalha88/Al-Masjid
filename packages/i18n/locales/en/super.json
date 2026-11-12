@@ -333,6 +333,11 @@
     "stop": "Stop this change",
     "rejectTitle": "Turn down this change?",
     "rejectReason": "Reason (the masjid sees it)",
-    "rejected": "Turned down. The masjid was told."
+    "rejected": "Turned down. The masjid was told.",
+    "history": "Earlier UPI details",
+    "historyStatus": {
+      "superseded": "Was live until {date}",
+      "rejected": "Not approved · {date}"
+    }
   }
 }
