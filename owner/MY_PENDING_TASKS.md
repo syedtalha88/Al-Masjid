@@ -62,8 +62,8 @@
 
 | # | What | Time | When |
 |---|---|---|---|
-| O43 | **Atlas roles for Phase 05** — apply the new `infra/mongo/atlas-roles.json` in Atlas (same steps as O36), then `deploy.sh staging --verify-roles` → must PASS. **This unblocks merging Phases 05 + 06 into `main`** (main deploys to staging automatically). Tell Claude Code "O43 done" | 15 min | now |
-| – | Claude Code merges Phases 05 + 06 into `main` → staging deploys itself; it tells you the release | – | after O43 |
+| ~~O43~~ | ✅ **Done by you 13 Nov 2026** — Claude Code verifies it on the next staging deploy (`main` `402e7f8`: the needy-people endpoints must answer). If it cannot confirm, it asks you for the `deploy.sh staging --verify-roles` output | – | – |
+| – | ✅ Phases 05 + 06 merged into `main` (13 Nov 2026); staging deploys when CI is green — Claude Code tells you the release | – | – |
 | O45 | **Open the admin app once on each phone that should get alerts** (older alert settings stop with that update) | 1 min | right after the deploy |
 | O50 | **Phase 05 checks on staging** — `owner/PHASE_TESTING_GUIDE.md` → Phase 05, rows **5.1–5.22** (UPI change-lock, drives, chanda, needy people, My zakat, owners only). Includes **O28** below (₹1 test) | 60 min | after the deploy |
 | O28 | **₹1 UPI test** from Donate Now and from a saved QR, on Android and iPhone, to **your own** UPI ID (never to the fake `@okexample` ones) | 10 min | with O50 |

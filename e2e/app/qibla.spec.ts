@@ -15,16 +15,18 @@ const DELTA = { lat: 18.9535, lng: 72.8336 }; // Test Masjid Delta (dev seed, Mu
 const HERE = { latitude: 28.6139, longitude: 77.209 }; // the mocked phone: Delhi
 const screen = (page: Page) => page.locator('section[data-screen]:not([inert])');
 
-/** A `deviceorientationabsolute` reading (Android rule: heading = 360 − alpha). */
+/** One reading for either platform (Android: absolute alpha = 360 − heading; iOS: webkitCompassHeading). */
 async function headingTo(page: Page, heading: number) {
-  await page.evaluate(
-    (alpha) => {
-      const event = new Event('deviceorientationabsolute');
-      Object.assign(event, { alpha, beta: 0, gamma: 0, absolute: true });
-      window.dispatchEvent(event);
-    },
-    (360 - heading) % 360,
-  );
+  await page.evaluate((value) => {
+    // Android / Chromium: an absolute alpha (counter-clockwise).
+    const absolute = new Event('deviceorientationabsolute');
+    Object.assign(absolute, { alpha: (360 - value) % 360, beta: 0, gamma: 0, absolute: true });
+    window.dispatchEvent(absolute);
+    // iOS / WebKit: `webkitCompassHeading` on a relative event (ignored by the Android rule).
+    const ios = new Event('deviceorientation');
+    Object.assign(ios, { alpha: 0, beta: 0, gamma: 0, absolute: false, webkitCompassHeading: value });
+    window.dispatchEvent(ios);
+  }, heading);
 }
 
 async function openQibla(page: Page) {
