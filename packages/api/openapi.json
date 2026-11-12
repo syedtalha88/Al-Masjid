@@ -7515,12 +7515,13 @@
                             "type": "object",
                             "properties": {
                               "youtubeId": {
-                                "type": "string"
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9_-]{11}$"
                               },
                               "startS": {
                                 "type": "integer",
-                                "minimum": -9007199254740991,
-                                "maximum": 9007199254740991
+                                "minimum": 0,
+                                "maximum": 86400
                               },
                               "speaker": {
                                 "type": "string"
@@ -8541,12 +8542,13 @@
                           "type": "object",
                           "properties": {
                             "youtubeId": {
-                              "type": "string"
+                              "type": "string",
+                              "pattern": "^[A-Za-z0-9_-]{11}$"
                             },
                             "startS": {
                               "type": "integer",
-                              "minimum": -9007199254740991,
-                              "maximum": 9007199254740991
+                              "minimum": 0,
+                              "maximum": 86400
                             },
                             "speaker": {
                               "type": "string"
@@ -11122,12 +11124,13 @@
                                 "type": "object",
                                 "properties": {
                                   "youtubeId": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]{11}$"
                                   },
                                   "startS": {
                                     "type": "integer",
-                                    "minimum": -9007199254740991,
-                                    "maximum": 9007199254740991
+                                    "minimum": 0,
+                                    "maximum": 86400
                                   },
                                   "speaker": {
                                     "type": "string"

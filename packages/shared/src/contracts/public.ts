@@ -431,10 +431,14 @@ export const feedItemSchema = z.object({
   ),
   /** A `chanda_update`: the week and its total as the masjid reported it (DECISIONS #152). */
   chanda: z.optional(z.object({ weekStart: calendarDate, amountPaise: z.int() })),
+  /**
+   * A bayan (07 A12): the id and start second as `@mc/domain/youtube` accepts them (11 characters; 0..86,400 s — 0 is
+   * stored for "from the start", #165 L10), so a bad value is refused here, never thrown by the player.
+   */
   video: z.optional(
     z.object({
-      youtubeId: z.string(),
-      startS: z.optional(z.int()),
+      youtubeId: z.string().check(z.regex(/^[A-Za-z0-9_-]{11}$/, { error: 'must be a YouTube video id' })),
+      startS: z.optional(z.int().check(z.minimum(0), z.maximum(86_400))),
       speaker: z.optional(z.string()),
       thumb: mediaImageSchema,
     }),

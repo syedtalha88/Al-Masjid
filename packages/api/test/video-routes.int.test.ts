@@ -19,6 +19,7 @@ import { createLogger } from '../src/logger.ts';
 import type { CdnPurger } from '../src/media/cdn-purge.ts';
 import { fileMediaStore, type MediaStore } from '../src/media/store.ts';
 import { MOCK_FAILING_ID, MOCK_UNAVAILABLE_IDS, mockVideoLookup, type VideoLookup } from '../src/video/youtube.ts';
+import { captureLogger } from './helpers.ts';
 import { CSRF, superHarness } from './super-harness.ts';
 
 const ID = 'AbC_123-xYz';
@@ -41,8 +42,11 @@ const extra = {
     origin: 'https://media.test',
   },
 };
+// Every line the app and the routes log, at debug level and without redaction (PHASE_06 T6.2: the link never in logs).
+const logs = captureLogger();
 const harness = superHarness('video_routes', new Date('2026-11-13T06:30:00Z'), extra, {
   rateLimiter: memoryRateLimiter({ adminUploads: { points: 30, durationSec: 3600 } }),
+  logger: logs.logger,
 });
 const { app, asSuper, register, testDatabase, clock } = harness;
 
@@ -278,5 +282,15 @@ describe('B10 bayans', () => {
       status = (await call('post', '/preview').send({ url: valid.url })).status;
     }
     expect(status).toBe(429);
+  });
+
+  it('the pasted link, its id and its share token never reach a log line (PHASE_06 T6.2)', () => {
+    const lines = logs.lines().map((line) => JSON.stringify(line));
+    expect(lines.length).toBeGreaterThan(20); // every request above was logged
+    for (const line of lines) {
+      expect(line).not.toContain(ID);
+      expect(line).not.toContain('Shar3Token');
+      expect(line).not.toMatch(/youtu\.?be/u);
+    }
   });
 });

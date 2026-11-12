@@ -64,6 +64,32 @@ describe('public contracts', () => {
     expect(feedItemSchema.safeParse({ ...item, type: 'gossip' }).success).toBe(false);
   });
 
+  it('bayan video: an 11-character id and a start second within 0..86,400 (Phase 06 verifier)', () => {
+    const video = { youtubeId: 'Shar3Token1', thumb: { key: 'k' } };
+    const bayan = (patch: Record<string, unknown>) => ({
+      publicId: 'seedA0000002',
+      masjidId: ID,
+      type: 'video',
+      audience: 'everyone',
+      isImportant: false,
+      publishedAt: '2026-10-22T04:30:00.000Z',
+      video: { ...video, ...patch },
+    });
+    for (const ok of [{}, { startS: 0 }, { startS: 86_400 }, { youtubeId: 'a-b_C123456' }]) {
+      expect(feedItemSchema.safeParse(bayan(ok)).success, JSON.stringify(ok)).toBe(true);
+    }
+    for (const bad of [
+      { youtubeId: 'short' },
+      { youtubeId: 'Shar3Token12' },
+      { youtubeId: 'Shar3Token"' },
+      { startS: -1 },
+      { startS: 86_401 },
+      { startS: 1.5 },
+    ]) {
+      expect(feedItemSchema.safeParse(bayan(bad)).success, JSON.stringify(bad)).toBe(false);
+    }
+  });
+
   it('template parameter values: text, numbers and ranges', () => {
     expect(templateParamValueSchema.safeParse('10:00').success).toBe(true);
     expect(templateParamValueSchema.safeParse(3).success).toBe(true);

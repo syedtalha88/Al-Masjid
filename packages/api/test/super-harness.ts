@@ -9,6 +9,7 @@ import { buildDevSeed } from '@mc/db/seed';
 import { registerCredential } from '@mc/db/state';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '@mc/db/testing';
 import { ManualClock } from '@mc/shared/clock';
+import type { Logger } from 'pino';
 import request from 'supertest';
 import { afterAll, beforeAll } from 'vitest';
 
@@ -35,8 +36,11 @@ export function superHarness(
   extra: Partial<
     Pick<AdminRouteDeps, 'alerts' | 'testAlerts' | 'notifier' | 'paymentHoldMinutes' | 'media' | 'video'>
   > = {},
-  /** A rate limiter kept across requests (a test of a limit); a fresh, empty one per request otherwise. */
-  options: { readonly rateLimiter?: RateLimiter } = {},
+  /**
+   * `rateLimiter`: kept across requests (a test of a limit); a fresh, empty one per request otherwise. `logger`: for the
+   * app and the routes (a test of what is logged); silent otherwise.
+   */
+  options: { readonly rateLimiter?: RateLimiter; readonly logger?: Logger } = {},
 ) {
   const pepper = randomBytes(32);
   const keyRing: FieldKeyRing = { currentId: 'k1', keys: new Map([['k1', randomBytes(32)]]) };
@@ -60,11 +64,11 @@ export function superHarness(
       pepper,
       adminOrigin: ORIGIN,
       keyRing,
-      ...passkeyDeps(ORIGIN, clock),
+      ...passkeyDeps(ORIGIN, clock, options.logger),
       ...extra,
     });
     return createAdminApp({
-      logger: silentLogger(),
+      logger: options.logger ?? silentLogger(),
       release: 't',
       trustedProxyMode: 'none',
       adminOrigin: ORIGIN,
