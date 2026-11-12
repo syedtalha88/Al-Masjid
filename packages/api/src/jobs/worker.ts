@@ -25,6 +25,7 @@ import { processPaymentActivate } from './payments/activate.ts';
 import { processFanout, PushPausedError } from './push/fanout.ts';
 import { processSendBatch } from './push/send-batch.ts';
 import { processOutboxSweep } from './push/sweeper.ts';
+import { processReportTriage } from './reports/triage.ts';
 import { processRetention, type RetentionDeps } from './retention/run.ts';
 
 type Logger = ReturnType<typeof createLogger>;
@@ -37,6 +38,7 @@ export const DEFAULT_CONCURRENCY: Readonly<Record<JobName, number>> = {
   'push-send-batch': 4,
   'alert-send': 2,
   'outbox-sweeper': 1,
+  'report-triage': 1,
   'payment-activate': 1,
   'campaign-close': 1,
   retention: 1,
@@ -44,6 +46,7 @@ export const DEFAULT_CONCURRENCY: Readonly<Record<JobName, number>> = {
 /** Schedulers (01 §5.8), cron in India time. */
 export const SCHEDULES: readonly { readonly job: JobName; readonly pattern: string }[] = [
   { job: 'outbox-sweeper', pattern: '* * * * *' },
+  { job: 'report-triage', pattern: '* * * * *' },
   { job: 'payment-activate', pattern: '*/10 * * * *' },
   { job: 'campaign-close', pattern: '10 0 * * *' },
   { job: 'retention', pattern: '0 3 * * *' },
@@ -126,6 +129,9 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
       case 'outbox-sweeper':
         parseJobPayload(name, data);
         return processOutboxSweep({ ...common, queues });
+      case 'report-triage':
+        parseJobPayload(name, data);
+        return processReportTriage({ ...common, queues });
       case 'payment-activate':
         parseJobPayload(name, data);
         return processPaymentActivate({ ...common, queues });

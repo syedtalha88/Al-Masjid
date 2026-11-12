@@ -80,4 +80,7 @@ export const SCHEMA_AREAS: Readonly<
   // DECISIONS #161 (F69): a UPI request records the session that asked (`requested_session`) and, when closed because
   // its admin lost access, says so (`reject_code`).
   '0022_payment_reject_code': { collections: ['payment_profiles'] },
+  // PHASE_08 T8.1 (DECISIONS #170): `report-triage` marks the reports it has looked at (`triaged_at`) and records when
+  // it auto-hid an item (`hidden_at`).
+  '0023_report_triage': { collections: ['reports', 'items'] },
 };

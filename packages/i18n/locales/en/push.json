@@ -39,6 +39,14 @@
     "payment_active": {
       "title": "New UPI details are live",
       "body": "Your masjid's new UPI details are now shown to everyone, and followers were told. If you didn't ask for this, tell the Super Admin now."
+    },
+    "report_urgent": {
+      "title": "Urgent report",
+      "body": "A post or masjid was reported for personal or private information. Review it in Reports within 2 hours."
+    },
+    "report_autohide": {
+      "title": "Post hidden after many reports",
+      "body": "A post was hidden automatically because many people reported it. Review it in Reports."
     }
   }
 }

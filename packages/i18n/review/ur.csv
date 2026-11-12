@@ -1198,6 +1198,7 @@ errors,INVALID_CURSOR,This list changed. Please reload it.,یہ فہرست بد�
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,لگتا ہے آپ آف لائن ہیں۔ براہِ کرم کنکشن چیک کر کے دوبارہ کوشش کریں۔,no
 errors,ITEM_NOT_FOUND,This post is no longer available.,یہ پوسٹ اب دستیاب نہیں ہے۔,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,ہم یہ جانچ نہیں سکے کہ یہ اصلی فون ہے۔ براہِ کرم دوبارہ کوشش کریں۔,no
+errors,REPORT_TARGET_NOT_FOUND,"This is no longer shown in the app, so there is nothing to report.",یہ اب ایپ میں نہیں دکھتا، اس لیے رپورٹ کرنے کو کچھ نہیں ہے۔,no
 errors,LIBRARY_ENTRY_NOT_FOUND,This library entry no longer exists.,یہ لائبریری اندراج اب موجود نہیں ہے۔,no
 errors,LIBRARY_DUPLICATE,An entry with this kind and reference is already in the library.,اسی قسم اور حوالے والا اندراج لائبریری میں پہلے سے موجود ہے۔,no
 errors,TEMPLATE_NOT_FOUND,This template no longer exists.,یہ ٹیمپلیٹ اب موجود نہیں ہے۔,no
@@ -1397,6 +1398,10 @@ push,alert.payment_rejected.title,UPI change not approved,UPI تبدیلی من�
 push,alert.payment_rejected.body,Your UPI change was not approved. Open Payment to see why.,آپ کی UPI تبدیلی منظور نہیں ہوئی۔ وجہ دیکھنے کے لیے ادائیگی کھولیں۔,no
 push,alert.payment_active.title,New UPI details are live,نئی UPI تفصیلات نافذ,no
 push,alert.payment_active.body,"Your masjid's new UPI details are now shown to everyone, and followers were told. If you didn't ask for this, tell the Super Admin now.",آپ کی مسجد کی نئی UPI تفصیلات اب سب کو دکھ رہی ہیں اور فالوورز کو بتا دیا گیا۔ اگر آپ نے یہ درخواست نہیں کی تو ابھی سپر ایڈمن کو بتائیں۔,no
+push,alert.report_urgent.title,Urgent report,فوری رپورٹ,no
+push,alert.report_urgent.body,A post or masjid was reported for personal or private information. Review it in Reports within 2 hours.,کسی پوسٹ یا مسجد کی ذاتی یا نجی معلومات کی وجہ سے رپورٹ آئی ہے۔ 2 گھنٹے کے اندر رپورٹس میں دیکھیں۔,no
+push,alert.report_autohide.title,Post hidden after many reports,کئی رپورٹس کے بعد پوسٹ چھپا دی گئی,no
+push,alert.report_autohide.body,A post was hidden automatically because many people reported it. Review it in Reports.,کئی لوگوں نے ایک پوسٹ کی رپورٹ کی، اس لیے وہ خود بخود چھپ گئی۔ رپورٹس میں دیکھیں۔,no
 settings,language,Language,زبان,no
 settings,languageSheet,Choose your language,اپنی زبان منتخب کریں,no
 settings,audience,Brother / Sister,بھائی / بہن,no

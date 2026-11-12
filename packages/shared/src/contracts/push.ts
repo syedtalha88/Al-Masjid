@@ -83,6 +83,9 @@ export const ADMIN_ALERT_TYPES = [
   'payment_approved',
   'payment_rejected',
   'payment_active',
+  // Moderation (PHASE_08 T8.1): an urgent report (05 §3: 2 hours) and a post hidden after many reports — Super Admin.
+  'report_urgent',
+  'report_autohide',
 ] as const;
 
 /**

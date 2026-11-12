@@ -20,6 +20,7 @@ import {
   resolveMasjidByCode,
 } from '@mc/db/repos';
 import {
+  createReport,
   deleteDevice,
   followMasjid,
   getDeviceRecord,
@@ -33,6 +34,7 @@ import {
 } from '@mc/db/state';
 import { normalizeFollowCode } from '@mc/domain/follow-code';
 import { addDays, calendarDateInZone } from '@mc/domain/time';
+import { reportSla } from '@mc/shared/compliance';
 import {
   ameenCountsSchema,
   ameenResponseSchema,
@@ -56,6 +58,7 @@ import {
   templateListSchema,
   updateDeviceRequestSchema,
 } from '@mc/shared/contracts';
+import { reportRequestSchema, reportResponseSchema } from '@mc/shared/contracts/reports';
 import type { Response } from 'express';
 import { z } from 'zod';
 
@@ -514,6 +517,31 @@ export function publicRoutes(deps: PublicRouteDeps): RouteDefinition[] {
         const itemId = /^[A-Za-z0-9_-]{12}$/.test(params.publicId) ? await findDuaItemId(db, params.publicId) : null;
         if (!itemId) throw new ApiProblem(404, 'ITEM_NOT_FOUND');
         return reply(200, { count: await recordAmeen(db, auth.scope, itemId) });
+      },
+    }),
+    // --- reports (PHASE_08 T8.1) ---------------------------------------------------------------------------------
+    defineRoute({
+      method: 'post',
+      path: '/reports',
+      summary: 'Report a post or a masjid (device + Turnstile; 10 a day); never hides anything by itself',
+      tags: ['moderation'],
+      auth: 'device',
+      rateLimit: [{ bucket: 'reports', key: 'device' }],
+      request: { body: reportRequestSchema },
+      responses: { 201: reportResponseSchema },
+      handler: async ({ auth, body, clock, reply }) => {
+        if (!(await deps.turnstile(body.turnstileToken))) throw new ApiProblem(403, 'TURNSTILE_FAILED');
+        const now = clock.now();
+        const masjidId = body.targetType === 'masjid' ? parseId(body.targetPublicId) : null;
+        if (body.targetType === 'masjid' && !masjidId) throw new ApiProblem(404, 'REPORT_TARGET_NOT_FOUND');
+        await createReport(db, auth.scope, {
+          target: masjidId ? { kind: 'masjid', masjidId } : { kind: 'item', publicId: body.targetPublicId },
+          reason: body.reason,
+          details: body.details === '' ? undefined : body.details,
+          ...reportSla(body.reason, now),
+          now,
+        });
+        return reply(201, { received: true });
       },
     }),
     defineRoute({

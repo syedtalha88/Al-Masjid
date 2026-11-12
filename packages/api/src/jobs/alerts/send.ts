@@ -26,6 +26,8 @@ const ALERT_PATH: Readonly<Record<AdminAlertPayload['type'], string>> = {
   payment_approved: '/payment',
   payment_rejected: '/payment',
   payment_active: '/payment',
+  report_urgent: '/super/reports',
+  report_autohide: '/super/reports',
 };
 
 /** Alerts live four hours at the push service and always arrive at once. */

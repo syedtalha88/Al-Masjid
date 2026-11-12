@@ -2947,3 +2947,39 @@ items.
 animation frame (rAF) however fast the sensor fires; the empty "facing" row is not rendered without a live compass;
 the arrow now has a head and reaches just inside the Kaaba marker (07 A14 "big arrow from center to Kaaba marker").
 Visual `qibla` × 4 × 2 regenerated (only those 8 files; the others were left as they were).
+**Commit:** the code above and the Phase 06 / 07 report updates went into one commit, `30a268b` (subject "docs: Phase 06
+and Phase 07 reports final…") after a rejected commit message; the branch was already pushed, so it was not rewritten.
+
+### #170 — Reports and `report-triage`: who decides urgency, how each alert fires once (PHASE_08 T8.1, server half) — ACCEPTED (Claude Code, 13 Nov 2026)
+**Context:** T8.1 needs `POST /reports` (device + Turnstile, 10 a day), an urgent route for intimate imagery /
+impersonation (2 h, immediate Super Admin alert) and an auto-hide after many reports, done by the worker because
+`mc_public` may only insert reports (02 §4.3).
+**Decision:**
+- **Timelines live in `packages/shared/src/compliance.ts`** (05 §3: urgent report 2 h, report 36 h, legal order 3 h,
+  grievance ack 24 h / resolve 72 h; auto-hide window 1 h, default threshold 10). The API computes `urgent` and
+  `sla_due_at` with `reportSla()` and passes them to `createReport` (`packages/db` does not depend on `@mc/shared`).
+  **Urgent reason = "Personal or private information" (`private_info`)** — the reason a person picks for intimate
+  imagery, impersonation or morphed content about them; the owner may widen `URGENT_REPORT_REASONS` after legal review.
+- **Request contract** in its own file `@mc/shared/contracts/reports` with classic Zod and `safeText` (04 §6 —
+  NFC, no bidi / invisible characters, multiline details ≤ 500): the PWA imports its types only, so no classic Zod
+  reaches the musalli first load. A post is addressed by its 12-character public id, a masjid by its id; a mismatch is
+  400. A target that is not public (unknown, hidden, removed, suspended masjid) is 404 `REPORT_TARGET_NOT_FOUND`.
+  The reporter gets only `{received: true}`.
+- **Exactly once** (migration `0023_report_triage`): reports get `triaged_at`, items get `hidden_at`. `report-triage`
+  (every minute, `mc_system`) lists untriaged open reports, raises one `report_urgent` alert per urgent report
+  (BullMQ job id `alert.report_urgent.<reportId>`), checks each reported post's **distinct devices in the last hour**
+  against `app_settings.report_autohide_threshold`, hides a published post (`status: hidden`, version bump, audit
+  `item.autohide` with `reporters`) and raises `report_autohide` (job id per post), then marks the reports. A failed
+  enqueue throws before marking, so the next run raises it again; a post already hidden by a run whose alert was lost
+  is alerted again (same job id → one push). Only a published post can be hidden, so the hide happens once.
+- Alerts open `/super/reports` (the C5 queue, T8.2). Texts × 4 (fixed words, no free text, no masjid name).
+- **05 §1 build-time test now exists** (`packages/db/test/schema.test.ts` → "05 §1 data minimization"): the Zod shape
+  and the validator of `devices`, `device_follows`, `ameens`, `reports` must equal a reviewed allow-list. This entry
+  reviews the baseline (no name, phone, email, location, IP or user agent; `reports.device_id` is unset when the device
+  is deleted — retention, T8.7) and the new `reports.triaged_at`.
+**Consequences / for T8.2:** a Super Admin "Restore" of an auto-hidden post should close (dismiss) the reports that hid
+it, or the next report within the hour hides it again; a second auto-hide of the same post within a day reuses the
+alert job id (deduplicated) — T8.2 adds the hide time to the key if restores make that reachable.
+**Tests:** db `reports.int` 8, api `report-routes.int` 6 (Turnstile, 400s, 404, 10/day → 429, reason lists equal),
+`report-triage.int` 7 (once-only alerts and hides, 1-hour window, lost-alert recovery, mc_public refused), shared
+`compliance` 3, db `schema` 05 §1 allow-list 4.

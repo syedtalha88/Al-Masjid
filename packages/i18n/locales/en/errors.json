@@ -33,6 +33,7 @@
   "NETWORK": "You seem to be offline. Please check your connection and try again.",
   "ITEM_NOT_FOUND": "This post is no longer available.",
   "TURNSTILE_FAILED": "We could not check that this is a real phone. Please try again.",
+  "REPORT_TARGET_NOT_FOUND": "This is no longer shown in the app, so there is nothing to report.",
   "LIBRARY_ENTRY_NOT_FOUND": "This library entry no longer exists.",
   "LIBRARY_DUPLICATE": "An entry with this kind and reference is already in the library.",
   "TEMPLATE_NOT_FOUND": "This template no longer exists.",

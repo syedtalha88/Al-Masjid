@@ -190,6 +190,8 @@ const reports = documentSchema({
   resolution_note: opt(f.string(500)),
   created_at: f.instant(),
   closed_at: opt(f.instant()),
+  /** Set by `report-triage` once it has looked at the report (urgent alert raised at most once — PHASE_08 T8.1). */
+  triaged_at: opt(f.instant()),
 });
 
 const grievances = documentSchema({

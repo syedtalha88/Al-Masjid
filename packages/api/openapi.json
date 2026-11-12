@@ -8712,6 +8712,90 @@
         }
       }
     },
+    "/api/v1/reports": {
+      "post": {
+        "summary": "Report a post or a masjid (device + Turnstile; 10 a day); never hides anything by itself",
+        "tags": [
+          "moderation"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "targetType": {
+                    "type": "string",
+                    "enum": [
+                      "item",
+                      "masjid"
+                    ]
+                  },
+                  "targetPublicId": {
+                    "type": "string",
+                    "maxLength": 36
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "misleading",
+                      "hateful",
+                      "off_topic",
+                      "fraud",
+                      "private_info",
+                      "copyright",
+                      "other"
+                    ]
+                  },
+                  "details": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 500
+                  },
+                  "turnstileToken": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2048
+                  }
+                },
+                "required": [
+                  "targetType",
+                  "targetPublicId",
+                  "reason",
+                  "turnstileToken"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "received": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "received"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/ameens": {
       "get": {
         "summary": "Live Ameen counts of up to 30 dua requests (kept out of immutable responses)",

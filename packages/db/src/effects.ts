@@ -166,6 +166,8 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'item.publish': ['type', 'template', 'notify', 'image'],
   'item.edit': ['type'],
   'item.delete': ['type'],
+  // PHASE_08 T8.1: `report-triage` hid a post many devices reported within an hour (system actor).
+  'item.autohide': ['type', 'reporters'],
 };
 const META_LIMIT_BYTES = 4096;
 

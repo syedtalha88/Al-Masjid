@@ -177,6 +177,19 @@ export {
   touchJobProgress,
 } from './push.ts';
 export {
+  autoHideItem,
+  countRecentReporters,
+  createReport,
+  listUntriagedReports,
+  markReportsTriaged,
+  readAutohideThreshold,
+  type ReportInput,
+  type ReportReasonValue,
+  type ReportTarget,
+  TRIAGE_BATCH,
+  type UntriagedReport,
+} from './reports.ts';
+export {
   addRuqyahEntry,
   deleteRuqyahEntry,
   orderRuqyahEntries,

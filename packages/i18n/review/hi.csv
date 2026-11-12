@@ -1198,6 +1198,7 @@ errors,INVALID_CURSOR,This list changed. Please reload it.,यह सूची �
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,लगता है आप ऑफ़लाइन हैं। कृपया कनेक्शन जाँचकर फिर कोशिश करें।,no
 errors,ITEM_NOT_FOUND,This post is no longer available.,यह पोस्ट अब उपलब्ध नहीं है।,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,हम जाँच नहीं सके कि यह असली फ़ोन है। कृपया फिर से कोशिश करें।,no
+errors,REPORT_TARGET_NOT_FOUND,"This is no longer shown in the app, so there is nothing to report.","यह अब ऐप में नहीं दिखता, इसलिए रिपोर्ट करने को कुछ नहीं है।",no
 errors,LIBRARY_ENTRY_NOT_FOUND,This library entry no longer exists.,यह लाइब्रेरी प्रविष्टि अब मौजूद नहीं है।,no
 errors,LIBRARY_DUPLICATE,An entry with this kind and reference is already in the library.,इसी प्रकार और संदर्भ वाली प्रविष्टि लाइब्रेरी में पहले से है।,no
 errors,TEMPLATE_NOT_FOUND,This template no longer exists.,यह टेम्पलेट अब मौजूद नहीं है।,no
@@ -1397,6 +1398,10 @@ push,alert.payment_rejected.title,UPI change not approved,UPI बदलाव �
 push,alert.payment_rejected.body,Your UPI change was not approved. Open Payment to see why.,आपका UPI बदलाव मंज़ूर नहीं हुआ। कारण देखने के लिए भुगतान खोलें।,no
 push,alert.payment_active.title,New UPI details are live,नए UPI विवरण लागू,no
 push,alert.payment_active.body,"Your masjid's new UPI details are now shown to everyone, and followers were told. If you didn't ask for this, tell the Super Admin now.","आपकी मस्जिद के नए UPI विवरण अब सबको दिख रहे हैं और फ़ॉलोअर्स को बताया गया। अगर आपने यह नहीं माँगा, तो अभी सुपर एडमिन को बताएँ।",no
+push,alert.report_urgent.title,Urgent report,तत्काल रिपोर्ट,no
+push,alert.report_urgent.body,A post or masjid was reported for personal or private information. Review it in Reports within 2 hours.,किसी पोस्ट या मस्जिद की निजी या व्यक्तिगत जानकारी के लिए रिपोर्ट आई है। 2 घंटे के अंदर रिपोर्ट में देखें।,no
+push,alert.report_autohide.title,Post hidden after many reports,कई रिपोर्ट के बाद पोस्ट छिपाई गई,no
+push,alert.report_autohide.body,A post was hidden automatically because many people reported it. Review it in Reports.,"कई लोगों ने एक पोस्ट की रिपोर्ट की, इसलिए वह अपने आप छिप गई। रिपोर्ट में देखें।",no
 settings,language,Language,भाषा,no
 settings,languageSheet,Choose your language,अपनी भाषा चुनें,no
 settings,audience,Brother / Sister,भाई / बहन,no

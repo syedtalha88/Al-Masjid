@@ -1198,6 +1198,7 @@ errors,INVALID_CURSOR,This list changed. Please reload it.,ఈ జాబిత�
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,మీరు ఆఫ్‌లైన్‌లో ఉన్నట్లున్నారు. దయచేసి కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి.,no
 errors,ITEM_NOT_FOUND,This post is no longer available.,ఈ పోస్ట్ ఇప్పుడు అందుబాటులో లేదు.,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,ఇది నిజమైన ఫోన్ అని మేము నిర్ధారించలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+errors,REPORT_TARGET_NOT_FOUND,"This is no longer shown in the app, so there is nothing to report.","ఇది ఇప్పుడు యాప్‌లో కనిపించడం లేదు, కాబట్టి రిపోర్ట్ చేయడానికి ఏమీ లేదు.",no
 errors,LIBRARY_ENTRY_NOT_FOUND,This library entry no longer exists.,ఈ లైబ్రరీ ఎంట్రీ ఇప్పుడు లేదు.,no
 errors,LIBRARY_DUPLICATE,An entry with this kind and reference is already in the library.,ఇదే రకం మరియు రిఫరెన్స్‌తో ఉన్న ఎంట్రీ ఇప్పటికే లైబ్రరీలో ఉంది.,no
 errors,TEMPLATE_NOT_FOUND,This template no longer exists.,ఈ టెంప్లేట్ ఇప్పుడు లేదు.,no
@@ -1397,6 +1398,10 @@ push,alert.payment_rejected.title,UPI change not approved,UPI మార్పు
 push,alert.payment_rejected.body,Your UPI change was not approved. Open Payment to see why.,మీ UPI మార్పు ఆమోదించబడలేదు. కారణం చూడటానికి చెల్లింపు తెరవండి.,no
 push,alert.payment_active.title,New UPI details are live,కొత్త UPI వివరాలు అమలులో ఉన్నాయి,no
 push,alert.payment_active.body,"Your masjid's new UPI details are now shown to everyone, and followers were told. If you didn't ask for this, tell the Super Admin now.","మీ మసీదు కొత్త UPI వివరాలు ఇప్పుడు అందరికీ కనిపిస్తున్నాయి, ఫాలోవర్లకు తెలియజేయబడింది. మీరు అడగకపోతే, ఇప్పుడే సూపర్ అడ్మిన్‌కు చెప్పండి.",no
+push,alert.report_urgent.title,Urgent report,అత్యవసర రిపోర్ట్,no
+push,alert.report_urgent.body,A post or masjid was reported for personal or private information. Review it in Reports within 2 hours.,ఒక పోస్ట్ లేదా మస్జిద్‌పై వ్యక్తిగత లేదా ప్రైవేట్ సమాచారం గురించి రిపోర్ట్ వచ్చింది. 2 గంటల్లోపు రిపోర్ట్స్‌లో చూడండి.,no
+push,alert.report_autohide.title,Post hidden after many reports,చాలా రిపోర్ట్‌ల తర్వాత పోస్ట్ దాచబడింది,no
+push,alert.report_autohide.body,A post was hidden automatically because many people reported it. Review it in Reports.,"చాలా మంది ఒక పోస్ట్‌ను రిపోర్ట్ చేశారు, అందుకే అది ఆటోమేటిక్‌గా దాచబడింది. రిపోర్ట్స్‌లో చూడండి.",no
 settings,language,Language,భాష,no
 settings,languageSheet,Choose your language,మీ భాషను ఎంచుకోండి,no
 settings,audience,Brother / Sister,సోదరుడు / సోదరి,no

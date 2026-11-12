@@ -157,3 +157,57 @@ describe('snapshots', () => {
     expect(snapshotChecksum(currentSnapshot(['masjids']))).toBe(snapshotChecksum(currentSnapshot(['masjids'])));
   });
 });
+
+// 05 §1 (data minimization, DPDP): every field the server keeps about a musalli's phone. A new field fails this test
+// until it is reviewed and recorded in DECISIONS — no name, phone, email, location, IP or user agent, ever.
+// Baseline reviewed in DECISIONS #170 (Phase 08 T8.1).
+const MUSALLI_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  devices: [
+    '_id',
+    'audience_pref',
+    'created_at',
+    'follow_count',
+    'last_seen_at',
+    'locale',
+    'platform',
+    'privacy_version',
+    'push_auth',
+    'push_endpoint',
+    'push_p256dh',
+    'push_status',
+    'push_updated_at',
+    'secret_hash',
+  ],
+  device_follows: ['_id', 'audience_pref', 'created_at', 'device_id', 'locale', 'masjid_id', 'muted', 'push_active'],
+  ameens: ['_id', 'created_at', 'device_id', 'dua_item_id', 'masjid_id'],
+  reports: [
+    '_id',
+    'actioned_at',
+    'actioned_by',
+    'closed_at',
+    'created_at',
+    'details',
+    'device_id',
+    'masjid_id',
+    'reason',
+    'resolution_note',
+    'sla_due_at',
+    'status',
+    'target_id',
+    'target_type',
+    'triaged_at',
+    'urgent',
+  ],
+};
+
+describe('05 §1 data minimization', () => {
+  for (const [name, allowed] of Object.entries(MUSALLI_FIELDS)) {
+    it(`${name}: the validator and the Zod schema hold only the reviewed fields`, () => {
+      const spec = SCHEMAS[name as keyof typeof SCHEMAS];
+      const properties = (spec.jsonSchema as { properties?: Record<string, unknown> }).properties ?? {};
+      expect(Object.keys(properties).sort()).toEqual([...allowed].sort());
+      const shape = (spec.zod as unknown as { shape?: Record<string, unknown> }).shape ?? {};
+      expect(Object.keys(shape).sort()).toEqual([...allowed].sort());
+    });
+  }
+});

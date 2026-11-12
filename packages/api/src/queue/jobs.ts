@@ -39,6 +39,8 @@ export const JOB_SCHEMAS = {
   }),
   /** Scheduled every minute: re-enqueue lost outbox jobs, fail stuck ones (01 §5.3 step 7). */
   'outbox-sweeper': z.strictObject({}),
+  /** Scheduled every minute: urgent-report alerts and auto-hide after many reports (05 §3, PHASE_08 T8.1). */
+  'report-triage': z.strictObject({}),
   /** Scheduled every 10 minutes: approved UPI details whose hold has passed go live (04 R1, T5.2). */
   'payment-activate': z.strictObject({}),
   /** Scheduled daily 00:10 IST: donation drives whose end date has passed close (00 §4.3, T5.3). */
@@ -71,6 +73,7 @@ export const JOB_DEFAULTS: Readonly<Record<JobName, JobsOptions>> = {
   'alert-send': { attempts: 5, backoff: { type: 'exponential', delay: 30_000 }, ...REMOVAL },
   'outbox-sweeper': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
   // Idempotent and scheduled: a failed run is simply the next run's work.
+  'report-triage': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
   'payment-activate': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
   'campaign-close': { attempts: 3, backoff: { type: 'exponential', delay: 60_000 }, ...REMOVAL },
   retention: { attempts: 3, backoff: { type: 'exponential', delay: 60_000 }, ...REMOVAL },
@@ -83,6 +86,7 @@ export const JOB_TIMEOUT_MS: Readonly<Record<JobName, number>> = {
   'push-send-batch': 240_000,
   'alert-send': 60_000,
   'outbox-sweeper': 50_000,
+  'report-triage': 50_000,
   'payment-activate': 120_000,
   'campaign-close': 120_000,
   retention: 600_000,

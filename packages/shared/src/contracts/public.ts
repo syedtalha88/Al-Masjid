@@ -456,6 +456,9 @@ export type ItemDetail = z.infer<typeof itemDetailSchema>;
 
 /** `POST /items/:publicId/ameen`. */
 export const ameenResponseSchema = z.object({ count: z.int().check(z.minimum(0)) });
+
+/** `POST /reports` answer as the PWA reads it (PHASE_08 T8.1; the request contract is `contracts/reports.ts`). */
+export const reportReceivedSchema = z.object({ received: z.literal(true) });
 /** `GET /ameens?items=` — live counts, kept out of the immutable item responses (DECISIONS #91). */
 export const ameenCountsSchema = z.object({ counts: z.record(publicIdText, z.int().check(z.minimum(0))) });
 export type AmeenCounts = z.infer<typeof ameenCountsSchema>;

@@ -221,6 +221,8 @@ const itemFields = {
   created_by: f.uuid(),
   deleted_at: opt(f.instant()),
   removed_at: opt(f.instant()),
+  /** Auto-hidden pending review (status `hidden`, PHASE_08 T8.1): when `report-triage` hid it. */
+  hidden_at: opt(f.instant()),
   removed_reason: opt(f.string(300)),
   purge_after: opt(f.instant()),
   voice: opt(voice),
