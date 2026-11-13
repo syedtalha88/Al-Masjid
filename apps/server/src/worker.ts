@@ -4,6 +4,7 @@ import {
   cloudflarePurger,
   cloudinaryMediaStore,
   cloudinaryPrivateStore,
+  cloudinaryUsageReader,
   createLogger,
   createPushSender,
   redisSendLedger,
@@ -50,8 +51,18 @@ const purger =
   env.APP_ENV !== 'local' && env.CF_API_TOKEN_PURGE && env.CF_ZONE_ID
     ? cloudflarePurger({ token: env.CF_API_TOKEN_PURGE, zoneId: env.CF_ZONE_ID })
     : undefined;
+// T8.10: Cloudinary's monthly usage for Stats and the 70 / 90 % alerts — a read, but only where the keys are real.
+const cloudinaryUsage =
+  env.APP_ENV !== 'local' && env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET
+    ? cloudinaryUsageReader({
+        cloudName: env.CLOUDINARY_CLOUD_NAME,
+        apiKey: env.CLOUDINARY_API_KEY,
+        apiSecret: env.CLOUDINARY_API_SECRET,
+      })
+    : undefined;
 const jobs = await startJobWorkers({
   ...(purger ? { cdnPurger: purger } : {}),
+  ...(cloudinaryUsage ? { cloudinaryUsage } : {}),
   db,
   connection: redis,
   ledger: redisSendLedger(redis),

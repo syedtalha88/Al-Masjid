@@ -48,6 +48,7 @@ import { Route as SuperLegalOrdersRouteImport } from './routes/super.legal-order
 import { Route as SuperPaymentsRouteImport } from './routes/super.payments'
 import { Route as SuperReportsRouteImport } from './routes/super.reports'
 import { Route as SuperSettingsRouteImport } from './routes/super.settings'
+import { Route as SuperStatsRouteImport } from './routes/super.stats'
 import { Route as VideosIndexRouteImport } from './routes/videos.index'
 import { Route as VideosNewRouteImport } from './routes/videos.new'
 import { Route as SuperLibraryIndexRouteImport } from './routes/super.library.index'
@@ -257,6 +258,11 @@ const SuperSettingsRoute = SuperSettingsRouteImport.update({
   path: '/super/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperStatsRoute = SuperStatsRouteImport.update({
+  id: '/super/stats',
+  path: '/super/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VideosIndexRoute = VideosIndexRouteImport.update({
   id: '/videos/',
   path: '/videos/',
@@ -355,6 +361,7 @@ export interface FileRoutesByFullPath {
   '/super/payments': typeof SuperPaymentsRoute
   '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/super/stats': typeof SuperStatsRoute
   '/videos/new': typeof VideosNewRoute
   '/daily/': typeof DailyIndexRoute
   '/donation/': typeof DonationIndexRoute
@@ -409,6 +416,7 @@ export interface FileRoutesByTo {
   '/super/payments': typeof SuperPaymentsRoute
   '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/super/stats': typeof SuperStatsRoute
   '/videos/new': typeof VideosNewRoute
   '/daily': typeof DailyIndexRoute
   '/donation': typeof DonationIndexRoute
@@ -464,6 +472,7 @@ export interface FileRoutesById {
   '/super/payments': typeof SuperPaymentsRoute
   '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/super/stats': typeof SuperStatsRoute
   '/videos/new': typeof VideosNewRoute
   '/daily/': typeof DailyIndexRoute
   '/donation/': typeof DonationIndexRoute
@@ -520,6 +529,7 @@ export interface FileRouteTypes {
     | '/super/payments'
     | '/super/reports'
     | '/super/settings'
+    | '/super/stats'
     | '/videos/new'
     | '/daily/'
     | '/donation/'
@@ -574,6 +584,7 @@ export interface FileRouteTypes {
     | '/super/payments'
     | '/super/reports'
     | '/super/settings'
+    | '/super/stats'
     | '/videos/new'
     | '/daily'
     | '/donation'
@@ -628,6 +639,7 @@ export interface FileRouteTypes {
     | '/super/payments'
     | '/super/reports'
     | '/super/settings'
+    | '/super/stats'
     | '/videos/new'
     | '/daily/'
     | '/donation/'
@@ -683,6 +695,7 @@ export interface RootRouteChildren {
   SuperPaymentsRoute: typeof SuperPaymentsRoute
   SuperReportsRoute: typeof SuperReportsRoute
   SuperSettingsRoute: typeof SuperSettingsRoute
+  SuperStatsRoute: typeof SuperStatsRoute
   VideosNewRoute: typeof VideosNewRoute
   DailyIndexRoute: typeof DailyIndexRoute
   DonationIndexRoute: typeof DonationIndexRoute
@@ -979,6 +992,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/super/stats': {
+      id: '/super/stats'
+      path: '/super/stats'
+      fullPath: '/super/stats'
+      preLoaderRoute: typeof SuperStatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/videos/': {
       id: '/videos/'
       path: '/videos'
@@ -1119,6 +1139,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuperPaymentsRoute: SuperPaymentsRoute,
   SuperReportsRoute: SuperReportsRoute,
   SuperSettingsRoute: SuperSettingsRoute,
+  SuperStatsRoute: SuperStatsRoute,
   VideosNewRoute: VideosNewRoute,
   DailyIndexRoute: DailyIndexRoute,
   DonationIndexRoute: DonationIndexRoute,

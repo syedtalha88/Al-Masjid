@@ -94,6 +94,9 @@ export const ADMIN_ALERT_TYPES = [
   'sla_100',
   // Retention (T8.7): the daily run failed (files not deleted, or an error) — Super Admin, once a day.
   'retention_failed',
+  // Cloudinary usage (T8.10): the month's credits passed 70 % / 90 % — Super Admin, once a month each.
+  'cloudinary_70',
+  'cloudinary_90',
 ] as const;
 
 /**

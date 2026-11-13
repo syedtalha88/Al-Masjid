@@ -26,6 +26,7 @@ import {
   listGrievances,
   listLegalOrders,
   listSlaTimers,
+  listStatsSnapshots,
   readAdminPhone,
   readGrievanceContact,
   readLegalOrderDocument,
@@ -40,6 +41,7 @@ import {
   setAdminReadOnly,
   setLegalOrderDocument,
   setPushPaused,
+  SLA_WINDOW_MS,
   updateLegalOrder,
   updateMasjid,
   updateSettings,
@@ -82,6 +84,7 @@ import {
   superQuotaSchema,
   superSettingsPatchSchema,
   superSettingsSchema,
+  superStatsSchema,
   testAlertResponseSchema,
 } from '@mc/shared/contracts';
 import {
@@ -108,6 +111,7 @@ import { ApiProblem } from '../http/problem.ts';
 import { newLegalDocumentKey, type PrivateFileStore } from '../media/private-store.ts';
 import type { AlertService } from '../queue/alerts.ts';
 import type { CdnPurgeService } from '../queue/cdn.ts';
+import { statsOut } from './super-stats.ts';
 
 export interface SuperRouteDeps {
   readonly db: DbHandle;
@@ -1011,6 +1015,18 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
             key: `${idText(auth.scope.adminId)}.${String(clock.now().getTime())}`,
           })) ?? false;
         return reply(200, { queued });
+      },
+    }),
+    defineRoute({
+      method: 'get',
+      path: '/stats',
+      summary: 'Platform stats (C12): the newest hourly snapshot and a 30-day trend — aggregates only',
+      tags: ['super'],
+      auth: 'super',
+      responses: { 200: superStatsSchema },
+      handler: async ({ auth, clock, reply }) => {
+        const since = new Date(clock.now().getTime() - SLA_WINDOW_MS);
+        return reply(200, statsOut(await listStatsSnapshots(db, auth.scope, { since })));
       },
     }),
     defineRoute({

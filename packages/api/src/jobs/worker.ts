@@ -3,6 +3,7 @@
 // as a delay (the job waits, it is not lost or failed — T4.7), failures logged and reported on their last attempt,
 // and the schedulers in Asia/Kolkata. Only the worker entrypoint (and tests) start it.
 import type { DbHandle } from '@mc/db';
+import type { CloudinaryStats } from '@mc/db/state';
 import { type Clock, systemClock } from '@mc/shared/clock';
 import { DelayedError, type Job, type JobsOptions, UnrecoverableError, Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
@@ -32,6 +33,7 @@ import { processOutboxSweep } from './push/sweeper.ts';
 import { processSlaAlerts } from './reports/sla-alerts.ts';
 import { processReportTriage } from './reports/triage.ts';
 import { processRetention, type RetentionDeps } from './retention/run.ts';
+import { processStatsSnapshot } from './stats/snapshot.ts';
 
 type Logger = ReturnType<typeof createLogger>;
 
@@ -50,6 +52,7 @@ export const DEFAULT_CONCURRENCY: Readonly<Record<JobName, number>> = {
   'payment-activate': 1,
   'campaign-close': 1,
   retention: 1,
+  'stats-snapshot': 1,
 };
 /** Schedulers (01 §5.8), cron in India time. */
 export const SCHEDULES: readonly { readonly job: JobName; readonly pattern: string }[] = [
@@ -59,6 +62,7 @@ export const SCHEDULES: readonly { readonly job: JobName; readonly pattern: stri
   { job: 'payment-activate', pattern: '*/10 * * * *' },
   { job: 'campaign-close', pattern: '10 0 * * *' },
   { job: 'retention', pattern: '0 3 * * *' },
+  { job: 'stats-snapshot', pattern: '5 * * * *' },
 ];
 export const SCHEDULE_TIME_ZONE = 'Asia/Kolkata';
 
@@ -85,6 +89,8 @@ export interface JobWorkerDeps {
   readonly cdnPurger?: CdnPurger | undefined;
   /** `retention`'s media part (PHASE_06 T6.4): the worker's media store, the CDN purger, env MEDIA_ORIGIN. */
   readonly retention?: Pick<RetentionDeps, 'media' | 'purger' | 'mediaOrigin' | 'privateFiles'>;
+  /** `stats-snapshot` (T8.10): Cloudinary's monthly usage — absent locally. */
+  readonly cloudinaryUsage?: (() => Promise<CloudinaryStats>) | undefined;
 }
 
 export class JobTimeoutError extends Error {
@@ -172,6 +178,14 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
           { ...common, ...deps.retention, alerts: alertService(queues, deps.logger) },
           parseJobPayload(name, data),
         );
+      case 'stats-snapshot':
+        parseJobPayload(name, data);
+        return processStatsSnapshot({
+          ...common,
+          queues,
+          alerts: alertService(queues, deps.logger),
+          cloudinaryUsage: deps.cloudinaryUsage,
+        });
     }
   };
 

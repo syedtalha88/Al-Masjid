@@ -4840,6 +4840,383 @@
           "updatedAt"
         ]
       },
+      "SuperStats": {
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "now": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "masjids": {
+                "type": "object",
+                "properties": {
+                  "pending": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "active": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "suspended": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "deleted": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "pending",
+                  "active",
+                  "suspended",
+                  "deleted"
+                ]
+              },
+              "devices": {
+                "type": "object",
+                "properties": {
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "platform": {
+                    "type": "object",
+                    "properties": {
+                      "android": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "ios": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "desktop": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "other": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "android",
+                      "ios",
+                      "desktop",
+                      "other"
+                    ]
+                  },
+                  "locale": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "hi": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "ur": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "te": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ]
+                  },
+                  "push": {
+                    "type": "object",
+                    "properties": {
+                      "active": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "dead": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "none": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "active",
+                      "dead",
+                      "none"
+                    ]
+                  }
+                },
+                "required": [
+                  "total",
+                  "platform",
+                  "locale",
+                  "push"
+                ]
+              },
+              "follows": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "push24h": {
+                "type": "object",
+                "properties": {
+                  "jobs": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "sent": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "failed": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "successRate": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                },
+                "required": [
+                  "jobs",
+                  "sent",
+                  "failed",
+                  "successRate"
+                ]
+              },
+              "queues": {
+                "type": "object",
+                "properties": {
+                  "waiting": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "active": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "delayed": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "failed": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "lagS": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "waiting",
+                  "active",
+                  "delayed",
+                  "failed",
+                  "lagS"
+                ]
+              },
+              "cloudinary": {
+                "type": "object",
+                "properties": {
+                  "usedPercent": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "plan": {
+                    "type": "string"
+                  },
+                  "credits": {
+                    "type": "object",
+                    "properties": {
+                      "usage": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "limit": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "usage",
+                      "limit"
+                    ]
+                  }
+                },
+                "required": [
+                  "usedPercent"
+                ]
+              },
+              "sla": {
+                "type": "object",
+                "properties": {
+                  "reports": {
+                    "type": "object",
+                    "properties": {
+                      "onTime": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "late": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "rate": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    },
+                    "required": [
+                      "onTime",
+                      "late",
+                      "rate"
+                    ]
+                  },
+                  "grievanceAck": {
+                    "type": "object",
+                    "properties": {
+                      "onTime": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "late": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "rate": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    },
+                    "required": [
+                      "onTime",
+                      "late",
+                      "rate"
+                    ]
+                  },
+                  "grievanceResolve": {
+                    "type": "object",
+                    "properties": {
+                      "onTime": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "late": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "rate": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    },
+                    "required": [
+                      "onTime",
+                      "late",
+                      "rate"
+                    ]
+                  }
+                },
+                "required": [
+                  "reports",
+                  "grievanceAck",
+                  "grievanceResolve"
+                ]
+              }
+            },
+            "required": [
+              "masjids",
+              "devices",
+              "follows",
+              "push24h",
+              "sla"
+            ]
+          },
+          "trend": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "day": {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                "activeMasjids": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "devices": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "follows": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "pushSent": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "pushFailed": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "day",
+                "activeMasjids",
+                "devices",
+                "follows",
+                "pushSent",
+                "pushFailed"
+              ]
+            }
+          }
+        },
+        "required": [
+          "at",
+          "now",
+          "trend"
+        ]
+      },
       "SuperAuditPage": {
         "type": "object",
         "properties": {
@@ -16106,6 +16483,26 @@
                   "required": [
                     "queued"
                   ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/stats": {
+      "get": {
+        "summary": "Platform stats (C12): the newest hourly snapshot and a 30-day trend — aggregates only",
+        "tags": [
+          "super"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperStats"
                 }
               }
             }

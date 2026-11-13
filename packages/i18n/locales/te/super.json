@@ -11,7 +11,8 @@
     "library": "కంటెంట్ లైబ్రరీ",
     "templates": "నోటీసు టెంప్లేట్‌లు",
     "payments": "చెల్లింపు ఆమోదాలు",
-    "legal": "చట్టపరమైన ఆదేశాలు"
+    "legal": "చట్టపరమైన ఆదేశాలు",
+    "stats": "గణాంకాలు"
   },
   "status": {
     "pending": "పెండింగ్",
@@ -97,7 +98,9 @@
     "noAdmins": "ఇంకా అడ్మిన్‌లు లేరు. మస్జిద్‌ను యాక్టివేట్ చేయడానికి ఒకరిని జోడించండి.",
     "addAdmin": "అడ్మిన్‌ను జోడించండి",
     "changed": "సేవ్ అయింది",
-    "poster": "QR పోస్టర్"
+    "poster": "QR పోస్టర్",
+    "audit": "ఆడిట్ లాగ్",
+    "adminAudit": "ఆడిట్ లాగ్‌లో వీరి పనులు"
   },
   "admin": {
     "name": "పేరు",
@@ -177,7 +180,14 @@
     },
     "retentionDryRun": "రిటెన్షన్ డ్రై రన్",
     "retentionQueued": "డ్రై రన్ మొదలైంది. దాని లెక్కలు ఒక నిమిషంలో ఇక్కడ \"retention.run\"గా కనిపిస్తాయి.",
-    "retentionNotQueued": "డ్రై రన్ మొదలు కాలేదు. మళ్లీ ప్రయత్నించండి."
+    "retentionNotQueued": "డ్రై రన్ మొదలు కాలేదు. మళ్లీ ప్రయత్నించండి.",
+    "masjidFilter": "మసీదు {id}",
+    "actorFilter": "అడ్మిన్ {id}",
+    "removeFilter": "ఫిల్టర్ తీసివేయండి: {name}",
+    "anyDate": "ఏ తేదీ అయినా",
+    "clearDates": "తేదీలు తీసివేయండి",
+    "onlyActor": "ఈ అడ్మిన్ మాత్రమే",
+    "onlyMasjid": "ఈ మసీదు మాత్రమే"
   },
   "library": {
     "statusFilter": "స్థితి",
@@ -513,5 +523,60 @@
     "takeDown": "తీసివేయండి",
     "shownToast": "బ్యానర్ సేవ్ అయింది. అన్ని చోట్లా కనిపించడానికి ఒక నిమిషం వరకు పట్టవచ్చు.",
     "removedToast": "బ్యానర్ తీసివేయబడింది. అన్ని చోట్ల నుండి పోవడానికి ఒక నిమిషం వరకు పట్టవచ్చు."
+  },
+  "stats": {
+    "updated": "{time}కి నవీకరించబడింది",
+    "emptyTitle": "ఇంకా గణాంకాలు లేవు",
+    "emptyBody": "వర్కర్ ప్రారంభమైన గంటలోపు మొదటి గణాంకాలు వస్తాయి.",
+    "masjids": "మసీదులు",
+    "devices": "యాప్ ఉన్న ఫోన్లు",
+    "devicesTotal": "{count, number} ఫోన్లు",
+    "platform": "ఫోన్ రకం ప్రకారం",
+    "language": "భాష ప్రకారం",
+    "pushOn": "నోటిఫికేషన్లు ఆన్",
+    "follows": "ఫాలో చేసిన మసీదులు (మొత్తం)",
+    "push": "నోటిఫికేషన్లు, గత 24 గంటలు",
+    "pushLine": "{sent, number} చేరాయి · {failed, number} విఫలం",
+    "successRate": "{rate, number, percent} చేరాయి",
+    "noPush": "గత 24 గంటల్లో ఏదీ పంపలేదు",
+    "deadlines": "గడువులు పాటించడం, గత 30 రోజులు",
+    "reports": "సమయానికి పరిష్కరించిన రిపోర్టులు",
+    "grievanceAck": "సమయానికి స్వీకరించిన ఫిర్యాదులు",
+    "grievanceResolve": "సమయానికి పరిష్కరించిన ఫిర్యాదులు",
+    "rateLine": "{rate, number, percent} · {onTime, number} సమయానికి, {late, number} ఆలస్యంగా",
+    "noneYet": "ఇంకా ఏదీ లేదు",
+    "jobs": "నేపథ్య పనులు",
+    "jobsLine": "{waiting, number} వేచి ఉన్నాయి · {active, number} నడుస్తున్నాయి · {failed, number} విఫలం",
+    "lag": "అత్యంత పాత వేచి ఉన్న పని: {time}",
+    "lagNone": "ఏదీ వేచి లేదు",
+    "jobsUnknown": "ఈ గంట చదవలేకపోయాం",
+    "seconds": "{count, plural, one {# సెకను} other {# సెకన్లు}}",
+    "minutes": "{count, plural, one {# నిమిషం} other {# నిమిషాలు}}",
+    "cloudinary": "మీడియా స్టోరేజ్ (Cloudinary) ఈ నెల",
+    "cloudinaryUsed": "{percent, number}% వాడబడింది",
+    "credits": "{limit, number}లో {usage, number} క్రెడిట్లు",
+    "plan": "ప్లాన్: {plan}",
+    "cloudinaryUnknown": "అందుబాటులో లేదు (లోకల్, లేదా ఈ గంట చదవలేకపోయాం)",
+    "trend": "గత 30 రోజులు",
+    "trendDevices": "ఫోన్లు",
+    "trendFollows": "ఫాలోలు",
+    "trendMasjids": "సక్రియ మసీదులు",
+    "trendPush": "చేరిన నోటిఫికేషన్లు (24 గం)",
+    "trendEmpty": "ట్రెండ్ రోజురోజుకూ నిండుతుంది.",
+    "trendTable": "రోజువారీ విలువలు",
+    "day": "రోజు",
+    "value": "విలువ",
+    "status": {
+      "pending": "పెండింగ్",
+      "active": "సక్రియం",
+      "suspended": "నిలిపివేయబడింది",
+      "deleted": "తొలగించబడింది"
+    },
+    "platformName": {
+      "android": "Android",
+      "ios": "iPhone",
+      "desktop": "కంప్యూటర్",
+      "other": "ఇతర"
+    }
   }
 }

@@ -224,8 +224,7 @@ Delivery (DECISIONS #40): `media.<domain>/i/<480|960|1440>/<avif|webp>/<key>` �
 | `cdn-purge` | moderation removal | idempotent (purge is) |
 | `alert-send` | admin/super-admin alert pushes | (alertId) |
 | `media-delete` | retention, moderation | (Cloudinary key) — destroy + invalidate, then Cloudflare purge |
-| `cloudinary-usage` | scheduler daily 06:00 IST | alert at 70% / 90% of monthly credits, once per (month, threshold) |
-| `stats-snapshot` | scheduler hourly (writes `stats_snapshots` + `masjid_stats.ameens_7d`) | (hour) |
+| `stats-snapshot` | scheduler hourly at :05 IST (writes `stats_snapshots` + `masjid_stats.ameens_7d`; reads Cloudinary usage and the queues' backlog — the former `cloudinary-usage` job, DECISIONS #179) | (hour); Cloudinary 70% / 90% alerts when crossed since the previous snapshot, job id per (month, threshold) |
 | `counters-reconcile` | scheduler weekly (Sun 04:00 IST) | recompute, idempotent |
 Schedulers use explicit time zone `Asia/Kolkata`. Each processor has a timeout, max attempts, exponential backoff, and writes failures to Sentry + structured logs. Queue health (waiting/active/failed counts, oldest job age) is exposed to Super Admin Stats.
 

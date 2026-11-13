@@ -1471,6 +1471,10 @@ push,alert.sla_100.title,Deadline passed,समय सीमा निकल ग
 push,alert.sla_100.body,Something in Reports is past its deadline. Handle it now from the dashboard.,रिपोर्ट में कुछ अपनी समय सीमा पार कर चुका है। अभी डैशबोर्ड से निपटाएँ।,no
 push,alert.retention_failed.title,Retention run failed,सफ़ाई का काम विफल,no
 push,alert.retention_failed.body,The daily clean-up could not finish. It will try again; see the audit log.,रोज़ की सफ़ाई पूरी नहीं हो सकी। यह फिर कोशिश करेगी; ऑडिट लॉग देखें।,no
+push,alert.cloudinary_70.title,Media storage 70% used,मीडिया स्टोरेज 70% इस्तेमाल,no
+push,alert.cloudinary_70.body,This month's Cloudinary credits are 70% used. Check Stats.,इस महीने के Cloudinary क्रेडिट 70% इस्तेमाल हो चुके हैं। आँकड़े देखें।,no
+push,alert.cloudinary_90.title,Media storage 90% used,मीडिया स्टोरेज 90% इस्तेमाल,no
+push,alert.cloudinary_90.body,This month's Cloudinary credits are 90% used. Photos and voice notes may stop soon. Check Stats now.,इस महीने के Cloudinary क्रेडिट 90% इस्तेमाल हो चुके हैं। फ़ोटो और वॉइस नोट जल्द रुक सकते हैं। अभी आँकड़े देखें।,no
 settings,language,Language,भाषा,no
 settings,languageSheet,Choose your language,अपनी भाषा चुनें,no
 settings,audience,Brother / Sister,भाई / बहन,no
@@ -1639,6 +1643,7 @@ super,nav.library,Content Library,सामग्री लाइब्रेर
 super,nav.templates,Notice templates,सूचना टेम्पलेट,no
 super,nav.payments,Payment approvals,भुगतान मंज़ूरी,no
 super,nav.legal,Legal orders,कानूनी आदेश,no
+super,nav.stats,Stats,आँकड़े,no
 super,status.pending,Pending,बाक़ी,no
 super,status.active,Active,चालू,no
 super,status.suspended,Suspended,रोकी गई,no
@@ -1711,6 +1716,8 @@ super,detail.noAdmins,No admins yet. Add one to activate this masjid.,अभी 
 super,detail.addAdmin,Add admin,एडमिन जोड़ें,no
 super,detail.changed,Saved,सहेज लिया,no
 super,detail.poster,QR poster,QR पोस्टर,no
+super,detail.audit,Audit log,ऑडिट लॉग,no
+super,detail.adminAudit,Their actions in the audit log,ऑडिट लॉग में इनके काम,no
 super,admin.name,Name,नाम,no
 super,admin.phone,Phone,फ़ोन,no
 super,admin.phoneHint,Optional. Stored encrypted; viewing it is recorded.,वैकल्पिक। एन्क्रिप्ट करके रखा जाता है; देखने पर दर्ज होता है।,no
@@ -1777,6 +1784,13 @@ super,audit.actorType.device,Device,डिवाइस,no
 super,audit.retentionDryRun,Retention dry run,रिटेंशन ड्राई रन,no
 super,audit.retentionQueued,"Dry run started. Its counts appear here as ""retention.run"" in a minute.","ड्राई रन शुरू हुआ। इसकी गिनती एक मिनट में यहाँ ""retention.run"" के रूप में दिखेगी।",no
 super,audit.retentionNotQueued,Could not start the dry run. Try again.,ड्राई रन शुरू नहीं हो सका। फिर कोशिश करें।,no
+super,audit.masjidFilter,Masjid {id},मस्जिद {id},no
+super,audit.actorFilter,Admin {id},एडमिन {id},no
+super,audit.removeFilter,Remove filter: {name},फ़िल्टर हटाएँ: {name},no
+super,audit.anyDate,Any date,कोई भी तारीख़,no
+super,audit.clearDates,Clear dates,तारीख़ें हटाएँ,no
+super,audit.onlyActor,Only this admin,सिर्फ़ यह एडमिन,no
+super,audit.onlyMasjid,Only this masjid,सिर्फ़ यह मस्जिद,no
 super,library.statusFilter,Status,स्थिति,no
 super,library.kindFilter,Kind,प्रकार,no
 super,library.fileLabel,Your file,आपकी फ़ाइल,no
@@ -2062,6 +2076,55 @@ super,banners.update,Update banner,बैनर बदलें,no
 super,banners.takeDown,Take down,हटाएँ,no
 super,banners.shownToast,Banner saved. It can take up to a minute to appear everywhere.,बैनर सहेजा गया। हर जगह दिखने में एक मिनट तक लग सकता है।,no
 super,banners.removedToast,Banner taken down. It can take up to a minute to disappear everywhere.,बैनर हटाया गया। हर जगह से हटने में एक मिनट तक लग सकता है।,no
+super,stats.updated,Updated {time},{time} पर अपडेट,no
+super,stats.emptyTitle,No stats yet,अभी कोई आँकड़े नहीं,no
+super,stats.emptyBody,The first numbers arrive within an hour of the worker starting.,वर्कर चालू होने के एक घंटे के अंदर पहले आँकड़े आ जाएँगे।,no
+super,stats.masjids,Masjids,मस्जिदें,no
+super,stats.devices,Phones with the app,ऐप वाले फ़ोन,no
+super,stats.devicesTotal,"{count, number} phones","{count, number} फ़ोन",no
+super,stats.platform,By phone type,फ़ोन के प्रकार से,no
+super,stats.language,By language,भाषा से,no
+super,stats.pushOn,Notifications on,सूचनाएँ चालू,no
+super,stats.follows,Masjids followed (total),फ़ॉलो की गई मस्जिदें (कुल),no
+super,stats.push,"Notifications, last 24 hours","सूचनाएँ, पिछले 24 घंटे",no
+super,stats.pushLine,"{sent, number} delivered · {failed, number} failed","{sent, number} पहुँचीं · {failed, number} विफल",no
+super,stats.successRate,"{rate, number, percent} delivered","{rate, number, percent} पहुँचीं",no
+super,stats.noPush,Nothing sent in the last 24 hours,पिछले 24 घंटों में कुछ नहीं भेजा गया,no
+super,stats.deadlines,"Deadlines met, last 30 days","समय-सीमा का पालन, पिछले 30 दिन",no
+super,stats.reports,Reports handled in time,समय पर निपटाई गई रिपोर्टें,no
+super,stats.grievanceAck,Grievances acknowledged in time,समय पर स्वीकार की गई शिकायतें,no
+super,stats.grievanceResolve,Grievances resolved in time,समय पर हल की गई शिकायतें,no
+super,stats.rateLine,"{rate, number, percent} · {onTime, number} on time, {late, number} late","{rate, number, percent} · {onTime, number} समय पर, {late, number} देर से",no
+super,stats.noneYet,None yet,अभी कोई नहीं,no
+super,stats.jobs,Background jobs,बैकग्राउंड काम,no
+super,stats.jobsLine,"{waiting, number} waiting · {active, number} running · {failed, number} failed","{waiting, number} इंतज़ार में · {active, number} चल रहे · {failed, number} विफल",no
+super,stats.lag,Oldest waiting job: {time},सबसे पुराना इंतज़ार करता काम: {time},no
+super,stats.lagNone,Nothing waiting,कुछ इंतज़ार में नहीं,no
+super,stats.jobsUnknown,Could not be read this hour,इस घंटे पढ़ा नहीं जा सका,no
+super,stats.seconds,"{count, plural, one {# second} other {# seconds}}","{count, plural, one {# सेकंड} other {# सेकंड}}",no
+super,stats.minutes,"{count, plural, one {# minute} other {# minutes}}","{count, plural, one {# मिनट} other {# मिनट}}",no
+super,stats.cloudinary,Media storage (Cloudinary) this month,मीडिया स्टोरेज (Cloudinary) इस महीने,no
+super,stats.cloudinaryUsed,"{percent, number}% used","{percent, number}% इस्तेमाल",no
+super,stats.credits,"{usage, number} of {limit, number} credits","{limit, number} में से {usage, number} क्रेडिट",no
+super,stats.plan,Plan: {plan},प्लान: {plan},no
+super,stats.cloudinaryUnknown,"Not available (local, or could not be read this hour)","उपलब्ध नहीं (लोकल, या इस घंटे पढ़ा नहीं जा सका)",no
+super,stats.trend,Last 30 days,पिछले 30 दिन,no
+super,stats.trendDevices,Phones,फ़ोन,no
+super,stats.trendFollows,Follows,फ़ॉलो,no
+super,stats.trendMasjids,Active masjids,सक्रिय मस्जिदें,no
+super,stats.trendPush,Notifications delivered (24 h),पहुँची सूचनाएँ (24 घंटे),no
+super,stats.trendEmpty,The trend fills in day by day.,रुझान दिन-ब-दिन भरता जाएगा।,no
+super,stats.trendTable,Daily values,रोज़ के आँकड़े,no
+super,stats.day,Day,दिन,no
+super,stats.value,Value,मान,no
+super,stats.status.pending,Pending,बाकी,no
+super,stats.status.active,Active,सक्रिय,no
+super,stats.status.suspended,Suspended,निलंबित,no
+super,stats.status.deleted,Deleted,हटाई गई,no
+super,stats.platformName.android,Android,Android,no
+super,stats.platformName.ios,iPhone,iPhone,no
+super,stats.platformName.desktop,Computer,कंप्यूटर,no
+super,stats.platformName.other,Other,अन्य,no
 templates,no_water_time_range.title,No water supply,पानी की आपूर्ति बंद,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} से {hours_end} तक पानी उपलब्ध नहीं रहेगा।,no
 templates,electricity_cut_time_range.title,Power cut,बिजली कटौती,no

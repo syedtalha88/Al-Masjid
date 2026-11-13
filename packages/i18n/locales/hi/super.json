@@ -11,7 +11,8 @@
     "library": "सामग्री लाइब्रेरी",
     "templates": "सूचना टेम्पलेट",
     "payments": "भुगतान मंज़ूरी",
-    "legal": "कानूनी आदेश"
+    "legal": "कानूनी आदेश",
+    "stats": "आँकड़े"
   },
   "status": {
     "pending": "बाक़ी",
@@ -97,7 +98,9 @@
     "noAdmins": "अभी कोई एडमिन नहीं। मस्जिद चालू करने के लिए एक जोड़ें।",
     "addAdmin": "एडमिन जोड़ें",
     "changed": "सहेज लिया",
-    "poster": "QR पोस्टर"
+    "poster": "QR पोस्टर",
+    "audit": "ऑडिट लॉग",
+    "adminAudit": "ऑडिट लॉग में इनके काम"
   },
   "admin": {
     "name": "नाम",
@@ -177,7 +180,14 @@
     },
     "retentionDryRun": "रिटेंशन ड्राई रन",
     "retentionQueued": "ड्राई रन शुरू हुआ। इसकी गिनती एक मिनट में यहाँ \"retention.run\" के रूप में दिखेगी।",
-    "retentionNotQueued": "ड्राई रन शुरू नहीं हो सका। फिर कोशिश करें।"
+    "retentionNotQueued": "ड्राई रन शुरू नहीं हो सका। फिर कोशिश करें।",
+    "masjidFilter": "मस्जिद {id}",
+    "actorFilter": "एडमिन {id}",
+    "removeFilter": "फ़िल्टर हटाएँ: {name}",
+    "anyDate": "कोई भी तारीख़",
+    "clearDates": "तारीख़ें हटाएँ",
+    "onlyActor": "सिर्फ़ यह एडमिन",
+    "onlyMasjid": "सिर्फ़ यह मस्जिद"
   },
   "library": {
     "statusFilter": "स्थिति",
@@ -513,5 +523,60 @@
     "takeDown": "हटाएँ",
     "shownToast": "बैनर सहेजा गया। हर जगह दिखने में एक मिनट तक लग सकता है।",
     "removedToast": "बैनर हटाया गया। हर जगह से हटने में एक मिनट तक लग सकता है।"
+  },
+  "stats": {
+    "updated": "{time} पर अपडेट",
+    "emptyTitle": "अभी कोई आँकड़े नहीं",
+    "emptyBody": "वर्कर चालू होने के एक घंटे के अंदर पहले आँकड़े आ जाएँगे।",
+    "masjids": "मस्जिदें",
+    "devices": "ऐप वाले फ़ोन",
+    "devicesTotal": "{count, number} फ़ोन",
+    "platform": "फ़ोन के प्रकार से",
+    "language": "भाषा से",
+    "pushOn": "सूचनाएँ चालू",
+    "follows": "फ़ॉलो की गई मस्जिदें (कुल)",
+    "push": "सूचनाएँ, पिछले 24 घंटे",
+    "pushLine": "{sent, number} पहुँचीं · {failed, number} विफल",
+    "successRate": "{rate, number, percent} पहुँचीं",
+    "noPush": "पिछले 24 घंटों में कुछ नहीं भेजा गया",
+    "deadlines": "समय-सीमा का पालन, पिछले 30 दिन",
+    "reports": "समय पर निपटाई गई रिपोर्टें",
+    "grievanceAck": "समय पर स्वीकार की गई शिकायतें",
+    "grievanceResolve": "समय पर हल की गई शिकायतें",
+    "rateLine": "{rate, number, percent} · {onTime, number} समय पर, {late, number} देर से",
+    "noneYet": "अभी कोई नहीं",
+    "jobs": "बैकग्राउंड काम",
+    "jobsLine": "{waiting, number} इंतज़ार में · {active, number} चल रहे · {failed, number} विफल",
+    "lag": "सबसे पुराना इंतज़ार करता काम: {time}",
+    "lagNone": "कुछ इंतज़ार में नहीं",
+    "jobsUnknown": "इस घंटे पढ़ा नहीं जा सका",
+    "seconds": "{count, plural, one {# सेकंड} other {# सेकंड}}",
+    "minutes": "{count, plural, one {# मिनट} other {# मिनट}}",
+    "cloudinary": "मीडिया स्टोरेज (Cloudinary) इस महीने",
+    "cloudinaryUsed": "{percent, number}% इस्तेमाल",
+    "credits": "{limit, number} में से {usage, number} क्रेडिट",
+    "plan": "प्लान: {plan}",
+    "cloudinaryUnknown": "उपलब्ध नहीं (लोकल, या इस घंटे पढ़ा नहीं जा सका)",
+    "trend": "पिछले 30 दिन",
+    "trendDevices": "फ़ोन",
+    "trendFollows": "फ़ॉलो",
+    "trendMasjids": "सक्रिय मस्जिदें",
+    "trendPush": "पहुँची सूचनाएँ (24 घंटे)",
+    "trendEmpty": "रुझान दिन-ब-दिन भरता जाएगा।",
+    "trendTable": "रोज़ के आँकड़े",
+    "day": "दिन",
+    "value": "मान",
+    "status": {
+      "pending": "बाकी",
+      "active": "सक्रिय",
+      "suspended": "निलंबित",
+      "deleted": "हटाई गई"
+    },
+    "platformName": {
+      "android": "Android",
+      "ios": "iPhone",
+      "desktop": "कंप्यूटर",
+      "other": "अन्य"
+    }
   }
 }

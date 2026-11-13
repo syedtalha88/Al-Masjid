@@ -160,6 +160,16 @@ function Body({ data }: { readonly data: SuperMasjidDetail }) {
               >
                 {t('detail.poster')}
               </Button>
+              {/* C11 (T8.10): this masjid's entries in the audit log. */}
+              <Button
+                variant="ghost"
+                size="md"
+                onPress={() => {
+                  navigator.push(`/super/audit?masjid=${encodeURIComponent(masjid.id)}`);
+                }}
+              >
+                {t('detail.audit')}
+              </Button>
             </div>
           )}
         </div>
@@ -451,6 +461,7 @@ function AdminActionsSheet({
   readonly onChanged: () => Promise<unknown>;
 }) {
   const { t } = useTranslation('super');
+  const navigator = useNavigator();
   const toast = useToast();
   const errorText = useErrorText();
   const run = useStepUp();
@@ -549,6 +560,17 @@ function AdminActionsSheet({
                 {t('admin.recoveryLink')}
               </Button>
             )}
+            <Button
+              variant="outline"
+              fullWidth
+              onPress={() => {
+                const target = `/super/audit?actor=${encodeURIComponent(admin.id)}`;
+                onClose();
+                navigator.push(target);
+              }}
+            >
+              {t('detail.adminAudit')}
+            </Button>
             <Button
               variant="outline"
               fullWidth

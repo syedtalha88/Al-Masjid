@@ -1471,6 +1471,10 @@ push,alert.sla_100.title,Deadline passed,آخری وقت گزر گیا,no
 push,alert.sla_100.body,Something in Reports is past its deadline. Handle it now from the dashboard.,رپورٹس میں کچھ اپنے آخری وقت سے آگے نکل چکا ہے۔ ابھی ڈیش بورڈ سے نمٹائیں۔,no
 push,alert.retention_failed.title,Retention run failed,صفائی کا کام ناکام,no
 push,alert.retention_failed.body,The daily clean-up could not finish. It will try again; see the audit log.,روزانہ کی صفائی مکمل نہیں ہو سکی۔ یہ دوبارہ کوشش کرے گی؛ آڈٹ لاگ دیکھیں۔,no
+push,alert.cloudinary_70.title,Media storage 70% used,میڈیا اسٹوریج 70% استعمال,no
+push,alert.cloudinary_70.body,This month's Cloudinary credits are 70% used. Check Stats.,اس مہینے کے Cloudinary کریڈٹ 70% استعمال ہو چکے ہیں۔ اعداد و شمار دیکھیں۔,no
+push,alert.cloudinary_90.title,Media storage 90% used,میڈیا اسٹوریج 90% استعمال,no
+push,alert.cloudinary_90.body,This month's Cloudinary credits are 90% used. Photos and voice notes may stop soon. Check Stats now.,اس مہینے کے Cloudinary کریڈٹ 90% استعمال ہو چکے ہیں۔ تصاویر اور وائس نوٹ جلد رک سکتے ہیں۔ ابھی اعداد و شمار دیکھیں۔,no
 settings,language,Language,زبان,no
 settings,languageSheet,Choose your language,اپنی زبان منتخب کریں,no
 settings,audience,Brother / Sister,بھائی / بہن,no
@@ -1639,6 +1643,7 @@ super,nav.library,Content Library,مواد کی لائبریری,no
 super,nav.templates,Notice templates,اطلاع کے ٹیمپلیٹ,no
 super,nav.payments,Payment approvals,ادائیگی کی منظوری,no
 super,nav.legal,Legal orders,قانونی احکامات,no
+super,nav.stats,Stats,اعداد و شمار,no
 super,status.pending,Pending,زیرِ التوا,no
 super,status.active,Active,فعال,no
 super,status.suspended,Suspended,معطل,no
@@ -1711,6 +1716,8 @@ super,detail.noAdmins,No admins yet. Add one to activate this masjid.,ابھی �
 super,detail.addAdmin,Add admin,ایڈمن شامل کریں,no
 super,detail.changed,Saved,محفوظ ہو گیا,no
 super,detail.poster,QR poster,QR پوسٹر,no
+super,detail.audit,Audit log,آڈٹ لاگ,no
+super,detail.adminAudit,Their actions in the audit log,آڈٹ لاگ میں ان کے کام,no
 super,admin.name,Name,نام,no
 super,admin.phone,Phone,فون,no
 super,admin.phoneHint,Optional. Stored encrypted; viewing it is recorded.,اختیاری۔ انکرپٹ کر کے رکھا جاتا ہے؛ دیکھنا درج ہوتا ہے۔,no
@@ -1777,6 +1784,13 @@ super,audit.actorType.device,Device,ڈیوائس,no
 super,audit.retentionDryRun,Retention dry run,ریٹینشن ڈرائی رن,no
 super,audit.retentionQueued,"Dry run started. Its counts appear here as ""retention.run"" in a minute.","ڈرائی رن شروع ہو گیا۔ اس کی گنتی ایک منٹ میں یہاں ""retention.run"" کے طور پر دکھے گی۔",no
 super,audit.retentionNotQueued,Could not start the dry run. Try again.,ڈرائی رن شروع نہیں ہو سکا۔ دوبارہ کوشش کریں۔,no
+super,audit.masjidFilter,Masjid {id},مسجد {id},no
+super,audit.actorFilter,Admin {id},ایڈمن {id},no
+super,audit.removeFilter,Remove filter: {name},فلٹر ہٹائیں: {name},no
+super,audit.anyDate,Any date,کوئی بھی تاریخ,no
+super,audit.clearDates,Clear dates,تاریخیں ہٹائیں,no
+super,audit.onlyActor,Only this admin,صرف یہ ایڈمن,no
+super,audit.onlyMasjid,Only this masjid,صرف یہ مسجد,no
 super,library.statusFilter,Status,حالت,no
 super,library.kindFilter,Kind,قسم,no
 super,library.fileLabel,Your file,آپ کی فائل,no
@@ -2062,6 +2076,55 @@ super,banners.update,Update banner,بینر بدلیں,no
 super,banners.takeDown,Take down,ہٹائیں,no
 super,banners.shownToast,Banner saved. It can take up to a minute to appear everywhere.,بینر محفوظ ہو گیا۔ ہر جگہ دکھائی دینے میں ایک منٹ تک لگ سکتا ہے۔,no
 super,banners.removedToast,Banner taken down. It can take up to a minute to disappear everywhere.,بینر ہٹا دیا گیا۔ ہر جگہ سے ہٹنے میں ایک منٹ تک لگ سکتا ہے۔,no
+super,stats.updated,Updated {time},{time} پر اپ ڈیٹ,no
+super,stats.emptyTitle,No stats yet,ابھی کوئی اعداد و شمار نہیں,no
+super,stats.emptyBody,The first numbers arrive within an hour of the worker starting.,ورکر شروع ہونے کے ایک گھنٹے کے اندر پہلے اعداد و شمار آ جائیں گے۔,no
+super,stats.masjids,Masjids,مساجد,no
+super,stats.devices,Phones with the app,ایپ والے فون,no
+super,stats.devicesTotal,"{count, number} phones","{count, number} فون",no
+super,stats.platform,By phone type,فون کی قسم کے لحاظ سے,no
+super,stats.language,By language,زبان کے لحاظ سے,no
+super,stats.pushOn,Notifications on,اطلاعات آن,no
+super,stats.follows,Masjids followed (total),فالو کی گئی مساجد (کل),no
+super,stats.push,"Notifications, last 24 hours",اطلاعات، پچھلے 24 گھنٹے,no
+super,stats.pushLine,"{sent, number} delivered · {failed, number} failed","{sent, number} پہنچیں · {failed, number} ناکام",no
+super,stats.successRate,"{rate, number, percent} delivered","{rate, number, percent} پہنچیں",no
+super,stats.noPush,Nothing sent in the last 24 hours,پچھلے 24 گھنٹوں میں کچھ نہیں بھیجا گیا,no
+super,stats.deadlines,"Deadlines met, last 30 days",مقررہ وقت کی پابندی، پچھلے 30 دن,no
+super,stats.reports,Reports handled in time,وقت پر نمٹائی گئی رپورٹیں,no
+super,stats.grievanceAck,Grievances acknowledged in time,وقت پر تسلیم کی گئی شکایات,no
+super,stats.grievanceResolve,Grievances resolved in time,وقت پر حل کی گئی شکایات,no
+super,stats.rateLine,"{rate, number, percent} · {onTime, number} on time, {late, number} late","{rate, number, percent} · {onTime, number} وقت پر، {late, number} دیر سے",no
+super,stats.noneYet,None yet,ابھی کوئی نہیں,no
+super,stats.jobs,Background jobs,پس منظر کے کام,no
+super,stats.jobsLine,"{waiting, number} waiting · {active, number} running · {failed, number} failed","{waiting, number} انتظار میں · {active, number} جاری · {failed, number} ناکام",no
+super,stats.lag,Oldest waiting job: {time},سب سے پرانا منتظر کام: {time},no
+super,stats.lagNone,Nothing waiting,کچھ انتظار میں نہیں,no
+super,stats.jobsUnknown,Could not be read this hour,اس گھنٹے پڑھا نہیں جا سکا,no
+super,stats.seconds,"{count, plural, one {# second} other {# seconds}}","{count, plural, one {# سیکنڈ} other {# سیکنڈ}}",no
+super,stats.minutes,"{count, plural, one {# minute} other {# minutes}}","{count, plural, one {# منٹ} other {# منٹ}}",no
+super,stats.cloudinary,Media storage (Cloudinary) this month,میڈیا اسٹوریج (Cloudinary) اس مہینے,no
+super,stats.cloudinaryUsed,"{percent, number}% used","{percent, number}% استعمال",no
+super,stats.credits,"{usage, number} of {limit, number} credits","{limit, number} میں سے {usage, number} کریڈٹ",no
+super,stats.plan,Plan: {plan},پلان: {plan},no
+super,stats.cloudinaryUnknown,"Not available (local, or could not be read this hour)",دستیاب نہیں (لوکل، یا اس گھنٹے پڑھا نہیں جا سکا),no
+super,stats.trend,Last 30 days,پچھلے 30 دن,no
+super,stats.trendDevices,Phones,فون,no
+super,stats.trendFollows,Follows,فالو,no
+super,stats.trendMasjids,Active masjids,فعال مساجد,no
+super,stats.trendPush,Notifications delivered (24 h),پہنچی اطلاعات (24 گھنٹے),no
+super,stats.trendEmpty,The trend fills in day by day.,رجحان دن بہ دن بھرتا جائے گا۔,no
+super,stats.trendTable,Daily values,روزانہ کے اعداد,no
+super,stats.day,Day,دن,no
+super,stats.value,Value,قدر,no
+super,stats.status.pending,Pending,زیرِ التوا,no
+super,stats.status.active,Active,فعال,no
+super,stats.status.suspended,Suspended,معطل,no
+super,stats.status.deleted,Deleted,حذف شدہ,no
+super,stats.platformName.android,Android,Android,no
+super,stats.platformName.ios,iPhone,iPhone,no
+super,stats.platformName.desktop,Computer,کمپیوٹر,no
+super,stats.platformName.other,Other,دیگر,no
 templates,no_water_time_range.title,No water supply,پانی کی فراہمی بند,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} سے {hours_end} تک پانی دستیاب نہیں ہوگا۔,no
 templates,electricity_cut_time_range.title,Power cut,بجلی بند,no

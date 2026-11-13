@@ -34,6 +34,7 @@ import {
   superPaymentListSchema,
   type SuperSettingsPatch,
   superSettingsSchema,
+  superStatsSchema,
   type SuperTemplateCreate,
   superTemplateListSchema,
   type SuperTemplatePatch,
@@ -81,6 +82,8 @@ const fileForm = (file: Blob, name: string) => {
 
 export const superApi = {
   dashboard: (signal?: AbortSignal) => call(`${SUPER_API}/dashboard`, superDashboardSchema, signal ? { signal } : {}),
+  /** C12 (T8.10): the newest hourly snapshot and the 30-day trend. */
+  stats: (signal?: AbortSignal) => call(`${SUPER_API}/stats`, superStatsSchema, signal ? { signal } : {}),
   masjids: (params: { q?: string; status?: MasjidStatusFilter; cursor?: string }, signal?: AbortSignal) =>
     call(`${SUPER_API}/masjids${query(params)}`, superMasjidListSchema, signal ? { signal } : {}),
   createMasjid: (body: SuperMasjidCreate) =>

@@ -48,6 +48,7 @@ export { createLogger } from './logger.ts';
 export { type CdnPurger, cloudflarePurger, mediaDeliveryUrls, noCdnPurger } from './media/cdn-purge.ts';
 export { cloudinaryPrivateStore, type PrivateFileStore, privateStoreFromEnv } from './media/private-store.ts';
 export { cloudinaryMediaStore, type MediaStore, mediaStoreFromEnv } from './media/store.ts';
+export { cloudinaryUsageReader, parseCloudinaryUsage } from './media/usage.ts';
 export { buildOpenApiDocument } from './openapi.ts';
 export { redisSendLedger, type SendLedger } from './push/ledger.ts';
 export { createPushSender, type PushSender, type PushTransport, type VapidKeys } from './push/sender.ts';

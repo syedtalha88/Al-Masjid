@@ -59,6 +59,8 @@ export const JOB_SCHEMAS = {
   /** Scheduled daily 03:00 IST: data whose retention period has ended is deleted (02 §6; T5.8: needy people). */
   /** `dryRun` (T8.7): counts only, changes nothing — the Super Admin's ★ "Retention dry run". */
   retention: z.strictObject({ dryRun: z.boolean().optional() }),
+  /** Scheduled hourly: platform stats, Ameens of 7 days, queue lag, Cloudinary usage + 70 / 90 % alerts (T8.10). */
+  'stats-snapshot': z.strictObject({}),
 } as const;
 
 export type JobName = keyof typeof JOB_SCHEMAS;
@@ -93,6 +95,8 @@ export const JOB_DEFAULTS: Readonly<Record<JobName, JobsOptions>> = {
   'payment-activate': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
   'campaign-close': { attempts: 3, backoff: { type: 'exponential', delay: 60_000 }, ...REMOVAL },
   retention: { attempts: 3, backoff: { type: 'exponential', delay: 60_000 }, ...REMOVAL },
+  // Idempotent per hour: a failed run is the next hour's work.
+  'stats-snapshot': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
 };
 
 /** The longest one run of a job may take before it counts as failed (BullMQ has no job timeout of its own). */
@@ -109,6 +113,7 @@ export const JOB_TIMEOUT_MS: Readonly<Record<JobName, number>> = {
   'payment-activate': 120_000,
   'campaign-close': 120_000,
   retention: 600_000,
+  'stats-snapshot': 300_000,
 };
 
 /** The BullMQ job id of a send batch — dedups a duplicated fan-out (01 §5.8; "." instead of ":", which BullMQ refuses). */

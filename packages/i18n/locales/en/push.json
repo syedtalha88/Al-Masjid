@@ -67,6 +67,14 @@
     "retention_failed": {
       "title": "Retention run failed",
       "body": "The daily clean-up could not finish. It will try again; see the audit log."
+    },
+    "cloudinary_70": {
+      "title": "Media storage 70% used",
+      "body": "This month's Cloudinary credits are 70% used. Check Stats."
+    },
+    "cloudinary_90": {
+      "title": "Media storage 90% used",
+      "body": "This month's Cloudinary credits are 90% used. Photos and voice notes may stop soon. Check Stats now."
     }
   }
 }

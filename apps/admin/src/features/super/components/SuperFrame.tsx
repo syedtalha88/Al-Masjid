@@ -15,6 +15,7 @@ export type SuperSection =
   | 'payments'
   | 'library'
   | 'templates'
+  | 'stats'
   | 'settings'
   | 'audit';
 
@@ -27,6 +28,7 @@ export const SUPER_SECTIONS: readonly { readonly key: SuperSection; readonly pat
   { key: 'payments', path: '/super/payments' },
   { key: 'library', path: '/super/library' },
   { key: 'templates', path: '/super/templates' },
+  { key: 'stats', path: '/super/stats' },
   { key: 'settings', path: '/super/settings' },
   { key: 'audit', path: '/super/audit' },
 ];

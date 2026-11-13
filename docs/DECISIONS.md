@@ -3224,3 +3224,33 @@ go on, nothing changed, audited once, Super Admin unaffected, sign-out and end-s
 banner in settings / `/auth/me` / `/config`, invalid banners refused, `null` takes it down, super-only; incident banner
 in `/config` only). Push pause stays covered by `notification-routes.int.test.ts` (T4.7). Unit: banner contract, the
 session hook's READ_ONLY_MODE handling, `NoticeBanner`.
+
+### #179 — Audit & stats completion (PHASE_08 T8.10) — ACCEPTED (Claude Code, 13 Nov 2026; staging check = owner O58)
+**Decision:** **One hourly `stats-snapshot` job** (at :05 IST, `mc_system`) replaces the planned pair
+`stats-snapshot` + daily `cloudinary-usage` (01 §5.8 updated): it writes the hour's `stats_snapshots` document
+(replace — idempotent per hour), recomputes `masjid_stats.ameens_7d` per masjid with the `{masjid_id, created_at}`
+index (**it was never computed before** — the admin "Ameen this week" showed 0), adds the queues' backlog
+(`getJobCounts` + the oldest waiting job via `getJobs(['waiting'], 0, 0, true)` — BullMQ 6.3.11 reverses a list read
+ascending, read in its source and pinned by the integration test) and reads Cloudinary's Admin API
+`GET /v1_1/<cloud>/usage` (Basic auth; checked against Cloudinary's docs 13 Nov 2026; 24 calls a day against a
+500+/hour limit). The documented sample answer has no `credits` object, so `usedPercent` = `credits.used_percent`
+when present, else the highest `used_percent` of storage / bandwidth / transformations. **Alerts** `cloudinary_70` /
+`cloudinary_90` (fixed words x 4 locales, open Stats) fire when usage **crosses** a threshold since the previous
+snapshot — usage restarts monthly, so once a month each without extra state; the alert job id carries the month too.
+A Cloudinary or queue failure never fails the run (logged; that card says "could not be read"). Locally no Cloudinary
+read. **Deadline compliance** = reports / grievances **created** in the last 30 days: on time if handled
+(`actioned_at`; `acknowledged_at` — or `resolved_at` when resolved without acknowledging; `resolved_at`) by the due
+time; late if after, or still open past it; open-not-yet-due is left out. **`GET /api/super/stats`** returns the newest
+snapshot (rates worked out on the server) and the last snapshot of each India day for 30 days. **C12** (new Stats
+section): labelled single-series bars and 30-day lines in the primary token (dataviz: one hue, so no categorical
+palette to validate; identity never by colour), a hover / arrow-key readout and a screen-reader table per line; time
+runs LTR in every language. **C11:** the action filter lists every action (`AUDIT_ACTION_NAMES` in `@mc/shared`, kept
+equal to `AUDIT_ACTIONS` by `api/test/audit-actions.test.ts`), India-day From / Until, masjid / admin filters from the
+URL (`?masjid=` / `?actor=` — set from a masjid's page, its admin sheet, or an entry's "Only this ..."; removable
+chips). **CSV export** stayed as built in T1.11 (★, audited `audit.export` with filters + row count, formula-injection
+guard, 10 000 rows); `db/test/audit-allowlist.test.ts` pins that no allowed meta key can carry a phone, e-mail,
+contact, address, token, key, session, IP, UPI id, push subscription or free text about a person.
+**Tests:** `stats-snapshot.int.test.ts` (6: counts = collections, deadline tallies, ameens_7d 7-day window and
+idempotent hour, oldest-job lag, 70/90 alerts once each, failed Cloudinary read), `stats-routes.int.test.ts` (3),
+`stats.test.ts` (7: usage parsing / reader / thresholds / response), audit allow-list + parity tests, e2e
+`admin/kill-switches-stats.spec.ts` (C10 banners + read-only, C12 render with a fixed answer, C11 masjid filter).

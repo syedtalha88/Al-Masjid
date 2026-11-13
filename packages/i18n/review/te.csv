@@ -1471,6 +1471,10 @@ push,alert.sla_100.title,Deadline passed,గడువు దాటిపోయ�
 push,alert.sla_100.body,Something in Reports is past its deadline. Handle it now from the dashboard.,రిపోర్ట్స్‌లో ఒకటి గడువు దాటింది. ఇప్పుడే డాష్‌బోర్డ్ నుండి పరిష్కరించండి.,no
 push,alert.retention_failed.title,Retention run failed,శుభ్రత పని విఫలమైంది,no
 push,alert.retention_failed.body,The daily clean-up could not finish. It will try again; see the audit log.,రోజువారీ శుభ్రత పూర్తి కాలేదు. ఇది మళ్లీ ప్రయత్నిస్తుంది; ఆడిట్ లాగ్ చూడండి.,no
+push,alert.cloudinary_70.title,Media storage 70% used,మీడియా స్టోరేజ్ 70% వాడబడింది,no
+push,alert.cloudinary_70.body,This month's Cloudinary credits are 70% used. Check Stats.,ఈ నెల Cloudinary క్రెడిట్లు 70% వాడబడ్డాయి. గణాంకాలు చూడండి.,no
+push,alert.cloudinary_90.title,Media storage 90% used,మీడియా స్టోరేజ్ 90% వాడబడింది,no
+push,alert.cloudinary_90.body,This month's Cloudinary credits are 90% used. Photos and voice notes may stop soon. Check Stats now.,"ఈ నెల Cloudinary క్రెడిట్లు 90% వాడబడ్డాయి. ఫోటోలు, వాయిస్ నోట్లు త్వరలో ఆగిపోవచ్చు. ఇప్పుడే గణాంకాలు చూడండి.",no
 settings,language,Language,భాష,no
 settings,languageSheet,Choose your language,మీ భాషను ఎంచుకోండి,no
 settings,audience,Brother / Sister,సోదరుడు / సోదరి,no
@@ -1639,6 +1643,7 @@ super,nav.library,Content Library,కంటెంట్ లైబ్రరీ,no
 super,nav.templates,Notice templates,నోటీసు టెంప్లేట్‌లు,no
 super,nav.payments,Payment approvals,చెల్లింపు ఆమోదాలు,no
 super,nav.legal,Legal orders,చట్టపరమైన ఆదేశాలు,no
+super,nav.stats,Stats,గణాంకాలు,no
 super,status.pending,Pending,పెండింగ్,no
 super,status.active,Active,యాక్టివ్,no
 super,status.suspended,Suspended,నిలిపివేయబడింది,no
@@ -1711,6 +1716,8 @@ super,detail.noAdmins,No admins yet. Add one to activate this masjid.,ఇంక�
 super,detail.addAdmin,Add admin,అడ్మిన్‌ను జోడించండి,no
 super,detail.changed,Saved,సేవ్ అయింది,no
 super,detail.poster,QR poster,QR పోస్టర్,no
+super,detail.audit,Audit log,ఆడిట్ లాగ్,no
+super,detail.adminAudit,Their actions in the audit log,ఆడిట్ లాగ్‌లో వీరి పనులు,no
 super,admin.name,Name,పేరు,no
 super,admin.phone,Phone,ఫోన్,no
 super,admin.phoneHint,Optional. Stored encrypted; viewing it is recorded.,ఐచ్ఛికం. ఎన్‌క్రిప్ట్ చేసి ఉంచబడుతుంది; చూసినప్పుడు నమోదవుతుంది.,no
@@ -1777,6 +1784,13 @@ super,audit.actorType.device,Device,డివైస్,no
 super,audit.retentionDryRun,Retention dry run,రిటెన్షన్ డ్రై రన్,no
 super,audit.retentionQueued,"Dry run started. Its counts appear here as ""retention.run"" in a minute.","డ్రై రన్ మొదలైంది. దాని లెక్కలు ఒక నిమిషంలో ఇక్కడ ""retention.run""గా కనిపిస్తాయి.",no
 super,audit.retentionNotQueued,Could not start the dry run. Try again.,డ్రై రన్ మొదలు కాలేదు. మళ్లీ ప్రయత్నించండి.,no
+super,audit.masjidFilter,Masjid {id},మసీదు {id},no
+super,audit.actorFilter,Admin {id},అడ్మిన్ {id},no
+super,audit.removeFilter,Remove filter: {name},ఫిల్టర్ తీసివేయండి: {name},no
+super,audit.anyDate,Any date,ఏ తేదీ అయినా,no
+super,audit.clearDates,Clear dates,తేదీలు తీసివేయండి,no
+super,audit.onlyActor,Only this admin,ఈ అడ్మిన్ మాత్రమే,no
+super,audit.onlyMasjid,Only this masjid,ఈ మసీదు మాత్రమే,no
 super,library.statusFilter,Status,స్థితి,no
 super,library.kindFilter,Kind,రకం,no
 super,library.fileLabel,Your file,మీ ఫైల్,no
@@ -2062,6 +2076,55 @@ super,banners.update,Update banner,బ్యానర్ మార్చండ�
 super,banners.takeDown,Take down,తీసివేయండి,no
 super,banners.shownToast,Banner saved. It can take up to a minute to appear everywhere.,బ్యానర్ సేవ్ అయింది. అన్ని చోట్లా కనిపించడానికి ఒక నిమిషం వరకు పట్టవచ్చు.,no
 super,banners.removedToast,Banner taken down. It can take up to a minute to disappear everywhere.,బ్యానర్ తీసివేయబడింది. అన్ని చోట్ల నుండి పోవడానికి ఒక నిమిషం వరకు పట్టవచ్చు.,no
+super,stats.updated,Updated {time},{time}కి నవీకరించబడింది,no
+super,stats.emptyTitle,No stats yet,ఇంకా గణాంకాలు లేవు,no
+super,stats.emptyBody,The first numbers arrive within an hour of the worker starting.,వర్కర్ ప్రారంభమైన గంటలోపు మొదటి గణాంకాలు వస్తాయి.,no
+super,stats.masjids,Masjids,మసీదులు,no
+super,stats.devices,Phones with the app,యాప్ ఉన్న ఫోన్లు,no
+super,stats.devicesTotal,"{count, number} phones","{count, number} ఫోన్లు",no
+super,stats.platform,By phone type,ఫోన్ రకం ప్రకారం,no
+super,stats.language,By language,భాష ప్రకారం,no
+super,stats.pushOn,Notifications on,నోటిఫికేషన్లు ఆన్,no
+super,stats.follows,Masjids followed (total),ఫాలో చేసిన మసీదులు (మొత్తం),no
+super,stats.push,"Notifications, last 24 hours","నోటిఫికేషన్లు, గత 24 గంటలు",no
+super,stats.pushLine,"{sent, number} delivered · {failed, number} failed","{sent, number} చేరాయి · {failed, number} విఫలం",no
+super,stats.successRate,"{rate, number, percent} delivered","{rate, number, percent} చేరాయి",no
+super,stats.noPush,Nothing sent in the last 24 hours,గత 24 గంటల్లో ఏదీ పంపలేదు,no
+super,stats.deadlines,"Deadlines met, last 30 days","గడువులు పాటించడం, గత 30 రోజులు",no
+super,stats.reports,Reports handled in time,సమయానికి పరిష్కరించిన రిపోర్టులు,no
+super,stats.grievanceAck,Grievances acknowledged in time,సమయానికి స్వీకరించిన ఫిర్యాదులు,no
+super,stats.grievanceResolve,Grievances resolved in time,సమయానికి పరిష్కరించిన ఫిర్యాదులు,no
+super,stats.rateLine,"{rate, number, percent} · {onTime, number} on time, {late, number} late","{rate, number, percent} · {onTime, number} సమయానికి, {late, number} ఆలస్యంగా",no
+super,stats.noneYet,None yet,ఇంకా ఏదీ లేదు,no
+super,stats.jobs,Background jobs,నేపథ్య పనులు,no
+super,stats.jobsLine,"{waiting, number} waiting · {active, number} running · {failed, number} failed","{waiting, number} వేచి ఉన్నాయి · {active, number} నడుస్తున్నాయి · {failed, number} విఫలం",no
+super,stats.lag,Oldest waiting job: {time},అత్యంత పాత వేచి ఉన్న పని: {time},no
+super,stats.lagNone,Nothing waiting,ఏదీ వేచి లేదు,no
+super,stats.jobsUnknown,Could not be read this hour,ఈ గంట చదవలేకపోయాం,no
+super,stats.seconds,"{count, plural, one {# second} other {# seconds}}","{count, plural, one {# సెకను} other {# సెకన్లు}}",no
+super,stats.minutes,"{count, plural, one {# minute} other {# minutes}}","{count, plural, one {# నిమిషం} other {# నిమిషాలు}}",no
+super,stats.cloudinary,Media storage (Cloudinary) this month,మీడియా స్టోరేజ్ (Cloudinary) ఈ నెల,no
+super,stats.cloudinaryUsed,"{percent, number}% used","{percent, number}% వాడబడింది",no
+super,stats.credits,"{usage, number} of {limit, number} credits","{limit, number}లో {usage, number} క్రెడిట్లు",no
+super,stats.plan,Plan: {plan},ప్లాన్: {plan},no
+super,stats.cloudinaryUnknown,"Not available (local, or could not be read this hour)","అందుబాటులో లేదు (లోకల్, లేదా ఈ గంట చదవలేకపోయాం)",no
+super,stats.trend,Last 30 days,గత 30 రోజులు,no
+super,stats.trendDevices,Phones,ఫోన్లు,no
+super,stats.trendFollows,Follows,ఫాలోలు,no
+super,stats.trendMasjids,Active masjids,సక్రియ మసీదులు,no
+super,stats.trendPush,Notifications delivered (24 h),చేరిన నోటిఫికేషన్లు (24 గం),no
+super,stats.trendEmpty,The trend fills in day by day.,ట్రెండ్ రోజురోజుకూ నిండుతుంది.,no
+super,stats.trendTable,Daily values,రోజువారీ విలువలు,no
+super,stats.day,Day,రోజు,no
+super,stats.value,Value,విలువ,no
+super,stats.status.pending,Pending,పెండింగ్,no
+super,stats.status.active,Active,సక్రియం,no
+super,stats.status.suspended,Suspended,నిలిపివేయబడింది,no
+super,stats.status.deleted,Deleted,తొలగించబడింది,no
+super,stats.platformName.android,Android,Android,no
+super,stats.platformName.ios,iPhone,iPhone,no
+super,stats.platformName.desktop,Computer,కంప్యూటర్,no
+super,stats.platformName.other,Other,ఇతర,no
 templates,no_water_time_range.title,No water supply,నీటి సరఫరా నిలిపివేత,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.,no
 templates,electricity_cut_time_range.title,Power cut,విద్యుత్ నిలిపివేత,no

@@ -11,7 +11,8 @@
     "library": "مواد کی لائبریری",
     "templates": "اطلاع کے ٹیمپلیٹ",
     "payments": "ادائیگی کی منظوری",
-    "legal": "قانونی احکامات"
+    "legal": "قانونی احکامات",
+    "stats": "اعداد و شمار"
   },
   "status": {
     "pending": "زیرِ التوا",
@@ -97,7 +98,9 @@
     "noAdmins": "ابھی کوئی ایڈمن نہیں۔ مسجد فعال کرنے کے لیے ایک شامل کریں۔",
     "addAdmin": "ایڈمن شامل کریں",
     "changed": "محفوظ ہو گیا",
-    "poster": "QR پوسٹر"
+    "poster": "QR پوسٹر",
+    "audit": "آڈٹ لاگ",
+    "adminAudit": "آڈٹ لاگ میں ان کے کام"
   },
   "admin": {
     "name": "نام",
@@ -177,7 +180,14 @@
     },
     "retentionDryRun": "ریٹینشن ڈرائی رن",
     "retentionQueued": "ڈرائی رن شروع ہو گیا۔ اس کی گنتی ایک منٹ میں یہاں \"retention.run\" کے طور پر دکھے گی۔",
-    "retentionNotQueued": "ڈرائی رن شروع نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
+    "retentionNotQueued": "ڈرائی رن شروع نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+    "masjidFilter": "مسجد {id}",
+    "actorFilter": "ایڈمن {id}",
+    "removeFilter": "فلٹر ہٹائیں: {name}",
+    "anyDate": "کوئی بھی تاریخ",
+    "clearDates": "تاریخیں ہٹائیں",
+    "onlyActor": "صرف یہ ایڈمن",
+    "onlyMasjid": "صرف یہ مسجد"
   },
   "library": {
     "statusFilter": "حالت",
@@ -513,5 +523,60 @@
     "takeDown": "ہٹائیں",
     "shownToast": "بینر محفوظ ہو گیا۔ ہر جگہ دکھائی دینے میں ایک منٹ تک لگ سکتا ہے۔",
     "removedToast": "بینر ہٹا دیا گیا۔ ہر جگہ سے ہٹنے میں ایک منٹ تک لگ سکتا ہے۔"
+  },
+  "stats": {
+    "updated": "{time} پر اپ ڈیٹ",
+    "emptyTitle": "ابھی کوئی اعداد و شمار نہیں",
+    "emptyBody": "ورکر شروع ہونے کے ایک گھنٹے کے اندر پہلے اعداد و شمار آ جائیں گے۔",
+    "masjids": "مساجد",
+    "devices": "ایپ والے فون",
+    "devicesTotal": "{count, number} فون",
+    "platform": "فون کی قسم کے لحاظ سے",
+    "language": "زبان کے لحاظ سے",
+    "pushOn": "اطلاعات آن",
+    "follows": "فالو کی گئی مساجد (کل)",
+    "push": "اطلاعات، پچھلے 24 گھنٹے",
+    "pushLine": "{sent, number} پہنچیں · {failed, number} ناکام",
+    "successRate": "{rate, number, percent} پہنچیں",
+    "noPush": "پچھلے 24 گھنٹوں میں کچھ نہیں بھیجا گیا",
+    "deadlines": "مقررہ وقت کی پابندی، پچھلے 30 دن",
+    "reports": "وقت پر نمٹائی گئی رپورٹیں",
+    "grievanceAck": "وقت پر تسلیم کی گئی شکایات",
+    "grievanceResolve": "وقت پر حل کی گئی شکایات",
+    "rateLine": "{rate, number, percent} · {onTime, number} وقت پر، {late, number} دیر سے",
+    "noneYet": "ابھی کوئی نہیں",
+    "jobs": "پس منظر کے کام",
+    "jobsLine": "{waiting, number} انتظار میں · {active, number} جاری · {failed, number} ناکام",
+    "lag": "سب سے پرانا منتظر کام: {time}",
+    "lagNone": "کچھ انتظار میں نہیں",
+    "jobsUnknown": "اس گھنٹے پڑھا نہیں جا سکا",
+    "seconds": "{count, plural, one {# سیکنڈ} other {# سیکنڈ}}",
+    "minutes": "{count, plural, one {# منٹ} other {# منٹ}}",
+    "cloudinary": "میڈیا اسٹوریج (Cloudinary) اس مہینے",
+    "cloudinaryUsed": "{percent, number}% استعمال",
+    "credits": "{limit, number} میں سے {usage, number} کریڈٹ",
+    "plan": "پلان: {plan}",
+    "cloudinaryUnknown": "دستیاب نہیں (لوکل، یا اس گھنٹے پڑھا نہیں جا سکا)",
+    "trend": "پچھلے 30 دن",
+    "trendDevices": "فون",
+    "trendFollows": "فالو",
+    "trendMasjids": "فعال مساجد",
+    "trendPush": "پہنچی اطلاعات (24 گھنٹے)",
+    "trendEmpty": "رجحان دن بہ دن بھرتا جائے گا۔",
+    "trendTable": "روزانہ کے اعداد",
+    "day": "دن",
+    "value": "قدر",
+    "status": {
+      "pending": "زیرِ التوا",
+      "active": "فعال",
+      "suspended": "معطل",
+      "deleted": "حذف شدہ"
+    },
+    "platformName": {
+      "android": "Android",
+      "ios": "iPhone",
+      "desktop": "کمپیوٹر",
+      "other": "دیگر"
+    }
   }
 }

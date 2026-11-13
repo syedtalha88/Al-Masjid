@@ -209,6 +209,150 @@ export const superSettingsPatchSchema = z.object({
 });
 export type SuperSettingsPatch = z.infer<typeof superSettingsPatchSchema>;
 
+const count = z.int().min(0);
+/** On time vs late for one kind of deadline over 30 days; `rate` = on time / all (null when there were none). */
+const slaTallySchema = z.object({ onTime: count, late: count, rate: z.number().min(0).max(1).nullable() });
+
+/**
+ * `GET /stats` (07 C12, PHASE_08 T8.10): the newest hourly snapshot (`now`, null before the first run) and one point
+ * per India day for the last 30 days (`trend`, oldest first). Aggregates only — never a device or follow.
+ */
+export const superStatsSchema = z
+  .object({
+    at: z.iso.datetime().nullable(),
+    now: z
+      .object({
+        masjids: z.object({ pending: count, active: count, suspended: count, deleted: count }),
+        devices: z.object({
+          total: count,
+          platform: z.object({ android: count, ios: count, desktop: count, other: count }),
+          locale: z.object({ en: count, hi: count, ur: count, te: count }),
+          push: z.object({ active: count, dead: count, none: count }),
+        }),
+        follows: count,
+        push24h: z.object({
+          jobs: count,
+          sent: count,
+          failed: count,
+          successRate: z.number().min(0).max(1).nullable(),
+        }),
+        queues: z.object({ waiting: count, active: count, delayed: count, failed: count, lagS: count }).optional(),
+        cloudinary: z
+          .object({
+            usedPercent: z.number().min(0),
+            plan: z.string().optional(),
+            credits: z.object({ usage: z.number().min(0), limit: z.number().min(0) }).optional(),
+          })
+          .optional(),
+        sla: z.object({ reports: slaTallySchema, grievanceAck: slaTallySchema, grievanceResolve: slaTallySchema }),
+      })
+      .nullable(),
+    trend: z.array(
+      z.object({
+        day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        activeMasjids: count,
+        devices: count,
+        follows: count,
+        pushSent: count,
+        pushFailed: count,
+      }),
+    ),
+  })
+  .meta({ id: 'SuperStats' });
+export type SuperStats = z.infer<typeof superStatsSchema>;
+
+/**
+ * Every audit action (mirrors `AUDIT_ACTIONS` in @mc/db — a test in packages/api keeps them equal): the C11 filter
+ * offers all of them, grouped by the part before the dot. Shown as written: these are log identifiers.
+ */
+export const AUDIT_ACTION_NAMES = [
+  'adhkar.update',
+  'admin.add_to_masjid',
+  'admin.create',
+  'admin.invite',
+  'admin.phone_view',
+  'admin.remove_from_masjid',
+  'admin.undertaking_accept',
+  'audio.upload',
+  'audit.export',
+  'auth.login',
+  'auth.login_failed',
+  'auth.logout',
+  'auth.register',
+  'auth.step_up',
+  'beneficiary.close',
+  'beneficiary.create',
+  'beneficiary.delete',
+  'beneficiary.private_view',
+  'beneficiary.received',
+  'beneficiary.update',
+  'campaign.complete',
+  'campaign.create',
+  'campaign.received',
+  'campaign.update',
+  'chanda.save',
+  'chanda.settings',
+  'contact.create',
+  'contact.delete',
+  'contact.update',
+  'credential.revoke',
+  'device.follow',
+  'device.unfollow',
+  'grievance.ack',
+  'grievance.contact',
+  'grievance.resolve',
+  'image.upload',
+  'invite.consume',
+  'item.autohide',
+  'item.delete',
+  'item.edit',
+  'item.publish',
+  'item.remove',
+  'item.restore',
+  'legal_order.create',
+  'legal_order.document',
+  'legal_order.document_read',
+  'legal_order.update',
+  'library.import',
+  'library.retire',
+  'library.update',
+  'library.verify',
+  'masjid.activate',
+  'masjid.change_request',
+  'masjid.create',
+  'masjid.delete',
+  'masjid.profile',
+  'masjid.suspend',
+  'masjid.unsuspend',
+  'masjid.update',
+  'payment.activate',
+  'payment.approve',
+  'payment.reject',
+  'payment.request',
+  'push.pause',
+  'push.resume',
+  'ramadan.update',
+  'report.dismiss',
+  'retention.run',
+  'ruqyah.create',
+  'ruqyah.delete',
+  'ruqyah.order',
+  'ruqyah.update',
+  'session.revoke',
+  'settings.read_only_off',
+  'settings.read_only_on',
+  'settings.update',
+  'special.create',
+  'special.delete',
+  'special.update',
+  'template.add_starters',
+  'template.create',
+  'template.update',
+  'timings.update',
+  'video.publish',
+] as const;
+export type AuditActionName = (typeof AUDIT_ACTION_NAMES)[number];
+
 export const auditRowSchema = z
   .object({
     id: z.string(),
