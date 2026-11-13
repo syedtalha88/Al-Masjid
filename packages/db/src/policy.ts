@@ -84,7 +84,6 @@ const ownAuditEntry = (ctx: PolicyContext) => ({
   masjid_id: { $in: [...adminMasjids(ctx), null] },
 });
 /** Device audit entries (follow / unfollow): actor = this device as `device` — never an admin, super admin or system. */
-const ownDeviceAuditEntry = (ctx: PolicyContext) => ({ actor_type: 'device', ...selfDevice('actor_id')(ctx) });
 
 const S: Cell = {};
 const all = (writable?: readonly string[]): Partial<Record<Operation, Cell>> => ({
@@ -479,7 +478,8 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
     },
   },
   audit_log: {
-    device: { insert: { filter: ownDeviceAuditEntry } }, // phase-verifier N1 (22 Oct 2026)
+    // No device cell (security review M2): devices never write the audit log — before, a follow was audited with the
+    // device id, which outlived "Clear all data" for 2 years.
     // An admin's entry names the admin as actor and one of their masjids or none (phase-verifier 22 Oct 2026): no
     // entries planted in another masjid's audit view.
     admin: { find: { filter: own('masjid_id') }, insert: { filter: ownAuditEntry } },

@@ -170,25 +170,34 @@ export async function deleteExpiredItem(
   });
 }
 
+/** The files of a post whose access follows its status, and which way (see {@link mediaForTakedown}). */
+export interface TakedownMedia extends PurgedMedia {
+  /** `true`: the post is not published (removed / hidden / deleted) — restrict; `false`: published — deliver again. */
+  readonly restrict: boolean;
+}
+
 /**
- * The files whose access changes with a takedown (F73, PHASE_08 T8.2): on removal, the post's files no published post,
- * masjid photo or Ruqyah recording also uses (those must keep working); on restore, all of its files (live again).
+ * The files whose access changes with a takedown (F73, PHASE_08 T8.2). The direction is the post's CURRENT status, never
+ * the caller's wish (security review M1: a stale retry or a crafted request could otherwise make a removed post's files
+ * public again): not published → its files no published post, masjid photo or Ruqyah recording also uses (those must
+ * keep working) are restricted; published → all of its files are delivered again.
  *
  * @throws StateError FORBIDDEN outside the system scope; ITEM_NOT_FOUND.
  */
 export async function mediaForTakedown(
   handle: DbHandle,
   scope: Scope,
-  input: { readonly itemId: UUID; readonly restrict: boolean },
-): Promise<PurgedMedia> {
+  input: { readonly itemId: UUID },
+): Promise<TakedownMedia> {
   if (scope.kind !== 'system') throw new StateError('FORBIDDEN');
   const db = await handle.db();
   const item = await db
-    .collection<ItemDoc>('items')
-    .findOne({ _id: input.itemId }, { projection: { image_key: 1, video: 1, campaign: 1, voice: 1 } });
+    .collection<ItemDoc & { status?: string }>('items')
+    .findOne({ _id: input.itemId }, { projection: { image_key: 1, video: 1, campaign: 1, voice: 1, status: 1 } });
   if (!item) throw new StateError('ITEM_NOT_FOUND');
   const media = mediaOf(item);
-  if (!input.restrict || media.images.length + media.audio.length === 0) return media;
+  const restrict = item.status !== 'published';
+  if (!restrict || media.images.length + media.audio.length === 0) return { ...media, restrict };
   const inUse = new Set<string>();
   for (const row of await db
     .collection<ItemDoc>('items')
@@ -224,5 +233,6 @@ export async function mediaForTakedown(
   return {
     images: media.images.filter((key) => !inUse.has(key)),
     audio: media.audio.filter((key) => !inUse.has(key)),
+    restrict,
   };
 }

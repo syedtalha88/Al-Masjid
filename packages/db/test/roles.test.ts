@@ -13,7 +13,6 @@ const FIU = 'fiu';
 const SPEC: Readonly<Record<Exclude<DbUser, 'mc_migrator'>, Readonly<Partial<Record<Namespace, string>>>>> = {
   mc_public: {
     ...Object.fromEntries(PUBLIC_VIEWS.map((view) => [view, 'f'])),
-    audit_log: 'i',
     reports: 'i',
     grievances: 'i',
     grievance_seq: FIU,

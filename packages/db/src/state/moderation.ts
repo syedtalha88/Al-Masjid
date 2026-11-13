@@ -35,6 +35,27 @@ const loadItem = async (db: Db, session: ClientSession, itemId: UUID) =>
     .findOne({ _id: itemId }, { session, projection: { masjid_id: 1, public_id: 1, type: 1, status: 1 } });
 
 /**
+ * The public id and masjid of a post (C5 "Clear the cache again", security review M1): the route purges by these and
+ * never takes them from the request.
+ *
+ * @throws StateError FORBIDDEN (not the Super Admin), ITEM_NOT_FOUND.
+ */
+export async function itemPurgeRef(
+  handle: DbHandle,
+  scope: Scope,
+  itemId: UUID,
+): Promise<{ readonly publicId: string; readonly masjidId: UUID }> {
+  requireSuper(scope);
+  const item = await (
+    await handle.db()
+  )
+    .collection<ItemDoc>('items')
+    .findOne({ _id: itemId }, { projection: { masjid_id: 1, public_id: 1 } });
+  if (!item) throw new StateError('ITEM_NOT_FOUND');
+  return { publicId: item.public_id, masjidId: item.masjid_id };
+}
+
+/**
  * ★ Removes a published or auto-hidden post (C5): hidden for everyone now, preserved privately for 180 days, the
  * masjid's version bumped (every cached response moves on), every open report on it closed as actioned, audited as
  * `item.remove` (category and counts only — never the note). The caller purges the CDN and tells the masjid's admins.

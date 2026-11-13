@@ -226,7 +226,7 @@ S = find, I = insert, U = update, D = delete. "own" = scope's device / scope's m
 | reports | – | I | S reports about own masjid (**never** `device_id`) | S/U |
 | grievances, grievance_seq | I via `createGrievance` | – | – | S/U (decrypt contact in API with step-up) |
 | legal_orders | – | – | – | S/I/U |
-| audit_log | – | I (device actions) | S own masjid entries; I | S; I |
+| audit_log | – | – (devices never write it — security review M2, DECISIONS #180) | S own masjid entries; I | S; I |
 | app_settings | S via `v_pub_settings` (public fields) | – | S | S/U |
 | stats_snapshots | – | – | – | S |
 
@@ -260,7 +260,7 @@ Tests assert (via `explain`) that the hot view queries (feed page, bundle parts,
 | `v_admin_follow_audience` | – | find | find | ″ |
 | masjids, masjid_timings, special_timings, items, chanda_weeks, ruqyah_entries (#130), masjid_contacts (#131), content_library, notice_templates, payment_profiles, admin_users, masjid_admins, webauthn_credentials, admin_invites, admin_sessions, admin_push_subscriptions, notification_jobs, push_quota_usage, legal_orders, app_settings | – | find, insert, update | find, insert, update, remove | collMod, createIndex, createCollection |
 | masjid_admins, admin_push_subscriptions | – | + remove | ″ | ″ |
-| campaign_amount_history, audit_log | audit_log: insert | **find, insert only** | find, insert, remove (retention only) | ″ |
+| campaign_amount_history, audit_log | – | **find, insert only** | find, insert, remove (retention only) | ″ |
 | reports | insert | find, update | all | ″ |
 | grievances | insert | find, update | all | ″ |
 | grievance_seq | find, insert, update | – | all | ″ |
@@ -307,6 +307,7 @@ Implemented once in `packages/db/src/effects.ts`, invoked inside the same transa
 | Grievances | 3 years after resolution (owner to confirm with lawyer) | delete |
 | Legal orders | 3 years after close (owner to confirm) | delete (+ private document) |
 | Audit log | 2 years | delete (audited purge summary) |
+| Audit entries naming a device (follows, written before DECISIONS #180) | at once | delete — a device id must not outlive "Clear all data" |
 | Notification jobs | 90 days | delete |
 | Push quota usage | 90 days | delete |
 | Campaign amount history | life of campaign + 1 year | delete |

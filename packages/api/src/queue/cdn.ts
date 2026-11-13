@@ -13,11 +13,12 @@ export interface CdnPurgeService {
    */
   purgeTags(tags: readonly string[], key: string): Promise<boolean>;
   /**
-   * Enqueues the takedown (`restrict`) or restore of a post's files (F73), trying three times. Never throws.
+   * Enqueues a check of a post's files (F73): restricted while the post is not published, delivered while it is — the
+   * worker reads the status (security review M1). Tries three times. Never throws.
    *
    * @returns whether it was enqueued.
    */
-  mediaAccess(itemId: string, restrict: boolean, key: string): Promise<boolean>;
+  mediaAccess(itemId: string, key: string): Promise<boolean>;
   /**
    * Enqueues a retention dry run (PHASE_08 T8.7, ★ Super Admin): the worker counts what is due and audits the summary.
    *
@@ -47,12 +48,10 @@ export function cdnPurgeService(queues: JobQueues | null, logger: Logger): CdnPu
         () =>
           queues?.enqueue('cdn-purge', { tags: [...tags] }, { jobId: `cdn.${key}`.slice(0, 120) }) ?? Promise.resolve(),
       ),
-    mediaAccess: (itemId, restrict, key) =>
+    mediaAccess: (itemId, key) =>
       tryThrice(
         'media access',
-        () =>
-          queues?.enqueue('media-access', { itemId, restrict }, { jobId: `media.${key}`.slice(0, 120) }) ??
-          Promise.resolve(),
+        () => queues?.enqueue('media-access', { itemId }, { jobId: `media.${key}`.slice(0, 120) }) ?? Promise.resolve(),
       ),
     retentionDryRun: (key) =>
       tryThrice(

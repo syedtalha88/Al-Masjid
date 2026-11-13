@@ -15877,9 +15877,9 @@
         }
       }
     },
-    "/api/super/items/{publicId}/purge": {
+    "/api/super/items/{id}/purge": {
       "post": {
-        "summary": "Clear the CDN cache of a post and its masjid again (when a purge could not be queued)",
+        "summary": "Clear the CDN cache of a post and its masjid again, and re-check its files (restricted unless published) — when a purge could not be queued",
         "tags": [
           "super",
           "moderation"
@@ -15888,42 +15888,11 @@
           {
             "schema": {
               "type": "string",
-              "pattern": "^[A-Za-z0-9_-]{12}$"
+              "maxLength": 64
             },
             "required": true,
-            "name": "publicId",
+            "name": "id",
             "in": "path"
-          },
-          {
-            "schema": {
-              "type": "string",
-              "maxLength": 64
-            },
-            "required": true,
-            "name": "masjid",
-            "in": "query"
-          },
-          {
-            "schema": {
-              "type": "string",
-              "maxLength": 64
-            },
-            "required": true,
-            "name": "item",
-            "in": "query"
-          },
-          {
-            "schema": {
-              "type": "string",
-              "enum": [
-                "true",
-                "false"
-              ],
-              "default": "true"
-            },
-            "required": false,
-            "name": "removed",
-            "in": "query"
           }
         ],
         "requestBody": {

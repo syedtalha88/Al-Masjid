@@ -159,7 +159,7 @@ export {
   type NewMasjid,
 } from './masjids.ts';
 export { type ImagePurpose, recordAudioUpload, recordImageUpload } from './media.ts';
-export { dismissReport, type RemovedItem, removeItem, restoreItem } from './moderation.ts';
+export { dismissReport, itemPurgeRef, type RemovedItem, removeItem, restoreItem } from './moderation.ts';
 export {
   activateDuePaymentProfiles,
   approvePaymentChange,

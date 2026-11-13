@@ -23,6 +23,7 @@ import {
   createLegalOrder,
   createMasjid,
   dismissReport,
+  itemPurgeRef,
   listGrievances,
   listLegalOrders,
   listSlaTimers,
@@ -769,7 +770,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
         // Cached responses (tags) and the post's files (F73: no longer delivered) — both must be queued.
         const tagsQueued =
           (await deps.cdn?.purgeTags([`i-${removed.publicId}`, `m-${idText(removed.masjidId)}`], key)) ?? false;
-        const mediaQueued = (await deps.cdn?.mediaAccess(params.id, true, key)) ?? false;
+        const mediaQueued = (await deps.cdn?.mediaAccess(params.id, key)) ?? false;
         return reply(200, {
           publicId: removed.publicId,
           reports: removed.reportsClosed,
@@ -796,7 +797,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
         const key = `${restored.publicId}.${String(now.getTime())}`;
         const tagsQueued =
           (await deps.cdn?.purgeTags([`i-${restored.publicId}`, `m-${idText(restored.masjidId)}`], key)) ?? false;
-        const mediaQueued = (await deps.cdn?.mediaAccess(params.id, false, key)) ?? false;
+        const mediaQueued = (await deps.cdn?.mediaAccess(params.id, key)) ?? false;
         return reply(200, {
           publicId: restored.publicId,
           reports: restored.reportsDismissed,
@@ -806,24 +807,21 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
     }),
     defineRoute({
       method: 'post',
-      path: '/items/:publicId/purge',
-      summary: 'Clear the CDN cache of a post and its masjid again (when a purge could not be queued)',
+      path: '/items/:id/purge',
+      summary:
+        'Clear the CDN cache of a post and its masjid again, and re-check its files (restricted unless published) — when a purge could not be queued',
       tags: ['super', 'moderation'],
       auth: 'super',
       rateLimit: writes,
-      request: {
-        params: z.object({ publicId: z.string().regex(/^[A-Za-z0-9_-]{12}$/) }),
-        query: z.object({ masjid: Id, item: Id, removed: z.enum(['true', 'false']).default('true') }),
-        body: EmptyBody,
-      },
+      request: { params: z.object({ id: Id }), body: EmptyBody },
       responses: { 200: z.object({ cdnPurgeQueued: z.boolean() }) },
-      handler: async ({ params, query, clock, reply }) => {
-        const masjidId = idOr404(query.masjid, 'MASJID_NOT_FOUND');
-        const key = `${params.publicId}.${String(clock.now().getTime())}`;
-        const tagsQueued = (await deps.cdn?.purgeTags([`i-${params.publicId}`, `m-${idText(masjidId)}`], key)) ?? false;
-        const mediaQueued =
-          (await deps.cdn?.mediaAccess(idText(idOr404(query.item, 'ITEM_NOT_FOUND')), query.removed === 'true', key)) ??
-          false;
+      handler: async ({ auth, params, clock, reply }) => {
+        // Public id and masjid come from the post itself, never the request; the files follow its status (M1).
+        const itemId = idOr404(params.id, 'ITEM_NOT_FOUND');
+        const { publicId, masjidId } = await itemPurgeRef(db, auth.scope, itemId);
+        const key = `${publicId}.${String(clock.now().getTime())}`;
+        const tagsQueued = (await deps.cdn?.purgeTags([`i-${publicId}`, `m-${idText(masjidId)}`], key)) ?? false;
+        const mediaQueued = (await deps.cdn?.mediaAccess(params.id, key)) ?? false;
         return reply(200, { cdnPurgeQueued: tagsQueued && mediaQueued });
       },
     }),

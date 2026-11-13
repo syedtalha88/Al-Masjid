@@ -176,15 +176,9 @@ export const superApi = {
   /** ★ */
   restoreItem: (itemId: string) =>
     call(`${SUPER_API}/items/${id(itemId)}/restore`, moderationResultSchema, { method: 'POST', body: {} }),
-  purgeAgain: (publicId: string, masjidId: string, itemId: string, removed: boolean) =>
-    call(
-      `${SUPER_API}/items/${id(publicId)}/purge${query({ masjid: masjidId, item: itemId, removed: String(removed) })}`,
-      cdnPurgeSchema,
-      {
-        method: 'POST',
-        body: {},
-      },
-    ),
+  /** Clears the CDN cache of a post again and re-checks its files (the server derives everything from the post — M1). */
+  purgeAgain: (itemId: string) =>
+    call(`${SUPER_API}/items/${id(itemId)}/purge`, cdnPurgeSchema, { method: 'POST', body: {} }),
   dismissReport: (reportId: string, note?: string) =>
     call(`${SUPER_API}/reports/${id(reportId)}/dismiss`, dismissedSchema, {
       method: 'POST',

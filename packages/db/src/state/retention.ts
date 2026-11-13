@@ -299,6 +299,10 @@ export async function runRetention(
     });
   }
 
+  // Audit entries that name a device (follows, audited before security review M2): removed at once — a device's id must
+  // not outlive "Clear all data". Devices no longer write the audit log, so after the first run this finds nothing.
+  counts['deviceAudit'] = await sweep(db, 'audit_log', { actor_type: 'device' }, options);
+
   // Stats snapshots 2 years; Ilm contacts deleted 30 days ago (Ruqyah entries go through listExpiredRuqyahAudio).
   counts['stats'] = await sweep(
     db,

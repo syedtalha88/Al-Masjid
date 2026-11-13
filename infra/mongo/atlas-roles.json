@@ -86,10 +86,6 @@
             "resources": [
               {
                 "db": "masjid_connect",
-                "collection": "audit_log"
-              },
-              {
-                "db": "masjid_connect",
                 "collection": "reports"
               },
               {

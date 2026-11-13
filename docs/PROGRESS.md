@@ -18,7 +18,72 @@
 | 08 | Moderation, grievance, legal pages, QR posters | **IN PROGRESS** — T8.1–T8.8 done on `feat/phase-08` (#170–#177); T8.9 next | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (13 Nov 2026, night — Phase 08: T8.1–T8.8 done; T8.9 next)
+## ▶ Next session — start here (13 Nov 2026, late night — Phase 08: T8.1–T8.10 done; T8.11 in progress)
+
+**Owner instruction (13 Nov 2026):** finish Phase 08 fast but at full quality (tests, 4 locales, docs, owner list),
+close it per protocol, then **STOP — do not start Phase 09**. The owner then runs end-to-end testing of every module
+and reports changes / issues to fix.
+
+**State:** `main` = `30a268b` (Phases 05–07) on staging. Phase 08 on `feat/phase-08` (pushed; `ci/phase-08` fast-
+forwarded to `e00af79` — CI run started, result not yet read). Done since the last hand-off:
+- T8.9 kill switches & banners (#178, `dbab233`) · T8.10 stats snapshot job, C12 Stats, Cloudinary alerts, C11 filters
+  (#179, `cd59fbf`) · retention test time bomb fixed (`e00af79`).
+- T8.11 so far (this hand-off commit): Phase 08 contract tests (shared coverage gate was failing in CI at 91.5 % —
+  now passes; all 17 coverage gates pass locally); visual baselines for the report sheet, grievance form, legal readers
+  (4 locales) and Super Admin C3 / C5 / C6 / C7 / C10 / C12 (Pixel 7, 4 locales); existing baselines that really
+  changed (the "…" menu, onboarding logo area, Updates badge cleared — the spec now waits for it) regenerated; compare
+  run green except the iPhone report-sheet shot (WebKit sheet not pixel-stable → Chromium-only for now).
+- Security review (phase protocol) run: **0 HIGH, 7 MEDIUM, 12 LOW** (full list below). Fixed in this commit (#180):
+  **M1** media access follows the post's status (purge route takes only the item id), **M2** devices never write the
+  audit log (follow audits removed, policy cell + mc_public insert privilege dropped, Atlas roles regenerated, retention
+  deletes old device entries), **M4** auto-hide purges the CDN and restricts files. Tests updated and green before
+  Docker stopped (db moderation 8, policy 24, retention 6, roles 11; api moderation-routes 6, report-triage 7).
+
+**Next (in order):**
+1. **Start Docker Desktop**, then `pnpm stack:up:test` (if the worker shows "unhealthy" right away, wait ~20 s —
+   compose's wait races its first heartbeat) → `pnpm db:seed` → `git checkout -- apps/app/src/routeTree.gen.ts`. Re-run
+   the full db / api int suites (`node ../../scripts/vitest-int.mjs --maxWorkers=4` in each package).
+2. **Fix the remaining security MEDIUMs** (each with a test; record in DECISIONS #180):
+   - **M3** `packages/db/src/state/sla.ts`: report flooding (500 cap) can push legal orders / grievances out of
+     `listSlaTimers` → read legal orders + grievances uncapped, filter `sla_alerted < 100` for the job, C1 lists legal
+     orders first.
+   - **M5** banners need ★: require step-up when `PATCH /settings` sets a banner (route + `updateSettings`), wrap the
+     BannerEditor save in `useStepUp`, refuse banner text that `mentionsPaymentAddress` (#160).
+   - **M6** taking down a `chanda_update` must hide its `chanda_weeks` note (remove / auto-hide → `visible=false`,
+     restore → back); `saveChandaWeek` must not re-publish a week whose item is `removed`.
+   - **M7** F67: purge `m-<masjidId>` when a needy person is closed / removed / purged, and on masjid suspend / delete.
+3. **LOWs** — fix or justify each in the report: L1 admin policy filter `$nin ['removed','hidden']` (+ test),
+   L2 read-only also in invite registration / state layer, L3 consider ★ Dismiss for urgent, L4 warn on restoring a
+   legal-order target, L5 no document replace on closed orders (keep old until retention), L6 check Cloudinary private
+   upload answer `type=authenticated`, L7 RSA ≥ 3072 check + HKDF sub-key for files + #173 AAD wording, L8 grievance
+   limit per device, L9 `Cache-Tag` on `/og/p/:id`, L10 retention device race, L11 report de-dup vs privacy text,
+   L12 F64 / F68 close or re-target.
+4. **Semgrep** (CI "Security scans" failed): local scan = 14 findings — `gcm-no-tag-length` at
+   `packages/api/src/crypto/seal.ts:106` (pass `authTagLength: 16` to `createDecipheriv`) is real; the other 13 are the
+   minimum-release-age rules on `.npmrc`, `pnpm-workspace.yaml`, `renovate.json` (add the settings, or check why they
+   fire now — they may be new registry rules). Run: `docker run --rm -v "C:/AL Masjid:/src" -w /src <SEMGREP_IMAGE from
+   ci.yml> semgrep scan --config .semgrep --config p/owasp-top-ten --metrics=off --error --exclude .semgrep --exclude
+   .claude --exclude node_modules --exclude test-results --json` (MSYS_NO_PATHCONV=1).
+5. **CI**: read the `ci/phase-08` run (no `gh` here — `curl https://api.github.com/repos/<owner>/<repo>/actions/runs?
+   branch=ci/phase-08` and `/check-runs/<job>/annotations`); the T8.4-era run failed on coverage (fixed), Semgrep (4)
+   and integration tests (check which). Force-push to `ci/phase-08` is blocked by the auto-mode classifier — only
+   fast-forward pushes (`git push origin feat/phase-08:ci/phase-08`).
+6. **T8.11 rest:** iPhone report-sheet baseline stability; full e2e on Pixel 7 + iPhone 14 in the Linux image (a scratch
+   runner like `scripts/visual.mjs` — the host cannot resolve `*.localhost`; `--network container:mc-dev-caddy-1`,
+   `E2E_TEST_HOOKS=1`); journey 11 + legal re-acceptance specs; re-run `security-reviewer` on the fixes;
+   `phase-verifier`; `docs/reports/PHASE_08_REPORT.md`.
+7. Close Phase 08 (#162 autopilot): CI green → merge to `main` → staging → owner steps (O51, O53–O58). Then **stop**
+   and tell the owner.
+
+**Local notes:** Bash heredocs with quotes / Python fail in this shell — write scratch scripts with the Write tool into
+the scratchpad and run `python <script> "/c/AL Masjid"` (`newline='\n'`, then prettier). The stack serves BUILT images:
+UI fixes need `pnpm stack:up:test` before an e2e / screenshot shows them. `pnpm test:visual:update` rewrites every
+baseline — keep only real changes (pixel-diff old vs new with PIL; restore zero-diff files). Integration suites:
+`node ../../scripts/vitest-int.mjs --maxWorkers=4` in the package. Windows test workers occasionally crash with exit
+code 3221226505 under load — re-run the file alone. Never read `.env*` files; `.claude/settings.json` is the owner's
+own uncommitted change — never commit it.
+
+## ▶ Previous hand-off (13 Nov 2026, night — Phase 08: T8.1–T8.8 done; T8.9 next)
 
 **Owner instruction (13 Nov 2026):** finish Phase 08 fast but at full quality (tests, 4 locales, docs, owner list),
 close it per protocol, then **STOP — do not start Phase 09**. The owner then runs end-to-end testing of every module
@@ -992,7 +1057,10 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   deadline compliance, queue lag, Cloudinary usage + 70/90 % alerts, `masjid_stats.ameens_7d` — never computed before),
   `GET /super/stats` + C12 Stats (bars, 30-day lines with keyboard readout + tables); C11 every action, India dates,
   masjid / admin filters (links from C2 and the admin sheet); audit meta allow-list privacy test. Owner: O58.
-- [ ] T8.11 — Quality gates
+- [ ] T8.11 — Quality gates — **in progress (13 Nov 2026)**: shared contract tests (coverage gate), visual baselines
+  for the new screens (musalli 4 locales × 2 devices; Super Admin C3/C5/C6/C7/C10/C12 Pixel 7 × 4 locales), security
+  review run (0 H / 7 M / 12 L) — M1, M2, M4 fixed (#180); M3, M5, M6, M7, LOWs, Semgrep, CI, full e2e, phase-verifier
+  and the report remain (see "Next session").
 
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
@@ -1072,6 +1140,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-13 | 08 / T8.9–T8.11 | T8.9 kill switches & banners (#178), T8.10 stats snapshot + C12 + C11 filters (#179), retention test time bomb fixed. T8.11 started: contract tests (coverage gate), new visual baselines, security review 0 H / 7 M / 12 L — M1 / M2 / M4 fixed (#180), rest listed in the hand-off. Docker stopped at the end — int suites to re-run. |
 | 2026-11-13 | 08 / T8.2–T8.4 | Takedown + C5 + tag purge + F73 / F74 (#171), SLA engine + C1 card (#172), grievances with RSA-sealed contacts + C6 (#173). Journey 11 and grievance e2e green; app fix: removed posts vanish after the next poll. Paused at the owner's request — T8.5 next. |
 | 2026-11-13 | 08 / T8.1 | Reporting done (#170): reports API + `report-triage` job (urgent alert / auto-hide exactly once), migration 0023, 05 §1 allow-list test, "…" → Report sheet on every post + Masjid Detail (× 4 locales), shared Sheet scroll fix. `main` fast-forwarded to `30a268b` (Phases 06 + 07) after green CI — staging release running. |
 | 2026-11-13 | 06 + 07 close | Phase 06 report final ("DONE — owner checks pending", O49). Phase 07 phase-verifier FAIL → fixed (#169): location can be updated or dropped for the masjid's, glow opacity-only, arrowhead, rAF writes, 5 new e2e states + `useHeading` unit; Pixel 7 12/12 (×3), iPhone 14 12/12, perf 3/3, visual `qibla` × 8 regenerated. Phase 07 "DONE — owner checks pending" (O29). Next: CI → `main` → staging, then Phase 08. |

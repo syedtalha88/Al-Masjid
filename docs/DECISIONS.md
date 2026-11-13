@@ -3254,3 +3254,20 @@ contact, address, token, key, session, IP, UPI id, push subscription or free tex
 idempotent hour, oldest-job lag, 70/90 alerts once each, failed Cloudinary read), `stats-routes.int.test.ts` (3),
 `stats.test.ts` (7: usage parsing / reader / thresholds / response), audit allow-list + parity tests, e2e
 `admin/kill-switches-stats.spec.ts` (C10 banners + read-only, C12 render with a fixed answer, C11 masjid filter).
+
+### #180 — Phase 08 security review fixes (PHASE_08 T8.11) — IN PROGRESS (Claude Code, 13 Nov 2026)
+Review result: 0 HIGH, 7 MEDIUM, 12 LOW (list in PROGRESS "Next session"). Fixed so far:
+- **M1 — a post's files follow its status, never the request.** `mediaForTakedown({itemId})` reads the post: not
+  published (removed / hidden / deleted) → restrict the files no published post, masjid photo or Ruqyah entry also uses;
+  published → deliver all again. The `media-access` payload's `restrict` is ignored (still accepted so queued jobs stay
+  valid), so a stale retry (Remove → Restore → Remove) can never re-expose a removed post. "Clear the cache again" is
+  now `POST /api/super/items/:id/purge` (item UUID only; public id and masjid come from the post via `itemPurgeRef`).
+- **M2 — devices never write the audit log.** Follows / unfollows are no longer audited (the entries kept the device id
+  and its masjids for 2 years, past "Clear all data" — 02 §4.1, 04 R6, the privacy text); `device.follow` /
+  `device.unfollow` left the vocabulary, the policy layer has no device cell on `audit_log`, `mc_public` lost its
+  insert privilege (Atlas roles regenerated — **staging / production roles must be re-applied on deploy**), and the
+  daily retention run deletes any audit entry with `actor_type: 'device'` (new 02 §6 row; `deviceAudit` count).
+- **M4 — auto-hide purges like a removal.** `report-triage` enqueues `cdn-purge` (`i-<publicId>`, `m-<masjidId>`) and
+  `media-access` after a post is hidden, one job each per post (`cdn.autohide.<id>`, `media.autohide.<id>`).
+Remaining (M3, M5, M6, M7, the LOWs, Semgrep `gcm-no-tag-length`) are listed in PROGRESS; this entry becomes ACCEPTED
+when they are done.

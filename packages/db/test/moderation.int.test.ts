@@ -203,22 +203,27 @@ describe('removeItem / restoreItem / dismissReport', () => {
     );
   });
 
-  it('F73: on removal only files no published post also uses are restricted; on restore all of them', async () => {
+  it('F73: the direction follows the post — not published: only files no published post also uses are restricted; published: all of them (M1)', async () => {
     const key = `m/${String(ALPHA)}/${String(newId())}`;
     const removedId = await itemOf(seedPublicId('alpha', 4));
     const liveId = await itemOf(seedPublicId('alpha', 5));
     const items = t().db.collection<{ _id: UUID }>('items');
-    await items.updateOne({ _id: removedId }, { $set: { image_key: key } });
+    const before = await t()
+      .db.collection<{ _id: UUID; status: string }>('items')
+      .findOne({ _id: removedId }, { projection: { status: 1 } });
+    await items.updateOne({ _id: removedId }, { $set: { image_key: key, status: 'removed' } });
     await items.updateOne({ _id: liveId }, { $set: { image_key: key } });
-    const takedown = (restrict: boolean) =>
-      mediaForTakedown(as('mc_system'), systemScope(), { itemId: removedId, restrict });
+    const takedown = () => mediaForTakedown(as('mc_system'), systemScope(), { itemId: removedId });
     // Shared with a published post: it must keep working.
-    expect(await takedown(true)).toEqual({ images: [], audio: [] });
-    expect(await takedown(false)).toEqual({ images: [key], audio: [] });
+    expect(await takedown()).toEqual({ images: [], audio: [], restrict: true });
     await items.updateOne({ _id: liveId }, { $unset: { image_key: '' } });
-    expect(await takedown(true)).toEqual({ images: [key], audio: [] });
-    expect(await code(mediaForTakedown(as('mc_admin'), stepped(), { itemId: removedId, restrict: true }))).toBe(
-      'FORBIDDEN',
-    );
+    expect(await takedown()).toEqual({ images: [key], audio: [], restrict: true });
+    // Hidden counts as not published too; only a published post gets its files back.
+    await items.updateOne({ _id: removedId }, { $set: { status: 'hidden' } });
+    expect(await takedown()).toEqual({ images: [key], audio: [], restrict: true });
+    await items.updateOne({ _id: removedId }, { $set: { status: 'published' } });
+    expect(await takedown()).toEqual({ images: [key], audio: [], restrict: false });
+    expect(await code(mediaForTakedown(as('mc_admin'), stepped(), { itemId: removedId }))).toBe('FORBIDDEN');
+    await items.updateOne({ _id: removedId }, { $set: { status: before?.status ?? 'published' } });
   });
 });

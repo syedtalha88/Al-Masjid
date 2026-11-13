@@ -47,7 +47,8 @@ export const JOB_SCHEMAS = {
       .max(10),
   }),
   /** After a takedown / restore (F73): the post's files stop (or start again) being delivered. */
-  'media-access': z.strictObject({ itemId: uuid, restrict: z.boolean() }),
+  // `restrict` is ignored (M1 — the worker follows the post's status); still accepted so jobs queued before stay valid.
+  'media-access': z.strictObject({ itemId: uuid, restrict: z.boolean().optional() }),
   /** Scheduled every 15 minutes: Super Admin alerts at 50 / 80 / 100 % of each SLA (05 §3, PHASE_08 T8.3). */
   'sla-alerts': z.strictObject({}),
   /** Scheduled every minute: urgent-report alerts and auto-hide after many reports (05 §3, PHASE_08 T8.1). */

@@ -5,7 +5,7 @@
 import type { UUID } from 'mongodb';
 
 import { type DbHandle, withTransaction } from '../client.ts';
-import { StateError, writeAudit } from '../effects.ts';
+import { StateError } from '../effects.ts';
 import type { Scope } from '../scope.ts';
 import { newId } from '../values.ts';
 
@@ -71,12 +71,8 @@ export async function followMasjid(handle: DbHandle, scope: Scope, masjidId: UUI
           { $inc: { followers: 1 }, $set: { updated_at: new Date() }, $setOnInsert: { ameens_7d: 0 } },
           { ...session, upsert: true },
         );
-      await writeAudit(ctx, {
-        action: 'device.follow',
-        masjidId,
-        targetType: 'masjid',
-        targetId: masjidId.toHexString(),
-      });
+      // Not audited (security review M2): an audit entry naming the device kept who follows which masjid for 2 years,
+      // past "Clear all data" — follows are not an admin action.
       return 'followed';
     });
   } catch (error) {
@@ -115,12 +111,6 @@ export async function unfollowMasjid(
         { $inc: { followers: -1 }, $set: { updated_at: new Date() } },
         session,
       );
-    await writeAudit(ctx, {
-      action: 'device.unfollow',
-      masjidId,
-      targetType: 'masjid',
-      targetId: masjidId.toHexString(),
-    });
     return 'unfollowed';
   });
 }

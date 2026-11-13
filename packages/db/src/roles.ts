@@ -73,10 +73,10 @@ const grant = (namespaces: readonly Namespace[], actions: readonly Action[]): Pr
   namespaces.map((namespace) => ({ namespace, actions }));
 
 const ROLES: Readonly<Record<DbUser, readonly Privilege[]>> = {
-  // api-public: public views only, device-owned collections, and insert-only reports/grievances/audit (02 §4.3).
+  // api-public: public views only, device-owned collections, and insert-only reports/grievances (02 §4.3). No audit
+  // log: devices never write it (security review M2).
   mc_public: [
     ...grant(PUBLIC_VIEWS, ['find']),
-    { namespace: 'audit_log', actions: ['insert'] },
     { namespace: 'reports', actions: ['insert'] },
     { namespace: 'grievances', actions: ['insert'] },
     { namespace: 'grievance_seq', actions: FIU },

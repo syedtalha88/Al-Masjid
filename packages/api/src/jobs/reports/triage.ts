@@ -72,6 +72,16 @@ export async function processReportTriage(deps: ReportTriageDeps): Promise<Repor
       { alertId, to: { kind: 'super' }, alert: { type: 'report_autohide', params: {} } },
       { jobId: `alert.${alertId}` },
     );
+    // Hidden must mean gone (security review M4): the CDN's cached copies of the post and its masjid (old `?v=` URLs
+    // stay immutable otherwise) and its files (restricted while not published). One job each per post.
+    if (outcome.target) {
+      await deps.queues.enqueue(
+        'cdn-purge',
+        { tags: [`i-${outcome.target.publicId}`, `m-${idText(outcome.target.masjidId)}`] },
+        { jobId: `cdn.autohide.${itemText}` },
+      );
+      await deps.queues.enqueue('media-access', { itemId: itemText }, { jobId: `media.autohide.${itemText}` });
+    }
     if (outcome.result === 'hidden') {
       deps.logger.warn({ item: itemText, reporters }, 'post hidden pending review after many reports');
     }

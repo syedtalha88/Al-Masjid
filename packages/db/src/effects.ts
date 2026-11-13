@@ -105,8 +105,6 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'audit.export': ['filters', 'rows', 'truncated'],
   'admin.undertaking_accept': ['version'],
   'invite.consume': ['purpose'],
-  'device.follow': [],
-  'device.unfollow': [],
   'auth.register': ['credential'],
   'auth.login': ['credential'],
   'auth.login_failed': ['credential_hash', 'capped'],
@@ -204,10 +202,10 @@ const actorOf = (scope: Scope) => {
       return { actor_type: 'admin', actor_id: scope.adminId };
     case 'super':
       return { actor_type: 'super_admin', actor_id: scope.adminId };
-    case 'device':
-      return { actor_type: 'device', actor_id: scope.deviceId };
     case 'system':
       return { actor_type: 'system' };
+    // A device never writes the audit log (security review M2): its id there would outlive "Clear all data".
+    case 'device':
     case 'public':
     case 'hook':
       throw new StateError('AUDIT_ACTOR', `scope ${scope.kind} cannot write the audit log`);

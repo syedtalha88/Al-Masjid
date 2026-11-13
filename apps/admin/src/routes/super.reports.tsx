@@ -181,8 +181,7 @@ function TargetCard({ target, open }: { readonly target: QueueTargetView; readon
     onError,
   });
   const purge = useMutation({
-    mutationFn: () =>
-      superApi.purgeAgain(target.item?.publicId ?? '', target.masjid.id, target.targetId, itemStatus !== 'published'),
+    mutationFn: () => superApi.purgeAgain(target.targetId),
     onSuccess: (result) => {
       setPurgeLost(!result.cdnPurgeQueued);
       toast.show({

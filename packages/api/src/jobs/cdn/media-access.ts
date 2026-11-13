@@ -31,7 +31,8 @@ export async function processMediaAccess(
 ): Promise<{ readonly files: number }> {
   const itemId = parseId(payload.itemId);
   if (!itemId) throw new Error('media-access: malformed item id'); // the payload schema already refuses it
-  const media = await mediaForTakedown(deps.db, systemScope(), { itemId, restrict: payload.restrict });
+  // The direction follows the post's status now, not the payload (M1): a late retry can never re-expose a removed post.
+  const media = await mediaForTakedown(deps.db, systemScope(), { itemId });
   const files = media.images.length + media.audio.length;
   if (files === 0) return { files: 0 };
   if (!deps.media) {
@@ -39,13 +40,13 @@ export async function processMediaAccess(
     return { files: 0 };
   }
   for (const key of media.images) {
-    await (payload.restrict ? deps.media.restrictImage(key) : deps.media.unrestrictImage(key));
+    await (media.restrict ? deps.media.restrictImage(key) : deps.media.unrestrictImage(key));
   }
   for (const key of media.audio) {
-    await (payload.restrict ? deps.media.restrictAudio(key) : deps.media.unrestrictAudio(key));
+    await (media.restrict ? deps.media.restrictAudio(key) : deps.media.unrestrictAudio(key));
   }
   // Our CDN's copies of the delivery URLs go too (a restored file is simply fetched again).
-  if (payload.restrict && deps.purger && deps.mediaOrigin) {
+  if (media.restrict && deps.purger && deps.mediaOrigin) {
     await deps.purger.purge(mediaDeliveryUrls(deps.mediaOrigin, media));
   }
   return { files };

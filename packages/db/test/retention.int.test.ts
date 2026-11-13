@@ -155,6 +155,8 @@ describe('retention (T8.7)', () => {
     await plant('audit_log', [
       { at: ago(RETENTION.auditMs), action: 'test.old', mark: 'old' },
       { at: within(RETENTION.auditMs), action: 'test.keep', mark: 'keep' },
+      // A follow audited with the device id before security review M2: removed at once, whatever its age.
+      { at: NOW, actor_type: 'device', actor_id: newId(), action: 'device.follow', mark: 'old' },
     ]);
     await plant('notification_jobs', [
       { created_at: ago(RETENTION.notificationJobMs), mark: 'old' },
@@ -248,6 +250,7 @@ describe('retention (T8.7)', () => {
       reports: 1,
       grievances: 1,
       audit: 1,
+      deviceAudit: 1,
       notificationJobs: 1,
       pushQuota: 1,
       campaignHistory: 2,
@@ -271,6 +274,7 @@ describe('retention (T8.7)', () => {
       reports: 1,
       grievances: 1,
       audit: 1,
+      deviceAudit: 1,
       notificationJobs: 1,
       pushQuota: 1,
       campaignHistory: 2,

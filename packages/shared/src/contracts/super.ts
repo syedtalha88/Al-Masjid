@@ -296,8 +296,6 @@ export const AUDIT_ACTION_NAMES = [
   'contact.delete',
   'contact.update',
   'credential.revoke',
-  'device.follow',
-  'device.unfollow',
   'grievance.ack',
   'grievance.contact',
   'grievance.resolve',

@@ -177,21 +177,29 @@ export async function readAutohideThreshold(handle: DbHandle, scope: Scope, fall
  *
  * @param reporters - distinct devices that reported it within the window (audit meta).
  * @returns `hidden` when this call hid it, `unchanged` when it was not published, with the post's status now (so a
- *   caller can still raise a lost alert for a post that is already `hidden`).
+ *   caller can still raise a lost alert for a post that is already `hidden`) and its public id and masjid (the caller
+ *   purges the CDN by them and re-checks its files — security review M4).
  * @throws StateError FORBIDDEN unless `systemScope()`.
  */
 export async function autoHideItem(
   handle: DbHandle,
   scope: Scope,
   input: { readonly itemId: UUID; readonly reporters: number; readonly now: Date },
-): Promise<{ readonly result: 'hidden' | 'unchanged'; readonly status: string | null }> {
+): Promise<{
+  readonly result: 'hidden' | 'unchanged';
+  readonly status: string | null;
+  readonly target?: { readonly publicId: string; readonly masjidId: UUID };
+}> {
   if (scope.kind !== 'system') throw new StateError('FORBIDDEN');
   return withTransaction(handle, scope, async (ctx) => {
     const options: { session: ClientSession } = { session: ctx.session };
     const item = await ctx.db
-      .collection<{ _id: UUID; masjid_id: UUID; status: string; type: string }>('items')
-      .findOne({ _id: input.itemId }, { ...options, projection: { masjid_id: 1, status: 1, type: 1 } });
-    if (item?.status !== 'published') return { result: 'unchanged' as const, status: item?.status ?? null };
+      .collection<{ _id: UUID; masjid_id: UUID; public_id: string; status: string; type: string }>('items')
+      .findOne({ _id: input.itemId }, { ...options, projection: { masjid_id: 1, public_id: 1, status: 1, type: 1 } });
+    const target = item ? { publicId: item.public_id, masjidId: item.masjid_id } : undefined;
+    if (item?.status !== 'published') {
+      return { result: 'unchanged' as const, status: item?.status ?? null, ...(target ? { target } : {}) };
+    }
     await contentWrite(ctx, item.masjid_id, async (store) => {
       const matched = await scoped(store, 'items').updateOne(
         { _id: input.itemId, status: 'published' },
@@ -206,6 +214,6 @@ export async function autoHideItem(
       targetId: idText(item._id),
       meta: { type: item.type, reporters: input.reporters },
     });
-    return { result: 'hidden' as const, status: 'hidden' };
+    return { result: 'hidden' as const, status: 'hidden', ...(target ? { target } : {}) };
   });
 }

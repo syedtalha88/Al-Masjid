@@ -40,17 +40,17 @@ const sys = () => {
   return asSystem.handle;
 };
 
-/** Records enqueued alerts like BullMQ: a job id already queued is not added again. */
+/** Records enqueued jobs like BullMQ (a job id already queued is not added again): alerts by type, others by name. */
 let sent: { jobId: string; type: string }[] = [];
 let failNext = false;
 const queues = {
-  enqueue: (_name: string, data: { alert: { type: string } }, options: { jobId: string }) => {
+  enqueue: (name: string, data: { alert?: { type: string } }, options: { jobId: string }) => {
     if (failNext) {
       failNext = false;
       return Promise.reject(new Error('redis down'));
     }
     if (!sent.some((entry) => entry.jobId === options.jobId))
-      sent.push({ jobId: options.jobId, type: data.alert.type });
+      sent.push({ jobId: options.jobId, type: data.alert?.type ?? name });
     return Promise.resolve();
   },
 } as unknown as JobQueues; // only `enqueue` is called
@@ -129,7 +129,7 @@ describe('report-triage', () => {
     expect(sent).toEqual([{ jobId: `alert.report_urgent.${idText(urgent)}`, type: 'report_urgent' }]);
   });
 
-  it('threshold devices within the hour hide the post once, with one alert', async () => {
+  it('threshold devices within the hour hide the post once, with one alert, a CDN purge and a file check (M4)', async () => {
     const post = seedPublicId('beta', 0);
     await reportPost(post);
     await reportPost(post);
@@ -140,10 +140,15 @@ describe('report-triage', () => {
     expect(await run()).toMatchObject({ triaged: 1, hidden: 1 });
     expect(await statusOf(post)).toBe('hidden');
     const item = await t().db.collection('items').findOne({ public_id: post });
-    expect(sent).toEqual([{ jobId: `alert.report_autohide.${idText(item?._id as never)}`, type: 'report_autohide' }]);
+    const itemText = idText(item?._id as never); // the seed post exists
+    expect(sent).toEqual([
+      { jobId: `alert.report_autohide.${itemText}`, type: 'report_autohide' },
+      { jobId: `cdn.autohide.${itemText}`, type: 'cdn-purge' },
+      { jobId: `media.autohide.${itemText}`, type: 'media-access' },
+    ]);
     clock.advance(MINUTE);
     expect(await run()).toEqual({ triaged: 0, urgent: 0, hidden: 0 });
-    expect(sent).toHaveLength(1);
+    expect(sent).toHaveLength(3);
     const audits = await t().db.collection('audit_log').countDocuments({ action: 'item.autohide' });
     expect(audits).toBe(1);
   });
@@ -180,7 +185,7 @@ describe('report-triage', () => {
     } finally {
       (queues as { enqueue: unknown }).enqueue = realEnqueue;
     }
-    expect(sent.map((entry) => entry.type)).toEqual(['report_autohide']);
+    expect(sent.map((entry) => entry.type)).toEqual(['report_autohide', 'cdn-purge', 'media-access']);
   });
 
   it("needs the worker's database user: mc_public may not read reports", async () => {

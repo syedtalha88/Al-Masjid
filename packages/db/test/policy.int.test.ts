@@ -46,7 +46,7 @@ const SPEC: Readonly<Partial<Record<Namespace, Partial<Record<Column, string>>>>
   grievances: { public: 'I', super: 'SU' },
   grievance_seq: { public: 'SIU', super: 'SU' },
   legal_orders: { super: 'SIU' },
-  audit_log: { device: 'I', admin: 'SI', super: 'SI' },
+  audit_log: { admin: 'SI', super: 'SI' }, // no device cell: security review M2
   app_settings: { admin: 'S', super: 'SU' },
   stats_snapshots: { super: 'S' },
   _migrations: {},
@@ -330,13 +330,13 @@ describe('tenant isolation', () => {
     );
   });
 
-  it('a device writes audit entries only as itself (phase-verifier N1)', async () => {
+  it('a device writes no audit entry at all, not even as itself (security review M2; was phase-verifier N1)', async () => {
     const mine = deviceScope(new UUID());
     const audit = scoped({ scope: mine, db: db() }, 'audit_log');
     const entry = (extra: Record<string, unknown>) => ({
       _id: new UUID(),
       at: new Date(),
-      action: 'device.follow',
+      action: 'masjid.update',
       masjid_id: masjidC,
       ...extra,
     });
@@ -345,12 +345,10 @@ describe('tenant isolation', () => {
       { actor_type: 'super_admin', actor_id: new UUID() },
       { actor_type: 'system' },
       { actor_type: 'device', actor_id: new UUID() }, // another device
+      { actor_type: 'device', actor_id: mine.deviceId }, // itself
     ]) {
-      await expect(audit.insertOne(entry(forged)), JSON.stringify(forged.actor_type)).rejects.toBeInstanceOf(
-        PolicyDeniedError,
-      );
+      await expect(audit.insertOne(entry(forged)), JSON.stringify(forged)).rejects.toBeInstanceOf(PolicyDeniedError);
     }
-    await audit.insertOne(entry({ actor_type: 'device', actor_id: mine.deviceId }));
   });
 
   it('a device changes nothing of another device: its record, follows or ameens', async () => {

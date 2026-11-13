@@ -31,14 +31,14 @@ const alerts: AlertService = {
     return Promise.resolve(true);
   },
 };
-const access: { itemId: string; restrict: boolean }[] = [];
+const access: { itemId: string }[] = [];
 const cdn: CdnPurgeService = {
   purgeTags: (tags, key) => {
     purges.push({ tags, key });
     return Promise.resolve(purgeWorks);
   },
-  mediaAccess: (itemId, restrict) => {
-    access.push({ itemId, restrict });
+  mediaAccess: (itemId) => {
+    access.push({ itemId });
     return Promise.resolve(true);
   },
 };
@@ -135,7 +135,7 @@ describe('moderation (C5)', () => {
     expect(moderationResultSchema.parse(response.body)).toEqual({ publicId, reports: 2, cdnPurgeQueued: true });
     expect(await getPublicItem(pub(), publicId, ['everyone', 'brothers', 'sisters'])).toBeNull();
     expect(purges.at(-1)?.tags).toEqual([`i-${publicId}`, `m-${idText(ALPHA)}`]);
-    expect(access.at(-1)).toEqual({ itemId: id, restrict: true }); // F73: its files stop being delivered
+    expect(access.at(-1)).toEqual({ itemId: id }); // F73: its files are re-checked (restricted: not published)
     expect(raised.at(-1)).toMatchObject({ type: 'item_removed', to: { kind: 'admins', adminIds: [idText(OWNER)] } });
     const open = await asSuper('get', '/reports');
     const queue = moderationQueueSchema.parse(open.body);
@@ -177,10 +177,15 @@ describe('moderation (C5)', () => {
     const response = await asSuper('post', `/items/${id}/remove`).send({ category: 'copyright' });
     expect(response.body).toMatchObject({ cdnPurgeQueued: false });
     purgeWorks = true;
-    const again = await asSuper('post', `/items/${publicId}/purge?masjid=${idText(ALPHA)}&item=${id}`).send({});
+    const again = await asSuper('post', `/items/${id}/purge`).send({});
     expect(again.status).toBe(200);
     expect(again.body).toEqual({ cdnPurgeQueued: true });
-    expect(access.at(-1)).toEqual({ itemId: id, restrict: true });
+    // The tags come from the post itself (M1), never from the request.
+    expect(purges.at(-1)?.tags).toEqual([`i-${publicId}`, `m-${idText(ALPHA)}`]);
+    expect(access.at(-1)).toEqual({ itemId: id });
+    // The old shape (masjid / item / removed in the query) is refused; an unknown post is a 404.
+    expect((await asSuper('post', `/items/${id}/purge?removed=false`).send({})).status).toBe(400);
+    expect((await asSuper('post', `/items/${crypto.randomUUID()}/purge`).send({})).status).toBe(404);
   });
 
   it('★ Restore publishes it again; Dismiss closes one report', async () => {
@@ -188,7 +193,7 @@ describe('moderation (C5)', () => {
     const id = await itemIdOf(publicId);
     const restored = await asSuper('post', `/items/${id}/restore`).send({});
     expect(restored.status).toBe(200);
-    expect(access.at(-1)).toEqual({ itemId: id, restrict: false });
+    expect(access.at(-1)).toEqual({ itemId: id });
     expect(await getPublicItem(pub(), publicId, ['everyone', 'brothers', 'sisters'])).not.toBeNull();
     expect((await asSuper('post', `/items/${id}/restore`).send({})).status).toBe(404);
 
