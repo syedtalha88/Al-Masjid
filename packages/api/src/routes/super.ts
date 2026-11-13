@@ -16,16 +16,20 @@ import {
   type MasjidRow,
 } from '@mc/db/repos';
 import {
+  acknowledgeGrievance,
   changeMasjidStatus,
   createAdminForMasjid,
   createInvite,
   createMasjid,
   dismissReport,
+  listGrievances,
   listSlaTimers,
   readAdminPhone,
+  readGrievanceContact,
   recordAuditExport,
   removeAdminFromMasjid,
   removeItem,
+  resolveGrievance,
   restoreItem,
   revokeAdminPasskeys,
   revokeAdminSessions,
@@ -69,9 +73,15 @@ import {
   superSettingsSchema,
   testAlertResponseSchema,
 } from '@mc/shared/contracts';
+import {
+  grievanceContactSchema,
+  grievanceListSchema,
+  resolveGrievanceRequestSchema,
+} from '@mc/shared/contracts/grievances';
 import { z } from 'zod';
 
 import { decryptField, encryptField, type FieldKeyRing, hashToken, newToken } from '../crypto/field.ts';
+import { openSealed, type SealKeys } from '../crypto/seal.ts';
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
 import { ApiProblem } from '../http/problem.ts';
 import type { AlertService } from '../queue/alerts.ts';
@@ -91,6 +101,8 @@ export interface SuperRouteDeps {
   readonly testAlerts?: boolean | undefined;
   /** Cache purges after a takedown / restore (T8.2); the worker purges. */
   readonly cdn?: CdnPurgeService | undefined;
+  /** Opens sealed grievance contacts (★ "Show contact" — DECISIONS #173); absent → 503. */
+  readonly sealKeys?: SealKeys | undefined;
 }
 
 const PHONE_CONTEXT = 'admin_users.phone_enc';
@@ -137,7 +149,13 @@ function defined<T extends object>(value: T): { [K in keyof T]?: Exclude<T[K], u
 /** C1 shows this many timers (the queue has the rest). */
 const DASHBOARD_SLA_MAX = 20;
 
-function idOr404(text: string, code: 'MASJID_NOT_FOUND' | 'ADMIN_NOT_FOUND' | 'ITEM_NOT_FOUND' | 'REPORT_NOT_FOUND') {
+/** POST routes without fields still take `{}` (the admin client always sends a JSON body). */
+const EmptyBody = z.strictObject({});
+
+function idOr404(
+  text: string,
+  code: 'MASJID_NOT_FOUND' | 'ADMIN_NOT_FOUND' | 'ITEM_NOT_FOUND' | 'REPORT_NOT_FOUND' | 'GRIEVANCE_NOT_FOUND',
+) {
   const id = parseId(text);
   if (!id) throw new ApiProblem(404, code);
   return id;
@@ -449,6 +467,74 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
         return reply(201, { inviteUrl: inviteUrl(deps.adminOrigin, token), expiresAt: expiresAt.toISOString() });
       },
     }),
+    // --- Grievances (07 C6, 05 §3, PHASE_08 T8.4) ---------------------------------------------------------------
+    defineRoute({
+      method: 'get',
+      path: '/grievances',
+      summary: 'The grievance tracker: unfinished first by their next due time (never the contact)',
+      tags: ['super', 'grievance'],
+      auth: 'super',
+      responses: { 200: grievanceListSchema },
+      handler: async ({ auth, reply }) => reply(200, { grievances: await listGrievances(db, auth.scope) }),
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/grievances/:id/ack',
+      summary: 'Acknowledge a grievance (stops the 24-hour clock)',
+      tags: ['super', 'grievance'],
+      auth: 'super',
+      rateLimit: writes,
+      request: { params: z.object({ id: Id }), body: EmptyBody },
+      responses: { 200: z.object({ acknowledged: z.literal(true) }) },
+      handler: async ({ auth, params, clock, requestId, reply }) => {
+        await acknowledgeGrievance(db, auth.scope, {
+          id: idOr404(params.id, 'GRIEVANCE_NOT_FOUND'),
+          now: clock.now(),
+          requestId,
+        });
+        return reply(200, { acknowledged: true });
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/grievances/:id/resolve',
+      summary: 'Resolve or reject a grievance with a note',
+      tags: ['super', 'grievance'],
+      auth: 'super',
+      rateLimit: writes,
+      request: { params: z.object({ id: Id }), body: resolveGrievanceRequestSchema },
+      responses: { 200: z.object({ status: z.enum(['resolved', 'rejected']) }) },
+      handler: async ({ auth, params, body, clock, requestId, reply }) => {
+        await resolveGrievance(db, auth.scope, {
+          id: idOr404(params.id, 'GRIEVANCE_NOT_FOUND'),
+          status: body.status,
+          resolution: body.resolution,
+          now: clock.now(),
+          requestId,
+        });
+        return reply(200, { status: body.status });
+      },
+    }),
+    defineRoute({
+      method: 'get',
+      path: '/grievances/:id/contact',
+      summary: "★ Show a grievance's contact (opened with api-admin's private key; audited)",
+      tags: ['super', 'grievance'],
+      auth: 'super_step_up',
+      rateLimit: writes,
+      request: { params: z.object({ id: Id }) },
+      responses: { 200: grievanceContactSchema },
+      handler: async ({ auth, params, clock, requestId, reply }) => {
+        const found = await readGrievanceContact(db, auth.scope, {
+          id: idOr404(params.id, 'GRIEVANCE_NOT_FOUND'),
+          now: clock.now(),
+          requestId,
+        });
+        if (!found) return reply(200, { contact: null });
+        if (!deps.sealKeys) throw new ApiProblem(503, 'GRIEVANCE_CONTACT_UNAVAILABLE');
+        return reply(200, { contact: openSealed(deps.sealKeys, found.sealed, found.publicRef) });
+      },
+    }),
     // --- Moderation (07 C5, 05 §3, PHASE_08 T8.2) ---------------------------------------------------------------
     defineRoute({
       method: 'get',
@@ -510,7 +596,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       tags: ['super', 'moderation'],
       auth: 'super_step_up',
       rateLimit: writes,
-      request: { params: z.object({ id: Id }) },
+      request: { params: z.object({ id: Id }), body: EmptyBody },
       responses: { 200: moderationResultSchema },
       handler: async ({ auth, params, clock, requestId, reply }) => {
         const now = clock.now();
@@ -540,6 +626,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       request: {
         params: z.object({ publicId: z.string().regex(/^[A-Za-z0-9_-]{12}$/) }),
         query: z.object({ masjid: Id, item: Id, removed: z.enum(['true', 'false']).default('true') }),
+        body: EmptyBody,
       },
       responses: { 200: z.object({ cdnPurgeQueued: z.boolean() }) },
       handler: async ({ params, query, clock, reply }) => {

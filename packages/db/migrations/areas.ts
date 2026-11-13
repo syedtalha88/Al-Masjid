@@ -87,4 +87,6 @@ export const SCHEMA_AREAS: Readonly<
   '0024_removed_note': { collections: ['items'] },
   // PHASE_08 T8.3 (DECISIONS #172): the highest SLA alert sent per report (`sla_alerted`).
   '0025_report_sla_alerted': { collections: ['reports'] },
+  // PHASE_08 T8.4 (DECISIONS #173): sealed grievance contacts (`s1:` pattern) and the SLA alert record.
+  '0026_grievance_seal': { collections: ['grievances'] },
 };

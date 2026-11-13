@@ -4,6 +4,7 @@
     "label": "Super Admin sections",
     "dashboard": "Dashboard",
     "reports": "Reports",
+    "grievances": "Grievances",
     "masjids": "Masjids",
     "settings": "Settings",
     "audit": "Audit log",
@@ -28,7 +29,9 @@
     "sla": "Deadlines",
     "slaUrgentReport": "Urgent report",
     "slaReport": "Report",
-    "slaRed": "Under 20 % left"
+    "slaRed": "Under 20 % left",
+    "slaGrievanceAck": "Grievance — acknowledge",
+    "slaGrievanceResolve": "Grievance — resolve"
   },
   "masjids": {
     "search": "Search by name, city or code",
@@ -380,5 +383,36 @@
     "dismiss": "Dismiss",
     "dismissed": "Report dismissed.",
     "openMasjid": "Open masjid"
+  },
+  "grievances": {
+    "title": "Grievances",
+    "empty": "No grievances.",
+    "category": {
+      "privacy": "Privacy / data",
+      "content": "Content",
+      "technical": "Technical",
+      "feedback": "Feedback",
+      "other": "Other"
+    },
+    "status": {
+      "open": "New",
+      "acknowledged": "Acknowledged",
+      "resolved": "Resolved",
+      "rejected": "Rejected"
+    },
+    "ackDue": "Acknowledge {when}",
+    "ackOverdue": "Acknowledgement overdue — was due {when}",
+    "resolveDue": "Resolve {when}",
+    "resolveOverdue": "Resolution overdue — was due {when}",
+    "acknowledge": "Acknowledge",
+    "acknowledged": "Acknowledged.",
+    "resolve": "Resolve",
+    "reject": "Reject",
+    "resolveTitle": "Resolve this grievance",
+    "rejectTitle": "Reject this grievance",
+    "note": "What was done (kept on record)",
+    "closed": "Closed.",
+    "showContact": "Show contact",
+    "noContact": "No contact was left."
   }
 }

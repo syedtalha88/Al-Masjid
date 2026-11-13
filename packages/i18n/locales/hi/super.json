@@ -4,6 +4,7 @@
     "label": "सुपर एडमिन के हिस्से",
     "dashboard": "डैशबोर्ड",
     "reports": "रिपोर्ट",
+    "grievances": "शिकायतें",
     "masjids": "मस्जिदें",
     "settings": "सेटिंग",
     "audit": "ऑडिट लॉग",
@@ -28,7 +29,9 @@
     "sla": "समय सीमाएँ",
     "slaUrgentReport": "तत्काल रिपोर्ट",
     "slaReport": "रिपोर्ट",
-    "slaRed": "20% से कम समय बचा"
+    "slaRed": "20% से कम समय बचा",
+    "slaGrievanceAck": "शिकायत — पावती दें",
+    "slaGrievanceResolve": "शिकायत — निपटाएँ"
   },
   "masjids": {
     "search": "नाम, शहर या कोड से खोजें",
@@ -380,5 +383,36 @@
     "dismiss": "ख़ारिज करें",
     "dismissed": "रिपोर्ट ख़ारिज की गई।",
     "openMasjid": "मस्जिद खोलें"
+  },
+  "grievances": {
+    "title": "शिकायतें",
+    "empty": "कोई शिकायत नहीं।",
+    "category": {
+      "privacy": "निजता / डेटा",
+      "content": "सामग्री",
+      "technical": "तकनीकी",
+      "feedback": "राय",
+      "other": "अन्य"
+    },
+    "status": {
+      "open": "नई",
+      "acknowledged": "पावती दी गई",
+      "resolved": "निपटाई गई",
+      "rejected": "ख़ारिज"
+    },
+    "ackDue": "पावती {when}",
+    "ackOverdue": "पावती में देर — सीमा {when} थी",
+    "resolveDue": "निपटारा {when}",
+    "resolveOverdue": "निपटारे में देर — सीमा {when} थी",
+    "acknowledge": "पावती दें",
+    "acknowledged": "पावती दे दी गई।",
+    "resolve": "निपटाएँ",
+    "reject": "ख़ारिज करें",
+    "resolveTitle": "यह शिकायत निपटाएँ",
+    "rejectTitle": "यह शिकायत ख़ारिज करें",
+    "note": "क्या किया गया (रिकॉर्ड में रहेगा)",
+    "closed": "बंद कर दी गई।",
+    "showContact": "संपर्क दिखाएँ",
+    "noContact": "कोई संपर्क नहीं छोड़ा गया।"
   }
 }

@@ -87,12 +87,17 @@ const CLOUDINARY = (key: string) => ({
   CLOUDINARY_API_SECRET: 'fake_cloudinary_secret_xx',
 });
 
+/** A stand-in for the base64 of a PEM key (the env only checks its shape; the key itself is checked at boot). */
+const SEAL_PEM = 'A'.repeat(400);
+
 const PRODUCTION: Record<ServerProcess, Record<string, string>> = {
   'api-public': {
     ...PROD_COMMON,
     MONGODB_URI_PUBLIC: ATLAS('mc_public'),
     REDIS_URL_PUBLIC: 'redis://rl_public:fake-pw@redis:6379',
     TURNSTILE_SECRET: 'fake-turnstile-secret',
+    GRIEVANCE_SEAL_PUBLIC_KEY: SEAL_PEM,
+    GRIEVANCE_SEAL_KEY_ID: 'g1',
     PORT: '8787',
   },
   'api-admin': {
@@ -108,6 +113,8 @@ const PRODUCTION: Record<ServerProcess, Record<string, string>> = {
     TURNSTILE_SECRET: 'fake-turnstile-secret',
     VAPID_PUBLIC_KEY: VAPID_PUBLIC,
     PAYMENT_HOLD_MINUTES: '1440',
+    GRIEVANCE_SEAL_PRIVATE_KEY: SEAL_PEM,
+    GRIEVANCE_SEAL_KEY_ID: 'g1',
     PORT: '8788',
   },
   worker: {
@@ -189,6 +196,9 @@ describe('forbidden variables (boot refuses to start — DECISIONS #7)', () => {
     ['api-admin', 'VAPID_PRIVATE_KEY', VAPID_PRIVATE],
     ['worker', 'SESSION_PEPPER', KEY_32],
     ['migrate', 'MONGODB_URI_SYSTEM', ATLAS('mc_system')],
+    // DECISIONS #173: only api-admin may open grievance contacts.
+    ['api-public', 'GRIEVANCE_SEAL_PRIVATE_KEY', SEAL_PEM],
+    ['worker', 'GRIEVANCE_SEAL_PRIVATE_KEY', SEAL_PEM],
   ];
 
   it.each(cases)('%s refuses to boot with %s', (process, name, value) => {

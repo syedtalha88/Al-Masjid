@@ -39,6 +39,12 @@ import {
   superTemplateResponseSchema,
   testAlertResponseSchema,
 } from '@mc/shared/contracts';
+import {
+  grievanceAckSchema,
+  grievanceContactSchema,
+  grievanceListSchema,
+  grievanceResolvedSchema,
+} from '@mc/shared/contracts/grievances';
 import { ProblemError, ResponseError } from '@mc/shared/http';
 
 import { call } from '../../auth/api/auth-api.ts';
@@ -102,6 +108,18 @@ export const superApi = {
   setPushPaused: (paused: boolean) =>
     call(`${SUPER_API}/settings/push-pause`, pushPauseResponseSchema, { method: 'POST', body: { paused } }),
   /** C4 (T5.2): open UPI change requests, oldest first. */
+  // --- Grievances (07 C6, PHASE_08 T8.4) ---
+  grievances: (signal?: AbortSignal) => call(`${SUPER_API}/grievances`, grievanceListSchema, signal ? { signal } : {}),
+  ackGrievance: (grievanceId: string) =>
+    call(`${SUPER_API}/grievances/${id(grievanceId)}/ack`, grievanceAckSchema, { method: 'POST', body: {} }),
+  resolveGrievance: (grievanceId: string, status: 'resolved' | 'rejected', resolution: string) =>
+    call(`${SUPER_API}/grievances/${id(grievanceId)}/resolve`, grievanceResolvedSchema, {
+      method: 'POST',
+      body: { status, resolution },
+    }),
+  /** ★ */
+  grievanceContact: (grievanceId: string) =>
+    call(`${SUPER_API}/grievances/${id(grievanceId)}/contact`, grievanceContactSchema),
   // --- Moderation (07 C5, PHASE_08 T8.2) ---
   reports: (status: (typeof REPORT_STATUS_VALUES)[number], signal?: AbortSignal) =>
     call(`${SUPER_API}/reports${query({ status })}`, moderationQueueSchema, signal ? { signal } : {}),

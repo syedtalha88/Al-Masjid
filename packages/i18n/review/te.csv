@@ -1295,6 +1295,8 @@ errors,CHANDA_HIDDEN,Turn on “Show chanda to followers” before notifying the
 errors,BENEFICIARY_INVALID,"Please check the UPI ID, the name on the UPI account and the amount needed.","దయచేసి UPI ID, UPI ఖాతా పేరు, అవసరమైన మొత్తం సరిచూడండి.",no
 errors,BENEFICIARY_NOT_FOUND,This person is no longer on the list.,ఈ వ్యక్తి ఇప్పుడు జాబితాలో లేరు.,no
 errors,BENEFICIARY_LIMIT_REACHED,You can list up to 100 people at a time. Close one to add another.,మీరు ఒకేసారి గరిష్ఠంగా 100 మందిని ఉంచవచ్చు. కొత్తవారిని చేర్చడానికి ఒకరిని ముగించండి.,no
+errors,GRIEVANCE_NOT_FOUND,This grievance was not found or is already closed.,ఈ ఫిర్యాదు కనబడలేదు లేదా ఇప్పటికే మూసివేయబడింది.,no
+errors,GRIEVANCE_CONTACT_UNAVAILABLE,"A contact cannot be taken right now. Send it without one, or try again later.",ఇప్పుడు సంప్రదింపు వివరాలు తీసుకోలేము. అది లేకుండా పంపండి లేదా తర్వాత ప్రయత్నించండి.,no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no
@@ -1513,7 +1515,6 @@ settings,docVersion,Version {version},వెర్షన్ {version},no
 settings,officer,Grievance Officer,ఫిర్యాదుల అధికారి,no
 settings,officerTimes,We acknowledge every complaint within 24 hours.,ప్రతి ఫిర్యాదును 24 గంటల్లోపు స్వీకరించినట్లు తెలియజేస్తాం.,no
 settings,emailOfficer,Email the Grievance Officer,ఫిర్యాదుల అధికారికి ఈమెయిల్ చేయండి,no
-settings,formSoon,"A complaint form inside the app is coming soon. Until then, please write by email.",యాప్‌లోనే ఫిర్యాదు ఫారం త్వరలో వస్తుంది. అప్పటి వరకు దయచేసి ఈమెయిల్ ద్వారా రాయండి.,no
 settings,officerOffline,Connect to the internet to see the Grievance Officer’s details.,ఫిర్యాదుల అధికారి వివరాలు చూడటానికి ఇంటర్నెట్‌కు కనెక్ట్ అవ్వండి.,no
 settings,aboutFree,"Free forever. No ads, ever. No account. No tracking.",ఎప్పటికీ ఉచితం. ప్రకటనలు ఎప్పుడూ లేవు. ఖాతా లేదు. ట్రాకింగ్ లేదు.,no
 settings,aboutCommunity,Made for the community.,సమాజం కోసం తయారు చేయబడింది.,no
@@ -1574,10 +1575,31 @@ settings,push.noMasjids,Follow a masjid to get its notifications.,నోటి�
 settings,push.askTitle,Turn on notifications?,నోటిఫికేషన్‌లు ఆన్ చేయాలా?,no
 settings,push.askAllow,Turn on,ఆన్ చేయండి,no
 settings,push.askLater,Not now,ఇప్పుడు కాదు,no
+settings,grievanceForm.title,Send a grievance,ఫిర్యాదు పంపండి,no
+settings,grievanceForm.category,What is it about?,ఇది దేని గురించి?,no
+settings,grievanceForm.categories.privacy,My privacy or my data,నా గోప్యత లేదా నా డేటా,no
+settings,grievanceForm.categories.content,Something in the app,యాప్‌లో ఏదో,no
+settings,grievanceForm.categories.technical,The app does not work,యాప్ పని చేయడం లేదు,no
+settings,grievanceForm.categories.feedback,An idea or feedback,ఒక ఆలోచన లేదా అభిప్రాయం,no
+settings,grievanceForm.categories.other,Something else,ఇంకేదైనా,no
+settings,grievanceForm.description,What happened?,ఏమి జరిగింది?,no
+settings,grievanceForm.descriptionHint,Please don't write anyone's private details.,దయచేసి ఎవరి ప్రైవేట్ వివరాలూ రాయకండి.,no
+settings,grievanceForm.contact,Your e-mail or phone,మీ ఇ-మెయిల్ లేదా ఫోన్,no
+settings,grievanceForm.contactHint,Only if you want a reply. It is kept locked; only the Grievance Officer can see it.,మీకు సమాధానం కావాలంటే మాత్రమే. ఇది లాక్ చేసి ఉంచబడుతుంది; ఫిర్యాదుల అధికారి మాత్రమే చూడగలరు.,no
+settings,grievanceForm.send,Send,పంపండి,no
+settings,grievanceForm.sending,Sending…,పంపుతోంది…,no
+settings,grievanceForm.doneTitle,Received,అందింది,no
+settings,grievanceForm.doneRef,Your reference:,మీ రిఫరెన్స్:,no
+settings,grievanceForm.doneAck,We will acknowledge it within 24 hours.,24 గంటల్లోపు దీన్ని స్వీకరించినట్లు తెలియజేస్తాము.,no
+settings,grievanceForm.offline,You're offline. Try again when you're connected.,మీరు ఆఫ్‌లైన్‌లో ఉన్నారు. కనెక్ట్ అయ్యాక మళ్లీ ప్రయత్నించండి.,no
+settings,grievanceForm.limit,You have sent the most grievances allowed for today. Try again tomorrow.,ఈ రోజుకు అనుమతించిన అన్ని ఫిర్యాదులను మీరు పంపారు. రేపు మళ్లీ ప్రయత్నించండి.,no
+settings,grievanceForm.contactUnavailable,"A contact cannot be taken right now. Send it without one, or try again later.",ఇప్పుడు సంప్రదింపు వివరాలు తీసుకోలేము. అది లేకుండా పంపండి లేదా తర్వాత ప్రయత్నించండి.,no
+settings,grievanceForm.failed,It could not be sent. Please try again.,పంపలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
 super,title,Super Admin,సూపర్ అడ్మిన్,no
 super,nav.label,Super Admin sections,సూపర్ అడ్మిన్ విభాగాలు,no
 super,nav.dashboard,Dashboard,డాష్‌బోర్డ్,no
 super,nav.reports,Reports,రిపోర్ట్‌లు,no
+super,nav.grievances,Grievances,ఫిర్యాదులు,no
 super,nav.masjids,Masjids,మస్జిద్‌లు,no
 super,nav.settings,Settings,సెట్టింగ్స్,no
 super,nav.audit,Audit log,ఆడిట్ లాగ్,no
@@ -1599,6 +1621,8 @@ super,dashboard.sla,Deadlines,గడువులు,no
 super,dashboard.slaUrgentReport,Urgent report,అత్యవసర రిపోర్ట్,no
 super,dashboard.slaReport,Report,రిపోర్ట్,no
 super,dashboard.slaRed,Under 20 % left,20% కంటే తక్కువ సమయం మిగిలింది,no
+super,dashboard.slaGrievanceAck,Grievance — acknowledge,ఫిర్యాదు — స్వీకరించండి,no
+super,dashboard.slaGrievanceResolve,Grievance — resolve,ఫిర్యాదు — పరిష్కరించండి,no
 super,masjids.search,"Search by name, city or code","పేరు, నగరం లేదా కోడ్‌తో వెతకండి",no
 super,masjids.all,All,అన్నీ,no
 super,masjids.new,New masjid,కొత్త మస్జిద్,no
@@ -1896,6 +1920,31 @@ super,reports.restored,Restored. It is shown again.,పునరుద్ధర�
 super,reports.dismiss,Dismiss,తిరస్కరించు,no
 super,reports.dismissed,Report dismissed.,రిపోర్ట్ తిరస్కరించబడింది.,no
 super,reports.openMasjid,Open masjid,మస్జిద్ తెరవండి,no
+super,grievances.title,Grievances,ఫిర్యాదులు,no
+super,grievances.empty,No grievances.,ఫిర్యాదులు లేవు.,no
+super,grievances.category.privacy,Privacy / data,గోప్యత / డేటా,no
+super,grievances.category.content,Content,కంటెంట్,no
+super,grievances.category.technical,Technical,సాంకేతికం,no
+super,grievances.category.feedback,Feedback,అభిప్రాయం,no
+super,grievances.category.other,Other,ఇతర,no
+super,grievances.status.open,New,కొత్తది,no
+super,grievances.status.acknowledged,Acknowledged,స్వీకరించబడింది,no
+super,grievances.status.resolved,Resolved,పరిష్కరించబడింది,no
+super,grievances.status.rejected,Rejected,తిరస్కరించబడింది,no
+super,grievances.ackDue,Acknowledge {when},స్వీకరణ {when},no
+super,grievances.ackOverdue,Acknowledgement overdue — was due {when},స్వీకరణ ఆలస్యం — గడువు {when},no
+super,grievances.resolveDue,Resolve {when},పరిష్కారం {when},no
+super,grievances.resolveOverdue,Resolution overdue — was due {when},పరిష్కారం ఆలస్యం — గడువు {when},no
+super,grievances.acknowledge,Acknowledge,స్వీకరించండి,no
+super,grievances.acknowledged,Acknowledged.,స్వీకరించబడింది.,no
+super,grievances.resolve,Resolve,పరిష్కరించండి,no
+super,grievances.reject,Reject,తిరస్కరించండి,no
+super,grievances.resolveTitle,Resolve this grievance,ఈ ఫిర్యాదును పరిష్కరించండి,no
+super,grievances.rejectTitle,Reject this grievance,ఈ ఫిర్యాదును తిరస్కరించండి,no
+super,grievances.note,What was done (kept on record),ఏమి చేశారు (రికార్డులో ఉంటుంది),no
+super,grievances.closed,Closed.,మూసివేయబడింది.,no
+super,grievances.showContact,Show contact,సంప్రదింపు చూపించు,no
+super,grievances.noContact,No contact was left.,సంప్రదింపు ఇవ్వలేదు.,no
 templates,no_water_time_range.title,No water supply,నీటి సరఫరా నిలిపివేత,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.,no
 templates,electricity_cut_time_range.title,Power cut,విద్యుత్ నిలిపివేత,no

@@ -4271,7 +4271,9 @@
                   "type": "string",
                   "enum": [
                     "urgent_report",
-                    "report"
+                    "report",
+                    "grievance_ack",
+                    "grievance_resolve"
                   ]
                 },
                 "id": {
@@ -8734,6 +8736,79 @@
                   },
                   "required": [
                     "count"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/grievances": {
+      "post": {
+        "summary": "File a grievance (Turnstile; 5 a day per IP); the contact is sealed for the Super Admin only",
+        "tags": [
+          "grievance"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "privacy",
+                      "content",
+                      "technical",
+                      "feedback",
+                      "other"
+                    ]
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "contact": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 200
+                  },
+                  "turnstileToken": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2048
+                  }
+                },
+                "required": [
+                  "category",
+                  "description",
+                  "turnstileToken"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "publicRef": {
+                      "type": "string",
+                      "pattern": "^GR-\\d{4}-\\d{6}$"
+                    }
+                  },
+                  "required": [
+                    "publicRef"
                   ],
                   "additionalProperties": false
                 }
@@ -13833,6 +13908,271 @@
         }
       }
     },
+    "/api/super/grievances": {
+      "get": {
+        "summary": "The grievance tracker: unfinished first by their next due time (never the contact)",
+        "tags": [
+          "super",
+          "grievance"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "grievances": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "publicRef": {
+                            "type": "string"
+                          },
+                          "category": {
+                            "type": "string",
+                            "enum": [
+                              "privacy",
+                              "content",
+                              "technical",
+                              "feedback",
+                              "other"
+                            ]
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "hasContact": {
+                            "type": "boolean"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "open",
+                              "acknowledged",
+                              "resolved",
+                              "rejected"
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          },
+                          "ackDueAt": {
+                            "type": "string"
+                          },
+                          "resolveDueAt": {
+                            "type": "string"
+                          },
+                          "acknowledgedAt": {
+                            "type": "string"
+                          },
+                          "resolvedAt": {
+                            "type": "string"
+                          },
+                          "resolution": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "publicRef",
+                          "category",
+                          "description",
+                          "hasContact",
+                          "status",
+                          "createdAt",
+                          "ackDueAt",
+                          "resolveDueAt"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "grievances"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/grievances/{id}/ack": {
+      "post": {
+        "summary": "Acknowledge a grievance (stops the 24-hour clock)",
+        "tags": [
+          "super",
+          "grievance"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "acknowledged": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "acknowledged"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/grievances/{id}/resolve": {
+      "post": {
+        "summary": "Resolve or reject a grievance with a note",
+        "tags": [
+          "super",
+          "grievance"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "resolved",
+                      "rejected"
+                    ]
+                  },
+                  "resolution": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "status",
+                  "resolution"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "resolved",
+                        "rejected"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/grievances/{id}/contact": {
+      "get": {
+        "summary": "★ Show a grievance's contact (opened with api-admin's private key; audited)",
+        "tags": [
+          "super",
+          "grievance"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "contact": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "contact"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/super/reports": {
       "get": {
         "summary": "The moderation queue: reports grouped by post / masjid, urgent first, then by SLA due time",
@@ -14625,6 +14965,18 @@
             "in": "path"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "HTTP 200",
@@ -14707,6 +15059,18 @@
             "in": "query"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "HTTP 200",

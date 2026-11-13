@@ -244,7 +244,7 @@ export const superDashboardSchema = z
     /** Open SLA timers, earliest due first (C1 "SLA alerts", PHASE_08 T8.3); grievances / legal orders join later. */
     sla: z.array(
       z.object({
-        kind: z.enum(['urgent_report', 'report']),
+        kind: z.enum(['urgent_report', 'report', 'grievance_ack', 'grievance_resolve']),
         id: z.string(),
         startAt: z.string(),
         dueAt: z.string(),

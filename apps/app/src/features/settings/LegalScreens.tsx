@@ -11,6 +11,7 @@ import type { ReactNode } from 'react';
 import { configQuery } from '../../lib/api/queries.ts';
 import { useAppData } from '../../lib/data.tsx';
 import { appRelease } from '../../lib/query/persist.ts';
+import { GrievanceForm } from './GrievanceForm.tsx';
 
 const Gate = ({ children }: { readonly children: ReactNode }) => {
   const { ready } = useTranslation('settings');
@@ -136,7 +137,7 @@ function Grievance() {
             <Skeleton className="h-32 w-full rounded-md" />
           </div>
         )}
-        <InfoNote>{t('formSoon')}</InfoNote>
+        <GrievanceForm />
       </div>
     </Screen>
   );

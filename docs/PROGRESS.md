@@ -15,25 +15,31 @@
 | 05 | Donations, chanda & UPI change-lock | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): CI green on `997a914`, phase-verifier findings fixed, security re-review clean. Waiting: O43 → merge to `main` / staging → O45 → O50 (guide 5.1–5.22) + O28 | [final](reports/PHASE_05_REPORT.md) | – |
 | 06 | Bayan videos | **DONE — owner checks pending** (12 Nov 2026, DECISIONS #162): CI green on `main` `402e7f8` (run 43237107240), on staging; security review #165, phase-verifier fixes #167 (reach `main` with Phase 07). Waiting: O49 (real YouTube links), O48 (purge token, before May 2027) | [final](reports/PHASE_06_REPORT.md) | – |
 | 07 | Qibla compass | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): security review #167, phase-verifier FAIL → fixed (#169), e2e 12/12 on Pixel 7 + iPhone 14; CI + staging with the merge into `main`. Waiting: O29 (mihrab check) | [final](reports/PHASE_07_REPORT.md) | – |
-| 08 | Moderation, grievance, legal pages, QR posters | **IN PROGRESS** — started 13 Nov 2026 on `feat/phase-08`; T8.1 done (#170) | – | – |
+| 08 | Moderation, grievance, legal pages, QR posters | **IN PROGRESS** — T8.1–T8.4 done on `feat/phase-08` (#170–#173); T8.5 next | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (13 Nov 2026, later — Phase 08 in progress: T8.1–T8.3 done)
+## ▶ Next session — start here (13 Nov 2026, end of day — Phase 08: T8.1–T8.4 done; T8.5 next)
 
 **Owner rule (DECISIONS #162):** close each phase when our own checks pass, list every owner step in
 `owner/MY_PENDING_TASKS.md`, move straight on.
 
-**State:** `main` = `30a268b` (Phases 05–07), **on staging** (`/health` both origins checked 13 Nov 2026). Phase 08 on
-`feat/phase-08` (= `ci/phase-08`, pushed): T8.1 reporting (#170), T8.2 takedown + C5 + tag purge + F73 media access +
-F74 (#171), T8.3 SLA alerts + C1 card (#172). CI was green for T8.1 (`40df342`); check the latest `ci/phase-08` run.
-`.claude/settings.json` is the owner's own uncommitted change — never commit it.
+**State:** `main` = `30a268b` (Phases 05–07) **on staging** (`/health` checked 13 Nov 2026). Phase 08 on
+`feat/phase-08` (pushed; `ci/phase-08` = same commit — **check its CI run first**; the last confirmed green run was
+T8.1 `40df342`):
+- T8.1 reporting (#170) · T8.2 takedown, C5 `/super/reports`, tag purge, F73 media access, F74 (#171) · T8.3 SLA
+  alerts + C1 "Deadlines" card + Sentry fallback (#172) · T8.4 grievances with sealed contacts + C6
+  `/super/grievances` (#173).
+- Verified locally at hand-off: `verify:quick` green; db int 413 / api int 449 (4 workers — before T8.4; T8.4's own
+  int tests green); e2e Pixel 7: report 7/7, journey 11 + grievances 6/6; `db:schema:check` clean (migrations to 0026).
+- `.claude/settings.json` is the owner's own uncommitted change — never commit it.
 
-**Next:** T8.4 Grievances (musalli form in Settings → Contact & Grievance + C6 tracker; contact encrypted with the field
-key ring like admin phones; `GR-YYYY-NNNNNN` from `grievance_seq`; plug its ack / resolve timers into
-`listSlaTimers` (`@mc/db/state/sla.ts`) with a `sla_alerted` field + migration; `POST /grievances` is public + Turnstile
-with the `grievancesIp` rate bucket). Then T8.5 legal orders (busboy upload, AES-256-GCM, Cloudinary raw +
-authenticated, `legalOrderId` on removal), T8.6 legal texts, T8.7 retention rows, T8.8 posters, T8.9 kill switches,
-T8.10 audit / stats, T8.11 gates (visual baselines for C5 / report sheet, security review, phase-verifier).
+**Next:** T8.5 legal orders register (C7): create / edit with received time, due = +3 h (`SLA_MS.legalOrder`),
+linked targets, action log, encrypted document upload (busboy, AES-256-GCM in api-admin, Cloudinary `raw` +
+`authenticated`, download only through api-admin with step-up), `legalOrderId` on ★ Remove, and its timer in
+`listSlaTimers` (`@mc/db/state/sla.ts` — add kind + `sla_alerted` + migration). Then T8.6 legal texts, T8.7 retention
+rows (02 §6 — incl. `reports.device_id` unset, grievances 3 y, legal orders 3 y), T8.8 posters, T8.9 kill switches,
+T8.10 audit / stats, T8.11 gates (visual baselines for the report sheet / C5 / C6 / grievance form, full e2e on iPhone
+14 in the Linux image, security review, phase-verifier, report).
 
 **Local notes:** local stack rebuild = `pnpm stack:up:test`, then `pnpm db:seed`, then `git checkout` the two
 `routeTree.gen.ts`. WebKit e2e only in the Linux image (scratchpad `wk-linux.sh`, run with
@@ -43,7 +49,10 @@ Integration suites: run with `--maxWorkers=4` locally (`node ../../scripts/vites
 package) — 12 workers overload the local MongoDB and `beforeAll` hooks time out. Specs that send as a device need
 `registerDevice(page)` first (the fixture device has not finished onboarding). Feed-count specs can fail on old local
 data: `pnpm db:reset`.
-`screens.perf` "Home → Masjid Detail" fails ~1 in 3 locally (one ~70 ms tap), green on CI.
+`screens.perf` "Home → Masjid Detail" fails ~1 in 3 locally (one ~70 ms tap), green on CI. After
+`pnpm stack:up:test`, restore only the **app's** `routeTree.gen.ts` (`git checkout -- apps/app/src/routeTree.gen.ts`)
+— the admin one now carries new routes (`/super/reports`, `/super/grievances`). Never read `.env*` files; to add a
+variable to local env files use `pnpm setup:local` (it appends missing ones).
 
 ## ▶ Previous hand-off (13 Nov 2026, late — Phase 05 closed, Phase 06 closing, Phase 07 built)
 
@@ -619,6 +628,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | **now** — staging has Phase 07 (`30a268b`, 13 Nov 2026) |
 | O51 | **Takedown check on staging**: report → remove; old link "no longer available" within a minute; the photo URL stops loading (#171, F76) | Phase 08 exit | 15 min | after Phase 08 is on staging |
 | O52 | **Sentry: e-mail on new issues** stays on (passed SLA deadlines are reported there — #172) | before launch | 5 min | any time |
+| O53 | **Grievance sealing key pair** for staging (then production): public half → api-public env, private half → api-admin env only (#173; steps in MY_PENDING_TASKS) | before Phase 08 on staging | 15 min | any time |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
 | O31 | **Translation review** of `packages/i18n/review/{hi,ur,te}.csv` (≈ 920 draft strings each) | pilot | translators | before pilot |
 | O32 | **Verified Content Library file** (`docs/content-library-format.md`) | pilot | — | before pilot |
@@ -903,7 +913,9 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [x] T8.3 — SLA engine & dashboard (C1) — **done 13 Nov 2026 (#172)**: `slaProgress`, `listSlaTimers` /
   `markSlaAlerted` (migration 0025), `sla-alerts` job every 15 min (one alert per report + threshold, Sentry e-mail
   fallback at 100 %), C1 "Deadlines" card. Grievances / legal orders plug into `listSlaTimers` in T8.4 / T8.5.
-- [ ] T8.4 — Grievances (form + C6 tracker)
+- [x] T8.4 — Grievances (form + C6 tracker) — **done 13 Nov 2026 (#173)**: contacts sealed in api-public with an RSA
+  public key, opened only in api-admin (★, audited); `GR-YYYY-NNNNNN`; Settings form × 4; C6 `/super/grievances`;
+  ack / resolve timers in the SLA engine (migration 0026). Owner: O53 (key pair for staging / production).
 - [ ] T8.5 — Legal orders register (C7)
 - [ ] T8.6 — Legal texts, versions & reminders
 - [ ] T8.7 — Retention job (remaining rows of 02 §6)
@@ -990,6 +1002,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-13 | 08 / T8.2–T8.4 | Takedown + C5 + tag purge + F73 / F74 (#171), SLA engine + C1 card (#172), grievances with RSA-sealed contacts + C6 (#173). Journey 11 and grievance e2e green; app fix: removed posts vanish after the next poll. Paused at the owner's request — T8.5 next. |
 | 2026-11-13 | 08 / T8.1 | Reporting done (#170): reports API + `report-triage` job (urgent alert / auto-hide exactly once), migration 0023, 05 §1 allow-list test, "…" → Report sheet on every post + Masjid Detail (× 4 locales), shared Sheet scroll fix. `main` fast-forwarded to `30a268b` (Phases 06 + 07) after green CI — staging release running. |
 | 2026-11-13 | 06 + 07 close | Phase 06 report final ("DONE — owner checks pending", O49). Phase 07 phase-verifier FAIL → fixed (#169): location can be updated or dropped for the masjid's, glow opacity-only, arrowhead, rAF writes, 5 new e2e states + `useHeading` unit; Pixel 7 12/12 (×3), iPhone 14 12/12, perf 3/3, visual `qibla` × 8 regenerated. Phase 07 "DONE — owner checks pending" (O29). Next: CI → `main` → staging, then Phase 08. |
 | 2026-11-12 | 07 / T7.3–T7.4 + 06 fixes | Qibla verified on Pixel 7 + iPhone 14 (WebKit headless screen angle pinned), perf 3/3 opened from Home; security review 0H/1M/5L all fixed; Qibla button + manifest shortcut in every build; Phase 06 verifier fixes (log-absence test, video contract) — #167. Paused at the owner's request for the owner's pending list. |

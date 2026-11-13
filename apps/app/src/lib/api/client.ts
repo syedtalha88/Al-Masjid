@@ -3,6 +3,7 @@
 // (never on 4xx), the server clock offset from each fresh response's `Date` header (00 §7 drift correction), and
 // whether the server answered at all (the offline banner, 01 §5.6).
 import { serverClockOffset } from '@mc/domain/time';
+import type { GrievanceRequest } from '@mc/shared/contracts/grievances';
 import {
   type AmeenCounts,
   ameenCountsSchema,
@@ -16,6 +17,7 @@ import {
   type FollowList,
   followListSchema,
   followResponseSchema,
+  grievanceFiledSchema,
   type ItemDetail,
   itemDetailSchema,
   type ItemType,
@@ -226,6 +228,9 @@ export function createApiClient(options: ApiClientOptions) {
         itemDetailSchema,
         signal ? { signal } : {},
       ),
+    /** Files a grievance (PHASE_08 T8.4) — no device needed; the caller adds a fresh Turnstile token. */
+    grievance: async (body: GrievanceRequest): Promise<string> =>
+      (await call('/grievances', grievanceFiledSchema, { method: 'POST', body })).publicRef,
     /** Reports a post or a masjid (PHASE_08 T8.1); the caller adds a fresh Turnstile token. */
     report: async (body: ReportRequest): Promise<void> => {
       await call('/reports', reportReceivedSchema, { method: 'POST', device: true, body });

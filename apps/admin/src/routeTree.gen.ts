@@ -42,6 +42,7 @@ import { Route as SpecialIndexRouteImport } from './routes/special.index'
 import { Route as SpecialIdRouteImport } from './routes/special.$id'
 import { Route as SuperIndexRouteImport } from './routes/super.index'
 import { Route as SuperAuditRouteImport } from './routes/super.audit'
+import { Route as SuperGrievancesRouteImport } from './routes/super.grievances'
 import { Route as SuperPaymentsRouteImport } from './routes/super.payments'
 import { Route as SuperReportsRouteImport } from './routes/super.reports'
 import { Route as SuperSettingsRouteImport } from './routes/super.settings'
@@ -223,6 +224,11 @@ const SuperAuditRoute = SuperAuditRouteImport.update({
   path: '/super/audit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperGrievancesRoute = SuperGrievancesRouteImport.update({
+  id: '/super/grievances',
+  path: '/super/grievances',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuperPaymentsRoute = SuperPaymentsRouteImport.update({
   id: '/super/payments',
   path: '/super/payments',
@@ -325,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
+  '/super/grievances': typeof SuperGrievancesRoute
   '/super/payments': typeof SuperPaymentsRoute
   '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
@@ -375,6 +382,7 @@ export interface FileRoutesByTo {
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
+  '/super/grievances': typeof SuperGrievancesRoute
   '/super/payments': typeof SuperPaymentsRoute
   '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
@@ -426,6 +434,7 @@ export interface FileRoutesById {
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
+  '/super/grievances': typeof SuperGrievancesRoute
   '/super/payments': typeof SuperPaymentsRoute
   '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
@@ -478,6 +487,7 @@ export interface FileRouteTypes {
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
+    | '/super/grievances'
     | '/super/payments'
     | '/super/reports'
     | '/super/settings'
@@ -528,6 +538,7 @@ export interface FileRouteTypes {
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
+    | '/super/grievances'
     | '/super/payments'
     | '/super/reports'
     | '/super/settings'
@@ -578,6 +589,7 @@ export interface FileRouteTypes {
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
+    | '/super/grievances'
     | '/super/payments'
     | '/super/reports'
     | '/super/settings'
@@ -629,6 +641,7 @@ export interface RootRouteChildren {
   SoonTileRoute: typeof SoonTileRoute
   SpecialIdRoute: typeof SpecialIdRoute
   SuperAuditRoute: typeof SuperAuditRoute
+  SuperGrievancesRoute: typeof SuperGrievancesRoute
   SuperPaymentsRoute: typeof SuperPaymentsRoute
   SuperReportsRoute: typeof SuperReportsRoute
   SuperSettingsRoute: typeof SuperSettingsRoute
@@ -886,6 +899,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperAuditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/super/grievances': {
+      id: '/super/grievances'
+      path: '/super/grievances'
+      fullPath: '/super/grievances'
+      preLoaderRoute: typeof SuperGrievancesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/payments': {
       id: '/super/payments'
       path: '/super/payments'
@@ -1032,6 +1052,7 @@ const rootRouteChildren: RootRouteChildren = {
   SoonTileRoute: SoonTileRoute,
   SpecialIdRoute: SpecialIdRoute,
   SuperAuditRoute: SuperAuditRoute,
+  SuperGrievancesRoute: SuperGrievancesRoute,
   SuperPaymentsRoute: SuperPaymentsRoute,
   SuperReportsRoute: SuperReportsRoute,
   SuperSettingsRoute: SuperSettingsRoute,

@@ -67,6 +67,9 @@ const FORBIDDEN: Readonly<Record<ServerProcess, readonly Matcher[]>> = {
     'SESSION_PEPPER',
     /^FIELD_ENCRYPTION_KEY/,
     'FIELD_ENCRYPTION_OLD_KEYS',
+    // Grievance contacts are sealed here with the public key only; opening needs api-admin's private key (#173).
+    'GRIEVANCE_SEAL_PRIVATE_KEY',
+    'GRIEVANCE_SEAL_OLD_KEYS',
     // Other processes' Redis ACL users (security review S-L5): admin/worker reach the job queues.
     'REDIS_URL_ADMIN',
     'REDIS_URL_WORKER',
@@ -81,6 +84,7 @@ const FORBIDDEN: Readonly<Record<ServerProcess, readonly Matcher[]>> = {
     'REDIS_URL_WORKER',
   ],
   worker: [
+    /^GRIEVANCE_SEAL_/,
     'MONGODB_URI_PUBLIC',
     'MONGODB_URI_ADMIN',
     'MONGODB_URI_MIGRATOR',
@@ -99,6 +103,7 @@ const FORBIDDEN: Readonly<Record<ServerProcess, readonly Matcher[]>> = {
     'CF_API_TOKEN_PURGE',
     /^FIELD_ENCRYPTION_KEY/,
     'FIELD_ENCRYPTION_OLD_KEYS',
+    /^GRIEVANCE_SEAL_/,
     /^REDIS_URL_/,
   ],
 };
@@ -250,6 +255,33 @@ function commonShape(isLocal: boolean) {
   };
 }
 
+/**
+ * Grievance contact sealing (PHASE_08 T8.4, DECISIONS #173): api-public holds the RSA public key, api-admin the private
+ * key (+ old ones for rotation) — base64 of the PEM text. Required in production; elsewhere optional (without it a
+ * grievance is accepted but a contact is refused — staging before the owner installs a pair, O53).
+ */
+const sealPem = () => nonEmpty.regex(/^[A-Za-z0-9+/=]{200,8000}$/, { error: 'must be the base64 of a PEM key' });
+const sealKeyId = () => nonEmpty.regex(/^[a-z0-9-]{1,32}$/, { error: 'must be 1–32 of a-z, 0-9, -' });
+
+// Optional except in production (the helper's "local" flag is "not production" here).
+function grievanceSealPublicShape(appEnv: AppEnv) {
+  const isProduction = appEnv === 'production';
+  return {
+    GRIEVANCE_SEAL_PUBLIC_KEY: requiredOutsideLocal(sealPem(), !isProduction),
+    GRIEVANCE_SEAL_KEY_ID: requiredOutsideLocal(sealKeyId(), !isProduction),
+  };
+}
+
+function grievanceSealPrivateShape(appEnv: AppEnv) {
+  const isProduction = appEnv === 'production';
+  return {
+    GRIEVANCE_SEAL_PRIVATE_KEY: requiredOutsideLocal(sealPem(), !isProduction),
+    GRIEVANCE_SEAL_KEY_ID: requiredOutsideLocal(sealKeyId(), !isProduction),
+    /** Previous private keys: `id:base64pem,…`. */
+    GRIEVANCE_SEAL_OLD_KEYS: nonEmpty.optional(),
+  };
+}
+
 function fieldEncryptionShape() {
   return {
     FIELD_ENCRYPTION_KEY: base64Bytes(32, true),
@@ -331,6 +363,7 @@ const SERVER_SCHEMAS = {
       MONGODB_URI_PUBLIC: mongoUri('mc_public', isLocal),
       REDIS_URL_PUBLIC: redisUrl('rl_public'),
       TURNSTILE_SECRET: requiredOutsideLocal(nonEmpty, isLocal),
+      ...grievanceSealPublicShape(appEnv),
       PORT: port,
     });
   },
@@ -349,6 +382,7 @@ const SERVER_SCHEMAS = {
       TURNSTILE_SECRET: requiredOutsideLocal(nonEmpty, isLocal),
       VAPID_PUBLIC_KEY: vapidPublicKey,
       PAYMENT_HOLD_MINUTES: paymentHoldMinutes(appEnv === 'production'),
+      ...grievanceSealPrivateShape(appEnv),
       PORT: port,
     });
   },

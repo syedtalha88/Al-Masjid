@@ -1295,6 +1295,8 @@ errors,CHANDA_HIDDEN,Turn on “Show chanda to followers” before notifying the
 errors,BENEFICIARY_INVALID,"Please check the UPI ID, the name on the UPI account and the amount needed.",براہِ کرم UPI ID، UPI اکاؤنٹ کا نام اور درکار رقم جانچیں۔,no
 errors,BENEFICIARY_NOT_FOUND,This person is no longer on the list.,یہ شخص اب فہرست میں نہیں ہے۔,no
 errors,BENEFICIARY_LIMIT_REACHED,You can list up to 100 people at a time. Close one to add another.,آپ ایک وقت میں زیادہ سے زیادہ 100 افراد رکھ سکتے ہیں۔ نیا شامل کرنے کے لیے ایک بند کریں۔,no
+errors,GRIEVANCE_NOT_FOUND,This grievance was not found or is already closed.,یہ شکایت نہیں ملی یا پہلے ہی بند ہو چکی ہے۔,no
+errors,GRIEVANCE_CONTACT_UNAVAILABLE,"A contact cannot be taken right now. Send it without one, or try again later.",ابھی رابطہ نہیں لیا جا سکتا۔ اس کے بغیر بھیجیں یا بعد میں کوشش کریں۔,no
 follow,scan.title,Scan masjid QR,مسجد کا QR اسکین کریں,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,اپنا کیمرا مسجد کے پوسٹر پر لگے QR کوڈ کی طرف کریں۔,no
 follow,scan.torch,Flashlight,ٹارچ,no
@@ -1513,7 +1515,6 @@ settings,docVersion,Version {version},ورژن {version},no
 settings,officer,Grievance Officer,شکایت افسر,no
 settings,officerTimes,We acknowledge every complaint within 24 hours.,ہم ہر شکایت کی تصدیق 24 گھنٹوں کے اندر کرتے ہیں۔,no
 settings,emailOfficer,Email the Grievance Officer,شکایت افسر کو ای میل کریں,no
-settings,formSoon,"A complaint form inside the app is coming soon. Until then, please write by email.",ایپ کے اندر شکایت فارم جلد آ رہا ہے۔ تب تک براہ کرم ای میل سے لکھیں۔,no
 settings,officerOffline,Connect to the internet to see the Grievance Officer’s details.,شکایت افسر کی تفصیلات دیکھنے کے لیے انٹرنیٹ سے جڑیں۔,no
 settings,aboutFree,"Free forever. No ads, ever. No account. No tracking.",ہمیشہ مفت۔ کبھی کوئی اشتہار نہیں۔ کوئی اکاؤنٹ نہیں۔ کوئی ٹریکنگ نہیں۔,no
 settings,aboutCommunity,Made for the community.,برادری کے لیے بنایا گیا۔,no
@@ -1574,10 +1575,31 @@ settings,push.noMasjids,Follow a masjid to get its notifications.,کسی مسج�
 settings,push.askTitle,Turn on notifications?,اطلاعات آن کریں؟,no
 settings,push.askAllow,Turn on,آن کریں,no
 settings,push.askLater,Not now,ابھی نہیں,no
+settings,grievanceForm.title,Send a grievance,شکایت بھیجیں,no
+settings,grievanceForm.category,What is it about?,یہ کس بارے میں ہے؟,no
+settings,grievanceForm.categories.privacy,My privacy or my data,میری رازداری یا میرا ڈیٹا,no
+settings,grievanceForm.categories.content,Something in the app,ایپ میں کچھ,no
+settings,grievanceForm.categories.technical,The app does not work,ایپ کام نہیں کر رہی,no
+settings,grievanceForm.categories.feedback,An idea or feedback,کوئی تجویز یا رائے,no
+settings,grievanceForm.categories.other,Something else,کچھ اور,no
+settings,grievanceForm.description,What happened?,کیا ہوا؟,no
+settings,grievanceForm.descriptionHint,Please don't write anyone's private details.,براہِ کرم کسی کی نجی معلومات نہ لکھیں۔,no
+settings,grievanceForm.contact,Your e-mail or phone,آپ کا ای میل یا فون,no
+settings,grievanceForm.contactHint,Only if you want a reply. It is kept locked; only the Grievance Officer can see it.,صرف اگر آپ جواب چاہتے ہیں۔ یہ مقفل رکھا جاتا ہے؛ اسے صرف شکایت افسر دیکھ سکتے ہیں۔,no
+settings,grievanceForm.send,Send,بھیجیں,no
+settings,grievanceForm.sending,Sending…,بھیجی جا رہی ہے…,no
+settings,grievanceForm.doneTitle,Received,موصول ہو گئی,no
+settings,grievanceForm.doneRef,Your reference:,آپ کا حوالہ نمبر:,no
+settings,grievanceForm.doneAck,We will acknowledge it within 24 hours.,ہم 24 گھنٹے کے اندر اس کی وصولی کی تصدیق کریں گے۔,no
+settings,grievanceForm.offline,You're offline. Try again when you're connected.,آپ آف لائن ہیں۔ کنیکٹ ہونے پر دوبارہ کوشش کریں۔,no
+settings,grievanceForm.limit,You have sent the most grievances allowed for today. Try again tomorrow.,آج کے لیے آپ سب سے زیادہ شکایات بھیج چکے ہیں۔ کل دوبارہ کوشش کریں۔,no
+settings,grievanceForm.contactUnavailable,"A contact cannot be taken right now. Send it without one, or try again later.",ابھی رابطہ نہیں لیا جا سکتا۔ اس کے بغیر بھیجیں یا بعد میں کوشش کریں۔,no
+settings,grievanceForm.failed,It could not be sent. Please try again.,یہ بھیجی نہیں جا سکی۔ براہِ کرم دوبارہ کوشش کریں۔,no
 super,title,Super Admin,سپر ایڈمن,no
 super,nav.label,Super Admin sections,سپر ایڈمن کے حصے,no
 super,nav.dashboard,Dashboard,ڈیش بورڈ,no
 super,nav.reports,Reports,رپورٹس,no
+super,nav.grievances,Grievances,شکایات,no
 super,nav.masjids,Masjids,مساجد,no
 super,nav.settings,Settings,سیٹنگز,no
 super,nav.audit,Audit log,آڈٹ لاگ,no
@@ -1599,6 +1621,8 @@ super,dashboard.sla,Deadlines,آخری اوقات,no
 super,dashboard.slaUrgentReport,Urgent report,فوری رپورٹ,no
 super,dashboard.slaReport,Report,رپورٹ,no
 super,dashboard.slaRed,Under 20 % left,20% سے کم وقت باقی,no
+super,dashboard.slaGrievanceAck,Grievance — acknowledge,شکایت — وصولی کی تصدیق,no
+super,dashboard.slaGrievanceResolve,Grievance — resolve,شکایت — حل کریں,no
 super,masjids.search,"Search by name, city or code",نام، شہر یا کوڈ سے تلاش کریں,no
 super,masjids.all,All,سب,no
 super,masjids.new,New masjid,نئی مسجد,no
@@ -1896,6 +1920,31 @@ super,reports.restored,Restored. It is shown again.,واپس آ گئی۔ اب د
 super,reports.dismiss,Dismiss,مسترد کریں,no
 super,reports.dismissed,Report dismissed.,رپورٹ مسترد کر دی گئی۔,no
 super,reports.openMasjid,Open masjid,مسجد کھولیں,no
+super,grievances.title,Grievances,شکایات,no
+super,grievances.empty,No grievances.,کوئی شکایت نہیں۔,no
+super,grievances.category.privacy,Privacy / data,رازداری / ڈیٹا,no
+super,grievances.category.content,Content,مواد,no
+super,grievances.category.technical,Technical,تکنیکی,no
+super,grievances.category.feedback,Feedback,رائے,no
+super,grievances.category.other,Other,دیگر,no
+super,grievances.status.open,New,نئی,no
+super,grievances.status.acknowledged,Acknowledged,وصولی کی تصدیق,no
+super,grievances.status.resolved,Resolved,حل شدہ,no
+super,grievances.status.rejected,Rejected,مسترد,no
+super,grievances.ackDue,Acknowledge {when},تصدیق {when},no
+super,grievances.ackOverdue,Acknowledgement overdue — was due {when},تصدیق میں تاخیر — آخری وقت {when} تھا,no
+super,grievances.resolveDue,Resolve {when},حل {when},no
+super,grievances.resolveOverdue,Resolution overdue — was due {when},حل میں تاخیر — آخری وقت {when} تھا,no
+super,grievances.acknowledge,Acknowledge,وصولی کی تصدیق کریں,no
+super,grievances.acknowledged,Acknowledged.,تصدیق ہو گئی۔,no
+super,grievances.resolve,Resolve,حل کریں,no
+super,grievances.reject,Reject,مسترد کریں,no
+super,grievances.resolveTitle,Resolve this grievance,یہ شکایت حل کریں,no
+super,grievances.rejectTitle,Reject this grievance,یہ شکایت مسترد کریں,no
+super,grievances.note,What was done (kept on record),کیا کیا گیا (ریکارڈ میں رہے گا),no
+super,grievances.closed,Closed.,بند کر دی گئی۔,no
+super,grievances.showContact,Show contact,رابطہ دکھائیں,no
+super,grievances.noContact,No contact was left.,کوئی رابطہ نہیں چھوڑا گیا۔,no
 templates,no_water_time_range.title,No water supply,پانی کی فراہمی بند,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} سے {hours_end} تک پانی دستیاب نہیں ہوگا۔,no
 templates,electricity_cut_time_range.title,Power cut,بجلی بند,no

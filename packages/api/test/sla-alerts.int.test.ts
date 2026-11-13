@@ -8,7 +8,7 @@ import { deviceScope, idText, publicScope } from '@mc/db';
 import { runMigrations } from '@mc/db/migrate';
 import { MIGRATIONS } from '@mc/db/migrations';
 import { seedPublicId } from '@mc/db/seed';
-import { createReport, registerDevice, type ReportReasonValue } from '@mc/db/state';
+import { createGrievance, createReport, registerDevice, type ReportReasonValue } from '@mc/db/state';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '@mc/db/testing';
 import { ManualClock } from '@mc/shared/clock';
 import { reportSla } from '@mc/shared/compliance';
@@ -92,6 +92,7 @@ beforeEach(async () => {
   reported = [];
   at(0);
   await t().db.collection('reports').deleteMany({});
+  await t().db.collection('grievances').deleteMany({});
 });
 
 describe('sla-alerts', () => {
@@ -136,5 +137,26 @@ describe('sla-alerts', () => {
       .updateOne({ _id: id }, { $set: { status: 'dismissed' } });
     at(36 * 60);
     expect(await run()).toEqual({ alerts: 0 });
+  });
+
+  it('a grievance: the 24 h acknowledgement clock, then — once acknowledged — the resolve clock from 50 % again', async () => {
+    await createGrievance(handle(asPublic), publicScope(), {
+      category: 'privacy',
+      description: 'Test grievance',
+      ackDueAt: new Date(START.getTime() + 24 * 60 * MINUTE),
+      resolveDueAt: new Date(START.getTime() + 72 * 60 * MINUTE),
+      now: START,
+    });
+    at(12 * 60);
+    await run();
+    expect(sent.map((entry) => entry.jobId)).toEqual([expect.stringMatching(/^alert\.sla\.grievance_ack\..+\.50$/u)]);
+    // Acknowledged at 12 h: the resolve clock runs from there (12 h → 72 h), its alerts start at zero.
+    await t()
+      .db.collection('grievances')
+      .updateMany({}, { $set: { status: 'acknowledged', acknowledged_at: clock.now(), sla_alerted: 0 } });
+    at(12 * 60 + 30 * 60); // half of the 60 h left
+    await run();
+    expect(sent.map((entry) => entry.type)).toEqual(['sla_50', 'sla_50']);
+    expect(sent[1]?.jobId).toMatch(/grievance_resolve/u);
   });
 });

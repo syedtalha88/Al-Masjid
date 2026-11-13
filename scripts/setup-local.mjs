@@ -14,7 +14,7 @@
 //   .env.local.test           integration tests (pnpm test:int): MongoDB + Redis test credentials
 //   infra/compose/.local/redis-users.acl   Redis ACL users generated from the passwords above
 import { generateKeyPairSync, randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -104,6 +104,33 @@ const common = {
   TRUSTED_PROXY_MODE: 'none',
 };
 const encryption = { FIELD_ENCRYPTION_KEY: key32(), FIELD_ENCRYPTION_KEY_ID: 'local1' };
+// Grievance contact sealing (DECISIONS #173): api-public seals with the public half, api-admin opens with the private.
+const sealPair = generateKeyPairSync('rsa', { modulusLength: 2048 });
+const sealPublic = {
+  GRIEVANCE_SEAL_PUBLIC_KEY: Buffer.from(sealPair.publicKey.export({ type: 'spki', format: 'pem' })).toString('base64'),
+  GRIEVANCE_SEAL_KEY_ID: 'local1',
+};
+const sealPrivate = {
+  GRIEVANCE_SEAL_PRIVATE_KEY: Buffer.from(sealPair.privateKey.export({ type: 'pkcs8', format: 'pem' })).toString(
+    'base64',
+  ),
+  GRIEVANCE_SEAL_KEY_ID: 'local1',
+};
+/** An existing env file gains variables introduced later (appended; nothing in it is read out or changed). */
+function appendMissing(relativePath, values) {
+  const path = join(root, relativePath);
+  if (!existsSync(path)) return;
+  const present = readEnvFile(path);
+  const missing = Object.entries(values).filter(([name]) => !(name in present));
+  if (missing.length === 0) return;
+  // A file whose last line has no newline would glue the first new variable onto it.
+  const endsWithNewline = readFileSync(path, 'utf8').endsWith('\n');
+  appendFileSync(
+    path,
+    `${endsWithNewline ? '' : '\n'}${missing.map(([name, value]) => `${name}=${value}`).join('\n')}\n`,
+  );
+  process.stdout.write(`  added    ${missing.map(([name]) => name).join(', ')} to ${relativePath}\n`);
+}
 
 process.stdout.write('Local env files:\n');
 writeEnvFile('.env.local.compose', 'docker compose (MongoDB + Redis) passwords', compose, { mergeMissing: true });
@@ -111,6 +138,7 @@ writeEnvFile('.env.local.api-public', 'api-public', {
   ...common,
   MONGODB_URI_PUBLIC: mongo('mc_public', compose.MC_PUBLIC_PASSWORD),
   REDIS_URL_PUBLIC: redis('rl_public', compose.REDIS_RL_PUBLIC_PASSWORD),
+  ...sealPublic,
   PORT: '8787',
 });
 writeEnvFile('.env.local.api-admin', 'api-admin', {
@@ -122,6 +150,7 @@ writeEnvFile('.env.local.api-admin', 'api-admin', {
   RP_ID: 'localhost',
   VAPID_PUBLIC_KEY: vapid.publicKey,
   PAYMENT_HOLD_MINUTES: '2',
+  ...sealPrivate,
   PORT: '8788',
 });
 writeEnvFile('.env.local.worker', 'worker', {
@@ -159,6 +188,7 @@ writeEnvFile('.env.local.stack.api-public', 'api-public (local stack)', {
   ...stackCommon,
   MONGODB_URI_PUBLIC: stackMongo('mc_public', compose.MC_PUBLIC_PASSWORD),
   REDIS_URL_PUBLIC: stackRedis('rl_public', compose.REDIS_RL_PUBLIC_PASSWORD),
+  ...sealPublic,
   PORT: '8787',
 });
 writeEnvFile('.env.local.stack.api-admin', 'api-admin (local stack)', {
@@ -170,6 +200,7 @@ writeEnvFile('.env.local.stack.api-admin', 'api-admin (local stack)', {
   RP_ID: 'admin.localhost',
   VAPID_PUBLIC_KEY: vapid.publicKey,
   PAYMENT_HOLD_MINUTES: '2',
+  ...sealPrivate,
   PORT: '8788',
 });
 writeEnvFile('.env.local.stack.worker', 'worker (local stack)', {
@@ -182,6 +213,17 @@ writeEnvFile('.env.local.stack.worker', 'worker (local stack)', {
   VAPID_SUBJECT: 'mailto:dev@localhost.invalid',
   PAYMENT_HOLD_MINUTES: '2',
 });
+// Files kept from before #173 gain the sealing pair (the same pair in all four, so they match).
+const sealTargets = [
+  ['.env.local.api-public', sealPublic],
+  ['.env.local.stack.api-public', sealPublic],
+  ['.env.local.api-admin', sealPrivate],
+  ['.env.local.stack.api-admin', sealPrivate],
+];
+const sealMissingEverywhere = sealTargets.every(
+  ([file, values]) => !Object.keys(values).some((name) => name in readEnvFile(join(root, file))),
+);
+if (sealMissingEverywhere) for (const [file, values] of sealTargets) appendMissing(file, values);
 
 const client = {
   VITE_PUBLIC_VAPID_PUBLIC_KEY: vapid.publicKey,

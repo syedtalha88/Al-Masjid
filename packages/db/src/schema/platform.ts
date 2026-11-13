@@ -25,7 +25,6 @@ import {
   TEMPLATE_PARAM_TYPE,
   TEMPLATE_STATUS,
 } from './enums.ts';
-import { ENCRYPTED_PATTERN } from './masjids.ts';
 import type { CollectionSpec } from './types.ts';
 
 /** UPI VPA (02 §2 payment_profiles). */
@@ -196,12 +195,16 @@ const reports = documentSchema({
   sla_alerted: opt(f.int(0, 100)),
 });
 
+/** A sealed field (DECISIONS #173): `s1:<keyId>:<RSA-wrapped key>:<iv>:<ciphertext + tag>`, base64url. */
+const SEALED_PATTERN = '^s1:[a-z0-9-]{1,32}:[A-Za-z0-9_-]{100,1400}:[A-Za-z0-9_-]{16}:[A-Za-z0-9_-]{22,}$';
+
 const grievances = documentSchema({
   _id: f.uuid(),
   public_ref: f.string(16, { pattern: '^GR-\\d{4}-\\d{6}$' }),
   category: f.enum(GRIEVANCE_CATEGORY),
   description: f.string(2000, { minLength: 1 }),
-  contact_enc: opt(f.string(1200, { pattern: ENCRYPTED_PATTERN })),
+  /** Sealed with api-public's RSA public key, opened only in api-admin (DECISIONS #173). */
+  contact_enc: opt(f.string(1600, { pattern: SEALED_PATTERN })),
   status: f.enum(GRIEVANCE_STATUS),
   ack_due_at: f.instant(),
   resolve_due_at: f.instant(),
@@ -210,6 +213,8 @@ const grievances = documentSchema({
   resolution: opt(f.string(2000)),
   handled_by: opt(f.uuid()),
   created_at: f.instant(),
+  /** The highest SLA alert sent for the current timer — acknowledge, then resolve (`sla-alerts`, T8.3 / T8.4). */
+  sla_alerted: opt(f.int(0, 100)),
 });
 
 const grievanceSeq = documentSchema({ _id: f.string(4, { pattern: '^\\d{4}$' }), seq: f.long(0, MAX_SAFE) });

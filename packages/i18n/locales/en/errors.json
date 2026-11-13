@@ -92,5 +92,7 @@
   "CHANDA_HIDDEN": "Turn on “Show chanda to followers” before notifying them.",
   "BENEFICIARY_INVALID": "Please check the UPI ID, the name on the UPI account and the amount needed.",
   "BENEFICIARY_NOT_FOUND": "This person is no longer on the list.",
-  "BENEFICIARY_LIMIT_REACHED": "You can list up to 100 people at a time. Close one to add another."
+  "BENEFICIARY_LIMIT_REACHED": "You can list up to 100 people at a time. Close one to add another.",
+  "GRIEVANCE_NOT_FOUND": "This grievance was not found or is already closed.",
+  "GRIEVANCE_CONTACT_UNAVAILABLE": "A contact cannot be taken right now. Send it without one, or try again later."
 }

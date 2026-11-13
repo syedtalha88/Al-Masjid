@@ -14,6 +14,12 @@ export const Route = createFileRoute('/super/')({
 });
 
 const COUNTS = ['pending', 'active', 'suspended', 'deleted'] as const;
+const SLA_KIND_KEY = {
+  urgent_report: 'dashboard.slaUrgentReport',
+  report: 'dashboard.slaReport',
+  grievance_ack: 'dashboard.slaGrievanceAck',
+  grievance_resolve: 'dashboard.slaGrievanceResolve',
+} as const;
 
 /**
  * C1 Dashboard: the push kill-switch banner and 24-hour delivery (T4.5, T4.7), masjid counts and pending activations;
@@ -85,12 +91,12 @@ function Dashboard() {
                 <li key={timer.id} data-sla-row={timer.id} data-red={progress.red ? 'true' : 'false'}>
                   <ListRow
                     className="px-4"
-                    title={t(timer.kind === 'urgent_report' ? 'dashboard.slaUrgentReport' : 'dashboard.slaReport')}
+                    title={t(SLA_KIND_KEY[timer.kind])}
                     subtitle={t(progress.overdue ? 'reports.overdue' : 'reports.due', { when })}
                     trailing={progress.red ? <Tag tone="danger">{t('dashboard.slaRed')}</Tag> : undefined}
                     chevron
                     onPress={() => {
-                      navigator.push('/super/reports');
+                      navigator.push(timer.kind.startsWith('grievance') ? '/super/grievances' : '/super/reports');
                     }}
                   />
                 </li>

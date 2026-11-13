@@ -462,7 +462,10 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
   },
   grievances: {
     public: { insert: S },
-    super: { find: S, update: { writable: ['status', 'acknowledged_at', 'resolved_at', 'resolution', 'handled_by'] } },
+    super: {
+      find: S,
+      update: { writable: ['status', 'acknowledged_at', 'resolved_at', 'resolution', 'handled_by', 'sla_alerted'] },
+    },
   },
   grievance_seq: {
     public: { find: S, insert: S, update: { writable: ['seq'] } },

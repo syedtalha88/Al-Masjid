@@ -49,6 +49,10 @@ const { app } = createPublicApp({
     db: connections.db,
     turnstile,
     ...(env.APP_ORIGIN ? { appOrigin: env.APP_ORIGIN } : {}),
+    // T8.4 (#173): grievance contacts are sealed with the public half; without it a contact is refused (503).
+    ...(env.GRIEVANCE_SEAL_PUBLIC_KEY && env.GRIEVANCE_SEAL_KEY_ID
+      ? { grievanceSeal: { publicKey: env.GRIEVANCE_SEAL_PUBLIC_KEY, keyId: env.GRIEVANCE_SEAL_KEY_ID } }
+      : {}),
   }),
   rateLimiter: connections.rateLimiter,
   health: connections.health,

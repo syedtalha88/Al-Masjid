@@ -172,6 +172,10 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'item.remove': ['type', 'category', 'reports', 'was'],
   'item.restore': ['type', 'was', 'reports'],
   'report.dismiss': [],
+  // PHASE_08 T8.4 (C6): grievances — never the description or the contact in meta.
+  'grievance.ack': [],
+  'grievance.resolve': ['status'],
+  'grievance.contact': [],
 };
 const META_LIMIT_BYTES = 4096;
 

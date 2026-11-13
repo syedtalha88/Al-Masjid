@@ -11,6 +11,7 @@ import {
   mediaStoreFromEnv,
   pushNotifier,
   redisChallengeStore,
+  sealKeysFromEnv,
   sessionAuthenticator,
   startHttpServer,
   videoLookupFromEnv,
@@ -59,6 +60,16 @@ const { app } = createAdminApp({
     pepper,
     adminOrigin: env.ADMIN_ORIGIN,
     keyRing: keyRingFromEnv(env),
+    // T8.4 (#173): ★ "Show contact" opens sealed grievance contacts with the private half (absent → 503).
+    ...(env.GRIEVANCE_SEAL_PRIVATE_KEY && env.GRIEVANCE_SEAL_KEY_ID
+      ? {
+          sealKeys: sealKeysFromEnv({
+            GRIEVANCE_SEAL_PRIVATE_KEY: env.GRIEVANCE_SEAL_PRIVATE_KEY,
+            GRIEVANCE_SEAL_KEY_ID: env.GRIEVANCE_SEAL_KEY_ID,
+            GRIEVANCE_SEAL_OLD_KEYS: env.GRIEVANCE_SEAL_OLD_KEYS,
+          }),
+        }
+      : {}),
     // 04 §3: RP ID = the admin host (env.ts checks it equals ADMIN_ORIGIN's hostname), exact origin.
     rp: { id: env.RP_ID, name: BRAND.adminName, origin: env.ADMIN_ORIGIN },
     challenges: redisChallengeStore(connections.redis),

@@ -3067,3 +3067,29 @@ dashboard card sorted by urgency (C1 — red under 20 % left), with an e-mail fa
 **Tests:** shared `compliance` (levels, red, overdue), api `sla-alerts.int` 3 (urgent: 50 → 80 → 100 once each, never
 again; jumped thresholds → one alert at 100; a closed report stops; one Sentry report at 100), `moderation-routes.int`
 (dashboard `sla` earliest due first).
+
+### #173 — Grievance contacts are sealed with a public key in api-public, opened only in api-admin (PHASE_08 T8.4) — ACCEPTED (Claude Code, 13 Nov 2026; owner installs the key pair — O53)
+**Context:** 04 §8 says `grievances.contact_enc` is app-level AES-256-GCM like admin phones, but `POST /grievances` is an
+api-public route and `@mc/shared/env` forbids api-public every `FIELD_ENCRYPTION_*` key (a compromised public API
+must not decrypt admin phones). The two are in conflict.
+**Decision:** hybrid sealing — api-public holds only an **RSA public key** (`GRIEVANCE_SEAL_PUBLIC_KEY`, PEM, with
+`GRIEVANCE_SEAL_KEY_ID`); each contact is encrypted with a fresh AES-256-GCM key (the doc's cipher, the grievance id
+as associated data) and that key is wrapped with RSA-OAEP-SHA-256; stored as
+`s1:<keyId>:<wrapped key>:<iv>:<ciphertext+tag>` (base64url; its own validator pattern, migration 0026). Only
+api-admin holds the private key (`GRIEVANCE_SEAL_PRIVATE_KEY`, + old keys for rotation), used by the ★ "Show contact"
+(step-up, audited `grievance.contact`); the private key is forbidden in api-public, worker and migrate. Stronger than
+the doc's design: even a compromised api-public cannot read past contacts. `pnpm setup:local` generates a local pair
+(added to existing local env files without touching other values); CI uses the same. **Owner (O53):** generate a
+4096-bit pair for staging (and later production) and put the public half in api-public's env file, the private half in
+api-admin's.
+**Also decided (T8.4):** the sealing keys are required in production only — without them api-public accepts a grievance
+but refuses a contact (503 `GRIEVANCE_CONTACT_UNAVAILABLE`, the form says "send it without one, or try later"), so
+staging keeps working before O53. References `GR-<year in India>-<6 digits>` from `grievance_seq` in the filing
+transaction. Grievance timers (acknowledge 24 h from filing; resolve from acknowledgement, due 72 h after filing) join
+`listSlaTimers` with `grievances.sla_alerted` (reset to 0 at acknowledgement; migration `0026_grievance_seal`). C6
+`/super/grievances` (timers, Acknowledge, Resolve / Reject with a note, ★ Show contact). Bodyless super POST routes now
+take an empty `{}` body (the admin client always sends one — found by the e2e; Restore in C5 had the same bug).
+**Tests:** api `seal` 4, `grievance-routes.int` 3 (sequential refs, ciphertext at rest, 503 without a key, tracker,
+step-up reveal audited), `sla-alerts.int` (+ grievance clocks), shared `env` (keys, forbidden in api-public / worker),
+app `grievance-form` 2, e2e `admin/grievances.spec.ts` 5 (file → reference → C6 reveal / acknowledge / resolve; form ×
+4 locales, axe) on Pixel 7.

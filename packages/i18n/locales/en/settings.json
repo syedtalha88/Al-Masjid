@@ -67,7 +67,6 @@
   "officer": "Grievance Officer",
   "officerTimes": "We acknowledge every complaint within 24 hours.",
   "emailOfficer": "Email the Grievance Officer",
-  "formSoon": "A complaint form inside the app is coming soon. Until then, please write by email.",
   "officerOffline": "Connect to the internet to see the Grievance Officer’s details.",
   "aboutFree": "Free forever. No ads, ever. No account. No tracking.",
   "aboutCommunity": "Made for the community.",
@@ -133,5 +132,29 @@
     "askTitle": "Turn on notifications?",
     "askAllow": "Turn on",
     "askLater": "Not now"
+  },
+  "grievanceForm": {
+    "title": "Send a grievance",
+    "category": "What is it about?",
+    "categories": {
+      "privacy": "My privacy or my data",
+      "content": "Something in the app",
+      "technical": "The app does not work",
+      "feedback": "An idea or feedback",
+      "other": "Something else"
+    },
+    "description": "What happened?",
+    "descriptionHint": "Please don't write anyone's private details.",
+    "contact": "Your e-mail or phone",
+    "contactHint": "Only if you want a reply. It is kept locked; only the Grievance Officer can see it.",
+    "send": "Send",
+    "sending": "Sending…",
+    "doneTitle": "Received",
+    "doneRef": "Your reference:",
+    "doneAck": "We will acknowledge it within 24 hours.",
+    "offline": "You're offline. Try again when you're connected.",
+    "limit": "You have sent the most grievances allowed for today. Try again tomorrow.",
+    "contactUnavailable": "A contact cannot be taken right now. Send it without one, or try again later.",
+    "failed": "It could not be sent. Please try again."
   }
 }

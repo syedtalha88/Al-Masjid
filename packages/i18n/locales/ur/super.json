@@ -4,6 +4,7 @@
     "label": "سپر ایڈمن کے حصے",
     "dashboard": "ڈیش بورڈ",
     "reports": "رپورٹس",
+    "grievances": "شکایات",
     "masjids": "مساجد",
     "settings": "سیٹنگز",
     "audit": "آڈٹ لاگ",
@@ -28,7 +29,9 @@
     "sla": "آخری اوقات",
     "slaUrgentReport": "فوری رپورٹ",
     "slaReport": "رپورٹ",
-    "slaRed": "20% سے کم وقت باقی"
+    "slaRed": "20% سے کم وقت باقی",
+    "slaGrievanceAck": "شکایت — وصولی کی تصدیق",
+    "slaGrievanceResolve": "شکایت — حل کریں"
   },
   "masjids": {
     "search": "نام، شہر یا کوڈ سے تلاش کریں",
@@ -380,5 +383,36 @@
     "dismiss": "مسترد کریں",
     "dismissed": "رپورٹ مسترد کر دی گئی۔",
     "openMasjid": "مسجد کھولیں"
+  },
+  "grievances": {
+    "title": "شکایات",
+    "empty": "کوئی شکایت نہیں۔",
+    "category": {
+      "privacy": "رازداری / ڈیٹا",
+      "content": "مواد",
+      "technical": "تکنیکی",
+      "feedback": "رائے",
+      "other": "دیگر"
+    },
+    "status": {
+      "open": "نئی",
+      "acknowledged": "وصولی کی تصدیق",
+      "resolved": "حل شدہ",
+      "rejected": "مسترد"
+    },
+    "ackDue": "تصدیق {when}",
+    "ackOverdue": "تصدیق میں تاخیر — آخری وقت {when} تھا",
+    "resolveDue": "حل {when}",
+    "resolveOverdue": "حل میں تاخیر — آخری وقت {when} تھا",
+    "acknowledge": "وصولی کی تصدیق کریں",
+    "acknowledged": "تصدیق ہو گئی۔",
+    "resolve": "حل کریں",
+    "reject": "مسترد کریں",
+    "resolveTitle": "یہ شکایت حل کریں",
+    "rejectTitle": "یہ شکایت مسترد کریں",
+    "note": "کیا کیا گیا (ریکارڈ میں رہے گا)",
+    "closed": "بند کر دی گئی۔",
+    "showContact": "رابطہ دکھائیں",
+    "noContact": "کوئی رابطہ نہیں چھوڑا گیا۔"
   }
 }

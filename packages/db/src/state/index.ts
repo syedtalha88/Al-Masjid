@@ -106,6 +106,16 @@ export {
 } from './devices.ts';
 export { type DuaRequestInput, type DuaRequestPublished, publishDuaRequest } from './duas.ts';
 export { followMasjid, MAX_FOLLOWS_PER_DEVICE, unfollowMasjid } from './follows.ts';
+export {
+  acknowledgeGrievance,
+  createGrievance,
+  type GrievanceCategory,
+  type GrievanceRow,
+  type GrievanceStatus,
+  listGrievances,
+  readGrievanceContact,
+  resolveGrievance,
+} from './grievances.ts';
 export { requireSuper, STEP_UP_WINDOW_MS } from './guards.ts';
 export {
   deleteExpiredItem,

@@ -199,9 +199,11 @@ function TargetCard({ target, open }: { readonly target: QueueTargetView; readon
       <header className="flex flex-wrap items-center gap-2">
         {target.urgent ? <Tag tone="danger">{t('reports.urgent')}</Tag> : null}
         {open ? (
-          <Tag tone={dueTone} data-due>
-            {t(left < 0 ? 'reports.overdue' : 'reports.due', { when: format.relative(due, now) })}
-          </Tag>
+          <span data-due>
+            <Tag tone={dueTone}>
+              {t(left < 0 ? 'reports.overdue' : 'reports.due', { when: format.relative(due, now) })}
+            </Tag>
+          </span>
         ) : null}
         <Tag tone="neutral">{t('reports.reportCount', { count: target.reports.length })}</Tag>
         {itemStatus && isStatus(itemStatus) ? <Tag tone="slate">{t(STATUS_KEY[itemStatus])}</Tag> : null}

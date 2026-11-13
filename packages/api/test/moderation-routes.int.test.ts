@@ -177,7 +177,7 @@ describe('moderation (C5)', () => {
     const response = await asSuper('post', `/items/${id}/remove`).send({ category: 'copyright' });
     expect(response.body).toMatchObject({ cdnPurgeQueued: false });
     purgeWorks = true;
-    const again = await asSuper('post', `/items/${publicId}/purge?masjid=${idText(ALPHA)}&item=${id}`);
+    const again = await asSuper('post', `/items/${publicId}/purge?masjid=${idText(ALPHA)}&item=${id}`).send({});
     expect(again.status).toBe(200);
     expect(again.body).toEqual({ cdnPurgeQueued: true });
     expect(access.at(-1)).toEqual({ itemId: id, restrict: true });
@@ -186,11 +186,11 @@ describe('moderation (C5)', () => {
   it('★ Restore publishes it again; Dismiss closes one report', async () => {
     const publicId = seedPublicId('alpha', 3);
     const id = await itemIdOf(publicId);
-    const restored = await asSuper('post', `/items/${id}/restore`);
+    const restored = await asSuper('post', `/items/${id}/restore`).send({});
     expect(restored.status).toBe(200);
     expect(access.at(-1)).toEqual({ itemId: id, restrict: false });
     expect(await getPublicItem(pub(), publicId, ['everyone', 'brothers', 'sisters'])).not.toBeNull();
-    expect((await asSuper('post', `/items/${id}/restore`)).status).toBe(404);
+    expect((await asSuper('post', `/items/${id}/restore`).send({})).status).toBe(404);
 
     const reportId = idText(await report(seedPublicId('alpha', 2), 'other'));
     expect((await asSuper('post', `/reports/${reportId}/dismiss`).send({ note: 'Placeholder' })).status).toBe(200);

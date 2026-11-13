@@ -1295,6 +1295,8 @@ errors,CHANDA_HIDDEN,Turn on “Show chanda to followers” before notifying the
 errors,BENEFICIARY_INVALID,"Please check the UPI ID, the name on the UPI account and the amount needed.","कृपया UPI ID, UPI खाते का नाम और ज़रूरत की रक़म जाँचें।",no
 errors,BENEFICIARY_NOT_FOUND,This person is no longer on the list.,यह व्यक्ति अब सूची में नहीं है।,no
 errors,BENEFICIARY_LIMIT_REACHED,You can list up to 100 people at a time. Close one to add another.,आप एक समय में अधिकतम 100 लोग जोड़ सकते हैं। नया जोड़ने के लिए एक बंद करें।,no
+errors,GRIEVANCE_NOT_FOUND,This grievance was not found or is already closed.,यह शिकायत नहीं मिली या पहले ही बंद हो चुकी है।,no
+errors,GRIEVANCE_CONTACT_UNAVAILABLE,"A contact cannot be taken right now. Send it without one, or try again later.",अभी संपर्क नहीं लिया जा सकता। इसके बिना भेजें या बाद में कोशिश करें।,no
 follow,scan.title,Scan masjid QR,मस्जिद का QR स्कैन करें,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,अपना कैमरा मस्जिद के पोस्टर पर लगे QR कोड की ओर करें।,no
 follow,scan.torch,Flashlight,टॉर्च,no
@@ -1513,7 +1515,6 @@ settings,docVersion,Version {version},संस्करण {version},no
 settings,officer,Grievance Officer,शिकायत अधिकारी,no
 settings,officerTimes,We acknowledge every complaint within 24 hours.,हम हर शिकायत की पुष्टि 24 घंटे के भीतर करते हैं।,no
 settings,emailOfficer,Email the Grievance Officer,शिकायत अधिकारी को ईमेल करें,no
-settings,formSoon,"A complaint form inside the app is coming soon. Until then, please write by email.",ऐप के अंदर शिकायत फ़ॉर्म जल्द आ रहा है। तब तक कृपया ईमेल से लिखें।,no
 settings,officerOffline,Connect to the internet to see the Grievance Officer’s details.,शिकायत अधिकारी की जानकारी देखने के लिए इंटरनेट से जुड़ें।,no
 settings,aboutFree,"Free forever. No ads, ever. No account. No tracking.",हमेशा मुफ़्त। कभी कोई विज्ञापन नहीं। कोई अकाउंट नहीं। कोई ट्रैकिंग नहीं।,no
 settings,aboutCommunity,Made for the community.,समुदाय के लिए बनाया गया।,no
@@ -1574,10 +1575,31 @@ settings,push.noMasjids,Follow a masjid to get its notifications.,किसी �
 settings,push.askTitle,Turn on notifications?,सूचनाएँ चालू करें?,no
 settings,push.askAllow,Turn on,चालू करें,no
 settings,push.askLater,Not now,अभी नहीं,no
+settings,grievanceForm.title,Send a grievance,शिकायत भेजें,no
+settings,grievanceForm.category,What is it about?,यह किस बारे में है?,no
+settings,grievanceForm.categories.privacy,My privacy or my data,मेरी निजता या मेरा डेटा,no
+settings,grievanceForm.categories.content,Something in the app,ऐप में कुछ,no
+settings,grievanceForm.categories.technical,The app does not work,ऐप काम नहीं कर रहा,no
+settings,grievanceForm.categories.feedback,An idea or feedback,कोई सुझाव या राय,no
+settings,grievanceForm.categories.other,Something else,कुछ और,no
+settings,grievanceForm.description,What happened?,क्या हुआ?,no
+settings,grievanceForm.descriptionHint,Please don't write anyone's private details.,कृपया किसी की निजी जानकारी न लिखें।,no
+settings,grievanceForm.contact,Your e-mail or phone,आपका ई-मेल या फ़ोन,no
+settings,grievanceForm.contactHint,Only if you want a reply. It is kept locked; only the Grievance Officer can see it.,सिर्फ़ अगर आप जवाब चाहते हैं। यह लॉक रखा जाता है; इसे सिर्फ़ शिकायत अधिकारी देख सकते हैं।,no
+settings,grievanceForm.send,Send,भेजें,no
+settings,grievanceForm.sending,Sending…,भेजा जा रहा है…,no
+settings,grievanceForm.doneTitle,Received,मिल गई,no
+settings,grievanceForm.doneRef,Your reference:,आपका संदर्भ नंबर:,no
+settings,grievanceForm.doneAck,We will acknowledge it within 24 hours.,हम 24 घंटे के अंदर इसकी पावती देंगे।,no
+settings,grievanceForm.offline,You're offline. Try again when you're connected.,आप ऑफ़लाइन हैं। कनेक्ट होने पर फिर से कोशिश करें।,no
+settings,grievanceForm.limit,You have sent the most grievances allowed for today. Try again tomorrow.,आज के लिए आप सबसे ज़्यादा शिकायतें भेज चुके हैं। कल फिर कोशिश करें।,no
+settings,grievanceForm.contactUnavailable,"A contact cannot be taken right now. Send it without one, or try again later.",अभी संपर्क नहीं लिया जा सकता। इसके बिना भेजें या बाद में कोशिश करें।,no
+settings,grievanceForm.failed,It could not be sent. Please try again.,यह भेजी नहीं जा सकी। कृपया फिर से कोशिश करें।,no
 super,title,Super Admin,सुपर एडमिन,no
 super,nav.label,Super Admin sections,सुपर एडमिन के हिस्से,no
 super,nav.dashboard,Dashboard,डैशबोर्ड,no
 super,nav.reports,Reports,रिपोर्ट,no
+super,nav.grievances,Grievances,शिकायतें,no
 super,nav.masjids,Masjids,मस्जिदें,no
 super,nav.settings,Settings,सेटिंग,no
 super,nav.audit,Audit log,ऑडिट लॉग,no
@@ -1599,6 +1621,8 @@ super,dashboard.sla,Deadlines,समय सीमाएँ,no
 super,dashboard.slaUrgentReport,Urgent report,तत्काल रिपोर्ट,no
 super,dashboard.slaReport,Report,रिपोर्ट,no
 super,dashboard.slaRed,Under 20 % left,20% से कम समय बचा,no
+super,dashboard.slaGrievanceAck,Grievance — acknowledge,शिकायत — पावती दें,no
+super,dashboard.slaGrievanceResolve,Grievance — resolve,शिकायत — निपटाएँ,no
 super,masjids.search,"Search by name, city or code","नाम, शहर या कोड से खोजें",no
 super,masjids.all,All,सभी,no
 super,masjids.new,New masjid,नई मस्जिद,no
@@ -1896,6 +1920,31 @@ super,reports.restored,Restored. It is shown again.,वापस आ गई। �
 super,reports.dismiss,Dismiss,ख़ारिज करें,no
 super,reports.dismissed,Report dismissed.,रिपोर्ट ख़ारिज की गई।,no
 super,reports.openMasjid,Open masjid,मस्जिद खोलें,no
+super,grievances.title,Grievances,शिकायतें,no
+super,grievances.empty,No grievances.,कोई शिकायत नहीं।,no
+super,grievances.category.privacy,Privacy / data,निजता / डेटा,no
+super,grievances.category.content,Content,सामग्री,no
+super,grievances.category.technical,Technical,तकनीकी,no
+super,grievances.category.feedback,Feedback,राय,no
+super,grievances.category.other,Other,अन्य,no
+super,grievances.status.open,New,नई,no
+super,grievances.status.acknowledged,Acknowledged,पावती दी गई,no
+super,grievances.status.resolved,Resolved,निपटाई गई,no
+super,grievances.status.rejected,Rejected,ख़ारिज,no
+super,grievances.ackDue,Acknowledge {when},पावती {when},no
+super,grievances.ackOverdue,Acknowledgement overdue — was due {when},पावती में देर — सीमा {when} थी,no
+super,grievances.resolveDue,Resolve {when},निपटारा {when},no
+super,grievances.resolveOverdue,Resolution overdue — was due {when},निपटारे में देर — सीमा {when} थी,no
+super,grievances.acknowledge,Acknowledge,पावती दें,no
+super,grievances.acknowledged,Acknowledged.,पावती दे दी गई।,no
+super,grievances.resolve,Resolve,निपटाएँ,no
+super,grievances.reject,Reject,ख़ारिज करें,no
+super,grievances.resolveTitle,Resolve this grievance,यह शिकायत निपटाएँ,no
+super,grievances.rejectTitle,Reject this grievance,यह शिकायत ख़ारिज करें,no
+super,grievances.note,What was done (kept on record),क्या किया गया (रिकॉर्ड में रहेगा),no
+super,grievances.closed,Closed.,बंद कर दी गई।,no
+super,grievances.showContact,Show contact,संपर्क दिखाएँ,no
+super,grievances.noContact,No contact was left.,कोई संपर्क नहीं छोड़ा गया।,no
 templates,no_water_time_range.title,No water supply,पानी की आपूर्ति बंद,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} से {hours_end} तक पानी उपलब्ध नहीं रहेगा।,no
 templates,electricity_cut_time_range.title,Power cut,बिजली कटौती,no

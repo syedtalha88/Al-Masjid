@@ -1,0 +1,113 @@
+{
+  "collections": [
+    {
+      "name": "grievances",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "public_ref",
+          "category",
+          "description",
+          "status",
+          "ack_due_at",
+          "resolve_due_at",
+          "created_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "public_ref": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "16"
+            },
+            "pattern": "^GR-\\d{4}-\\d{6}$"
+          },
+          "category": {
+            "bsonType": "string",
+            "enum": ["privacy", "content", "technical", "feedback", "other"]
+          },
+          "description": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "2000"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "contact_enc": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "1600"
+            },
+            "pattern": "^s1:[a-z0-9-]{1,32}:[A-Za-z0-9_-]{100,1400}:[A-Za-z0-9_-]{16}:[A-Za-z0-9_-]{22,}$"
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["open", "acknowledged", "resolved", "rejected"]
+          },
+          "ack_due_at": {
+            "bsonType": "date"
+          },
+          "resolve_due_at": {
+            "bsonType": "date"
+          },
+          "acknowledged_at": {
+            "bsonType": "date"
+          },
+          "resolved_at": {
+            "bsonType": "date"
+          },
+          "resolution": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "2000"
+            }
+          },
+          "handled_by": {
+            "bsonType": "binData"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "sla_alerted": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "100"
+            }
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "public_ref_unique",
+          "key": {
+            "public_ref": {
+              "$numberInt": "1"
+            }
+          },
+          "unique": true
+        },
+        {
+          "name": "status_ack_due",
+          "key": {
+            "status": {
+              "$numberInt": "1"
+            },
+            "ack_due_at": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "views": []
+}

@@ -28,6 +28,7 @@ export {
   newToken,
   tokensEqual,
 } from './crypto/field.ts';
+export { openSealed, SealError, sealField, type SealKeys, sealKeysFromEnv } from './crypto/seal.ts';
 export { clientIp, type TrustedProxyMode } from './http/client-ip.ts';
 export { defineRoute, type RouteDefinition } from './http/define-route.ts';
 export type { ErrorReporter } from './http/errors.ts';
