@@ -10,7 +10,8 @@
     "audit": "ऑडिट लॉग",
     "library": "सामग्री लाइब्रेरी",
     "templates": "सूचना टेम्पलेट",
-    "payments": "भुगतान मंज़ूरी"
+    "payments": "भुगतान मंज़ूरी",
+    "legal": "कानूनी आदेश"
   },
   "status": {
     "pending": "बाक़ी",
@@ -31,7 +32,8 @@
     "slaReport": "रिपोर्ट",
     "slaRed": "20% से कम समय बचा",
     "slaGrievanceAck": "शिकायत — पावती दें",
-    "slaGrievanceResolve": "शिकायत — निपटाएँ"
+    "slaGrievanceResolve": "शिकायत — निपटाएँ",
+    "slaLegalOrder": "कानूनी आदेश — कार्रवाई करें"
   },
   "masjids": {
     "search": "नाम, शहर या कोड से खोजें",
@@ -382,7 +384,10 @@
     "restored": "वापस आ गई। अब फिर से दिख रही है।",
     "dismiss": "ख़ारिज करें",
     "dismissed": "रिपोर्ट ख़ारिज की गई।",
-    "openMasjid": "मस्जिद खोलें"
+    "openMasjid": "मस्जिद खोलें",
+    "legalOrder": "कानूनी आदेश",
+    "legalOrderLoading": "आदेश लोड हो रहे हैं…",
+    "legalOrderNone": "आदेश चुनें"
   },
   "grievances": {
     "title": "शिकायतें",
@@ -414,5 +419,53 @@
     "closed": "बंद कर दी गई।",
     "showContact": "संपर्क दिखाएँ",
     "noContact": "कोई संपर्क नहीं छोड़ा गया।"
+  },
+  "legal": {
+    "title": "कानूनी आदेश",
+    "empty": "कोई कानूनी आदेश नहीं।",
+    "new": "आदेश दर्ज करें",
+    "newTitle": "नया कानूनी आदेश",
+    "authority": "प्राधिकरण",
+    "referenceNo": "आदेश संदर्भ संख्या",
+    "receivedAt": "कब मिला (भारत का समय)",
+    "receivedHint": "आदेश हमें कब मिला। 3 घंटे की घड़ी यहीं से शुरू होती है।",
+    "targetType": "इसमें किसका नाम है?",
+    "target": {
+      "items": "एक पोस्ट",
+      "masjids": "एक मस्जिद",
+      "other": "कुछ और"
+    },
+    "targetRef": "कौन-सा",
+    "targetHint": {
+      "items": "पोस्ट का लिंक पेस्ट करें।",
+      "masjids": "फ़ॉलो कोड लिखें, जैसे ABCD-EFGH।",
+      "other": "छोटा-सा विवरण।"
+    },
+    "summary": "आदेश में क्या माँगा गया है",
+    "save": "सहेजें",
+    "required": "इसे भरें।",
+    "created": "आदेश दर्ज हुआ। 3 घंटे के अंदर कार्रवाई करें।",
+    "updated": "आदेश अपडेट हुआ।",
+    "status": {
+      "received": "मिला",
+      "actioned": "कार्रवाई हुई",
+      "contested": "चुनौती दी गई",
+      "closed": "बंद"
+    },
+    "statusLabel": "स्थिति",
+    "due": "कार्रवाई करें {when}",
+    "overdue": "समय निकल गया — {when} तक करना था",
+    "hasDocument": "दस्तावेज़ जुड़ा है",
+    "receivedLine": "मिला {when}",
+    "log": "कार्रवाई लॉग",
+    "update": "अपडेट करें",
+    "updateTitle": "आदेश अपडेट करें",
+    "actionTaken": "की गई कार्रवाई",
+    "note": "लॉग के लिए नोट",
+    "attachDocument": "दस्तावेज़ जोड़ें",
+    "replaceDocument": "दस्तावेज़ बदलें",
+    "downloadDocument": "दस्तावेज़ डाउनलोड करें",
+    "uploading": "अपलोड हो रहा है…",
+    "documentSaved": "दस्तावेज़ सहेजा गया (एन्क्रिप्टेड)।"
   }
 }

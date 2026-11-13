@@ -89,4 +89,6 @@ export const SCHEMA_AREAS: Readonly<
   '0025_report_sla_alerted': { collections: ['reports'] },
   // PHASE_08 T8.4 (DECISIONS #173): sealed grievance contacts (`s1:` pattern) and the SLA alert record.
   '0026_grievance_seal': { collections: ['grievances'] },
+  // PHASE_08 T8.5 (DECISIONS #174): legal orders — target type enum, non-empty target, `sla_alerted` for the 3 h clock.
+  '0027_legal_orders': { collections: ['legal_orders'] },
 };

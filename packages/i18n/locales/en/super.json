@@ -10,7 +10,8 @@
     "audit": "Audit log",
     "library": "Content Library",
     "templates": "Notice templates",
-    "payments": "Payment approvals"
+    "payments": "Payment approvals",
+    "legal": "Legal orders"
   },
   "status": {
     "pending": "Pending",
@@ -31,7 +32,8 @@
     "slaReport": "Report",
     "slaRed": "Under 20 % left",
     "slaGrievanceAck": "Grievance — acknowledge",
-    "slaGrievanceResolve": "Grievance — resolve"
+    "slaGrievanceResolve": "Grievance — resolve",
+    "slaLegalOrder": "Legal order — act"
   },
   "masjids": {
     "search": "Search by name, city or code",
@@ -382,7 +384,10 @@
     "restored": "Restored. It is shown again.",
     "dismiss": "Dismiss",
     "dismissed": "Report dismissed.",
-    "openMasjid": "Open masjid"
+    "openMasjid": "Open masjid",
+    "legalOrder": "Legal order",
+    "legalOrderLoading": "Loading orders…",
+    "legalOrderNone": "Choose the order"
   },
   "grievances": {
     "title": "Grievances",
@@ -414,5 +419,53 @@
     "closed": "Closed.",
     "showContact": "Show contact",
     "noContact": "No contact was left."
+  },
+  "legal": {
+    "title": "Legal orders",
+    "empty": "No legal orders.",
+    "new": "Record an order",
+    "newTitle": "New legal order",
+    "authority": "Authority",
+    "referenceNo": "Order reference number",
+    "receivedAt": "Received at (India time)",
+    "receivedHint": "When the order reached us. The 3-hour clock starts here.",
+    "targetType": "What does it name?",
+    "target": {
+      "items": "A post",
+      "masjids": "A masjid",
+      "other": "Something else"
+    },
+    "targetRef": "Which one",
+    "targetHint": {
+      "items": "Paste the post link.",
+      "masjids": "Type the follow code, e.g. ABCD-EFGH.",
+      "other": "A short description."
+    },
+    "summary": "What the order asks",
+    "save": "Save",
+    "required": "Fill this in.",
+    "created": "Order recorded. Act within 3 hours.",
+    "updated": "Order updated.",
+    "status": {
+      "received": "Received",
+      "actioned": "Acted on",
+      "contested": "Contested",
+      "closed": "Closed"
+    },
+    "statusLabel": "Status",
+    "due": "Act {when}",
+    "overdue": "Overdue — was due {when}",
+    "hasDocument": "Document attached",
+    "receivedLine": "Received {when}",
+    "log": "Action log",
+    "update": "Update",
+    "updateTitle": "Update the order",
+    "actionTaken": "Action taken",
+    "note": "Note for the log",
+    "attachDocument": "Attach document",
+    "replaceDocument": "Replace document",
+    "downloadDocument": "Download document",
+    "uploading": "Uploading…",
+    "documentSaved": "Document saved (encrypted)."
   }
 }

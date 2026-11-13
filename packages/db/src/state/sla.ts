@@ -1,5 +1,6 @@
 // SLA timers (05 §3, 07 C1, PHASE_08 T8.3): every open thing with a legal deadline, read as one list — today open
-// reports (urgent: 2 h, others: 36 h) and grievances (acknowledge 24 h, resolve 72 h); legal orders (T8.5) join here. The `sla-alerts` job asks
+// reports (urgent: 2 h, others: 36 h), grievances (acknowledge 24 h, resolve 72 h) and legal orders not yet acted on
+// (3 h, T8.5). The `sla-alerts` job asks
 // for the timers, sends the Super Admin one alert per (target, threshold) and records the threshold on the target.
 import type { UUID } from 'mongodb';
 
@@ -9,7 +10,7 @@ import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { isId } from '../values.ts';
 
-export type SlaKind = 'urgent_report' | 'report' | 'grievance_ack' | 'grievance_resolve';
+export type SlaKind = 'urgent_report' | 'report' | 'grievance_ack' | 'grievance_resolve' | 'legal_order';
 
 export interface SlaTimer {
   readonly kind: SlaKind;
@@ -78,7 +79,29 @@ export async function listSlaTimers(handle: DbHandle, scope: Scope): Promise<Sla
       },
     ];
   });
-  return [...fromReports, ...fromGrievances]
+  // Legal orders (T8.5): the 3-hour clock runs from the entered received time until the order is acted on.
+  const orders = await scoped({ scope, db }, 'legal_orders').find(
+    { status: 'received' },
+    { sort: { due_at: 1, _id: 1 }, limit: SLA_TIMERS_MAX },
+  );
+  const fromOrders = orders.flatMap((doc): SlaTimer[] => {
+    const id: unknown = doc['_id'];
+    const startAt: unknown = doc['received_at'];
+    const dueAt: unknown = doc['due_at'];
+    const alerted: unknown = doc['sla_alerted'];
+    if (!isId(id) || !(startAt instanceof Date) || !(dueAt instanceof Date)) return [];
+    return [
+      {
+        kind: 'legal_order',
+        id,
+        masjidId: undefined,
+        startAt,
+        dueAt,
+        alerted: typeof alerted === 'number' ? alerted : 0,
+      },
+    ];
+  });
+  return [...fromReports, ...fromGrievances, ...fromOrders]
     .sort((a, b) => a.dueAt.getTime() - b.dueAt.getTime())
     .slice(0, SLA_TIMERS_MAX);
 }
@@ -95,7 +118,12 @@ export async function markSlaAlerted(
   level: number,
 ): Promise<void> {
   if (scope.kind !== 'system') throw new StateError('FORBIDDEN');
-  const collection = timer.kind === 'grievance_ack' || timer.kind === 'grievance_resolve' ? 'grievances' : 'reports';
+  const collection =
+    timer.kind === 'grievance_ack' || timer.kind === 'grievance_resolve'
+      ? 'grievances'
+      : timer.kind === 'legal_order'
+        ? 'legal_orders'
+        : 'reports';
   await (
     await handle.db()
   )

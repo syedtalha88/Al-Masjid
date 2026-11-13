@@ -88,6 +88,11 @@ export interface RouteSpec<
   readonly csvAttachment?: string;
   /** Success bodies are an HTML fragment (string) instead of JSON — the link-preview tags only (03 §3). */
   readonly htmlFragment?: true;
+  /**
+   * Success bodies are one file ({@link fileBodySchema}: bytes, type, file name) sent as an attachment — private
+   * downloads only (the legal-order document, T8.5). `no-store` like every other response.
+   */
+  readonly fileAttachment?: true;
   readonly request?: { readonly params?: P; readonly query?: Q; readonly body?: B };
   /**
    * The request body is one file (`multipart/form-data`, field `file`) of at most `maxBytes`, read into memory after
@@ -99,6 +104,16 @@ export interface RouteSpec<
     context: RouteContext<z.output<P>, z.output<Q>, z.core.output<B>, R, A>,
   ) => RouteResult<R> | Promise<RouteResult<R>>;
 }
+
+/**
+ * The body of a {@link RouteSpec.fileAttachment} route: the bytes, a fixed set of types, and a plain file name (no
+ * quotes, slashes or non-ASCII — it goes into `Content-Disposition` as is).
+ */
+export const fileBodySchema = z.object({
+  bytes: z.custom<Uint8Array>((value) => value instanceof Uint8Array),
+  contentType: z.enum(['application/pdf', 'image/jpeg', 'image/png']),
+  filename: z.string().regex(/^[A-Za-z0-9._-]{1,100}$/u),
+});
 
 /** `reply(status, body)` — the result object; the mapped-type union is checked by the signature. */
 const reply = <R extends Responses>(status: number, body: unknown): RouteResult<R> => {
@@ -265,6 +280,12 @@ export function defineRoute<
         .send(output);
     } else if (spec.htmlFragment && typeof output === 'string') {
       res.type('text/html; charset=utf-8').send(output);
+    } else if (spec.fileAttachment) {
+      const file = fileBodySchema.parse(output);
+      res
+        .type(file.contentType)
+        .set('Content-Disposition', `attachment; filename="${file.filename}"`)
+        .send(Buffer.from(file.bytes));
     } else res.json(output);
   };
 
@@ -308,13 +329,15 @@ export function defineRoute<
           ...(status === '204' || isRedirect(Number(status))
             ? {}
             : {
-                content: {
-                  [spec.csvAttachment !== undefined
-                    ? 'text/csv'
-                    : spec.htmlFragment
-                      ? 'text/html'
-                      : 'application/json']: { schema: forOpenApi(schema, 'output') },
-                },
+                content: spec.fileAttachment
+                  ? { 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } }
+                  : {
+                      [spec.csvAttachment !== undefined
+                        ? 'text/csv'
+                        : spec.htmlFragment
+                          ? 'text/html'
+                          : 'application/json']: { schema: forOpenApi(schema, 'output') },
+                    },
               }),
         },
       ]),

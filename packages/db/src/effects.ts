@@ -169,13 +169,18 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   // PHASE_08 T8.1: `report-triage` hid a post many devices reported within an hour (system actor).
   'item.autohide': ['type', 'reporters'],
   // PHASE_08 T8.2 (C5): takedown and restore by the Super Admin — the category and counts, never the private note.
-  'item.remove': ['type', 'category', 'reports', 'was'],
+  'item.remove': ['type', 'category', 'reports', 'was', 'legal_order'],
   'item.restore': ['type', 'was', 'reports'],
   'report.dismiss': [],
   // PHASE_08 T8.4 (C6): grievances — never the description or the contact in meta.
   'grievance.ack': [],
   'grievance.resolve': ['status'],
   'grievance.contact': [],
+  // PHASE_08 T8.5 (C7): legal orders — never the authority, reference, summary or notes in meta.
+  'legal_order.create': ['target_type'],
+  'legal_order.update': ['from', 'to', 'action'],
+  'legal_order.document': ['replaced'],
+  'legal_order.document_read': [],
 };
 const META_LIMIT_BYTES = 4096;
 

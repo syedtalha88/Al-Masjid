@@ -1,0 +1,140 @@
+{
+  "collections": [
+    {
+      "name": "legal_orders",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "authority",
+          "reference_no",
+          "received_at",
+          "due_at",
+          "target_type",
+          "target_id",
+          "summary",
+          "action_log",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "_id": {
+            "bsonType": "binData"
+          },
+          "authority": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "200"
+            }
+          },
+          "reference_no": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "120"
+            }
+          },
+          "received_at": {
+            "bsonType": "date"
+          },
+          "due_at": {
+            "bsonType": "date"
+          },
+          "target_type": {
+            "bsonType": "string",
+            "enum": ["items", "masjids", "other"]
+          },
+          "target_id": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "64"
+            },
+            "minLength": {
+              "$numberInt": "1"
+            }
+          },
+          "summary": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "2000"
+            }
+          },
+          "action_taken": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "2000"
+            }
+          },
+          "action_log": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "required": ["at", "by", "note"],
+              "additionalProperties": false,
+              "properties": {
+                "at": {
+                  "bsonType": "date"
+                },
+                "by": {
+                  "bsonType": "binData"
+                },
+                "note": {
+                  "bsonType": "string",
+                  "maxLength": {
+                    "$numberInt": "500"
+                  }
+                }
+              }
+            },
+            "maxItems": {
+              "$numberInt": "200"
+            }
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": ["received", "actioned", "contested", "closed"]
+          },
+          "document_key": {
+            "bsonType": "string",
+            "maxLength": {
+              "$numberInt": "200"
+            }
+          },
+          "handled_by": {
+            "bsonType": "binData"
+          },
+          "sla_alerted": {
+            "bsonType": "int",
+            "minimum": {
+              "$numberInt": "0"
+            },
+            "maximum": {
+              "$numberInt": "100"
+            }
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "updated_at": {
+            "bsonType": "date"
+          }
+        }
+      },
+      "indexes": [
+        {
+          "name": "status_due",
+          "key": {
+            "status": {
+              "$numberInt": "1"
+            },
+            "due_at": {
+              "$numberInt": "1"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "views": []
+}

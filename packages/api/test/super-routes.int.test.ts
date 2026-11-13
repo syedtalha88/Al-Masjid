@@ -221,6 +221,12 @@ describe('/api/super role guard (04 §5)', () => {
       ['patch', '/settings'],
       ['get', '/audit'],
       ['get', '/audit/export.csv'],
+      // PHASE_08 T8.5: the legal orders register and its private document.
+      ['get', '/legal-orders'],
+      ['post', '/legal-orders'],
+      ['patch', `/legal-orders/${id}`],
+      ['post', `/legal-orders/${id}/document`],
+      ['get', `/legal-orders/${id}/document`],
       ['get', '/no-such-route'],
     ];
     for (const [method, path] of routes) {

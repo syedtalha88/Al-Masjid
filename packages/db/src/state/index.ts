@@ -128,6 +128,18 @@ export {
 } from './item-retention.ts';
 export { deleteItem, EDIT_WINDOW_MS, EDITABLE_ITEM_TYPES, editItem, type ItemEdit } from './items.ts';
 export {
+  createLegalOrder,
+  LEGAL_ORDER_LOG_MAX,
+  type LegalOrderRow,
+  type LegalOrderStatus,
+  type LegalTargetType,
+  listLegalOrders,
+  readLegalOrderDocument,
+  resolveLegalTarget,
+  setLegalOrderDocument,
+  updateLegalOrder,
+} from './legal-orders.ts';
+export {
   findLibraryDuplicates,
   importLibraryEntries,
   type LibraryEntryInput,

@@ -45,6 +45,14 @@ import {
   grievanceListSchema,
   grievanceResolvedSchema,
 } from '@mc/shared/contracts/grievances';
+import {
+  type LegalOrderCreate,
+  legalOrderCreatedSchema,
+  legalOrderDocumentSavedSchema,
+  legalOrderListSchema,
+  type LegalOrderPatch,
+  legalOrderUpdatedSchema,
+} from '@mc/shared/contracts/legal-orders';
 import { ProblemError, ResponseError } from '@mc/shared/http';
 
 import { call } from '../../auth/api/auth-api.ts';
@@ -108,6 +116,35 @@ export const superApi = {
   setPushPaused: (paused: boolean) =>
     call(`${SUPER_API}/settings/push-pause`, pushPauseResponseSchema, { method: 'POST', body: { paused } }),
   /** C4 (T5.2): open UPI change requests, oldest first. */
+  // --- Legal orders (07 C7, PHASE_08 T8.5) ---
+  legalOrders: (signal?: AbortSignal) =>
+    call(`${SUPER_API}/legal-orders`, legalOrderListSchema, signal ? { signal } : {}),
+  /** ★ Records an order; due = received + 3 hours. */
+  createLegalOrder: (body: LegalOrderCreate) =>
+    call(`${SUPER_API}/legal-orders`, legalOrderCreatedSchema, { method: 'POST', body }),
+  /** ★ Status move, action taken and / or a note for the log. */
+  updateLegalOrder: (orderId: string, body: LegalOrderPatch) =>
+    call(`${SUPER_API}/legal-orders/${id(orderId)}`, legalOrderUpdatedSchema, { method: 'PATCH', body }),
+  /** ★ The order's document (encrypted on the server before it is stored). */
+  uploadLegalDocument: (orderId: string, file: Blob, name: string) =>
+    call(`${SUPER_API}/legal-orders/${id(orderId)}/document`, legalOrderDocumentSavedSchema, {
+      method: 'POST',
+      form: fileForm(file, name),
+    }),
+  /** ★ The decrypted document, as a download (fetched with the session cookie; no storage URL reaches the browser). */
+  async legalDocument(orderId: string): Promise<{ readonly blob: Blob; readonly filename: string }> {
+    const response = await fetch(`${SUPER_API}/legal-orders/${id(orderId)}/document`, {
+      headers: { Accept: 'application/pdf, image/jpeg, image/png, application/problem+json' },
+    });
+    const requestId = response.headers.get('x-request-id') ?? undefined;
+    if (!response.ok) {
+      const problem = problemSchema.safeParse(await response.json().catch(() => null));
+      if (problem.success) throw new ProblemError(problem.data, requestId);
+      throw new ResponseError(response.status, 'unexpected-status', requestId);
+    }
+    const named = /filename="([A-Za-z0-9._-]+)"/u.exec(response.headers.get('content-disposition') ?? '')?.[1];
+    return { blob: await response.blob(), filename: named ?? 'legal-order' };
+  },
   // --- Grievances (07 C6, PHASE_08 T8.4) ---
   grievances: (signal?: AbortSignal) => call(`${SUPER_API}/grievances`, grievanceListSchema, signal ? { signal } : {}),
   ackGrievance: (grievanceId: string) =>

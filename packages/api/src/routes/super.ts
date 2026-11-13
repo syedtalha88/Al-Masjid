@@ -20,24 +20,30 @@ import {
   changeMasjidStatus,
   createAdminForMasjid,
   createInvite,
+  createLegalOrder,
   createMasjid,
   dismissReport,
   listGrievances,
+  listLegalOrders,
   listSlaTimers,
   readAdminPhone,
   readGrievanceContact,
+  readLegalOrderDocument,
   recordAuditExport,
   removeAdminFromMasjid,
   removeItem,
   resolveGrievance,
+  resolveLegalTarget,
   restoreItem,
   revokeAdminPasskeys,
   revokeAdminSessions,
+  setLegalOrderDocument,
   setPushPaused,
+  updateLegalOrder,
   updateMasjid,
   updateSettings,
 } from '@mc/db/state';
-import { REPEAT_VIOLATION_WINDOW_MS } from '@mc/shared/compliance';
+import { REPEAT_VIOLATION_WINDOW_MS, SLA_MS } from '@mc/shared/compliance';
 import {
   adminPhoneSchema,
   type ASR_MADHABS,
@@ -78,12 +84,23 @@ import {
   grievanceListSchema,
   resolveGrievanceRequestSchema,
 } from '@mc/shared/contracts/grievances';
+import {
+  LEGAL_DOCUMENT_MAX_BYTES,
+  legalOrderCreatedSchema,
+  legalOrderCreateSchema,
+  legalOrderDocumentSavedSchema,
+  legalOrderListSchema,
+  legalOrderPatchSchema,
+  legalOrderUpdatedSchema,
+} from '@mc/shared/contracts/legal-orders';
 import { z } from 'zod';
 
 import { decryptField, encryptField, type FieldKeyRing, hashToken, newToken } from '../crypto/field.ts';
+import { decryptFile, encryptFile, PRIVATE_FILE_TYPES, sniffPrivateFile } from '../crypto/file.ts';
 import { openSealed, type SealKeys } from '../crypto/seal.ts';
-import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
+import { defineRoute, fileBodySchema, type RouteDefinition } from '../http/define-route.ts';
 import { ApiProblem } from '../http/problem.ts';
+import { newLegalDocumentKey, type PrivateFileStore } from '../media/private-store.ts';
 import type { AlertService } from '../queue/alerts.ts';
 import type { CdnPurgeService } from '../queue/cdn.ts';
 
@@ -103,6 +120,10 @@ export interface SuperRouteDeps {
   readonly cdn?: CdnPurgeService | undefined;
   /** Opens sealed grievance contacts (★ "Show contact" — DECISIONS #173); absent → 503. */
   readonly sealKeys?: SealKeys | undefined;
+  /** Encrypted legal-order documents (T8.5, DECISIONS #40); absent → 503. */
+  readonly privateFiles?: PrivateFileStore | undefined;
+  /** Where a failed delete of a replaced document is noted (the new one is already linked) — never fatal. */
+  readonly logger?: { readonly warn: (obj: object, msg: string) => void } | undefined;
 }
 
 const PHONE_CONTEXT = 'admin_users.phone_enc';
@@ -154,7 +175,13 @@ const EmptyBody = z.strictObject({});
 
 function idOr404(
   text: string,
-  code: 'MASJID_NOT_FOUND' | 'ADMIN_NOT_FOUND' | 'ITEM_NOT_FOUND' | 'REPORT_NOT_FOUND' | 'GRIEVANCE_NOT_FOUND',
+  code:
+    | 'MASJID_NOT_FOUND'
+    | 'ADMIN_NOT_FOUND'
+    | 'ITEM_NOT_FOUND'
+    | 'REPORT_NOT_FOUND'
+    | 'GRIEVANCE_NOT_FOUND'
+    | 'LEGAL_ORDER_NOT_FOUND',
 ) {
   const id = parseId(text);
   if (!id) throw new ApiProblem(404, code);
@@ -535,6 +562,135 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
         return reply(200, { contact: openSealed(deps.sealKeys, found.sealed, found.publicRef) });
       },
     }),
+    // --- Legal orders (07 C7, 05 §3, PHASE_08 T8.5) ----------------------------------------------------------------
+    defineRoute({
+      method: 'get',
+      path: '/legal-orders',
+      summary: 'The legal orders register: open orders first by due time (received + 3 h), then closed ones',
+      tags: ['super', 'legal'],
+      auth: 'super',
+      responses: { 200: legalOrderListSchema },
+      handler: async ({ auth, reply }) => reply(200, { orders: await listLegalOrders(db, auth.scope) }),
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/legal-orders',
+      summary: '★ Record a legal order (received time entered; due 3 hours later); names a post, a masjid or other',
+      tags: ['super', 'legal'],
+      auth: 'super_step_up',
+      rateLimit: writes,
+      request: { body: legalOrderCreateSchema },
+      responses: { 201: legalOrderCreatedSchema },
+      handler: async ({ auth, body, clock, requestId, reply }) => {
+        const now = clock.now();
+        const receivedAt = new Date(body.receivedAt);
+        // Entered by hand: never in the future (a minute's clock skew allowed), never more than a year back.
+        if (receivedAt.getTime() > now.getTime() + 60_000 || receivedAt.getTime() < now.getTime() - 366 * DAY_MS) {
+          throw new ApiProblem(400, 'VALIDATION_FAILED', undefined, [{ path: 'receivedAt', code: 'out_of_range' }]);
+        }
+        const target = await resolveLegalTarget(db, auth.scope, { type: body.targetType, ref: body.target });
+        const dueAt = new Date(receivedAt.getTime() + SLA_MS.legalOrder);
+        const { id } = await createLegalOrder(db, auth.scope, {
+          authority: body.authority,
+          referenceNo: body.referenceNo,
+          receivedAt,
+          dueAt,
+          target,
+          summary: body.summary,
+          now,
+          requestId,
+        });
+        return reply(201, { id: idText(id), dueAt: dueAt.toISOString() });
+      },
+    }),
+    defineRoute({
+      method: 'patch',
+      path: '/legal-orders/:id',
+      summary: '★ Update a legal order: status (received → actioned / contested → closed), action taken, a log note',
+      tags: ['super', 'legal'],
+      auth: 'super_step_up',
+      rateLimit: writes,
+      request: { params: z.object({ id: Id }), body: legalOrderPatchSchema },
+      responses: { 200: legalOrderUpdatedSchema },
+      handler: async ({ auth, params, body, clock, requestId, reply }) => {
+        const { status } = await updateLegalOrder(db, auth.scope, {
+          id: idOr404(params.id, 'LEGAL_ORDER_NOT_FOUND'),
+          status: body.status,
+          actionTaken: body.actionTaken,
+          note: body.note,
+          now: clock.now(),
+          requestId,
+        });
+        return reply(200, { status });
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/legal-orders/:id/document',
+      summary: "★ Attach the order's document (PDF, JPEG or PNG by content, ≤ 8 MB): encrypted here, stored privately",
+      tags: ['super', 'legal'],
+      auth: 'super_step_up',
+      rateLimit: writes,
+      upload: { maxBytes: LEGAL_DOCUMENT_MAX_BYTES },
+      request: { params: z.object({ id: Id }) },
+      responses: { 201: legalOrderDocumentSavedSchema },
+      handler: async ({ auth, params, file, clock, requestId, reply }) => {
+        const id = idOr404(params.id, 'LEGAL_ORDER_NOT_FOUND');
+        if (!deps.privateFiles || !file) throw new ApiProblem(503, 'SERVICE_UNAVAILABLE');
+        const type = sniffPrivateFile(file.bytes);
+        if (!type) throw new ApiProblem(415, 'UNSUPPORTED_MEDIA_TYPE', 'Send a PDF, JPEG or PNG file.');
+        const key = newLegalDocumentKey(idText(id));
+        const context = `legal_orders.document:${idText(id)}`;
+        await deps.privateFiles.put(key, encryptFile(deps.keyRing, file.bytes, type, context));
+        let replaced: string | undefined;
+        try {
+          ({ replaced } = await setLegalOrderDocument(db, auth.scope, { id, key, now: clock.now(), requestId }));
+        } catch (error) {
+          await deps.privateFiles.delete(key).catch(() => undefined); // never linked: nothing points at it
+          throw error;
+        }
+        if (replaced) {
+          await deps.privateFiles.delete(replaced).catch((error: unknown) => {
+            deps.logger?.warn(
+              { err: error instanceof Error ? error.message : 'unknown' },
+              'legal document: the replaced copy was not deleted',
+            );
+          });
+        }
+        return reply(201, { hasDocument: true });
+      },
+    }),
+    defineRoute({
+      method: 'get',
+      path: '/legal-orders/:id/document',
+      summary: "★ Download the order's document (fetched and decrypted here; no storage URL ever reaches the browser)",
+      tags: ['super', 'legal'],
+      auth: 'super_step_up',
+      rateLimit: writes,
+      fileAttachment: true,
+      request: { params: z.object({ id: Id }) },
+      responses: { 200: fileBodySchema },
+      handler: async ({ auth, params, clock, requestId, reply }) => {
+        const id = idOr404(params.id, 'LEGAL_ORDER_NOT_FOUND');
+        if (!deps.privateFiles) throw new ApiProblem(503, 'SERVICE_UNAVAILABLE');
+        const found = await readLegalOrderDocument(db, auth.scope, { id, now: clock.now(), requestId });
+        const opened = decryptFile(
+          deps.keyRing,
+          await deps.privateFiles.get(found.key),
+          `legal_orders.document:${idText(id)}`,
+        );
+        const info = PRIVATE_FILE_TYPES[opened.type];
+        const name = found.referenceNo
+          .replace(/[^A-Za-z0-9._-]+/gu, '-')
+          .replace(/^-+|-+$/gu, '')
+          .slice(0, 60);
+        return reply(200, {
+          bytes: opened.bytes,
+          contentType: info.mime,
+          filename: `legal-order-${name || 'document'}.${info.ext}`,
+        });
+      },
+    }),
     // --- Moderation (07 C5, 05 §3, PHASE_08 T8.2) ---------------------------------------------------------------
     defineRoute({
       method: 'get',
@@ -568,6 +724,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
           itemId: idOr404(params.id, 'ITEM_NOT_FOUND'),
           category: body.category,
           note: body.note === '' ? undefined : body.note,
+          ...(body.legalOrderId ? { legalOrderId: idOr404(body.legalOrderId, 'LEGAL_ORDER_NOT_FOUND') } : {}),
           now,
           requestId,
         });

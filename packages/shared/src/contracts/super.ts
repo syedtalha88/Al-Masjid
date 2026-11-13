@@ -241,10 +241,10 @@ export const superDashboardSchema = z
       successRate: z.number().min(0).max(1).nullable(),
       paused: z.boolean(),
     }),
-    /** Open SLA timers, earliest due first (C1 "SLA alerts", PHASE_08 T8.3); grievances / legal orders join later. */
+    /** Open SLA timers, earliest due first (C1 "SLA alerts", PHASE_08 T8.3–T8.5). */
     sla: z.array(
       z.object({
-        kind: z.enum(['urgent_report', 'report', 'grievance_ack', 'grievance_resolve']),
+        kind: z.enum(['urgent_report', 'report', 'grievance_ack', 'grievance_resolve', 'legal_order']),
         id: z.string(),
         startAt: z.string(),
         dueAt: z.string(),
@@ -304,6 +304,8 @@ export const paymentApprovedSchema = z.object({ effectiveAt: z.string() }).meta(
 export const removeItemRequestSchema = z.strictObject({
   category: z.enum(MODERATION_CATEGORIES),
   note: safeText(MODERATION_NOTE_MAX, { multiline: true }).optional(),
+  /** The legal order this takedown answers (T8.5) — logged on the order, which is then `actioned`. */
+  legalOrderId: z.string().max(64).optional(),
 });
 export type RemoveItemRequest = z.input<typeof removeItemRequestSchema>;
 

@@ -4273,7 +4273,8 @@
                     "urgent_report",
                     "report",
                     "grievance_ack",
-                    "grievance_resolve"
+                    "grievance_resolve",
+                    "legal_order"
                   ]
                 },
                 "id": {
@@ -14173,6 +14174,374 @@
         }
       }
     },
+    "/api/super/legal-orders": {
+      "get": {
+        "summary": "The legal orders register: open orders first by due time (received + 3 h), then closed ones",
+        "tags": [
+          "super",
+          "legal"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "orders": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "authority": {
+                            "type": "string"
+                          },
+                          "referenceNo": {
+                            "type": "string"
+                          },
+                          "receivedAt": {
+                            "type": "string"
+                          },
+                          "dueAt": {
+                            "type": "string"
+                          },
+                          "targetType": {
+                            "type": "string",
+                            "enum": [
+                              "items",
+                              "masjids",
+                              "other"
+                            ]
+                          },
+                          "targetId": {
+                            "type": "string"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "actionTaken": {
+                            "type": "string"
+                          },
+                          "actionLog": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "at": {
+                                  "type": "string"
+                                },
+                                "note": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "at",
+                                "note"
+                              ]
+                            }
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "received",
+                              "actioned",
+                              "contested",
+                              "closed"
+                            ]
+                          },
+                          "hasDocument": {
+                            "type": "boolean"
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "authority",
+                          "referenceNo",
+                          "receivedAt",
+                          "dueAt",
+                          "targetType",
+                          "targetId",
+                          "summary",
+                          "actionLog",
+                          "status",
+                          "hasDocument",
+                          "createdAt"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "orders"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "★ Record a legal order (received time entered; due 3 hours later); names a post, a masjid or other",
+        "tags": [
+          "super",
+          "legal"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "authority": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "referenceNo": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "receivedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "targetType": {
+                    "type": "string",
+                    "enum": [
+                      "items",
+                      "masjids",
+                      "other"
+                    ]
+                  },
+                  "target": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  },
+                  "summary": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "authority",
+                  "referenceNo",
+                  "receivedAt",
+                  "targetType",
+                  "target",
+                  "summary"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "dueAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "dueAt"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/legal-orders/{id}": {
+      "patch": {
+        "summary": "★ Update a legal order: status (received → actioned / contested → closed), action taken, a log note",
+        "tags": [
+          "super",
+          "legal"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "received",
+                      "actioned",
+                      "contested",
+                      "closed"
+                    ]
+                  },
+                  "actionTaken": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "note": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "received",
+                        "actioned",
+                        "contested",
+                        "closed"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/legal-orders/{id}/document": {
+      "post": {
+        "summary": "★ Attach the order's document (PDF, JPEG or PNG by content, ≤ 8 MB): encrypted here, stored privately",
+        "tags": [
+          "super",
+          "legal"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hasDocument": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "hasDocument"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "★ Download the order's document (fetched and decrypted here; no storage URL ever reaches the browser)",
+        "tags": [
+          "super",
+          "legal"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/super/reports": {
       "get": {
         "summary": "The moderation queue: reports grouped by post / masjid, urgent first, then by SLA due time",
@@ -14904,6 +15273,10 @@
                     "type": "string",
                     "minLength": 0,
                     "maxLength": 500
+                  },
+                  "legalOrderId": {
+                    "type": "string",
+                    "maxLength": 64
                   }
                 },
                 "required": [

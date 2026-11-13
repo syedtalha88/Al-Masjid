@@ -1297,6 +1297,9 @@ errors,BENEFICIARY_NOT_FOUND,This person is no longer on the list.,یہ شخص �
 errors,BENEFICIARY_LIMIT_REACHED,You can list up to 100 people at a time. Close one to add another.,آپ ایک وقت میں زیادہ سے زیادہ 100 افراد رکھ سکتے ہیں۔ نیا شامل کرنے کے لیے ایک بند کریں۔,no
 errors,GRIEVANCE_NOT_FOUND,This grievance was not found or is already closed.,یہ شکایت نہیں ملی یا پہلے ہی بند ہو چکی ہے۔,no
 errors,GRIEVANCE_CONTACT_UNAVAILABLE,"A contact cannot be taken right now. Send it without one, or try again later.",ابھی رابطہ نہیں لیا جا سکتا۔ اس کے بغیر بھیجیں یا بعد میں کوشش کریں۔,no
+errors,LEGAL_ORDER_NOT_FOUND,This legal order was not found or is closed.,یہ قانونی حکم نہیں ملا یا بند ہو چکا ہے۔,no
+errors,LEGAL_TARGET_NOT_FOUND,No post or masjid matches that. Check the link or follow code.,اس سے کوئی پوسٹ یا مسجد نہیں ملی۔ لنک یا فالو کوڈ جانچیں۔,no
+errors,LEGAL_ORDER_LOG_FULL,This order's log is full.,اس حکم کا لاگ بھر گیا ہے۔,no
 follow,scan.title,Scan masjid QR,مسجد کا QR اسکین کریں,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,اپنا کیمرا مسجد کے پوسٹر پر لگے QR کوڈ کی طرف کریں۔,no
 follow,scan.torch,Flashlight,ٹارچ,no
@@ -1606,6 +1609,7 @@ super,nav.audit,Audit log,آڈٹ لاگ,no
 super,nav.library,Content Library,مواد کی لائبریری,no
 super,nav.templates,Notice templates,اطلاع کے ٹیمپلیٹ,no
 super,nav.payments,Payment approvals,ادائیگی کی منظوری,no
+super,nav.legal,Legal orders,قانونی احکامات,no
 super,status.pending,Pending,زیرِ التوا,no
 super,status.active,Active,فعال,no
 super,status.suspended,Suspended,معطل,no
@@ -1623,6 +1627,7 @@ super,dashboard.slaReport,Report,رپورٹ,no
 super,dashboard.slaRed,Under 20 % left,20% سے کم وقت باقی,no
 super,dashboard.slaGrievanceAck,Grievance — acknowledge,شکایت — وصولی کی تصدیق,no
 super,dashboard.slaGrievanceResolve,Grievance — resolve,شکایت — حل کریں,no
+super,dashboard.slaLegalOrder,Legal order — act,قانونی حکم — کارروائی کریں,no
 super,masjids.search,"Search by name, city or code",نام، شہر یا کوڈ سے تلاش کریں,no
 super,masjids.all,All,سب,no
 super,masjids.new,New masjid,نئی مسجد,no
@@ -1920,6 +1925,9 @@ super,reports.restored,Restored. It is shown again.,واپس آ گئی۔ اب د
 super,reports.dismiss,Dismiss,مسترد کریں,no
 super,reports.dismissed,Report dismissed.,رپورٹ مسترد کر دی گئی۔,no
 super,reports.openMasjid,Open masjid,مسجد کھولیں,no
+super,reports.legalOrder,Legal order,قانونی حکم,no
+super,reports.legalOrderLoading,Loading orders…,احکامات لوڈ ہو رہے ہیں…,no
+super,reports.legalOrderNone,Choose the order,حکم منتخب کریں,no
 super,grievances.title,Grievances,شکایات,no
 super,grievances.empty,No grievances.,کوئی شکایت نہیں۔,no
 super,grievances.category.privacy,Privacy / data,رازداری / ڈیٹا,no
@@ -1945,6 +1953,46 @@ super,grievances.note,What was done (kept on record),کیا کیا گیا (ری�
 super,grievances.closed,Closed.,بند کر دی گئی۔,no
 super,grievances.showContact,Show contact,رابطہ دکھائیں,no
 super,grievances.noContact,No contact was left.,کوئی رابطہ نہیں چھوڑا گیا۔,no
+super,legal.title,Legal orders,قانونی احکامات,no
+super,legal.empty,No legal orders.,کوئی قانونی حکم نہیں۔,no
+super,legal.new,Record an order,حکم درج کریں,no
+super,legal.newTitle,New legal order,نیا قانونی حکم,no
+super,legal.authority,Authority,ادارہ,no
+super,legal.referenceNo,Order reference number,حکم کا حوالہ نمبر,no
+super,legal.receivedAt,Received at (India time),کب ملا (ہندوستان کا وقت),no
+super,legal.receivedHint,When the order reached us. The 3-hour clock starts here.,حکم ہمیں کب ملا۔ 3 گھنٹے کی گھڑی یہیں سے شروع ہوتی ہے۔,no
+super,legal.targetType,What does it name?,اس میں کس کا نام ہے؟,no
+super,legal.target.items,A post,ایک پوسٹ,no
+super,legal.target.masjids,A masjid,ایک مسجد,no
+super,legal.target.other,Something else,کچھ اور,no
+super,legal.targetRef,Which one,کون سا,no
+super,legal.targetHint.items,Paste the post link.,پوسٹ کا لنک پیسٹ کریں۔,no
+super,legal.targetHint.masjids,"Type the follow code, e.g. ABCD-EFGH.",فالو کوڈ لکھیں، جیسے ABCD-EFGH۔,no
+super,legal.targetHint.other,A short description.,مختصر تفصیل۔,no
+super,legal.summary,What the order asks,حکم میں کیا مانگا گیا ہے,no
+super,legal.save,Save,محفوظ کریں,no
+super,legal.required,Fill this in.,یہ بھریں۔,no
+super,legal.created,Order recorded. Act within 3 hours.,حکم درج ہو گیا۔ 3 گھنٹے کے اندر کارروائی کریں۔,no
+super,legal.updated,Order updated.,حکم اپڈیٹ ہو گیا۔,no
+super,legal.status.received,Received,موصول,no
+super,legal.status.actioned,Acted on,کارروائی ہو گئی,no
+super,legal.status.contested,Contested,چیلنج کیا گیا,no
+super,legal.status.closed,Closed,بند,no
+super,legal.statusLabel,Status,حالت,no
+super,legal.due,Act {when},کارروائی کریں {when},no
+super,legal.overdue,Overdue — was due {when},وقت گزر گیا — {when} تک کرنا تھا,no
+super,legal.hasDocument,Document attached,دستاویز منسلک ہے,no
+super,legal.receivedLine,Received {when},موصول {when},no
+super,legal.log,Action log,کارروائی لاگ,no
+super,legal.update,Update,اپڈیٹ کریں,no
+super,legal.updateTitle,Update the order,حکم اپڈیٹ کریں,no
+super,legal.actionTaken,Action taken,کی گئی کارروائی,no
+super,legal.note,Note for the log,لاگ کے لیے نوٹ,no
+super,legal.attachDocument,Attach document,دستاویز منسلک کریں,no
+super,legal.replaceDocument,Replace document,دستاویز بدلیں,no
+super,legal.downloadDocument,Download document,دستاویز ڈاؤن لوڈ کریں,no
+super,legal.uploading,Uploading…,اپ لوڈ ہو رہا ہے…,no
+super,legal.documentSaved,Document saved (encrypted).,دستاویز محفوظ ہو گئی (انکرپٹڈ)۔,no
 templates,no_water_time_range.title,No water supply,پانی کی فراہمی بند,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} سے {hours_end} تک پانی دستیاب نہیں ہوگا۔,no
 templates,electricity_cut_time_range.title,Power cut,بجلی بند,no

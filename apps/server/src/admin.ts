@@ -9,6 +9,7 @@ import {
   createLogger,
   keyRingFromEnv,
   mediaStoreFromEnv,
+  privateStoreFromEnv,
   pushNotifier,
   redisChallengeStore,
   sealKeysFromEnv,
@@ -76,6 +77,8 @@ const { app } = createAdminApp({
     logger,
     // T3.6: Cloudinary on staging/production, a local directory locally (MEDIA_STORE).
     media: { store: mediaStoreFromEnv(env), origin: env.MEDIA_ORIGIN },
+    // T8.5: encrypted legal-order documents (Cloudinary `raw` + `authenticated`; a private local directory locally).
+    privateFiles: privateStoreFromEnv(env),
     // T6.1: YouTube oEmbed + thumbnail copies on staging/production; a mock without network locally (VIDEO_LOOKUP).
     video: await videoLookupFromEnv(env),
     notifier: pushNotifier(queues, logger),

@@ -10,6 +10,7 @@ import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
 import { requireSuper } from './guards.ts';
+import { linkRemovalToLegalOrder } from './legal-orders.ts';
 
 interface ItemDoc {
   _id: UUID;
@@ -51,6 +52,8 @@ export async function removeItem(
     readonly itemId: UUID;
     readonly category: string;
     readonly note?: string | undefined;
+    /** ★ Remove in answer to a legal order (T8.5): logged on the order; a `received` order becomes `actioned`. */
+    readonly legalOrderId?: UUID | undefined;
     readonly now: Date;
     readonly requestId?: string | undefined;
   },
@@ -83,6 +86,14 @@ export async function removeItem(
       { target_type: 'item', target_id: input.itemId, status: 'open' },
       { $set: { status: 'actioned', actioned_by: actor.adminId, actioned_at: input.now, closed_at: input.now } },
     );
+    if (input.legalOrderId) {
+      await linkRemovalToLegalOrder(ctx, {
+        orderId: input.legalOrderId,
+        adminId: actor.adminId,
+        publicId: item.public_id,
+        now: input.now,
+      });
+    }
     const admins = await ctx.db
       .collection<{ admin_id: UUID }>('masjid_admins')
       .find({ masjid_id: item.masjid_id }, { session: ctx.session, projection: { admin_id: 1 } })
@@ -92,7 +103,13 @@ export async function removeItem(
       masjidId: item.masjid_id,
       targetType: 'items',
       targetId: idText(item._id),
-      meta: { type: item.type, category: input.category, reports: reportsClosed, was: item.status },
+      meta: {
+        type: item.type,
+        category: input.category,
+        reports: reportsClosed,
+        was: item.status,
+        ...(input.legalOrderId ? { legal_order: idText(input.legalOrderId) } : {}),
+      },
       ...(input.requestId ? { requestId: input.requestId } : {}),
     });
     return {

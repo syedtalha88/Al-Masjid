@@ -36,7 +36,15 @@ export function superHarness(
   extra: Partial<
     Pick<
       AdminRouteDeps,
-      'alerts' | 'testAlerts' | 'notifier' | 'paymentHoldMinutes' | 'media' | 'video' | 'cdn' | 'sealKeys'
+      | 'alerts'
+      | 'testAlerts'
+      | 'notifier'
+      | 'paymentHoldMinutes'
+      | 'media'
+      | 'video'
+      | 'cdn'
+      | 'sealKeys'
+      | 'privateFiles'
     >
   > = {},
   /**

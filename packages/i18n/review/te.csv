@@ -1297,6 +1297,9 @@ errors,BENEFICIARY_NOT_FOUND,This person is no longer on the list.,ఈ వ్య
 errors,BENEFICIARY_LIMIT_REACHED,You can list up to 100 people at a time. Close one to add another.,మీరు ఒకేసారి గరిష్ఠంగా 100 మందిని ఉంచవచ్చు. కొత్తవారిని చేర్చడానికి ఒకరిని ముగించండి.,no
 errors,GRIEVANCE_NOT_FOUND,This grievance was not found or is already closed.,ఈ ఫిర్యాదు కనబడలేదు లేదా ఇప్పటికే మూసివేయబడింది.,no
 errors,GRIEVANCE_CONTACT_UNAVAILABLE,"A contact cannot be taken right now. Send it without one, or try again later.",ఇప్పుడు సంప్రదింపు వివరాలు తీసుకోలేము. అది లేకుండా పంపండి లేదా తర్వాత ప్రయత్నించండి.,no
+errors,LEGAL_ORDER_NOT_FOUND,This legal order was not found or is closed.,ఈ చట్టపరమైన ఆదేశం కనబడలేదు లేదా ముగిసింది.,no
+errors,LEGAL_TARGET_NOT_FOUND,No post or masjid matches that. Check the link or follow code.,దీనికి సరిపోయే పోస్ట్ లేదా మస్జిద్ లేదు. లింక్ లేదా ఫాలో కోడ్ చూడండి.,no
+errors,LEGAL_ORDER_LOG_FULL,This order's log is full.,ఈ ఆదేశ లాగ్ నిండిపోయింది.,no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no
@@ -1606,6 +1609,7 @@ super,nav.audit,Audit log,ఆడిట్ లాగ్,no
 super,nav.library,Content Library,కంటెంట్ లైబ్రరీ,no
 super,nav.templates,Notice templates,నోటీసు టెంప్లేట్‌లు,no
 super,nav.payments,Payment approvals,చెల్లింపు ఆమోదాలు,no
+super,nav.legal,Legal orders,చట్టపరమైన ఆదేశాలు,no
 super,status.pending,Pending,పెండింగ్,no
 super,status.active,Active,యాక్టివ్,no
 super,status.suspended,Suspended,నిలిపివేయబడింది,no
@@ -1623,6 +1627,7 @@ super,dashboard.slaReport,Report,రిపోర్ట్,no
 super,dashboard.slaRed,Under 20 % left,20% కంటే తక్కువ సమయం మిగిలింది,no
 super,dashboard.slaGrievanceAck,Grievance — acknowledge,ఫిర్యాదు — స్వీకరించండి,no
 super,dashboard.slaGrievanceResolve,Grievance — resolve,ఫిర్యాదు — పరిష్కరించండి,no
+super,dashboard.slaLegalOrder,Legal order — act,చట్టపరమైన ఆదేశం — చర్య తీసుకోండి,no
 super,masjids.search,"Search by name, city or code","పేరు, నగరం లేదా కోడ్‌తో వెతకండి",no
 super,masjids.all,All,అన్నీ,no
 super,masjids.new,New masjid,కొత్త మస్జిద్,no
@@ -1920,6 +1925,9 @@ super,reports.restored,Restored. It is shown again.,పునరుద్ధర�
 super,reports.dismiss,Dismiss,తిరస్కరించు,no
 super,reports.dismissed,Report dismissed.,రిపోర్ట్ తిరస్కరించబడింది.,no
 super,reports.openMasjid,Open masjid,మస్జిద్ తెరవండి,no
+super,reports.legalOrder,Legal order,చట్టపరమైన ఆదేశం,no
+super,reports.legalOrderLoading,Loading orders…,ఆదేశాలు లోడ్ అవుతున్నాయి…,no
+super,reports.legalOrderNone,Choose the order,ఆదేశాన్ని ఎంచుకోండి,no
 super,grievances.title,Grievances,ఫిర్యాదులు,no
 super,grievances.empty,No grievances.,ఫిర్యాదులు లేవు.,no
 super,grievances.category.privacy,Privacy / data,గోప్యత / డేటా,no
@@ -1945,6 +1953,46 @@ super,grievances.note,What was done (kept on record),ఏమి చేశార�
 super,grievances.closed,Closed.,మూసివేయబడింది.,no
 super,grievances.showContact,Show contact,సంప్రదింపు చూపించు,no
 super,grievances.noContact,No contact was left.,సంప్రదింపు ఇవ్వలేదు.,no
+super,legal.title,Legal orders,చట్టపరమైన ఆదేశాలు,no
+super,legal.empty,No legal orders.,చట్టపరమైన ఆదేశాలు లేవు.,no
+super,legal.new,Record an order,ఆదేశాన్ని నమోదు చేయండి,no
+super,legal.newTitle,New legal order,కొత్త చట్టపరమైన ఆదేశం,no
+super,legal.authority,Authority,అధికార సంస్థ,no
+super,legal.referenceNo,Order reference number,ఆదేశ రిఫరెన్స్ నంబర్,no
+super,legal.receivedAt,Received at (India time),ఎప్పుడు అందింది (భారత సమయం),no
+super,legal.receivedHint,When the order reached us. The 3-hour clock starts here.,ఆదేశం మాకు ఎప్పుడు అందింది. 3 గంటల గడువు ఇక్కడి నుంచే మొదలవుతుంది.,no
+super,legal.targetType,What does it name?,ఇందులో దేని పేరు ఉంది?,no
+super,legal.target.items,A post,ఒక పోస్ట్,no
+super,legal.target.masjids,A masjid,ఒక మస్జిద్,no
+super,legal.target.other,Something else,ఇంకేదైనా,no
+super,legal.targetRef,Which one,ఏది,no
+super,legal.targetHint.items,Paste the post link.,పోస్ట్ లింక్‌ను పేస్ట్ చేయండి.,no
+super,legal.targetHint.masjids,"Type the follow code, e.g. ABCD-EFGH.","ఫాలో కోడ్ రాయండి, ఉదా. ABCD-EFGH.",no
+super,legal.targetHint.other,A short description.,చిన్న వివరణ.,no
+super,legal.summary,What the order asks,ఆదేశం ఏమి కోరుతోంది,no
+super,legal.save,Save,సేవ్ చేయండి,no
+super,legal.required,Fill this in.,దీన్ని నింపండి.,no
+super,legal.created,Order recorded. Act within 3 hours.,ఆదేశం నమోదైంది. 3 గంటల్లో చర్య తీసుకోండి.,no
+super,legal.updated,Order updated.,ఆదేశం అప్‌డేట్ అయింది.,no
+super,legal.status.received,Received,అందింది,no
+super,legal.status.actioned,Acted on,చర్య తీసుకున్నారు,no
+super,legal.status.contested,Contested,సవాలు చేశారు,no
+super,legal.status.closed,Closed,ముగిసింది,no
+super,legal.statusLabel,Status,స్థితి,no
+super,legal.due,Act {when},చర్య తీసుకోండి {when},no
+super,legal.overdue,Overdue — was due {when},గడువు దాటింది — {when} వరకు ఉండేది,no
+super,legal.hasDocument,Document attached,పత్రం జత చేయబడింది,no
+super,legal.receivedLine,Received {when},అందింది {when},no
+super,legal.log,Action log,చర్యల లాగ్,no
+super,legal.update,Update,అప్‌డేట్ చేయండి,no
+super,legal.updateTitle,Update the order,ఆదేశాన్ని అప్‌డేట్ చేయండి,no
+super,legal.actionTaken,Action taken,తీసుకున్న చర్య,no
+super,legal.note,Note for the log,లాగ్ కోసం నోట్,no
+super,legal.attachDocument,Attach document,పత్రాన్ని జత చేయండి,no
+super,legal.replaceDocument,Replace document,పత్రాన్ని మార్చండి,no
+super,legal.downloadDocument,Download document,పత్రాన్ని డౌన్‌లోడ్ చేయండి,no
+super,legal.uploading,Uploading…,అప్‌లోడ్ అవుతోంది…,no
+super,legal.documentSaved,Document saved (encrypted).,పత్రం సేవ్ అయింది (ఎన్‌క్రిప్ట్ చేయబడింది).,no
 templates,no_water_time_range.title,No water supply,నీటి సరఫరా నిలిపివేత,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.,no
 templates,electricity_cut_time_range.title,Power cut,విద్యుత్ నిలిపివేత,no

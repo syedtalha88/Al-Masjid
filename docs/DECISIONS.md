@@ -3093,3 +3093,33 @@ take an empty `{}` body (the admin client always sends one — found by the e2e;
 step-up reveal audited), `sla-alerts.int` (+ grievance clocks), shared `env` (keys, forbidden in api-public / worker),
 app `grievance-form` 2, e2e `admin/grievances.spec.ts` 5 (file → reference → C6 reveal / acknowledge / resolve; form ×
 4 locales, axe) on Pixel 7.
+
+### #174 — Legal orders register (PHASE_08 T8.5): targets, status flow, encrypted documents on Cloudinary `raw` — ACCEPTED (Claude Code, 13 Nov 2026; staging Cloudinary check = owner O54)
+**Decision:** `legal_orders` (migration `0027_legal_orders`): `target_type` is an enum `items | masjids | other`
+(was free text), `target_id` non-empty, `sla_alerted` for the 3-hour clock. The Super Admin types the target as they
+have it — a post's link / public id / id, a masjid's follow code (any case, with or without the dash) / id, or a short
+description — and the API resolves it to the stored id (`LEGAL_TARGET_NOT_FOUND` otherwise), so the #165 L3 purge hold
+matches by post id. Received time is entered in IST (`datetime-local`, not in the future, ≤ 1 year back); due = +3 h
+(`SLA_MS.legalOrder`). Status flow: received → actioned / contested / closed; actioned ↔ contested → closed; closed is
+final. Every change appends to `action_log` (≤ 200; `$set` of the extended array inside the transaction — the gateway's
+untyped `$push` refuses literal keys). The clock runs only while `received` (`listSlaTimers` kind `legal_order`).
+★ Remove may name an open order (`legalOrderId`): logged on the order ("Post <publicId> removed"), `received` →
+`actioned`, audit meta `legal_order`; a closed order refuses the whole removal. All writes are ★ (step-up).
+**Documents (DECISIONS #40, 04 §5):** PDF / JPEG / PNG by magic bytes, ≤ 8 MB, busboy (`defineRoute.upload`).
+api-admin encrypts with AES-256-GCM using the field key ring (envelope `MCF1 | key id | IV | ciphertext | tag`, the
+sniffed type inside the ciphertext, associated data `legal_orders.document:<orderId>` — a blob moved to another order
+never opens) and stores it as Cloudinary `raw` + `type=authenticated` (`legal/<orderId>/<uuid>.bin`, never
+overwritten; replacing deletes the old one). Download is ★: api-admin reads it through the signed API endpoint
+`/raw/download` (expires in 5 min; the `private_download_url` form — Cloudinary docs checked 13 Nov 2026: "returns the
+requested asset in bytes"), decrypts, and sends it as an attachment (`defineRoute.fileAttachment`, `no-store`); no
+storage URL reaches a browser. Audited `legal_order.document` / `legal_order.document_read`. Locally the file store
+writes under `MEDIA_DIR/private/`, which the media site never serves (it rewrites only the `/i/…` and `/a/…` patterns).
+**Unverified, owner check O54:** Cloudinary's docs list `type` for raw upload / destroy as an SDK parameter; our REST
+calls send it as a signed form field, as the audio upload and takedown `rename` already do on staging. One staging
+upload + download + public-URL 404 check settles it.
+**Tests:** api `private-files` 7 (envelope round trip, wrong context / tamper / unknown key fail, key rotation, sniffing,
+local store, Cloudinary request shapes and signatures, failures), `legal-order-routes.int` 5 (step-up, target
+resolution, due time, dashboard timer + SLA job once per threshold and stops when acted on, status flow and log,
+★ Remove link, ciphertext at rest, ★ download byte-for-byte, wrong order never decrypts, 415, 403 without step-up),
+role guard (+5 routes), e2e `admin/legal-orders.spec.ts` (record → C7 + C1 timer → attach → download → acted on) on
+Pixel 7.

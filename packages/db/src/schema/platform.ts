@@ -225,14 +225,16 @@ const legalOrders = documentSchema({
   reference_no: f.string(120),
   received_at: f.instant(),
   due_at: f.instant(),
-  target_type: f.string(40),
-  target_id: f.string(64),
+  target_type: f.enum(['items', 'masjids', 'other']),
+  target_id: f.string(64, { minLength: 1 }),
   summary: f.string(2000),
   action_taken: opt(f.string(2000)),
   action_log: f.array(f.object({ at: f.instant(), by: f.uuid(), note: f.string(500) }), { max: 200 }),
   status: f.enum(LEGAL_ORDER_STATUS),
   document_key: opt(f.string(200)),
   handled_by: opt(f.uuid()),
+  /** The highest SLA alert sent while the order waits for action (`sla-alerts`, T8.5). */
+  sla_alerted: opt(f.int(0, 100)),
   ...timestamps,
 });
 

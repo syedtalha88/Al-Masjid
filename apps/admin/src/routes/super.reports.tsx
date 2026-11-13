@@ -134,7 +134,15 @@ function TargetCard({ target, open }: { readonly target: QueueTargetView; readon
   const [removing, setRemoving] = useState(false);
   const [category, setCategory] = useState<ModerationCategory | null>(null);
   const [note, setNote] = useState('');
+  const [orderId, setOrderId] = useState<string | null>(null);
   const [purgeLost, setPurgeLost] = useState(false);
+  // T8.5: a removal for a legal order names the order (open ones only) — logged on it, which stops its clock.
+  const orders = useQuery({
+    queryKey: ['super', 'legal-orders'],
+    queryFn: ({ signal }) => superApi.legalOrders(signal),
+    enabled: removing && category === 'legal_order',
+  });
+  const openOrders = (orders.data?.orders ?? []).filter((order) => order.status !== 'closed');
   const now = new Date();
   const due = new Date(target.dueAt);
   const left = due.getTime() - now.getTime();
@@ -147,7 +155,11 @@ function TargetCard({ target, open }: { readonly target: QueueTargetView; readon
   const remove = useMutation({
     mutationFn: (chosen: ModerationCategory) =>
       run(() =>
-        superApi.removeItem(target.targetId, { category: chosen, ...(note.trim() ? { note: note.trim() } : {}) }),
+        superApi.removeItem(target.targetId, {
+          category: chosen,
+          ...(note.trim() ? { note: note.trim() } : {}),
+          ...(chosen === 'legal_order' && orderId ? { legalOrderId: orderId } : {}),
+        }),
       ),
     onSuccess: async (result) => {
       setRemoving(false);
@@ -325,6 +337,18 @@ function TargetCard({ target, open }: { readonly target: QueueTargetView; readon
               onChange={setCategory}
               options={MODERATION_CATEGORIES.map((value) => ({ value, label: ta(CATEGORY_KEY[value]) }))}
             />
+            {category === 'legal_order' ? (
+              <Select
+                label={t('reports.legalOrder')}
+                placeholder={orders.isPending ? t('reports.legalOrderLoading') : t('reports.legalOrderNone')}
+                value={orderId}
+                onChange={setOrderId}
+                options={openOrders.map((order) => ({
+                  value: order.id,
+                  label: `${order.referenceNo} · ${order.authority}`,
+                }))}
+              />
+            ) : null}
             <TextArea
               label={t('reports.removeNote')}
               optional

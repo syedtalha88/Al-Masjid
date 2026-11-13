@@ -19,7 +19,15 @@ const SLA_KIND_KEY = {
   report: 'dashboard.slaReport',
   grievance_ack: 'dashboard.slaGrievanceAck',
   grievance_resolve: 'dashboard.slaGrievanceResolve',
+  legal_order: 'dashboard.slaLegalOrder',
 } as const;
+/** Where a timer's row leads. */
+const SLA_SCREEN = (kind: keyof typeof SLA_KIND_KEY) =>
+  kind.startsWith('grievance')
+    ? '/super/grievances'
+    : kind === 'legal_order'
+      ? '/super/legal-orders'
+      : '/super/reports';
 
 /**
  * C1 Dashboard: the push kill-switch banner and 24-hour delivery (T4.5, T4.7), masjid counts and pending activations;
@@ -96,7 +104,7 @@ function Dashboard() {
                     trailing={progress.red ? <Tag tone="danger">{t('dashboard.slaRed')}</Tag> : undefined}
                     chevron
                     onPress={() => {
-                      navigator.push(timer.kind.startsWith('grievance') ? '/super/grievances' : '/super/reports');
+                      navigator.push(SLA_SCREEN(timer.kind));
                     }}
                   />
                 </li>

@@ -94,5 +94,8 @@
   "BENEFICIARY_NOT_FOUND": "This person is no longer on the list.",
   "BENEFICIARY_LIMIT_REACHED": "You can list up to 100 people at a time. Close one to add another.",
   "GRIEVANCE_NOT_FOUND": "This grievance was not found or is already closed.",
-  "GRIEVANCE_CONTACT_UNAVAILABLE": "A contact cannot be taken right now. Send it without one, or try again later."
+  "GRIEVANCE_CONTACT_UNAVAILABLE": "A contact cannot be taken right now. Send it without one, or try again later.",
+  "LEGAL_ORDER_NOT_FOUND": "This legal order was not found or is closed.",
+  "LEGAL_TARGET_NOT_FOUND": "No post or masjid matches that. Check the link or follow code.",
+  "LEGAL_ORDER_LOG_FULL": "This order's log is full."
 }

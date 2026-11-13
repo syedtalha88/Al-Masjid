@@ -629,6 +629,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O51 | **Takedown check on staging**: report → remove; old link "no longer available" within a minute; the photo URL stops loading (#171, F76) | Phase 08 exit | 15 min | after Phase 08 is on staging |
 | O52 | **Sentry: e-mail on new issues** stays on (passed SLA deadlines are reported there — #172) | before launch | 5 min | any time |
 | O53 | **Grievance sealing key pair** for staging (then production): public half → api-public env, private half → api-admin env only (#173; steps in MY_PENDING_TASKS) | before Phase 08 on staging | 15 min | any time |
+| O54 | **Legal order document on staging**: attach → download the same file; Cloudinary lists it as raw / authenticated and its public link fails (#174) | Phase 08 exit | 10 min | after Phase 08 on staging |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
 | O31 | **Translation review** of `packages/i18n/review/{hi,ur,te}.csv` (≈ 920 draft strings each) | pilot | translators | before pilot |
 | O32 | **Verified Content Library file** (`docs/content-library-format.md`) | pilot | — | before pilot |
@@ -916,7 +917,10 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [x] T8.4 — Grievances (form + C6 tracker) — **done 13 Nov 2026 (#173)**: contacts sealed in api-public with an RSA
   public key, opened only in api-admin (★, audited); `GR-YYYY-NNNNNN`; Settings form × 4; C6 `/super/grievances`;
   ack / resolve timers in the SLA engine (migration 0026). Owner: O53 (key pair for staging / production).
-- [ ] T8.5 — Legal orders register (C7)
+- [x] T8.5 — Legal orders register (C7) — **done 13 Nov 2026 (#174)**: C7 `/super/legal-orders` (★ record with IST
+  received time, target by post link / follow code, ★ update status / action / note, action log), 3 h timer in the SLA
+  engine + C1, ★ Remove names an open order (→ actioned), documents AES-256-GCM in api-admin → Cloudinary `raw` +
+  `authenticated`, ★ download decrypted through api-admin (migration 0027). Owner: O54 (staging Cloudinary check).
 - [ ] T8.6 — Legal texts, versions & reminders
 - [ ] T8.7 — Retention job (remaining rows of 02 §6)
 - [ ] T8.8 — QR poster generator (C3)

@@ -10,7 +10,8 @@
     "audit": "آڈٹ لاگ",
     "library": "مواد کی لائبریری",
     "templates": "اطلاع کے ٹیمپلیٹ",
-    "payments": "ادائیگی کی منظوری"
+    "payments": "ادائیگی کی منظوری",
+    "legal": "قانونی احکامات"
   },
   "status": {
     "pending": "زیرِ التوا",
@@ -31,7 +32,8 @@
     "slaReport": "رپورٹ",
     "slaRed": "20% سے کم وقت باقی",
     "slaGrievanceAck": "شکایت — وصولی کی تصدیق",
-    "slaGrievanceResolve": "شکایت — حل کریں"
+    "slaGrievanceResolve": "شکایت — حل کریں",
+    "slaLegalOrder": "قانونی حکم — کارروائی کریں"
   },
   "masjids": {
     "search": "نام، شہر یا کوڈ سے تلاش کریں",
@@ -382,7 +384,10 @@
     "restored": "واپس آ گئی۔ اب دوبارہ دکھ رہی ہے۔",
     "dismiss": "مسترد کریں",
     "dismissed": "رپورٹ مسترد کر دی گئی۔",
-    "openMasjid": "مسجد کھولیں"
+    "openMasjid": "مسجد کھولیں",
+    "legalOrder": "قانونی حکم",
+    "legalOrderLoading": "احکامات لوڈ ہو رہے ہیں…",
+    "legalOrderNone": "حکم منتخب کریں"
   },
   "grievances": {
     "title": "شکایات",
@@ -414,5 +419,53 @@
     "closed": "بند کر دی گئی۔",
     "showContact": "رابطہ دکھائیں",
     "noContact": "کوئی رابطہ نہیں چھوڑا گیا۔"
+  },
+  "legal": {
+    "title": "قانونی احکامات",
+    "empty": "کوئی قانونی حکم نہیں۔",
+    "new": "حکم درج کریں",
+    "newTitle": "نیا قانونی حکم",
+    "authority": "ادارہ",
+    "referenceNo": "حکم کا حوالہ نمبر",
+    "receivedAt": "کب ملا (ہندوستان کا وقت)",
+    "receivedHint": "حکم ہمیں کب ملا۔ 3 گھنٹے کی گھڑی یہیں سے شروع ہوتی ہے۔",
+    "targetType": "اس میں کس کا نام ہے؟",
+    "target": {
+      "items": "ایک پوسٹ",
+      "masjids": "ایک مسجد",
+      "other": "کچھ اور"
+    },
+    "targetRef": "کون سا",
+    "targetHint": {
+      "items": "پوسٹ کا لنک پیسٹ کریں۔",
+      "masjids": "فالو کوڈ لکھیں، جیسے ABCD-EFGH۔",
+      "other": "مختصر تفصیل۔"
+    },
+    "summary": "حکم میں کیا مانگا گیا ہے",
+    "save": "محفوظ کریں",
+    "required": "یہ بھریں۔",
+    "created": "حکم درج ہو گیا۔ 3 گھنٹے کے اندر کارروائی کریں۔",
+    "updated": "حکم اپڈیٹ ہو گیا۔",
+    "status": {
+      "received": "موصول",
+      "actioned": "کارروائی ہو گئی",
+      "contested": "چیلنج کیا گیا",
+      "closed": "بند"
+    },
+    "statusLabel": "حالت",
+    "due": "کارروائی کریں {when}",
+    "overdue": "وقت گزر گیا — {when} تک کرنا تھا",
+    "hasDocument": "دستاویز منسلک ہے",
+    "receivedLine": "موصول {when}",
+    "log": "کارروائی لاگ",
+    "update": "اپڈیٹ کریں",
+    "updateTitle": "حکم اپڈیٹ کریں",
+    "actionTaken": "کی گئی کارروائی",
+    "note": "لاگ کے لیے نوٹ",
+    "attachDocument": "دستاویز منسلک کریں",
+    "replaceDocument": "دستاویز بدلیں",
+    "downloadDocument": "دستاویز ڈاؤن لوڈ کریں",
+    "uploading": "اپ لوڈ ہو رہا ہے…",
+    "documentSaved": "دستاویز محفوظ ہو گئی (انکرپٹڈ)۔"
   }
 }

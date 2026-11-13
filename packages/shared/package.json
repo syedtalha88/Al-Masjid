@@ -18,6 +18,7 @@
     "./contracts/push": "./src/contracts/push.ts",
     "./contracts/reports": "./src/contracts/reports.ts",
     "./contracts/grievances": "./src/contracts/grievances.ts",
+    "./contracts/legal-orders": "./src/contracts/legal-orders.ts",
     "./contracts/problem": "./src/contracts/problem.ts",
     "./contracts/library-schema": "./src/contracts/library-schema.ts",
     "./contracts/template-icons": "./src/contracts/template-icons.ts",

@@ -43,6 +43,7 @@ import { Route as SpecialIdRouteImport } from './routes/special.$id'
 import { Route as SuperIndexRouteImport } from './routes/super.index'
 import { Route as SuperAuditRouteImport } from './routes/super.audit'
 import { Route as SuperGrievancesRouteImport } from './routes/super.grievances'
+import { Route as SuperLegalOrdersRouteImport } from './routes/super.legal-orders'
 import { Route as SuperPaymentsRouteImport } from './routes/super.payments'
 import { Route as SuperReportsRouteImport } from './routes/super.reports'
 import { Route as SuperSettingsRouteImport } from './routes/super.settings'
@@ -229,6 +230,11 @@ const SuperGrievancesRoute = SuperGrievancesRouteImport.update({
   path: '/super/grievances',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperLegalOrdersRoute = SuperLegalOrdersRouteImport.update({
+  id: '/super/legal-orders',
+  path: '/super/legal-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuperPaymentsRoute = SuperPaymentsRouteImport.update({
   id: '/super/payments',
   path: '/super/payments',
@@ -332,6 +338,7 @@ export interface FileRoutesByFullPath {
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/grievances': typeof SuperGrievancesRoute
+  '/super/legal-orders': typeof SuperLegalOrdersRoute
   '/super/payments': typeof SuperPaymentsRoute
   '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
@@ -383,6 +390,7 @@ export interface FileRoutesByTo {
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/grievances': typeof SuperGrievancesRoute
+  '/super/legal-orders': typeof SuperLegalOrdersRoute
   '/super/payments': typeof SuperPaymentsRoute
   '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
@@ -435,6 +443,7 @@ export interface FileRoutesById {
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
   '/super/grievances': typeof SuperGrievancesRoute
+  '/super/legal-orders': typeof SuperLegalOrdersRoute
   '/super/payments': typeof SuperPaymentsRoute
   '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
@@ -488,6 +497,7 @@ export interface FileRouteTypes {
     | '/special/$id'
     | '/super/audit'
     | '/super/grievances'
+    | '/super/legal-orders'
     | '/super/payments'
     | '/super/reports'
     | '/super/settings'
@@ -539,6 +549,7 @@ export interface FileRouteTypes {
     | '/special/$id'
     | '/super/audit'
     | '/super/grievances'
+    | '/super/legal-orders'
     | '/super/payments'
     | '/super/reports'
     | '/super/settings'
@@ -590,6 +601,7 @@ export interface FileRouteTypes {
     | '/special/$id'
     | '/super/audit'
     | '/super/grievances'
+    | '/super/legal-orders'
     | '/super/payments'
     | '/super/reports'
     | '/super/settings'
@@ -642,6 +654,7 @@ export interface RootRouteChildren {
   SpecialIdRoute: typeof SpecialIdRoute
   SuperAuditRoute: typeof SuperAuditRoute
   SuperGrievancesRoute: typeof SuperGrievancesRoute
+  SuperLegalOrdersRoute: typeof SuperLegalOrdersRoute
   SuperPaymentsRoute: typeof SuperPaymentsRoute
   SuperReportsRoute: typeof SuperReportsRoute
   SuperSettingsRoute: typeof SuperSettingsRoute
@@ -906,6 +919,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperGrievancesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/super/legal-orders': {
+      id: '/super/legal-orders'
+      path: '/super/legal-orders'
+      fullPath: '/super/legal-orders'
+      preLoaderRoute: typeof SuperLegalOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/payments': {
       id: '/super/payments'
       path: '/super/payments'
@@ -1053,6 +1073,7 @@ const rootRouteChildren: RootRouteChildren = {
   SpecialIdRoute: SpecialIdRoute,
   SuperAuditRoute: SuperAuditRoute,
   SuperGrievancesRoute: SuperGrievancesRoute,
+  SuperLegalOrdersRoute: SuperLegalOrdersRoute,
   SuperPaymentsRoute: SuperPaymentsRoute,
   SuperReportsRoute: SuperReportsRoute,
   SuperSettingsRoute: SuperSettingsRoute,
