@@ -3,4 +3,6 @@
 interface ImportMetaEnv {
   /** `'true'` only in staging builds (deploy-staging.yml): ships `/_dev/showcase` as a lazy chunk (DECISIONS #58). */
   readonly VITE_PUBLIC_SHOWCASE?: 'true' | 'false';
+  /** The musalli app's origin (validated as an https origin in vite.config.ts) — the poster's follow link (T8.8). */
+  readonly VITE_PUBLIC_APP_ORIGIN: string;
 }

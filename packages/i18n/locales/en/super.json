@@ -96,7 +96,8 @@
     "admins": "Admins",
     "noAdmins": "No admins yet. Add one to activate this masjid.",
     "addAdmin": "Add admin",
-    "changed": "Saved"
+    "changed": "Saved",
+    "poster": "QR poster"
   },
   "admin": {
     "name": "Name",
@@ -470,5 +471,20 @@
     "downloadDocument": "Download document",
     "uploading": "Uploading…",
     "documentSaved": "Document saved (encrypted)."
+  },
+  "poster": {
+    "title": "QR poster",
+    "lead": "Print this poster for the masjid. People scan it to follow the masjid in the app.",
+    "size": "Paper size",
+    "print": "Print or save as PDF",
+    "downloadSvg": "QR only (SVG)",
+    "downloadPng": "QR only (PNG)",
+    "printHint": "In the print window choose \"Save as PDF\" or your printer. Turn off headers and footers, and keep the scale at 100%.",
+    "howTo": "How to follow this masjid",
+    "step1": "Open your phone camera",
+    "step2": "Point it at this QR code (or type {code} in the app)",
+    "step3": "Open the link and tap Follow",
+    "free": "Free · No ads · No account",
+    "preview": "Poster preview"
   }
 }

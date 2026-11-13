@@ -1708,6 +1708,7 @@ super,detail.admins,Admins,ایڈمن,no
 super,detail.noAdmins,No admins yet. Add one to activate this masjid.,ابھی کوئی ایڈمن نہیں۔ مسجد فعال کرنے کے لیے ایک شامل کریں۔,no
 super,detail.addAdmin,Add admin,ایڈمن شامل کریں,no
 super,detail.changed,Saved,محفوظ ہو گیا,no
+super,detail.poster,QR poster,QR پوسٹر,no
 super,admin.name,Name,نام,no
 super,admin.phone,Phone,فون,no
 super,admin.phoneHint,Optional. Stored encrypted; viewing it is recorded.,اختیاری۔ انکرپٹ کر کے رکھا جاتا ہے؛ دیکھنا درج ہوتا ہے۔,no
@@ -2023,6 +2024,19 @@ super,legal.replaceDocument,Replace document,دستاویز بدلیں,no
 super,legal.downloadDocument,Download document,دستاویز ڈاؤن لوڈ کریں,no
 super,legal.uploading,Uploading…,اپ لوڈ ہو رہا ہے…,no
 super,legal.documentSaved,Document saved (encrypted).,دستاویز محفوظ ہو گئی (انکرپٹڈ)۔,no
+super,poster.title,QR poster,QR پوسٹر,no
+super,poster.lead,Print this poster for the masjid. People scan it to follow the masjid in the app.,مسجد کے لیے یہ پوسٹر چھاپیں۔ لوگ اسے اسکین کر کے ایپ میں مسجد کو فالو کرتے ہیں۔,no
+super,poster.size,Paper size,کاغذ کا سائز,no
+super,poster.print,Print or save as PDF,چھاپیں یا PDF محفوظ کریں,no
+super,poster.downloadSvg,QR only (SVG),صرف QR (SVG),no
+super,poster.downloadPng,QR only (PNG),صرف QR (PNG),no
+super,poster.printHint,"In the print window choose ""Save as PDF"" or your printer. Turn off headers and footers, and keep the scale at 100%.","پرنٹ ونڈو میں ""PDF کے طور پر محفوظ کریں"" یا اپنا پرنٹر چنیں۔ ہیڈر اور فوٹر بند کریں، اور اسکیل 100% رکھیں۔",no
+super,poster.howTo,How to follow this masjid,اس مسجد کو کیسے فالو کریں,no
+super,poster.step1,Open your phone camera,اپنے فون کا کیمرا کھولیں,no
+super,poster.step2,Point it at this QR code (or type {code} in the app),اسے اس QR کوڈ کی طرف کریں (یا ایپ میں {code} لکھیں),no
+super,poster.step3,Open the link and tap Follow,لنک کھولیں اور فالو دبائیں,no
+super,poster.free,Free · No ads · No account,مفت · کوئی اشتہار نہیں · کوئی اکاؤنٹ نہیں,no
+super,poster.preview,Poster preview,پوسٹر کا پیش منظر,no
 templates,no_water_time_range.title,No water supply,پانی کی فراہمی بند,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} سے {hours_end} تک پانی دستیاب نہیں ہوگا۔,no
 templates,electricity_cut_time_range.title,Power cut,بجلی بند,no

@@ -1708,6 +1708,7 @@ super,detail.admins,Admins,అడ్మిన్‌లు,no
 super,detail.noAdmins,No admins yet. Add one to activate this masjid.,ఇంకా అడ్మిన్‌లు లేరు. మస్జిద్‌ను యాక్టివేట్ చేయడానికి ఒకరిని జోడించండి.,no
 super,detail.addAdmin,Add admin,అడ్మిన్‌ను జోడించండి,no
 super,detail.changed,Saved,సేవ్ అయింది,no
+super,detail.poster,QR poster,QR పోస్టర్,no
 super,admin.name,Name,పేరు,no
 super,admin.phone,Phone,ఫోన్,no
 super,admin.phoneHint,Optional. Stored encrypted; viewing it is recorded.,ఐచ్ఛికం. ఎన్‌క్రిప్ట్ చేసి ఉంచబడుతుంది; చూసినప్పుడు నమోదవుతుంది.,no
@@ -2023,6 +2024,19 @@ super,legal.replaceDocument,Replace document,పత్రాన్ని మా�
 super,legal.downloadDocument,Download document,పత్రాన్ని డౌన్‌లోడ్ చేయండి,no
 super,legal.uploading,Uploading…,అప్‌లోడ్ అవుతోంది…,no
 super,legal.documentSaved,Document saved (encrypted).,పత్రం సేవ్ అయింది (ఎన్‌క్రిప్ట్ చేయబడింది).,no
+super,poster.title,QR poster,QR పోస్టర్,no
+super,poster.lead,Print this poster for the masjid. People scan it to follow the masjid in the app.,మస్జిద్ కోసం ఈ పోస్టర్‌ను ప్రింట్ చేయండి. ప్రజలు దీన్ని స్కాన్ చేసి యాప్‌లో మస్జిద్‌ను ఫాలో చేస్తారు.,no
+super,poster.size,Paper size,కాగితం పరిమాణం,no
+super,poster.print,Print or save as PDF,ప్రింట్ చేయండి లేదా PDFగా సేవ్ చేయండి,no
+super,poster.downloadSvg,QR only (SVG),QR మాత్రమే (SVG),no
+super,poster.downloadPng,QR only (PNG),QR మాత్రమే (PNG),no
+super,poster.printHint,"In the print window choose ""Save as PDF"" or your printer. Turn off headers and footers, and keep the scale at 100%.","ప్రింట్ విండోలో ""PDFగా సేవ్ చేయండి"" లేదా మీ ప్రింటర్‌ను ఎంచుకోండి. హెడర్‌లు, ఫుటర్‌లు ఆపివేసి, స్కేల్ 100% ఉంచండి.",no
+super,poster.howTo,How to follow this masjid,ఈ మస్జిద్‌ను ఎలా ఫాలో చేయాలి,no
+super,poster.step1,Open your phone camera,మీ ఫోన్ కెమెరా తెరవండి,no
+super,poster.step2,Point it at this QR code (or type {code} in the app),దాన్ని ఈ QR కోడ్ వైపు చూపండి (లేదా యాప్‌లో {code} టైప్ చేయండి),no
+super,poster.step3,Open the link and tap Follow,లింక్ తెరిచి ఫాలో నొక్కండి,no
+super,poster.free,Free · No ads · No account,ఉచితం · ప్రకటనలు లేవు · ఖాతా అవసరం లేదు,no
+super,poster.preview,Poster preview,పోస్టర్ ప్రివ్యూ,no
 templates,no_water_time_range.title,No water supply,నీటి సరఫరా నిలిపివేత,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.,no
 templates,electricity_cut_time_range.title,Power cut,విద్యుత్ నిలిపివేత,no

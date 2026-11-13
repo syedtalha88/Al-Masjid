@@ -140,15 +140,27 @@ function Body({ data }: { readonly data: SuperMasjidDetail }) {
             ))}
           </div>
           {masjid.status === 'deleted' ? null : (
-            <Button
-              variant="ghost"
-              size="md"
-              onPress={() => {
-                navigator.push(`/super/masjids/${masjid.id}/edit`);
-              }}
-            >
-              {t('detail.edit')}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="ghost"
+                size="md"
+                onPress={() => {
+                  navigator.push(`/super/masjids/${masjid.id}/edit`);
+                }}
+              >
+                {t('detail.edit')}
+              </Button>
+              {/* C3 (T8.8): the printable QR poster. */}
+              <Button
+                variant="ghost"
+                size="md"
+                onPress={() => {
+                  navigator.push(`/super/masjids/${masjid.id}/poster`);
+                }}
+              >
+                {t('detail.poster')}
+              </Button>
+            </div>
           )}
         </div>
         <dl className="grid gap-4 sm:grid-cols-2">

@@ -3179,3 +3179,21 @@ VPS check (`pnpm infra:check`) now also fails if any folder older than 201 days 
 loop, a second run finds nothing, removed-admin marking and anonymization, Ruqyah shared recording kept, legal orders
 due, system scope only), api `retention-job.int` 3 (dry run audited, failed file keeps the record + one alert, files
 then records), existing post / needy-person retention tests (their own sessions restored after time travel).
+
+### #177 — QR poster: print page, sizes and the QR (PHASE_08 T8.8) — ACCEPTED (Claude Code, 13 Nov 2026; print + scan = owner O56)
+**Decision:** C3 is `/super/masjids/$id/poster` (Masjid detail → "QR poster"). The sheet is rendered by the browser
+(Hindi, Urdu, Telugu shape correctly) and printed or saved as PDF with the browser's print; "QR only" downloads SVG
+(`qrSvgText`, quiet zone, token colours) and PNG (`qrPng`, name + code caption). The QR is error correction **Q**
+(`qrMatrix(text, 'Q')`) of `<VITE_PUBLIC_APP_ORIGIN>/m/<CODE>`, 10 cm on A4 (07 C3: ≥ 10 cm), 7.2 cm on A5. Layout:
+brand mark (a vector `MosqueIcon` — the musalli app's icon is another origin, which the admin CSP does not load), the
+masjid name in every script it has, area / city, QR, follow code, the 3 steps (camera → point → open and Follow, the
+code as an alternative inside step 2) with icons in all four languages (each block a `LocaleScope`, Urdu RTL, the
+code isolated LTR with word joiners — Nastaliq has no U+2011 glyph), "Free · No ads · No account" per language, the
+app host. **Print mechanics:** a print copy is portalled to `<body>` and `@media print` hides every other child; the
+page size is an `@page { size: A4|A5; margin: 0 }` rule the screen adopts as a **constructable stylesheet** while open
+(the CSP forbids inline `<style>`; CSSOM is allowed) — named pages on the copy were ignored by Chromium's PDF output
+(found by the `page.pdf` e2e). `print-color-adjust: exact`. **Design-token exception:** the sheet uses physical units
+(mm, pt) through Tailwind arbitrary values — it is paper, not a screen; colours stay tokens.
+**Tests:** e2e `admin/poster.spec.ts` (Pixel 7, Chromium): the rendered QR is read back with ZXing → `/m/TESTA001`,
+level Q; the code; 3 steps in each of the 4 languages, Urdu `dir=rtl`, Telugu text; axe clean; `page.pdf` → exactly
+one page of A4 (595 × 842 pt), then A5 (420 × 595 pt). The print render is kept with the test output for review.

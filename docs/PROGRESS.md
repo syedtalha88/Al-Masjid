@@ -15,10 +15,58 @@
 | 05 | Donations, chanda & UPI change-lock | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): CI green on `997a914`, phase-verifier findings fixed, security re-review clean. Waiting: O43 → merge to `main` / staging → O45 → O50 (guide 5.1–5.22) + O28 | [final](reports/PHASE_05_REPORT.md) | – |
 | 06 | Bayan videos | **DONE — owner checks pending** (12 Nov 2026, DECISIONS #162): CI green on `main` `402e7f8` (run 43237107240), on staging; security review #165, phase-verifier fixes #167 (reach `main` with Phase 07). Waiting: O49 (real YouTube links), O48 (purge token, before May 2027) | [final](reports/PHASE_06_REPORT.md) | – |
 | 07 | Qibla compass | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): security review #167, phase-verifier FAIL → fixed (#169), e2e 12/12 on Pixel 7 + iPhone 14; CI + staging with the merge into `main`. Waiting: O29 (mihrab check) | [final](reports/PHASE_07_REPORT.md) | – |
-| 08 | Moderation, grievance, legal pages, QR posters | **IN PROGRESS** — T8.1–T8.4 done on `feat/phase-08` (#170–#173); T8.5 next | – | – |
+| 08 | Moderation, grievance, legal pages, QR posters | **IN PROGRESS** — T8.1–T8.8 done on `feat/phase-08` (#170–#177); T8.9 next | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (13 Nov 2026, end of day — Phase 08: T8.1–T8.4 done; T8.5 next)
+## ▶ Next session — start here (13 Nov 2026, night — Phase 08: T8.1–T8.8 done; T8.9 next)
+
+**Owner instruction (13 Nov 2026):** finish Phase 08 fast but at full quality (tests, 4 locales, docs, owner list),
+close it per protocol, then **STOP — do not start Phase 09**. The owner then runs end-to-end testing of every module
+and reports changes / issues to fix.
+
+**State:** `main` = `30a268b` (Phases 05–07) on staging. Phase 08 on `feat/phase-08` (pushed). Done:
+- T8.1 reporting (#170) · T8.2 takedown + C5 (#171) · T8.3 SLA alerts (#172) · T8.4 grievances + C6 (#173)
+- T8.5 legal orders register C7, encrypted documents (`packages/api/src/crypto/file.ts`, `media/private-store.ts`,
+  Cloudinary raw + authenticated), 3-hour timer (#174)
+- T8.6 legal texts × 4 locales (non-English `translation: draft`, production build gate `mcLegalGate`), readers in both
+  apps, `/licenses.json` (`mcLicenses`), yearly privacy / undertaking re-acceptance (#175)
+- T8.7 retention: every row of 02 §6 in `packages/db/src/state/retention.ts`, dry run (`POST /super/retention/dry-run`,
+  Audit screen button), audited summary, `retention_failed` alert (#176)
+- T8.8 QR poster C3 `/super/masjids/$id/poster` (A4 / A5, QR level Q, 4-language steps, SVG / PNG downloads); e2e
+  `admin/poster.spec.ts` decodes the QR with ZXing and checks one exact page per size (#177)
+- Verified: e2e for T8.5–T8.8 green on Pixel 7; db / api int suites green for each task's own tests; admin lint +
+  typecheck clean on the hand-off commit. **The last full `pnpm verify:quick` was interrupted** — run it first.
+- Not yet checked: CI on `ci/phase-08` for T8.5–T8.8 (push `feat/phase-08` to `ci/phase-08` to get a run).
+- `.claude/settings.json` is the owner's own uncommitted change — never commit it.
+
+**Next (in order):**
+1. **T8.9 kill switches & banners:** pause-all-push already exists (Phase 04); add admin **read-only mode** (every
+   write → 503 `READ_ONLY_MODE` + friendly banner in admin), **maintenance banner** in 4 languages in both apps,
+   **global incident banner** for musallis (`app_settings.maintenance_banner` / `incident_banner` are already
+   writable); an integration test per switch.
+2. **T8.10 audit & stats:** the action filter in `apps/admin/src/routes/super.audit.tsx` is a hard-coded subset — add
+   the newer actions (`retention.run`, `legal_order.*`, `grievance.*`, `item.*`, …); final CSV export (audited, no
+   secrets / PII); stats page: masjids by status, devices, follows, push success, job lag, Cloudinary credits,
+   reports / grievances SLA compliance %.
+3. **T8.11 gates:** e2e journey 11 + legal re-acceptance; visual baselines (report sheet, C5, C6, C7, grievance form,
+   poster, legal readers) via `scripts/visual.mjs` in the Linux image; full e2e on iPhone 14 in the Linux image; full
+   db / api int suites; `security-reviewer` (moderation privileges, private bucket, encryption, retention);
+   `phase-verifier`; `docs/reports/PHASE_08_REPORT.md`.
+4. Close Phase 08 (#162 autopilot): CI green → merge to `main` → staging → owner steps in `owner/MY_PENDING_TASKS.md`
+   (O54 Cloudinary private bucket check, O55, O56 poster print + scan already listed). Then **stop** and tell the owner.
+
+**Local notes:** Bash heredocs with Python / TS fail in this shell — write scratch scripts with the Write tool into
+the scratchpad and run `python <script> "/c/AL Masjid"` (use `newline='\n'`, then prettier). Grievance e2e can hit the
+5/day IP limit (429) if Redis keys survive — environmental. `@mc/ui` `pager.test` is flaky (passes on re-run). Retention
+tests delete expired admin sessions — specs that time-travel snapshot / restore `admin_sessions`.
+Local stack rebuild = `pnpm stack:up:test`, then `pnpm db:seed`, then `git checkout -- apps/app/src/routeTree.gen.ts`
+(keep the admin one — it carries the new routes). WebKit e2e only in the Linux image (`--network
+container:mc-dev-caddy-1` like `scripts/visual.mjs`). `pnpm test:visual:update` rewrites every baseline — keep only the
+ones that really changed. Integration suites: `node ../../scripts/vitest-int.mjs --maxWorkers=4` in the package.
+Specs that send as a device need `registerDevice(page)` first. Never read `.env*` files; add variables with
+`pnpm setup:local`.
+
+## ▶ Previous hand-off (13 Nov 2026, end of day — Phase 08: T8.1–T8.4 done; T8.5 next)
 
 **Owner rule (DECISIONS #162):** close each phase when our own checks pass, list every owner step in
 `owner/MY_PENDING_TASKS.md`, move straight on.
@@ -631,6 +679,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O53 | **Grievance sealing key pair** for staging (then production): public half → api-public env, private half → api-admin env only (#173; steps in MY_PENDING_TASKS) | before Phase 08 on staging | 15 min | any time |
 | O54 | **Legal order document on staging**: attach → download the same file; Cloudinary lists it as raw / authenticated and its public link fails (#174) | Phase 08 exit | 10 min | after Phase 08 on staging |
 | O55 | **Legal review of the drafts** (privacy, terms, content policy, grievance, undertaking — `packages/i18n/legal/en/`) by your lawyer + human Hindi / Urdu / Telugu translations; confirm Cloudinary's and Sentry's data regions for the privacy notice (#175). Production builds refuse drafts | before Phase 09 launch | lawyer time | any time |
+| O56 | **QR poster print + scan**: Super Admin → a masjid → QR poster → print A4 (and A5) or save as PDF and print; scan from 1.5 m with an Android phone and an iPhone camera — the app opens that masjid; check the Urdu and Telugu text looks right on paper (#177) | Phase 08 exit | 20 min | after Phase 08 on staging |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
 | O31 | **Translation review** of `packages/i18n/review/{hi,ur,te}.csv` (≈ 920 draft strings each) | pilot | translators | before pilot |
 | O32 | **Verified Content Library file** (`docs/content-library-format.md`) | pilot | — | before pilot |
@@ -930,7 +979,9 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   device ids, dead push, sessions / invites, reports, grievances, audit, jobs, quota, campaign history, removed admins
   anonymized, stats, contacts, Ruqyah recordings, legal documents), batches + time budget, audited summary, ★ dry run
   from Audit, `retention_failed` alert, VPS 200-day archive check.
-- [ ] T8.8 — QR poster generator (C3)
+- [x] T8.8 — QR poster generator (C3) — **done 13 Nov 2026 (#177)**: A4 / A5 print page (QR level Q, 10 cm on A4,
+  follow code, 3 steps × 4 languages, brand, "Free · No ads · No account"), QR-only SVG / PNG; e2e decodes the QR and
+  checks one exact page per size. Owner: O56 (print and scan at 1.5 m).
 - [ ] T8.9 — Kill switches & banners
 - [ ] T8.10 — Audit & stats completion
 - [ ] T8.11 — Quality gates

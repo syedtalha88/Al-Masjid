@@ -1708,6 +1708,7 @@ super,detail.admins,Admins,एडमिन,no
 super,detail.noAdmins,No admins yet. Add one to activate this masjid.,अभी कोई एडमिन नहीं। मस्जिद चालू करने के लिए एक जोड़ें।,no
 super,detail.addAdmin,Add admin,एडमिन जोड़ें,no
 super,detail.changed,Saved,सहेज लिया,no
+super,detail.poster,QR poster,QR पोस्टर,no
 super,admin.name,Name,नाम,no
 super,admin.phone,Phone,फ़ोन,no
 super,admin.phoneHint,Optional. Stored encrypted; viewing it is recorded.,वैकल्पिक। एन्क्रिप्ट करके रखा जाता है; देखने पर दर्ज होता है।,no
@@ -2023,6 +2024,19 @@ super,legal.replaceDocument,Replace document,दस्तावेज़ बद�
 super,legal.downloadDocument,Download document,दस्तावेज़ डाउनलोड करें,no
 super,legal.uploading,Uploading…,अपलोड हो रहा है…,no
 super,legal.documentSaved,Document saved (encrypted).,दस्तावेज़ सहेजा गया (एन्क्रिप्टेड)।,no
+super,poster.title,QR poster,QR पोस्टर,no
+super,poster.lead,Print this poster for the masjid. People scan it to follow the masjid in the app.,मस्जिद के लिए यह पोस्टर छापें। लोग इसे स्कैन करके ऐप में मस्जिद को फ़ॉलो करते हैं।,no
+super,poster.size,Paper size,काग़ज़ का आकार,no
+super,poster.print,Print or save as PDF,छापें या PDF सहेजें,no
+super,poster.downloadSvg,QR only (SVG),सिर्फ़ QR (SVG),no
+super,poster.downloadPng,QR only (PNG),सिर्फ़ QR (PNG),no
+super,poster.printHint,"In the print window choose ""Save as PDF"" or your printer. Turn off headers and footers, and keep the scale at 100%.","प्रिंट विंडो में ""PDF के रूप में सहेजें"" या अपना प्रिंटर चुनें। हेडर और फ़ुटर बंद करें, और स्केल 100% रखें।",no
+super,poster.howTo,How to follow this masjid,इस मस्जिद को कैसे फ़ॉलो करें,no
+super,poster.step1,Open your phone camera,अपने फ़ोन का कैमरा खोलें,no
+super,poster.step2,Point it at this QR code (or type {code} in the app),इसे इस QR कोड की तरफ़ करें (या ऐप में {code} लिखें),no
+super,poster.step3,Open the link and tap Follow,लिंक खोलें और फ़ॉलो दबाएँ,no
+super,poster.free,Free · No ads · No account,मुफ़्त · कोई विज्ञापन नहीं · कोई खाता नहीं,no
+super,poster.preview,Poster preview,पोस्टर का पूर्वावलोकन,no
 templates,no_water_time_range.title,No water supply,पानी की आपूर्ति बंद,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} से {hours_end} तक पानी उपलब्ध नहीं रहेगा।,no
 templates,electricity_cut_time_range.title,Power cut,बिजली कटौती,no
