@@ -1467,6 +1467,8 @@ push,alert.sla_80.title,Deadline is close,గడువు దగ్గరగా 
 push,alert.sla_80.body,Something in Reports must be handled soon — most of its time has passed. Open the dashboard.,రిపోర్ట్స్‌లో ఒకటి త్వరలో పరిష్కరించాలి — దాని సమయం చాలా వరకు గడిచింది. డాష్‌బోర్డ్ తెరవండి.,no
 push,alert.sla_100.title,Deadline passed,గడువు దాటిపోయింది,no
 push,alert.sla_100.body,Something in Reports is past its deadline. Handle it now from the dashboard.,రిపోర్ట్స్‌లో ఒకటి గడువు దాటింది. ఇప్పుడే డాష్‌బోర్డ్ నుండి పరిష్కరించండి.,no
+push,alert.retention_failed.title,Retention run failed,శుభ్రత పని విఫలమైంది,no
+push,alert.retention_failed.body,The daily clean-up could not finish. It will try again; see the audit log.,రోజువారీ శుభ్రత పూర్తి కాలేదు. ఇది మళ్లీ ప్రయత్నిస్తుంది; ఆడిట్ లాగ్ చూడండి.,no
 settings,language,Language,భాష,no
 settings,languageSheet,Choose your language,మీ భాషను ఎంచుకోండి,no
 settings,audience,Brother / Sister,సోదరుడు / సోదరి,no
@@ -1769,6 +1771,9 @@ super,audit.actorType.admin,Admin,అడ్మిన్,no
 super,audit.actorType.super_admin,Super Admin,సూపర్ అడ్మిన్,no
 super,audit.actorType.system,System,సిస్టమ్,no
 super,audit.actorType.device,Device,డివైస్,no
+super,audit.retentionDryRun,Retention dry run,రిటెన్షన్ డ్రై రన్,no
+super,audit.retentionQueued,"Dry run started. Its counts appear here as ""retention.run"" in a minute.","డ్రై రన్ మొదలైంది. దాని లెక్కలు ఒక నిమిషంలో ఇక్కడ ""retention.run""గా కనిపిస్తాయి.",no
+super,audit.retentionNotQueued,Could not start the dry run. Try again.,డ్రై రన్ మొదలు కాలేదు. మళ్లీ ప్రయత్నించండి.,no
 super,library.statusFilter,Status,స్థితి,no
 super,library.kindFilter,Kind,రకం,no
 super,library.fileLabel,Your file,మీ ఫైల్,no

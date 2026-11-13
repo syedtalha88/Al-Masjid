@@ -1,6 +1,13 @@
 // Entrypoint: worker (BullMQ processors + schedulers, 01 §5.8): the push pipeline and alerts (Phase 4 — the only
 // process with the VAPID private key), the outbox sweeper schedule, the heartbeat; later phases add their jobs.
-import { cloudflarePurger, cloudinaryMediaStore, createLogger, createPushSender, redisSendLedger } from '@mc/api';
+import {
+  cloudflarePurger,
+  cloudinaryMediaStore,
+  cloudinaryPrivateStore,
+  createLogger,
+  createPushSender,
+  redisSendLedger,
+} from '@mc/api';
 import { ensureDevSeed } from '@mc/api/jobs/seed';
 import { startJobWorkers } from '@mc/api/jobs/worker';
 import { createDbHandle } from '@mc/db';
@@ -69,6 +76,16 @@ const jobs = await startJobWorkers({
       : {}),
     ...(purger ? { purger } : {}),
     mediaOrigin: env.MEDIA_ORIGIN,
+    // T8.7: closed legal orders' encrypted documents (3 years) — same rule: never in the real account locally.
+    ...(env.APP_ENV !== 'local' && env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET
+      ? {
+          privateFiles: cloudinaryPrivateStore({
+            cloudName: env.CLOUDINARY_CLOUD_NAME,
+            apiKey: env.CLOUDINARY_API_KEY,
+            apiSecret: env.CLOUDINARY_API_SECRET,
+          }),
+        }
+      : {}),
   },
 });
 await jobs.ready();

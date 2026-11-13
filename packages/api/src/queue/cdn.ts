@@ -18,6 +18,12 @@ export interface CdnPurgeService {
    * @returns whether it was enqueued.
    */
   mediaAccess(itemId: string, restrict: boolean, key: string): Promise<boolean>;
+  /**
+   * Enqueues a retention dry run (PHASE_08 T8.7, ★ Super Admin): the worker counts what is due and audits the summary.
+   *
+   * @returns whether it was enqueued.
+   */
+  retentionDryRun?(key: string): Promise<boolean>;
 }
 
 /** The purge service over the job queues; `null` queues (unit tests, no Redis) make it report `false`. */
@@ -46,6 +52,13 @@ export function cdnPurgeService(queues: JobQueues | null, logger: Logger): CdnPu
         'media access',
         () =>
           queues?.enqueue('media-access', { itemId, restrict }, { jobId: `media.${key}`.slice(0, 120) }) ??
+          Promise.resolve(),
+      ),
+    retentionDryRun: (key) =>
+      tryThrice(
+        'retention dry run',
+        () =>
+          queues?.enqueue('retention', { dryRun: true }, { jobId: `retention.dry.${key}`.slice(0, 120) }) ??
           Promise.resolve(),
       ),
   };

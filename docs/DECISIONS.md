@@ -3154,3 +3154,28 @@ gate throws on drafts and passes otherwise), app `preferences` +2 (recheck rules
 `auth-state` +1 (yearly undertaking), e2e `admin/legal-reaccept.spec.ts` 2 (changed → accept → server holds it →
 not asked again; yearly via the browser clock; admin undertaking again after a version change; readers + licenses axe
 clean) on Pixel 7. The Playwright fixture device now carries a fresh `privacyAcceptedAt`.
+
+### #176 — Retention job covers every row of 02 §6 (PHASE_08 T8.7) — ACCEPTED (Claude Code, 13 Nov 2026)
+**Decision:** `runRetention` (`@mc/db/state/retention.ts`, system scope) implements the rows not already done (posts,
+needy people, alert subscriptions): devices unused 180 days (follows → follower counts down, Ameens; one transaction
+each), reports' `device_id` of devices that no longer exist (retention **or** "Clear all data" — a `$lookup` sweep),
+dead push addresses after 30 days (`push_*` unset, status `none`), admin sessions ended (revoked / idle / absolute) and
+invites used / expired 30 days ago, reports 1 year after closing, grievances 3 years after resolution, audit log 2
+years, notification jobs and push quota counters 90 days, campaign amount history a year after the campaign ended
+(completed / closed, last changed a year ago), stats snapshots 2 years, Ilm contacts deleted 30 days ago. Removed
+admins: `removeAdminFromMasjid` now sets `admin_users.removed_at` when the admin's **last** membership goes and
+`addAdminToMasjid` clears it; a year later the record is anonymized ("Removed admin", phone gone, undertaking history
+emptied, status `disabled`; passkeys, sessions, alert subscriptions and invites deleted) — the record stays so audit
+entries still resolve. Ruqyah entries deleted 30 days ago and legal orders closed 3 years ago go through the job: the
+recording / encrypted document is deleted first (a recording still used by a post or another entry is never handed
+out), the record after; a file that fails keeps its record, the job fails (BullMQ retry, Sentry) and the Super Admin
+gets one `retention_failed` alert a day. Batches ≤ 1,000 per operation, looping; an 8-minute wall-clock budget inside the
+10-minute job timeout (`partial` in the summary; the next run carries on). Every run writes `retention.run` to the
+audit log — counts per rule, files, dry run, partial; never ids. **Dry run:** the job payload `{ dryRun: true }` counts
+and changes nothing; the Super Admin starts one from Audit (★ `POST /super/retention/dry-run`, at most one per minute)
+and reads the counts in the audit log. **VPS logs:** `log-archive.sh` already deletes day folders past 200 days; the
+VPS check (`pnpm infra:check`) now also fails if any folder older than 201 days is left.
+**Tests:** db `retention.int` 6 (each rule just inside / just past its period, dry run changes nothing, batches of 1
+loop, a second run finds nothing, removed-admin marking and anonymization, Ruqyah shared recording kept, legal orders
+due, system scope only), api `retention-job.int` 3 (dry run audited, failed file keeps the record + one alert, files
+then records), existing post / needy-person retention tests (their own sessions restored after time travel).

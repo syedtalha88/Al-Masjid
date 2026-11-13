@@ -404,15 +404,19 @@ describe('worker: retention', () => {
 
     const back = clock.now();
     const day = 24 * 60 * 60 * 1000;
+    // Retention also deletes admin sessions that ended 30 days before (T8.7): this file's own sessions are put back.
+    const sessions = await db().collection('admin_sessions').find().toArray();
     clock.set(new Date(back.getTime() + 89 * day));
     expect(await asSystem((handle) => processRetention({ db: handle, clock, logger }))).toMatchObject({
-      beneficiaries: 0,
+      counts: { beneficiaries: 0 },
     });
     expect(await left()).toBe(4);
     clock.set(new Date(back.getTime() + 90 * day + 60_000));
     const run = await asSystem((handle) => processRetention({ db: handle, clock, logger }));
-    expect(run.beneficiaries).toBeGreaterThanOrEqual(3); // this masjid's three (and other tests' ended people)
+    expect(run.counts['beneficiaries']).toBeGreaterThanOrEqual(3); // this masjid's three (and other tests' ended people)
     clock.set(back);
+    for (const doc of sessions)
+      await db().collection('admin_sessions').replaceOne({ _id: doc._id }, doc, { upsert: true });
 
     const remaining = await rawPeople()
       .find({ masjid_id: uuid(masjidId) })

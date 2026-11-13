@@ -181,6 +181,8 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'legal_order.update': ['from', 'to', 'action'],
   'legal_order.document': ['replaced'],
   'legal_order.document_read': [],
+  // PHASE_08 T8.7 (02 §6): the daily retention run's summary — counts per rule and whether it was a dry run.
+  'retention.run': ['dry_run', 'counts', 'files', 'partial'],
 };
 const META_LIMIT_BYTES = 4096;
 

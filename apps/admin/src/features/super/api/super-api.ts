@@ -39,6 +39,7 @@ import {
   superTemplateResponseSchema,
   testAlertResponseSchema,
 } from '@mc/shared/contracts';
+import { retentionQueuedSchema } from '@mc/shared/contracts';
 import {
   grievanceAckSchema,
   grievanceContactSchema,
@@ -116,6 +117,8 @@ export const superApi = {
   setPushPaused: (paused: boolean) =>
     call(`${SUPER_API}/settings/push-pause`, pushPauseResponseSchema, { method: 'POST', body: { paused } }),
   /** C4 (T5.2): open UPI change requests, oldest first. */
+  /** ★ A retention dry run (T8.7): the worker counts what is due; the summary appears in the audit log. */
+  retentionDryRun: () => call(`${SUPER_API}/retention/dry-run`, retentionQueuedSchema, { method: 'POST', body: {} }),
   // --- Legal orders (07 C7, PHASE_08 T8.5) ---
   legalOrders: (signal?: AbortSignal) =>
     call(`${SUPER_API}/legal-orders`, legalOrderListSchema, signal ? { signal } : {}),

@@ -65,6 +65,7 @@ import {
   reasonSchema,
   removeItemRequestSchema,
   REPORT_STATUS_VALUES,
+  retentionQueuedSchema,
   superAdminCreatedSchema,
   superAdminCreateSchema,
   superAdminListSchema,
@@ -560,6 +561,22 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
         if (!found) return reply(200, { contact: null });
         if (!deps.sealKeys) throw new ApiProblem(503, 'GRIEVANCE_CONTACT_UNAVAILABLE');
         return reply(200, { contact: openSealed(deps.sealKeys, found.sealed, found.publicRef) });
+      },
+    }),
+    // --- Retention (02 §6, PHASE_08 T8.7) ----------------------------------------------------------------------------
+    defineRoute({
+      method: 'post',
+      path: '/retention/dry-run',
+      summary: '★ Ask the worker for a retention dry run: it counts what is due, changes nothing, audits the summary',
+      tags: ['super'],
+      auth: 'super_step_up',
+      rateLimit: writes,
+      request: { body: EmptyBody },
+      responses: { 202: retentionQueuedSchema },
+      handler: async ({ clock, reply }) => {
+        // One per minute at most (the job id): a double tap queues once.
+        const key = String(Math.floor(clock.now().getTime() / 60_000));
+        return reply(202, { queued: (await deps.cdn?.retentionDryRun?.(key)) ?? false });
       },
     }),
     // --- Legal orders (07 C7, 05 §3, PHASE_08 T8.5) ----------------------------------------------------------------

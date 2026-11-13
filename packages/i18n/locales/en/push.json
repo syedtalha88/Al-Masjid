@@ -63,6 +63,10 @@
     "sla_100": {
       "title": "Deadline passed",
       "body": "Something in Reports is past its deadline. Handle it now from the dashboard."
+    },
+    "retention_failed": {
+      "title": "Retention run failed",
+      "body": "The daily clean-up could not finish. It will try again; see the audit log."
     }
   }
 }

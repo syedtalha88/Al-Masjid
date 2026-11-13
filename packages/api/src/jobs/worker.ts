@@ -11,6 +11,7 @@ import type { createLogger } from '../logger.ts';
 import type { CdnPurger } from '../media/cdn-purge.ts';
 import type { SendLedger } from '../push/ledger.ts';
 import type { PushSender } from '../push/sender.ts';
+import { alertService } from '../queue/alerts.ts';
 import {
   InvalidJobPayloadError,
   JOB_NAMES,
@@ -83,7 +84,7 @@ export interface JobWorkerDeps {
   /** Cloudflare purge by tag for takedowns (T8.2); absent locally (nothing in front to purge). */
   readonly cdnPurger?: CdnPurger | undefined;
   /** `retention`'s media part (PHASE_06 T6.4): the worker's media store, the CDN purger, env MEDIA_ORIGIN. */
-  readonly retention?: Pick<RetentionDeps, 'media' | 'purger' | 'mediaOrigin'>;
+  readonly retention?: Pick<RetentionDeps, 'media' | 'purger' | 'mediaOrigin' | 'privateFiles'>;
 }
 
 export class JobTimeoutError extends Error {
@@ -167,8 +168,10 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
         parseJobPayload(name, data);
         return processCampaignClose(common);
       case 'retention':
-        parseJobPayload(name, data);
-        return processRetention({ ...common, ...deps.retention });
+        return processRetention(
+          { ...common, ...deps.retention, alerts: alertService(queues, deps.logger) },
+          parseJobPayload(name, data),
+        );
     }
   };
 

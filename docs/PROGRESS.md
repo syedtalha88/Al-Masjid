@@ -926,7 +926,10 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   grievance drafts (+ hi / ur / te draft translations), readers in both apps, licenses page generated at build,
   production build refuses drafts (`MC_BUILD_ENV=production`), privacy re-acceptance (changed version / yearly),
   yearly admin undertaking. Owner: O55 (legal review + human translations — blocks production).
-- [ ] T8.7 — Retention job (remaining rows of 02 §6)
+- [x] T8.7 — Retention job (remaining rows of 02 §6) — **done 13 Nov 2026 (#176)**: every 02 §6 row (devices, report
+  device ids, dead push, sessions / invites, reports, grievances, audit, jobs, quota, campaign history, removed admins
+  anonymized, stats, contacts, Ruqyah recordings, legal documents), batches + time budget, audited summary, ★ dry run
+  from Audit, `retention_failed` alert, VPS 200-day archive check.
 - [ ] T8.8 — QR poster generator (C3)
 - [ ] T8.9 — Kill switches & banners
 - [ ] T8.10 — Audit & stats completion

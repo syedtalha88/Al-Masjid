@@ -92,6 +92,8 @@ export const ADMIN_ALERT_TYPES = [
   'sla_50',
   'sla_80',
   'sla_100',
+  // Retention (T8.7): the daily run failed (files not deleted, or an error) — Super Admin, once a day.
+  'retention_failed',
 ] as const;
 
 /**

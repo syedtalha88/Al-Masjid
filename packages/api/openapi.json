@@ -14174,6 +14174,46 @@
         }
       }
     },
+    "/api/super/retention/dry-run": {
+      "post": {
+        "summary": "★ Ask the worker for a retention dry run: it counts what is due, changes nothing, audits the summary",
+        "tags": [
+          "super"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "HTTP 202",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "queued": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "queued"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/super/legal-orders": {
       "get": {
         "summary": "The legal orders register: open orders first by due time (received + 3 h), then closed ones",

@@ -214,6 +214,19 @@ export {
   type UntriagedReport,
 } from './reports.ts';
 export {
+  deleteExpiredLegalOrder,
+  deleteExpiredRuqyah,
+  listExpiredLegalOrders,
+  listExpiredRuqyah,
+  recordRetentionRun,
+  REMOVED_ADMIN_NAME,
+  RETENTION,
+  RETENTION_BATCH,
+  type RetentionCounts,
+  type RetentionOptions,
+  runRetention,
+} from './retention.ts';
+export {
   addRuqyahEntry,
   deleteRuqyahEntry,
   orderRuqyahEntries,

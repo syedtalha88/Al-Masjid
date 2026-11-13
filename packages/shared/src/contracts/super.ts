@@ -313,3 +313,6 @@ export type RemoveItemRequest = z.input<typeof removeItemRequestSchema>;
 export const dismissReportRequestSchema = z.strictObject({
   note: safeText(MODERATION_NOTE_MAX, { multiline: true }).optional(),
 });
+
+/** `POST /retention/dry-run` ★ (PHASE_08 T8.7): whether the worker's dry run was queued. */
+export const retentionQueuedSchema = z.object({ queued: z.boolean() });

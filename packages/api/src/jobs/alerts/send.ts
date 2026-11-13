@@ -32,6 +32,7 @@ const ALERT_PATH: Readonly<Record<AdminAlertPayload['type'], string>> = {
   sla_50: '/super',
   sla_80: '/super',
   sla_100: '/super',
+  retention_failed: '/super/audit',
 };
 
 /** Alerts live four hours at the push service and always arrive at once. */

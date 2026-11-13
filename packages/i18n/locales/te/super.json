@@ -173,7 +173,10 @@
       "super_admin": "సూపర్ అడ్మిన్",
       "system": "సిస్టమ్",
       "device": "డివైస్"
-    }
+    },
+    "retentionDryRun": "రిటెన్షన్ డ్రై రన్",
+    "retentionQueued": "డ్రై రన్ మొదలైంది. దాని లెక్కలు ఒక నిమిషంలో ఇక్కడ \"retention.run\"గా కనిపిస్తాయి.",
+    "retentionNotQueued": "డ్రై రన్ మొదలు కాలేదు. మళ్లీ ప్రయత్నించండి."
   },
   "library": {
     "statusFilter": "స్థితి",

@@ -223,6 +223,8 @@ describe('B10 bayans', () => {
       const back = clock.now();
       clock.set(new Date(back.getTime() + days * 24 * 3_600_000));
       const system = await processUserHandle(testDatabase(), 'mc_system');
+      // Retention also deletes admin sessions that ended 30 days before (T8.7): this file's own sessions are put back.
+      const sessions = await testDatabase().db.collection('admin_sessions').find().toArray();
       try {
         return await processRetention({
           db: system.handle,
@@ -235,16 +237,19 @@ describe('B10 bayans', () => {
       } finally {
         await system.dispose();
         clock.set(back);
+        for (const doc of sessions) {
+          await testDatabase().db.collection('admin_sessions').replaceOne({ _id: doc._id }, doc, { upsert: true });
+        }
       }
     };
-    expect(await run(179)).toMatchObject({ items: 0, mediaFiles: 0 });
+    expect(await run(179)).toMatchObject({ counts: { items: 0 }, files: 0 });
     expect(removedKeys).toEqual([]);
     // Storage fails once: the post is kept (nothing stranded) and the run fails so the job retries (#165 M1).
     failNext = true;
     await expect(run(181)).rejects.toThrow(/could not be deleted/);
     expect(await testDatabase().db.collection('items').countDocuments({ public_id: doc?.['public_id'] })).toBe(1);
     expect(purged).toEqual([]);
-    expect(await run(181)).toMatchObject({ items: 1, mediaFiles: 1 });
+    expect(await run(181)).toMatchObject({ counts: { items: 1 }, files: 1 });
     expect(removedKeys).toEqual([thumb]);
     expect(purged).toEqual([
       [480, 960, 1440].flatMap((width) =>
@@ -252,7 +257,7 @@ describe('B10 bayans', () => {
       ),
     ]);
     expect(await testDatabase().db.collection('items').countDocuments({ public_id: doc?.['public_id'] })).toBe(0);
-    expect(await run(182)).toMatchObject({ items: 0 }); // idempotent
+    expect(await run(182)).toMatchObject({ counts: { items: 0 } }); // idempotent
   });
 
   it("another masjid's admin cannot spend this masjid's lookup budget (#165 M2)", async () => {

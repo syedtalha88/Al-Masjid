@@ -1467,6 +1467,8 @@ push,alert.sla_80.title,Deadline is close,समय सीमा पास ह�
 push,alert.sla_80.body,Something in Reports must be handled soon — most of its time has passed. Open the dashboard.,रिपोर्ट में कुछ जल्द निपटाना है — उसका ज़्यादातर समय बीत चुका है। डैशबोर्ड खोलें।,no
 push,alert.sla_100.title,Deadline passed,समय सीमा निकल गई,no
 push,alert.sla_100.body,Something in Reports is past its deadline. Handle it now from the dashboard.,रिपोर्ट में कुछ अपनी समय सीमा पार कर चुका है। अभी डैशबोर्ड से निपटाएँ।,no
+push,alert.retention_failed.title,Retention run failed,सफ़ाई का काम विफल,no
+push,alert.retention_failed.body,The daily clean-up could not finish. It will try again; see the audit log.,रोज़ की सफ़ाई पूरी नहीं हो सकी। यह फिर कोशिश करेगी; ऑडिट लॉग देखें।,no
 settings,language,Language,भाषा,no
 settings,languageSheet,Choose your language,अपनी भाषा चुनें,no
 settings,audience,Brother / Sister,भाई / बहन,no
@@ -1769,6 +1771,9 @@ super,audit.actorType.admin,Admin,एडमिन,no
 super,audit.actorType.super_admin,Super Admin,सुपर एडमिन,no
 super,audit.actorType.system,System,सिस्टम,no
 super,audit.actorType.device,Device,डिवाइस,no
+super,audit.retentionDryRun,Retention dry run,रिटेंशन ड्राई रन,no
+super,audit.retentionQueued,"Dry run started. Its counts appear here as ""retention.run"" in a minute.","ड्राई रन शुरू हुआ। इसकी गिनती एक मिनट में यहाँ ""retention.run"" के रूप में दिखेगी।",no
+super,audit.retentionNotQueued,Could not start the dry run. Try again.,ड्राई रन शुरू नहीं हो सका। फिर कोशिश करें।,no
 super,library.statusFilter,Status,स्थिति,no
 super,library.kindFilter,Kind,प्रकार,no
 super,library.fileLabel,Your file,आपकी फ़ाइल,no

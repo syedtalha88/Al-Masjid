@@ -173,7 +173,10 @@
       "super_admin": "سپر ایڈمن",
       "system": "سسٹم",
       "device": "ڈیوائس"
-    }
+    },
+    "retentionDryRun": "ریٹینشن ڈرائی رن",
+    "retentionQueued": "ڈرائی رن شروع ہو گیا۔ اس کی گنتی ایک منٹ میں یہاں \"retention.run\" کے طور پر دکھے گی۔",
+    "retentionNotQueued": "ڈرائی رن شروع نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
   },
   "library": {
     "statusFilter": "حالت",

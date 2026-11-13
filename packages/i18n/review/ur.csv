@@ -1467,6 +1467,8 @@ push,alert.sla_80.title,Deadline is close,آخری وقت قریب ہے,no
 push,alert.sla_80.body,Something in Reports must be handled soon — most of its time has passed. Open the dashboard.,رپورٹس میں کچھ جلد نمٹانا ہے — اس کا زیادہ تر وقت گزر چکا ہے۔ ڈیش بورڈ کھولیں۔,no
 push,alert.sla_100.title,Deadline passed,آخری وقت گزر گیا,no
 push,alert.sla_100.body,Something in Reports is past its deadline. Handle it now from the dashboard.,رپورٹس میں کچھ اپنے آخری وقت سے آگے نکل چکا ہے۔ ابھی ڈیش بورڈ سے نمٹائیں۔,no
+push,alert.retention_failed.title,Retention run failed,صفائی کا کام ناکام,no
+push,alert.retention_failed.body,The daily clean-up could not finish. It will try again; see the audit log.,روزانہ کی صفائی مکمل نہیں ہو سکی۔ یہ دوبارہ کوشش کرے گی؛ آڈٹ لاگ دیکھیں۔,no
 settings,language,Language,زبان,no
 settings,languageSheet,Choose your language,اپنی زبان منتخب کریں,no
 settings,audience,Brother / Sister,بھائی / بہن,no
@@ -1769,6 +1771,9 @@ super,audit.actorType.admin,Admin,ایڈمن,no
 super,audit.actorType.super_admin,Super Admin,سپر ایڈمن,no
 super,audit.actorType.system,System,سسٹم,no
 super,audit.actorType.device,Device,ڈیوائس,no
+super,audit.retentionDryRun,Retention dry run,ریٹینشن ڈرائی رن,no
+super,audit.retentionQueued,"Dry run started. Its counts appear here as ""retention.run"" in a minute.","ڈرائی رن شروع ہو گیا۔ اس کی گنتی ایک منٹ میں یہاں ""retention.run"" کے طور پر دکھے گی۔",no
+super,audit.retentionNotQueued,Could not start the dry run. Try again.,ڈرائی رن شروع نہیں ہو سکا۔ دوبارہ کوشش کریں۔,no
 super,library.statusFilter,Status,حالت,no
 super,library.kindFilter,Kind,قسم,no
 super,library.fileLabel,Your file,آپ کی فائل,no

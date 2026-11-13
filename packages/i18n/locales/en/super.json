@@ -173,7 +173,10 @@
       "super_admin": "Super Admin",
       "system": "System",
       "device": "Device"
-    }
+    },
+    "retentionDryRun": "Retention dry run",
+    "retentionQueued": "Dry run started. Its counts appear here as \"retention.run\" in a minute.",
+    "retentionNotQueued": "Could not start the dry run. Try again."
   },
   "library": {
     "statusFilter": "Status",

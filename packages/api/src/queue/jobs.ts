@@ -57,7 +57,8 @@ export const JOB_SCHEMAS = {
   /** Scheduled daily 00:10 IST: donation drives whose end date has passed close (00 §4.3, T5.3). */
   'campaign-close': z.strictObject({}),
   /** Scheduled daily 03:00 IST: data whose retention period has ended is deleted (02 §6; T5.8: needy people). */
-  retention: z.strictObject({}),
+  /** `dryRun` (T8.7): counts only, changes nothing — the Super Admin's ★ "Retention dry run". */
+  retention: z.strictObject({ dryRun: z.boolean().optional() }),
 } as const;
 
 export type JobName = keyof typeof JOB_SCHEMAS;

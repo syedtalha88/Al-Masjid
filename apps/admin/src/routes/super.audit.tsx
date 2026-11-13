@@ -84,6 +84,19 @@ function AuditLog() {
       if (!(error instanceof StepUpCancelled)) toast.show({ message: errorText(error), tone: 'error' });
     },
   });
+  // T8.7: the worker counts what retention would delete; the summary arrives as a `retention.run` entry.
+  const dryRun = useMutation({
+    mutationFn: () => run(() => superApi.retentionDryRun()),
+    onSuccess: (result) => {
+      toast.show({
+        message: t(result.queued ? 'audit.retentionQueued' : 'audit.retentionNotQueued'),
+        tone: result.queued ? 'success' : 'error',
+      });
+    },
+    onError: (error) => {
+      if (!(error instanceof StepUpCancelled)) toast.show({ message: errorText(error), tone: 'error' });
+    },
+  });
   const rows = log.data?.pages.flatMap((page) => page.entries) ?? [];
 
   return (
@@ -109,6 +122,15 @@ function AuditLog() {
           }}
         >
           {t('audit.export')}
+        </Button>
+        <Button
+          variant="ghost"
+          loading={dryRun.isPending}
+          onPress={() => {
+            dryRun.mutate();
+          }}
+        >
+          {`${t('audit.retentionDryRun')} ★`}
         </Button>
       </div>
       {log.isPending ? (
