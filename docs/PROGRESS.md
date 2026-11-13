@@ -38,6 +38,17 @@ and reports changes / issues to fix.
 - The previous CI run (`c7bc7bc`) failed on: no-raw-colors (fixed), Semgrep GCM (fixed), db int (the reports test
   fixed in `c7bc7bc`), budgets (fixed). **Read the `a665ee0` run first.**
 
+**Update 13 Nov 2026 ~23:10 (session ended on the usage limit):**
+- CI run **43468883740** (`a665ee0`): **Integration tests FAILED in `packages/db` `test:int`** — the annotations do not
+  name the test (only the mongo log; the retention-job test DB was active). Locally db int is 428/428 green → reproduce:
+  run each db int file alone; suspects = `retention.int.test.ts` (L10 re-check inside the transaction), `policy`
+  (L1), `moderation` (L3 / M6). Other jobs were still running at hand-off — read their results.
+- Local stack rebuilt with `a665ee0` (`pnpm stack:up:test` OK — both APIs boot with the L7 key-size check) and seeded.
+- `pnpm test:visual` (compare) was started; its result was not read. Expected diff: the privacy reader ×4 (L11) →
+  `pnpm test:visual:update`, keep only real changes. Afterwards `pnpm db:reset` (visual leaves the fixed-date seed).
+- The `security-reviewer` re-run on `1405aea..a665ee0` was started but its report was not received → **run it again**
+  (focus list: M5 route + data layer, M6 direct `ctx.db` writes, M7 purge keys, L7, L9 Caddy header, L10, F64).
+
 **Next (in order):**
 1. CI for `a665ee0` (`curl https://api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-08`, then
    `/actions/runs/<id>/jobs` and `/check-runs/<job id>/annotations`; job logs need auth — reproduce locally).
