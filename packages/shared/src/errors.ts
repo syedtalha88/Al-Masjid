@@ -28,6 +28,8 @@ export const API_ERRORS = {
   INVITE_INVALID: 404, // 03 §4: uniform 404 for unknown, used, superseded and expired invites
   UNDERTAKING_REQUIRED: 403,
   UNDERTAKING_VERSION_MISMATCH: 409,
+  // Admin read-only mode (PHASE_08 T8.9): the Super Admin's kill switch — masjid admins' writes wait.
+  READ_ONLY_MODE: 503,
   // State rules (02 §3/§5)
   MASJID_NOT_FOUND: 404,
   FOLLOW_LIMIT_REACHED: 409,

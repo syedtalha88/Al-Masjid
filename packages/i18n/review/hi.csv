@@ -57,6 +57,7 @@ admin,home.today.edit,Edit timings,समय बदलें,no
 admin,home.today.set,Set prayer times,नमाज़ के समय तय करें,no
 admin,home.quota,Notifications today: {used} of {limit} used,आज की सूचनाएँ: {limit} में से {used} इस्तेमाल,no
 admin,home.soon,Soon,जल्द,no
+admin,home.readOnly,Changes are paused for a short while for maintenance. You can still see everything. Please try again later.,रखरखाव के लिए बदलाव कुछ समय के लिए रोके गए हैं। आप सब कुछ देख सकते हैं। कृपया थोड़ी देर बाद फिर कोशिश करें।,no
 admin,comingSoon.title,Coming soon,जल्द आ रहा है,no
 admin,comingSoon.body,This part of the app is being built. It will appear here in an update.,ऐप का यह हिस्सा बन रहा है। यह अगले अपडेट में यहाँ दिखेगा।,no
 admin,account.title,My account,मेरा खाता,no
@@ -1242,6 +1243,7 @@ errors,INVALID_TRANSITION,This change isn’t possible right now.,यह बद�
 errors,ACTIVATION_REQUIREMENTS,This masjid needs an active admin who has accepted the undertaking before it can go live.,मस्जिद चालू करने से पहले एक सक्रिय एडमिन चाहिए जिसने वचन-पत्र स्वीकार किया हो।,no
 errors,UNDERTAKING_REQUIRED,Please read and accept the admin undertaking first.,कृपया पहले एडमिन वचन-पत्र पढ़कर स्वीकार करें।,no
 errors,UNDERTAKING_VERSION_MISMATCH,The undertaking was updated. Please read the new version and accept it.,वचन-पत्र बदल गया है। कृपया नया वचन-पत्र पढ़कर स्वीकार करें।,no
+errors,READ_ONLY_MODE,Changes are paused for a short while for maintenance. Your masjid's page still works. Please try again later.,रखरखाव के लिए बदलाव कुछ समय के लिए रोके गए हैं। आपकी मस्जिद का पेज चालू है। कृपया थोड़ी देर बाद फिर कोशिश करें।,no
 errors,ADMIN_NOT_FOUND,We couldn’t find this admin.,यह एडमिन नहीं मिला।,no
 errors,NOTHING_TO_UPDATE,Nothing was changed.,कुछ भी नहीं बदला गया।,no
 errors,INVALID_CURSOR,This list changed. Please reload it.,यह सूची बदल गई है। कृपया इसे फिर से लोड करें।,no
@@ -2037,6 +2039,29 @@ super,poster.step2,Point it at this QR code (or type {code} in the app),इस�
 super,poster.step3,Open the link and tap Follow,लिंक खोलें और फ़ॉलो दबाएँ,no
 super,poster.free,Free · No ads · No account,मुफ़्त · कोई विज्ञापन नहीं · कोई खाता नहीं,no
 super,poster.preview,Poster preview,पोस्टर का पूर्वावलोकन,no
+super,readOnly.title,Masjid admins (all masjids),मस्जिद एडमिन (सभी मस्जिदें),no
+super,readOnly.switch,Admin read-only mode,एडमिन रीड-ओनली मोड,no
+super,readOnly.hint,Masjid admins can see everything but cannot change anything. Use it during an incident. Your own work is not affected.,"मस्जिद एडमिन सब कुछ देख सकते हैं, पर कुछ बदल नहीं सकते। किसी घटना के समय इसका इस्तेमाल करें। आपके अपने काम पर असर नहीं पड़ता।",no
+super,readOnly.onBanner,Admin read-only mode is on. Masjid admins cannot make changes.,एडमिन रीड-ओनली मोड चालू है। मस्जिद एडमिन बदलाव नहीं कर सकते।,no
+super,readOnly.turnOff,Turn off,बंद करें,no
+super,readOnly.confirmTitle,Turn on admin read-only mode?,एडमिन रीड-ओनली मोड चालू करें?,no
+super,readOnly.confirmBody,No masjid admin can post or change anything until you turn it off. Their app shows a notice.,"जब तक आप इसे बंद नहीं करते, कोई मस्जिद एडमिन कुछ पोस्ट या बदल नहीं सकेगा। उनके ऐप में एक सूचना दिखेगी।",no
+super,readOnly.confirm,Turn on,चालू करें,no
+super,readOnly.onToast,Admin read-only mode is on,एडमिन रीड-ओनली मोड चालू है,no
+super,readOnly.offToast,Admin read-only mode is off,एडमिन रीड-ओनली मोड बंद है,no
+super,banners.title,Banners,बैनर,no
+super,banners.maintenance,Maintenance banner,रखरखाव बैनर,no
+super,banners.maintenanceHint,"Shown on Home in both apps, to musallis and masjid admins.",दोनों ऐप के होम पर दिखता है — मुसल्लियों और मस्जिद एडमिन को।,no
+super,banners.incident,Incident banner,घटना बैनर,no
+super,banners.incidentHint,Shown to every musalli on Home. Use it only for something everyone must know.,हर मुसल्ली को होम पर दिखता है। इसे केवल उस बात के लिए इस्तेमाल करें जो सबको जाननी ज़रूरी हो।,no
+super,banners.allLanguages,Write the banner in all four languages (up to 300 characters each).,बैनर चारों भाषाओं में लिखें (हर एक में 300 अक्षर तक)।,no
+super,banners.live,Showing now,अभी दिख रहा है,no
+super,banners.off,Not showing,नहीं दिख रहा,no
+super,banners.show,Show banner,बैनर दिखाएँ,no
+super,banners.update,Update banner,बैनर बदलें,no
+super,banners.takeDown,Take down,हटाएँ,no
+super,banners.shownToast,Banner saved. It can take up to a minute to appear everywhere.,बैनर सहेजा गया। हर जगह दिखने में एक मिनट तक लग सकता है।,no
+super,banners.removedToast,Banner taken down. It can take up to a minute to disappear everywhere.,बैनर हटाया गया। हर जगह से हटने में एक मिनट तक लग सकता है।,no
 templates,no_water_time_range.title,No water supply,पानी की आपूर्ति बंद,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} से {hours_end} तक पानी उपलब्ध नहीं रहेगा।,no
 templates,electricity_cut_time_range.title,Power cut,बिजली कटौती,no

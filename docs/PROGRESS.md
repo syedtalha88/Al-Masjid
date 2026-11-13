@@ -679,6 +679,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O53 | **Grievance sealing key pair** for staging (then production): public half → api-public env, private half → api-admin env only (#173; steps in MY_PENDING_TASKS) | before Phase 08 on staging | 15 min | any time |
 | O54 | **Legal order document on staging**: attach → download the same file; Cloudinary lists it as raw / authenticated and its public link fails (#174) | Phase 08 exit | 10 min | after Phase 08 on staging |
 | O55 | **Legal review of the drafts** (privacy, terms, content policy, grievance, undertaking — `packages/i18n/legal/en/`) by your lawyer + human Hindi / Urdu / Telugu translations; confirm Cloudinary's and Sentry's data regions for the privacy notice (#175). Production builds refuse drafts | before Phase 09 launch | lawyer time | any time |
+| O57 | **Kill switches on staging**: turn admin read-only mode on → a masjid admin's phone shows the notice and a save fails politely → off; set a maintenance and an incident banner → both show on musalli Home within a minute (admin Home shows maintenance) → take down (#178) | Phase 08 exit | 10 min | after Phase 08 on staging |
 | O56 | **QR poster print + scan**: Super Admin → a masjid → QR poster → print A4 (and A5) or save as PDF and print; scan from 1.5 m with an Android phone and an iPhone camera — the app opens that masjid; check the Urdu and Telugu text looks right on paper (#177) | Phase 08 exit | 20 min | after Phase 08 on staging |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
 | O31 | **Translation review** of `packages/i18n/review/{hi,ur,te}.csv` (≈ 920 draft strings each) | pilot | translators | before pilot |
@@ -982,7 +983,10 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 - [x] T8.8 — QR poster generator (C3) — **done 13 Nov 2026 (#177)**: A4 / A5 print page (QR level Q, 10 cm on A4,
   follow code, 3 steps × 4 languages, brand, "Free · No ads · No account"), QR-only SVG / PNG; e2e decodes the QR and
   checks one exact page per size. Owner: O56 (print and scan at 1.5 m).
-- [ ] T8.9 — Kill switches & banners
+- [x] T8.9 — Kill switches & banners — **done 13 Nov 2026 (#178)**: ★ admin read-only mode (masjid admins' writes →
+  503 `READ_ONLY_MODE` in `defineRoute`, account-safety routes exempt, Super Admin never blocked, audited), maintenance
+  banner (both apps) and incident banner (musallis) in 4 languages from C10, `NoticeBanner` on musalli Home / admin Home
+  / C1; 12 integration tests (one block per switch; push pause = T4.7's). Owner: O57.
 - [ ] T8.10 — Audit & stats completion
 - [ ] T8.11 — Quality gates
 

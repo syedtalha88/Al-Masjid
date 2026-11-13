@@ -152,12 +152,39 @@
           },
           "undertakingVersion": {
             "type": "string"
+          },
+          "readOnly": {
+            "type": "boolean"
+          },
+          "maintenanceBanner": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "hi": {
+                "type": "string"
+              },
+              "ur": {
+                "type": "string"
+              },
+              "te": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
           }
         },
         "required": [
           "admin",
           "masjids",
-          "undertakingRequired"
+          "undertakingRequired",
+          "readOnly"
         ]
       },
       "AdminSessionList": {
@@ -4747,6 +4774,55 @@
           "pushPaused": {
             "type": "boolean"
           },
+          "adminReadOnly": {
+            "type": "boolean"
+          },
+          "maintenanceBanner": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "hi": {
+                "type": "string"
+              },
+              "ur": {
+                "type": "string"
+              },
+              "te": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
+          },
+          "incidentBanner": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "hi": {
+                "type": "string"
+              },
+              "ur": {
+                "type": "string"
+              },
+              "te": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
+          },
           "updatedAt": {
             "type": "string",
             "format": "date-time"
@@ -4760,6 +4836,7 @@
           "privacyVersion",
           "termsVersion",
           "pushPaused",
+          "adminReadOnly",
           "updatedAt"
         ]
       },
@@ -15816,6 +15893,76 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 20
+                  },
+                  "maintenanceBanner": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "hi": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "ur": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "te": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      }
+                    },
+                    "required": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "incidentBanner": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "hi": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "ur": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "te": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      }
+                    },
+                    "required": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ],
+                    "additionalProperties": false
                   }
                 }
               }
@@ -15878,6 +16025,57 @@
                   },
                   "required": [
                     "paused",
+                    "changed"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/settings/read-only": {
+      "post": {
+        "summary": "★ Turn admin read-only mode on or off (kill switch, C10 — masjid admins' writes answer 503 READ_ONLY_MODE)",
+        "tags": [
+          "super"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "readOnly": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "readOnly"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "readOnly": {
+                      "type": "boolean"
+                    },
+                    "changed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "readOnly",
                     "changed"
                   ]
                 }

@@ -81,7 +81,7 @@ Non-API routes on the app origin: `/m/:code` (SPA route — landing/follow), `/p
 | `POST /auth/login/verify` | Verify assertion, update sign count (reject if non-zero counter goes backwards → lock credential + audit), create session (rotate), set cookie |
 | `POST /auth/step-up/options` / `verify` | Same as login but bound to current session → sets `step_up_at` |
 | `POST /auth/logout` | Revoke current session |
-| `GET /auth/me` | `{admin, masjids[{id, name, role}], undertakingRequired}` |
+| `GET /auth/me` | `{admin, masjids[{id, name, role}], undertakingRequired, undertakingVersion?, readOnly, maintenanceBanner?}` — `readOnly` = the Super Admin's admin read-only mode (T8.9); while on, a masjid admin's non-GET request answers `503 READ_ONLY_MODE` except sign-out, ending sessions, step-up, alert subscription and the undertaking |
 | `POST /auth/undertaking` | `{version}` accept |
 | `GET /auth/sessions` / `DELETE /auth/sessions/:id` | Own sessions |
 | `PUT /auth/push` / `DELETE /auth/push` | Admin's own push subscription (status alerts; SLA alerts for super admin): `PUT` body = the device subscription shape (allow-listed host; ≤ 5 phones per admin, oldest dropped; another admin's endpoint → `409 PUSH_ENDPOINT_IN_USE`), `DELETE` body `{endpoint}` (T4.6) |
@@ -137,7 +137,7 @@ Voice notes (T3.13, DECISIONS #126): `POST /masjids/:id/audio?rightsConfirmed=tr
 | Legal orders | `GET/POST /legal-orders` · `PATCH /legal-orders/:id` · `POST /legal-orders/:id/document` |
 | Library | `GET /library?status=&kind=&category=&tag=&q=&cursor=` · `GET /library/:id` · `POST /library/import/dry-run` (multipart JSON file → report) · ★`POST /library/import` (same file; all or nothing, as `draft`) · `PATCH /library/:id` · `POST /library/:id/verify` `{verifiedBy}` · `POST /library/:id/retire` (DECISIONS #108) |
 | Templates | `GET /templates` · `GET /templates/:key` · `POST /templates` (always `draft`) · `PATCH /templates/:key` (edits; `status` active/retired — active needs reviewed translations; params only while draft) · `POST /templates/starters` (adds missing starters as drafts) — ICU checked in all 4 languages (DECISIONS #111) |
-| Settings | `GET/PATCH /settings` (`GET` includes `pushPaused`) · ★`POST /settings/push-pause` `{paused}` → `{paused, changed}` (kill switch, T4.7; audited `push.pause` / `push.resume`) · `POST /alerts/test` → `{queued}` — a test alert to your own phones; 404 in production (T4.6) |
+| Settings | `GET/PATCH /settings` (`GET` includes `pushPaused`, `adminReadOnly`, `maintenanceBanner?`, `incidentBanner?`; `PATCH` sets a banner `{en, hi, ur, te}` (each 1–300 characters) or takes it down with `null` — T8.9) · ★`POST /settings/push-pause` `{paused}` → `{paused, changed}` (kill switch, T4.7; audited `push.pause` / `push.resume`) · ★`POST /settings/read-only` `{readOnly}` → `{readOnly, changed}` (admin read-only mode, T8.9; audited `settings.read_only_on` / `settings.read_only_off`) · `POST /alerts/test` → `{queued}` — a test alert to your own phones; 404 in production (T4.6) |
 | Audit | `GET /audit?actor=&masjid=&action=&from=&to=&cursor=` · `GET /audit/export.csv` |
 | Posters | `GET /masjids/:id/poster-data` (follow code, deep link, names) — poster rendered client-side |
 | Stats | `GET /stats` |

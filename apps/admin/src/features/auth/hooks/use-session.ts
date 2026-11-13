@@ -13,13 +13,21 @@ export const ME_KEY = ['auth', 'me'] as const;
 /** True for the API's "no valid session" answer. */
 export const isSignedOut = (error: unknown): boolean => error instanceof ProblemError && error.status === 401;
 
-/** `GET /auth/me`; a 401 is an answer (signed out), not something to retry. */
+/** The Super Admin's read-only mode refused a write (T8.9). */
+export const isReadOnlyRefusal = (error: unknown): boolean =>
+  error instanceof ProblemError && error.problem.code === 'READ_ONLY_MODE';
+
+/**
+ * `GET /auth/me`; a 401 is an answer (signed out), not something to retry. While admin read-only mode is on (T8.9) it
+ * is asked again every minute, so the banner goes away soon after the Super Admin turns the mode off.
+ */
 export function useMe() {
   return useQuery({
     queryKey: ME_KEY,
     queryFn: ({ signal }) => authApi.me(signal),
     retry: (count, error) => !isSignedOut(error) && count < 2,
     staleTime: 5 * 60_000,
+    refetchInterval: (query) => (query.state.data?.readOnly ? 60_000 : false),
   });
 }
 
@@ -27,9 +35,16 @@ let sessionEnded = false;
 
 /**
  * Called by the query client for every failed query/mutation: a 401 anywhere means the session ended (expired,
- * revoked on another device, logged out everywhere) — the cached admin is dropped and the login screen says so.
+ * revoked on another device, logged out everywhere) — the cached admin is dropped and the login screen says so. A 503
+ * `READ_ONLY_MODE` refreshes the admin instead (T8.9).
  */
 export function handleSessionError(client: QueryClient, error: unknown): void {
+  // A write refused by read-only mode (T8.9): the admin is told by the screen's error toast; `/auth/me` is asked again
+  // so the read-only banner shows on Home at once.
+  if (isReadOnlyRefusal(error)) {
+    void client.invalidateQueries({ queryKey: ME_KEY });
+    return;
+  }
   if (!isSignedOut(error)) return;
   const cached = client.getQueryData(ME_KEY);
   if (cached !== undefined) {

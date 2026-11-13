@@ -1,6 +1,7 @@
 // A2 Home (07 A2, ref-1/1): large title "Assalamu Alaikum" with Gregorian · Hijri date, Qibla and bell; the followed
 // masjids as a snapping carousel (next jamaat + countdown + jamaat strip each); Ramadan, Eid and "Adhkar after salah"
-// (07 A20) cards; the 5 newest updates; empty state; pull-to-refresh. Everything renders from the persisted cache offline; the clock re-renders
+// (07 A20) cards; the 5 newest updates; empty state; pull-to-refresh; the Super Admin's incident / maintenance banners
+// on top (07 A17, T8.9). Everything renders from the persisted cache offline; the clock re-renders
 // once a minute (and at midnight), so prayer, Hijri date and cards roll over without a reload.
 import { effectiveHijriOffset, hijriForInstant } from '@mc/domain/hijri';
 import { useHijriLabel, useLocale, useTranslation } from '@mc/i18n/react';
@@ -22,6 +23,7 @@ import { CampCards } from '../content/components/CampCards.tsx';
 import { ItemList } from '../content/ItemList.tsx';
 import { HomeMasjidCard } from './components/HomeMasjidCard.tsx';
 import { EidCard, RamadanCard } from './components/SeasonCards.tsx';
+import { SystemBanners } from './components/SystemBanners.tsx';
 import { useHomeData } from './hooks/useHomeData.ts';
 import { adhkarView, eidView, hasUnseen, prayerView, ramadanView } from './lib/home-view.ts';
 
@@ -85,6 +87,7 @@ export function HomeScreen() {
       }
     >
       <PullToRefresh onRefresh={data.refresh}>
+        <SystemBanners config={config.data} />
         {data.empty ? (
           <EmptyState
             className="pt-8"

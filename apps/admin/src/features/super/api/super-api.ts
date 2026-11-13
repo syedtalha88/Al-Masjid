@@ -17,6 +17,7 @@ import {
   paymentApprovedSchema,
   problemSchema,
   pushPauseResponseSchema,
+  readOnlyResponseSchema,
   type RemoveItemRequest,
   type REPORT_STATUS_VALUES,
   starterTemplatesAddedSchema,
@@ -116,6 +117,9 @@ export const superApi = {
   /** ★ The push kill switch (T4.7). */
   setPushPaused: (paused: boolean) =>
     call(`${SUPER_API}/settings/push-pause`, pushPauseResponseSchema, { method: 'POST', body: { paused } }),
+  /** ★ Admin read-only mode (T8.9): masjid admins' writes answer 503 READ_ONLY_MODE while on. */
+  setReadOnly: (readOnly: boolean) =>
+    call(`${SUPER_API}/settings/read-only`, readOnlyResponseSchema, { method: 'POST', body: { readOnly } }),
   /** C4 (T5.2): open UPI change requests, oldest first. */
   /** ★ A retention dry run (T8.7): the worker counts what is due; the summary appears in the audit log. */
   retentionDryRun: () => call(`${SUPER_API}/retention/dry-run`, retentionQueuedSchema, { method: 'POST', body: {} }),

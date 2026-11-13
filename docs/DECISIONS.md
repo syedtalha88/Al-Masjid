@@ -3197,3 +3197,30 @@ page size is an `@page { size: A4|A5; margin: 0 }` rule the screen adopts as a *
 **Tests:** e2e `admin/poster.spec.ts` (Pixel 7, Chromium): the rendered QR is read back with ZXing → `/m/TESTA001`,
 level Q; the code; 3 steps in each of the 4 languages, Urdu `dir=rtl`, Telugu text; axe clean; `page.pdf` → exactly
 one page of A4 (595 × 842 pt), then A5 (420 × 595 pt). The print render is kept with the test output for review.
+
+### #178 — Kill switches & banners (PHASE_08 T8.9) — ACCEPTED (Claude Code, 13 Nov 2026; staging check = owner O57)
+**Decision:** **Admin read-only mode** is `app_settings.admin_read_only`, switched by a ★ route
+(`POST /api/super/settings/read-only`, step-up at the route and in `setAdminReadOnly`, audited `settings.read_only_on`
+/ `settings.read_only_off` only when it moves). It is enforced once, in `defineRoute`: the flag rides on the resolved
+session (the same `app_settings` read that already serves the undertaking gate — no extra query), and a **masjid
+admin's** non-GET request answers `503 READ_ONLY_MODE` before rate limits and validation (nothing about the body is
+revealed). **Super Admins are never blocked** — the owner must be able to work an incident and turn the switch off.
+Routes marked `readOnly: 'exempt'` keep the account safe: logout, end one / all sessions, step-up options / verify,
+the admin alert subscription (`PUT` / `DELETE /auth/push`), accepting the undertaking. Passkey rename / add-device
+invite are **not** exempt (a new credential during an incident is exactly what the switch should stop). Sign-in itself
+(`auth: 'none'`) is not affected. Not covered: the worker (scheduled publishes still go out — pause push separately if
+needed) and the DB policy layer (every write reaches it through `defineRoute`; recorded as a known limit).
+**Banners:** `maintenance_banner` (both apps) and `incident_banner` (musallis only) are set through `PATCH /settings`
+whole — all four languages, `safeText` 1–300 each — or taken down with `null` (audited as `settings.update` with the
+field names, never the text). The musalli app reads them from `/config` (`s-maxage=60`, so up to a minute; no purge
+needed); the admin app from `/auth/me` (maintenance only). **Placement:** an in-flow `NoticeBanner` (`@mc/ui`, tones
+info / warning / danger, `role="status"`) at the top of musalli Home (incident, then maintenance — inside
+pull-to-refresh), admin Home (read-only notice for masjid admins, maintenance) and the Super dashboard ("read-only mode
+is on" + Turn off). Not a fixed overlay like the offline banner: it stays up for hours and must not cover headers.
+A refused write shows `errors.READ_ONLY_MODE` (4 locales) and refreshes `/auth/me`, which is polled every minute while
+the mode is on so the banner leaves soon after it is turned off.
+**Tests:** `api/test/kill-switches.int.test.ts` (12: step-up, super-only, 503 + problem+json on PATCH and POST, reads
+go on, nothing changed, audited once, Super Admin unaffected, sign-out and end-sessions exempt, off again; maintenance
+banner in settings / `/auth/me` / `/config`, invalid banners refused, `null` takes it down, super-only; incident banner
+in `/config` only). Push pause stays covered by `notification-routes.int.test.ts` (T4.7). Unit: banner contract, the
+session hook's READ_ONLY_MODE handling, `NoticeBanner`.

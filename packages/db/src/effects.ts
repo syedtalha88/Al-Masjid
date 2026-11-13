@@ -118,6 +118,9 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   // The push kill switch (C10 ★, PHASE_04 T4.7).
   'push.pause': [],
   'push.resume': [],
+  // Admin read-only mode (C10 ★, PHASE_08 T8.9).
+  'settings.read_only_on': [],
+  'settings.read_only_off': [],
   'library.import': ['batch', 'entries'],
   'library.update': ['fields', 'back_to_draft'],
   'library.verify': [],

@@ -9,6 +9,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { authApi } from '../api/auth-api.ts';
 import {
   handleSessionError,
+  isReadOnlyRefusal,
   isSignedOut,
   ME_KEY,
   MeContext,
@@ -30,6 +31,7 @@ const ME: AdminMe = {
   admin: { id: 'a1', displayName: 'Test Admin', role: 'masjid_admin', uiLocale: 'en' },
   masjids: [{ id: 'm1', name: 'Test Masjid Alpha', role: 'owner' }],
   undertakingRequired: false,
+  readOnly: false,
 };
 const problem = (status: number, code: string) =>
   new ProblemError({ type: 'about:blank', title: code, status, code }, undefined);
@@ -61,6 +63,17 @@ describe('admin session', () => {
     handleSessionError(client, problem(401, 'UNAUTHENTICATED'));
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ME_KEY });
     expect(takeSessionEnded()).toBe(true);
+    expect(takeSessionEnded()).toBe(false);
+  });
+
+  it('a 503 READ_ONLY_MODE refetches /me (the read-only banner) without ending the session (T8.9)', () => {
+    const client = new QueryClient();
+    client.setQueryData(ME_KEY, ME);
+    const invalidate = vi.spyOn(client, 'invalidateQueries');
+    expect(isReadOnlyRefusal(problem(503, 'READ_ONLY_MODE'))).toBe(true);
+    expect(isReadOnlyRefusal(problem(503, 'SERVICE_UNAVAILABLE'))).toBe(false);
+    handleSessionError(client, problem(503, 'READ_ONLY_MODE'));
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ME_KEY });
     expect(takeSessionEnded()).toBe(false);
   });
 

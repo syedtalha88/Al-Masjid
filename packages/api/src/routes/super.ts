@@ -37,6 +37,7 @@ import {
   restoreItem,
   revokeAdminPasskeys,
   revokeAdminSessions,
+  setAdminReadOnly,
   setLegalOrderDocument,
   setPushPaused,
   updateLegalOrder,
@@ -49,6 +50,7 @@ import {
   type ASR_MADHABS,
   auditPageSchema,
   auditQuerySchema,
+  bannerOutSchema,
   type CALC_METHODS,
   changedSchema,
   countSchema,
@@ -62,6 +64,8 @@ import {
   nameI18nSchema,
   pushPauseRequestSchema,
   pushPauseResponseSchema,
+  readOnlyRequestSchema,
+  readOnlyResponseSchema,
   reasonSchema,
   removeItemRequestSchema,
   REPORT_STATUS_VALUES,
@@ -137,6 +141,12 @@ const AuditQuery = auditQuerySchema;
 /** Rows in one audit CSV export (the header line not counted). */
 export const AUDIT_EXPORT_MAX_ROWS = 10_000;
 const SettingsOut = superSettingsSchema;
+
+/** A stored banner (validator: all four languages, 02 §2) as the settings answer carries it — `undefined` when not set. */
+const bannerOut = (value: unknown) => {
+  const parsed = bannerOutSchema.safeParse(value);
+  return parsed.success ? parsed.data : undefined;
+};
 
 const rowOut = (row: MasjidRow) => ({
   id: idText(row.id),
@@ -913,6 +923,8 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       responses: { 200: SettingsOut },
       handler: async ({ auth, reply }) => {
         const s = await getSettings(db, auth.scope);
+        const maintenanceBanner = bannerOut(s['maintenance_banner']);
+        const incidentBanner = bannerOut(s['incident_banner']);
         return reply(200, {
           globalHijriOffset: Number(s['global_hijri_offset']),
           defaultPushQuota: Number(s['default_push_quota']),
@@ -922,6 +934,9 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
           privacyVersion: String(s['privacy_version']),
           termsVersion: String(s['terms_version']),
           pushPaused: s['push_paused'] === true,
+          adminReadOnly: s['admin_read_only'] === true,
+          ...(maintenanceBanner ? { maintenanceBanner } : {}),
+          ...(incidentBanner ? { incidentBanner } : {}),
           updatedAt: (s['updated_at'] as Date).toISOString(), // validator-enforced date
         });
       },
@@ -958,6 +973,25 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       handler: async ({ auth, body, clock, requestId, reply }) => {
         const changed = await setPushPaused(db, auth.scope, { paused: body.paused, now: clock.now(), requestId });
         return reply(200, { paused: body.paused, changed });
+      },
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/settings/read-only',
+      summary:
+        "★ Turn admin read-only mode on or off (kill switch, C10 — masjid admins' writes answer 503 READ_ONLY_MODE)",
+      tags: ['super'],
+      auth: 'super_step_up', // ★ at the route too (04 §5); setAdminReadOnly checks it again
+      rateLimit: writes,
+      request: { body: readOnlyRequestSchema },
+      responses: { 200: readOnlyResponseSchema },
+      handler: async ({ auth, body, clock, requestId, reply }) => {
+        const changed = await setAdminReadOnly(db, auth.scope, {
+          readOnly: body.readOnly,
+          now: clock.now(),
+          requestId,
+        });
+        return reply(200, { readOnly: body.readOnly, changed });
       },
     }),
     defineRoute({

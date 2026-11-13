@@ -151,6 +151,12 @@ export const invitePurposeSchema = z.object({ purpose: z.enum(['register', 'add_
 export const countSchema = z.object({ count: z.number() }).meta({ id: 'SuperCount' });
 export const adminPhoneSchema = z.object({ phone: z.string().nullable() }).meta({ id: 'SuperAdminPhone' });
 
+/** A banner as responses carry it: the same short text in all four languages (02 §2 app_settings). */
+export const bannerOutSchema = z.object({ en: z.string(), hi: z.string(), ur: z.string(), te: z.string() });
+/** A banner as the Super Admin sets it: every language required, at most 300 characters each (02 §2). */
+export const bannerSchema = z.strictObject({ en: text(300, 1), hi: text(300, 1), ur: text(300, 1), te: text(300, 1) });
+export const BANNER_MAX = 300;
+
 export const superSettingsSchema = z
   .object({
     globalHijriOffset: z.number(),
@@ -162,6 +168,12 @@ export const superSettingsSchema = z
     termsVersion: z.string(),
     /** The push kill switch (C10 ★, T4.7). */
     pushPaused: z.boolean(),
+    /** Admin read-only mode (C10 ★, PHASE_08 T8.9): masjid admins' writes answer 503 `READ_ONLY_MODE`. */
+    adminReadOnly: z.boolean(),
+    /** Shown in both apps while set (T8.9). */
+    maintenanceBanner: bannerOutSchema.optional(),
+    /** Shown to every musalli while set — incidents (T8.9). */
+    incidentBanner: bannerOutSchema.optional(),
     updatedAt: z.iso.datetime(),
   })
   .meta({ id: 'SuperSettings' });
@@ -171,6 +183,11 @@ export const pushPauseRequestSchema = z.strictObject({ paused: z.boolean() });
 /** The answer: whether the switch moved. */
 export const pushPauseResponseSchema = z.object({ paused: z.boolean(), changed: z.boolean() });
 export type SuperSettings = z.infer<typeof superSettingsSchema>;
+
+/** `POST /settings/read-only` ★ — turn admin read-only mode on or off (T8.9). */
+export const readOnlyRequestSchema = z.strictObject({ readOnly: z.boolean() });
+/** The answer: whether the switch moved. */
+export const readOnlyResponseSchema = z.object({ readOnly: z.boolean(), changed: z.boolean() });
 
 export const superSettingsPatchSchema = z.object({
   globalHijriOffset: hijriOffsetSchema.optional(),
@@ -186,6 +203,9 @@ export const superSettingsPatchSchema = z.object({
   undertakingVersion: text(20, 1).optional(),
   privacyVersion: text(20, 1).optional(),
   termsVersion: text(20, 1).optional(),
+  /** `null` takes the banner down (T8.9). */
+  maintenanceBanner: bannerSchema.nullable().optional(),
+  incidentBanner: bannerSchema.nullable().optional(),
 });
 export type SuperSettingsPatch = z.infer<typeof superSettingsPatchSchema>;
 

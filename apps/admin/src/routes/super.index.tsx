@@ -1,11 +1,12 @@
 import { useLocale, useTranslation } from '@mc/i18n/react';
 import { slaProgress } from '@mc/shared/compliance';
-import { Button, Card, InfoNote, ListRow, SectionHeader, SkeletonText, Tag } from '@mc/ui/components';
+import { Button, Card, InfoNote, ListRow, NoticeBanner, SectionHeader, SkeletonText, Tag } from '@mc/ui/components';
 import { MasjidTile, WarningIcon } from '@mc/ui/icons';
 import { useNavigator } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 
+import { useSignedInAdmin } from '../features/auth/hooks/use-session.ts';
 import { superApi } from '../features/super/api/super-api.ts';
 import { StatusTag, SUPER_SECTIONS, SuperFrame } from '../features/super/components/SuperFrame.tsx';
 
@@ -30,7 +31,7 @@ const SLA_SCREEN = (kind: keyof typeof SLA_KIND_KEY) =>
       : '/super/reports';
 
 /**
- * C1 Dashboard: the push kill-switch banner and 24-hour delivery (T4.5, T4.7), masjid counts and pending activations;
+ * C1 Dashboard: the push kill-switch and admin read-only banners (T4.7, T8.9), 24-hour delivery (T4.5), masjid counts and pending activations;
  * the SLA card (open report timers, earliest due first — PHASE_08 T8.3).
  */
 function Dashboard() {
@@ -39,6 +40,7 @@ function Dashboard() {
   const { format } = useLocale();
   const navigator = useNavigator();
   const dashboard = useQuery({ queryKey: ['super', 'dashboard'], queryFn: ({ signal }) => superApi.dashboard(signal) });
+  const me = useSignedInAdmin();
 
   return (
     <SuperFrame title={ta('home.superAdmin')} section="dashboard">
@@ -75,6 +77,27 @@ function Dashboard() {
             {t('push.resume')}
           </Button>
         </div>
+      ) : null}
+
+      {me.readOnly ? (
+        // T8.9: admin read-only mode is on — masjid admins' writes wait until it is turned off in Settings.
+        <NoticeBanner
+          tone="warning"
+          className="mb-6"
+          action={
+            <Button
+              variant="outline"
+              size="md"
+              onPress={() => {
+                navigator.push('/super/settings');
+              }}
+            >
+              {t('readOnly.turnOff')}
+            </Button>
+          }
+        >
+          {t('readOnly.onBanner')}
+        </NoticeBanner>
       ) : null}
 
       {dashboard.data && dashboard.data.passkeyAlerts > 0 ? (

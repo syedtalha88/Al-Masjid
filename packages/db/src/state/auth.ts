@@ -525,6 +525,18 @@ export interface ResolvedSession {
   readonly undertakingCurrent: boolean;
   readonly stepUpAt: Date | undefined;
   readonly masjids: readonly { readonly id: UUID; readonly role: 'owner' | 'editor' }[];
+  /** Admin read-only mode (app_settings, PHASE_08 T8.9) — masjid admins' writes are refused while it is on. */
+  readonly readOnly: boolean;
+  /** The maintenance banner (app_settings, T8.9), shown in the admin app while set. */
+  readonly maintenanceBanner: SettingsBanner | undefined;
+}
+
+/** A banner in all four languages (02 §2 app_settings). */
+export interface SettingsBanner {
+  readonly en: string;
+  readonly hi: string;
+  readonly ur: string;
+  readonly te: string;
 }
 
 /**
@@ -562,8 +574,13 @@ export async function resolveSession(
     .find({ admin_id: admin._id })
     .toArray();
   const settings = await db
-    .collection<{ _id: string; undertaking_version?: string }>('app_settings')
-    .findOne({ _id: 'global' }, { projection: { undertaking_version: 1 } });
+    .collection<{
+      _id: string;
+      undertaking_version?: string;
+      admin_read_only?: boolean;
+      maintenance_banner?: SettingsBanner;
+    }>('app_settings')
+    .findOne({ _id: 'global' }, { projection: { undertaking_version: 1, admin_read_only: 1, maintenance_banner: 1 } });
   return {
     sessionId: found._id,
     adminId: admin._id,
@@ -580,6 +597,16 @@ export async function resolveSession(
         now.getTime() - admin.undertaking_accepted_at.getTime() < UNDERTAKING_REMINDER_MS),
     stepUpAt: found.step_up_at,
     masjids: memberships.map((m) => ({ id: m.masjid_id, role: m.role })),
+    readOnly: settings?.admin_read_only === true,
+    // The validator requires all four languages (02 §2) — copied field by field so nothing else rides along.
+    maintenanceBanner: settings?.maintenance_banner
+      ? {
+          en: settings.maintenance_banner.en,
+          hi: settings.maintenance_banner.hi,
+          ur: settings.maintenance_banner.ur,
+          te: settings.maintenance_banner.te,
+        }
+      : undefined,
   };
 }
 

@@ -27,6 +27,7 @@
   "ACTIVATION_REQUIREMENTS": "This masjid needs an active admin who has accepted the undertaking before it can go live.",
   "UNDERTAKING_REQUIRED": "Please read and accept the admin undertaking first.",
   "UNDERTAKING_VERSION_MISMATCH": "The undertaking was updated. Please read the new version and accept it.",
+  "READ_ONLY_MODE": "Changes are paused for a short while for maintenance. Your masjid's page still works. Please try again later.",
   "ADMIN_NOT_FOUND": "We couldn’t find this admin.",
   "NOTHING_TO_UPDATE": "Nothing was changed.",
   "INVALID_CURSOR": "This list changed. Please reload it.",

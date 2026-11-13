@@ -193,6 +193,15 @@ describe('Super Admin contracts (03 §5)', () => {
 
   it('settings: WhatsApp number can be cleared, grievance e-mail must be valid', () => {
     expect(superSettingsPatchSchema.safeParse({ supportWhatsapp: null }).success).toBe(true);
+    // Banners (T8.9): all four languages or `null` (take it down); never three, never empty, at most 300 characters.
+    const banner = { en: 'Test EN', hi: 'Test HI', ur: 'Test UR', te: 'Test TE' };
+    expect(superSettingsPatchSchema.safeParse({ maintenanceBanner: banner, incidentBanner: null }).success).toBe(true);
+    expect(superSettingsPatchSchema.safeParse({ incidentBanner: { ...banner, te: '' } }).success).toBe(false);
+    expect(superSettingsPatchSchema.safeParse({ incidentBanner: { en: 'Test EN' } }).success).toBe(false);
+    expect(superSettingsPatchSchema.safeParse({ maintenanceBanner: { ...banner, en: 'x'.repeat(301) } }).success).toBe(
+      false,
+    );
+    expect(superSettingsPatchSchema.safeParse({ maintenanceBanner: { ...banner, extra: 'x' } }).success).toBe(false);
     expect(
       superSettingsPatchSchema.safeParse({
         grievanceOfficer: { name: 'Test Officer', email: 'not-an-email', address: 'Test Address', city: 'Test City' },

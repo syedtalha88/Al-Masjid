@@ -250,6 +250,7 @@ export {
   recordAuditExport,
   revokeAdminPasskeys,
   revokeAdminSessions,
+  setAdminReadOnly,
   setPushPaused,
   type SettingsPatch,
   updateMasjid,

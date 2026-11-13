@@ -486,5 +486,32 @@
     "step3": "Open the link and tap Follow",
     "free": "Free · No ads · No account",
     "preview": "Poster preview"
+  },
+  "readOnly": {
+    "title": "Masjid admins (all masjids)",
+    "switch": "Admin read-only mode",
+    "hint": "Masjid admins can see everything but cannot change anything. Use it during an incident. Your own work is not affected.",
+    "onBanner": "Admin read-only mode is on. Masjid admins cannot make changes.",
+    "turnOff": "Turn off",
+    "confirmTitle": "Turn on admin read-only mode?",
+    "confirmBody": "No masjid admin can post or change anything until you turn it off. Their app shows a notice.",
+    "confirm": "Turn on",
+    "onToast": "Admin read-only mode is on",
+    "offToast": "Admin read-only mode is off"
+  },
+  "banners": {
+    "title": "Banners",
+    "maintenance": "Maintenance banner",
+    "maintenanceHint": "Shown on Home in both apps, to musallis and masjid admins.",
+    "incident": "Incident banner",
+    "incidentHint": "Shown to every musalli on Home. Use it only for something everyone must know.",
+    "allLanguages": "Write the banner in all four languages (up to 300 characters each).",
+    "live": "Showing now",
+    "off": "Not showing",
+    "show": "Show banner",
+    "update": "Update banner",
+    "takeDown": "Take down",
+    "shownToast": "Banner saved. It can take up to a minute to appear everywhere.",
+    "removedToast": "Banner taken down. It can take up to a minute to disappear everywhere."
   }
 }

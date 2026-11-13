@@ -57,6 +57,7 @@ admin,home.today.edit,Edit timings,సమయాలు మార్చండి,n
 admin,home.today.set,Set prayer times,నమాజ్ సమయాలు సెట్ చేయండి,no
 admin,home.quota,Notifications today: {used} of {limit} used,ఈరోజు నోటిఫికేషన్లు: {limit} లో {used} వాడారు,no
 admin,home.soon,Soon,త్వరలో,no
+admin,home.readOnly,Changes are paused for a short while for maintenance. You can still see everything. Please try again later.,నిర్వహణ కోసం మార్పులు కొద్దిసేపు ఆపివేయబడ్డాయి. మీరు అన్నీ చూడవచ్చు. దయచేసి కొంతసేపటి తర్వాత మళ్లీ ప్రయత్నించండి.,no
 admin,comingSoon.title,Coming soon,త్వరలో వస్తోంది,no
 admin,comingSoon.body,This part of the app is being built. It will appear here in an update.,యాప్‌లో ఈ భాగం తయారవుతోంది. ఇది ఒక అప్‌డేట్‌లో ఇక్కడ కనిపిస్తుంది.,no
 admin,account.title,My account,నా ఖాతా,no
@@ -1242,6 +1243,7 @@ errors,INVALID_TRANSITION,This change isn’t possible right now.,ఈ మార�
 errors,ACTIVATION_REQUIREMENTS,This masjid needs an active admin who has accepted the undertaking before it can go live.,మస్జిద్‌ను ప్రారంభించే ముందు హామీ పత్రాన్ని అంగీకరించిన ఒక యాక్టివ్ అడ్మిన్ ఉండాలి.,no
 errors,UNDERTAKING_REQUIRED,Please read and accept the admin undertaking first.,దయచేసి ముందుగా అడ్మిన్ హామీ పత్రాన్ని చదివి అంగీకరించండి.,no
 errors,UNDERTAKING_VERSION_MISMATCH,The undertaking was updated. Please read the new version and accept it.,హామీ పత్రం మారింది. దయచేసి కొత్తదాన్ని చదివి అంగీకరించండి.,no
+errors,READ_ONLY_MODE,Changes are paused for a short while for maintenance. Your masjid's page still works. Please try again later.,నిర్వహణ కోసం మార్పులు కొద్దిసేపు ఆపివేయబడ్డాయి. మీ మసీదు పేజీ పనిచేస్తోంది. దయచేసి కొంతసేపటి తర్వాత మళ్లీ ప్రయత్నించండి.,no
 errors,ADMIN_NOT_FOUND,We couldn’t find this admin.,ఈ అడ్మిన్ కనబడలేదు.,no
 errors,NOTHING_TO_UPDATE,Nothing was changed.,ఏదీ మార్చలేదు.,no
 errors,INVALID_CURSOR,This list changed. Please reload it.,ఈ జాబితా మారింది. దయచేసి మళ్లీ లోడ్ చేయండి.,no
@@ -2037,6 +2039,29 @@ super,poster.step2,Point it at this QR code (or type {code} in the app),దా�
 super,poster.step3,Open the link and tap Follow,లింక్ తెరిచి ఫాలో నొక్కండి,no
 super,poster.free,Free · No ads · No account,ఉచితం · ప్రకటనలు లేవు · ఖాతా అవసరం లేదు,no
 super,poster.preview,Poster preview,పోస్టర్ ప్రివ్యూ,no
+super,readOnly.title,Masjid admins (all masjids),మసీదు అడ్మిన్‌లు (అన్ని మసీదులు),no
+super,readOnly.switch,Admin read-only mode,అడ్మిన్ రీడ్-ఓన్లీ మోడ్,no
+super,readOnly.hint,Masjid admins can see everything but cannot change anything. Use it during an incident. Your own work is not affected.,"మసీదు అడ్మిన్‌లు అన్నీ చూడగలరు, కానీ ఏదీ మార్చలేరు. ఏదైనా సంఘటన సమయంలో దీన్ని ఉపయోగించండి. మీ స్వంత పనిపై ప్రభావం ఉండదు.",no
+super,readOnly.onBanner,Admin read-only mode is on. Masjid admins cannot make changes.,అడ్మిన్ రీడ్-ఓన్లీ మోడ్ ఆన్‌లో ఉంది. మసీదు అడ్మిన్‌లు మార్పులు చేయలేరు.,no
+super,readOnly.turnOff,Turn off,ఆపివేయండి,no
+super,readOnly.confirmTitle,Turn on admin read-only mode?,అడ్మిన్ రీడ్-ఓన్లీ మోడ్ ఆన్ చేయాలా?,no
+super,readOnly.confirmBody,No masjid admin can post or change anything until you turn it off. Their app shows a notice.,మీరు దీన్ని ఆపే వరకు ఏ మసీదు అడ్మిన్ కూడా ఏదీ పోస్ట్ చేయలేరు లేదా మార్చలేరు. వారి యాప్‌లో ఒక సూచన కనిపిస్తుంది.,no
+super,readOnly.confirm,Turn on,ఆన్ చేయండి,no
+super,readOnly.onToast,Admin read-only mode is on,అడ్మిన్ రీడ్-ఓన్లీ మోడ్ ఆన్‌లో ఉంది,no
+super,readOnly.offToast,Admin read-only mode is off,అడ్మిన్ రీడ్-ఓన్లీ మోడ్ ఆఫ్‌లో ఉంది,no
+super,banners.title,Banners,బ్యానర్లు,no
+super,banners.maintenance,Maintenance banner,నిర్వహణ బ్యానర్,no
+super,banners.maintenanceHint,"Shown on Home in both apps, to musallis and masjid admins.",రెండు యాప్‌ల హోమ్‌లో కనిపిస్తుంది — ముసల్లీలకు మరియు మసీదు అడ్మిన్‌లకు.,no
+super,banners.incident,Incident banner,సంఘటన బ్యానర్,no
+super,banners.incidentHint,Shown to every musalli on Home. Use it only for something everyone must know.,ప్రతి ముసల్లీకి హోమ్‌లో కనిపిస్తుంది. అందరూ తప్పక తెలుసుకోవాల్సిన విషయానికి మాత్రమే దీన్ని ఉపయోగించండి.,no
+super,banners.allLanguages,Write the banner in all four languages (up to 300 characters each).,బ్యానర్‌ను నాలుగు భాషల్లోనూ రాయండి (ఒక్కొక్కటి 300 అక్షరాల వరకు).,no
+super,banners.live,Showing now,ఇప్పుడు కనిపిస్తోంది,no
+super,banners.off,Not showing,కనిపించడం లేదు,no
+super,banners.show,Show banner,బ్యానర్ చూపించండి,no
+super,banners.update,Update banner,బ్యానర్ మార్చండి,no
+super,banners.takeDown,Take down,తీసివేయండి,no
+super,banners.shownToast,Banner saved. It can take up to a minute to appear everywhere.,బ్యానర్ సేవ్ అయింది. అన్ని చోట్లా కనిపించడానికి ఒక నిమిషం వరకు పట్టవచ్చు.,no
+super,banners.removedToast,Banner taken down. It can take up to a minute to disappear everywhere.,బ్యానర్ తీసివేయబడింది. అన్ని చోట్ల నుండి పోవడానికి ఒక నిమిషం వరకు పట్టవచ్చు.,no
 templates,no_water_time_range.title,No water supply,నీటి సరఫరా నిలిపివేత,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.,no
 templates,electricity_cut_time_range.title,Power cut,విద్యుత్ నిలిపివేత,no

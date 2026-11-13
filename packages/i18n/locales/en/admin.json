@@ -67,7 +67,8 @@
       "set": "Set prayer times"
     },
     "quota": "Notifications today: {used} of {limit} used",
-    "soon": "Soon"
+    "soon": "Soon",
+    "readOnly": "Changes are paused for a short while for maintenance. You can still see everything. Please try again later."
   },
   "comingSoon": {
     "title": "Coming soon",
