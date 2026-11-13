@@ -35,7 +35,9 @@ const ALPHA = seedId('masjid-alpha');
 const DAY = 24 * 60 * 60 * 1000;
 const ago = (ms: number, slack = DAY) => new Date(NOW.getTime() - ms - slack); // just past the period
 const within = (ms: number, slack = DAY) => new Date(NOW.getTime() - ms + slack); // just inside it
-const FAR = new Date(NOW.getTime() + 60 * 60 * 1000); // a deadline that never ends a run in a test
+// The run's time budget is measured on the real clock (`Date.now()`), not the data clock NOW: a deadline an hour from
+// the moment of the call never ends a run in a test (a fixed `NOW + 1 h` expired once the real time passed it).
+const far = () => new Date(Date.now() + 60 * 60 * 1000);
 
 let test: TestDatabase | undefined;
 let asSystem: Awaited<ReturnType<typeof processUserHandle>> | undefined;
@@ -69,7 +71,7 @@ const run = (dryRun: boolean, batch?: number) =>
   runRetention(handle(asSystem), systemScope(), {
     now: NOW,
     dryRun,
-    deadline: FAR,
+    deadline: far(),
     ...(batch ? { batch } : {}),
   });
 const followers = async () => Number((await raw('masjid_stats').findOne({ _id: ALPHA }))?.['followers'] ?? 0);
@@ -341,7 +343,7 @@ describe('retention (T8.7)', () => {
 
   it('only the system scope runs retention', async () => {
     await expect(
-      runRetention(handle(asAdmin), superScope(newId(), NOW), { now: NOW, dryRun: true, deadline: FAR }),
+      runRetention(handle(asAdmin), superScope(newId(), NOW), { now: NOW, dryRun: true, deadline: far() }),
     ).rejects.toThrow(/FORBIDDEN/u);
   });
 });
