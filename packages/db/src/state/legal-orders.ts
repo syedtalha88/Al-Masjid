@@ -282,9 +282,10 @@ export async function linkRemovalToLegalOrder(
 
 /**
  * Records the order's (encrypted) document after api-admin stored it; returns the key it replaced, which the caller
- * deletes from storage. Audited as `legal_order.document`.
+ * deletes from storage. Audited as `legal_order.document`. A closed order is final: its document is kept as it is
+ * until retention deletes it with the order (DECISIONS #180 L5).
  *
- * @throws StateError FORBIDDEN, STEP_UP_REQUIRED, LEGAL_ORDER_NOT_FOUND.
+ * @throws StateError FORBIDDEN, STEP_UP_REQUIRED, LEGAL_ORDER_NOT_FOUND (no such order, or it is closed).
  */
 export async function setLegalOrderDocument(
   handle: DbHandle,
@@ -294,11 +295,11 @@ export async function setLegalOrderDocument(
   const actor = requireSuper(scope, { stepUp: true, now: input.now });
   return withTransaction(handle, scope, async (ctx) => {
     const orders = scoped(ctx, 'legal_orders');
-    const [doc] = await orders.find({ _id: input.id });
+    const [doc] = await orders.find({ _id: input.id, status: { $ne: 'closed' } });
     if (!doc) throw new StateError('LEGAL_ORDER_NOT_FOUND');
     const previous: unknown = doc['document_key'];
     await orders.updateOne(
-      { _id: input.id },
+      { _id: input.id, status: { $ne: 'closed' } },
       {
         $set: {
           document_key: input.key,

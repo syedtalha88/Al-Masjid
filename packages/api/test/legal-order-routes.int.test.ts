@@ -181,6 +181,11 @@ describe('legal orders (T8.5)', () => {
       'Action taken updated',
       'Status: contested → closed',
     ]);
+    // Closed is final for its document too: no upload, nothing left behind in storage (#180 L5).
+    const files = stored.size;
+    const upload = await asSuper('post', `/legal-orders/${id}/document`).attach('file', PDF, 'late.pdf');
+    expect(upload.body).toMatchObject({ status: 404, code: 'LEGAL_ORDER_NOT_FOUND' });
+    expect(stored.size).toBe(files);
     await stepUp(false);
     expect((await patch({ note: 'Test' })).status).toBe(403);
   });
@@ -234,7 +239,7 @@ describe('legal orders (T8.5)', () => {
     const key = (await orders().findOne({ _id: orderIdOf(id) }))?.document_key;
     expect(typeof key).toBe('string');
     const raw = stored.get(String(key));
-    expect(raw?.subarray(0, 4).toString('ascii')).toBe('MCF1');
+    expect(raw?.subarray(0, 4).toString('ascii')).toBe('MCF2');
     expect(raw?.includes(Buffer.from('Test legal order document'))).toBe(false);
     expect(raw?.includes(Buffer.from('%PDF'))).toBe(false);
 

@@ -532,6 +532,15 @@ describe('fields', () => {
     expect(await raw('items').findOne({ _id: upserted })).toMatchObject({ status: 'draft', masjid_id: masjidA });
     expect(await asAdmin.updateOne({ _id: liveId }, { $set: { status: 'deleted', deleted_at: new Date() } })).toBe(1);
   });
+
+  it('an admin changes nothing of an auto-hidden post waiting for review — not its text, not a delete (#180 L1)', async () => {
+    const hiddenId = new UUID();
+    await raw('items').insertOne({ _id: hiddenId, masjid_id: masjidA, status: 'hidden', title: 'Test reported' });
+    const asAdmin = scoped({ scope: adminOfA, db: db(), contentMasjidId: masjidA }, 'items');
+    expect(await asAdmin.updateOne({ _id: hiddenId }, { $set: { title: 'Test changed' } })).toBe(0);
+    expect(await asAdmin.updateOne({ _id: hiddenId }, { $set: { status: 'deleted', deleted_at: new Date() } })).toBe(0);
+    expect(await raw('items').findOne({ _id: hiddenId })).toMatchObject({ status: 'hidden', title: 'Test reported' });
+  });
 });
 
 describe('guards', () => {

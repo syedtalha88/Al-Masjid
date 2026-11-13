@@ -176,6 +176,8 @@ const quotaCount = (fields: Readonly<Record<string, unknown>>, operator?: string
 };
 /** Generic item updates never touch a removed item (no un-removing). */
 const notRemoved = { status: { $ne: 'removed' } };
+/** A masjid admin never changes a post moderation took down — removed, or auto-hidden waiting for review (#180 L1). */
+const notTakenDown = { status: { $nin: ['removed', 'hidden'] } };
 
 const TIMING_WRITABLE = [
   'prayers',
@@ -311,7 +313,7 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
       find: { filter: own('masjid_id'), redact: removedRedaction },
       insert: { filter: own('masjid_id'), check: itemCheck },
       update: {
-        filter: (ctx) => ({ ...own('masjid_id')(ctx), ...notRemoved }),
+        filter: (ctx) => ({ ...own('masjid_id')(ctx), ...notTakenDown }),
         writable: ITEM_WRITABLE,
         check: itemCheck,
       },

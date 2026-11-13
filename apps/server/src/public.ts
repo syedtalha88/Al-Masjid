@@ -1,9 +1,12 @@
 // Entrypoint: api-public (app.<domain>/api/v1/*). No business logic here (01 §3).
 import {
   apiPublicRoutes,
+  assertSealPublicKey,
   createLogger,
   createPublicApp,
   deviceAuthenticator,
+  SEAL_MIN_BITS,
+  SEAL_MIN_BITS_LOCAL,
   startHttpServer,
   turnstileVerifier,
 } from '@mc/api';
@@ -43,6 +46,10 @@ const turnstile = turnstileVerifier({
   secret: turnstileSecret,
   hostnames: /^[123]x0+AA$/.test(turnstileSecret) || !env.APP_ORIGIN ? null : [new URL(env.APP_ORIGIN).hostname],
 });
+// #180 L7: a weak or wrong sealing key stops the boot instead of sealing contacts with it.
+if (env.GRIEVANCE_SEAL_PUBLIC_KEY) {
+  assertSealPublicKey(env.GRIEVANCE_SEAL_PUBLIC_KEY, env.APP_ENV === 'local' ? SEAL_MIN_BITS_LOCAL : SEAL_MIN_BITS);
+}
 const { app } = createPublicApp({
   authenticateDevice: deviceAuthenticator({ db: connections.db, clock }),
   routes: apiPublicRoutes({

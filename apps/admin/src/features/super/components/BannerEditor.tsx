@@ -1,6 +1,6 @@
 // C10 banners (PHASE_08 T8.9): the maintenance banner (both apps) and the incident banner (every musalli), each written
 // in all four languages, saved whole and taken down with one tap. `/config` and `/auth/me` carry them within a minute.
-// Putting one up is ★ (confirm with the screen lock, #180 M5); taking one down is not.
+// Putting one up is ★ (confirm with the screen lock — DECISIONS 180 M5); taking one down is not.
 import { LOCALES, NATIVE_NAME } from '@mc/i18n/locales';
 import { useTranslation } from '@mc/i18n/react';
 import { BANNER_MAX, type SuperSettings } from '@mc/shared/contracts';

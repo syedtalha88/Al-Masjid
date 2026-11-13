@@ -12,6 +12,8 @@ import {
   privateStoreFromEnv,
   pushNotifier,
   redisChallengeStore,
+  SEAL_MIN_BITS,
+  SEAL_MIN_BITS_LOCAL,
   sealKeysFromEnv,
   sessionAuthenticator,
   startHttpServer,
@@ -64,11 +66,14 @@ const { app } = createAdminApp({
     // T8.4 (#173): ★ "Show contact" opens sealed grievance contacts with the private half (absent → 503).
     ...(env.GRIEVANCE_SEAL_PRIVATE_KEY && env.GRIEVANCE_SEAL_KEY_ID
       ? {
-          sealKeys: sealKeysFromEnv({
-            GRIEVANCE_SEAL_PRIVATE_KEY: env.GRIEVANCE_SEAL_PRIVATE_KEY,
-            GRIEVANCE_SEAL_KEY_ID: env.GRIEVANCE_SEAL_KEY_ID,
-            GRIEVANCE_SEAL_OLD_KEYS: env.GRIEVANCE_SEAL_OLD_KEYS,
-          }),
+          sealKeys: sealKeysFromEnv(
+            {
+              GRIEVANCE_SEAL_PRIVATE_KEY: env.GRIEVANCE_SEAL_PRIVATE_KEY,
+              GRIEVANCE_SEAL_KEY_ID: env.GRIEVANCE_SEAL_KEY_ID,
+              GRIEVANCE_SEAL_OLD_KEYS: env.GRIEVANCE_SEAL_OLD_KEYS,
+            },
+            { minBits: env.APP_ENV === 'local' ? SEAL_MIN_BITS_LOCAL : SEAL_MIN_BITS },
+          ),
         }
       : {}),
     // 04 §3: RP ID = the admin host (env.ts checks it equals ADMIN_ORIGIN's hostname), exact origin.

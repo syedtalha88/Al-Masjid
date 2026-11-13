@@ -26,6 +26,8 @@ type Logger = ReturnType<typeof createLogger>;
 
 /** 01 §5.3 step 3: sends in flight per batch. */
 export const SEND_CONCURRENCY = 50;
+/** The kill switch is read again before every this many sends — a pause stops a big batch within one round (F64). */
+export const PAUSE_CHECK_EVERY = 100;
 
 export interface SendBatchDeps {
   readonly db: DbHandle;
@@ -33,6 +35,8 @@ export interface SendBatchDeps {
   readonly sender: PushSender;
   readonly clock: Clock;
   readonly logger: Logger;
+  /** Sends per kill-switch check ({@link PAUSE_CHECK_EVERY}; tests use a smaller round). */
+  readonly pauseCheckEvery?: number;
 }
 
 /** Some sends should be tried again later; BullMQ retries the batch (only the unsent devices are sent then). */
@@ -137,7 +141,8 @@ export async function processSendBatch(
   let rejected = 0;
   const retry: PushSubscriptionRow[] = [];
   const gone: { deviceId: PushSubscriptionRow['deviceId']; endpoint: string }[] = [];
-  await eachLimited(todo, SEND_CONCURRENCY, async (row) => {
+  const round = Math.max(1, deps.pauseCheckEvery ?? PAUSE_CHECK_EVERY);
+  const sendOne = async (row: PushSubscriptionRow) => {
     const outcome: PushOutcome = await deps.sender.send(row, message, options);
     switch (outcome.kind) {
       case 'sent':
@@ -155,7 +160,15 @@ export async function processSendBatch(
         if (outcome.status === 413) deps.logger.error({ jobId: payload.jobId }, 'push payload too large (413)');
         break;
     }
-  });
+  };
+  for (let start = 0; start < todo.length; start += round) {
+    // F64: paused mid-batch → stop now. Sent devices are in the ledger, so the resumed batch sends only the rest.
+    if (start > 0 && (await isPushPaused(deps.db, scope))) {
+      await markSubscriptionsDead(deps.db, scope, gone, deps.clock.now(), jobId);
+      throw new PushPausedError();
+    }
+    await eachLimited(todo.slice(start, start + round), SEND_CONCURRENCY, sendOne);
+  }
   const pruned = await markSubscriptionsDead(deps.db, scope, gone, deps.clock.now(), jobId);
   if (rejected > 0) deps.logger.warn({ jobId: payload.jobId, rejected }, 'push service refused some sends');
 

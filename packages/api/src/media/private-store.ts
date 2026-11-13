@@ -7,6 +7,8 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve, sep } from 'node:path';
 
+import { z } from 'zod';
+
 import { type CloudinaryConfig, cloudinarySignature } from './store.ts';
 
 /** `legal/<orderId>/<random>.bin` — the extension is part of a raw asset's public id. */
@@ -59,6 +61,8 @@ export function filePrivateStore(dir: string): PrivateFileStore {
 }
 
 const CLOUDINARY_API = 'https://api.cloudinary.com/v1_1';
+/** The fields of Cloudinary's upload answer we check (the rest is ignored). */
+const UPLOAD_ANSWER = z.object({ public_id: z.string(), type: z.string() });
 const TIMEOUT_MS = 30_000;
 
 /**
@@ -92,6 +96,11 @@ export function cloudinaryPrivateStore(config: CloudinaryConfig): PrivateFileSto
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
       if (!response.ok) throw new Error(`cloudinary raw upload failed with HTTP ${String(response.status)}`);
+      // Stored as asked — `authenticated` (never delivered by a public URL) under our key (DECISIONS #180 L6).
+      const answer = UPLOAD_ANSWER.safeParse(await response.json().catch(() => null));
+      if (!answer.success || answer.data.type !== 'authenticated' || answer.data.public_id !== key) {
+        throw new Error('cloudinary raw upload answer is not an authenticated asset under the requested key');
+      }
     },
     async get(key) {
       assertKey(key);

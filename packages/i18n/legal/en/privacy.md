@@ -6,7 +6,7 @@ status: draft
 - Masjid Connect is a free app that keeps you connected to your local masjids. It has no accounts, no advertising and no tracking.
 - What we keep about this app: a random app ID with a secret that only your phone knows, your language, your brother/sister choice, the version of this notice you accepted, the masjids you follow and which of them you muted, and the day the app was last used.
 - If you turn on notifications, we also keep the notification address your phone's push service gives the app, so we can send you your masjids' updates.
-- If you report a post, we keep the report (reason and optional details) and which app ID sent it, so one phone cannot report the same post many times. The masjid never sees who reported.
+- If you report a post, we keep the report (reason and optional details) and which app ID sent it, so that many reports from one phone count only once when we decide whether to hide a post. The masjid never sees who reported.
 - If you send a grievance, we keep what you wrote and its reference number. A contact (e-mail or phone) is optional; it is stored encrypted and only our Grievance Officer can read it.
 - We never collect your name, phone number, e-mail address, contacts, location or IP address in the app's records. Prayer times and the Qibla direction are calculated on your phone; your location never leaves it.
 - My zakat (in Settings) is a private list kept only on your phone. It is never sent to us or to anyone; Clear all data, or changing to a new phone, removes it.

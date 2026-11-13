@@ -1,14 +1,22 @@
 // PHASE_08 T8.4 (DECISIONS #173) — grievance contacts sealed in api-public with an RSA public key (fresh AES-256-GCM
 // key per value, wrapped with RSA-OAEP-SHA-256), opened only in api-admin with the private key: round trip, the
-// grievance id as associated data, key rotation by id, and every failure looking the same.
+// grievance id as associated data, key rotation by id, every failure looking the same, and RSA keys of at least 3072
+// bits outside local (2048 locally — #180 L7).
 import { generateKeyPairSync } from 'node:crypto';
 
 import { describe, expect, it } from 'vitest';
 
-import { openSealed, SealError, sealField, sealKeysFromEnv } from '../src/crypto/seal.ts';
+import {
+  assertSealPublicKey,
+  openSealed,
+  SEAL_MIN_BITS_LOCAL,
+  SealError,
+  sealField,
+  sealKeysFromEnv,
+} from '../src/crypto/seal.ts';
 
-const pair = () => {
-  const { publicKey, privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
+const pair = (modulusLength = 3072) => {
+  const { publicKey, privateKey } = generateKeyPairSync('rsa', { modulusLength });
   return {
     publicPem: publicKey.export({ type: 'spki', format: 'pem' }).toString(),
     privatePem: privateKey.export({ type: 'pkcs8', format: 'pem' }).toString(),
@@ -55,5 +63,35 @@ describe('sealField / openSealed', () => {
       SealError,
     );
     expect(() => sealField({ publicKey: b64('nope'), keyId: 'g1' }, 'x', 'GR-5')).toThrow(SealError);
+  });
+
+  it('key size: 3072 bits or more outside local; 2048 is the floor even locally (#180 L7)', () => {
+    const small = pair(2048);
+    const env = { GRIEVANCE_SEAL_PRIVATE_KEY: b64(small.privatePem), GRIEVANCE_SEAL_KEY_ID: 'g1' };
+    expect(() => sealKeysFromEnv(env)).toThrow(SealError);
+    expect(() => {
+      assertSealPublicKey(b64(small.publicPem));
+    }).toThrow(SealError);
+    // Local development keys (setup:local) may be 2048 bits.
+    expect(sealKeysFromEnv(env, { minBits: SEAL_MIN_BITS_LOCAL }).size).toBe(1);
+    expect(() => {
+      assertSealPublicKey(b64(small.publicPem), SEAL_MIN_BITS_LOCAL);
+    }).not.toThrow();
+    // A lower minimum than the floor is not honoured.
+    const tiny = pair(1024);
+    expect(() =>
+      sealKeysFromEnv(
+        { GRIEVANCE_SEAL_PRIVATE_KEY: b64(tiny.privatePem), GRIEVANCE_SEAL_KEY_ID: 'g1' },
+        { minBits: 512 },
+      ),
+    ).toThrow(SealError);
+    expect(() => {
+      assertSealPublicKey(b64(current.publicPem));
+    }).not.toThrow();
+    // Not RSA: refused.
+    const ec = generateKeyPairSync('ec', { namedCurve: 'P-256' });
+    expect(() => {
+      assertSealPublicKey(b64(ec.publicKey.export({ type: 'spki', format: 'pem' }).toString()));
+    }).toThrow(SealError);
   });
 });

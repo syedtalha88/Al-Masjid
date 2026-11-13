@@ -17,6 +17,7 @@ import { Redis } from 'ioredis';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import webpush from 'web-push';
 
+import { PushPausedError } from '../src/jobs/push/fanout.ts';
 import { processSendBatch } from '../src/jobs/push/send-batch.ts';
 import { processOutboxSweep } from '../src/jobs/push/sweeper.ts';
 import { runDevSeed } from '../src/jobs/seed.ts';
@@ -529,6 +530,43 @@ describe('push pipeline', () => {
     expect(failed?.attemptsMade).toBe(1);
     expect(failed?.failedReason).toBe('invalid push-send-batch job payload');
     expect(service.requests).toHaveLength(0);
+  });
+
+  it('F64: a pause during a big batch stops it within one round; on resume only the rest are sent', async () => {
+    const id = await masjid();
+    const devices = [await follower(id), await follower(id), await follower(id)];
+    const jobId = await published(id);
+    await raw('notification_jobs').updateOne(
+      { _id: idOf(jobId) },
+      { $set: { status: 'running', pending_batches: 1, fanout_page: 1, fanout_done: true } },
+    );
+    const real = createPushSender({ vapid: VAPID, transport: service.transport });
+    let sends = 0;
+    const deps = {
+      db: sys(),
+      ledger: redisSendLedger(testRedis().redis),
+      // The Super Admin pauses right after the first send.
+      sender: {
+        send: async (...args: Parameters<typeof real.send>) => {
+          const outcome = await real.send(...args);
+          sends += 1;
+          if (sends === 1) await raw('app_settings').updateOne({ _id: 'global' }, { $set: { push_paused: true } });
+          return outcome;
+        },
+      },
+      clock: { now: () => NOW },
+      logger: silentLogger(),
+      pauseCheckEvery: 1,
+    };
+    const payload = { jobId, page: 0, locale: 'en' as const, deviceIds: devices.map((device) => idText(device)) };
+    try {
+      await expect(processSendBatch(deps, payload, { final: false })).rejects.toThrow(PushPausedError);
+      expect(deliveredTo(devices)).toHaveLength(1);
+    } finally {
+      await raw('app_settings').updateOne({ _id: 'global' }, { $set: { push_paused: false } });
+    }
+    expect(await processSendBatch(deps, payload, { final: false })).toMatchObject({ sent: 3, counted: true });
+    for (const device of devices) expect(deliveredTo([device])).toHaveLength(1);
   });
 
   it('a batch whose counter write fails is counted by its retry — the ledger claim is released (DECISIONS #140)', async () => {

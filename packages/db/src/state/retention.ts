@@ -96,8 +96,20 @@ async function sweepUpdate(
   return total;
 }
 
-/** One device and what hangs off it (02 §5: follows with their follower counts, Ameens — counters keep totals). */
-async function deleteDeviceDocs(db: Db, session: ClientSession, deviceId: UUID): Promise<boolean> {
+/**
+ * One device and what hangs off it (02 §5: follows with their follower counts, Ameens — counters keep totals). `still`
+ * is checked again inside the transaction: a device used again since it was picked is kept (#180 L10).
+ */
+async function deleteDeviceDocs(
+  db: Db,
+  session: ClientSession,
+  deviceId: UUID,
+  still: Record<string, unknown>,
+): Promise<boolean> {
+  const unused = await db
+    .collection<{ _id: UUID }>('devices')
+    .findOne({ _id: deviceId, ...still }, { session, projection: { _id: 1 } });
+  if (!unused) return false;
   const follows = db.collection<{ device_id: UUID; masjid_id: UUID }>('device_follows');
   const followed = await follows.find({ device_id: deviceId }, { session, projection: { masjid_id: 1 } }).toArray();
   for (const follow of followed) {
@@ -146,7 +158,7 @@ export async function runRetention(
           .toArray()
       ).map((doc) => doc._id);
       for (const id of ids) {
-        if (await withTransaction(handle, scope, (ctx) => deleteDeviceDocs(ctx.db, ctx.session, id))) {
+        if (await withTransaction(handle, scope, (ctx) => deleteDeviceDocs(ctx.db, ctx.session, id, inactive))) {
           counts['devices'] += 1;
         }
       }

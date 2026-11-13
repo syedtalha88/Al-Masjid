@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { createDecipheriv, randomBytes } from 'node:crypto';
 import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -33,11 +33,24 @@ describe('file encryption (T8.5)', () => {
   it('round-trips with its type; the envelope never contains the plaintext', () => {
     const keys = ring();
     const envelope = encryptFile(keys, PDF, 'pdf', CONTEXT);
-    expect(envelope.subarray(0, 4).toString('ascii')).toBe('MCF1');
+    expect(envelope.subarray(0, 4).toString('ascii')).toBe('MCF2');
     expect(envelope.includes(Buffer.from('Test document'))).toBe(false);
     expect(decryptFile(keys, envelope, CONTEXT)).toEqual({ bytes: PDF, type: 'pdf' });
     // A fresh IV each time.
     expect(encryptFile(keys, PDF, 'pdf', CONTEXT).equals(envelope)).toBe(false);
+  });
+
+  it('the file key is derived (HKDF), never the field key itself — the ring key alone does not open it (#180 L7)', () => {
+    const key = randomBytes(32);
+    const envelope = encryptFile(ring('k1', [['k1', key]]), PDF, 'pdf', CONTEXT);
+    const ivStart = 4 + 1 + 2; // magic, id length, "k1"
+    const decipher = createDecipheriv('aes-256-gcm', key, envelope.subarray(ivStart, ivStart + 12), {
+      authTagLength: 16,
+    });
+    decipher.setAAD(Buffer.from(`mc-file:${CONTEXT}`, 'utf8'));
+    decipher.setAuthTag(envelope.subarray(envelope.length - 16));
+    decipher.update(envelope.subarray(ivStart + 12, envelope.length - 16));
+    expect(() => decipher.final()).toThrow();
   });
 
   it('another order, a flipped byte, a truncated file or an unknown key never decrypt', () => {
@@ -88,6 +101,7 @@ describe('private stores (T8.5)', () => {
   });
 
   it('Cloudinary: signed raw upload as `authenticated`; reads via the signed API download; destroy invalidates', async () => {
+    const key = newLegalDocumentKey(ORDER);
     const calls: { url: string; method: string; form?: Record<string, unknown> }[] = [];
     const store = cloudinaryPrivateStore({
       cloudName: 'test-cloud',
@@ -103,10 +117,11 @@ describe('private stores (T8.5)', () => {
           ...(body instanceof FormData ? { form: Object.fromEntries(body.entries()) } : {}),
         });
         expect(init?.redirect).toBe('error');
-        return Promise.resolve(new Response(url.includes('/download') ? 'cipher-bytes' : '{}', { status: 200 }));
+        if (url.includes('/download')) return Promise.resolve(new Response('cipher-bytes', { status: 200 }));
+        const answer = url.endsWith('/upload') ? { public_id: key, type: 'authenticated', resource_type: 'raw' } : {};
+        return Promise.resolve(Response.json(answer));
       },
     });
-    const key = newLegalDocumentKey(ORDER);
     await store.put(key, Buffer.from('cipher'));
     expect((await store.get(key)).toString()).toBe('cipher-bytes');
     await store.delete(key);
@@ -150,5 +165,26 @@ describe('private stores (T8.5)', () => {
     await expect(store.put(key, Buffer.from('x'))).rejects.toThrow(/HTTP 404/u);
     await expect(store.get(key)).rejects.toThrow(/HTTP 404/u);
     await expect(store.delete(key)).resolves.toBeUndefined();
+  });
+
+  it('Cloudinary: an upload answer that is not an authenticated asset under our key is refused (#180 L6)', async () => {
+    const key = newLegalDocumentKey(ORDER);
+    for (const answer of [
+      { public_id: key, type: 'upload' },
+      { public_id: 'other', type: 'authenticated' },
+      {},
+      'not json',
+    ]) {
+      const store = cloudinaryPrivateStore({
+        cloudName: 'test-cloud',
+        apiKey: '123',
+        apiSecret: FAKE_SECRET,
+        fetch: () =>
+          Promise.resolve(typeof answer === 'string' ? new Response(answer, { status: 200 }) : Response.json(answer)),
+      });
+      await expect(store.put(key, Buffer.from('cipher')), JSON.stringify(answer)).rejects.toThrow(
+        /not an authenticated asset/u,
+      );
+    }
   });
 });

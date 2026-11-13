@@ -15931,7 +15931,7 @@
     },
     "/api/super/reports/{id}/dismiss": {
       "post": {
-        "summary": "Dismiss one open report (nothing wrong), with an optional private note",
+        "summary": "Dismiss one open report (nothing wrong), with an optional private note — ★ when the report is urgent",
         "tags": [
           "super",
           "moderation"

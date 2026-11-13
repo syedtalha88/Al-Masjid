@@ -185,6 +185,23 @@ describe('removeItem / restoreItem / dismissReport', () => {
     );
   });
 
+  it('an urgent report is dismissed only with a fresh step-up (#180 L3)', async () => {
+    const reportId = await reportOn(seedPublicId('alpha', 2));
+    await t()
+      .db.collection<{ _id: UUID }>('reports')
+      .updateOne({ _id: reportId }, { $set: { urgent: true } });
+    expect(await code(dismissReport(as('mc_admin'), superScope(SUPER), { reportId, now: NOW }))).toBe(
+      'STEP_UP_REQUIRED',
+    );
+    expect(await t().db.collection<{ _id: UUID }>('reports').findOne({ _id: reportId })).toMatchObject({
+      status: 'open',
+    });
+    await dismissReport(as('mc_admin'), stepped(), { reportId, now: NOW });
+    expect(await t().db.collection<{ _id: UUID }>('reports').findOne({ _id: reportId })).toMatchObject({
+      status: 'dismissed',
+    });
+  });
+
   it('the queue: grouped per post, urgent first, the 90-day removal count, Super Admin only', async () => {
     const publicId = seedPublicId('alpha', 2);
     await reportOn(publicId);

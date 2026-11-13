@@ -192,7 +192,8 @@ function TargetCard({ target, open }: { readonly target: QueueTargetView; readon
     onError,
   });
   const dismiss = useMutation({
-    mutationFn: (reportId: string) => superApi.dismissReport(reportId),
+    // ★ for an urgent report (DECISIONS 180 L3): the server asks for the step-up only then.
+    mutationFn: (reportId: string) => run(() => superApi.dismissReport(reportId)),
     onSuccess: async () => {
       toast.show({ message: t('reports.dismissed'), tone: 'success' });
       await refresh();

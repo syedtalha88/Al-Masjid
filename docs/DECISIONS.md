@@ -3073,8 +3073,9 @@ again; jumped thresholds → one alert at 100; a closed report stops; one Sentry
 api-public route and `@mc/shared/env` forbids api-public every `FIELD_ENCRYPTION_*` key (a compromised public API
 must not decrypt admin phones). The two are in conflict.
 **Decision:** hybrid sealing — api-public holds only an **RSA public key** (`GRIEVANCE_SEAL_PUBLIC_KEY`, PEM, with
-`GRIEVANCE_SEAL_KEY_ID`); each contact is encrypted with a fresh AES-256-GCM key (the doc's cipher, the grievance id
-as associated data) and that key is wrapped with RSA-OAEP-SHA-256; stored as
+`GRIEVANCE_SEAL_KEY_ID`); each contact is encrypted with a fresh AES-256-GCM key (the doc's cipher, the grievance's
+public reference `GR-…` as associated data — corrected in #180 L7; it is unique per grievance and never changes) and
+that key is wrapped with RSA-OAEP-SHA-256; stored as
 `s1:<keyId>:<wrapped key>:<iv>:<ciphertext+tag>` (base64url; its own validator pattern, migration 0026). Only
 api-admin holds the private key (`GRIEVANCE_SEAL_PRIVATE_KEY`, + old keys for rotation), used by the ★ "Show contact"
 (step-up, audited `grievance.contact`); the private key is forbidden in api-public, worker and migrate. Stronger than
@@ -3106,7 +3107,8 @@ untyped `$push` refuses literal keys). The clock runs only while `received` (`li
 ★ Remove may name an open order (`legalOrderId`): logged on the order ("Post <publicId> removed"), `received` →
 `actioned`, audit meta `legal_order`; a closed order refuses the whole removal. All writes are ★ (step-up).
 **Documents (DECISIONS #40, 04 §5):** PDF / JPEG / PNG by magic bytes, ≤ 8 MB, busboy (`defineRoute.upload`).
-api-admin encrypts with AES-256-GCM using the field key ring (envelope `MCF1 | key id | IV | ciphertext | tag`, the
+api-admin encrypts with AES-256-GCM using the field key ring (envelope `MCF1 | key id | IV | ciphertext | tag` — since
+#180 L7 `MCF2`, with a file key derived by HKDF-SHA256 from the ring key; the
 sniffed type inside the ciphertext, associated data `legal_orders.document:<orderId>` — a blob moved to another order
 never opens) and stores it as Cloudinary `raw` + `type=authenticated` (`legal/<orderId>/<uuid>.bin`, never
 overwritten; replacing deletes the old one). Download is ★: api-admin reads it through the signed API endpoint
@@ -3255,7 +3257,7 @@ idempotent hour, oldest-job lag, 70/90 alerts once each, failed Cloudinary read)
 `stats.test.ts` (7: usage parsing / reader / thresholds / response), audit allow-list + parity tests, e2e
 `admin/kill-switches-stats.spec.ts` (C10 banners + read-only, C12 render with a fixed answer, C11 masjid filter).
 
-### #180 — Phase 08 security review fixes (PHASE_08 T8.11) — IN PROGRESS (Claude Code, 13 Nov 2026)
+### #180 — Phase 08 security review fixes (PHASE_08 T8.11) — ACCEPTED (Claude Code, 13 Nov 2026)
 Review result: 0 HIGH, 7 MEDIUM, 12 LOW (list in PROGRESS "Next session"). Fixed so far:
 - **M1 — a post's files follow its status, never the request.** `mediaForTakedown({itemId})` reads the post: not
   published (removed / hidden / deleted) → restrict the files no published post, masjid photo or Ruqyah entry also uses;
@@ -3287,5 +3289,45 @@ Review result: 0 HIGH, 7 MEDIUM, 12 LOW (list in PROGRESS "Next session"). Fixed
   remove) and every masjid status change (activate, suspend, unsuspend, delete) enqueues a `cdn-purge` of
   `m-<masjidId>` (each with its own random job key — two changes in one millisecond must not collapse into one finished
   job). The 90-day retention purge needs none: it only deletes people who were closed / removed (and purged then).
-Remaining (the LOWs, Semgrep `gcm-no-tag-length`) are listed in PROGRESS; this entry becomes ACCEPTED when they are
-done.
+- **Semgrep `gcm-no-tag-length`** — `seal.ts` pins `authTagLength: 16` on both cipher and decipher (field / file
+  crypto already did). The other local hits are the three minimum-release-age rules CI excludes (release age is set
+  once for pnpm and once globally for Renovate).
+- **Budget** — musalli initial JS 193.56 kB → limit 195 kB (+4.55 kB over Phase 08: the "…" Report menu on every post
+  and masjid, removed-post handling, the yearly re-acceptance check, the moderation fields in the public contracts —
+  spread over many small pieces; the report sheet, legal readers and grievance form are lazy). Owner rule "quality
+  over budgets".
+
+LOW findings:
+- **L1 fixed** — the admin `items` update filter is `status $nin ['removed','hidden']`: an auto-hidden post waiting for
+  review cannot be edited or deleted by its masjid (policy test).
+- **L2 accepted** — read-only mode stays a single check in `defineRoute` for every session route (tested in
+  `kill-switches`). Invite registration (`auth: 'none'`) changes no masjid content, and the session it creates is
+  read-only at once (resolved per request); a recovery invite must keep working during an incident. A second check in
+  every state function would add a settings read to each write for no extra protection.
+- **L3 fixed** — dismissing an *urgent* report needs a step-up (data layer; C5 runs Dismiss through `useStepUp`).
+- **L4 accepted** — restoring a post removed for a legal order: restore is ★ and audited, the order's log records the
+  removal, and the Super Admin is the one person who recorded the order. A dedicated warning (new copy ×4 + confirm
+  flow) is F77, Phase 9.
+- **L5 fixed** — a closed legal order is final for its document too: `setLegalOrderDocument` refuses it
+  (`LEGAL_ORDER_NOT_FOUND`, whose words already say "or is closed"); the old copy stays until retention.
+- **L6 fixed** — the Cloudinary private upload's answer must say `type: authenticated` under our key, else the upload
+  fails (unit tests).
+- **L7 fixed** — sealing keys: RSA only, ≥ 3072 bits on staging / production (`SEAL_MIN_BITS`; 2048 floor locally —
+  `setup:local` and old local envs), checked at boot in both APIs. Files: the AES key is derived from the ring key with
+  HKDF-SHA256 (`info mc-file-v1`), envelope `MCF2` (`MCF1` was never deployed). #173's AAD wording corrected (the public
+  reference `GR-…`, not the internal id).
+- **L8 accepted** — grievances must stay open to anyone, with or without the app (IT Rules 3(2)); there is no device to
+  limit. Turnstile + 5 a day per IP remain; a global cap would let an attacker close the legal channel. The SLA job
+  reads only grievances still owed an alert (M3), so a flood cannot hide others.
+- **L9 fixed** — link previews carry `Cache-Tag`: api-public tags its fragments, and Caddy tags the `/p/<id>` page it
+  serves (`i-<publicId>`), so a removal purges a shared post's preview. A follow link's preview (name and area only)
+  runs out within its 5 minutes — Caddy does not know the masjid id there.
+- **L10 fixed** — retention re-checks a device's inactivity inside its delete transaction; a device used again since it
+  was picked is kept.
+- **L11 fixed** — the privacy text (4 languages, still drafts for the owner's review — O55) now says what the app ID on a
+  report is for: many reports from one phone count once when deciding to hide a post (there is no per-device refusal;
+  `mc_public` cannot read reports).
+- **L12** — **F64 closed**: `push-send-batch` re-reads the kill switch every 100 sends (`PAUSE_CHECK_EVERY`) and stops
+  mid-batch; the ledger keeps the resumed batch from sending twice (pipeline test). **F68 re-targeted to Phase 9**: a
+  QR decoder on the server is a new dependency that needs its own DECISIONS entry (size, CVEs); the text part (#160)
+  stays in force.

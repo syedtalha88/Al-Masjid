@@ -190,9 +190,11 @@ export async function restoreItem(
 }
 
 /**
- * Dismisses one open report (C5 "Dismiss" — nothing wrong with the target), with an optional private note.
+ * Dismisses one open report (C5 "Dismiss" — nothing wrong with the target), with an optional private note. An urgent
+ * report (2 h clock) needs a step-up within the last 5 minutes (★, #180 L3).
  *
- * @throws StateError FORBIDDEN (not the Super Admin), REPORT_NOT_FOUND (no open report with that id).
+ * @throws StateError FORBIDDEN (not the Super Admin), STEP_UP_REQUIRED (urgent, no fresh step-up), REPORT_NOT_FOUND (no
+ *   open report with that id).
  */
 export async function dismissReport(
   handle: DbHandle,
@@ -206,6 +208,9 @@ export async function dismissReport(
 ): Promise<void> {
   const actor = requireSuper(scope);
   await withTransaction(handle, scope, async (ctx) => {
+    // Dismissing an urgent report (private information, child safety — 2 h clock) is ★ (#180 L3).
+    const report = await scoped(ctx, 'reports').findOne({ _id: input.reportId, status: 'open' });
+    if (report?.['urgent'] === true) requireSuper(scope, { stepUp: true, now: input.now });
     const changed = await scoped(ctx, 'reports').updateOne(
       { _id: input.reportId, status: 'open' },
       {

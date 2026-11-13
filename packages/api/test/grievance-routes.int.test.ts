@@ -19,7 +19,7 @@ import { silentLogger } from './helpers.ts';
 import { superHarness } from './super-harness.ts';
 
 const NOW = new Date('2026-11-13T06:30:00Z');
-const pair = generateKeyPairSync('rsa', { modulusLength: 2048 });
+const pair = generateKeyPairSync('rsa', { modulusLength: 3072 });
 const b64 = (pem: string | Buffer) => Buffer.from(pem).toString('base64');
 const PUBLIC = b64(pair.publicKey.export({ type: 'spki', format: 'pem' }));
 const sealKeys = sealKeysFromEnv({

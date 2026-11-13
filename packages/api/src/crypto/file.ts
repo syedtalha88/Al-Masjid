@@ -1,17 +1,19 @@
 // Private files at rest (04 §5 "At rest", DECISIONS #40, PHASE_08 T8.5): a legal order's document is encrypted in
-// api-admin with AES-256-GCM before it leaves the process, with the same key ring as field encryption (current key id
-// recorded for rotation), a random 96-bit IV per file, and the file's purpose + owner bound as associated data — a
+// api-admin with AES-256-GCM before it leaves the process, with a key derived from the field-encryption key ring
+// (HKDF-SHA256, info `mc-file-v1` — never the field key itself, DECISIONS #180 L7; current key id recorded for
+// rotation), a random 96-bit IV per file, and the file's purpose + owner bound as associated data — a
 // stored blob copied to another order never decrypts there. Storage (Cloudinary `raw` + `authenticated`) only ever
 // holds ciphertext.
 //
-// Envelope: "MCF1" | key-id length (1 byte) | key id | IV (12) | ciphertext | tag (16).
+// Envelope: "MCF2" | key-id length (1 byte) | key id | IV (12) | ciphertext | tag (16).
 // The plaintext starts with one byte naming the sniffed type, so the download is served with the right type without
 // trusting anything the uploader claimed.
-import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
+import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from 'node:crypto';
 
 import { FieldCryptoError, type FieldKeyRing } from './field.ts';
 
-const MAGIC = Buffer.from('MCF1', 'ascii');
+/** `MCF2`: the file key is derived (#180 L7). `MCF1` (the field key itself) was never deployed and is not read. */
+const MAGIC = Buffer.from('MCF2', 'ascii');
 const IV_BYTES = 12;
 const TAG_BYTES = 16;
 
@@ -36,6 +38,10 @@ export function sniffPrivateFile(bytes: Buffer): PrivateFileType | undefined {
 
 const aad = (context: string) => Buffer.from(`mc-file:${context}`, 'utf8');
 
+/** The file key for a ring key: HKDF-SHA256 (no salt — the ring key is uniformly random), its own `info`. */
+const fileKey = (ringKey: Buffer): Buffer =>
+  Buffer.from(hkdfSync('sha256', ringKey, Buffer.alloc(0), 'mc-file-v1', 32));
+
 /**
  * Encrypts a file with the ring's current key.
  *
@@ -47,7 +53,7 @@ export function encryptFile(ring: FieldKeyRing, bytes: Buffer, type: PrivateFile
   if (!key) throw new FieldCryptoError('current key missing from the ring');
   const keyId = Buffer.from(ring.currentId, 'ascii');
   const iv = randomBytes(IV_BYTES);
-  const cipher = createCipheriv('aes-256-gcm', key, iv, { authTagLength: TAG_BYTES });
+  const cipher = createCipheriv('aes-256-gcm', fileKey(key), iv, { authTagLength: TAG_BYTES });
   cipher.setAAD(aad(context));
   const body = Buffer.concat([
     cipher.update(Buffer.from([PRIVATE_FILE_TYPES[type].code])),
@@ -79,7 +85,7 @@ export function decryptFile(
   const iv = envelope.subarray(ivStart, ivStart + IV_BYTES);
   const body = envelope.subarray(ivStart + IV_BYTES, envelope.length - TAG_BYTES);
   try {
-    const decipher = createDecipheriv('aes-256-gcm', key, iv, { authTagLength: TAG_BYTES });
+    const decipher = createDecipheriv('aes-256-gcm', fileKey(key), iv, { authTagLength: TAG_BYTES });
     decipher.setAAD(aad(context));
     decipher.setAuthTag(envelope.subarray(envelope.length - TAG_BYTES));
     const plain = Buffer.concat([decipher.update(body), decipher.final()]);

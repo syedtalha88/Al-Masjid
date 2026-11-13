@@ -836,7 +836,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
     defineRoute({
       method: 'post',
       path: '/reports/:id/dismiss',
-      summary: 'Dismiss one open report (nothing wrong), with an optional private note',
+      summary: 'Dismiss one open report (nothing wrong), with an optional private note — ★ when the report is urgent',
       tags: ['super', 'moderation'],
       auth: 'super',
       rateLimit: writes,
