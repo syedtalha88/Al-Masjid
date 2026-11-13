@@ -140,6 +140,8 @@ export async function seedOnboardedDevice(
                 locale: seedLocale,
                 audiencePref: seedAudience,
                 onboardedAt: '2026-01-01T00:00:00.000Z',
+                // Accepted now: the yearly privacy reminder (T8.6) never interrupts an unrelated spec.
+                privacyAcceptedAt: new Date().toISOString(),
                 registrationPending: false,
                 follows: [],
                 saved: [],

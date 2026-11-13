@@ -22,13 +22,14 @@ const retryLater = (error: unknown): boolean =>
   (error instanceof ProblemError && (error.status === 429 || error.status >= 500)) ||
   (typeof error === 'object' && error !== null && 'status' in error && Number(error.status) >= 500);
 
-/** Sends the current language and brother/sister choice. */
+/** Sends the current language, brother/sister choice and accepted privacy notice version. */
 async function send(deps: SyncDeps): Promise<'saved' | 'queued'> {
   const state = deps.store.current();
   try {
     await deps.api.updateMe({
       locale: state.locale,
       ...(state.audiencePref ? { audiencePref: state.audiencePref } : {}),
+      ...(state.privacyVersion ? { privacyVersion: state.privacyVersion } : {}),
     });
     await deps.store.update((current) => {
       const { prefsPending: _sent, ...rest } = current;
@@ -169,4 +170,22 @@ export async function finishPendingDeletion(deps: SyncDeps): Promise<'deleted' |
     return rest;
   });
   return 'deleted';
+}
+
+/**
+ * Accepts the privacy notice again (a changed version or the yearly reminder — T8.6): stored on the phone at once, then
+ * sent with the preferences (offline or unregistered: queued like any preference change).
+ *
+ * @param version - the server's current version (`/config` → `legalVersions.privacy`).
+ */
+export async function acceptPrivacyNotice(deps: SyncDeps, version: string, now: Date): Promise<'saved' | 'queued'> {
+  const registered = deps.store.current().credentials !== undefined;
+  await deps.store.update((current) => ({
+    ...current,
+    privacyVersion: version,
+    privacyAcceptedAt: now.toISOString(),
+    ...(registered ? { prefsPending: true } : {}),
+  }));
+  if (!registered) return 'queued';
+  return send(deps);
 }

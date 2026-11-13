@@ -152,3 +152,5 @@ export function mcPwa({ app, release = process.env['MC_RELEASE'] ?? 'dev' }: McP
     }),
   ];
 }
+
+export { EXTRA_LICENSES, type LicenseEntry, licensesFromPnpm, mcLicenses } from './licenses.ts';

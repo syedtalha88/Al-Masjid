@@ -45,6 +45,7 @@ export {
   resolveSession,
   revokeSessions,
   SESSION_LIFETIMES,
+  UNDERTAKING_REMINDER_MS,
 } from './auth.ts';
 export {
   type BeneficiaryCategory,

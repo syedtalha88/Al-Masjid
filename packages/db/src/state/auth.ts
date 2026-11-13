@@ -38,7 +38,14 @@ interface AdminDoc {
   ui_locale: 'en' | 'hi' | 'ur' | 'te';
   user_handle: Binary;
   undertaking_version?: string;
+  undertaking_accepted_at?: Date;
 }
+
+/**
+ * The yearly re-acceptance of the admin undertaking (05 §2, PHASE_08 T8.6): an acceptance older than this no longer
+ * counts — the admin sees the undertaking again before the next write.
+ */
+export const UNDERTAKING_REMINDER_MS = 365 * 24 * 60 * 60 * 1000;
 
 interface CredentialDoc {
   _id: UUID;
@@ -564,8 +571,13 @@ export async function resolveSession(
     displayName: admin.display_name,
     uiLocale: admin.ui_locale,
     undertakingVersion: admin.undertaking_version,
+    // Current = the version in force, accepted within the last year. Acceptances recorded before T8.6 without a time
+    // count until a version change asks again.
     undertakingCurrent:
-      settings?.undertaking_version !== undefined && admin.undertaking_version === settings.undertaking_version,
+      settings?.undertaking_version !== undefined &&
+      admin.undertaking_version === settings.undertaking_version &&
+      (admin.undertaking_accepted_at === undefined ||
+        now.getTime() - admin.undertaking_accepted_at.getTime() < UNDERTAKING_REMINDER_MS),
     stepUpAt: found.step_up_at,
     masjids: memberships.map((m) => ({ id: m.masjid_id, role: m.role })),
   };

@@ -30,6 +30,7 @@ import { Route as DuaIndexRouteImport } from './routes/dua.index'
 import { Route as DuaAttachRouteImport } from './routes/dua.attach'
 import { Route as DuaDetailsRouteImport } from './routes/dua.details'
 import { Route as DuaPreviewRouteImport } from './routes/dua.preview'
+import { Route as LegalDocRouteImport } from './routes/legal.$doc'
 import { Route as NeedyIndexRouteImport } from './routes/needy.index'
 import { Route as NeedyIdRouteImport } from './routes/needy.$id'
 import { Route as NoticeIndexRouteImport } from './routes/notice.index'
@@ -163,6 +164,11 @@ const DuaDetailsRoute = DuaDetailsRouteImport.update({
 const DuaPreviewRoute = DuaPreviewRouteImport.update({
   id: '/dua/preview',
   path: '/dua/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalDocRoute = LegalDocRouteImport.update({
+  id: '/legal/$doc',
+  path: '/legal/$doc',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NeedyIndexRoute = NeedyIndexRouteImport.update({
@@ -330,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/dua/attach': typeof DuaAttachRoute
   '/dua/details': typeof DuaDetailsRoute
   '/dua/preview': typeof DuaPreviewRoute
+  '/legal/$doc': typeof LegalDocRoute
   '/needy/$id': typeof NeedyIdRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
@@ -382,6 +389,7 @@ export interface FileRoutesByTo {
   '/dua/attach': typeof DuaAttachRoute
   '/dua/details': typeof DuaDetailsRoute
   '/dua/preview': typeof DuaPreviewRoute
+  '/legal/$doc': typeof LegalDocRoute
   '/needy/$id': typeof NeedyIdRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
@@ -435,6 +443,7 @@ export interface FileRoutesById {
   '/dua/attach': typeof DuaAttachRoute
   '/dua/details': typeof DuaDetailsRoute
   '/dua/preview': typeof DuaPreviewRoute
+  '/legal/$doc': typeof LegalDocRoute
   '/needy/$id': typeof NeedyIdRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
@@ -489,6 +498,7 @@ export interface FileRouteTypes {
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
+    | '/legal/$doc'
     | '/needy/$id'
     | '/notice/fill'
     | '/notice/preview'
@@ -541,6 +551,7 @@ export interface FileRouteTypes {
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
+    | '/legal/$doc'
     | '/needy/$id'
     | '/notice/fill'
     | '/notice/preview'
@@ -593,6 +604,7 @@ export interface FileRouteTypes {
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
+    | '/legal/$doc'
     | '/needy/$id'
     | '/notice/fill'
     | '/notice/preview'
@@ -646,6 +658,7 @@ export interface RootRouteChildren {
   DuaAttachRoute: typeof DuaAttachRoute
   DuaDetailsRoute: typeof DuaDetailsRoute
   DuaPreviewRoute: typeof DuaPreviewRoute
+  LegalDocRoute: typeof LegalDocRoute
   NeedyIdRoute: typeof NeedyIdRoute
   NoticeFillRoute: typeof NoticeFillRoute
   NoticePreviewRoute: typeof NoticePreviewRoute
@@ -826,6 +839,13 @@ declare module '@tanstack/react-router' {
       path: '/dua/preview'
       fullPath: '/dua/preview'
       preLoaderRoute: typeof DuaPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/$doc': {
+      id: '/legal/$doc'
+      path: '/legal/$doc'
+      fullPath: '/legal/$doc'
+      preLoaderRoute: typeof LegalDocRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/needy/': {
@@ -1065,6 +1085,7 @@ const rootRouteChildren: RootRouteChildren = {
   DuaAttachRoute: DuaAttachRoute,
   DuaDetailsRoute: DuaDetailsRoute,
   DuaPreviewRoute: DuaPreviewRoute,
+  LegalDocRoute: LegalDocRoute,
   NeedyIdRoute: NeedyIdRoute,
   NoticeFillRoute: NoticeFillRoute,
   NoticePreviewRoute: NoticePreviewRoute,

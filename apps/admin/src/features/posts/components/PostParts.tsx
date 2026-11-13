@@ -6,6 +6,7 @@ import { MODERATION_CATEGORIES, type ModerationCategory } from '@mc/shared/compl
 import type { AdminItem, NoticeTemplate } from '@mc/shared/contracts';
 import { Button, Card, Sheet, Tag, type Tone } from '@mc/ui/components';
 import { FeedItemCard, ItemIcon, itemTitle } from '@mc/ui/content';
+import { useNavigator } from '@mc/ui/navigation';
 
 import { ltr } from '../../timings/lib/text.ts';
 import { POST_TYPES } from '../lib/posts.ts';
@@ -45,6 +46,7 @@ export interface PostCardProps {
 /** One of the masjid's posts with its actions (Edit only within 24 h, Delete only while published). */
 export function PostCard({ row, templates, now, editable, deletable, onView, onEdit, onDelete }: PostCardProps) {
   const { t } = useTranslation('admin');
+  const navigator = useNavigator();
   const { locale, format } = useLocale();
   const { item } = row;
   const type = POST_TYPES.find((entry) => entry === item.type) ?? 'all';
@@ -78,6 +80,17 @@ export function PostCard({ row, templates, now, editable, deletable, onView, onE
             </p>
           ) : null}
           <p className="text-text-secondary">{t('posts.removedHint')}</p>
+          <div>
+            <Button
+              variant="ghost"
+              size="md"
+              onPress={() => {
+                navigator.push('/legal/content-policy');
+              }}
+            >
+              {t('posts.readPolicy')}
+            </Button>
+          </div>
         </div>
       ) : null}
       {row.status === 'hidden' ? (

@@ -630,6 +630,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | O52 | **Sentry: e-mail on new issues** stays on (passed SLA deadlines are reported there — #172) | before launch | 5 min | any time |
 | O53 | **Grievance sealing key pair** for staging (then production): public half → api-public env, private half → api-admin env only (#173; steps in MY_PENDING_TASKS) | before Phase 08 on staging | 15 min | any time |
 | O54 | **Legal order document on staging**: attach → download the same file; Cloudinary lists it as raw / authenticated and its public link fails (#174) | Phase 08 exit | 10 min | after Phase 08 on staging |
+| O55 | **Legal review of the drafts** (privacy, terms, content policy, grievance, undertaking — `packages/i18n/legal/en/`) by your lawyer + human Hindi / Urdu / Telugu translations; confirm Cloudinary's and Sentry's data regions for the privacy notice (#175). Production builds refuse drafts | before Phase 09 launch | lawyer time | any time |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
 | O31 | **Translation review** of `packages/i18n/review/{hi,ur,te}.csv` (≈ 920 draft strings each) | pilot | translators | before pilot |
 | O32 | **Verified Content Library file** (`docs/content-library-format.md`) | pilot | — | before pilot |
@@ -921,7 +922,10 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   received time, target by post link / follow code, ★ update status / action / note, action log), 3 h timer in the SLA
   engine + C1, ★ Remove names an open order (→ actioned), documents AES-256-GCM in api-admin → Cloudinary `raw` +
   `authenticated`, ★ download decrypted through api-admin (migration 0027). Owner: O54 (staging Cloudinary check).
-- [ ] T8.6 — Legal texts, versions & reminders
+- [x] T8.6 — Legal texts, versions & reminders — **done 13 Nov 2026 (#175)**: privacy / terms / content policy /
+  grievance drafts (+ hi / ur / te draft translations), readers in both apps, licenses page generated at build,
+  production build refuses drafts (`MC_BUILD_ENV=production`), privacy re-acceptance (changed version / yearly),
+  yearly admin undertaking. Owner: O55 (legal review + human translations — blocks production).
 - [ ] T8.7 — Retention job (remaining rows of 02 §6)
 - [ ] T8.8 — QR poster generator (C3)
 - [ ] T8.9 — Kill switches & banners

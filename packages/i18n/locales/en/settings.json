@@ -156,5 +156,19 @@
     "limit": "You have sent the most grievances allowed for today. Try again tomorrow.",
     "contactUnavailable": "A contact cannot be taken right now. Send it without one, or try again later.",
     "failed": "It could not be sent. Please try again."
+  },
+  "terms": "Terms of use",
+  "contentPolicy": "Content policy",
+  "licenses": "Open-source licenses",
+  "licensesLead": "This app is built with these open-source packages, fonts and texts. Thank you to their authors.",
+  "draftTranslation": "DRAFT TRANSLATION",
+  "grievanceHow": "How grievances are handled",
+  "privacyNotice": {
+    "changedTitle": "Our privacy notice has changed",
+    "changedLead": "Please read the updated notice. You can keep using the app after you accept it.",
+    "yearlyTitle": "Your yearly privacy reminder",
+    "yearlyLead": "Once a year we show you what we keep and why. Nothing has changed unless the notice says so.",
+    "accept": "I understand",
+    "failed": "Could not save. Please try again."
   }
 }

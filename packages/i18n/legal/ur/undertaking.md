@@ -1,6 +1,7 @@
 ---
 version: draft-1
 status: draft
+translation: draft
 ---
 
 - میں اپنی مسجد کے بارے میں صرف سچی اور درست معلومات دوں گا/گی۔

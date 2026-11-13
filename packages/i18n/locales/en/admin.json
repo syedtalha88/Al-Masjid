@@ -452,7 +452,8 @@
       "copyright": "Copyright",
       "other": "Against the content policy",
       "legal_order": "Court or government order"
-    }
+    },
+    "readPolicy": "Read the content policy"
   },
   "profile": {
     "title": "Masjid Profile",
@@ -947,5 +948,19 @@
       "consent": "the tick that they agreed"
     },
     "personSaved": "Person saved"
+  },
+  "legal": {
+    "title": "Legal",
+    "notFound": "This page does not exist.",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use",
+    "contentPolicy": "Content policy",
+    "grievance": "Grievances",
+    "undertaking": "Admin undertaking",
+    "licenses": "Open-source licenses",
+    "draft": "DRAFT — requires legal review",
+    "draftTranslation": "DRAFT TRANSLATION",
+    "version": "Version {version}",
+    "licensesLead": "This app is built with these open-source packages, fonts and texts. Thank you to their authors."
   }
 }

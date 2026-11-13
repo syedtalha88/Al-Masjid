@@ -3123,3 +3123,34 @@ resolution, due time, dashboard timer + SLA job once per threshold and stops whe
 ★ Remove link, ciphertext at rest, ★ download byte-for-byte, wrong order never decrypts, 415, 403 without step-up),
 role guard (+5 routes), e2e `admin/legal-orders.spec.ts` (record → C7 + C1 timer → attach → download → acted on) on
 Pixel 7.
+
+### #175 — Legal texts, versions and re-acceptance (PHASE_08 T8.6) — ACCEPTED (Claude Code, 13 Nov 2026; legal review + human translation = owner O55)
+**Texts:** `privacy`, `terms`, `content-policy`, `grievance` and `undertaking` in `packages/i18n/legal/<locale>/` — English
+drafts by Claude Code, Hindi / Urdu / Telugu machine drafts marked `translation: draft` (shown as "DRAFT TRANSLATION",
+05 §10), all `status: draft` (shown as "DRAFT — requires legal review"). The privacy draft lists the data categories
+(devices, reports, grievances, admins), purposes, retention table, processors and regions (server host + Atlas in
+Mumbai, Cloudflare worldwide, Cloudinary and Sentry **"region to be confirmed"** — not recorded anywhere in our docs,
+so the text says so rather than guess), rights, Grievance Officer, children, no ads / tracking, changes. The versions
+stay `draft-1` (nothing was accepted outside tests yet); the owner sets the reviewed version at launch.
+**Production gate:** `mcLegalGate()` (both PWAs' Vite builds) fails a build with `MC_BUILD_ENV=production` while any
+document is `status: draft`, naming the files; only `deploy-prod.yml` passes `MC_BUILD_ENV=production` to the web
+image (caddy.Dockerfile). Staging and local builds pass and show the banner. Parsing moved to `legal-parse.ts` (no
+bundler globs) so the gate runs in Node.
+**Readers:** musalli Settings → Privacy, About → Terms / Content policy / Licenses, the grievance process on Contact &
+Grievance; admin `/legal/$doc` (undertaking, content policy, terms, privacy, licenses) from Account, and "Read the
+content policy" on a removed post in My Posts (07 B-My Posts, T8.2 leftover).
+**Re-acceptance:** musalli — `privacyRecheck` (pure): after onboarding, when `/config` → `legalVersions.privacy` differs
+from the accepted version (`changed`) or a year after `privacyAcceptedAt` (new, optional; onboarding time stands in
+for older phones) (`yearly`), a sheet shows the notice; "I understand" stores the **server's** version + time and sends
+it with the preferences sync (`PATCH /devices/me`, queued offline). "Later" hides it until the next start. Admin — the
+undertaking counts as current only in the version in force **and** within 365 days of `undertaking_accepted_at`
+(acceptances without a time count until a version change); otherwise the existing undertaking gate (writes 403
+`UNDERTAKING_REQUIRED`, B2 screen) asks again.
+**Licenses:** `mcLicenses(pkg)` emits `/licenses.json` from `pnpm licenses list --prod --filter <app>...` (workspace
+packages' dependencies included — fonts OFL-1.1, adhan, motion, …; our `@mc/*` left out) plus the Content Library
+texts entry; served the same way in dev; validated by `licensesFileSchema`; names link to each package's homepage.
+**Tests:** i18n `legal` 4 (every document × locale, same version / point count, translations marked; the production
+gate throws on drafts and passes otherwise), app `preferences` +2 (recheck rules, acceptance saved / queued), db
+`auth-state` +1 (yearly undertaking), e2e `admin/legal-reaccept.spec.ts` 2 (changed → accept → server holds it →
+not asked again; yearly via the browser clock; admin undertaking again after a version change; readers + licenses axe
+clean) on Pixel 7. The Playwright fixture device now carries a fresh `privacyAcceptedAt`.

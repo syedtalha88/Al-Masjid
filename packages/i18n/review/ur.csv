@@ -394,6 +394,7 @@ admin,posts.category.private_info,Personal or private information,ذاتی یا 
 admin,posts.category.copyright,Copyright,کاپی رائٹ,no
 admin,posts.category.other,Against the content policy,مواد کی پالیسی کے خلاف,no
 admin,posts.category.legal_order,Court or government order,عدالت یا سرکاری حکم,no
+admin,posts.readPolicy,Read the content policy,مواد کی پالیسی پڑھیں,no
 admin,profile.title,Masjid Profile,مسجد پروفائل,no
 admin,profile.photo,Photo,تصویر,no
 admin,profile.photoNone,No photo yet,ابھی کوئی تصویر نہیں,no
@@ -806,6 +807,18 @@ admin,needy.issue.cap,the amount needed,ضرورت کی رقم,no
 admin,needy.issue.phone,a valid phone number,درست فون نمبر,no
 admin,needy.issue.consent,the tick that they agreed,رضامندی کا ٹک,no
 admin,needy.personSaved,Person saved,شخص محفوظ ہو گیا,no
+admin,legal.title,Legal,قانونی,no
+admin,legal.notFound,This page does not exist.,یہ صفحہ موجود نہیں۔,no
+admin,legal.privacy,Privacy policy,رازداری کی پالیسی,no
+admin,legal.terms,Terms of use,استعمال کی شرائط,no
+admin,legal.contentPolicy,Content policy,مواد کی پالیسی,no
+admin,legal.grievance,Grievances,شکایتیں,no
+admin,legal.undertaking,Admin undertaking,ایڈمن عہد نامہ,no
+admin,legal.licenses,Open-source licenses,اوپن سورس لائسنس,no
+admin,legal.draft,DRAFT — requires legal review,ڈرافٹ — قانونی جائزہ باقی,no
+admin,legal.draftTranslation,DRAFT TRANSLATION,ڈرافٹ ترجمہ,no
+admin,legal.version,Version {version},ورژن {version},no
+admin,legal.licensesLead,"This app is built with these open-source packages, fonts and texts. Thank you to their authors.",یہ ایپ ان اوپن سورس پیکجوں، فونٹس اور متون سے بنی ہے۔ ان کے مصنفین کا شکریہ۔,no
 common,appError.title,Something went wrong,کچھ غلط ہو گیا,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.",براہِ کرم دوبارہ کوشش کریں۔ اگر بار بار ہو تو اپنا انٹرنیٹ کنکشن چیک کریں۔,no
 common,appError.retry,Try again,دوبارہ کوشش کریں,no
@@ -1598,6 +1611,18 @@ settings,grievanceForm.offline,You're offline. Try again when you're connected.,
 settings,grievanceForm.limit,You have sent the most grievances allowed for today. Try again tomorrow.,آج کے لیے آپ سب سے زیادہ شکایات بھیج چکے ہیں۔ کل دوبارہ کوشش کریں۔,no
 settings,grievanceForm.contactUnavailable,"A contact cannot be taken right now. Send it without one, or try again later.",ابھی رابطہ نہیں لیا جا سکتا۔ اس کے بغیر بھیجیں یا بعد میں کوشش کریں۔,no
 settings,grievanceForm.failed,It could not be sent. Please try again.,یہ بھیجی نہیں جا سکی۔ براہِ کرم دوبارہ کوشش کریں۔,no
+settings,terms,Terms of use,استعمال کی شرائط,no
+settings,contentPolicy,Content policy,مواد کی پالیسی,no
+settings,licenses,Open-source licenses,اوپن سورس لائسنس,no
+settings,licensesLead,"This app is built with these open-source packages, fonts and texts. Thank you to their authors.",یہ ایپ ان اوپن سورس پیکجوں، فونٹس اور متون سے بنی ہے۔ ان کے مصنفین کا شکریہ۔,no
+settings,draftTranslation,DRAFT TRANSLATION,ڈرافٹ ترجمہ,no
+settings,grievanceHow,How grievances are handled,شکایتیں کیسے نمٹائی جاتی ہیں,no
+settings,privacyNotice.changedTitle,Our privacy notice has changed,ہمارا رازداری نوٹس بدل گیا ہے,no
+settings,privacyNotice.changedLead,Please read the updated notice. You can keep using the app after you accept it.,براہ کرم نیا نوٹس پڑھیں۔ قبول کرنے کے بعد آپ ایپ استعمال کرتے رہ سکتے ہیں۔,no
+settings,privacyNotice.yearlyTitle,Your yearly privacy reminder,آپ کی سالانہ رازداری یاد دہانی,no
+settings,privacyNotice.yearlyLead,Once a year we show you what we keep and why. Nothing has changed unless the notice says so.,سال میں ایک بار ہم دکھاتے ہیں کہ ہم کیا رکھتے ہیں اور کیوں۔ نوٹس میں نہ لکھا ہو تو کچھ نہیں بدلا۔,no
+settings,privacyNotice.accept,I understand,میں سمجھ گیا/گئی,no
+settings,privacyNotice.failed,Could not save. Please try again.,محفوظ نہیں ہو سکا۔ براہ کرم دوبارہ کوشش کریں۔,no
 super,title,Super Admin,سپر ایڈمن,no
 super,nav.label,Super Admin sections,سپر ایڈمن کے حصے,no
 super,nav.dashboard,Dashboard,ڈیش بورڈ,no

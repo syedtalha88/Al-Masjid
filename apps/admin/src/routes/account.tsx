@@ -13,7 +13,7 @@ import {
   useToast,
 } from '@mc/ui/components';
 import { CopyIcon, DeviceMobileIcon, FingerprintIcon, PlusIcon, ShareIcon, SignOutIcon } from '@mc/ui/icons';
-import { Screen } from '@mc/ui/navigation';
+import { Screen, useNavigator } from '@mc/ui/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -101,6 +101,7 @@ function AccountContent() {
     onError,
   });
 
+  const nav = useNavigator();
   return (
     <Screen title={t('account.title')}>
       <div className="flex flex-col gap-8 pb-10">
@@ -200,6 +201,33 @@ function AccountContent() {
             <InfoNote>{t('undertaking.accepted', { version: me.undertakingVersion })}</InfoNote>
           </section>
         ) : null}
+
+        {/* 05 §10 (T8.6): the legal texts and licenses. */}
+        <section className="flex flex-col gap-3" data-legal-links>
+          <SectionHeader title={t('legal.title')} />
+          <ul className="flex flex-col divide-y divide-border rounded-md bg-surface shadow-e1">
+            {(
+              [
+                ['undertaking', 'legal.undertaking'],
+                ['content-policy', 'legal.contentPolicy'],
+                ['terms', 'legal.terms'],
+                ['privacy', 'legal.privacy'],
+                ['licenses', 'legal.licenses'],
+              ] as const
+            ).map(([doc, key]) => (
+              <li key={doc}>
+                <ListRow
+                  className="px-4"
+                  title={t(key)}
+                  chevron
+                  onPress={() => {
+                    nav.push(`/legal/${doc}`);
+                  }}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
 
         <section className="flex flex-col gap-3">
           <Button

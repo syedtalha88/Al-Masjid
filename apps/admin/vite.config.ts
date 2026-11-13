@@ -1,9 +1,9 @@
-import { mcIcuPrecompile, mcLocaleBoot } from '@mc/i18n/vite';
+import { mcIcuPrecompile, mcLegalGate, mcLocaleBoot } from '@mc/i18n/vite';
 import { BRAND } from '@mc/shared/brand';
 import { configureZodForCsp } from '@mc/shared/browser';
 import { CLIENT_ENV_PREFIX, parseClientEnv } from '@mc/shared/env';
 import { fontBaseName, LOCALE_PRELOAD_FONTS } from '@mc/ui/fonts';
-import { mcPwa } from '@mc/ui/vite';
+import { mcLicenses, mcPwa } from '@mc/ui/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
@@ -21,6 +21,8 @@ const brandHtml = (): Plugin => ({
     html.replaceAll('%MC_APP_NAME%', BRAND.adminName).replaceAll('%MC_THEME_COLOR%', BRAND.colors.theme),
 });
 
+const PKG_NAME = '@mc/admin';
+
 /** Admin + Super Admin PWA (apps/admin). Dev: http://localhost:5174, `/api` proxied to api-admin (01 §6). */
 export default defineConfig(({ mode }) => {
   // Validate every VITE_* variable at build/dev start: only VITE_PUBLIC_* may exist (04 §11, CLAUDE.md §8).
@@ -35,6 +37,10 @@ export default defineConfig(({ mode }) => {
       brandHtml(),
       // Zod must be jitless before any schema is built, or its eval probe trips Trusted Types (04 §7).
       mcIcuPrecompile(),
+      // 05 §10 (T8.6): a production build refuses legal texts still marked draft.
+      mcLegalGate(),
+      // 05 §10 (T8.6): /licenses.json from the production dependency tree.
+      mcLicenses(PKG_NAME),
       mcLocaleBoot({ preloadFonts, before: [configureZodForCsp] }),
       ...mcPwa({ app: 'admin' }),
     ],

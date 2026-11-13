@@ -394,6 +394,7 @@ admin,posts.category.private_info,Personal or private information,వ్యక�
 admin,posts.category.copyright,Copyright,కాపీరైట్,no
 admin,posts.category.other,Against the content policy,కంటెంట్ విధానానికి విరుద్ధం,no
 admin,posts.category.legal_order,Court or government order,కోర్టు లేదా ప్రభుత్వ ఆదేశం,no
+admin,posts.readPolicy,Read the content policy,కంటెంట్ విధానం చదవండి,no
 admin,profile.title,Masjid Profile,మస్జిద్ ప్రొఫైల్,no
 admin,profile.photo,Photo,ఫోటో,no
 admin,profile.photoNone,No photo yet,ఇంకా ఫోటో లేదు,no
@@ -806,6 +807,18 @@ admin,needy.issue.cap,the amount needed,కావలసిన మొత్తం
 admin,needy.issue.phone,a valid phone number,సరైన ఫోన్ నంబర్,no
 admin,needy.issue.consent,the tick that they agreed,అంగీకార టిక్,no
 admin,needy.personSaved,Person saved,వ్యక్తి వివరాలు సేవ్ అయ్యాయి,no
+admin,legal.title,Legal,చట్టపరమైనవి,no
+admin,legal.notFound,This page does not exist.,ఈ పేజీ లేదు.,no
+admin,legal.privacy,Privacy policy,గోప్యతా విధానం,no
+admin,legal.terms,Terms of use,వినియోగ నిబంధనలు,no
+admin,legal.contentPolicy,Content policy,కంటెంట్ విధానం,no
+admin,legal.grievance,Grievances,ఫిర్యాదులు,no
+admin,legal.undertaking,Admin undertaking,అడ్మిన్ హామీపత్రం,no
+admin,legal.licenses,Open-source licenses,ఓపెన్-సోర్స్ లైసెన్స్‌లు,no
+admin,legal.draft,DRAFT — requires legal review,డ్రాఫ్ట్ — చట్టపరమైన సమీక్ష అవసరం,no
+admin,legal.draftTranslation,DRAFT TRANSLATION,డ్రాఫ్ట్ అనువాదం,no
+admin,legal.version,Version {version},వెర్షన్ {version},no
+admin,legal.licensesLead,"This app is built with these open-source packages, fonts and texts. Thank you to their authors.","ఈ యాప్ ఈ ఓపెన్-సోర్స్ ప్యాకేజీలు, ఫాంట్‌లు, పాఠాలతో తయారైంది. వాటి రచయితలకు ధన్యవాదాలు.",no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -1598,6 +1611,18 @@ settings,grievanceForm.offline,You're offline. Try again when you're connected.,
 settings,grievanceForm.limit,You have sent the most grievances allowed for today. Try again tomorrow.,ఈ రోజుకు అనుమతించిన అన్ని ఫిర్యాదులను మీరు పంపారు. రేపు మళ్లీ ప్రయత్నించండి.,no
 settings,grievanceForm.contactUnavailable,"A contact cannot be taken right now. Send it without one, or try again later.",ఇప్పుడు సంప్రదింపు వివరాలు తీసుకోలేము. అది లేకుండా పంపండి లేదా తర్వాత ప్రయత్నించండి.,no
 settings,grievanceForm.failed,It could not be sent. Please try again.,పంపలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+settings,terms,Terms of use,వినియోగ నిబంధనలు,no
+settings,contentPolicy,Content policy,కంటెంట్ విధానం,no
+settings,licenses,Open-source licenses,ఓపెన్-సోర్స్ లైసెన్స్‌లు,no
+settings,licensesLead,"This app is built with these open-source packages, fonts and texts. Thank you to their authors.","ఈ యాప్ ఈ ఓపెన్-సోర్స్ ప్యాకేజీలు, ఫాంట్‌లు, పాఠాలతో తయారైంది. వాటి రచయితలకు ధన్యవాదాలు.",no
+settings,draftTranslation,DRAFT TRANSLATION,డ్రాఫ్ట్ అనువాదం,no
+settings,grievanceHow,How grievances are handled,ఫిర్యాదులు ఎలా పరిష్కరించబడతాయి,no
+settings,privacyNotice.changedTitle,Our privacy notice has changed,మా గోప్యతా నోటీసు మారింది,no
+settings,privacyNotice.changedLead,Please read the updated notice. You can keep using the app after you accept it.,దయచేసి కొత్త నోటీసు చదవండి. అంగీకరించిన తర్వాత యాప్ వాడడం కొనసాగించవచ్చు.,no
+settings,privacyNotice.yearlyTitle,Your yearly privacy reminder,మీ వార్షిక గోప్యతా గుర్తు,no
+settings,privacyNotice.yearlyLead,Once a year we show you what we keep and why. Nothing has changed unless the notice says so.,"సంవత్సరానికి ఒకసారి మేము ఏమి ఉంచుతామో, ఎందుకో చూపిస్తాము. నోటీసులో చెప్పకపోతే ఏమీ మారలేదు.",no
+settings,privacyNotice.accept,I understand,నాకు అర్థమైంది,no
+settings,privacyNotice.failed,Could not save. Please try again.,సేవ్ చేయలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
 super,title,Super Admin,సూపర్ అడ్మిన్,no
 super,nav.label,Super Admin sections,సూపర్ అడ్మిన్ విభాగాలు,no
 super,nav.dashboard,Dashboard,డాష్‌బోర్డ్,no

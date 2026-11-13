@@ -1,6 +1,7 @@
 ---
 version: draft-1
 status: draft
+translation: draft
 ---
 
 - నా మస్జిద్ గురించి నిజమైన, సరైన సమాచారం మాత్రమే పంచుకుంటాను.
