@@ -43,6 +43,11 @@ and reports changes / issues to fix.
   name the test (only the mongo log; the retention-job test DB was active). Locally db int is 428/428 green → reproduce:
   run each db int file alone; suspects = `retention.int.test.ts` (L10 re-check inside the transaction), `policy`
   (L1), `moderation` (L3 / M6). Other jobs were still running at hand-off — read their results.
+- Same run: Typecheck/lint/i18n ✅, Unit + coverage ✅ (no-raw-colors fixed), **Security scans ❌ at step "VPS env
+  files — generation, --force keeps values, valid against the env schemas"** (`infra/vps/test/make-env.test.sh` +
+  `scripts/check-make-env.mjs`). Semgrep (the step before it) now passes. This step never ran in the earlier red runs
+  (Semgrep failed first), so it may be an older break — reproduce with the docker command in `ci.yml` line ~140.
+  Build/e2e/Lighthouse job was still running at hand-off.
 - Local stack rebuilt with `a665ee0` (`pnpm stack:up:test` OK — both APIs boot with the L7 key-size check) and seeded.
 - `pnpm test:visual` (compare) was started; its result was not read. Expected diff: the privacy reader ×4 (L11) →
   `pnpm test:visual:update`, keep only real changes. Afterwards `pnpm db:reset` (visual leaves the fixed-date seed).
