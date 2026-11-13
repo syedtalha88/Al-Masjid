@@ -10,6 +10,7 @@ import type { REPORT_REASON } from '../schema/enums.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText, newId } from '../values.ts';
+import { mirrorChandaTakedown } from './chanda.ts';
 
 export type ReportReasonValue = (typeof REPORT_REASON)[number];
 
@@ -206,6 +207,7 @@ export async function autoHideItem(
         { $set: { status: 'hidden', hidden_at: input.now, updated_at: input.now } },
       );
       if (matched !== 1) throw new StateError('ITEM_NOT_FOUND');
+      await mirrorChandaTakedown(store, item, true, input.now); // a chanda post's week goes with it (#180 M6)
     });
     await writeAudit(ctx, {
       action: 'item.autohide',

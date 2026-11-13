@@ -16136,7 +16136,7 @@
         }
       },
       "patch": {
-        "summary": "Edit global settings (C10)",
+        "summary": "Edit global settings (C10) — putting up a banner is ★ (fresh step-up); taking one down is not",
         "tags": [
           "super"
         ],

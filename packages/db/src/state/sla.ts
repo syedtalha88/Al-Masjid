@@ -23,19 +23,35 @@ export interface SlaTimer {
   readonly alerted: number;
 }
 
-/** At most this many timers are read at once (oldest due first). */
+/** At most this many open reports are read at once (earliest due first). */
 export const SLA_TIMERS_MAX = 500;
 
+/** Only timers whose last alert (100 %) has not been sent yet — what the job still has to act on. */
+const NOT_FULLY_ALERTED = { $or: [{ sla_alerted: { $exists: false } }, { sla_alerted: { $lt: 100 } }] };
+
+export interface ListSlaTimersOptions {
+  /** The job: skip timers whose 100 % alert was already sent, so they never take the place of newer ones. */
+  readonly pendingAlertsOnly?: boolean;
+}
+
 /**
- * The open timers, earliest due first — for the system's `sla-alerts` job and the Super Admin's dashboard (C1).
+ * The open timers — legal orders first, then grievances and reports, each group earliest due first — for the system's
+ * `sla-alerts` job and the Super Admin's dashboard (C1). Legal orders (entered by the Super Admin) and grievances
+ * (rate-limited, legally bound) are read in full; only reports are capped at {@link SLA_TIMERS_MAX}, so a report flood
+ * can never push a legal order or a grievance out of the list (#180 M3).
  *
  * @throws StateError FORBIDDEN unless the system or the Super Admin.
  */
-export async function listSlaTimers(handle: DbHandle, scope: Scope): Promise<SlaTimer[]> {
+export async function listSlaTimers(
+  handle: DbHandle,
+  scope: Scope,
+  options: ListSlaTimersOptions = {},
+): Promise<SlaTimer[]> {
   if (scope.kind !== 'system' && scope.kind !== 'super') throw new StateError('FORBIDDEN');
   const db = await handle.db();
+  const pending = options.pendingAlertsOnly === true ? NOT_FULLY_ALERTED : {};
   const reports = await scoped({ scope, db }, 'reports').find(
-    { status: 'open' },
+    { status: 'open', ...pending },
     { sort: { sla_due_at: 1, _id: 1 }, limit: SLA_TIMERS_MAX },
   );
   const fromReports = reports.flatMap((doc): SlaTimer[] => {
@@ -58,8 +74,8 @@ export async function listSlaTimers(handle: DbHandle, scope: Scope): Promise<Sla
   });
   // Grievances (T8.4): open → the 24 h acknowledgement clock; acknowledged → the resolve clock (from acknowledgement).
   const grievances = await scoped({ scope, db }, 'grievances').find(
-    { status: { $in: ['open', 'acknowledged'] } },
-    { sort: { ack_due_at: 1, _id: 1 }, limit: SLA_TIMERS_MAX },
+    { status: { $in: ['open', 'acknowledged'] }, ...pending },
+    { sort: { ack_due_at: 1, _id: 1 } },
   );
   const fromGrievances = grievances.flatMap((doc): SlaTimer[] => {
     const id: unknown = doc['_id'];
@@ -81,8 +97,8 @@ export async function listSlaTimers(handle: DbHandle, scope: Scope): Promise<Sla
   });
   // Legal orders (T8.5): the 3-hour clock runs from the entered received time until the order is acted on.
   const orders = await scoped({ scope, db }, 'legal_orders').find(
-    { status: 'received' },
-    { sort: { due_at: 1, _id: 1 }, limit: SLA_TIMERS_MAX },
+    { status: 'received', ...pending },
+    { sort: { due_at: 1, _id: 1 } },
   );
   const fromOrders = orders.flatMap((doc): SlaTimer[] => {
     const id: unknown = doc['_id'];
@@ -101,9 +117,8 @@ export async function listSlaTimers(handle: DbHandle, scope: Scope): Promise<Sla
       },
     ];
   });
-  return [...fromReports, ...fromGrievances, ...fromOrders]
-    .sort((a, b) => a.dueAt.getTime() - b.dueAt.getTime())
-    .slice(0, SLA_TIMERS_MAX);
+  const byDue = (a: SlaTimer, b: SlaTimer) => a.dueAt.getTime() - b.dueAt.getTime();
+  return [...fromOrders.sort(byDue), ...[...fromGrievances, ...fromReports].sort(byDue)];
 }
 
 /**

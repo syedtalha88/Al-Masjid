@@ -2,6 +2,8 @@
 // behind the router-level role guard (app.ts); ★ routes additionally need a step-up in the last 5 minutes. All changes
 // go through the state functions (scope checks, visibility mirror, version bump, audit) — routes only validate input
 // and shape output.
+import { randomUUID } from 'node:crypto';
+
 import { type DbHandle, idText, parseId } from '@mc/db';
 import {
   type AdminOfMasjid,
@@ -42,7 +44,9 @@ import {
   setAdminReadOnly,
   setLegalOrderDocument,
   setPushPaused,
+  setsBanner,
   SLA_WINDOW_MS,
+  STEP_UP_WINDOW_MS,
   updateLegalOrder,
   updateMasjid,
   updateSettings,
@@ -430,13 +434,17 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
         responses: { 204: Empty },
         handler: async ({ auth: session, params, body, clock, requestId, reply }) => {
           const reason = typeof body === 'object' && 'reason' in body ? body.reason : undefined;
+          const masjidId = idOr404(params.id, 'MASJID_NOT_FOUND');
           await changeMasjidStatus(db, session.scope, {
-            masjidId: idOr404(params.id, 'MASJID_NOT_FOUND'),
+            masjidId,
             transition,
             now: clock.now(),
             ...(reason ? { reason } : {}),
             requestId,
           });
+          // Every cached response of the masjid (bundle, needy list, posts) follows its new status at once (#180 M7).
+          const id = idText(masjidId);
+          await deps.cdn?.purgeTags([`m-${id}`], `masjid.${id}.${randomUUID()}`);
           return reply(204, {});
         },
       }),
@@ -946,7 +954,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
     defineRoute({
       method: 'patch',
       path: '/settings',
-      summary: 'Edit global settings (C10)',
+      summary: 'Edit global settings (C10) — putting up a banner is ★ (fresh step-up); taking one down is not',
       tags: ['super'],
       auth: 'super',
       rateLimit: writes,
@@ -955,6 +963,10 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       },
       responses: { 200: changedSchema },
       handler: async ({ auth, body, clock, requestId, reply }) => {
+        // ★ at the route too (04 §5, #180 M5); updateSettings checks it again.
+        const stepUpAt = auth.session.stepUpAt?.getTime();
+        const age = stepUpAt === undefined ? Number.NaN : clock.now().getTime() - stepUpAt;
+        if (setsBanner(body) && !(age >= 0 && age <= STEP_UP_WINDOW_MS)) throw new ApiProblem(403, 'STEP_UP_REQUIRED');
         const changed = await updateSettings(db, auth.scope, {
           patch: defined(body),
           now: clock.now(),

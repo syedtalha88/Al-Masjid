@@ -3,7 +3,10 @@
 // (05 §1). The private part is encrypted here with the field key (AES-256-GCM, context `beneficiaries.private_enc`)
 // before it reaches the data layer and decrypted only for an admin of the same masjid — each view is audited. The
 // repositories re-resolve the masjid under the session's scope, so another masjid answers like an unknown one.
-import { type DbHandle, parseId } from '@mc/db';
+// Every change purges the masjid's CDN tag at once (F67, #180 M7) — the public list is otherwise cached for a day.
+import { randomUUID } from 'node:crypto';
+
+import { type DbHandle, idText, parseId } from '@mc/db';
 import { listBeneficiariesForAdmin } from '@mc/db/repos';
 import {
   type BeneficiaryInput,
@@ -29,10 +32,13 @@ import { z } from 'zod';
 import { decryptField, encryptField, type FieldKeyRing } from '../crypto/field.ts';
 import { defineRoute, type RouteDefinition } from '../http/define-route.ts';
 import { ApiProblem } from '../http/problem.ts';
+import type { CdnPurgeService } from '../queue/cdn.ts';
 
 export interface BeneficiaryRouteDeps {
   readonly db: DbHandle;
   readonly keyRing: FieldKeyRing;
+  /** CDN purge (worker job); absent in unit tests — the one-day cache is then the only bound. */
+  readonly cdn?: CdnPurgeService | undefined;
 }
 
 /** Associated data of the ciphertext: a value copied into another field or collection does not decrypt. */
@@ -76,6 +82,12 @@ function encryptPrivate(ring: FieldKeyRing, value: BeneficiaryPrivate): string |
 export function adminBeneficiaryRoutes(deps: BeneficiaryRouteDeps): RouteDefinition[] {
   const { db, keyRing } = deps;
   const writes = [{ bucket: 'adminWrites', key: 'session' }] as const;
+  /** The public needy list changed: purge `m-<masjidId>` (never throws; a failed enqueue leaves the one-day cache). */
+  const purge = async (masjidId: ReturnType<typeof masjidIdOf>) => {
+    const id = idText(masjidId);
+    // A fresh key per change: two changes in one millisecond must not collapse into one (already finished) purge.
+    await deps.cdn?.purgeTags([`m-${id}`], `needy.${id}.${randomUUID()}`);
+  };
   return [
     defineRoute({
       method: 'get',
@@ -113,6 +125,7 @@ export function adminBeneficiaryRoutes(deps: BeneficiaryRouteDeps): RouteDefinit
           now: clock.now(),
           requestId,
         });
+        await purge(masjidIdOf(params.masjidId));
         return reply(201, { ...created, status: 'active' as const });
       },
     }),
@@ -137,6 +150,7 @@ export function adminBeneficiaryRoutes(deps: BeneficiaryRouteDeps): RouteDefinit
           now: clock.now(),
           requestId,
         });
+        await purge(masjidIdOf(params.masjidId));
         return reply(200, { id: params.id.toLowerCase(), status: status === 'fulfilled' ? 'fulfilled' : 'active' });
       },
     }),
@@ -157,6 +171,7 @@ export function adminBeneficiaryRoutes(deps: BeneficiaryRouteDeps): RouteDefinit
           now: clock.now(),
           requestId,
         });
+        await purge(masjidIdOf(params.masjidId));
         return reply(200, {
           status: result.status === 'fulfilled' ? 'fulfilled' : 'active',
           fundedPermille: result.fundedPermille,
@@ -180,6 +195,7 @@ export function adminBeneficiaryRoutes(deps: BeneficiaryRouteDeps): RouteDefinit
           now: clock.now(),
           requestId,
         });
+        await purge(masjidIdOf(params.masjidId));
         return reply(204, {});
       },
     }),
@@ -200,6 +216,7 @@ export function adminBeneficiaryRoutes(deps: BeneficiaryRouteDeps): RouteDefinit
           now: clock.now(),
           requestId,
         });
+        await purge(masjidIdOf(params.masjidId));
         return reply(204, {});
       },
     }),

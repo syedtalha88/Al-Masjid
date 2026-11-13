@@ -3269,5 +3269,23 @@ Review result: 0 HIGH, 7 MEDIUM, 12 LOW (list in PROGRESS "Next session"). Fixed
   daily retention run deletes any audit entry with `actor_type: 'device'` (new 02 §6 row; `deviceAudit` count).
 - **M4 — auto-hide purges like a removal.** `report-triage` enqueues `cdn-purge` (`i-<publicId>`, `m-<masjidId>`) and
   `media-access` after a post is hidden, one job each per post (`cdn.autohide.<id>`, `media.autohide.<id>`).
-Remaining (M3, M5, M6, M7, the LOWs, Semgrep `gcm-no-tag-length`) are listed in PROGRESS; this entry becomes ACCEPTED
-when they are done.
+- **M3 — a report flood never hides a legal deadline.** `listSlaTimers` reads legal orders and grievances in full
+  (only open reports stay capped at 500) and returns legal orders first, then grievances and reports by due time, so
+  C1's first rows are the legal orders. The `sla-alerts` job asks only for timers whose 100 % alert is not sent yet
+  (`pendingAlertsOnly`), so old, fully alerted reports never take the place of new ones. Test: 501 fully alerted
+  reports + a legal order + a grievance + a new urgent report → all three alert.
+- **M5 — putting up a banner is ★.** `PATCH /settings` with a maintenance or incident banner needs a step-up within 5
+  minutes (checked in the route and again in `updateSettings` via `setsBanner`); taking a banner down (`null`) and the
+  other settings stay plain, so an incident can be cleared fast. Banner text in any language that `mentionsPaymentAddress`
+  is refused (`PAYMENT_DETAILS_IN_TEXT`, #160). C10's banner save runs through `useStepUp` (e2e updated).
+- **M6 — a chanda post taken down takes its week with it.** Remove / auto-hide of a `chanda_update` post sets its
+  `chanda_weeks.visible = false` in the same transaction (`mirrorChandaTakedown`); restore sets it back to the masjid's
+  "Show chanda". The "Show chanda" mirror skips weeks whose post is removed or hidden. Saving a week whose post was
+  removed is refused (`ITEM_ALREADY_REMOVED` — existing words; it used to publish a fresh post in its place); an
+  auto-hidden week's figures are saved but stay hidden, and "Notify followers" is refused (`CHANDA_HIDDEN`).
+- **M7 — F67 closed: the needy list leaves the CDN at once.** Every needy-person change (add, replace, received, close,
+  remove) and every masjid status change (activate, suspend, unsuspend, delete) enqueues a `cdn-purge` of
+  `m-<masjidId>` (each with its own random job key — two changes in one millisecond must not collapse into one finished
+  job). The 90-day retention purge needs none: it only deletes people who were closed / removed (and purged then).
+Remaining (the LOWs, Semgrep `gcm-no-tag-length`) are listed in PROGRESS; this entry becomes ACCEPTED when they are
+done.

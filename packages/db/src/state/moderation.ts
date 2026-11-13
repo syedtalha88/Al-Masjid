@@ -9,6 +9,7 @@ import { contentWrite, markItemForPurge, StateError, writeAudit } from '../effec
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
 import { idText } from '../values.ts';
+import { mirrorChandaTakedown } from './chanda.ts';
 import { requireSuper } from './guards.ts';
 import { linkRemovalToLegalOrder } from './legal-orders.ts';
 
@@ -102,6 +103,7 @@ export async function removeItem(
       );
       if (result.matchedCount !== 1) throw new StateError('ITEM_NOT_FOUND');
       await markItemForPurge(store, item.masjid_id, input.itemId, input.now);
+      await mirrorChandaTakedown(store, item, true, input.now); // a chanda post's week goes with it (#180 M6)
     });
     const reportsClosed = await scoped(ctx, 'reports').updateMany(
       { target_type: 'item', target_id: input.itemId, status: 'open' },
@@ -169,6 +171,7 @@ export async function restoreItem(
         { session: store.session },
       );
       if (result.matchedCount !== 1) throw new StateError('ITEM_NOT_FOUND');
+      await mirrorChandaTakedown(store, item, false, input.now); // the week follows "Show chanda" again (#180 M6)
     });
     const reportsDismissed = await scoped(ctx, 'reports').updateMany(
       { target_type: 'item', target_id: input.itemId, status: 'open' },

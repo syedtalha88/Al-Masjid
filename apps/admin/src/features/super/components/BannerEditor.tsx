@@ -1,5 +1,6 @@
 // C10 banners (PHASE_08 T8.9): the maintenance banner (both apps) and the incident banner (every musalli), each written
 // in all four languages, saved whole and taken down with one tap. `/config` and `/auth/me` carry them within a minute.
+// Putting one up is ★ (confirm with the screen lock, #180 M5); taking one down is not.
 import { LOCALES, NATIVE_NAME } from '@mc/i18n/locales';
 import { useTranslation } from '@mc/i18n/react';
 import { BANNER_MAX, type SuperSettings } from '@mc/shared/contracts';
@@ -7,6 +8,7 @@ import { Button, InfoNote, SectionHeader, Tag, TextArea, useToast } from '@mc/ui
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
+import { StepUpCancelled, useStepUp } from '../../auth/components/StepUpProvider.tsx';
 import { ME_KEY, useErrorText } from '../../auth/hooks/use-session.ts';
 import { superApi } from '../api/super-api.ts';
 
@@ -26,6 +28,7 @@ export function BannerEditor({ kind, current, settingsKey }: BannerEditorProps) 
   const toast = useToast();
   const errorText = useErrorText();
   const queryClient = useQueryClient();
+  const run = useStepUp();
   const [text, setText] = useState<Banner>(current ?? EMPTY);
   const key = kind === 'maintenance' ? 'maintenanceBanner' : 'incidentBanner';
   const trimmed: Banner = { en: text.en.trim(), hi: text.hi.trim(), ur: text.ur.trim(), te: text.te.trim() };
@@ -33,7 +36,8 @@ export function BannerEditor({ kind, current, settingsKey }: BannerEditorProps) 
   const changed = LOCALES.some((locale) => trimmed[locale] !== (current?.[locale] ?? ''));
 
   const save = useMutation({
-    mutationFn: (next: Banner | null) => superApi.updateSettings({ [key]: next }),
+    mutationFn: (next: Banner | null) =>
+      next ? run(() => superApi.updateSettings({ [key]: next })) : superApi.updateSettings({ [key]: null }),
     onSuccess: async (_result, next) => {
       toast.show({ message: next ? t('banners.shownToast') : t('banners.removedToast'), tone: 'success' });
       if (!next) setText(EMPTY);
@@ -41,7 +45,7 @@ export function BannerEditor({ kind, current, settingsKey }: BannerEditorProps) 
       await queryClient.invalidateQueries({ queryKey: ME_KEY });
     },
     onError: (error) => {
-      toast.show({ message: errorText(error), tone: 'error' });
+      if (!(error instanceof StepUpCancelled)) toast.show({ message: errorText(error), tone: 'error' });
     },
   });
 

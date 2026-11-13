@@ -191,9 +191,11 @@ describe('report-triage state (system)', () => {
     expect(await raw('items').findOne({ _id: itemId })).toMatchObject({ status: 'hidden', hidden_at: NOW });
     expect(await version(ALPHA)).toBe(before + 1);
     expect(await getPublicItem(pub(), publicId, ['everyone', 'brothers', 'sisters'])).toBeNull();
+    // Unchanged — still with its target, so a repeat run can purge the CDN again (security review M4).
     expect(await autoHideItem(sys(), systemScope(), { itemId, reporters: 12, now: NOW })).toEqual({
       result: 'unchanged',
       status: 'hidden',
+      target: { publicId, masjidId: ALPHA },
     });
     expect(await version(ALPHA)).toBe(before + 1);
     const audits = await raw('audit_log').find({ action: 'item.autohide' }).toArray();

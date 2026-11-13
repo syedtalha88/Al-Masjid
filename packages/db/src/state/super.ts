@@ -1,5 +1,6 @@
 // Super Admin state functions (02 §3, 03 §5, PHASE_01 T1.11) and the admin's undertaking acceptance (T1.10). Each
 // asserts its scope (★ = fresh step-up), runs in one transaction and writes its audit entry there.
+import { mentionsPaymentAddress } from '@mc/domain/upi';
 import type { UUID } from 'mongodb';
 
 import { type DbHandle, type TxContext, withTransaction } from '../client.ts';
@@ -294,20 +295,34 @@ export interface SettingsPatch {
 
 const bannerDoc = (b: BannerPatch) => ({ en: b.en, hi: b.hi, ur: b.ur, te: b.te });
 
+/** Whether a settings patch puts up a banner (★ — every musalli or admin sees it; taking one down is not ★). */
+export function setsBanner(patch: {
+  readonly maintenanceBanner?: BannerPatch | null | undefined;
+  readonly incidentBanner?: BannerPatch | null | undefined;
+}): boolean {
+  return Boolean(patch.maintenanceBanner) || Boolean(patch.incidentBanner);
+}
+
 /**
  * Updates global settings (Super Admin) through the policy gateway (writable allow-list). Banners (T8.9) are set
- * whole (all four languages) or taken down with `null`; `/config` shows them within its 60-second cache.
+ * whole (all four languages) or taken down with `null`; `/config` shows them within its 60-second cache. Putting up a
+ * banner needs a step-up within the last 5 minutes and may not carry a payment address (04 R1, #160, #180 M5).
  *
  * @returns the database field names that changed.
- * @throws StateError FORBIDDEN, NOTHING_TO_UPDATE.
+ * @throws StateError FORBIDDEN, STEP_UP_REQUIRED (a banner without a fresh step-up), PAYMENT_DETAILS_IN_TEXT,
+ *   NOTHING_TO_UPDATE.
  */
 export async function updateSettings(
   handle: DbHandle,
   scope: Scope,
   input: { patch: SettingsPatch; requestId?: string; now?: Date },
 ): Promise<readonly string[]> {
-  const actor = requireSuper(scope);
   const p = input.patch;
+  const actor = requireSuper(scope, { stepUp: setsBanner(p), now: input.now ?? new Date() });
+  for (const banner of [p.maintenanceBanner, p.incidentBanner]) {
+    if (banner && [banner.en, banner.hi, banner.ur, banner.te].some((text) => mentionsPaymentAddress(text)))
+      throw new StateError('PAYMENT_DETAILS_IN_TEXT');
+  }
   const set: Record<string, unknown> = {
     ...(p.globalHijriOffset === undefined ? {} : { global_hijri_offset: p.globalHijriOffset }),
     ...(p.defaultPushQuota === undefined ? {} : { default_push_quota: p.defaultPushQuota }),

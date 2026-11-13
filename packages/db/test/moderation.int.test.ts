@@ -2,7 +2,8 @@
 // removal hides the post from the public view at once, keeps it (with the private note) for the Super Admin, shows the
 // masjid's admins the category but never the note or the content, marks it for the 180-day purge and closes its open
 // reports; no generic write can set `removed` / `hidden` or the moderation fields; restore undoes all of it (and
-// dismisses the reports that auto-hid a post); the queue counts the masjid's removals in 90 days.
+// dismisses the reports that auto-hid a post); the queue counts the masjid's removals in 90 days; a chanda post taken
+// down takes its week's public figures and note with it, and nothing brings them back but a restore (#180 M6).
 import { createHash, randomBytes } from 'node:crypto';
 
 import type { UUID } from 'mongodb';
@@ -24,12 +25,15 @@ import {
   registerDevice,
   removeItem,
   restoreItem,
+  setChandaSettings,
+  setChandaWeek,
 } from '../src/state/index.ts';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '../src/testing/index.ts';
 import { newId } from '../src/values.ts';
 
 const NOW = new Date('2026-11-13T06:30:00Z');
 const ALPHA = seedId('masjid-alpha');
+const DELTA = seedId('masjid-delta');
 const SUPER = newId();
 const ALL = ['everyone', 'brothers', 'sisters'] as const;
 const stepped = () => superScope(SUPER, NOW);
@@ -225,5 +229,84 @@ describe('removeItem / restoreItem / dismissReport', () => {
     expect(await takedown()).toEqual({ images: [key], audio: [], restrict: false });
     expect(await code(mediaForTakedown(as('mc_admin'), stepped(), { itemId: removedId }))).toBe('FORBIDDEN');
     await items.updateOne({ _id: removedId }, { $set: { status: before?.status ?? 'published' } });
+  });
+});
+
+describe('chanda posts taken down (#180 M6)', () => {
+  const deltaAdmin = adminScope({ adminId: newId(), masjids: [{ id: DELTA, role: 'owner' }] });
+  type Week = { _id: UUID; week_start: string; item_id: UUID; visible: boolean; amount_paise: unknown };
+  const weeks = () => t().db.collection<Week>('chanda_weeks');
+  /** Week starts in the public view (what the musalli app reads). */
+  const publicWeeks = async () =>
+    (
+      await t()
+        .db.collection<{ masjid_id: UUID; week_start: string }>('v_pub_chanda_weeks')
+        .find({ masjid_id: DELTA })
+        .toArray()
+    )
+      .map((row) => row.week_start)
+      .sort();
+  const chandaItems = () => t().db.collection('items').countDocuments({ masjid_id: DELTA, type: 'chanda_update' });
+  const latestWeek = async () => {
+    const week = await weeks().findOne({ masjid_id: DELTA }, { sort: { week_start: -1 } });
+    if (!week) throw new Error('no seeded chanda week');
+    return week;
+  };
+
+  it('removed: the week leaves the public view; showing chanda again and saving the week never bring it back; restore does', async () => {
+    const week = await latestWeek();
+    expect(await publicWeeks()).toContain(week.week_start);
+    await removeItem(as('mc_admin'), stepped(), { itemId: week.item_id, category: 'other', now: NOW });
+    expect(await weeks().findOne({ _id: week._id })).toMatchObject({ visible: false });
+    expect(await publicWeeks()).not.toContain(week.week_start);
+    const others = (await publicWeeks()).length;
+    expect(others).toBeGreaterThan(0);
+
+    // "Show chanda" off and on again: every other week returns, the removed one stays hidden.
+    await setChandaSettings(as('mc_admin'), deltaAdmin, { masjidId: DELTA, show: false, now: NOW });
+    expect(await publicWeeks()).toEqual([]);
+    await setChandaSettings(as('mc_admin'), deltaAdmin, { masjidId: DELTA, show: true, now: NOW });
+    expect(await publicWeeks()).toHaveLength(others);
+    expect(await publicWeeks()).not.toContain(week.week_start);
+
+    // Saving the week again is refused — it would publish a new post in place of the removed one.
+    const posts = await chandaItems();
+    const save = { masjidId: DELTA, weekStart: week.week_start, amountPaise: 100, notify: false, now: NOW };
+    expect(await code(setChandaWeek(as('mc_admin'), deltaAdmin, save))).toBe('ITEM_ALREADY_REMOVED');
+    expect(await chandaItems()).toBe(posts);
+    expect(await weeks().findOne({ _id: week._id })).toMatchObject({ amount_paise: week.amount_paise });
+
+    await restoreItem(as('mc_admin'), stepped(), { itemId: week.item_id, now: NOW });
+    expect(await weeks().findOne({ _id: week._id })).toMatchObject({ visible: true });
+    expect(await publicWeeks()).toContain(week.week_start);
+  });
+
+  it('auto-hidden: hidden with its post; a save keeps the figures but publishes nothing; notify is refused', async () => {
+    const week = await latestWeek();
+    await autoHideItem(as('mc_system'), systemScope(), { itemId: week.item_id, reporters: 10, now: NOW });
+    expect(await publicWeeks()).not.toContain(week.week_start);
+    const posts = await chandaItems();
+    const save = { masjidId: DELTA, weekStart: week.week_start, amountPaise: 4_200, notify: false, now: NOW };
+    expect(await setChandaWeek(as('mc_admin'), deltaAdmin, save)).toMatchObject({ created: false });
+    expect(await chandaItems()).toBe(posts);
+    expect(await t().db.collection<{ _id: UUID }>('items').findOne({ _id: week.item_id })).toMatchObject({
+      status: 'hidden',
+    });
+    expect(await publicWeeks()).not.toContain(week.week_start);
+    expect(await code(setChandaWeek(as('mc_admin'), deltaAdmin, { ...save, notify: true }))).toBe('CHANDA_HIDDEN');
+
+    // Restored: public again (Delta shows its chanda).
+    await restoreItem(as('mc_admin'), stepped(), { itemId: week.item_id, now: NOW });
+    expect(await publicWeeks()).toContain(week.week_start);
+  });
+
+  it('a restore while the masjid hides its chanda keeps the week hidden', async () => {
+    const week = await latestWeek();
+    await removeItem(as('mc_admin'), stepped(), { itemId: week.item_id, category: 'other', now: NOW });
+    await setChandaSettings(as('mc_admin'), deltaAdmin, { masjidId: DELTA, show: false, now: NOW });
+    await restoreItem(as('mc_admin'), stepped(), { itemId: week.item_id, now: NOW });
+    expect(await weeks().findOne({ _id: week._id })).toMatchObject({ visible: false });
+    await setChandaSettings(as('mc_admin'), deltaAdmin, { masjidId: DELTA, show: true, now: NOW });
+    expect(await publicWeeks()).toContain(week.week_start);
   });
 });

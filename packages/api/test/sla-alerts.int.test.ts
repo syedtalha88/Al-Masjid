@@ -1,14 +1,14 @@
 // PHASE_08 T8.3 — the `sla-alerts` job as mc_system with a controlled clock (05 §3 timers): an urgent report (2 h)
 // alerts once at 1 h (50 %), once at 1 h 36 (80 %), once at 2 h (100 %) and never again; a normal report (36 h) only
 // at its own thresholds; a timer that jumped thresholds while the worker was down alerts once, at the highest; a
-// closed report stops alerting.
+// closed report stops alerting; a flood of reports never pushes a legal order or a grievance out of the job (#180 M3).
 import { createHash, randomBytes } from 'node:crypto';
 
-import { deviceScope, idText, publicScope } from '@mc/db';
+import { deviceScope, idText, newId, publicScope } from '@mc/db';
 import { runMigrations } from '@mc/db/migrate';
 import { MIGRATIONS } from '@mc/db/migrations';
 import { seedPublicId } from '@mc/db/seed';
-import { createGrievance, createReport, registerDevice, type ReportReasonValue } from '@mc/db/state';
+import { createGrievance, createReport, registerDevice, type ReportReasonValue, SLA_TIMERS_MAX } from '@mc/db/state';
 import { createTestDatabase, processUserHandle, type TestDatabase } from '@mc/db/testing';
 import { ManualClock } from '@mc/shared/clock';
 import { reportSla } from '@mc/shared/compliance';
@@ -93,6 +93,7 @@ beforeEach(async () => {
   at(0);
   await t().db.collection('reports').deleteMany({});
   await t().db.collection('grievances').deleteMany({});
+  await t().db.collection('legal_orders').deleteMany({});
 });
 
 describe('sla-alerts', () => {
@@ -158,5 +159,54 @@ describe('sla-alerts', () => {
     await run();
     expect(sent.map((entry) => entry.type)).toEqual(['sla_50', 'sla_50']);
     expect(sent[1]?.jobId).toMatch(/grievance_resolve/u);
+  });
+
+  it('a report flood (more than the cap, all already alerted) never hides a legal order, a grievance or a new report', async () => {
+    const first = await report('misleading', seedPublicId('alpha', 3));
+    const reports = t().db.collection<{ _id: typeof first } & Record<string, unknown>>('reports');
+    const template = await reports.findOne({ _id: first });
+    if (!template) throw new Error('no report');
+    // Older and due earlier than everything below, every alert already sent.
+    await reports.insertMany(
+      Array.from({ length: SLA_TIMERS_MAX + 1 }, () => ({
+        ...template,
+        _id: newId(),
+        sla_due_at: new Date(START.getTime() + MINUTE),
+        sla_alerted: 100,
+      })),
+    );
+    await reports.deleteOne({ _id: first });
+    await t()
+      .db.collection<{ _id: typeof first } & Record<string, unknown>>('legal_orders')
+      .insertOne({
+        _id: newId(),
+        authority: 'Test authority',
+        reference_no: 'TEST-1',
+        received_at: START,
+        due_at: new Date(START.getTime() + 180 * MINUTE),
+        target_type: 'other',
+        target_id: 'test',
+        summary: 'Test order',
+        action_log: [],
+        status: 'received',
+        created_at: START,
+        updated_at: START,
+      });
+    await createGrievance(handle(asPublic), publicScope(), {
+      category: 'privacy',
+      description: 'Test grievance',
+      ackDueAt: new Date(START.getTime() + 24 * 60 * MINUTE),
+      resolveDueAt: new Date(START.getTime() + 72 * 60 * MINUTE),
+      now: START,
+    });
+    const fresh = idText(await report('private_info', seedPublicId('alpha', 4)));
+    at(12 * 60);
+    await run();
+    // Legal order 3 h → past due; grievance 24 h → half; the new urgent report 2 h → past due. No flood report again.
+    expect(sent.map((entry) => entry.jobId).sort()).toEqual([
+      expect.stringMatching(/^alert\.sla\.grievance_ack\..+\.50$/u),
+      expect.stringMatching(/^alert\.sla\.legal_order\..+\.100$/u),
+      `alert.sla.urgent_report.${fresh}.100`,
+    ]);
   });
 });

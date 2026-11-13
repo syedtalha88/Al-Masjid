@@ -40,7 +40,7 @@ export async function processSlaAlerts(deps: SlaAlertDeps): Promise<{ readonly a
   const scope = systemScope();
   const now = deps.clock.now();
   let alerts = 0;
-  for (const timer of await listSlaTimers(deps.db, scope)) {
+  for (const timer of await listSlaTimers(deps.db, scope, { pendingAlertsOnly: true })) {
     const { level } = slaProgress(timer.startAt, timer.dueAt, now);
     if (level === 0 || level <= timer.alerted) continue;
     const alertId = `sla.${timer.kind}.${idText(timer.id)}.${String(level)}`;

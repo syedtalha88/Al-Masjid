@@ -234,7 +234,14 @@ export {
   type RuqyahEntryInput,
   updateRuqyahEntry,
 } from './ruqyah.ts';
-export { listSlaTimers, markSlaAlerted, SLA_TIMERS_MAX, type SlaKind, type SlaTimer } from './sla.ts';
+export {
+  listSlaTimers,
+  type ListSlaTimersOptions,
+  markSlaAlerted,
+  SLA_TIMERS_MAX,
+  type SlaKind,
+  type SlaTimer,
+} from './sla.ts';
 export {
   deleteSpecialDate,
   type RamadanInput,
@@ -266,6 +273,7 @@ export {
   revokeAdminSessions,
   setAdminReadOnly,
   setPushPaused,
+  setsBanner,
   type SettingsPatch,
   updateMasjid,
   updateSettings,

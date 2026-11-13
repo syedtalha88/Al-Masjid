@@ -169,6 +169,26 @@ describe('admin read-only mode ★ (T8.9)', () => {
 });
 
 describe('maintenance banner (T8.9) — both apps', () => {
+  it('★: putting it up without a fresh step-up is refused (route and data layer); nothing is written', async () => {
+    await stepUp(false);
+    const refused = await asSuper('patch', '/settings').send({ maintenanceBanner: banner('maintenance') });
+    expect(refused.status).toBe(403);
+    expect(refused.body).toMatchObject({ code: 'STEP_UP_REQUIRED' });
+    expect((await settings()).maintenanceBanner).toBeUndefined();
+    // Other settings stay plain (not ★).
+    expect((await asSuper('patch', '/settings').send({ defaultPushQuota: 9 })).status).toBe(200);
+    await stepUp(true);
+  });
+
+  it('refuses a banner that carries a payment address, in any language (04 R1, #160)', async () => {
+    const response = await asSuper('patch', '/settings').send({
+      maintenanceBanner: { ...banner('maintenance'), ur: 'Test banner pay testmasjid@okaxis' },
+    });
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({ code: 'PAYMENT_DETAILS_IN_TEXT' });
+    expect((await settings()).maintenanceBanner).toBeUndefined();
+  });
+
   it('set in four languages: in settings, /auth/me (admin app) and /config (musalli app); audited', async () => {
     expect((await me()).maintenanceBanner).toBeUndefined();
     expect((await publicConfig()).maintenanceBanner).toBeUndefined();
@@ -198,8 +218,10 @@ describe('maintenance banner (T8.9) — both apps', () => {
     expect((await settings()).maintenanceBanner).toEqual(banner('maintenance'));
   });
 
-  it('null takes it down everywhere', async () => {
+  it('null takes it down everywhere — no step-up needed to take a banner down', async () => {
+    await stepUp(false);
     expect((await asSuper('patch', '/settings').send({ maintenanceBanner: null })).status).toBe(200);
+    await stepUp(true);
     expect((await settings()).maintenanceBanner).toBeUndefined();
     expect((await me()).maintenanceBanner).toBeUndefined();
     expect((await publicConfig()).maintenanceBanner).toBeUndefined();

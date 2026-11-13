@@ -13,7 +13,7 @@ import {
 } from './helpers.ts';
 
 // PHASE_08 T8.9 / T8.10 — the Super Admin's C10 kill switches and banners, C12 Stats and C11 audit filters:
-// - Settings: a maintenance banner in four languages shows on the admin Home, then comes down; admin read-only mode ★
+// - Settings: a maintenance banner ★ in four languages shows on the admin Home, then comes down; admin read-only mode ★
 //   (confirm + step-up) shows its banner on the C1 dashboard and is turned off again. (The API side — masjid admins'
 //   writes refused with READ_ONLY_MODE — is covered by kill-switches.int.test.ts.)
 // - Stats renders the hourly snapshot (the API answer is fixed here; the job and route have integration tests): every
@@ -62,10 +62,10 @@ async function signInSuper(page: Page) {
   await registerWithInvite(page, `${ADMIN_URL}/invite#${token}`, 'Test Owner', 'en');
 }
 
-/** The step-up dialog appears unless a step-up is still fresh (5 minutes). */
 /** A toast's visible text (the same words are also in the screen-reader live region). */
 const toast = (page: Page, text: string) => page.locator('p', { hasText: text });
 
+/** The step-up dialog appears unless a step-up is still fresh (5 minutes). */
 async function confirmStepUp(page: Page, done: ReturnType<Page['locator']>) {
   const stepUp = page
     .getByRole('dialog', { name: label('en', 'super', 'stepUp.title') })
@@ -94,8 +94,9 @@ test.describe('kill switches, stats and audit (T8.9, T8.10)', () => {
       await editor.getByRole('textbox', { name: 'हिन्दी' }).fill(BANNER.hi);
       await editor.getByRole('textbox', { name: 'اردو' }).fill(BANNER.ur);
       await editor.getByRole('textbox', { name: 'తెలుగు' }).fill(BANNER.te);
+      // Putting a banner up is ★ (#180 M5).
       await editor.getByRole('button', { name: label('en', 'super', 'banners.show') }).click();
-      await expect(toast(page, label('en', 'super', 'banners.shownToast'))).toBeVisible();
+      await confirmStepUp(page, toast(page, label('en', 'super', 'banners.shownToast')));
       await expect(editor.getByText(label('en', 'super', 'banners.live'))).toBeVisible();
       await expectAxeClean();
       await capture('c10-banners');
