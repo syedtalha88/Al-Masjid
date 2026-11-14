@@ -37,6 +37,10 @@ const cdn: CdnPurgeService = {
     purges.push({ tags, key });
     return Promise.resolve(purgeWorks);
   },
+  purgeMasjidSoon: (masjidId) => {
+    purges.push({ tags: [`m-${masjidId}`], key: 'soon' });
+    return Promise.resolve(purgeWorks);
+  },
   mediaAccess: (itemId) => {
     access.push({ itemId });
     return Promise.resolve(true);

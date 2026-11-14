@@ -13,6 +13,15 @@ export interface CdnPurgeService {
    */
   purgeTags(tags: readonly string[], key: string): Promise<boolean>;
   /**
+   * Enqueues a purge of a masjid's cached responses (`m-<id>`) for a frequent, routine change (needy list — #180 M7),
+   * merged per masjid per {@link MASJID_PURGE_WINDOW_MS}: one delayed job at the end of the window covers every change
+   * made in it (each change was committed before the job runs). Prioritised below takedowns, so a busy day of edits
+   * never holds back the purge of a removed post (security re-review N-M1). Never throws; failures are logged.
+   *
+   * @returns whether it was enqueued (or already queued for this window).
+   */
+  purgeMasjidSoon(masjidId: string, now: Date): Promise<boolean>;
+  /**
    * Enqueues a check of a post's files (F73): restricted while the post is not published, delivered while it is — the
    * worker reads the status (security review M1). Tries three times. Never throws.
    *
@@ -26,6 +35,14 @@ export interface CdnPurgeService {
    */
   retentionDryRun?(key: string): Promise<boolean>;
 }
+
+/** Routine masjid purges are merged over this window (one Cloudflare request per masjid per window at most). */
+export const MASJID_PURGE_WINDOW_MS = 10_000;
+/**
+ * BullMQ priority of merged routine purges. Jobs without a priority (takedowns, restores, masjid status changes) always
+ * run before prioritised ones; the worker's limiter keeps the queue under Cloudflare's tag-purge budget.
+ */
+export const ROUTINE_PURGE_PRIORITY = 10;
 
 /** The purge service over the job queues; `null` queues (unit tests, no Redis) make it report `false`. */
 export function cdnPurgeService(queues: JobQueues | null, logger: Logger): CdnPurgeService {
@@ -48,6 +65,22 @@ export function cdnPurgeService(queues: JobQueues | null, logger: Logger): CdnPu
         () =>
           queues?.enqueue('cdn-purge', { tags: [...tags] }, { jobId: `cdn.${key}`.slice(0, 120) }) ?? Promise.resolve(),
       ),
+    purgeMasjidSoon: (masjidId, now) => {
+      const at = now.getTime();
+      const window = Math.floor(at / MASJID_PURGE_WINDOW_MS);
+      return tryThrice('cdn purge', () => {
+        if (!queues) return Promise.resolve();
+        return queues.enqueue(
+          'cdn-purge',
+          { tags: [`m-${masjidId}`] },
+          {
+            jobId: `cdn.m.${masjidId}.${String(window)}`,
+            delayMs: (window + 1) * MASJID_PURGE_WINDOW_MS - at,
+            priority: ROUTINE_PURGE_PRIORITY,
+          },
+        );
+      });
+    },
     mediaAccess: (itemId, key) =>
       tryThrice(
         'media access',

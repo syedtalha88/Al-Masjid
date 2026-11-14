@@ -4,7 +4,6 @@
 // before it reaches the data layer and decrypted only for an admin of the same masjid — each view is audited. The
 // repositories re-resolve the masjid under the session's scope, so another masjid answers like an unknown one.
 // Every change purges the masjid's CDN tag at once (F67, #180 M7) — the public list is otherwise cached for a day.
-import { randomUUID } from 'node:crypto';
 
 import { type DbHandle, idText, parseId } from '@mc/db';
 import { listBeneficiariesForAdmin } from '@mc/db/repos';
@@ -82,11 +81,12 @@ function encryptPrivate(ring: FieldKeyRing, value: BeneficiaryPrivate): string |
 export function adminBeneficiaryRoutes(deps: BeneficiaryRouteDeps): RouteDefinition[] {
   const { db, keyRing } = deps;
   const writes = [{ bucket: 'adminWrites', key: 'session' }] as const;
-  /** The public needy list changed: purge `m-<masjidId>` (never throws; a failed enqueue leaves the one-day cache). */
-  const purge = async (masjidId: ReturnType<typeof masjidIdOf>) => {
-    const id = idText(masjidId);
-    // A fresh key per change: two changes in one millisecond must not collapse into one (already finished) purge.
-    await deps.cdn?.purgeTags([`m-${id}`], `needy.${id}.${randomUUID()}`);
+  /**
+   * The public needy list changed: purge `m-<masjidId>`, merged per masjid over a few seconds and behind takedown purges
+   * (security re-review N-M1). Never throws; a failed enqueue is logged and leaves the one-day cache.
+   */
+  const purge = async (masjidId: ReturnType<typeof masjidIdOf>, now: Date) => {
+    await deps.cdn?.purgeMasjidSoon(idText(masjidId), now);
   };
   return [
     defineRoute({
@@ -125,7 +125,7 @@ export function adminBeneficiaryRoutes(deps: BeneficiaryRouteDeps): RouteDefinit
           now: clock.now(),
           requestId,
         });
-        await purge(masjidIdOf(params.masjidId));
+        await purge(masjidIdOf(params.masjidId), clock.now());
         return reply(201, { ...created, status: 'active' as const });
       },
     }),
@@ -150,7 +150,7 @@ export function adminBeneficiaryRoutes(deps: BeneficiaryRouteDeps): RouteDefinit
           now: clock.now(),
           requestId,
         });
-        await purge(masjidIdOf(params.masjidId));
+        await purge(masjidIdOf(params.masjidId), clock.now());
         return reply(200, { id: params.id.toLowerCase(), status: status === 'fulfilled' ? 'fulfilled' : 'active' });
       },
     }),
@@ -171,7 +171,7 @@ export function adminBeneficiaryRoutes(deps: BeneficiaryRouteDeps): RouteDefinit
           now: clock.now(),
           requestId,
         });
-        await purge(masjidIdOf(params.masjidId));
+        await purge(masjidIdOf(params.masjidId), clock.now());
         return reply(200, {
           status: result.status === 'fulfilled' ? 'fulfilled' : 'active',
           fundedPermille: result.fundedPermille,
@@ -195,7 +195,7 @@ export function adminBeneficiaryRoutes(deps: BeneficiaryRouteDeps): RouteDefinit
           now: clock.now(),
           requestId,
         });
-        await purge(masjidIdOf(params.masjidId));
+        await purge(masjidIdOf(params.masjidId), clock.now());
         return reply(204, {});
       },
     }),
@@ -216,7 +216,7 @@ export function adminBeneficiaryRoutes(deps: BeneficiaryRouteDeps): RouteDefinit
           now: clock.now(),
           requestId,
         });
-        await purge(masjidIdOf(params.masjidId));
+        await purge(masjidIdOf(params.masjidId), clock.now());
         return reply(204, {});
       },
     }),

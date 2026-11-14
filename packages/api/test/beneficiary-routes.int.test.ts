@@ -29,6 +29,10 @@ const cdn: CdnPurgeService = {
     purges.push({ tags, key });
     return Promise.resolve(true);
   },
+  purgeMasjidSoon: (masjidId, now) => {
+    purges.push({ tags: [`m-${masjidId}`], key: `soon.${now.toISOString()}` });
+    return Promise.resolve(true);
+  },
   mediaAccess: () => Promise.resolve(true),
 };
 const { app, asSuper, register, db, testDatabase, clock, stepUp } = superHarness('beneficiary_routes', undefined, {
@@ -224,10 +228,11 @@ describe('admin: /beneficiaries', () => {
     );
   });
 
-  it('every change purges the masjid’s CDN tag at once; a refused one does not (F67, #180 M7)', async () => {
+  it('every change asks for a (merged) purge of the masjid’s CDN tag; a refused one does not (F67, #180 M7, N-M1)', async () => {
     const { masjidId, call } = await activeMasjid('Test Masjid Needy Purge');
     const tag = `m-${masjidId}`;
-    const purged = () => purges.filter((entry) => entry.tags.includes(tag)).length;
+    // The masjid's activation purged its tag too (status change, #180 M7): count the needy list's merged purges only.
+    const purged = () => purges.filter((entry) => entry.tags.includes(tag) && entry.key.startsWith('soon.')).length;
     const before = purged();
     const { id } = (await call('post').send(personBody())).body as { id: string };
     expect(purged()).toBe(before + 1);
@@ -240,10 +245,9 @@ describe('admin: /beneficiaries', () => {
     const second = (await call('post').send(personBody({ displayName: 'Test Second' }))).body as { id: string };
     await call('delete', `/${second.id}`);
     expect(purged()).toBe(before + 6);
-    // Only the masjid's own tag, each purge with its own key.
-    const mine = purges.filter((entry) => entry.tags.includes(tag));
+    // Only the masjid's own tag, through the merged routine purge.
+    const mine = purges.filter((entry) => entry.key.startsWith('soon.') && entry.tags.includes(tag));
     expect(mine.every((entry) => entry.tags.length === 1)).toBe(true);
-    expect(new Set(mine.map((entry) => entry.key)).size).toBe(mine.length);
   });
 
   it('suspending, unsuspending and deleting a masjid purge its CDN tag (#180 M7)', async () => {

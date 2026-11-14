@@ -54,6 +54,15 @@ export const DEFAULT_CONCURRENCY: Readonly<Record<JobName, number>> = {
   retention: 1,
   'stats-snapshot': 1,
 };
+/**
+ * Queue-wide rate limits (BullMQ `limiter`). `cdn-purge`: Cloudflare Free allows 5 tag-purge requests a minute (bucket
+ * 25 — media/cdn-purge.ts); 4 a minute stays under it, so takedown purges (run first — they carry no priority) are not
+ * refused because routine purges used the budget (security re-review N-M1).
+ */
+export const DEFAULT_LIMITERS: Readonly<Partial<Record<JobName, { readonly max: number; readonly duration: number }>>> =
+  {
+    'cdn-purge': { max: 4, duration: 60_000 },
+  };
 /** Schedulers (01 §5.8), cron in India time. */
 export const SCHEDULES: readonly { readonly job: JobName; readonly pattern: string }[] = [
   { job: 'outbox-sweeper', pattern: '* * * * *' },
@@ -77,6 +86,8 @@ export interface JobWorkerDeps {
   /** BullMQ key prefix; tests pass their per-file prefix. */
   readonly prefix?: string;
   readonly concurrency?: Partial<Record<JobName, number>>;
+  /** Rate limits per queue (default {@link DEFAULT_LIMITERS}; tests pass `{}` to run without them). */
+  readonly limiters?: Partial<Record<JobName, { readonly max: number; readonly duration: number }>>;
   /** Install the schedulers (off in tests, which run the sweeper themselves). */
   readonly schedulers?: boolean;
   /** Reports a job's final failure (Sentry). */
@@ -205,11 +216,16 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
       }
     };
 
+  const limiterOf = (name: JobName) => {
+    const limit = (deps.limiters ?? DEFAULT_LIMITERS)[name];
+    return limit ? { limiter: { max: limit.max, duration: limit.duration } } : {};
+  };
   const workers = JOB_NAMES.map((name) => {
     const worker = new Worker(name, processor(name), {
       connection: deps.connection,
       prefix,
       concurrency: deps.concurrency?.[name] ?? DEFAULT_CONCURRENCY[name],
+      ...limiterOf(name),
     });
     worker.on('failed', (job, error) => {
       const attempts = job?.opts.attempts ?? 1;
