@@ -152,12 +152,39 @@
           },
           "undertakingVersion": {
             "type": "string"
+          },
+          "readOnly": {
+            "type": "boolean"
+          },
+          "maintenanceBanner": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "hi": {
+                "type": "string"
+              },
+              "ur": {
+                "type": "string"
+              },
+              "te": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
           }
         },
         "required": [
           "admin",
           "masjids",
-          "undertakingRequired"
+          "undertakingRequired",
+          "readOnly"
         ]
       },
       "AdminSessionList": {
@@ -4262,6 +4289,39 @@
               "paused"
             ]
           },
+          "sla": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "urgent_report",
+                    "report",
+                    "grievance_ack",
+                    "grievance_resolve",
+                    "legal_order"
+                  ]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "startAt": {
+                  "type": "string"
+                },
+                "dueAt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "id",
+                "startAt",
+                "dueAt"
+              ]
+            }
+          },
           "changeRequests": {
             "type": "array",
             "items": {
@@ -4300,6 +4360,7 @@
           "passkeyAlerts",
           "activeCampaigns",
           "push",
+          "sla",
           "changeRequests"
         ]
       },
@@ -4526,6 +4587,10 @@
           "followers": {
             "type": "number"
           },
+          "removals90d": {
+            "type": "integer",
+            "minimum": 0
+          },
           "admins": {
             "type": "array",
             "items": {
@@ -4536,6 +4601,7 @@
         "required": [
           "masjid",
           "followers",
+          "removals90d",
           "admins"
         ]
       },
@@ -4713,6 +4779,55 @@
           "pushPaused": {
             "type": "boolean"
           },
+          "adminReadOnly": {
+            "type": "boolean"
+          },
+          "maintenanceBanner": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "hi": {
+                "type": "string"
+              },
+              "ur": {
+                "type": "string"
+              },
+              "te": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
+          },
+          "incidentBanner": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "hi": {
+                "type": "string"
+              },
+              "ur": {
+                "type": "string"
+              },
+              "te": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "en",
+              "hi",
+              "ur",
+              "te"
+            ]
+          },
           "updatedAt": {
             "type": "string",
             "format": "date-time"
@@ -4726,7 +4841,385 @@
           "privacyVersion",
           "termsVersion",
           "pushPaused",
+          "adminReadOnly",
           "updatedAt"
+        ]
+      },
+      "SuperStats": {
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "now": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "masjids": {
+                "type": "object",
+                "properties": {
+                  "pending": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "active": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "suspended": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "deleted": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "pending",
+                  "active",
+                  "suspended",
+                  "deleted"
+                ]
+              },
+              "devices": {
+                "type": "object",
+                "properties": {
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "platform": {
+                    "type": "object",
+                    "properties": {
+                      "android": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "ios": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "desktop": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "other": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "android",
+                      "ios",
+                      "desktop",
+                      "other"
+                    ]
+                  },
+                  "locale": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "hi": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "ur": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "te": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ]
+                  },
+                  "push": {
+                    "type": "object",
+                    "properties": {
+                      "active": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "dead": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "none": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "active",
+                      "dead",
+                      "none"
+                    ]
+                  }
+                },
+                "required": [
+                  "total",
+                  "platform",
+                  "locale",
+                  "push"
+                ]
+              },
+              "follows": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "push24h": {
+                "type": "object",
+                "properties": {
+                  "jobs": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "sent": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "failed": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "successRate": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                },
+                "required": [
+                  "jobs",
+                  "sent",
+                  "failed",
+                  "successRate"
+                ]
+              },
+              "queues": {
+                "type": "object",
+                "properties": {
+                  "waiting": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "active": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "delayed": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "failed": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "lagS": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "waiting",
+                  "active",
+                  "delayed",
+                  "failed",
+                  "lagS"
+                ]
+              },
+              "cloudinary": {
+                "type": "object",
+                "properties": {
+                  "usedPercent": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "plan": {
+                    "type": "string"
+                  },
+                  "credits": {
+                    "type": "object",
+                    "properties": {
+                      "usage": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "limit": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "usage",
+                      "limit"
+                    ]
+                  }
+                },
+                "required": [
+                  "usedPercent"
+                ]
+              },
+              "sla": {
+                "type": "object",
+                "properties": {
+                  "reports": {
+                    "type": "object",
+                    "properties": {
+                      "onTime": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "late": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "rate": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    },
+                    "required": [
+                      "onTime",
+                      "late",
+                      "rate"
+                    ]
+                  },
+                  "grievanceAck": {
+                    "type": "object",
+                    "properties": {
+                      "onTime": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "late": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "rate": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    },
+                    "required": [
+                      "onTime",
+                      "late",
+                      "rate"
+                    ]
+                  },
+                  "grievanceResolve": {
+                    "type": "object",
+                    "properties": {
+                      "onTime": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "late": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "rate": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    },
+                    "required": [
+                      "onTime",
+                      "late",
+                      "rate"
+                    ]
+                  }
+                },
+                "required": [
+                  "reports",
+                  "grievanceAck",
+                  "grievanceResolve"
+                ]
+              }
+            },
+            "required": [
+              "masjids",
+              "devices",
+              "follows",
+              "push24h",
+              "sla"
+            ]
+          },
+          "trend": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "day": {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                "activeMasjids": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "devices": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "follows": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "pushSent": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "pushFailed": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "day",
+                "activeMasjids",
+                "devices",
+                "follows",
+                "pushSent",
+                "pushFailed"
+              ]
+            }
+          }
+        },
+        "required": [
+          "at",
+          "now",
+          "trend"
         ]
       },
       "SuperAuditPage": {
@@ -8712,6 +9205,163 @@
         }
       }
     },
+    "/api/v1/grievances": {
+      "post": {
+        "summary": "File a grievance (Turnstile; 5 a day per IP); the contact is sealed for the Super Admin only",
+        "tags": [
+          "grievance"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "privacy",
+                      "content",
+                      "technical",
+                      "feedback",
+                      "other"
+                    ]
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "contact": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 200
+                  },
+                  "turnstileToken": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2048
+                  }
+                },
+                "required": [
+                  "category",
+                  "description",
+                  "turnstileToken"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "publicRef": {
+                      "type": "string",
+                      "pattern": "^GR-\\d{4}-\\d{6}$"
+                    }
+                  },
+                  "required": [
+                    "publicRef"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports": {
+      "post": {
+        "summary": "Report a post or a masjid (device + Turnstile; 10 a day); never hides anything by itself",
+        "tags": [
+          "moderation"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "targetType": {
+                    "type": "string",
+                    "enum": [
+                      "item",
+                      "masjid"
+                    ]
+                  },
+                  "targetPublicId": {
+                    "type": "string",
+                    "maxLength": 36
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "misleading",
+                      "hateful",
+                      "off_topic",
+                      "fraud",
+                      "private_info",
+                      "copyright",
+                      "other"
+                    ]
+                  },
+                  "details": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 500
+                  },
+                  "turnstileToken": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2048
+                  }
+                },
+                "required": [
+                  "targetType",
+                  "targetPublicId",
+                  "reason",
+                  "turnstileToken"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "received": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "received"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/ameens": {
       "get": {
         "summary": "Live Ameen counts of up to 30 dua requests (kept out of immutable responses)",
@@ -10598,6 +11248,7 @@
                             "type": "string",
                             "enum": [
                               "published",
+                              "hidden",
                               "deleted",
                               "removed"
                             ]
@@ -13717,6 +14368,1633 @@
         }
       }
     },
+    "/api/super/grievances": {
+      "get": {
+        "summary": "The grievance tracker: unfinished first by their next due time (never the contact)",
+        "tags": [
+          "super",
+          "grievance"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "grievances": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "publicRef": {
+                            "type": "string"
+                          },
+                          "category": {
+                            "type": "string",
+                            "enum": [
+                              "privacy",
+                              "content",
+                              "technical",
+                              "feedback",
+                              "other"
+                            ]
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "hasContact": {
+                            "type": "boolean"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "open",
+                              "acknowledged",
+                              "resolved",
+                              "rejected"
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          },
+                          "ackDueAt": {
+                            "type": "string"
+                          },
+                          "resolveDueAt": {
+                            "type": "string"
+                          },
+                          "acknowledgedAt": {
+                            "type": "string"
+                          },
+                          "resolvedAt": {
+                            "type": "string"
+                          },
+                          "resolution": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "publicRef",
+                          "category",
+                          "description",
+                          "hasContact",
+                          "status",
+                          "createdAt",
+                          "ackDueAt",
+                          "resolveDueAt"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "grievances"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/grievances/{id}/ack": {
+      "post": {
+        "summary": "Acknowledge a grievance (stops the 24-hour clock)",
+        "tags": [
+          "super",
+          "grievance"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "acknowledged": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "acknowledged"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/grievances/{id}/resolve": {
+      "post": {
+        "summary": "Resolve or reject a grievance with a note",
+        "tags": [
+          "super",
+          "grievance"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "resolved",
+                      "rejected"
+                    ]
+                  },
+                  "resolution": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "status",
+                  "resolution"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "resolved",
+                        "rejected"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/grievances/{id}/contact": {
+      "get": {
+        "summary": "★ Show a grievance's contact (opened with api-admin's private key; audited)",
+        "tags": [
+          "super",
+          "grievance"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "contact": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "contact"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/retention/dry-run": {
+      "post": {
+        "summary": "★ Ask the worker for a retention dry run: it counts what is due, changes nothing, audits the summary",
+        "tags": [
+          "super"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "HTTP 202",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "queued": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "queued"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/legal-orders": {
+      "get": {
+        "summary": "The legal orders register: open orders first by due time (received + 3 h), then closed ones",
+        "tags": [
+          "super",
+          "legal"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "orders": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "authority": {
+                            "type": "string"
+                          },
+                          "referenceNo": {
+                            "type": "string"
+                          },
+                          "receivedAt": {
+                            "type": "string"
+                          },
+                          "dueAt": {
+                            "type": "string"
+                          },
+                          "targetType": {
+                            "type": "string",
+                            "enum": [
+                              "items",
+                              "masjids",
+                              "other"
+                            ]
+                          },
+                          "targetId": {
+                            "type": "string"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "actionTaken": {
+                            "type": "string"
+                          },
+                          "actionLog": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "at": {
+                                  "type": "string"
+                                },
+                                "note": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "at",
+                                "note"
+                              ]
+                            }
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "received",
+                              "actioned",
+                              "contested",
+                              "closed"
+                            ]
+                          },
+                          "hasDocument": {
+                            "type": "boolean"
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "authority",
+                          "referenceNo",
+                          "receivedAt",
+                          "dueAt",
+                          "targetType",
+                          "targetId",
+                          "summary",
+                          "actionLog",
+                          "status",
+                          "hasDocument",
+                          "createdAt"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "orders"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "★ Record a legal order (received time entered; due 3 hours later); names a post, a masjid or other",
+        "tags": [
+          "super",
+          "legal"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "authority": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "referenceNo": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "receivedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "targetType": {
+                    "type": "string",
+                    "enum": [
+                      "items",
+                      "masjids",
+                      "other"
+                    ]
+                  },
+                  "target": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  },
+                  "summary": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "authority",
+                  "referenceNo",
+                  "receivedAt",
+                  "targetType",
+                  "target",
+                  "summary"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "dueAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "dueAt"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/legal-orders/{id}": {
+      "patch": {
+        "summary": "★ Update a legal order: status (received → actioned / contested → closed), action taken, a log note",
+        "tags": [
+          "super",
+          "legal"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "received",
+                      "actioned",
+                      "contested",
+                      "closed"
+                    ]
+                  },
+                  "actionTaken": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "note": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "received",
+                        "actioned",
+                        "contested",
+                        "closed"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/legal-orders/{id}/document": {
+      "post": {
+        "summary": "★ Attach the order's document (PDF, JPEG or PNG by content, ≤ 8 MB): encrypted here, stored privately",
+        "tags": [
+          "super",
+          "legal"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "HTTP 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hasDocument": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "hasDocument"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "★ Download the order's document (fetched and decrypted here; no storage URL ever reaches the browser)",
+        "tags": [
+          "super",
+          "legal"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/reports": {
+      "get": {
+        "summary": "The moderation queue: reports grouped by post / masjid, urgent first, then by SLA due time",
+        "tags": [
+          "super",
+          "moderation"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "actioned",
+                "dismissed"
+              ],
+              "default": "open"
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "targets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "targetType": {
+                            "type": "string",
+                            "enum": [
+                              "item",
+                              "masjid"
+                            ]
+                          },
+                          "targetId": {
+                            "type": "string"
+                          },
+                          "masjid": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "removals90d": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "removals90d"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "urgent": {
+                            "type": "boolean"
+                          },
+                          "dueAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          },
+                          "reports": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "reason": {
+                                  "type": "string"
+                                },
+                                "details": {
+                                  "type": "string"
+                                },
+                                "urgent": {
+                                  "type": "boolean"
+                                },
+                                "createdAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                                },
+                                "dueAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "reason",
+                                "urgent",
+                                "createdAt",
+                                "dueAt"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "itemStatus": {
+                            "type": "string"
+                          },
+                          "item": {
+                            "type": "object",
+                            "properties": {
+                              "publicId": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9_-]{12}$"
+                              },
+                              "masjidId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "announcement",
+                                  "daily_content",
+                                  "dua_request",
+                                  "campaign",
+                                  "chanda_update",
+                                  "video",
+                                  "timing_update"
+                                ]
+                              },
+                              "audience": {
+                                "type": "string",
+                                "enum": [
+                                  "everyone",
+                                  "brothers",
+                                  "sisters"
+                                ]
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "body": {
+                                "type": "string"
+                              },
+                              "contentLocale": {
+                                "type": "string",
+                                "enum": [
+                                  "en",
+                                  "hi",
+                                  "ur",
+                                  "te"
+                                ]
+                              },
+                              "templateKey": {
+                                "type": "string"
+                              },
+                              "templateParams": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "maxLength": 120
+                                    },
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "start": {
+                                          "type": "string",
+                                          "maxLength": 10
+                                        },
+                                        "end": {
+                                          "type": "string",
+                                          "maxLength": 10
+                                        }
+                                      },
+                                      "required": [
+                                        "start",
+                                        "end"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  ]
+                                }
+                              },
+                              "isImportant": {
+                                "type": "boolean"
+                              },
+                              "image": {
+                                "type": "object",
+                                "properties": {
+                                  "key": {
+                                    "type": "string"
+                                  },
+                                  "thumbhash": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "key"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "publishedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                              },
+                              "editedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                              },
+                              "voice": {
+                                "type": "object",
+                                "properties": {
+                                  "key": {
+                                    "type": "string"
+                                  },
+                                  "durationS": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 600
+                                  },
+                                  "peaks": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 255
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "key",
+                                  "durationS"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "announcement": {
+                                "type": "object",
+                                "properties": {
+                                  "category": {
+                                    "type": "string",
+                                    "enum": [
+                                      "general",
+                                      "event",
+                                      "facilities",
+                                      "timing"
+                                    ]
+                                  },
+                                  "eventAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                                  }
+                                },
+                                "required": [
+                                  "category"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "daily": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "hadith",
+                                      "ayah"
+                                    ]
+                                  },
+                                  "note": {
+                                    "type": "string"
+                                  },
+                                  "library": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                                      },
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "hadith",
+                                          "ayah",
+                                          "dua",
+                                          "dhikr"
+                                        ]
+                                      },
+                                      "arabic": {
+                                        "type": "string"
+                                      },
+                                      "transliteration": {
+                                        "type": "object",
+                                        "properties": {
+                                          "en": {
+                                            "type": "string"
+                                          },
+                                          "hi": {
+                                            "type": "string"
+                                          },
+                                          "ur": {
+                                            "type": "string"
+                                          },
+                                          "te": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "additionalProperties": false
+                                      },
+                                      "translation": {
+                                        "type": "object",
+                                        "properties": {
+                                          "en": {
+                                            "type": "string"
+                                          },
+                                          "hi": {
+                                            "type": "string"
+                                          },
+                                          "ur": {
+                                            "type": "string"
+                                          },
+                                          "te": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "en"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "reference": {
+                                        "type": "string"
+                                      },
+                                      "sourceName": {
+                                        "type": "string"
+                                      },
+                                      "sourceLicense": {
+                                        "type": "string"
+                                      },
+                                      "repeat": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 1000
+                                      },
+                                      "occasions": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "enum": [
+                                            "after_salah",
+                                            "morning",
+                                            "evening"
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "kind",
+                                      "arabic",
+                                      "transliteration",
+                                      "translation",
+                                      "reference",
+                                      "sourceName",
+                                      "sourceLicense"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "required": [
+                                  "kind"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "dua": {
+                                "type": "object",
+                                "properties": {
+                                  "category": {
+                                    "type": "string",
+                                    "enum": [
+                                      "illness",
+                                      "inteqal",
+                                      "other"
+                                    ]
+                                  },
+                                  "personName": {
+                                    "type": "string"
+                                  },
+                                  "namePrivate": {
+                                    "type": "boolean"
+                                  },
+                                  "janazaAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                                  },
+                                  "janazaPlace": {
+                                    "type": "string"
+                                  },
+                                  "archivedAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                                  },
+                                  "library": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                                      },
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "hadith",
+                                          "ayah",
+                                          "dua",
+                                          "dhikr"
+                                        ]
+                                      },
+                                      "arabic": {
+                                        "type": "string"
+                                      },
+                                      "transliteration": {
+                                        "type": "object",
+                                        "properties": {
+                                          "en": {
+                                            "type": "string"
+                                          },
+                                          "hi": {
+                                            "type": "string"
+                                          },
+                                          "ur": {
+                                            "type": "string"
+                                          },
+                                          "te": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "additionalProperties": false
+                                      },
+                                      "translation": {
+                                        "type": "object",
+                                        "properties": {
+                                          "en": {
+                                            "type": "string"
+                                          },
+                                          "hi": {
+                                            "type": "string"
+                                          },
+                                          "ur": {
+                                            "type": "string"
+                                          },
+                                          "te": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "en"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "reference": {
+                                        "type": "string"
+                                      },
+                                      "sourceName": {
+                                        "type": "string"
+                                      },
+                                      "sourceLicense": {
+                                        "type": "string"
+                                      },
+                                      "repeat": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 1000
+                                      },
+                                      "occasions": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "enum": [
+                                            "after_salah",
+                                            "morning",
+                                            "evening"
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "kind",
+                                      "arabic",
+                                      "transliteration",
+                                      "translation",
+                                      "reference",
+                                      "sourceName",
+                                      "sourceLicense"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "required": [
+                                  "category",
+                                  "namePrivate"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "campaign": {
+                                "type": "object",
+                                "properties": {
+                                  "purpose": {
+                                    "type": "string",
+                                    "enum": [
+                                      "renovation",
+                                      "repair",
+                                      "utilities",
+                                      "welfare",
+                                      "other"
+                                    ]
+                                  },
+                                  "targetPaise": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  "receivedPaise": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  "receivedUpdatedAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                                  },
+                                  "startsOn": {
+                                    "type": "string",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                  },
+                                  "endsOn": {
+                                    "type": "string",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                  },
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "active",
+                                      "completed",
+                                      "closed"
+                                    ]
+                                  },
+                                  "cover": {
+                                    "type": "object",
+                                    "properties": {
+                                      "key": {
+                                        "type": "string"
+                                      },
+                                      "thumbhash": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "key"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "required": [
+                                  "purpose",
+                                  "targetPaise",
+                                  "receivedPaise",
+                                  "startsOn",
+                                  "status"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "chanda": {
+                                "type": "object",
+                                "properties": {
+                                  "weekStart": {
+                                    "type": "string",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                  },
+                                  "amountPaise": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "weekStart",
+                                  "amountPaise"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "video": {
+                                "type": "object",
+                                "properties": {
+                                  "youtubeId": {
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9_-]{11}$"
+                                  },
+                                  "startS": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 86400
+                                  },
+                                  "speaker": {
+                                    "type": "string"
+                                  },
+                                  "thumb": {
+                                    "type": "object",
+                                    "properties": {
+                                      "key": {
+                                        "type": "string"
+                                      },
+                                      "thumbhash": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "key"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "required": [
+                                  "youtubeId",
+                                  "thumb"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "publicId",
+                              "masjidId",
+                              "type",
+                              "audience",
+                              "isImportant",
+                              "publishedAt"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "postedBy": {
+                            "type": "string"
+                          },
+                          "removedReason": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "targetType",
+                          "targetId",
+                          "masjid",
+                          "urgent",
+                          "dueAt",
+                          "reports"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "targets"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/items/{id}/remove": {
+      "post": {
+        "summary": "★ Remove a post for everyone now (preserved privately 180 days); its open reports are closed",
+        "tags": [
+          "super",
+          "moderation"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "misleading",
+                      "hateful",
+                      "off_topic",
+                      "fraud",
+                      "private_info",
+                      "copyright",
+                      "other",
+                      "legal_order"
+                    ]
+                  },
+                  "note": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 500
+                  },
+                  "legalOrderId": {
+                    "type": "string",
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "category"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "publicId": {
+                      "type": "string"
+                    },
+                    "reports": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "cdnPurgeQueued": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "publicId",
+                    "reports",
+                    "cdnPurgeQueued"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/items/{id}/restore": {
+      "post": {
+        "summary": "★ Restore a removed or auto-hidden post (published again; the reports that hid it are dismissed)",
+        "tags": [
+          "super",
+          "moderation"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "publicId": {
+                      "type": "string"
+                    },
+                    "reports": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "cdnPurgeQueued": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "publicId",
+                    "reports",
+                    "cdnPurgeQueued"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/items/{id}/purge": {
+      "post": {
+        "summary": "Clear the CDN cache of a post and its masjid again, and re-check its files (restricted unless published) — when a purge could not be queued",
+        "tags": [
+          "super",
+          "moderation"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cdnPurgeQueued": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "cdnPurgeQueued"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/reports/{id}/dismiss": {
+      "post": {
+        "summary": "Dismiss one open report (nothing wrong), with an optional private note — ★ when the report is urgent",
+        "tags": [
+          "super",
+          "moderation"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "note": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 500
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dismissed": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "dismissed"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/super/admins/{id}/revoke-sessions": {
       "post": {
         "summary": "★ Sign the admin out everywhere",
@@ -13863,7 +16141,7 @@
         }
       },
       "patch": {
-        "summary": "Edit global settings (C10)",
+        "summary": "Edit global settings (C10) — putting up a banner is ★ (fresh step-up); taking one down is not",
         "tags": [
           "super"
         ],
@@ -13966,6 +16244,76 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 20
+                  },
+                  "maintenanceBanner": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "hi": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "ur": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "te": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      }
+                    },
+                    "required": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "incidentBanner": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "hi": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "ur": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "te": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      }
+                    },
+                    "required": [
+                      "en",
+                      "hi",
+                      "ur",
+                      "te"
+                    ],
+                    "additionalProperties": false
                   }
                 }
               }
@@ -14037,6 +16385,57 @@
         }
       }
     },
+    "/api/super/settings/read-only": {
+      "post": {
+        "summary": "★ Turn admin read-only mode on or off (kill switch, C10 — masjid admins' writes answer 503 READ_ONLY_MODE)",
+        "tags": [
+          "super"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "readOnly": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "readOnly"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "readOnly": {
+                      "type": "boolean"
+                    },
+                    "changed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "readOnly",
+                    "changed"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/super/alerts/test": {
       "post": {
         "summary": "A test alert to your own subscribed phones (staging and local only — T4.6)",
@@ -14058,6 +16457,26 @@
                   "required": [
                     "queued"
                   ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/super/stats": {
+      "get": {
+        "summary": "Platform stats (C12): the newest hourly snapshot and a 30-day trend — aggregates only",
+        "tags": [
+          "super"
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperStats"
                 }
               }
             }

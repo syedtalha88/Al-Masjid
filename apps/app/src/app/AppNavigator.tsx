@@ -18,6 +18,7 @@ import { useLaunchLinks } from '../lib/launch.ts';
 import { usePushBridge } from '../lib/push-bridge.ts';
 import { useUnseenCount } from '../lib/unseen.ts';
 import { NotFoundScreen } from './NotFoundScreen.tsx';
+import { PrivacyRecheck } from './PrivacyRecheck.tsx';
 import { PushAsk } from './PushAsk.tsx';
 import { RouteError } from './RouteError.tsx';
 import { RoutePending } from './RoutePending.tsx';
@@ -82,6 +83,7 @@ function MusalliTabBar({ api }: { readonly api: NavigatorApi }) {
   return (
     <>
       <PushAsk />
+      <PrivacyRecheck />
       <TabBar
         api={api}
         label={t('tabs.label')}

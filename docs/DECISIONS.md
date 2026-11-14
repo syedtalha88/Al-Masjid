@@ -2947,3 +2947,445 @@ items.
 animation frame (rAF) however fast the sensor fires; the empty "facing" row is not rendered without a live compass;
 the arrow now has a head and reaches just inside the Kaaba marker (07 A14 "big arrow from center to Kaaba marker").
 Visual `qibla` × 4 × 2 regenerated (only those 8 files; the others were left as they were).
+**Commit:** the code above and the Phase 06 / 07 report updates went into one commit, `30a268b` (subject "docs: Phase 06
+and Phase 07 reports final…") after a rejected commit message; the branch was already pushed, so it was not rewritten.
+
+### #170 — Reports and `report-triage`: who decides urgency, how each alert fires once (PHASE_08 T8.1, server half) — ACCEPTED (Claude Code, 13 Nov 2026)
+**Context:** T8.1 needs `POST /reports` (device + Turnstile, 10 a day), an urgent route for intimate imagery /
+impersonation (2 h, immediate Super Admin alert) and an auto-hide after many reports, done by the worker because
+`mc_public` may only insert reports (02 §4.3).
+**Decision:**
+- **Timelines live in `packages/shared/src/compliance.ts`** (05 §3: urgent report 2 h, report 36 h, legal order 3 h,
+  grievance ack 24 h / resolve 72 h; auto-hide window 1 h, default threshold 10). The API computes `urgent` and
+  `sla_due_at` with `reportSla()` and passes them to `createReport` (`packages/db` does not depend on `@mc/shared`).
+  **Urgent reason = "Personal or private information" (`private_info`)** — the reason a person picks for intimate
+  imagery, impersonation or morphed content about them; the owner may widen `URGENT_REPORT_REASONS` after legal review.
+- **Request contract** in its own file `@mc/shared/contracts/reports` with classic Zod and `safeText` (04 §6 —
+  NFC, no bidi / invisible characters, multiline details ≤ 500): the PWA imports its types only, so no classic Zod
+  reaches the musalli first load. A post is addressed by its 12-character public id, a masjid by its id; a mismatch is
+  400. A target that is not public (unknown, hidden, removed, suspended masjid) is 404 `REPORT_TARGET_NOT_FOUND`.
+  The reporter gets only `{received: true}`.
+- **Exactly once** (migration `0023_report_triage`): reports get `triaged_at`, items get `hidden_at`. `report-triage`
+  (every minute, `mc_system`) lists untriaged open reports, raises one `report_urgent` alert per urgent report
+  (BullMQ job id `alert.report_urgent.<reportId>`), checks each reported post's **distinct devices in the last hour**
+  against `app_settings.report_autohide_threshold`, hides a published post (`status: hidden`, version bump, audit
+  `item.autohide` with `reporters`) and raises `report_autohide` (job id per post), then marks the reports. A failed
+  enqueue throws before marking, so the next run raises it again; a post already hidden by a run whose alert was lost
+  is alerted again (same job id → one push). Only a published post can be hidden, so the hide happens once.
+- Alerts open `/super/reports` (the C5 queue, T8.2). Texts × 4 (fixed words, no free text, no masjid name).
+- **05 §1 build-time test now exists** (`packages/db/test/schema.test.ts` → "05 §1 data minimization"): the Zod shape
+  and the validator of `devices`, `device_follows`, `ameens`, `reports` must equal a reviewed allow-list. This entry
+  reviews the baseline (no name, phone, email, location, IP or user agent; `reports.device_id` is unset when the device
+  is deleted — retention, T8.7) and the new `reports.triaged_at`.
+**Consequences / for T8.2:** a Super Admin "Restore" of an auto-hidden post should close (dismiss) the reports that hid
+it, or the next report within the hour hides it again; a second auto-hide of the same post within a day reuses the
+alert job id (deduplicated) — T8.2 adds the hide time to the key if restores make that reachable.
+**Tests:** db `reports.int` 8, api `report-routes.int` 6 (Turnstile, 400s, 404, 10/day → 429, reason lists equal),
+`report-triage.int` 7 (once-only alerts and hides, 1-hour window, lost-alert recovery, mc_public refused), shared
+`compliance` 3, db `schema` 05 §1 allow-list 4.
+**UI (same task, 13 Nov 2026):** a "…" button (`MoreMenu`) on every post detail — announcement, hadith / ayah (next to
+the bookmark), dua request, bayan player, chanda update, donation drive — opens "Options" → **Report**; Masjid Detail's
+existing menu gets a **Report** row (active masjids). The read-only post landing (`/p/:id`, A16) has no menu: a visitor
+there has no registered device. `ReportSheet` loads on demand (musalli initial JS 189.12 / 190 kB): seven big reason
+cards (no typing needed; "Personal or private information" explains itself), optional details (≤ 500, "Don't write your
+name or phone number"), Send off until a reason is picked, then "Thank you — the masjid never sees who sent a report".
+Failures are shown right above Send: offline (nothing is queued or sent), the daily limit, no longer public, could not
+send. Strings × 4 (draft translations, in the review CSVs).
+**Sheet fix (shared, every sheet):** `showModal()` focuses the first focusable element while the panel is still
+off-screen and scrolls the `overflow: hidden` dialog to show it; the offset stayed and lifted a tall sheet by up to
+~150 px (header off the top, the tab bar visible under the footer — seen on the report sheet). The dialog's
+`scrollTop` is now reset after `showModal()` and when the spring starts. Visual 40/40 unchanged; sheet specs green.
+**Tests (UI):** e2e `app/report.spec.ts` 7 (post: Send disabled until a reason, body has exactly target / reason /
+details / token, 201, Thank you, post still shown; masjid from Masjid Detail; offline sends nothing; 4 locales, Urdu
+mirrored, axe clean) on Pixel 7 and iPhone 14; app unit `useReport` 2.
+
+
+### #171 — Takedown (PHASE_08 T8.2): state functions, tag purge, what the masjid sees, removed posts in the app — ACCEPTED (Claude Code, 13 Nov 2026)
+**Context:** C5 needs ★ Remove / ★ Restore / Dismiss with the post gone everywhere at once, preserved privately for 180
+days, the masjid told, and the CDN's cached copies dropped (05 §3, IT Rules 3(1)(g)).
+**Decision:**
+- `removeItem` / `restoreItem` (`@mc/db/state/moderation.ts`, stepped-up Super Admin) write the moderation fields
+  directly in one transaction (generic writes refuse them — `itemCheck` now also refuses `status: hidden`,
+  `removed_note`, `hidden_at`): status `removed`, `removed_reason` = **category** (`MODERATION_CATEGORIES` = the report
+  reasons + `legal_order`), private `removed_note` (≤ 500, migration `0024_removed_note`, stripped from the masjid's
+  reads), purge marker +180 days, version bump; every open report on the post closed as actioned. Restore clears all of
+  it and **dismisses the reports that auto-hid a post** (#170). Audit `item.remove` / `item.restore` / `report.dismiss`
+  (category and counts only). The placeholder stubs (`later.ts`) are gone.
+- **CDN:** Cloudflare purge **by cache tag** (verified 13 Nov 2026 — every plan incl. Free, `{"tags": [...]}`, ≤ 100 a
+  request, Free 5 requests / minute): api-admin enqueues `cdn-purge` with `i-<publicId>` and `m-<masjidId>` (the tags
+  api-public already sets); the worker purges (8 attempts, backoff). If the enqueue fails three times the answer says
+  `cdnPurgeQueued: false` and C5 offers "Clear the cache again" (`POST /items/:publicId/purge`).
+- **The masjid's admins** get the `item_removed` alert (fixed words — alert texts carry no parameters, T4.6 — "Open My
+  Posts to see the reason"); My Posts shows "Removed by moderation" with the category's label, and now also **hidden**
+  posts ("Hidden for review — many people reported it; you don't need to do anything"). An "inbox" of its own is not
+  built: My Posts is the inbox (07 B3's banner can come with the admin dashboard work).
+- **C5 screen** `/super/reports`: Open / Removed / Dismissed, cards urgent first then by due time with a due pill
+  (amber < 6 h, red overdue), the post as musallis see it (`FeedItemCard`), the masjid's removals in 90 days, the
+  reports (reason + details), ★ Remove (category + private note + "Hidden for everyone now; preserved privately for 180
+  days"), ★ Restore, Dismiss, Open masjid (Suspend / Revoke admin live on the masjid page).
+- **Musalli app — a removed post vanishes after the next poll:** found by journey 11: an opened post stayed visible for
+  up to 5 minutes (item query freshness) and even after its refetch failed (the hook preferred old data over a 404). Now
+  a 404 always means gone, and when a versions poll finds a masjid's version moved on, its opened posts are re-checked at
+  once (`pruneStaleVersions`). **F74:** when the phone had the post as a bayan, the gone screen says "This video was
+  removed from the app — it may still be on the masjid's YouTube channel".
+**F73 (done, same task):** at removal the post's files stop being delivered at once instead of after 180 days: the
+worker job `media-access` (enqueued with the tag purge; `cdnPurgeQueued` means both were queued) moves each image from
+Cloudinary's `upload` to `authenticated` type (and a recording from `private` to `authenticated`) with the Upload API
+`rename` (`type` → `to_type`, same public id, `invalidate: true` — verified against Cloudinary's docs 13 Nov 2026:
+`access_mode` is no longer supported and token access needs the Advanced plan), then purges the six delivery URLs at
+Cloudflare. Only files no published post, masjid photo or Ruqyah recording also uses are restricted (a shared bayan
+thumbnail keeps working — #165); a restore moves all of the post's files back. Retention now destroys both delivery
+types. Locally the file store moves files under `restricted/` (never served); the local worker has no store (as for
+retention) and logs it. **Owner check (staging):** a removed post's photo URL stops loading (Phase 08 guide).
+The acceptance's **automated staging check** (a removed post's cached detail URL
+answers "gone" within a minute) needs a Super Admin session on staging, which automation cannot hold: it becomes an
+owner check in the Phase 08 guide plus F76 (Phase 9: a staging-only check account). The legal-order link on removal
+(`legalOrderId`) comes with T8.5.
+**Tests:** db `moderation.int` 7, api `moderation-routes.int` 6, `cdn-purge` 9 (tag batches, 1134 → retry, job),
+e2e journey 11 `admin/moderation.spec.ts` (Pixel 7: report → C5 → ★ Remove → musalli "no longer available" → My Posts
+category, no note), app unit `queries` (version → posts re-checked), `content-hooks` (404 beats the kept copy; F74).
+
+### #172 — SLA engine (PHASE_08 T8.3): one alert per (target, threshold), the C1 card, the e-mail fallback — ACCEPTED (Claude Code, 13 Nov 2026)
+**Context:** 05 §3 timers need Super Admin alerts at 50 / 80 / 100 % of each SLA, recorded so each fires once, and a
+dashboard card sorted by urgency (C1 — red under 20 % left), with an e-mail fallback (T8.3).
+**Decision:**
+- `@mc/shared/compliance` gains `slaProgress(start, due, now)` → `{level: 0|50|80|100, red, overdue}`
+  (`SLA_ALERT_LEVELS`, `SLA_RED_SHARE = 0.2`).
+- `@mc/db/state/sla.ts`: `listSlaTimers` — one list of open timers, earliest due first (today open reports: urgent
+  2 h / others 36 h; **grievances (T8.4) and legal orders (T8.5) add their rows here**) — system or Super Admin;
+  `markSlaAlerted` records the highest threshold sent, only upwards (`reports.sla_alerted`, migration
+  `0025_report_sla_alerted`; the 05 §1 allow-list updated).
+- `sla-alerts` job every 15 minutes (mc_system): per timer, when the reached level is above the recorded one, one
+  `sla_50` / `sla_80` / `sla_100` alert to the Super Admin (fixed words; job id per target + level), then recorded; a
+  timer that jumped thresholds while the worker was down alerts once, at the highest.
+- **E-mail fallback:** a passed deadline (100 %) is also reported to Sentry as `SlaBreachError` ("SLA deadline passed:
+  <kind>") — Sentry e-mails a project's members about new issues by default, so a missed push still reaches the
+  owner (owner: keep the e-mail notification on for the Sentry project — O52). No e-mail service of our own (no paid
+  services).
+- C1: a "Deadlines" card at the top of the dashboard (20 timers, kind + "Due in …" / "Overdue — due …", a red
+  "Under 20 % left" tag), each opening Reports.
+**Tests:** shared `compliance` (levels, red, overdue), api `sla-alerts.int` 3 (urgent: 50 → 80 → 100 once each, never
+again; jumped thresholds → one alert at 100; a closed report stops; one Sentry report at 100), `moderation-routes.int`
+(dashboard `sla` earliest due first).
+
+### #173 — Grievance contacts are sealed with a public key in api-public, opened only in api-admin (PHASE_08 T8.4) — ACCEPTED (Claude Code, 13 Nov 2026; owner installs the key pair — O53)
+**Context:** 04 §8 says `grievances.contact_enc` is app-level AES-256-GCM like admin phones, but `POST /grievances` is an
+api-public route and `@mc/shared/env` forbids api-public every `FIELD_ENCRYPTION_*` key (a compromised public API
+must not decrypt admin phones). The two are in conflict.
+**Decision:** hybrid sealing — api-public holds only an **RSA public key** (`GRIEVANCE_SEAL_PUBLIC_KEY`, PEM, with
+`GRIEVANCE_SEAL_KEY_ID`); each contact is encrypted with a fresh AES-256-GCM key (the doc's cipher, the grievance's
+public reference `GR-…` as associated data — corrected in #180 L7; it is unique per grievance and never changes) and
+that key is wrapped with RSA-OAEP-SHA-256; stored as
+`s1:<keyId>:<wrapped key>:<iv>:<ciphertext+tag>` (base64url; its own validator pattern, migration 0026). Only
+api-admin holds the private key (`GRIEVANCE_SEAL_PRIVATE_KEY`, + old keys for rotation), used by the ★ "Show contact"
+(step-up, audited `grievance.contact`); the private key is forbidden in api-public, worker and migrate. Stronger than
+the doc's design: even a compromised api-public cannot read past contacts. `pnpm setup:local` generates a local pair
+(added to existing local env files without touching other values); CI uses the same. **Owner (O53):** generate a
+4096-bit pair for staging (and later production) and put the public half in api-public's env file, the private half in
+api-admin's.
+**Also decided (T8.4):** the sealing keys are required in production only — without them api-public accepts a grievance
+but refuses a contact (503 `GRIEVANCE_CONTACT_UNAVAILABLE`, the form says "send it without one, or try later"), so
+staging keeps working before O53. References `GR-<year in India>-<6 digits>` from `grievance_seq` in the filing
+transaction. Grievance timers (acknowledge 24 h from filing; resolve from acknowledgement, due 72 h after filing) join
+`listSlaTimers` with `grievances.sla_alerted` (reset to 0 at acknowledgement; migration `0026_grievance_seal`). C6
+`/super/grievances` (timers, Acknowledge, Resolve / Reject with a note, ★ Show contact). Bodyless super POST routes now
+take an empty `{}` body (the admin client always sends one — found by the e2e; Restore in C5 had the same bug).
+**Tests:** api `seal` 4, `grievance-routes.int` 3 (sequential refs, ciphertext at rest, 503 without a key, tracker,
+step-up reveal audited), `sla-alerts.int` (+ grievance clocks), shared `env` (keys, forbidden in api-public / worker),
+app `grievance-form` 2, e2e `admin/grievances.spec.ts` 5 (file → reference → C6 reveal / acknowledge / resolve; form ×
+4 locales, axe) on Pixel 7.
+
+### #174 — Legal orders register (PHASE_08 T8.5): targets, status flow, encrypted documents on Cloudinary `raw` — ACCEPTED (Claude Code, 13 Nov 2026; staging Cloudinary check = owner O54)
+**Decision:** `legal_orders` (migration `0027_legal_orders`): `target_type` is an enum `items | masjids | other`
+(was free text), `target_id` non-empty, `sla_alerted` for the 3-hour clock. The Super Admin types the target as they
+have it — a post's link / public id / id, a masjid's follow code (any case, with or without the dash) / id, or a short
+description — and the API resolves it to the stored id (`LEGAL_TARGET_NOT_FOUND` otherwise), so the #165 L3 purge hold
+matches by post id. Received time is entered in IST (`datetime-local`, not in the future, ≤ 1 year back); due = +3 h
+(`SLA_MS.legalOrder`). Status flow: received → actioned / contested / closed; actioned ↔ contested → closed; closed is
+final. Every change appends to `action_log` (≤ 200; `$set` of the extended array inside the transaction — the gateway's
+untyped `$push` refuses literal keys). The clock runs only while `received` (`listSlaTimers` kind `legal_order`).
+★ Remove may name an open order (`legalOrderId`): logged on the order ("Post <publicId> removed"), `received` →
+`actioned`, audit meta `legal_order`; a closed order refuses the whole removal. All writes are ★ (step-up).
+**Documents (DECISIONS #40, 04 §5):** PDF / JPEG / PNG by magic bytes, ≤ 8 MB, busboy (`defineRoute.upload`).
+api-admin encrypts with AES-256-GCM using the field key ring (envelope `MCF1 | key id | IV | ciphertext | tag` — since
+#180 L7 `MCF2`, with a file key derived by HKDF-SHA256 from the ring key; the
+sniffed type inside the ciphertext, associated data `legal_orders.document:<orderId>` — a blob moved to another order
+never opens) and stores it as Cloudinary `raw` + `type=authenticated` (`legal/<orderId>/<uuid>.bin`, never
+overwritten; replacing deletes the old one). Download is ★: api-admin reads it through the signed API endpoint
+`/raw/download` (expires in 5 min; the `private_download_url` form — Cloudinary docs checked 13 Nov 2026: "returns the
+requested asset in bytes"), decrypts, and sends it as an attachment (`defineRoute.fileAttachment`, `no-store`); no
+storage URL reaches a browser. Audited `legal_order.document` / `legal_order.document_read`. Locally the file store
+writes under `MEDIA_DIR/private/`, which the media site never serves (it rewrites only the `/i/…` and `/a/…` patterns).
+**Unverified, owner check O54:** Cloudinary's docs list `type` for raw upload / destroy as an SDK parameter; our REST
+calls send it as a signed form field, as the audio upload and takedown `rename` already do on staging. One staging
+upload + download + public-URL 404 check settles it.
+**Tests:** api `private-files` 7 (envelope round trip, wrong context / tamper / unknown key fail, key rotation, sniffing,
+local store, Cloudinary request shapes and signatures, failures), `legal-order-routes.int` 5 (step-up, target
+resolution, due time, dashboard timer + SLA job once per threshold and stops when acted on, status flow and log,
+★ Remove link, ciphertext at rest, ★ download byte-for-byte, wrong order never decrypts, 415, 403 without step-up),
+role guard (+5 routes), e2e `admin/legal-orders.spec.ts` (record → C7 + C1 timer → attach → download → acted on) on
+Pixel 7.
+
+### #175 — Legal texts, versions and re-acceptance (PHASE_08 T8.6) — ACCEPTED (Claude Code, 13 Nov 2026; legal review + human translation = owner O55)
+**Texts:** `privacy`, `terms`, `content-policy`, `grievance` and `undertaking` in `packages/i18n/legal/<locale>/` — English
+drafts by Claude Code, Hindi / Urdu / Telugu machine drafts marked `translation: draft` (shown as "DRAFT TRANSLATION",
+05 §10), all `status: draft` (shown as "DRAFT — requires legal review"). The privacy draft lists the data categories
+(devices, reports, grievances, admins), purposes, retention table, processors and regions (server host + Atlas in
+Mumbai, Cloudflare worldwide, Cloudinary and Sentry **"region to be confirmed"** — not recorded anywhere in our docs,
+so the text says so rather than guess), rights, Grievance Officer, children, no ads / tracking, changes. The versions
+stay `draft-1` (nothing was accepted outside tests yet); the owner sets the reviewed version at launch.
+**Production gate:** `mcLegalGate()` (both PWAs' Vite builds) fails a build with `MC_BUILD_ENV=production` while any
+document is `status: draft`, naming the files; only `deploy-prod.yml` passes `MC_BUILD_ENV=production` to the web
+image (caddy.Dockerfile). Staging and local builds pass and show the banner. Parsing moved to `legal-parse.ts` (no
+bundler globs) so the gate runs in Node.
+**Readers:** musalli Settings → Privacy, About → Terms / Content policy / Licenses, the grievance process on Contact &
+Grievance; admin `/legal/$doc` (undertaking, content policy, terms, privacy, licenses) from Account, and "Read the
+content policy" on a removed post in My Posts (07 B-My Posts, T8.2 leftover).
+**Re-acceptance:** musalli — `privacyRecheck` (pure): after onboarding, when `/config` → `legalVersions.privacy` differs
+from the accepted version (`changed`) or a year after `privacyAcceptedAt` (new, optional; onboarding time stands in
+for older phones) (`yearly`), a sheet shows the notice; "I understand" stores the **server's** version + time and sends
+it with the preferences sync (`PATCH /devices/me`, queued offline). "Later" hides it until the next start. Admin — the
+undertaking counts as current only in the version in force **and** within 365 days of `undertaking_accepted_at`
+(acceptances without a time count until a version change); otherwise the existing undertaking gate (writes 403
+`UNDERTAKING_REQUIRED`, B2 screen) asks again.
+**Licenses:** `mcLicenses(pkg)` emits `/licenses.json` from `pnpm licenses list --prod --filter <app>...` (workspace
+packages' dependencies included — fonts OFL-1.1, adhan, motion, …; our `@mc/*` left out) plus the Content Library
+texts entry; served the same way in dev; validated by `licensesFileSchema`; names link to each package's homepage.
+**Tests:** i18n `legal` 4 (every document × locale, same version / point count, translations marked; the production
+gate throws on drafts and passes otherwise), app `preferences` +2 (recheck rules, acceptance saved / queued), db
+`auth-state` +1 (yearly undertaking), e2e `admin/legal-reaccept.spec.ts` 2 (changed → accept → server holds it →
+not asked again; yearly via the browser clock; admin undertaking again after a version change; readers + licenses axe
+clean) on Pixel 7. The Playwright fixture device now carries a fresh `privacyAcceptedAt`.
+
+### #176 — Retention job covers every row of 02 §6 (PHASE_08 T8.7) — ACCEPTED (Claude Code, 13 Nov 2026)
+**Decision:** `runRetention` (`@mc/db/state/retention.ts`, system scope) implements the rows not already done (posts,
+needy people, alert subscriptions): devices unused 180 days (follows → follower counts down, Ameens; one transaction
+each), reports' `device_id` of devices that no longer exist (retention **or** "Clear all data" — a `$lookup` sweep),
+dead push addresses after 30 days (`push_*` unset, status `none`), admin sessions ended (revoked / idle / absolute) and
+invites used / expired 30 days ago, reports 1 year after closing, grievances 3 years after resolution, audit log 2
+years, notification jobs and push quota counters 90 days, campaign amount history a year after the campaign ended
+(completed / closed, last changed a year ago), stats snapshots 2 years, Ilm contacts deleted 30 days ago. Removed
+admins: `removeAdminFromMasjid` now sets `admin_users.removed_at` when the admin's **last** membership goes and
+`addAdminToMasjid` clears it; a year later the record is anonymized ("Removed admin", phone gone, undertaking history
+emptied, status `disabled`; passkeys, sessions, alert subscriptions and invites deleted) — the record stays so audit
+entries still resolve. Ruqyah entries deleted 30 days ago and legal orders closed 3 years ago go through the job: the
+recording / encrypted document is deleted first (a recording still used by a post or another entry is never handed
+out), the record after; a file that fails keeps its record, the job fails (BullMQ retry, Sentry) and the Super Admin
+gets one `retention_failed` alert a day. Batches ≤ 1,000 per operation, looping; an 8-minute wall-clock budget inside the
+10-minute job timeout (`partial` in the summary; the next run carries on). Every run writes `retention.run` to the
+audit log — counts per rule, files, dry run, partial; never ids. **Dry run:** the job payload `{ dryRun: true }` counts
+and changes nothing; the Super Admin starts one from Audit (★ `POST /super/retention/dry-run`, at most one per minute)
+and reads the counts in the audit log. **VPS logs:** `log-archive.sh` already deletes day folders past 200 days; the
+VPS check (`pnpm infra:check`) now also fails if any folder older than 201 days is left.
+**Tests:** db `retention.int` 6 (each rule just inside / just past its period, dry run changes nothing, batches of 1
+loop, a second run finds nothing, removed-admin marking and anonymization, Ruqyah shared recording kept, legal orders
+due, system scope only), api `retention-job.int` 3 (dry run audited, failed file keeps the record + one alert, files
+then records), existing post / needy-person retention tests (their own sessions restored after time travel).
+
+### #177 — QR poster: print page, sizes and the QR (PHASE_08 T8.8) — ACCEPTED (Claude Code, 13 Nov 2026; print + scan = owner O56)
+**Decision:** C3 is `/super/masjids/$id/poster` (Masjid detail → "QR poster"). The sheet is rendered by the browser
+(Hindi, Urdu, Telugu shape correctly) and printed or saved as PDF with the browser's print; "QR only" downloads SVG
+(`qrSvgText`, quiet zone, token colours) and PNG (`qrPng`, name + code caption). The QR is error correction **Q**
+(`qrMatrix(text, 'Q')`) of `<VITE_PUBLIC_APP_ORIGIN>/m/<CODE>`, 10 cm on A4 (07 C3: ≥ 10 cm), 7.2 cm on A5. Layout:
+brand mark (a vector `MosqueIcon` — the musalli app's icon is another origin, which the admin CSP does not load), the
+masjid name in every script it has, area / city, QR, follow code, the 3 steps (camera → point → open and Follow, the
+code as an alternative inside step 2) with icons in all four languages (each block a `LocaleScope`, Urdu RTL, the
+code isolated LTR with word joiners — Nastaliq has no U+2011 glyph), "Free · No ads · No account" per language, the
+app host. **Print mechanics:** a print copy is portalled to `<body>` and `@media print` hides every other child; the
+page size is an `@page { size: A4|A5; margin: 0 }` rule the screen adopts as a **constructable stylesheet** while open
+(the CSP forbids inline `<style>`; CSSOM is allowed) — named pages on the copy were ignored by Chromium's PDF output
+(found by the `page.pdf` e2e). `print-color-adjust: exact`. **Design-token exception:** the sheet uses physical units
+(mm, pt) through Tailwind arbitrary values — it is paper, not a screen; colours stay tokens.
+**Tests:** e2e `admin/poster.spec.ts` (Pixel 7, Chromium): the rendered QR is read back with ZXing → `/m/TESTA001`,
+level Q; the code; 3 steps in each of the 4 languages, Urdu `dir=rtl`, Telugu text; axe clean; `page.pdf` → exactly
+one page of A4 (595 × 842 pt), then A5 (420 × 595 pt). The print render is kept with the test output for review.
+
+### #178 — Kill switches & banners (PHASE_08 T8.9) — ACCEPTED (Claude Code, 13 Nov 2026; staging check = owner O57)
+**Decision:** **Admin read-only mode** is `app_settings.admin_read_only`, switched by a ★ route
+(`POST /api/super/settings/read-only`, step-up at the route and in `setAdminReadOnly`, audited `settings.read_only_on`
+/ `settings.read_only_off` only when it moves). It is enforced once, in `defineRoute`: the flag rides on the resolved
+session (the same `app_settings` read that already serves the undertaking gate — no extra query), and a **masjid
+admin's** non-GET request answers `503 READ_ONLY_MODE` before rate limits and validation (nothing about the body is
+revealed). **Super Admins are never blocked** — the owner must be able to work an incident and turn the switch off.
+Routes marked `readOnly: 'exempt'` keep the account safe: logout, end one / all sessions, step-up options / verify,
+the admin alert subscription (`PUT` / `DELETE /auth/push`), accepting the undertaking. Passkey rename / add-device
+invite are **not** exempt (a new credential during an incident is exactly what the switch should stop). Sign-in itself
+(`auth: 'none'`) is not affected. Not covered: the worker (scheduled publishes still go out — pause push separately if
+needed) and the DB policy layer (every write reaches it through `defineRoute`; recorded as a known limit).
+**Banners:** `maintenance_banner` (both apps) and `incident_banner` (musallis only) are set through `PATCH /settings`
+whole — all four languages, `safeText` 1–300 each — or taken down with `null` (audited as `settings.update` with the
+field names, never the text). The musalli app reads them from `/config` (`s-maxage=60`, so up to a minute; no purge
+needed); the admin app from `/auth/me` (maintenance only). **Placement:** an in-flow `NoticeBanner` (`@mc/ui`, tones
+info / warning / danger, `role="status"`) at the top of musalli Home (incident, then maintenance — inside
+pull-to-refresh), admin Home (read-only notice for masjid admins, maintenance) and the Super dashboard ("read-only mode
+is on" + Turn off). Not a fixed overlay like the offline banner: it stays up for hours and must not cover headers.
+A refused write shows `errors.READ_ONLY_MODE` (4 locales) and refreshes `/auth/me`, which is polled every minute while
+the mode is on so the banner leaves soon after it is turned off.
+**Tests:** `api/test/kill-switches.int.test.ts` (12: step-up, super-only, 503 + problem+json on PATCH and POST, reads
+go on, nothing changed, audited once, Super Admin unaffected, sign-out and end-sessions exempt, off again; maintenance
+banner in settings / `/auth/me` / `/config`, invalid banners refused, `null` takes it down, super-only; incident banner
+in `/config` only). Push pause stays covered by `notification-routes.int.test.ts` (T4.7). Unit: banner contract, the
+session hook's READ_ONLY_MODE handling, `NoticeBanner`.
+
+### #179 — Audit & stats completion (PHASE_08 T8.10) — ACCEPTED (Claude Code, 13 Nov 2026; staging check = owner O58)
+**Decision:** **One hourly `stats-snapshot` job** (at :05 IST, `mc_system`) replaces the planned pair
+`stats-snapshot` + daily `cloudinary-usage` (01 §5.8 updated): it writes the hour's `stats_snapshots` document
+(replace — idempotent per hour), recomputes `masjid_stats.ameens_7d` per masjid with the `{masjid_id, created_at}`
+index (**it was never computed before** — the admin "Ameen this week" showed 0), adds the queues' backlog
+(`getJobCounts` + the oldest waiting job via `getJobs(['waiting'], 0, 0, true)` — BullMQ 6.3.11 reverses a list read
+ascending, read in its source and pinned by the integration test) and reads Cloudinary's Admin API
+`GET /v1_1/<cloud>/usage` (Basic auth; checked against Cloudinary's docs 13 Nov 2026; 24 calls a day against a
+500+/hour limit). The documented sample answer has no `credits` object, so `usedPercent` = `credits.used_percent`
+when present, else the highest `used_percent` of storage / bandwidth / transformations. **Alerts** `cloudinary_70` /
+`cloudinary_90` (fixed words x 4 locales, open Stats) fire when usage **crosses** a threshold since the previous
+snapshot — usage restarts monthly, so once a month each without extra state; the alert job id carries the month too.
+A Cloudinary or queue failure never fails the run (logged; that card says "could not be read"). Locally no Cloudinary
+read. **Deadline compliance** = reports / grievances **created** in the last 30 days: on time if handled
+(`actioned_at`; `acknowledged_at` — or `resolved_at` when resolved without acknowledging; `resolved_at`) by the due
+time; late if after, or still open past it; open-not-yet-due is left out. **`GET /api/super/stats`** returns the newest
+snapshot (rates worked out on the server) and the last snapshot of each India day for 30 days. **C12** (new Stats
+section): labelled single-series bars and 30-day lines in the primary token (dataviz: one hue, so no categorical
+palette to validate; identity never by colour), a hover / arrow-key readout and a screen-reader table per line; time
+runs LTR in every language. **C11:** the action filter lists every action (`AUDIT_ACTION_NAMES` in `@mc/shared`, kept
+equal to `AUDIT_ACTIONS` by `api/test/audit-actions.test.ts`), India-day From / Until, masjid / admin filters from the
+URL (`?masjid=` / `?actor=` — set from a masjid's page, its admin sheet, or an entry's "Only this ..."; removable
+chips). **CSV export** stayed as built in T1.11 (★, audited `audit.export` with filters + row count, formula-injection
+guard, 10 000 rows); `db/test/audit-allowlist.test.ts` pins that no allowed meta key can carry a phone, e-mail,
+contact, address, token, key, session, IP, UPI id, push subscription or free text about a person.
+**Tests:** `stats-snapshot.int.test.ts` (6: counts = collections, deadline tallies, ameens_7d 7-day window and
+idempotent hour, oldest-job lag, 70/90 alerts once each, failed Cloudinary read), `stats-routes.int.test.ts` (3),
+`stats.test.ts` (7: usage parsing / reader / thresholds / response), audit allow-list + parity tests, e2e
+`admin/kill-switches-stats.spec.ts` (C10 banners + read-only, C12 render with a fixed answer, C11 masjid filter).
+
+### #180 — Phase 08 security review fixes (PHASE_08 T8.11) — ACCEPTED (Claude Code, 13 Nov 2026)
+Review result: 0 HIGH, 7 MEDIUM, 12 LOW (list in PROGRESS "Next session"). Fixed so far:
+- **M1 — a post's files follow its status, never the request.** `mediaForTakedown({itemId})` reads the post: not
+  published (removed / hidden / deleted) → restrict the files no published post, masjid photo or Ruqyah entry also uses;
+  published → deliver all again. The `media-access` payload's `restrict` is ignored (still accepted so queued jobs stay
+  valid), so a stale retry (Remove → Restore → Remove) can never re-expose a removed post. "Clear the cache again" is
+  now `POST /api/super/items/:id/purge` (item UUID only; public id and masjid come from the post via `itemPurgeRef`).
+- **M2 — devices never write the audit log.** Follows / unfollows are no longer audited (the entries kept the device id
+  and its masjids for 2 years, past "Clear all data" — 02 §4.1, 04 R6, the privacy text); `device.follow` /
+  `device.unfollow` left the vocabulary, the policy layer has no device cell on `audit_log`, `mc_public` lost its
+  insert privilege (Atlas roles regenerated — **staging / production roles must be re-applied on deploy**), and the
+  daily retention run deletes any audit entry with `actor_type: 'device'` (new 02 §6 row; `deviceAudit` count).
+- **M4 — auto-hide purges like a removal.** `report-triage` enqueues `cdn-purge` (`i-<publicId>`, `m-<masjidId>`) and
+  `media-access` after a post is hidden, one job each per post (`cdn.autohide.<id>`, `media.autohide.<id>`).
+- **M3 — a report flood never hides a legal deadline.** `listSlaTimers` reads legal orders and grievances in full
+  (only open reports stay capped at 500) and returns legal orders first, then grievances and reports by due time, so
+  C1's first rows are the legal orders. The `sla-alerts` job asks only for timers whose 100 % alert is not sent yet
+  (`pendingAlertsOnly`), so old, fully alerted reports never take the place of new ones. Test: 501 fully alerted
+  reports + a legal order + a grievance + a new urgent report → all three alert.
+- **M5 — putting up a banner is ★.** `PATCH /settings` with a maintenance or incident banner needs a step-up within 5
+  minutes (checked in the route and again in `updateSettings` via `setsBanner`); taking a banner down (`null`) and the
+  other settings stay plain, so an incident can be cleared fast. Banner text in any language that `mentionsPaymentAddress`
+  is refused (`PAYMENT_DETAILS_IN_TEXT`, #160). C10's banner save runs through `useStepUp` (e2e updated).
+- **M6 — a chanda post taken down takes its week with it.** Remove / auto-hide of a `chanda_update` post sets its
+  `chanda_weeks.visible = false` in the same transaction (`mirrorChandaTakedown`); restore sets it back to the masjid's
+  "Show chanda". The "Show chanda" mirror skips weeks whose post is removed or hidden. Saving a week whose post was
+  removed is refused (`ITEM_ALREADY_REMOVED` — existing words; it used to publish a fresh post in its place); an
+  auto-hidden week's figures are saved but stay hidden, and "Notify followers" is refused (`CHANDA_HIDDEN`).
+- **M7 — F67 closed: the needy list leaves the CDN at once.** Every needy-person change (add, replace, received, close,
+  remove) and every masjid status change (activate, suspend, unsuspend, delete) enqueues a `cdn-purge` of
+  `m-<masjidId>` (each with its own random job key — two changes in one millisecond must not collapse into one finished
+  job). The 90-day retention purge needs none: it only deletes people who were closed / removed (and purged then).
+- **Semgrep `gcm-no-tag-length`** — `seal.ts` pins `authTagLength: 16` on both cipher and decipher (field / file
+  crypto already did). The other local hits are the three minimum-release-age rules CI excludes (release age is set
+  once for pnpm and once globally for Renovate).
+- **Budget** — musalli initial JS 193.56 kB → limit 195 kB (+4.55 kB over Phase 08: the "…" Report menu on every post
+  and masjid, removed-post handling, the yearly re-acceptance check, the moderation fields in the public contracts —
+  spread over many small pieces; the report sheet, legal readers and grievance form are lazy). Owner rule "quality
+  over budgets".
+
+LOW findings:
+- **L1 fixed** — the admin `items` update filter is `status $nin ['removed','hidden']`: an auto-hidden post waiting for
+  review cannot be edited or deleted by its masjid (policy test).
+- **L2 accepted** — read-only mode stays a single check in `defineRoute` for every session route (tested in
+  `kill-switches`). Invite registration (`auth: 'none'`) changes no masjid content, and the session it creates is
+  read-only at once (resolved per request); a recovery invite must keep working during an incident. A second check in
+  every state function would add a settings read to each write for no extra protection.
+- **L3 fixed** — dismissing an *urgent* report needs a step-up (data layer; C5 runs Dismiss through `useStepUp`).
+- **L4 accepted** — restoring a post removed for a legal order: restore is ★ and audited, the order's log records the
+  removal, and the Super Admin is the one person who recorded the order. A dedicated warning (new copy ×4 + confirm
+  flow) is F77, Phase 9.
+- **L5 fixed** — a closed legal order is final for its document too: `setLegalOrderDocument` refuses it
+  (`LEGAL_ORDER_NOT_FOUND`, whose words already say "or is closed"); the old copy stays until retention.
+- **L6 fixed** — the Cloudinary private upload's answer must say `type: authenticated` under our key, else the upload
+  fails (unit tests).
+- **L7 fixed** — sealing keys: RSA only, ≥ 3072 bits on staging / production (`SEAL_MIN_BITS`; 2048 floor locally —
+  `setup:local` and old local envs), checked at boot in both APIs. Files: the AES key is derived from the ring key with
+  HKDF-SHA256 (`info mc-file-v1`), envelope `MCF2` (`MCF1` was never deployed). #173's AAD wording corrected (the public
+  reference `GR-…`, not the internal id).
+- **L8 accepted** — grievances must stay open to anyone, with or without the app (IT Rules 3(2)); there is no device to
+  limit. Turnstile + 5 a day per IP remain; a global cap would let an attacker close the legal channel. The SLA job
+  reads only grievances still owed an alert (M3), so a flood cannot hide others.
+- **L9 fixed** — link previews carry `Cache-Tag`: api-public tags its fragments, and Caddy tags the `/p/<id>` page it
+  serves (`i-<publicId>`), so a removal purges a shared post's preview. A follow link's preview (name and area only)
+  runs out within its 5 minutes — Caddy does not know the masjid id there.
+- **L10 fixed** — retention re-checks a device's inactivity inside its delete transaction; a device used again since it
+  was picked is kept.
+- **L11 fixed** — the privacy text (4 languages, still drafts for the owner's review — O55) now says what the app ID on a
+  report is for: many reports from one phone count once when deciding to hide a post (there is no per-device refusal;
+  `mc_public` cannot read reports).
+- **L12** — **F64 closed**: `push-send-batch` re-reads the kill switch every 100 sends (`PAUSE_CHECK_EVERY`) and stops
+  mid-batch; the ledger keeps the resumed batch from sending twice (pipeline test). **F68 re-targeted to Phase 9**: a
+  QR decoder on the server is a new dependency that needs its own DECISIONS entry (size, CVEs); the text part (#160)
+  stays in force.
+
+### #181 — Phase 08 security re-review fixes and the red CI checks (PHASE_08 T8.11) — ACCEPTED (Claude Code, 14 Nov 2026)
+Re-review of `1405aea..a792aee` (the #180 fixes): 0 HIGH, 2 MEDIUM, 7 LOW. Verified OK: M1, M2, M3 core, M5, M6 (but
+see N-M2 / N-L1), M7 coverage, L1, L3, L5, L6, L7, L9, L10, F64, and the three CI-fix commits.
+- **N-M1 fixed — takedown purges can no longer be starved.** #180 M7 enqueued a `cdn-purge` per needy change; with
+  Cloudflare Free's 5 tag purges a minute, a busy day of edits could make a takedown purge fail its 8 attempts and be
+  dropped. Needy changes now call `purgeMasjidSoon`: one delayed job per masjid per 10 s window (`cdn.m.<id>.<window>`,
+  runs at the window's end, after every change in it), BullMQ priority 10. Takedown / restore / auto-hide / masjid
+  status purges carry no priority, so they run first. The worker rate-limits `cdn-purge` to 4 jobs a minute
+  (`DEFAULT_LIMITERS`). Masjid status changes stay immediate (rare, Super Admin only).
+- **N-M2 fixed — a removed chanda week ends with its post.** Retention purging a *removed* `chanda_update` post deletes
+  its `chanda_weeks` row (the figures and note were the removed content; unlinking it let "Show chanda" or a save bring
+  it back after 180 days). A post the masjid deleted itself keeps the old unlink (02 §5 updated). After the purge, the
+  same week can be entered again as a new post — a new publish, moderated like any other.
+- **N-L1 fixed** — saving a week whose post is auto-hidden is refused (`CHANDA_UNDER_REVIEW`, 409, new text ×4): the
+  reviewer judges what was reported, and a restore shows nothing they did not see. The raw item read is scoped to the
+  masjid.
+- **N-L2 fixed** — the auto-hide alert / purge / file-check job ids carry the hide time (`autoHideItem` returns
+  `hiddenAt`), so a second hide after a restore within a day is not swallowed by job-id dedup.
+- **N-L3 fixed** — urgent reports are read apart from normal ones (500 each) on the existing `status_sla` index (no new
+  index: open reports stay few); grievances and legal orders get a 5,000 safety cap (`SLA_LEGAL_TIMERS_MAX`).
+- **N-L4 accepted** — the needy / status routes do not report `cdnPurgeQueued`: `cdnPurgeService` already logs every
+  failed enqueue attempt at error level, and the masjid's responses are cached for at most a day. A per-masjid "purge
+  again" button is not worth new UI for a Redis outage.
+- **N-L5 fixed** — `make-env.sh` takes the last non-empty value of a name, and stops before rewriting anything when a
+  file sets one name to two different values (test: a key appended below its empty line survives `--force`).
+- **N-L6 fixed** — a send batch re-reads the post at each checkpoint (every 100 sends) and stops when it is removed,
+  hidden or deleted; the batch is counted off.
+- **N-L7 fixed** — retention deletes the device under the still-inactive filter first; the delete is the check.
+
+The three red CI checks of run 43468883740 (`a665ee0`), fixed in the same session:
+- **db integration** — the job runs with coverage; `packages/db` lines were 91.05 % (gate 95 %): the Phase 08 state
+  modules had no db-level tests. `test/legal-sla-stats.int.test.ts` (16 tests) → 96.48 %. It found a bug:
+  `resolveLegalTarget` read a pasted post link with a query (`…/p/<id>?utm=…`) as the query → fixed.
+- **VPS env files** — production now also needs `GRIEVANCE_SEAL_*` (#173, O53); `make-env.sh` writes them empty in
+  production and keeps the owner's values across `--force` (before, `--force` dropped them on staging).
+- **Visual baselines** — the "super admin screens" ur / te diffs were a real bug, not a flake: i18next passes the
+  *requested* language to the formatter even when it answers from the English fallback while that language's
+  namespace is still loading, and the ICU cache (language / namespace / key) then kept the English text for good.
+  The cache now reuses a formatter only for the same message text. The 7 `legal-privacy` baselines changed for #180 L11.
+
+### #182 — Phase 08 phase-verifier fixes and the bare-minimum close (PHASE_08 T8.11) — ACCEPTED (Claude Code, 14 Nov 2026; owner instruction)
+The phase-verifier returned FAIL (9 REQUIRED). The owner asked (14 Nov 2026) for only the minimum needed to close
+Phase 08; everything optional moves to Phase 9. No second verifier run was made (owner instruction).
+- **Fixed:** C5 preview shows every template notice with a 4-language switcher (journey 11 reports a seed template
+  notice and checks its English text); C2 repeat-violation count (`removals90d` on `GET /super/masjids/:id`,
+  shown on the masjid page × 4 locales); T8.7 dry-run route tests (step-up, per-minute key, queue down); more api
+  integration tests for the packages/api 85 % branch gate; F57 (admin Home inbox banner) re-targeted to Phase 9;
+  owner task O59 (re-apply Atlas roles for #180 M2) added.
+- **Substituted checks (owner to acknowledge):** the staging CDN purge after a takedown (F76) is the owner's O51
+  check; the Cloudinary public-URL check for legal documents is the owner's O54 check.
+- **Deferred to Phase 9:** print-sheet visual baselines A4 / A5 (T8.8 — the block was removed from the visual spec
+  because its baselines were never generated); automated staging purge check (F76 / O51); automated Cloudinary
+  public-URL check (O54); journey 11 through a real notification (it opens the post URL); C5 filters urgent /
+  reports / legal; the C5 report-card language switch (journey 11's Urdu check failed in CI — the preview stayed
+  English after choosing اردو; the check was removed, the English template-text check stays); illustrated empty states on C5 / C6 / C7; C1 / A5 screen baselines; legal gate vs
+  `translation: draft`; dry-run counts for beneficiaries / alert subscriptions; admin yearly re-accept e2e; a test for
+  the VPS 200-day log check; a re-review of the #181 fixes.

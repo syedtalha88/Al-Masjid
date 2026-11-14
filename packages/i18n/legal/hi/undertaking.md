@@ -1,6 +1,7 @@
 ---
 version: draft-1
 status: draft
+translation: draft
 ---
 
 - मैं अपनी मस्जिद के बारे में सिर्फ़ सच्ची और सही जानकारी दूँगा/दूँगी।

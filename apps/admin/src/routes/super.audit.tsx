@@ -1,9 +1,10 @@
-import { wallClockInZone } from '@mc/domain/time';
+import { addDays, calendarDateInZone, istInstant, wallClockInZone } from '@mc/domain/time';
 import { Bdi, Time, useLocale, useTranslation } from '@mc/i18n/react';
-import type { AuditRow } from '@mc/shared/contracts';
-import { Button, EmptyState, Select, SkeletonText, useToast } from '@mc/ui/components';
-import { CaretDownIcon, DownloadIcon } from '@mc/ui/icons';
+import { AUDIT_ACTION_NAMES, type AuditActionName, type AuditQuery, type AuditRow } from '@mc/shared/contracts';
+import { Button, DatePickerSheet, EmptyState, IconButton, Select, SkeletonText, useToast } from '@mc/ui/components';
+import { CaretDownIcon, DownloadIcon, XIcon } from '@mc/ui/icons';
 import { Pressable } from '@mc/ui/motion';
+import { useNavigator, useScreen } from '@mc/ui/navigation';
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -17,33 +18,23 @@ export const Route = createFileRoute('/super/audit')({
   component: Audit,
 });
 
-/** The audit vocabulary (mirrors AUDIT_ACTIONS in @mc/db) — shown as written: these are log identifiers. */
-const ACTIONS = [
-  'masjid.create',
-  'masjid.update',
-  'masjid.activate',
-  'masjid.suspend',
-  'masjid.unsuspend',
-  'masjid.delete',
-  'admin.create',
-  'admin.add_to_masjid',
-  'admin.remove_from_masjid',
-  'admin.invite',
-  'admin.phone_view',
-  'admin.undertaking_accept',
-  'invite.consume',
-  'auth.register',
-  'auth.login',
-  'auth.login_failed',
-  'auth.step_up',
-  'auth.logout',
-  'session.revoke',
-  'credential.revoke',
-  'settings.update',
-] as const;
-type ActionFilter = 'all' | (typeof ACTIONS)[number];
+type ActionFilter = 'all' | AuditActionName;
+/** Every action, sorted — so each noun's actions (`masjid.*`, `item.*` …) sit together. Log identifiers, as written. */
+const ACTION_OPTIONS = AUDIT_ACTION_NAMES.map((value) => ({ value, label: value }));
 
-/** C11 Audit log: filter by action, newest first, expandable details, "Show more"; ★ CSV export of the filter. */
+/** `/super/audit?masjid=<id>&actor=<id>` — set from a masjid's page, its admins, or an entry ("Only this …"). */
+const auditHref = (search: { readonly masjid?: string | undefined; readonly actor?: string | undefined }) => {
+  const params = new URLSearchParams();
+  if (search.masjid) params.set('masjid', search.masjid);
+  if (search.actor) params.set('actor', search.actor);
+  const query = params.toString();
+  return query ? `/super/audit?${query}` : '/super/audit';
+};
+
+/**
+ * C11 Audit log (T1.11, final in T8.10): filter by action (every action, grouped), masjid and admin (from the URL —
+ * removable chips) and India dates; newest first, expandable details, "Show more"; ★ CSV export of the same filter.
+ */
 function Audit() {
   const { t } = useTranslation('super');
   return (
@@ -59,10 +50,26 @@ function AuditLog() {
   const toast = useToast();
   const errorText = useErrorText();
   const run = useStepUp();
+  const navigator = useNavigator();
+  const { format } = useLocale();
+  const { search } = useScreen();
+  const masjid = search['masjid'];
+  const actor = search['actor'];
   const [action, setAction] = useState<ActionFilter>('all');
-  const filters = action === 'all' ? {} : { action };
+  const [from, setFrom] = useState<string | null>(null);
+  const [until, setUntil] = useState<string | null>(null);
+  const [picking, setPicking] = useState<'from' | 'until' | null>(null);
+  const today = calendarDateInZone(new Date());
+  const filters: AuditQuery = {
+    ...(action === 'all' ? {} : { action }),
+    ...(masjid ? { masjid } : {}),
+    ...(actor ? { actor } : {}),
+    // India days: from the start of `from` up to (not including) the day after `until`.
+    ...(from ? { from: istInstant(from, '00:00').toISOString() } : {}),
+    ...(until ? { to: istInstant(addDays(until, 1), '00:00').toISOString() } : {}),
+  };
   const log = useInfiniteQuery({
-    queryKey: ['super', 'audit', action],
+    queryKey: ['super', 'audit', filters],
     queryFn: ({ pageParam, signal }) =>
       superApi.audit({ ...filters, ...(pageParam ? { cursor: pageParam } : {}) }, signal),
     initialPageParam: '',
@@ -84,7 +91,21 @@ function AuditLog() {
       if (!(error instanceof StepUpCancelled)) toast.show({ message: errorText(error), tone: 'error' });
     },
   });
+  // T8.7: the worker counts what retention would delete; the summary arrives as a `retention.run` entry.
+  const dryRun = useMutation({
+    mutationFn: () => run(() => superApi.retentionDryRun()),
+    onSuccess: (result) => {
+      toast.show({
+        message: t(result.queued ? 'audit.retentionQueued' : 'audit.retentionNotQueued'),
+        tone: result.queued ? 'success' : 'error',
+      });
+    },
+    onError: (error) => {
+      if (!(error instanceof StepUpCancelled)) toast.show({ message: errorText(error), tone: 'error' });
+    },
+  });
   const rows = log.data?.pages.flatMap((page) => page.entries) ?? [];
+  const dayText = (day: string | null) => (day ? format.date(istInstant(day, '12:00'), 'medium') : t('audit.anyDate'));
 
   return (
     <>
@@ -94,12 +115,36 @@ function AuditLog() {
             label={t('audit.action')}
             value={action}
             onChange={setAction}
-            options={[
-              { value: 'all', label: t('audit.allActions') },
-              ...ACTIONS.map((value) => ({ value, label: value })),
-            ]}
+            options={[{ value: 'all', label: t('audit.allActions') }, ...ACTION_OPTIONS]}
           />
         </div>
+        <Button
+          variant="outline"
+          onPress={() => {
+            setPicking('from');
+          }}
+        >
+          {`${t('audit.from')}: ${dayText(from)}`}
+        </Button>
+        <Button
+          variant="outline"
+          onPress={() => {
+            setPicking('until');
+          }}
+        >
+          {`${t('audit.to')}: ${dayText(until)}`}
+        </Button>
+        {from || until ? (
+          <Button
+            variant="ghost"
+            onPress={() => {
+              setFrom(null);
+              setUntil(null);
+            }}
+          >
+            {t('audit.clearDates')}
+          </Button>
+        ) : null}
         <Button
           variant="outline"
           leadingIcon={<DownloadIcon />}
@@ -110,7 +155,57 @@ function AuditLog() {
         >
           {t('audit.export')}
         </Button>
+        <Button
+          variant="ghost"
+          loading={dryRun.isPending}
+          onPress={() => {
+            dryRun.mutate();
+          }}
+        >
+          {`${t('audit.retentionDryRun')} ★`}
+        </Button>
       </div>
+      {masjid || actor ? (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {masjid ? (
+            <FilterChip
+              label={t('audit.masjidFilter', { id: masjid.slice(0, 8) })}
+              removeLabel={t('audit.removeFilter', { name: t('audit.masjidFilter', { id: masjid.slice(0, 8) }) })}
+              onRemove={() => {
+                navigator.replace(auditHref({ actor }));
+              }}
+            />
+          ) : null}
+          {actor ? (
+            <FilterChip
+              label={t('audit.actorFilter', { id: actor.slice(0, 8) })}
+              removeLabel={t('audit.removeFilter', { name: t('audit.actorFilter', { id: actor.slice(0, 8) }) })}
+              onRemove={() => {
+                navigator.replace(auditHref({ masjid }));
+              }}
+            />
+          ) : null}
+        </div>
+      ) : null}
+      <DatePickerSheet
+        open={picking !== null}
+        onClose={() => {
+          setPicking(null);
+        }}
+        title={picking === 'until' ? t('audit.to') : t('audit.from')}
+        value={picking === 'until' ? until : from}
+        max={today}
+        today={today}
+        {...(picking === 'until' && from ? { min: from } : {})}
+        onChange={(day) => {
+          if (picking === 'until') setUntil(day);
+          else {
+            setFrom(day);
+            if (until && day > until) setUntil(null);
+          }
+          setPicking(null);
+        }}
+      />
       {log.isPending ? (
         <SkeletonText lines={8} />
       ) : rows.length === 0 ? (
@@ -141,8 +236,28 @@ function AuditLog() {
   );
 }
 
+/** A filter set from the URL, removable (C11). */
+function FilterChip({
+  label,
+  removeLabel,
+  onRemove,
+}: {
+  readonly label: string;
+  readonly removeLabel: string;
+  readonly onRemove: () => void;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-mint-50 ps-4 type-footnote text-primary-700">
+      <Bdi>{label}</Bdi>
+      <IconButton label={removeLabel} icon={<XIcon size={18} />} onPress={onRemove} />
+    </span>
+  );
+}
+
 function AuditEntry({ row }: { readonly row: AuditRow }) {
   const { t } = useTranslation('super');
+  const navigator = useNavigator();
+  const { search } = useScreen();
   const { format } = useLocale();
   const [open, setOpen] = useState(false);
   return (
@@ -189,6 +304,32 @@ function AuditEntry({ row }: { readonly row: AuditRow }) {
               2,
             )}
           </pre>
+          {row.actorId || row.masjidId ? (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {row.actorId && row.actorId !== search['actor'] ? (
+                <Button
+                  variant="ghost"
+                  size="md"
+                  onPress={() => {
+                    navigator.replace(auditHref({ masjid: search['masjid'], actor: row.actorId }));
+                  }}
+                >
+                  {t('audit.onlyActor')}
+                </Button>
+              ) : null}
+              {row.masjidId && row.masjidId !== search['masjid'] ? (
+                <Button
+                  variant="ghost"
+                  size="md"
+                  onPress={() => {
+                    navigator.replace(auditHref({ masjid: row.masjidId, actor: search['actor'] }));
+                  }}
+                >
+                  {t('audit.onlyMasjid')}
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       ) : null}
     </li>

@@ -84,7 +84,6 @@ const ownAuditEntry = (ctx: PolicyContext) => ({
   masjid_id: { $in: [...adminMasjids(ctx), null] },
 });
 /** Device audit entries (follow / unfollow): actor = this device as `device` — never an admin, super admin or system. */
-const ownDeviceAuditEntry = (ctx: PolicyContext) => ({ actor_type: 'device', ...selfDevice('actor_id')(ctx) });
 
 const S: Cell = {};
 const all = (writable?: readonly string[]): Partial<Record<Operation, Cell>> => ({
@@ -153,9 +152,11 @@ const ITEM_WRITABLE = [
  * `status: removed`, the moderation fields, or the purge marker (its 180-day evidence clock, IT Rules 3(1)(g)) —
  * takedown, restore and purge are state functions (Phase 8) and the retention job.
  */
-const ITEM_MODERATION_FIELDS = ['purge_after', 'removed_at', 'removed_reason'];
+const ITEM_MODERATION_FIELDS = ['purge_after', 'removed_at', 'removed_reason', 'removed_note', 'hidden_at'];
 const itemCheck = (fields: Readonly<Record<string, unknown>>): string | undefined => {
-  if (fields['status'] === 'removed') return 'status removed is set by moderation only';
+  if (fields['status'] === 'removed' || fields['status'] === 'hidden') {
+    return `status ${fields['status']} is set by moderation only`;
+  }
   const guarded = ITEM_MODERATION_FIELDS.find((field) => field in fields);
   return guarded ? `${guarded} is set by moderation / retention only` : undefined;
 };
@@ -175,6 +176,8 @@ const quotaCount = (fields: Readonly<Record<string, unknown>>, operator?: string
 };
 /** Generic item updates never touch a removed item (no un-removing). */
 const notRemoved = { status: { $ne: 'removed' } };
+/** A masjid admin never changes a post moderation took down — removed, or auto-hidden waiting for review (#180 L1). */
+const notTakenDown = { status: { $nin: ['removed', 'hidden'] } };
 
 const TIMING_WRITABLE = [
   'prayers',
@@ -245,9 +248,11 @@ const BENEFICIARY_WRITABLE = [
 /** A person taken off the list by the masjid (closed / deleted) is never changed again — the purge clock runs. */
 const beneficiaryOpen = { status: { $in: ['active', 'fulfilled'] } };
 const removedRedaction = (doc: Document): Document => {
-  if (doc['status'] !== 'removed') return doc;
+  // The Super Admin's moderation note is never the masjid's to read (C5, #171).
+  const { removed_note: _note, ...withoutNote } = doc;
+  if (withoutNote['status'] !== 'removed') return withoutNote;
   // A taken-down recording's key too: it cannot be read back and attached elsewhere (DECISIONS #135).
-  const { title: _t, body: _b, image_key: _i, image_thumbhash: _h, voice: _v, ...rest } = doc;
+  const { title: _t, body: _b, image_key: _i, image_thumbhash: _h, voice: _v, ...rest } = withoutNote;
   return rest;
 };
 
@@ -308,7 +313,7 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
       find: { filter: own('masjid_id'), redact: removedRedaction },
       insert: { filter: own('masjid_id'), check: itemCheck },
       update: {
-        filter: (ctx) => ({ ...own('masjid_id')(ctx), ...notRemoved }),
+        filter: (ctx) => ({ ...own('masjid_id')(ctx), ...notTakenDown }),
         writable: ITEM_WRITABLE,
         check: itemCheck,
       },
@@ -458,7 +463,10 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
   },
   grievances: {
     public: { insert: S },
-    super: { find: S, update: { writable: ['status', 'acknowledged_at', 'resolved_at', 'resolution', 'handled_by'] } },
+    super: {
+      find: S,
+      update: { writable: ['status', 'acknowledged_at', 'resolved_at', 'resolution', 'handled_by', 'sla_alerted'] },
+    },
   },
   grievance_seq: {
     public: { find: S, insert: S, update: { writable: ['seq'] } },
@@ -472,7 +480,8 @@ export const POLICY: Readonly<Record<Namespace, Cells>> = {
     },
   },
   audit_log: {
-    device: { insert: { filter: ownDeviceAuditEntry } }, // phase-verifier N1 (22 Oct 2026)
+    // No device cell (security review M2): devices never write the audit log — before, a follow was audited with the
+    // device id, which outlived "Clear all data" for 2 years.
     // An admin's entry names the admin as actor and one of their masjids or none (phase-verifier 22 Oct 2026): no
     // entries planted in another masjid's audit view.
     admin: { find: { filter: own('masjid_id') }, insert: { filter: ownAuditEntry } },

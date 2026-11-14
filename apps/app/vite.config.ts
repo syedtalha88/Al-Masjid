@@ -1,12 +1,12 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { mcIcuPrecompile, mcLocaleBoot } from '@mc/i18n/vite';
+import { mcIcuPrecompile, mcLegalGate, mcLocaleBoot } from '@mc/i18n/vite';
 import { BRAND } from '@mc/shared/brand';
 import { configureZodForCsp } from '@mc/shared/browser';
 import { CLIENT_ENV_PREFIX, parseClientEnv } from '@mc/shared/env';
 import { fontBaseName, LOCALE_PRELOAD_FONTS } from '@mc/ui/fonts';
-import { mcPwa } from '@mc/ui/vite';
+import { mcLicenses, mcPwa } from '@mc/ui/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
@@ -45,6 +45,8 @@ const ogShell = (): Plugin => ({
   },
 });
 
+const PKG_NAME = '@mc/app';
+
 /** Musalli PWA (apps/app). Dev: http://localhost:5173, `/api` proxied to api-public (01 §6). */
 export default defineConfig(({ mode }) => {
   // Validate every VITE_* variable at build/dev start: only VITE_PUBLIC_* may exist (04 §11, CLAUDE.md §8).
@@ -60,6 +62,10 @@ export default defineConfig(({ mode }) => {
       ogShell(),
       // Catalogue strings → ICU ASTs, parser left out of the bundle (F14, DECISIONS #92).
       mcIcuPrecompile(),
+      // 05 §10 (T8.6): a production build refuses legal texts still marked draft.
+      mcLegalGate(),
+      // 05 §10 (T8.6): /licenses.json from the production dependency tree.
+      mcLicenses(PKG_NAME),
       // Zod must be jitless before any schema is built, or its eval probe trips Trusted Types (04 §7).
       mcLocaleBoot({ preloadFonts, before: [configureZodForCsp] }),
       ...mcPwa({ app: 'app' }),

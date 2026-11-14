@@ -2,7 +2,7 @@
 // `/p/:publicId`. Caddy serves the app shell for those two paths as a template (og.html) that includes this fragment
 // (DECISIONS #91) — so the API never needs a copy of the built index.html. Only the masjid name / area or an item's
 // generic title leave the server, HTML-escaped; unknown codes and ids get the uniform generic tags.
-import type { DbHandle } from '@mc/db';
+import { type DbHandle, idText } from '@mc/db';
 import { getPublicItem, listTemplates, type PublicItem, resolveMasjidByCode } from '@mc/db/repos';
 import { normalizeFollowCode } from '@mc/domain/follow-code';
 import { BRAND } from '@mc/shared/brand';
@@ -86,10 +86,12 @@ export function linkPreviewRoutes(deps: { readonly db: DbHandle; readonly appOri
       cacheControl: cache,
       request: { params: z.object({ code: z.string().max(32) }) },
       responses: { 200: z.string() },
-      handler: async ({ params, reply }) => {
+      handler: async ({ params, res, reply }) => {
         const code = normalizeFollowCode(params.code);
         const masjid = code ? await resolveMasjidByCode(db, code) : null;
         if (!masjid) return reply(200, previewTags({ ...GENERIC, ...origin }));
+        // A suspended / deleted masjid's preview leaves the CDN with its tag (#180 L9).
+        res.set('Cache-Tag', `m-${masjid.id}`);
         return reply(
           200,
           previewTags({
@@ -111,11 +113,15 @@ export function linkPreviewRoutes(deps: { readonly db: DbHandle; readonly appOri
       cacheControl: cache,
       request: { params: z.object({ publicId: z.string().max(32) }) },
       responses: { 200: z.string() },
-      handler: async ({ params, reply }) => {
+      handler: async ({ params, res, reply }) => {
         // Only posts for everyone get specific tags (a crawler has no audience preference).
-        const found = /^[A-Za-z0-9_-]{12}$/.test(params.publicId)
-          ? await getPublicItem(db, params.publicId, ['everyone'])
-          : null;
+        const valid = /^[A-Za-z0-9_-]{12}$/.test(params.publicId);
+        const found = valid ? await getPublicItem(db, params.publicId, ['everyone']) : null;
+        // Removal / restore purge `i-<publicId>` and `m-<masjidId>`: the preview follows at once (#180 L9). The generic
+        // answer is tagged too, so a restored post's preview does not wait for the cache to run out.
+        if (valid) {
+          res.set('Cache-Tag', found ? `i-${params.publicId}, m-${idText(found.masjidId)}` : `i-${params.publicId}`);
+        }
         if (!found) return reply(200, previewTags({ ...GENERIC, ...origin }));
         const titles = new Map((await listTemplates(db)).map((template) => [template.key, template.title.en]));
         return reply(

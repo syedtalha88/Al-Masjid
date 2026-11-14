@@ -554,4 +554,15 @@ describe('link previews for /m/:code and /p/:publicId (Caddy og.html includes th
     expect(await tags('p/unknown00000')).toContain('<meta property="og:title" content="Masjid Connect">');
     expect(await tags('p/x')).toContain('<meta property="og:title" content="Masjid Connect">');
   });
+
+  it('previews carry the cache tags a removal / suspension purges (#180 L9)', async () => {
+    const tagOf = async (path: string) => (await request(app()).get(`/api/v1/og/${path}`)).headers['cache-tag'];
+    expect(await tagOf('m/testa001')).toBe(`m-${ALPHA}`);
+    const post = seedPublicId('alpha', 0);
+    expect(await tagOf(`p/${post}`)).toBe(`i-${post}, m-${ALPHA}`);
+    // Not public (yet): tagged by its id, so a restore purges the generic answer too; malformed ids get no tag.
+    expect(await tagOf('p/unknown00000')).toBe('i-unknown00000');
+    expect(await tagOf('p/x')).toBeUndefined();
+    expect(await tagOf('m/ZZZZZZZZ')).toBeUndefined();
+  });
 });

@@ -169,10 +169,14 @@ https://{$APP_HOST} {
 		respond 404
 	}
 	@og path_regexp og ^/(m|p)/([A-Za-z0-9_-]{1,32})/?$
+	# A shared post's preview carries the post's tag, so a removal purges it at once (DECISIONS #180 L9). A follow
+	# link's masjid id is not known here — that preview (name and area only) runs out within its 5 minutes.
+	@ogPost path_regexp ogp ^/p/([A-Za-z0-9_-]{1,32})/?$
 	handle @og {
 		import security-headers
 		import csp-app
 		header Cache-Control "public, max-age=0, s-maxage=300"
+		header @ogPost Cache-Tag "i-{re.ogp.1}"
 		root * /srv/app
 		rewrite * /og.html
 		templates

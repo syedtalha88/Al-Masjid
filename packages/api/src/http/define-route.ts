@@ -77,6 +77,12 @@ export interface RouteSpec<
    * only for what must work before that: accepting it, logging out, ending sessions.
    */
   readonly undertaking?: 'exempt';
+  /**
+   * Admin read-only mode (PHASE_08 T8.9): while the Super Admin has it on, masjid admins' writes answer 503
+   * `READ_ONLY_MODE`. `exempt` only for keeping the account safe: signing out, ending sessions, the step-up, the alert
+   * subscription and accepting the undertaking.
+   */
+  readonly readOnly?: 'exempt';
   /** Rate-limit rules (03 §2), applied in order after auth and before validation. */
   readonly rateLimit?: readonly RateLimitRule[];
   /** `Cache-Control` for successful responses (01 §5.2), per status when it differs (a redirect vs the 200). Default `no-store`. */
@@ -88,6 +94,11 @@ export interface RouteSpec<
   readonly csvAttachment?: string;
   /** Success bodies are an HTML fragment (string) instead of JSON — the link-preview tags only (03 §3). */
   readonly htmlFragment?: true;
+  /**
+   * Success bodies are one file ({@link fileBodySchema}: bytes, type, file name) sent as an attachment — private
+   * downloads only (the legal-order document, T8.5). `no-store` like every other response.
+   */
+  readonly fileAttachment?: true;
   readonly request?: { readonly params?: P; readonly query?: Q; readonly body?: B };
   /**
    * The request body is one file (`multipart/form-data`, field `file`) of at most `maxBytes`, read into memory after
@@ -99,6 +110,16 @@ export interface RouteSpec<
     context: RouteContext<z.output<P>, z.output<Q>, z.core.output<B>, R, A>,
   ) => RouteResult<R> | Promise<RouteResult<R>>;
 }
+
+/**
+ * The body of a {@link RouteSpec.fileAttachment} route: the bytes, a fixed set of types, and a plain file name (no
+ * quotes, slashes or non-ASCII — it goes into `Content-Disposition` as is).
+ */
+export const fileBodySchema = z.object({
+  bytes: z.custom<Uint8Array>((value) => value instanceof Uint8Array),
+  contentType: z.enum(['application/pdf', 'image/jpeg', 'image/png']),
+  filename: z.string().regex(/^[A-Za-z0-9._-]{1,100}$/u),
+});
 
 /** `reply(status, body)` — the result object; the mapped-type union is checked by the signature. */
 const reply = <R extends Responses>(status: number, body: unknown): RouteResult<R> => {
@@ -173,7 +194,8 @@ export const toOpenApiPath = (path: string): string => path.replace(/:([A-Za-z0-
  * Declares an HTTP route (03 header, CLAUDE.md §6). The **only** place raw Express routing is allowed
  * (lint rule `mc/no-raw-routes`). The returned definition:
  * 0. authenticates per `auth` (03 §0 step 5) → 401 `SESSION_REQUIRED` / 403 `FORBIDDEN` / 403 `STEP_UP_REQUIRED`;
- *    the handler gets the session and its DB scope as `auth`,
+ *    the handler gets the session and its DB scope as `auth`; a masjid admin's write is refused with 403
+ *    `UNDERTAKING_REQUIRED` (T1.10) or 503 `READ_ONLY_MODE` (T8.9) unless the route is exempt,
  * 1. applies the route's rate limits — step 6, before validation → 429 `RATE_LIMITED` with `Retry-After`,
  * 2. rejects `$`/`.` keys anywhere in params/query/body (R11),
  * 3. validates params/query/body with strict Zod objects → 400 `VALIDATION_FAILED` with field paths (never the raw
@@ -211,6 +233,14 @@ export function defineRoute<
       spec.undertaking !== 'exempt'
     ) {
       throw new ApiProblem(403, 'UNDERTAKING_REQUIRED');
+    }
+    if (
+      authed?.session.role === 'masjid_admin' &&
+      authed.session.readOnly &&
+      spec.method !== 'get' &&
+      spec.readOnly !== 'exempt'
+    ) {
+      throw new ApiProblem(503, 'READ_ONLY_MODE');
     }
     await enforceRateLimits(req, rateLimit, {
       session: authed?.session.sessionId.toHexString(),
@@ -265,6 +295,12 @@ export function defineRoute<
         .send(output);
     } else if (spec.htmlFragment && typeof output === 'string') {
       res.type('text/html; charset=utf-8').send(output);
+    } else if (spec.fileAttachment) {
+      const file = fileBodySchema.parse(output);
+      res
+        .type(file.contentType)
+        .set('Content-Disposition', `attachment; filename="${file.filename}"`)
+        .send(Buffer.from(file.bytes));
     } else res.json(output);
   };
 
@@ -308,13 +344,15 @@ export function defineRoute<
           ...(status === '204' || isRedirect(Number(status))
             ? {}
             : {
-                content: {
-                  [spec.csvAttachment !== undefined
-                    ? 'text/csv'
-                    : spec.htmlFragment
-                      ? 'text/html'
-                      : 'application/json']: { schema: forOpenApi(schema, 'output') },
-                },
+                content: spec.fileAttachment
+                  ? { 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } }
+                  : {
+                      [spec.csvAttachment !== undefined
+                        ? 'text/csv'
+                        : spec.htmlFragment
+                          ? 'text/html'
+                          : 'application/json']: { schema: forOpenApi(schema, 'output') },
+                    },
               }),
         },
       ]),

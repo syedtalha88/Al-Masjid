@@ -28,6 +28,11 @@ import s0019 from './0019_beneficiaries.snapshot.json' with { type: 'json' };
 import s0020 from './0020_admin_push_session.snapshot.json' with { type: 'json' };
 import s0021 from './0021_beneficiary_upi_history.snapshot.json' with { type: 'json' };
 import s0022 from './0022_payment_reject_code.snapshot.json' with { type: 'json' };
+import s0023 from './0023_report_triage.snapshot.json' with { type: 'json' };
+import s0024 from './0024_removed_note.snapshot.json' with { type: 'json' };
+import s0025 from './0025_report_sla_alerted.snapshot.json' with { type: 'json' };
+import s0026 from './0026_grievance_seal.snapshot.json' with { type: 'json' };
+import s0027 from './0027_legal_orders.snapshot.json' with { type: 'json' };
 
 /** A schema migration from its snapshot file (canonical EJSON → exact BSON types). */
 function schema(id: string, file: unknown): Migration {
@@ -91,4 +96,9 @@ export const MIGRATIONS: readonly Migration[] = [
   schema('0020_admin_push_session', s0020),
   schema('0021_beneficiary_upi_history', s0021),
   schema('0022_payment_reject_code', s0022),
+  schema('0023_report_triage', s0023),
+  schema('0024_removed_note', s0024),
+  schema('0025_report_sla_alerted', s0025),
+  schema('0026_grievance_seal', s0026),
+  schema('0027_legal_orders', s0027),
 ];

@@ -1,7 +1,11 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import type { Plugin } from 'vite';
 
 import { bootScript } from './boot.ts';
 import { PRECOMPILED_MARK } from './icu-format.ts';
+import { draftLegalDocs } from './legal-parse.ts';
 
 const BOOT_PATH = '/boot.js';
 
@@ -114,6 +118,49 @@ export function mcIcuPrecompile(): Plugin {
         (message) => PRECOMPILED_MARK + JSON.stringify(parse(message, { ignoreTag: true, shouldParseSkeletons: true })),
       );
       return { code: JSON.stringify(compiled), map: null };
+    },
+  };
+}
+
+/** Reads every legal document under `dir` (`<locale>/<name>.md`) as path → text. */
+export function readLegalFiles(dir: string): Record<string, string> {
+  const files: Record<string, string> = {};
+  for (const locale of readdirSync(dir)) {
+    for (const name of readdirSync(join(dir, locale)).filter((file) => file.endsWith('.md'))) {
+      files[`${locale}/${name}`] = readFileSync(join(dir, locale, name), 'utf8');
+    }
+  }
+  return files;
+}
+
+/**
+ * The production gate for legal texts (05 §10, PHASE_08 T8.6): when the build is for production
+ * (`MC_BUILD_ENV=production`, set only by the production web image), any document still marked `status: draft` fails
+ * the build with the list of files. Other builds pass (staging and local show the DRAFT banner instead).
+ *
+ * @throws Error listing the drafts, in production mode.
+ */
+export function assertLegalReady(
+  env: { readonly MC_BUILD_ENV?: string | undefined },
+  files: Readonly<Record<string, string>>,
+): void {
+  if (env.MC_BUILD_ENV !== 'production') return;
+  const drafts = draftLegalDocs(files);
+  if (drafts.length > 0) {
+    throw new Error(
+      `Legal texts still marked draft cannot ship to production (05 §10): ${drafts.join(', ')}. ` +
+        'Set `status: reviewed` after the legal review.',
+    );
+  }
+}
+
+/** Vite plugin wrapper of {@link assertLegalReady} over `packages/i18n/legal` (runs at build start). */
+export function mcLegalGate(): Plugin {
+  return {
+    name: 'mc-legal-gate',
+    apply: 'build',
+    buildStart() {
+      assertLegalReady(process.env, readLegalFiles(join(import.meta.dirname, '..', 'legal')));
     },
   };
 }

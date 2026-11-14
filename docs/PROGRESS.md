@@ -15,31 +15,321 @@
 | 05 | Donations, chanda & UPI change-lock | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): CI green on `997a914`, phase-verifier findings fixed, security re-review clean. Waiting: O43 → merge to `main` / staging → O45 → O50 (guide 5.1–5.22) + O28 | [final](reports/PHASE_05_REPORT.md) | – |
 | 06 | Bayan videos | **DONE — owner checks pending** (12 Nov 2026, DECISIONS #162): CI green on `main` `402e7f8` (run 43237107240), on staging; security review #165, phase-verifier fixes #167 (reach `main` with Phase 07). Waiting: O49 (real YouTube links), O48 (purge token, before May 2027) | [final](reports/PHASE_06_REPORT.md) | – |
 | 07 | Qibla compass | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): security review #167, phase-verifier FAIL → fixed (#169), e2e 12/12 on Pixel 7 + iPhone 14; CI + staging with the merge into `main`. Waiting: O29 (mihrab check) | [final](reports/PHASE_07_REPORT.md) | – |
-| 08 | Moderation, grievance, legal pages, QR posters | NOT STARTED | – | – |
+| 08 | Moderation, grievance, legal pages, QR posters | **CLOSING — waiting for owner O59** (14 Nov 2026, DECISIONS #182, bare-minimum close): CI green on `ci/phase-08` except journey 11's Urdu check (removed, Phase 9); report written. Next: O59 (Atlas roles) → merge into `main` → staging → "DONE — owner checks pending" (O51, O53–O58) | [final](reports/PHASE_08_REPORT.md) | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (13 Nov 2026 — Phases 06 + 07 closed on our side; Phase 08 next)
+## ▶ Next session — start here (14 Nov 2026, late night — Phase 08 closing; waiting for owner O59)
+
+**Done this session (bare-minimum close):** print-sheet baseline block dropped from the visual spec; CI run
+43616799684 on `d9641b7`: typecheck ✅ unit ✅ integration ✅ (api 85 % gate met) security ✅ e2e both phones ✅
+budgets ✅ Lighthouse ✅ motion ✅ — only journey 11's new Urdu preview check failed → removed (#182, Phase 9); visual
+did not run after that failure, so the next CI run checks it. DECISIONS #182 and `docs/reports/PHASE_08_REPORT.md`
+written.
+
+**Next:** (1) read the CI run of the last `ci/phase-08` push — fix only what is red (visual job not yet seen);
+(2) owner **O59** (Atlas roles — Phase 08 code needs them on staging) → (3) merge `feat/phase-08` into `main` → staging
+deploy → (4) mark Phase 08 "DONE — owner checks pending" (O51, O53–O58) → **stop**. Do not start Phase 9.
+
+## ▶ Previous hand-off (14 Nov 2026, night — Phase 08: verifier fixes in progress; usage limit hit)
+
+**⚡ OWNER INSTRUCTION (14 Nov 2026, night): do only the bare minimum to close Phase 08 — everything optional moves to
+Phase 9.** The steps below replace the longer list. Skip: the second phase-verifier run, the local stack rebuild and
+local e2e / visual runs (CI runs them), the long DECISIONS #182 write-up, and every LOW item.
+
+**Bare-minimum close (in order):**
+1. **Drop the print-sheet baseline block** in `e2e/visual/screens.visual.spec.ts` (the `if (locale === 'en') { … }`
+   after the super admin screens loop): its baselines were never made and would turn CI's visual job red. → Phase 9.
+2. Push `feat/phase-08:ci/phase-08` and read the CI run. Fix **only** what is red. If the api branch coverage
+   (`packages/api`, gate 85 %) is still short: add tests for `src/routes/super-library.ts` / `videos.ts` until green.
+   If journey 11's new template-notice check (`e2e/admin/moderation.spec.ts`) fails, fix it or remove that check.
+3. Short **DECISIONS #182**: verifier findings fixed (C5 preview, C2 removal count, dry-run tests, F57 → Phase 9,
+   O59) and the list **deferred to Phase 9**: print-sheet baselines (T8.8), automated staging purge check (F76 /
+   O51), Cloudinary public-URL check (O54), journey 11 via a real notification, C5 urgent / reports / legal filters,
+   illustrated empty states C5–C7, C1 / A5 baselines, legal gate vs `translation: draft`, dry-run counts for
+   beneficiaries / alert subscriptions, admin-yearly re-accept e2e, VPS 200-day log check test, re-review of #181.
+4. Short `docs/reports/PHASE_08_REPORT.md` (template headings; numbers from PROGRESS / CI; deviations = #182 list).
+5. Owner **O59** (Atlas roles) → merge into `main` → staging → mark Phase 08 "DONE — owner checks pending" → **stop**
+   and tell the owner. Do not start Phase 9.
+
+
+**Owner instruction (13 Nov 2026):** finish Phase 08 at full quality, close it per protocol, then **STOP — do not
+start Phase 09**. The owner then tests every module end to end.
+
+**State:** `feat/phase-08` pushed (this hand-off commit). `ci/phase-08` = `825efd5` — CI run 43612283693 there:
+typecheck ✅ unit ✅ security ✅, **integration ❌ = packages/api branch coverage < 85 %** (Phase 08 code was
+under-tested; db was fixed earlier). Fixes since then are committed here but **not yet run in CI**.
+
+**Done this session after #181 (uncommitted work now committed in "wip(phase-08)…" below):**
+- api coverage tests: `test/media-access-job.int.test.ts`, `test/moderation-no-queue.int.test.ts`,
+  `test/worker-dispatch.int.test.ts`, more cases in `cdn-purge-queue`, `seal`, `stats-snapshot`, `private-files`,
+  dry-run route test in `moderation-routes` + role-guard row in `super-routes`. Measured locally by merging coverage
+  maps (Windows workers crash natively → `$TEMP/merge.py` approach): **84.65 % before** the private-files /
+  worker-dispatch tests (gate 85 %; need ≥ 1683/1980) — those two add ~18 branches → expected ≈ 85.5 %. **Confirm in
+  CI.** If still short: `src/routes/super-library.ts` (19), `admin-masjid.ts` (21), `videos.ts` (11).
+- phase-verifier (FAIL, 9 REQUIRED) fixes:
+  - ✅ C5 preview: all templates (`superApi.templates`) + `PreviewFrame` 4-language switcher
+    (`apps/admin/src/routes/super.reports.tsx`); e2e journey 11 now also reports seed template notice
+    `seedA0000000` and checks English + Urdu text (`e2e/admin/moderation.spec.ts`) — **not yet run** (stack must be
+    rebuilt).
+  - ✅ C2 repeat-violation count: `removals90d` in `GET /super/masjids/:id` (db `getMasjidDetail` option
+    `removalsSince`), shown on `super.masjids.$id.tsx` (4 locales); `openapi.json` regenerated; test in
+    `moderation-no-queue.int.test.ts`.
+  - ✅ T8.7 dry-run route tests (step-up, per-minute key, queue down).
+  - ✅ T8.8 print snapshot: `e2e/visual/screens.visual.spec.ts` adds `en/admin-c3-print-a4.png` + `-a5.png` —
+    **baselines not yet generated**: `pnpm stack:up:test` then
+    `node scripts/visual.mjs --update --grep "super admin screens"`, keep only the 2 new files (+ any real change),
+    then `pnpm db:reset`.
+  - ✅ F57 re-targeted to Phase 9 (text references **DECISIONS #182 — not yet written**).
+  - ✅ O59 owner task (Atlas roles re-apply for #180 M2) in `owner/MY_PENDING_TASKS.md`.
+  - ⏳ Write DECISIONS #182: verifier findings + resolutions (above), F57, substituted checks (F76→O51 automated
+    staging purge check; O54 Cloudinary public-URL check — owner to acknowledge in the report), and the LOW list
+    (journey 11 opens the item URL not a real notification; C5 filters urgent/reports/legal not built; plain empty
+    states on C5/C6/C7; no C1/A5 screen baselines; legal gate ignores `translation: draft`; dry run has no counts for
+    beneficiaries / alert subscriptions; no admin-yearly re-accept e2e; VPS 200-day log check untested; privacy draft
+    regions → O55; admin initial JS 218.8 / 220 kB).
+
+**Next (in order):**
+1. `pnpm stack:up:test` → `pnpm db:reset` → `E2E_TEST_HOOKS=1 pnpm exec playwright test --project=pixel-7
+   --workers=1 e2e/admin/moderation.spec.ts` (C5 template preview) → visual update above (52 + 2 shots).
+2. `pnpm verify:quick`, `pnpm i18n:check`; push `feat/phase-08:ci/phase-08`; read the CI run (api coverage, e2e both
+   phones, Lighthouse, visual). Note: Phase 08 e2e specs share global settings — run them with `--workers=1` locally
+   (CI already does).
+3. Write DECISIONS #182; re-run `phase-verifier`; `docs/reports/PHASE_08_REPORT.md` (security #180 0H/7M/12L,
+   #181 0H/2M/7L; db int 445 / 96.48 %; e2e Phase 08 18/18 Pixel 7; visual 54; budgets app 193.6/195, admin
+   218.8/220).
+4. Close (#162): CI green → owner O59 (Atlas roles) → merge into `main` → staging → owner steps O51, O53–O58 →
+   **stop** and tell the owner.
+
+## ▶ Previous hand-off (14 Nov 2026, evening — Phase 08: CI fixes + re-review fixes done; e2e / verifier / report left)
+
+**Owner instruction (13 Nov 2026):** finish Phase 08 fast but at full quality, close it per protocol, then **STOP — do
+not start Phase 09**. The owner then tests every module end to end and reports changes / issues.
+
+**State:** `main` = `30a268b` (Phases 05–07) on staging. `feat/phase-08` = `ci/phase-08` = `825efd5` (pushed; CI run
+on it was started 14 Nov). Done this session (DECISIONS #181):
+- The three red CI checks of run 43468883740: db int coverage (91.05 → 96.48 %, new
+  `packages/db/test/legal-sla-stats.int.test.ts`; bug: legal target link with a query), VPS env files
+  (`GRIEVANCE_SEAL_*` in production; `make-env.sh` keeps them), visual (real bug: ICU cache kept the English fallback
+  — `packages/i18n/src/icu-format.ts`; 7 `legal-privacy` baselines updated; full compare 52/52).
+- Security re-review of the #180 fixes: 0 H, 2 M (N-M1 purge starvation, N-M2 chanda week after purge) — **both
+  fixed**; 7 L: N-L1, L2, L3, L5, L6, L7 fixed, N-L4 accepted. A second re-review of `825efd5`'s fix commits is
+  optional (only if the owner wants "no finding of any severity").
+- Local on `825efd5`: db int 445/445 (96.48 %), api int 518 + 1 skipped, `verify:quick` 32/32, i18n check ✅,
+  env-file test 17/17 + schema check 6/6, shellcheck ✅. `scripts/visual.mjs` now passes extra args to Playwright
+  (`node scripts/visual.mjs --grep "…"`).
+
+**Next (in order):**
+1. Read the CI run on `825efd5` (`curl …/actions/runs?branch=ci/phase-08` → jobs → annotations); fix anything red.
+2. e2e on the local stack (`pnpm stack:up:test` → `pnpm db:reset`): `e2e/admin/kill-switches-stats.spec.ts`,
+   moderation / legal specs, journey 11 + legal re-acceptance; then full e2e on Pixel 7 + iPhone 14.
+3. `phase-verifier` on `docs/phases/PHASE_08_MODERATION_LEGAL_POSTERS.md`; fix findings.
+4. `docs/reports/PHASE_08_REPORT.md` (security: #180 0 H / 7 M / 12 L, #181 0 H / 2 M / 7 L; budget 195 kB; visual
+   52/52; test counts above).
+5. Close (#162): CI green → merge into `main` → staging → owner steps (O51, O53–O58) → **stop** and tell the owner.
+
+## ▶ Previous hand-off (14 Nov 2026 — Phase 08: all security fixes done; 3 CI checks red; T8.11 rest left)
+
+**Owner instruction (13 Nov 2026):** finish Phase 08 fast but at full quality (tests, 4 locales, docs, owner list),
+close it per protocol, then **STOP — do not start Phase 09**. The owner then runs end-to-end testing of every module
+and reports changes / issues to fix.
+
+**State:** `main` = `30a268b` (Phases 05–07) on staging. Phase 08 on `feat/phase-08` (latest = docs-only hand-off
+commits on top of `a665ee0`); `ci/phase-08` = `a665ee0` (last CI run **43468883740**). DECISIONS #180 ACCEPTED:
+- `c7bc7bc` — **M3** SLA timers (legal orders / grievances read in full, legal orders first; the job skips fully
+  alerted timers), **M5** banners ★ + no payment address, **M6** chanda post takedown hides its week (saving a removed
+  week is refused), **M7 / F67** CDN purge on every needy change and masjid status change.
+- `a665ee0` — LOWs: L1, L3, L5, L6, L7, L9, L10, L11 fixed; L2, L4 (→ F77), L8 accepted with reasons; L12: F64
+  closed, F68 → Phase 9. Semgrep `gcm-no-tag-length` fixed. App initial JS budget 190 → 195 kB (193.56 kB, recorded).
+  Never write `#<3–8 hex chars>` in apps/** comments (the `no-raw-colors` gate reads it as a colour) — write
+  "DECISIONS 180".
+- Local on `a665ee0`: db int 428/428, api int green (Windows worker crashes → re-run the file alone; `admin-passkeys`
+  crashes natively on this host now and then — 21/21 alone), unit db/api/ui/admin/server green, `pnpm size` green.
+  Local stack (`pnpm stack:up:test`) runs `a665ee0` — both APIs boot with the L7 key-size check. **The DB holds the
+  fixed-date visual seed → `pnpm db:reset` before other e2e.**
+
+**CI run 43468883740 (`a665ee0`):** Typecheck/lint/i18n ✅ · Unit + coverage ✅ · budgets ✅ · Semgrep ✅ ·
+- ❌ **Integration tests (`packages/db` `test:int`)** — the annotations do not name the test; locally 428/428 green.
+  Reproduce: run each db int file alone (suspects: `retention.int.test.ts` — L10 re-check; `policy` — L1;
+  `moderation` — L3 / M6; `reports`). Job logs need auth — only annotations are readable without `gh`.
+- ❌ **Security scans → step "VPS env files — generation, --force keeps values, valid against the env schemas"**
+  (`infra/vps/test/make-env.test.sh` + `scripts/check-make-env.mjs`, docker command in `ci.yml` ~line 140). This step
+  never ran in the earlier red runs (Semgrep failed first) → may be an older break, not #180.
+- ❌ **Visual baselines.** Local `pnpm test:visual` (compare) = 9 failed / 43 passed: "grievance and legal pages"
+  en / hi / ur / te on Pixel 7 + en / hi / te on iPhone 14 (**expected** — the L11 privacy sentence), and "super admin
+  screens" ur + te on Pixel 7 (**not expected** — look at `test-results/**/test-failed-1.png` vs the baseline before
+  updating; maybe C5 / C10 changes or a flake). Then `pnpm test:visual:update`, keep only real changes (pixel-diff),
+  `pnpm db:reset`.
+
+**Next (in order):**
+1. Fix the three red CI checks above; fast-forward `ci/phase-08` (`git push origin feat/phase-08:ci/phase-08`) and read
+   the run (`curl https://api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-08` →
+   `/actions/runs/<id>/jobs` → `/check-runs/<job id>/annotations`).
+2. **`security-reviewer` re-run** on `1405aea..a665ee0` — the one started on 13 Nov stopped on an account / billing API
+   error and returned nothing. Focus: M5 route + data layer, M6 direct `ctx.db` writes, M7 purge keys, L7 crypto + boot
+   checks, L9 Caddy `@ogPost` header, L10, F64. Fix every HIGH / MEDIUM.
+3. e2e on the local stack: `e2e/admin/kill-switches-stats.spec.ts` (banner save is ★ now), moderation / legal specs,
+   journey 11 + legal re-acceptance; iPhone report-sheet baseline stability; full e2e on Pixel 7 + iPhone 14 in the
+   Linux image (`scripts/visual.mjs` pattern, `--network container:mc-dev-caddy-1`, `E2E_TEST_HOOKS=1`).
+4. `phase-verifier` on `docs/phases/PHASE_08_*.md`; write `docs/reports/PHASE_08_REPORT.md` (security: 0 H, 7 M fixed,
+   12 L: 9 fixed / 3 accepted — list in #180; budget 195 kB; visual / e2e counts).
+5. Close Phase 08 (#162 autopilot): CI green → merge into `main` → staging → owner steps (O51, O53–O58; the O53 key
+   must be ≥ 3072 bits — the given 4096 command is fine). Then **stop** and tell the owner.
+
+**Local notes:** Bash heredocs with quotes / Python fail in this shell — write scratch scripts with the Write tool into
+the scratchpad and run `python <script> "/c/AL Masjid"` (`newline='
+'`, then prettier). The stack serves BUILT images:
+UI fixes need `pnpm stack:up:test` before an e2e / screenshot shows them. Integration suites:
+`node ../../scripts/vitest-int.mjs --maxWorkers=4` in the package. Never read `.env*` files; `.claude/settings.json` is
+the owner's own uncommitted change — never commit it.
+
+## ▶ Previous hand-off (13 Nov 2026, late night — Phase 08: T8.1–T8.10 done; T8.11 in progress)
+
+**Owner instruction (13 Nov 2026):** finish Phase 08 fast but at full quality (tests, 4 locales, docs, owner list),
+close it per protocol, then **STOP — do not start Phase 09**. The owner then runs end-to-end testing of every module
+and reports changes / issues to fix.
+
+**State:** `main` = `30a268b` (Phases 05–07) on staging. Phase 08 on `feat/phase-08` (pushed; `ci/phase-08` fast-
+forwarded to `e00af79` — CI run started, result not yet read). Done since the last hand-off:
+- T8.9 kill switches & banners (#178, `dbab233`) · T8.10 stats snapshot job, C12 Stats, Cloudinary alerts, C11 filters
+  (#179, `cd59fbf`) · retention test time bomb fixed (`e00af79`).
+- T8.11 so far (this hand-off commit): Phase 08 contract tests (shared coverage gate was failing in CI at 91.5 % —
+  now passes; all 17 coverage gates pass locally); visual baselines for the report sheet, grievance form, legal readers
+  (4 locales) and Super Admin C3 / C5 / C6 / C7 / C10 / C12 (Pixel 7, 4 locales); existing baselines that really
+  changed (the "…" menu, onboarding logo area, Updates badge cleared — the spec now waits for it) regenerated; compare
+  run green except the iPhone report-sheet shot (WebKit sheet not pixel-stable → Chromium-only for now).
+- Security review (phase protocol) run: **0 HIGH, 7 MEDIUM, 12 LOW** (full list below). Fixed in this commit (#180):
+  **M1** media access follows the post's status (purge route takes only the item id), **M2** devices never write the
+  audit log (follow audits removed, policy cell + mc_public insert privilege dropped, Atlas roles regenerated, retention
+  deletes old device entries), **M4** auto-hide purges the CDN and restricts files. Tests updated and green before
+  Docker stopped (db moderation 8, policy 24, retention 6, roles 11; api moderation-routes 6, report-triage 7).
+
+**Next (in order):**
+1. **Start Docker Desktop**, then `pnpm stack:up:test` (if the worker shows "unhealthy" right away, wait ~20 s —
+   compose's wait races its first heartbeat) → `pnpm db:seed` → `git checkout -- apps/app/src/routeTree.gen.ts`. Re-run
+   the full db / api int suites (`node ../../scripts/vitest-int.mjs --maxWorkers=4` in each package).
+2. **Fix the remaining security MEDIUMs** (each with a test; record in DECISIONS #180):
+   - **M3** `packages/db/src/state/sla.ts`: report flooding (500 cap) can push legal orders / grievances out of
+     `listSlaTimers` → read legal orders + grievances uncapped, filter `sla_alerted < 100` for the job, C1 lists legal
+     orders first.
+   - **M5** banners need ★: require step-up when `PATCH /settings` sets a banner (route + `updateSettings`), wrap the
+     BannerEditor save in `useStepUp`, refuse banner text that `mentionsPaymentAddress` (#160).
+   - **M6** taking down a `chanda_update` must hide its `chanda_weeks` note (remove / auto-hide → `visible=false`,
+     restore → back); `saveChandaWeek` must not re-publish a week whose item is `removed`.
+   - **M7** F67: purge `m-<masjidId>` when a needy person is closed / removed / purged, and on masjid suspend / delete.
+3. **LOWs** — fix or justify each in the report: L1 admin policy filter `$nin ['removed','hidden']` (+ test),
+   L2 read-only also in invite registration / state layer, L3 consider ★ Dismiss for urgent, L4 warn on restoring a
+   legal-order target, L5 no document replace on closed orders (keep old until retention), L6 check Cloudinary private
+   upload answer `type=authenticated`, L7 RSA ≥ 3072 check + HKDF sub-key for files + #173 AAD wording, L8 grievance
+   limit per device, L9 `Cache-Tag` on `/og/p/:id`, L10 retention device race, L11 report de-dup vs privacy text,
+   L12 F64 / F68 close or re-target.
+4. **Semgrep** (CI "Security scans" failed): local scan = 14 findings — `gcm-no-tag-length` at
+   `packages/api/src/crypto/seal.ts:106` (pass `authTagLength: 16` to `createDecipheriv`) is real; the other 13 are the
+   minimum-release-age rules on `.npmrc`, `pnpm-workspace.yaml`, `renovate.json` (add the settings, or check why they
+   fire now — they may be new registry rules). Run: `docker run --rm -v "C:/AL Masjid:/src" -w /src <SEMGREP_IMAGE from
+   ci.yml> semgrep scan --config .semgrep --config p/owasp-top-ten --metrics=off --error --exclude .semgrep --exclude
+   .claude --exclude node_modules --exclude test-results --json` (MSYS_NO_PATHCONV=1).
+5. **CI**: read the `ci/phase-08` run (no `gh` here — `curl https://api.github.com/repos/<owner>/<repo>/actions/runs?
+   branch=ci/phase-08` and `/check-runs/<job>/annotations`); the T8.4-era run failed on coverage (fixed), Semgrep (4)
+   and integration tests (check which). Force-push to `ci/phase-08` is blocked by the auto-mode classifier — only
+   fast-forward pushes (`git push origin feat/phase-08:ci/phase-08`).
+6. **T8.11 rest:** iPhone report-sheet baseline stability; full e2e on Pixel 7 + iPhone 14 in the Linux image (a scratch
+   runner like `scripts/visual.mjs` — the host cannot resolve `*.localhost`; `--network container:mc-dev-caddy-1`,
+   `E2E_TEST_HOOKS=1`); journey 11 + legal re-acceptance specs; re-run `security-reviewer` on the fixes;
+   `phase-verifier`; `docs/reports/PHASE_08_REPORT.md`.
+7. Close Phase 08 (#162 autopilot): CI green → merge to `main` → staging → owner steps (O51, O53–O58). Then **stop**
+   and tell the owner.
+
+**Local notes:** Bash heredocs with quotes / Python fail in this shell — write scratch scripts with the Write tool into
+the scratchpad and run `python <script> "/c/AL Masjid"` (`newline='\n'`, then prettier). The stack serves BUILT images:
+UI fixes need `pnpm stack:up:test` before an e2e / screenshot shows them. `pnpm test:visual:update` rewrites every
+baseline — keep only real changes (pixel-diff old vs new with PIL; restore zero-diff files). Integration suites:
+`node ../../scripts/vitest-int.mjs --maxWorkers=4` in the package. Windows test workers occasionally crash with exit
+code 3221226505 under load — re-run the file alone. Never read `.env*` files; `.claude/settings.json` is the owner's
+own uncommitted change — never commit it.
+
+## ▶ Previous hand-off (13 Nov 2026, night — Phase 08: T8.1–T8.8 done; T8.9 next)
+
+**Owner instruction (13 Nov 2026):** finish Phase 08 fast but at full quality (tests, 4 locales, docs, owner list),
+close it per protocol, then **STOP — do not start Phase 09**. The owner then runs end-to-end testing of every module
+and reports changes / issues to fix.
+
+**State:** `main` = `30a268b` (Phases 05–07) on staging. Phase 08 on `feat/phase-08` (pushed). Done:
+- T8.1 reporting (#170) · T8.2 takedown + C5 (#171) · T8.3 SLA alerts (#172) · T8.4 grievances + C6 (#173)
+- T8.5 legal orders register C7, encrypted documents (`packages/api/src/crypto/file.ts`, `media/private-store.ts`,
+  Cloudinary raw + authenticated), 3-hour timer (#174)
+- T8.6 legal texts × 4 locales (non-English `translation: draft`, production build gate `mcLegalGate`), readers in both
+  apps, `/licenses.json` (`mcLicenses`), yearly privacy / undertaking re-acceptance (#175)
+- T8.7 retention: every row of 02 §6 in `packages/db/src/state/retention.ts`, dry run (`POST /super/retention/dry-run`,
+  Audit screen button), audited summary, `retention_failed` alert (#176)
+- T8.8 QR poster C3 `/super/masjids/$id/poster` (A4 / A5, QR level Q, 4-language steps, SVG / PNG downloads); e2e
+  `admin/poster.spec.ts` decodes the QR with ZXing and checks one exact page per size (#177)
+- Verified: e2e for T8.5–T8.8 green on Pixel 7; db / api int suites green for each task's own tests; admin lint +
+  typecheck clean on the hand-off commit. **The last full `pnpm verify:quick` was interrupted** — run it first.
+- Not yet checked: CI on `ci/phase-08` for T8.5–T8.8 (push `feat/phase-08` to `ci/phase-08` to get a run).
+- `.claude/settings.json` is the owner's own uncommitted change — never commit it.
+
+**Next (in order):**
+1. **T8.9 kill switches & banners:** pause-all-push already exists (Phase 04); add admin **read-only mode** (every
+   write → 503 `READ_ONLY_MODE` + friendly banner in admin), **maintenance banner** in 4 languages in both apps,
+   **global incident banner** for musallis (`app_settings.maintenance_banner` / `incident_banner` are already
+   writable); an integration test per switch.
+2. **T8.10 audit & stats:** the action filter in `apps/admin/src/routes/super.audit.tsx` is a hard-coded subset — add
+   the newer actions (`retention.run`, `legal_order.*`, `grievance.*`, `item.*`, …); final CSV export (audited, no
+   secrets / PII); stats page: masjids by status, devices, follows, push success, job lag, Cloudinary credits,
+   reports / grievances SLA compliance %.
+3. **T8.11 gates:** e2e journey 11 + legal re-acceptance; visual baselines (report sheet, C5, C6, C7, grievance form,
+   poster, legal readers) via `scripts/visual.mjs` in the Linux image; full e2e on iPhone 14 in the Linux image; full
+   db / api int suites; `security-reviewer` (moderation privileges, private bucket, encryption, retention);
+   `phase-verifier`; `docs/reports/PHASE_08_REPORT.md`.
+4. Close Phase 08 (#162 autopilot): CI green → merge to `main` → staging → owner steps in `owner/MY_PENDING_TASKS.md`
+   (O54 Cloudinary private bucket check, O55, O56 poster print + scan already listed). Then **stop** and tell the owner.
+
+**Local notes:** Bash heredocs with Python / TS fail in this shell — write scratch scripts with the Write tool into
+the scratchpad and run `python <script> "/c/AL Masjid"` (use `newline='\n'`, then prettier). Grievance e2e can hit the
+5/day IP limit (429) if Redis keys survive — environmental. `@mc/ui` `pager.test` is flaky (passes on re-run). Retention
+tests delete expired admin sessions — specs that time-travel snapshot / restore `admin_sessions`.
+Local stack rebuild = `pnpm stack:up:test`, then `pnpm db:seed`, then `git checkout -- apps/app/src/routeTree.gen.ts`
+(keep the admin one — it carries the new routes). WebKit e2e only in the Linux image (`--network
+container:mc-dev-caddy-1` like `scripts/visual.mjs`). `pnpm test:visual:update` rewrites every baseline — keep only the
+ones that really changed. Integration suites: `node ../../scripts/vitest-int.mjs --maxWorkers=4` in the package.
+Specs that send as a device need `registerDevice(page)` first. Never read `.env*` files; add variables with
+`pnpm setup:local`.
+
+## ▶ Previous hand-off (13 Nov 2026, end of day — Phase 08: T8.1–T8.4 done; T8.5 next)
 
 **Owner rule (DECISIONS #162):** close each phase when our own checks pass, list every owner step in
 `owner/MY_PENDING_TASKS.md`, move straight on.
 
-**State:** Phase 06 report final (CI green on `main` `402e7f8`, on staging). Phase 07 phase-verifier fixes done
-(#169) on `feat/phase-07`; pushed to `ci/phase-07` for CI. **When that CI is green:** fast-forward `main` to
-`feat/phase-07` and push → CI on `main` → "Release to staging" → check `/health` on both origins shows the new commit
-→ tell the owner O29 (Qibla) + O49 (bayans) can be done on staging. `.claude/settings.json` is the owner's own
-uncommitted change — never commit it.
+**State:** `main` = `30a268b` (Phases 05–07) **on staging** (`/health` checked 13 Nov 2026). Phase 08 on
+`feat/phase-08` (pushed; `ci/phase-08` = same commit — **check its CI run first**; the last confirmed green run was
+T8.1 `40df342`):
+- T8.1 reporting (#170) · T8.2 takedown, C5 `/super/reports`, tag purge, F73 media access, F74 (#171) · T8.3 SLA
+  alerts + C1 "Deadlines" card + Sentry fallback (#172) · T8.4 grievances with sealed contacts + C6
+  `/super/grievances` (#173).
+- Verified locally at hand-off: `verify:quick` green; db int 413 / api int 449 (4 workers — before T8.4; T8.4's own
+  int tests green); e2e Pixel 7: report 7/7, journey 11 + grievances 6/6; `db:schema:check` clean (migrations to 0026).
+- `.claude/settings.json` is the owner's own uncommitted change — never commit it.
 
-**Then Phase 08** (`docs/phases/PHASE_08_MODERATION_LEGAL_POSTERS.md`) on a new branch `feat/phase-08` from
-`feat/phase-07`. Some scaffolding exists already (reports / grievances in `schema/platform.ts`, `policy.ts`,
-`roles.ts`, `routes/public.ts` + `super.ts`, app `LegalScreens.tsx`, `settings_.grievance.tsx`, admin
-`super.settings.tsx`) — read what is there before planning T8.1. Phase 08 also carries F73 + F74 (T8.2). Owner
-prerequisite: Grievance Officer details (drafts can use placeholders).
+**Next:** T8.5 legal orders register (C7): create / edit with received time, due = +3 h (`SLA_MS.legalOrder`),
+linked targets, action log, encrypted document upload (busboy, AES-256-GCM in api-admin, Cloudinary `raw` +
+`authenticated`, download only through api-admin with step-up), `legalOrderId` on ★ Remove, and its timer in
+`listSlaTimers` (`@mc/db/state/sla.ts` — add kind + `sla_alerted` + migration). Then T8.6 legal texts, T8.7 retention
+rows (02 §6 — incl. `reports.device_id` unset, grievances 3 y, legal orders 3 y), T8.8 posters, T8.9 kill switches,
+T8.10 audit / stats, T8.11 gates (visual baselines for the report sheet / C5 / C6 / grievance form, full e2e on iPhone
+14 in the Linux image, security review, phase-verifier, report).
 
 **Local notes:** local stack rebuild = `pnpm stack:up:test`, then `pnpm db:seed`, then `git checkout` the two
 `routeTree.gen.ts`. WebKit e2e only in the Linux image (scratchpad `wk-linux.sh`, run with
 `--network container:mc-dev-caddy-1` like `scripts/visual.mjs`). `pnpm test:visual:update` rewrites every baseline —
 keep only the ones that really changed. The first e2e run right after a stack rebuild can fail on cold start; re-run.
-`screens.perf` "Home → Masjid Detail" fails ~1 in 3 locally (one ~70 ms tap), green on CI.
+Integration suites: run with `--maxWorkers=4` locally (`node ../../scripts/vitest-int.mjs --maxWorkers=4` in the
+package) — 12 workers overload the local MongoDB and `beforeAll` hooks time out. Specs that send as a device need
+`registerDevice(page)` first (the fixture device has not finished onboarding). Feed-count specs can fail on old local
+data: `pnpm db:reset`.
+`screens.perf` "Home → Masjid Detail" fails ~1 in 3 locally (one ~70 ms tap), green on CI. After
+`pnpm stack:up:test`, restore only the **app's** `routeTree.gen.ts` (`git checkout -- apps/app/src/routeTree.gen.ts`)
+— the admin one now carries new routes (`/super/reports`, `/super/grievances`). Never read `.env*` files; to add a
+variable to local env files use `pnpm setup:local` (it appends missing ones).
 
 ## ▶ Previous hand-off (13 Nov 2026, late — Phase 05 closed, Phase 06 closing, Phase 07 built)
 
@@ -609,10 +899,18 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | ~~O47~~ | GitHub Actions jobs stayed queued (12 Nov 2026) — **solved**: billing fine (public repo, $0); an empty commit `a6f2969` on `main` started a fresh run that got machines | – | – | ✅ 12 Nov 2026 |
 | ~~O46~~ | Phase 05 security decisions (#160) — **owner: yes to (a)–(d)** → DECISIONS #161 | – | – | ✅ 12 Nov 2026 |
 | O48 | Real Cloudflare **Cache Purge** token + zone id in the staging worker env (#164) | deleted posts' media purge | 10 min | before May 2027 |
-| O49 | **Phase 06 checks** on staging (guide Phase 06 — real Unlisted / Public links, sisters only, weak network) | Phase 06 exit | 20 min | after Phase 06 is on staging |
+| O49 | **Phase 06 checks** on staging (guide Phase 06 — real Unlisted / Public links, sisters only, weak network) | Phase 06 exit | 20 min | **now** — staging has Phase 06 |
 | O50 | **Phase 05 checks** on staging (guide 5.1–5.22) with the ₹1 test O28 | Phase 05 exit | 60 min | after O43 + deploy |
 | O45 | **Open the admin app once on each phone that should get alerts** (after Phase 05 is on staging) | F65: older alert subscriptions are no longer used; opening the app links the phone again | 1 min | before O38's alert checks on the Phase 05 build |
-| O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | Phase 07 (map-tile decision dropped — #118) |
+| O29 | **Qibla vs mihrab check** on Android + iPhone | Phase 07 exit | 10 min | **now** — staging has Phase 07 (`30a268b`, 13 Nov 2026) |
+| O51 | **Takedown check on staging**: report → remove; old link "no longer available" within a minute; the photo URL stops loading (#171, F76) | Phase 08 exit | 15 min | after Phase 08 is on staging |
+| O52 | **Sentry: e-mail on new issues** stays on (passed SLA deadlines are reported there — #172) | before launch | 5 min | any time |
+| O53 | **Grievance sealing key pair** for staging (then production): public half → api-public env, private half → api-admin env only (#173; steps in MY_PENDING_TASKS) | before Phase 08 on staging | 15 min | any time |
+| O54 | **Legal order document on staging**: attach → download the same file; Cloudinary lists it as raw / authenticated and its public link fails (#174) | Phase 08 exit | 10 min | after Phase 08 on staging |
+| O55 | **Legal review of the drafts** (privacy, terms, content policy, grievance, undertaking — `packages/i18n/legal/en/`) by your lawyer + human Hindi / Urdu / Telugu translations; confirm Cloudinary's and Sentry's data regions for the privacy notice (#175). Production builds refuse drafts | before Phase 09 launch | lawyer time | any time |
+| O57 | **Kill switches on staging**: turn admin read-only mode on → a masjid admin's phone shows the notice and a save fails politely → off; set a maintenance and an incident banner → both show on musalli Home within a minute (admin Home shows maintenance) → take down (#178) | Phase 08 exit | 10 min | after Phase 08 on staging |
+| O58 | **Stats on staging**: a few hours after Phase 08 is on staging, Super Admin → Stats shows numbers (masjids, phones, notifications), "Media storage" shows a % (Cloudinary read works) and "Background jobs" shows counts; the trend fills in over days (#179) | Phase 08 exit | 5 min | a few hours after Phase 08 on staging |
+| O56 | **QR poster print + scan**: Super Admin → a masjid → QR poster → print A4 (and A5) or save as PDF and print; scan from 1.5 m with an Android phone and an iPhone camera — the app opens that masjid; check the Urdu and Telugu text looks right on paper (#177) | Phase 08 exit | 20 min | after Phase 08 on staging |
 | O30 | **Notice templates**: add starters, review 4 languages, activate | pilot | 1–2 h | before pilot |
 | O31 | **Translation review** of `packages/i18n/review/{hi,ur,te}.csv` (≈ 920 draft strings each) | pilot | translators | before pilot |
 | O32 | **Verified Content Library file** (`docs/content-library-format.md`) | pilot | — | before pilot |
@@ -882,6 +1180,54 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
   Semgrep geolocation rule, dial name in `<title>`, ~1 km rounding, media Permissions-Policy); budgets green (initial
   190 kB limit, 189.01 kB); visual 40/40.
 
+### Phase 08 — started 13 Nov 2026 (autopilot, #162; branch `feat/phase-08` on top of `feat/phase-07`)
+
+- [x] T8.1 — Reporting — **done 13 Nov 2026 (#170)**: `POST /reports` (device + Turnstile, 10/day, 404 when not public),
+  SLA constants `@mc/shared/compliance`, `report-triage` every minute (urgent alert once per report, auto-hide after
+  N distinct devices in 1 h — once, version bump, audit), migration `0023_report_triage`, 05 §1 field allow-list test;
+  "…" → Report on every post detail + Masjid Detail, lazy report sheet × 4 locales; shared Sheet scroll fix. Tests: db
+  `reports.int` 8, api `report-routes.int` 6 + `report-triage.int` 7, e2e `report.spec` 7/7 Pixel 7 + iPhone 14, visual
+  40/40, db int 406 / api int 438 (4 workers). Reporter device id never reaches admins (policy `hidden`, existing test).
+- [x] T8.2 — Moderation queue & takedown (C5) — **done 13 Nov 2026 (#171)**: remove / restore / dismiss (step-up),
+  C5 `/super/reports`, `cdn-purge` by cache tag, `item_removed` alert, My Posts hidden + category, removed posts vanish
+  after the next poll (app fix), F74 (removed bayan text), **F73** (`media-access`: files to Cloudinary `authenticated`
+  at removal, back on restore; shared files kept). Journey 11 green on Pixel 7. Staging purge check = owner (F76).
+- [x] T8.3 — SLA engine & dashboard (C1) — **done 13 Nov 2026 (#172)**: `slaProgress`, `listSlaTimers` /
+  `markSlaAlerted` (migration 0025), `sla-alerts` job every 15 min (one alert per report + threshold, Sentry e-mail
+  fallback at 100 %), C1 "Deadlines" card. Grievances / legal orders plug into `listSlaTimers` in T8.4 / T8.5.
+- [x] T8.4 — Grievances (form + C6 tracker) — **done 13 Nov 2026 (#173)**: contacts sealed in api-public with an RSA
+  public key, opened only in api-admin (★, audited); `GR-YYYY-NNNNNN`; Settings form × 4; C6 `/super/grievances`;
+  ack / resolve timers in the SLA engine (migration 0026). Owner: O53 (key pair for staging / production).
+- [x] T8.5 — Legal orders register (C7) — **done 13 Nov 2026 (#174)**: C7 `/super/legal-orders` (★ record with IST
+  received time, target by post link / follow code, ★ update status / action / note, action log), 3 h timer in the SLA
+  engine + C1, ★ Remove names an open order (→ actioned), documents AES-256-GCM in api-admin → Cloudinary `raw` +
+  `authenticated`, ★ download decrypted through api-admin (migration 0027). Owner: O54 (staging Cloudinary check).
+- [x] T8.6 — Legal texts, versions & reminders — **done 13 Nov 2026 (#175)**: privacy / terms / content policy /
+  grievance drafts (+ hi / ur / te draft translations), readers in both apps, licenses page generated at build,
+  production build refuses drafts (`MC_BUILD_ENV=production`), privacy re-acceptance (changed version / yearly),
+  yearly admin undertaking. Owner: O55 (legal review + human translations — blocks production).
+- [x] T8.7 — Retention job (remaining rows of 02 §6) — **done 13 Nov 2026 (#176)**: every 02 §6 row (devices, report
+  device ids, dead push, sessions / invites, reports, grievances, audit, jobs, quota, campaign history, removed admins
+  anonymized, stats, contacts, Ruqyah recordings, legal documents), batches + time budget, audited summary, ★ dry run
+  from Audit, `retention_failed` alert, VPS 200-day archive check.
+- [x] T8.8 — QR poster generator (C3) — **done 13 Nov 2026 (#177)**: A4 / A5 print page (QR level Q, 10 cm on A4,
+  follow code, 3 steps × 4 languages, brand, "Free · No ads · No account"), QR-only SVG / PNG; e2e decodes the QR and
+  checks one exact page per size. Owner: O56 (print and scan at 1.5 m).
+- [x] T8.9 — Kill switches & banners — **done 13 Nov 2026 (#178)**: ★ admin read-only mode (masjid admins' writes →
+  503 `READ_ONLY_MODE` in `defineRoute`, account-safety routes exempt, Super Admin never blocked, audited), maintenance
+  banner (both apps) and incident banner (musallis) in 4 languages from C10, `NoticeBanner` on musalli Home / admin Home
+  / C1; 12 integration tests (one block per switch; push pause = T4.7's). Owner: O57.
+- [x] T8.10 — Audit & stats completion — **done 13 Nov 2026 (#179)**: hourly `stats-snapshot` job (counts, 30-day
+  deadline compliance, queue lag, Cloudinary usage + 70/90 % alerts, `masjid_stats.ameens_7d` — never computed before),
+  `GET /super/stats` + C12 Stats (bars, 30-day lines with keyboard readout + tables); C11 every action, India dates,
+  masjid / admin filters (links from C2 and the admin sheet); audit meta allow-list privacy test. Owner: O58.
+- [x] T8.11 — Quality gates — **done 14 Nov 2026 (#180–#182, bare-minimum close)**: security review + re-review fixed,
+  phase-verifier REQUIRED items fixed, CI run 43616799684 green apart from journey 11's new Urdu preview check (removed,
+  Phase 9); extras deferred to Phase 9 (#182). Earlier note: **in progress (13 Nov 2026)**: shared contract tests (coverage gate), visual baselines
+  for the new screens (musalli 4 locales × 2 devices; Super Admin C3/C5/C6/C7/C10/C12 Pixel 7 × 4 locales), security
+  review run (0 H / 7 M / 12 L) — M1, M2, M4 fixed (#180); M3, M5, M6, M7, LOWs, Semgrep, CI, full e2e, phase-verifier
+  and the report remain (see "Next session").
+
 ## Open follow-ups (must be empty before a phase can be DONE, unless explicitly deferred with a DECISIONS entry)
 
 | # | Found in | Description | Planned fix (phase/task) |
@@ -934,31 +1280,36 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F54 | T3.13 (5 Nov 2026, DECISIONS #128; #133) | ~~Voice notes: badge on list cards, player in the A8 card, pause when covered, fake-mic e2e~~ — **done 5 Nov 2026 (#133)**: "Voice message · 0:42" tag on announcement / dua cards, the hadith card plays it in place, the player pauses when its screen goes `inert`, `e2e/admin/voice-recording.spec.ts` records through Chromium's fake microphone. **Left:** a real phone recording on staging (Safari MP4, Chrome Opus) — owner check 3.14 | Staging check with O25 / O27 |
 | F55 | T3.14 (5 Nov 2026, DECISIONS #129, #130) | ~~A library entry retired or sent back to draft stays in cached bundles / feeds / Ruqyah lists of the masjids using it~~ — **closed 5 Nov 2026 (#133)**: retire, back-to-draft and verify bump every using masjid's version in the same transaction (`packages/db/test/library-users.int.test.ts`). Note kept: locally (Windows) the WebKit run of `e2e/app/content.spec.ts` can stall on a `versions` request (CI's WebKit passes) | Closed |
 | F56 | CI 5 Nov 2026 (`a0954df`, `4cc10d4`) | ~~Lighthouse warm load misses the performance category gate (app 87, admin 89)~~ — **fixed 6 Nov 2026 (#134)**: the 300–500 ms t≈8 ms task was Lighthouse's JS-coverage start walking the previous visit's heap in a reused tab; `pnpm lhci` now opens the warm visit in a freshly started browser on the cold run's profile. Also cut: Intl formatters built on first use, the onboarding pager no longer forces a style recalculation. Local warm: app 95 / admin 97. **Confirm on CI** | Closed when CI is green |
-| F57 | Phase 03 close (6 Nov 2026, DECISIONS #135) | T3.1 Admin Home inbox banner ("N new messages") not built: the inbox it points to does not exist yet (change-request replies Phase 5, reports Phase 8) | With the inbox (Phase 5 / Phase 8) |
+| F57 | Phase 03 close (6 Nov 2026, DECISIONS #135) | T3.1 Admin Home inbox banner ("N new messages") not built: the inbox it points to does not exist yet (change-request replies Phase 5, reports Phase 8). Phase 08 (#171): moderation messages reach the admin as a push + My Posts "Removed by moderation" — My Posts is the inbox for now, so no banner was added | **Phase 9** (re-targeted 14 Nov 2026, DECISIONS #182): a Home banner counting unread moderation / change-request messages, if the owner's testing shows admins miss them |
 | F58 | Phase 03 close (6 Nov 2026, DECISIONS #136) | ~~Latin times inside Urdu sentences reordered by bidi ("PM 8:45"; camp hours scrambled; voice player times on the wrong ends)~~ — **fixed 6 Nov 2026**: times LTR-isolated in template params, camp card, khutbah line, Eid card; player labels follow the page direction; Urdu baselines regenerated | Closed |
 | F59 | CI 6 Nov 2026 (`2e5eda5`) | e2e `voice.spec`: on CI's Chromium the local file store's WAV sometimes fails to play ("Available when online"); passes locally. The playback assertion is skipped on CI only; upload, publish, badge and player checks stay  | Deferred to Phase 9 (DECISIONS #143): CI run `64b0234` (8 Nov) had no voice.spec failure; the CI-only skip stays until media logs are added |
 | F60 | T4.1 (8 Nov 2026, DECISIONS #138) | `web-push` pinned at 3.6.7: 4.0.0 (6 Nov 2026) was younger than `minimumReleaseAge`. Review its changelog and move to 4.x (Renovate) — the adapter uses only `generateRequestDetails`  | Phase 9 hardening (DECISIONS #143): 4.x after its changelog review; 3.6.7 has no known advisory |
 | ~~F61~~ | CI 8 Nov 2026 (DECISIONS #141) | ✅ **Closed 13 Nov 2026:** the patched base is on `main` and staging (`a6f2969`, `/health` on both origins); `infra/trivy/mc-server.trivyignore.yaml` deleted and the Nightly deployed-image scan runs without exceptions (#155) | – |
 | F62 | Review L2 (8 Nov 2026, DECISIONS #142) | Job timeouts race the run but do not cancel it: pass an `AbortSignal` into the push processors and stop between sends / pages | Phase 9 hardening |
 | F63 | Review L3 (DECISIONS #142) | Honour the push service `Retry-After` (move the batch to delayed by the largest value) instead of only BullMQ backoff | Before pilot (peak traffic) |
-| F64 | Review L4 (DECISIONS #142) | Kill switch takes effect per batch (up to ~4,000 sends after pause): re-check every send round | Phase 8 (moderation incidents) |
+| F64 | Review L4 (DECISIONS #142) | ~~Kill switch takes effect per batch (up to ~4,000 sends after pause): re-check every send round~~ — **closed 13 Nov 2026 (#180 L12)**: re-checked every 100 sends | Phase 8 (moderation incidents) |
 | F65 | Review M2 rest (DECISIONS #142, #144) | ~~Admin alerts keep arriving after a session ends~~ — **closed 12 Nov 2026 (#159)**: every subscription hangs on the session that saved it (`session_id`, migration 0020); `getAlertTargets` skips phones whose session is revoked or expired (Super Admin: not used for 30 days); ending one session deletes its subscriptions; `retention` prunes the rest. Original text: Link each admin push subscription to its session (or have `getAlertTargets` require a live session), so revoking one session (another device) **or a session expiring** stops that phone's alerts too | **Before Phase 5's first alert to masjid admins** ("UPI change approved"); today masjid admins receive only test alerts (#144) |
 | F66 | Audit 11 Nov 2026 H1 (DECISIONS #153) | `defineRoute`: a default per-IP rate limit for routes that declare none (44 GET routes today rely on the CDN cache or the session alone); keep explicit rules as they are | Phase 9 T9.1 |
-| F67 | Security review M4 (DECISIONS #160) | Purge the CDN tag `m-<masjidId>` when a needy person is closed, removed or purged (the list is cached one day until then) | Phase 8 (CDN purge job) |
-| F68 | Security review M2, image part (#160) — **accepted by the owner (#161)** | Refuse drive covers / notice photos that contain a QR code (maintained server-side decoder, e.g. `zxing-wasm`, own DECISIONS entry with size + CVE check) | Phase 8, with moderation |
+| F67 | Security review M4 (DECISIONS #160) | Purge the CDN tag `m-<masjidId>` when a needy person is closed, removed or purged (the list is cached one day until then) | **Closed** 13 Nov 2026 (#180 M7) |
+| F68 | Security review M2, image part (#160) — **accepted by the owner (#161)** | Refuse drive covers / notice photos that contain a QR code (maintained server-side decoder, e.g. `zxing-wasm`, own DECISIONS entry with size + CVE check) | **Phase 9** (re-targeted 13 Nov 2026, #180 L12: new server dependency → own DECISIONS entry) |
 | ~~F69~~ | Security review L2, L3 (#160) | ✅ **Done 12 Nov 2026 (#161)** — owners only (`PAYMENT_OWNER_ONLY`), every owner alerted (`payment_request_owner` + decisions + activation), removal / revocation closes the open request (`reject_code`, migration 0022) | – |
 | F70 | Security review L5, L7, L9 (#160) — **accepted by the owner (#161)** | Live UPI details in a collection only `mc_system` writes; needy ciphertext bound to the person (associated data with the id); lint rule against raw `.collection(` in `repos/` | Phase 9 hardening |
 | F71 | PHASE_06 T6.3 — shared-element thumbnail → player (08 §3.5, "progressive") | The player opens with the standard push; the thumbnail does not morph into the facade | Phase 9 polish (motion), with F44 — DECISIONS #167 |
 | F74 | Phase 06 verifier (#164, #167) | Musalli-facing takedown text for a removed bayan ("may still be on the masjid's YouTube channel") | Phase 8 T8.2 (line added to PHASE_08) |
+| F76 | T8.2 (#171) | Automated staging check that a removed post's cached detail URL answers "gone" within a minute (needs a staging-only Super Admin check account) — owner check meanwhile | Phase 9 hardening |
+| F77 | #180 L4 | Warn (confirm step) before restoring a post that was removed for a legal order — new copy ×4 | Phase 9 |
 | F75 | Phase 06 verifier (#167) | Admin B10 visual baselines (visual suite is musalli-only; admin screens use per-locale attachments + axe); LOW polish: oEmbed read through Zod, `Intl.ListFormat` for the missing-fields list (Urdu "،"), focus after Play, play-glyph size from tokens, pin the 31st lookup in the 30/hour test | Phase 9 polish |
 | F72 | #165 L12 — `sandbox` on the bayan iframe | Add `allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox` once real-device checks show playback, fullscreen and "Watch on YouTube" still work | Phase 9 hardening |
-| F73 | #165 L13 — removed posts' media deliverable during preservation | Make removed items' media undeliverable at removal (Cloudinary access control or private type) and purge the CDN then, keeping the copy for 180 days | Phase 8 T8.2 |
+| F73 | ~~#165 L13 — removed posts' media deliverable during preservation~~ — **closed 13 Nov 2026 (#171)** | Make removed items' media undeliverable at removal (Cloudinary access control or private type) and purge the CDN then, keeping the copy for 180 days | Phase 8 T8.2 |
 | F48 | CI (1 Nov 2026) | osv-scanner: **glob** < 14.0.2 (GHSA-3g3m-2fjr-6pw4; 13.0.6 in the server image via @sentry/node, 11.1.0 via workbox-build) and **minimatch** < 11.0.1 (GHSA-g3hv-75wg-m249; eslint / typescript-eslint / workbox — dev and build only, not in any server or client) — fixes exist only in new majors the parents do not allow yet; no untrusted patterns or abort-bounded walks here → time-boxed ignores until 1 Dec 2026. seroval updated to 1.7.3 (GHSA-9wx9-5pv9-3349, GHSA-f86p-h4j2-7qgj) | On expiry or a parent bump (Sentry / workbox / eslint on glob 14 / minimatch 11): update and delete the entries |
 
 ## Session log (newest first, one line each)
 
 | Date | Phase/Task | Summary |
 |---|---|---|
+| 2026-11-13 | 08 / T8.9–T8.11 | T8.9 kill switches & banners (#178), T8.10 stats snapshot + C12 + C11 filters (#179), retention test time bomb fixed. T8.11 started: contract tests (coverage gate), new visual baselines, security review 0 H / 7 M / 12 L — M1 / M2 / M4 fixed (#180), rest listed in the hand-off. Docker stopped at the end — int suites to re-run. |
+| 2026-11-13 | 08 / T8.2–T8.4 | Takedown + C5 + tag purge + F73 / F74 (#171), SLA engine + C1 card (#172), grievances with RSA-sealed contacts + C6 (#173). Journey 11 and grievance e2e green; app fix: removed posts vanish after the next poll. Paused at the owner's request — T8.5 next. |
+| 2026-11-13 | 08 / T8.1 | Reporting done (#170): reports API + `report-triage` job (urgent alert / auto-hide exactly once), migration 0023, 05 §1 allow-list test, "…" → Report sheet on every post + Masjid Detail (× 4 locales), shared Sheet scroll fix. `main` fast-forwarded to `30a268b` (Phases 06 + 07) after green CI — staging release running. |
 | 2026-11-13 | 06 + 07 close | Phase 06 report final ("DONE — owner checks pending", O49). Phase 07 phase-verifier FAIL → fixed (#169): location can be updated or dropped for the masjid's, glow opacity-only, arrowhead, rAF writes, 5 new e2e states + `useHeading` unit; Pixel 7 12/12 (×3), iPhone 14 12/12, perf 3/3, visual `qibla` × 8 regenerated. Phase 07 "DONE — owner checks pending" (O29). Next: CI → `main` → staging, then Phase 08. |
 | 2026-11-12 | 07 / T7.3–T7.4 + 06 fixes | Qibla verified on Pixel 7 + iPhone 14 (WebKit headless screen angle pinned), perf 3/3 opened from Home; security review 0H/1M/5L all fixed; Qibla button + manifest shortcut in every build; Phase 06 verifier fixes (log-absence test, video contract) — #167. Paused at the owner's request for the owner's pending list. |
 | 2026-11-12 | 05 / T5.9 | My zakat done (#158): phone-only tracker in the device document, A24 screen, "Log this in My zakat?" after a UPI payment to a zakat-eligible person, e2e with a network assertion, 4 locales. Before it: last night's red CI fixed in tests (`2df8d6d` — axe read two CSS state fades in the needy spec, the voice spec hung on a disabled Play button; the VPS deploy test failed on CI only and now annotates its reason — it passed on the next run, so the cause was outside the repo). **`main` `de50397` CI was red in that same step, so F61 is not on staging yet.** |

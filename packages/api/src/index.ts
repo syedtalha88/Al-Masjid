@@ -28,6 +28,16 @@ export {
   newToken,
   tokensEqual,
 } from './crypto/field.ts';
+export {
+  assertSealPublicKey,
+  openSealed,
+  SEAL_MIN_BITS,
+  SEAL_MIN_BITS_LOCAL,
+  SealError,
+  sealField,
+  type SealKeys,
+  sealKeysFromEnv,
+} from './crypto/seal.ts';
 export { clientIp, type TrustedProxyMode } from './http/client-ip.ts';
 export { defineRoute, type RouteDefinition } from './http/define-route.ts';
 export type { ErrorReporter } from './http/errors.ts';
@@ -45,11 +55,14 @@ export {
 export { DRAIN_TIMEOUT_MS, type RunningServer, SERVER_TIMEOUTS, startHttpServer } from './http/server.ts';
 export { createLogger } from './logger.ts';
 export { type CdnPurger, cloudflarePurger, mediaDeliveryUrls, noCdnPurger } from './media/cdn-purge.ts';
+export { cloudinaryPrivateStore, type PrivateFileStore, privateStoreFromEnv } from './media/private-store.ts';
 export { cloudinaryMediaStore, type MediaStore, mediaStoreFromEnv } from './media/store.ts';
+export { cloudinaryUsageReader, parseCloudinaryUsage } from './media/usage.ts';
 export { buildOpenApiDocument } from './openapi.ts';
 export { redisSendLedger, type SendLedger } from './push/ledger.ts';
 export { createPushSender, type PushSender, type PushTransport, type VapidKeys } from './push/sender.ts';
 export { type AlertService, alertService } from './queue/alerts.ts';
+export { type CdnPurgeService, cdnPurgeService } from './queue/cdn.ts';
 export { QUEUE_PREFIX } from './queue/jobs.ts';
 export { createJobQueues, type JobQueues, type PushNotifier, pushNotifier } from './queue/queues.ts';
 export { adminSessionRoutes } from './routes/admin-auth.ts';

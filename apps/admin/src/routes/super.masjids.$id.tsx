@@ -140,15 +140,37 @@ function Body({ data }: { readonly data: SuperMasjidDetail }) {
             ))}
           </div>
           {masjid.status === 'deleted' ? null : (
-            <Button
-              variant="ghost"
-              size="md"
-              onPress={() => {
-                navigator.push(`/super/masjids/${masjid.id}/edit`);
-              }}
-            >
-              {t('detail.edit')}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="ghost"
+                size="md"
+                onPress={() => {
+                  navigator.push(`/super/masjids/${masjid.id}/edit`);
+                }}
+              >
+                {t('detail.edit')}
+              </Button>
+              {/* C3 (T8.8): the printable QR poster. */}
+              <Button
+                variant="ghost"
+                size="md"
+                onPress={() => {
+                  navigator.push(`/super/masjids/${masjid.id}/poster`);
+                }}
+              >
+                {t('detail.poster')}
+              </Button>
+              {/* C11 (T8.10): this masjid's entries in the audit log. */}
+              <Button
+                variant="ghost"
+                size="md"
+                onPress={() => {
+                  navigator.push(`/super/audit?masjid=${encodeURIComponent(masjid.id)}`);
+                }}
+              >
+                {t('detail.audit')}
+              </Button>
+            </div>
           )}
         </div>
         <dl className="grid gap-4 sm:grid-cols-2">
@@ -165,6 +187,12 @@ function Body({ data }: { readonly data: SuperMasjidDetail }) {
           <Fact label={t('form.asrMadhab')}>{t(`form.madhabs.${masjid.asrMadhab}`)}</Fact>
           <Fact label={t('form.hijriOffset')}>
             {masjid.hijriOffset === undefined ? t('form.hijriOffsetNone') : <Bdi>{String(masjid.hijriOffset)}</Bdi>}
+          </Fact>
+          {/* 05 §3: repeat violations — posts moderation removed in the last 90 days (also on each C5 card). */}
+          <Fact label={t('detail.removals90d')}>
+            <span className={data.removals90d > 0 ? 'text-danger' : undefined} data-removals-90d>
+              {format.number(data.removals90d)}
+            </span>
           </Fact>
         </dl>
       </Card>
@@ -439,6 +467,7 @@ function AdminActionsSheet({
   readonly onChanged: () => Promise<unknown>;
 }) {
   const { t } = useTranslation('super');
+  const navigator = useNavigator();
   const toast = useToast();
   const errorText = useErrorText();
   const run = useStepUp();
@@ -537,6 +566,17 @@ function AdminActionsSheet({
                 {t('admin.recoveryLink')}
               </Button>
             )}
+            <Button
+              variant="outline"
+              fullWidth
+              onPress={() => {
+                const target = `/super/audit?actor=${encodeURIComponent(admin.id)}`;
+                onClose();
+                navigator.push(target);
+              }}
+            >
+              {t('detail.adminAudit')}
+            </Button>
             <Button
               variant="outline"
               fullWidth

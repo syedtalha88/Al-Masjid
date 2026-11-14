@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { MODERATION_CATEGORIES, MODERATION_NOTE_MAX } from '../compliance.ts';
 import { livePaymentSchema, paymentRequestRowSchema } from './admin.ts';
 import { inviteLinkSchema } from './admin-auth.ts';
 import { safeText } from './text.ts';
@@ -125,6 +126,8 @@ export const superMasjidDetailSchema = z
       createdAt: z.iso.datetime(),
     }),
     followers: z.number(),
+    /** Posts moderation removed in the last 90 days (05 §3 repeat violations). */
+    removals90d: z.int().min(0),
     admins: z.array(superAdminRowSchema),
   })
   .meta({ id: 'SuperMasjidDetail' });
@@ -150,6 +153,12 @@ export const invitePurposeSchema = z.object({ purpose: z.enum(['register', 'add_
 export const countSchema = z.object({ count: z.number() }).meta({ id: 'SuperCount' });
 export const adminPhoneSchema = z.object({ phone: z.string().nullable() }).meta({ id: 'SuperAdminPhone' });
 
+/** A banner as responses carry it: the same short text in all four languages (02 §2 app_settings). */
+export const bannerOutSchema = z.object({ en: z.string(), hi: z.string(), ur: z.string(), te: z.string() });
+/** A banner as the Super Admin sets it: every language required, at most 300 characters each (02 §2). */
+export const bannerSchema = z.strictObject({ en: text(300, 1), hi: text(300, 1), ur: text(300, 1), te: text(300, 1) });
+export const BANNER_MAX = 300;
+
 export const superSettingsSchema = z
   .object({
     globalHijriOffset: z.number(),
@@ -161,6 +170,12 @@ export const superSettingsSchema = z
     termsVersion: z.string(),
     /** The push kill switch (C10 ★, T4.7). */
     pushPaused: z.boolean(),
+    /** Admin read-only mode (C10 ★, PHASE_08 T8.9): masjid admins' writes answer 503 `READ_ONLY_MODE`. */
+    adminReadOnly: z.boolean(),
+    /** Shown in both apps while set (T8.9). */
+    maintenanceBanner: bannerOutSchema.optional(),
+    /** Shown to every musalli while set — incidents (T8.9). */
+    incidentBanner: bannerOutSchema.optional(),
     updatedAt: z.iso.datetime(),
   })
   .meta({ id: 'SuperSettings' });
@@ -170,6 +185,11 @@ export const pushPauseRequestSchema = z.strictObject({ paused: z.boolean() });
 /** The answer: whether the switch moved. */
 export const pushPauseResponseSchema = z.object({ paused: z.boolean(), changed: z.boolean() });
 export type SuperSettings = z.infer<typeof superSettingsSchema>;
+
+/** `POST /settings/read-only` ★ — turn admin read-only mode on or off (T8.9). */
+export const readOnlyRequestSchema = z.strictObject({ readOnly: z.boolean() });
+/** The answer: whether the switch moved. */
+export const readOnlyResponseSchema = z.object({ readOnly: z.boolean(), changed: z.boolean() });
 
 export const superSettingsPatchSchema = z.object({
   globalHijriOffset: hijriOffsetSchema.optional(),
@@ -185,8 +205,153 @@ export const superSettingsPatchSchema = z.object({
   undertakingVersion: text(20, 1).optional(),
   privacyVersion: text(20, 1).optional(),
   termsVersion: text(20, 1).optional(),
+  /** `null` takes the banner down (T8.9). */
+  maintenanceBanner: bannerSchema.nullable().optional(),
+  incidentBanner: bannerSchema.nullable().optional(),
 });
 export type SuperSettingsPatch = z.infer<typeof superSettingsPatchSchema>;
+
+const count = z.int().min(0);
+/** On time vs late for one kind of deadline over 30 days; `rate` = on time / all (null when there were none). */
+const slaTallySchema = z.object({ onTime: count, late: count, rate: z.number().min(0).max(1).nullable() });
+
+/**
+ * `GET /stats` (07 C12, PHASE_08 T8.10): the newest hourly snapshot (`now`, null before the first run) and one point
+ * per India day for the last 30 days (`trend`, oldest first). Aggregates only — never a device or follow.
+ */
+export const superStatsSchema = z
+  .object({
+    at: z.iso.datetime().nullable(),
+    now: z
+      .object({
+        masjids: z.object({ pending: count, active: count, suspended: count, deleted: count }),
+        devices: z.object({
+          total: count,
+          platform: z.object({ android: count, ios: count, desktop: count, other: count }),
+          locale: z.object({ en: count, hi: count, ur: count, te: count }),
+          push: z.object({ active: count, dead: count, none: count }),
+        }),
+        follows: count,
+        push24h: z.object({
+          jobs: count,
+          sent: count,
+          failed: count,
+          successRate: z.number().min(0).max(1).nullable(),
+        }),
+        queues: z.object({ waiting: count, active: count, delayed: count, failed: count, lagS: count }).optional(),
+        cloudinary: z
+          .object({
+            usedPercent: z.number().min(0),
+            plan: z.string().optional(),
+            credits: z.object({ usage: z.number().min(0), limit: z.number().min(0) }).optional(),
+          })
+          .optional(),
+        sla: z.object({ reports: slaTallySchema, grievanceAck: slaTallySchema, grievanceResolve: slaTallySchema }),
+      })
+      .nullable(),
+    trend: z.array(
+      z.object({
+        day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        activeMasjids: count,
+        devices: count,
+        follows: count,
+        pushSent: count,
+        pushFailed: count,
+      }),
+    ),
+  })
+  .meta({ id: 'SuperStats' });
+export type SuperStats = z.infer<typeof superStatsSchema>;
+
+/**
+ * Every audit action (mirrors `AUDIT_ACTIONS` in @mc/db — a test in packages/api keeps them equal): the C11 filter
+ * offers all of them, grouped by the part before the dot. Shown as written: these are log identifiers.
+ */
+export const AUDIT_ACTION_NAMES = [
+  'adhkar.update',
+  'admin.add_to_masjid',
+  'admin.create',
+  'admin.invite',
+  'admin.phone_view',
+  'admin.remove_from_masjid',
+  'admin.undertaking_accept',
+  'audio.upload',
+  'audit.export',
+  'auth.login',
+  'auth.login_failed',
+  'auth.logout',
+  'auth.register',
+  'auth.step_up',
+  'beneficiary.close',
+  'beneficiary.create',
+  'beneficiary.delete',
+  'beneficiary.private_view',
+  'beneficiary.received',
+  'beneficiary.update',
+  'campaign.complete',
+  'campaign.create',
+  'campaign.received',
+  'campaign.update',
+  'chanda.save',
+  'chanda.settings',
+  'contact.create',
+  'contact.delete',
+  'contact.update',
+  'credential.revoke',
+  'grievance.ack',
+  'grievance.contact',
+  'grievance.resolve',
+  'image.upload',
+  'invite.consume',
+  'item.autohide',
+  'item.delete',
+  'item.edit',
+  'item.publish',
+  'item.remove',
+  'item.restore',
+  'legal_order.create',
+  'legal_order.document',
+  'legal_order.document_read',
+  'legal_order.update',
+  'library.import',
+  'library.retire',
+  'library.update',
+  'library.verify',
+  'masjid.activate',
+  'masjid.change_request',
+  'masjid.create',
+  'masjid.delete',
+  'masjid.profile',
+  'masjid.suspend',
+  'masjid.unsuspend',
+  'masjid.update',
+  'payment.activate',
+  'payment.approve',
+  'payment.reject',
+  'payment.request',
+  'push.pause',
+  'push.resume',
+  'ramadan.update',
+  'report.dismiss',
+  'retention.run',
+  'ruqyah.create',
+  'ruqyah.delete',
+  'ruqyah.order',
+  'ruqyah.update',
+  'session.revoke',
+  'settings.read_only_off',
+  'settings.read_only_on',
+  'settings.update',
+  'special.create',
+  'special.delete',
+  'special.update',
+  'template.add_starters',
+  'template.create',
+  'template.update',
+  'timings.update',
+  'video.publish',
+] as const;
+export type AuditActionName = (typeof AUDIT_ACTION_NAMES)[number];
 
 export const auditRowSchema = z
   .object({
@@ -240,6 +405,15 @@ export const superDashboardSchema = z
       successRate: z.number().min(0).max(1).nullable(),
       paused: z.boolean(),
     }),
+    /** Open SLA timers, earliest due first (C1 "SLA alerts", PHASE_08 T8.3–T8.5). */
+    sla: z.array(
+      z.object({
+        kind: z.enum(['urgent_report', 'report', 'grievance_ack', 'grievance_resolve', 'legal_order']),
+        id: z.string(),
+        startAt: z.string(),
+        dueAt: z.string(),
+      }),
+    ),
     /** Admins' open "Request change" notes (B13, T3.10) — closed by the next edit of that masjid. */
     changeRequests: z.array(
       z.object({
@@ -288,3 +462,21 @@ export type SuperPaymentList = z.infer<typeof superPaymentListSchema>;
 
 /** `POST /payments/:id/approve` (★): when the details go live. */
 export const paymentApprovedSchema = z.object({ effectiveAt: z.string() }).meta({ id: 'PaymentApproved' });
+
+// --- Moderation (07 C5, 03 §5, PHASE_08 T8.2) -------------------------------------------------------------------
+/** ★ Remove: the category the masjid sees and the Super Admin's private note. */
+export const removeItemRequestSchema = z.strictObject({
+  category: z.enum(MODERATION_CATEGORIES),
+  note: safeText(MODERATION_NOTE_MAX, { multiline: true }).optional(),
+  /** The legal order this takedown answers (T8.5) — logged on the order, which is then `actioned`. */
+  legalOrderId: z.string().max(64).optional(),
+});
+export type RemoveItemRequest = z.input<typeof removeItemRequestSchema>;
+
+/** Dismiss a report: an optional private note. */
+export const dismissReportRequestSchema = z.strictObject({
+  note: safeText(MODERATION_NOTE_MAX, { multiline: true }).optional(),
+});
+
+/** `POST /retention/dry-run` ★ (PHASE_08 T8.7): whether the worker's dry run was queued. */
+export const retentionQueuedSchema = z.object({ queued: z.boolean() });

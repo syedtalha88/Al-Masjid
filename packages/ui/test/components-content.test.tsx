@@ -14,6 +14,7 @@ import {
   IconCircle,
   InfoNote,
   ListRow,
+  NoticeBanner,
   PressableCard,
   ProgressBar,
   SectionHeader,
@@ -188,6 +189,20 @@ describe('InfoNote / Divider / SectionHeader / EmptyState', () => {
     const { container } = await renderUi(<InfoNote>Timings may change.</InfoNote>);
     expect(screen.getByText('Timings may change.')).toBeTruthy();
     expect(container.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('notice banner (T8.9): a polite status with its tone, decorative icon and optional action', async () => {
+    const { container } = await renderUi(
+      <NoticeBanner tone="danger" action={<Button>Turn off</Button>}>
+        Test incident notice
+      </NoticeBanner>,
+    );
+    const status = screen.getByRole('status');
+    expect(status.textContent).toContain('Test incident notice');
+    expect(status.getAttribute('data-notice-banner')).toBe('danger');
+    expect(status.className).toContain('bg-danger-bg');
+    expect(container.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+    expect(screen.getByRole('button', { name: 'Turn off' })).toBeTruthy();
   });
 
   it('divider is a separator', async () => {

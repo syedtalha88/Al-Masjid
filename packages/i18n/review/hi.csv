@@ -57,6 +57,7 @@ admin,home.today.edit,Edit timings,समय बदलें,no
 admin,home.today.set,Set prayer times,नमाज़ के समय तय करें,no
 admin,home.quota,Notifications today: {used} of {limit} used,आज की सूचनाएँ: {limit} में से {used} इस्तेमाल,no
 admin,home.soon,Soon,जल्द,no
+admin,home.readOnly,Changes are paused for a short while for maintenance. You can still see everything. Please try again later.,रखरखाव के लिए बदलाव कुछ समय के लिए रोके गए हैं। आप सब कुछ देख सकते हैं। कृपया थोड़ी देर बाद फिर कोशिश करें।,no
 admin,comingSoon.title,Coming soon,जल्द आ रहा है,no
 admin,comingSoon.body,This part of the app is being built. It will appear here in an update.,ऐप का यह हिस्सा बन रहा है। यह अगले अपडेट में यहाँ दिखेगा।,no
 admin,account.title,My account,मेरा खाता,no
@@ -361,6 +362,7 @@ admin,posts.types.daily_content,Hadith / Ayah,हदीस / आयत,no
 admin,posts.types.dua_request,Dua requests,दुआ की गुज़ारिशें,no
 admin,posts.types.timing_update,Timing updates,समय में बदलाव,no
 admin,posts.status.published,Published,प्रकाशित,no
+admin,posts.status.hidden,Hidden for review,जाँच के लिए छिपाई गई,no
 admin,posts.status.deleted,Deleted,हटाई गई,no
 admin,posts.status.removed,Removed by moderation,मॉडरेशन ने हटाई,no
 admin,posts.removedReason,Reason: {reason},कारण: {reason},no
@@ -384,6 +386,16 @@ admin,posts.staleBody,Someone saved it after you opened it. Please open it again
 admin,posts.openPosts,Open My Posts,मेरी पोस्ट खोलें,no
 admin,posts.viewPosts,View in My Posts,मेरी पोस्ट में देखें,no
 admin,posts.editTitle,Edit post,पोस्ट बदलें,no
+admin,posts.hiddenHint,"Many people reported this post, so it is hidden while the app team checks it. You don't need to do anything.","कई लोगों ने इस पोस्ट की रिपोर्ट की, इसलिए ऐप टीम के जाँचने तक यह छिपी है। आपको कुछ करने की ज़रूरत नहीं है।",no
+admin,posts.category.misleading,Misleading or false,गुमराह करने वाला या झूठा,no
+admin,posts.category.hateful,Hateful or offensive,नफ़रत भरा या अपमानजनक,no
+admin,posts.category.off_topic,Not about religion or the community,धर्म या समुदाय से जुड़ा नहीं,no
+admin,posts.category.fraud,Fraud or fake donation,धोखाधड़ी या नकली दान,no
+admin,posts.category.private_info,Personal or private information,निजी या व्यक्तिगत जानकारी,no
+admin,posts.category.copyright,Copyright,कॉपीराइट,no
+admin,posts.category.other,Against the content policy,कंटेंट नीति के ख़िलाफ़,no
+admin,posts.category.legal_order,Court or government order,अदालत या सरकारी आदेश,no
+admin,posts.readPolicy,Read the content policy,सामग्री नीति पढ़ें,no
 admin,profile.title,Masjid Profile,मस्जिद प्रोफ़ाइल,no
 admin,profile.photo,Photo,फ़ोटो,no
 admin,profile.photoNone,No photo yet,अभी कोई फ़ोटो नहीं,no
@@ -796,6 +808,18 @@ admin,needy.issue.cap,the amount needed,ज़रूरत की राशि,n
 admin,needy.issue.phone,a valid phone number,सही फ़ोन नंबर,no
 admin,needy.issue.consent,the tick that they agreed,सहमति का टिक,no
 admin,needy.personSaved,Person saved,व्यक्ति सेव हो गया,no
+admin,legal.title,Legal,क़ानूनी,no
+admin,legal.notFound,This page does not exist.,यह पेज मौजूद नहीं है।,no
+admin,legal.privacy,Privacy policy,निजता नीति,no
+admin,legal.terms,Terms of use,उपयोग की शर्तें,no
+admin,legal.contentPolicy,Content policy,सामग्री नीति,no
+admin,legal.grievance,Grievances,शिकायतें,no
+admin,legal.undertaking,Admin undertaking,एडमिन वचन,no
+admin,legal.licenses,Open-source licenses,ओपन-सोर्स लाइसेंस,no
+admin,legal.draft,DRAFT — requires legal review,ड्राफ़्ट — क़ानूनी समीक्षा बाक़ी,no
+admin,legal.draftTranslation,DRAFT TRANSLATION,ड्राफ़्ट अनुवाद,no
+admin,legal.version,Version {version},संस्करण {version},no
+admin,legal.licensesLead,"This app is built with these open-source packages, fonts and texts. Thank you to their authors.","यह ऐप इन ओपन-सोर्स पैकेज, फ़ॉन्ट और पाठों से बना है। इनके लेखकों का शुक्रिया।",no
 common,appError.title,Something went wrong,कुछ गड़बड़ हो गई,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","कृपया फिर से कोशिश करें। अगर बार-बार हो, तो अपना इंटरनेट कनेक्शन जाँचें।",no
 common,appError.retry,Try again,फिर कोशिश करें,no
@@ -984,6 +1008,31 @@ common,qibla.motionButton,Turn on compass,कंपास चालू करे
 common,qibla.motionDenied,The compass is off. The direction is shown in degrees instead.,कंपास बंद है। दिशा डिग्री में दिखाई गई है।,no
 common,qibla.noCompass,Face {degrees}° from North — use your phone's compass app if you need to,उत्तर से {degrees}° की ओर मुँह करें — ज़रूरत हो तो फ़ोन का कंपास ऐप इस्तेमाल करें,no
 common,qibla.dialLabel,Compass: the Kaaba is {degrees}° from North,कंपास: काबा उत्तर से {degrees}° पर है,no
+common,report.more,More options,और विकल्प,no
+common,report.menuTitle,Options,विकल्प,no
+common,report.action,Report,रिपोर्ट करें,no
+common,report.titlePost,Report this post,इस पोस्ट की रिपोर्ट करें,no
+common,report.titleMasjid,Report this masjid,इस मस्जिद की रिपोर्ट करें,no
+common,report.reasonLegend,What is wrong with it?,इसमें क्या गलत है?,no
+common,report.reason.misleading,Misleading or false,गुमराह करने वाला या झूठा,no
+common,report.reason.hateful,Hateful or offensive,नफ़रत भरा या अपमानजनक,no
+common,report.reason.off_topic,Not about religion or the community,धर्म या समुदाय से जुड़ा नहीं,no
+common,report.reason.fraud,Fraud or fake donation,धोखाधड़ी या नकली दान,no
+common,report.reason.private_info,Personal or private information,निजी या व्यक्तिगत जानकारी,no
+common,report.reason.copyright,Copyright,कॉपीराइट,no
+common,report.reason.other,Something else,कुछ और,no
+common,report.privateInfoHint,"Photos or details of someone shared without permission, or someone pretending to be another person","किसी की तस्वीरें या जानकारी बिना इजाज़त शेयर की गईं, या कोई और होने का दावा",no
+common,report.details,Details,विवरण,no
+common,report.detailsHint,Don't write your name or phone number.,अपना नाम या फ़ोन नंबर न लिखें।,no
+common,report.send,Send report,रिपोर्ट भेजें,no
+common,report.sending,Sending…,भेजा जा रहा है…,no
+common,report.thanksTitle,Thank you,शुक्रिया,no
+common,report.thanksBody,The app team will look at it. The masjid never sees who sent a report.,ऐप टीम इसे देखेगी। मस्जिद को कभी पता नहीं चलता कि रिपोर्ट किसने भेजी।,no
+common,report.done,Done,हो गया,no
+common,report.offline,You're offline. Try again when you're connected.,आप ऑफ़लाइन हैं। कनेक्ट होने पर फिर से कोशिश करें।,no
+common,report.limit,You have sent the most reports allowed for today. Try again tomorrow.,आज के लिए आप सबसे ज़्यादा रिपोर्ट भेज चुके हैं। कल फिर कोशिश करें।,no
+common,report.gone,"This is no longer shown in the app, so there is nothing to report.","यह अब ऐप में नहीं दिखता, इसलिए रिपोर्ट करने को कुछ नहीं है।",no
+common,report.failed,The report could not be sent. Please try again.,रिपोर्ट नहीं भेजी जा सकी। कृपया फिर से कोशिश करें।,no
 content,announcements,Announcements,सूचनाएँ,no
 content,hadithQuran,Hadith & Quran,हदीस और क़ुरआन,no
 content,duaRequests,Dua Requests,दुआ की गुज़ारिशें,no
@@ -1051,6 +1100,8 @@ content,source,Source: {name},स्रोत: {name},no
 content,license,Licence: {license},लाइसेंस: {license},no
 content,gone,This post is no longer available,यह पोस्ट अब उपलब्ध नहीं है,no
 content,goneBody,The masjid may have removed it.,हो सकता है मस्जिद ने इसे हटा दिया हो।,no
+content,goneVideo,This video was removed from the app,यह वीडियो ऐप से हटा दिया गया,no
+content,goneVideoBody,It may still be on the masjid's YouTube channel.,यह अब भी मस्जिद के YouTube चैनल पर हो सकता है।,no
 content,back,Go back,वापस जाएँ,no
 content,adhkarTitle,Adhkar after salah,नमाज़ के बाद के अज़कार,no
 content,emptyAdhkar,No adhkar yet,अभी कोई अज़कार नहीं,no
@@ -1192,12 +1243,16 @@ errors,INVALID_TRANSITION,This change isn’t possible right now.,यह बद�
 errors,ACTIVATION_REQUIREMENTS,This masjid needs an active admin who has accepted the undertaking before it can go live.,मस्जिद चालू करने से पहले एक सक्रिय एडमिन चाहिए जिसने वचन-पत्र स्वीकार किया हो।,no
 errors,UNDERTAKING_REQUIRED,Please read and accept the admin undertaking first.,कृपया पहले एडमिन वचन-पत्र पढ़कर स्वीकार करें।,no
 errors,UNDERTAKING_VERSION_MISMATCH,The undertaking was updated. Please read the new version and accept it.,वचन-पत्र बदल गया है। कृपया नया वचन-पत्र पढ़कर स्वीकार करें।,no
+errors,READ_ONLY_MODE,Changes are paused for a short while for maintenance. Your masjid's page still works. Please try again later.,रखरखाव के लिए बदलाव कुछ समय के लिए रोके गए हैं। आपकी मस्जिद का पेज चालू है। कृपया थोड़ी देर बाद फिर कोशिश करें।,no
 errors,ADMIN_NOT_FOUND,We couldn’t find this admin.,यह एडमिन नहीं मिला।,no
 errors,NOTHING_TO_UPDATE,Nothing was changed.,कुछ भी नहीं बदला गया।,no
 errors,INVALID_CURSOR,This list changed. Please reload it.,यह सूची बदल गई है। कृपया इसे फिर से लोड करें।,no
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,लगता है आप ऑफ़लाइन हैं। कृपया कनेक्शन जाँचकर फिर कोशिश करें।,no
 errors,ITEM_NOT_FOUND,This post is no longer available.,यह पोस्ट अब उपलब्ध नहीं है।,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,हम जाँच नहीं सके कि यह असली फ़ोन है। कृपया फिर से कोशिश करें।,no
+errors,REPORT_TARGET_NOT_FOUND,"This is no longer shown in the app, so there is nothing to report.","यह अब ऐप में नहीं दिखता, इसलिए रिपोर्ट करने को कुछ नहीं है।",no
+errors,REPORT_NOT_FOUND,This report is already closed.,यह रिपोर्ट पहले ही बंद हो चुकी है।,no
+errors,ITEM_ALREADY_REMOVED,This post was already removed.,यह पोस्ट पहले ही हटाई जा चुकी है।,no
 errors,LIBRARY_ENTRY_NOT_FOUND,This library entry no longer exists.,यह लाइब्रेरी प्रविष्टि अब मौजूद नहीं है।,no
 errors,LIBRARY_DUPLICATE,An entry with this kind and reference is already in the library.,इसी प्रकार और संदर्भ वाली प्रविष्टि लाइब्रेरी में पहले से है।,no
 errors,TEMPLATE_NOT_FOUND,This template no longer exists.,यह टेम्पलेट अब मौजूद नहीं है।,no
@@ -1252,9 +1307,15 @@ errors,CAMPAIGN_CLOSED,This donation drive has closed. The amount can no longer 
 errors,CAMPAIGN_TARGET_LOWER,"The target can only be raised, not lowered.","लक्ष्य सिर्फ़ बढ़ाया जा सकता है, घटाया नहीं।",no
 errors,CHANDA_INVALID,Please check the week and the amount.,कृपया हफ़्ता और राशि जाँच लें।,no
 errors,CHANDA_HIDDEN,Turn on “Show chanda to followers” before notifying them.,सूचना भेजने से पहले “फ़ॉलोअर्स को चंदा दिखाएँ” चालू करें।,no
+errors,CHANDA_UNDER_REVIEW,This week’s chanda post is being reviewed after reports. You can change it once the review is done.,रिपोर्ट के बाद इस हफ़्ते की चंदा पोस्ट की जाँच हो रही है। जाँच पूरी होने के बाद आप इसे बदल सकते हैं।,no
 errors,BENEFICIARY_INVALID,"Please check the UPI ID, the name on the UPI account and the amount needed.","कृपया UPI ID, UPI खाते का नाम और ज़रूरत की रक़म जाँचें।",no
 errors,BENEFICIARY_NOT_FOUND,This person is no longer on the list.,यह व्यक्ति अब सूची में नहीं है।,no
 errors,BENEFICIARY_LIMIT_REACHED,You can list up to 100 people at a time. Close one to add another.,आप एक समय में अधिकतम 100 लोग जोड़ सकते हैं। नया जोड़ने के लिए एक बंद करें।,no
+errors,GRIEVANCE_NOT_FOUND,This grievance was not found or is already closed.,यह शिकायत नहीं मिली या पहले ही बंद हो चुकी है।,no
+errors,GRIEVANCE_CONTACT_UNAVAILABLE,"A contact cannot be taken right now. Send it without one, or try again later.",अभी संपर्क नहीं लिया जा सकता। इसके बिना भेजें या बाद में कोशिश करें।,no
+errors,LEGAL_ORDER_NOT_FOUND,This legal order was not found or is closed.,यह कानूनी आदेश नहीं मिला या बंद हो चुका है।,no
+errors,LEGAL_TARGET_NOT_FOUND,No post or masjid matches that. Check the link or follow code.,इससे कोई पोस्ट या मस्जिद नहीं मिली। लिंक या फ़ॉलो कोड जाँचें।,no
+errors,LEGAL_ORDER_LOG_FULL,This order's log is full.,इस आदेश का लॉग भर गया है।,no
 follow,scan.title,Scan masjid QR,मस्जिद का QR स्कैन करें,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,अपना कैमरा मस्जिद के पोस्टर पर लगे QR कोड की ओर करें।,no
 follow,scan.torch,Flashlight,टॉर्च,no
@@ -1397,6 +1458,24 @@ push,alert.payment_rejected.title,UPI change not approved,UPI बदलाव �
 push,alert.payment_rejected.body,Your UPI change was not approved. Open Payment to see why.,आपका UPI बदलाव मंज़ूर नहीं हुआ। कारण देखने के लिए भुगतान खोलें।,no
 push,alert.payment_active.title,New UPI details are live,नए UPI विवरण लागू,no
 push,alert.payment_active.body,"Your masjid's new UPI details are now shown to everyone, and followers were told. If you didn't ask for this, tell the Super Admin now.","आपकी मस्जिद के नए UPI विवरण अब सबको दिख रहे हैं और फ़ॉलोअर्स को बताया गया। अगर आपने यह नहीं माँगा, तो अभी सुपर एडमिन को बताएँ।",no
+push,alert.report_urgent.title,Urgent report,तत्काल रिपोर्ट,no
+push,alert.report_urgent.body,A post or masjid was reported for personal or private information. Review it in Reports within 2 hours.,किसी पोस्ट या मस्जिद की निजी या व्यक्तिगत जानकारी के लिए रिपोर्ट आई है। 2 घंटे के अंदर रिपोर्ट में देखें।,no
+push,alert.report_autohide.title,Post hidden after many reports,कई रिपोर्ट के बाद पोस्ट छिपाई गई,no
+push,alert.report_autohide.body,A post was hidden automatically because many people reported it. Review it in Reports.,"कई लोगों ने एक पोस्ट की रिपोर्ट की, इसलिए वह अपने आप छिप गई। रिपोर्ट में देखें।",no
+push,alert.item_removed.title,A post was removed,एक पोस्ट हटाई गई,no
+push,alert.item_removed.body,A post from your masjid was removed by the app team. Open My Posts to see the reason.,ऐप टीम ने आपकी मस्जिद की एक पोस्ट हटाई है। कारण देखने के लिए मेरी पोस्ट खोलें।,no
+push,alert.sla_50.title,Half the time has passed,आधा समय बीत गया,no
+push,alert.sla_50.body,Something in Reports has used half of the time allowed to handle it. Open the dashboard.,रिपोर्ट में किसी चीज़ के लिए दिया गया आधा समय बीत चुका है। डैशबोर्ड खोलें।,no
+push,alert.sla_80.title,Deadline is close,समय सीमा पास है,no
+push,alert.sla_80.body,Something in Reports must be handled soon — most of its time has passed. Open the dashboard.,रिपोर्ट में कुछ जल्द निपटाना है — उसका ज़्यादातर समय बीत चुका है। डैशबोर्ड खोलें।,no
+push,alert.sla_100.title,Deadline passed,समय सीमा निकल गई,no
+push,alert.sla_100.body,Something in Reports is past its deadline. Handle it now from the dashboard.,रिपोर्ट में कुछ अपनी समय सीमा पार कर चुका है। अभी डैशबोर्ड से निपटाएँ।,no
+push,alert.retention_failed.title,Retention run failed,सफ़ाई का काम विफल,no
+push,alert.retention_failed.body,The daily clean-up could not finish. It will try again; see the audit log.,रोज़ की सफ़ाई पूरी नहीं हो सकी। यह फिर कोशिश करेगी; ऑडिट लॉग देखें।,no
+push,alert.cloudinary_70.title,Media storage 70% used,मीडिया स्टोरेज 70% इस्तेमाल,no
+push,alert.cloudinary_70.body,This month's Cloudinary credits are 70% used. Check Stats.,इस महीने के Cloudinary क्रेडिट 70% इस्तेमाल हो चुके हैं। आँकड़े देखें।,no
+push,alert.cloudinary_90.title,Media storage 90% used,मीडिया स्टोरेज 90% इस्तेमाल,no
+push,alert.cloudinary_90.body,This month's Cloudinary credits are 90% used. Photos and voice notes may stop soon. Check Stats now.,इस महीने के Cloudinary क्रेडिट 90% इस्तेमाल हो चुके हैं। फ़ोटो और वॉइस नोट जल्द रुक सकते हैं। अभी आँकड़े देखें।,no
 settings,language,Language,भाषा,no
 settings,languageSheet,Choose your language,अपनी भाषा चुनें,no
 settings,audience,Brother / Sister,भाई / बहन,no
@@ -1461,7 +1540,6 @@ settings,docVersion,Version {version},संस्करण {version},no
 settings,officer,Grievance Officer,शिकायत अधिकारी,no
 settings,officerTimes,We acknowledge every complaint within 24 hours.,हम हर शिकायत की पुष्टि 24 घंटे के भीतर करते हैं।,no
 settings,emailOfficer,Email the Grievance Officer,शिकायत अधिकारी को ईमेल करें,no
-settings,formSoon,"A complaint form inside the app is coming soon. Until then, please write by email.",ऐप के अंदर शिकायत फ़ॉर्म जल्द आ रहा है। तब तक कृपया ईमेल से लिखें।,no
 settings,officerOffline,Connect to the internet to see the Grievance Officer’s details.,शिकायत अधिकारी की जानकारी देखने के लिए इंटरनेट से जुड़ें।,no
 settings,aboutFree,"Free forever. No ads, ever. No account. No tracking.",हमेशा मुफ़्त। कभी कोई विज्ञापन नहीं। कोई अकाउंट नहीं। कोई ट्रैकिंग नहीं।,no
 settings,aboutCommunity,Made for the community.,समुदाय के लिए बनाया गया।,no
@@ -1522,15 +1600,51 @@ settings,push.noMasjids,Follow a masjid to get its notifications.,किसी �
 settings,push.askTitle,Turn on notifications?,सूचनाएँ चालू करें?,no
 settings,push.askAllow,Turn on,चालू करें,no
 settings,push.askLater,Not now,अभी नहीं,no
+settings,grievanceForm.title,Send a grievance,शिकायत भेजें,no
+settings,grievanceForm.category,What is it about?,यह किस बारे में है?,no
+settings,grievanceForm.categories.privacy,My privacy or my data,मेरी निजता या मेरा डेटा,no
+settings,grievanceForm.categories.content,Something in the app,ऐप में कुछ,no
+settings,grievanceForm.categories.technical,The app does not work,ऐप काम नहीं कर रहा,no
+settings,grievanceForm.categories.feedback,An idea or feedback,कोई सुझाव या राय,no
+settings,grievanceForm.categories.other,Something else,कुछ और,no
+settings,grievanceForm.description,What happened?,क्या हुआ?,no
+settings,grievanceForm.descriptionHint,Please don't write anyone's private details.,कृपया किसी की निजी जानकारी न लिखें।,no
+settings,grievanceForm.contact,Your e-mail or phone,आपका ई-मेल या फ़ोन,no
+settings,grievanceForm.contactHint,Only if you want a reply. It is kept locked; only the Grievance Officer can see it.,सिर्फ़ अगर आप जवाब चाहते हैं। यह लॉक रखा जाता है; इसे सिर्फ़ शिकायत अधिकारी देख सकते हैं।,no
+settings,grievanceForm.send,Send,भेजें,no
+settings,grievanceForm.sending,Sending…,भेजा जा रहा है…,no
+settings,grievanceForm.doneTitle,Received,मिल गई,no
+settings,grievanceForm.doneRef,Your reference:,आपका संदर्भ नंबर:,no
+settings,grievanceForm.doneAck,We will acknowledge it within 24 hours.,हम 24 घंटे के अंदर इसकी पावती देंगे।,no
+settings,grievanceForm.offline,You're offline. Try again when you're connected.,आप ऑफ़लाइन हैं। कनेक्ट होने पर फिर से कोशिश करें।,no
+settings,grievanceForm.limit,You have sent the most grievances allowed for today. Try again tomorrow.,आज के लिए आप सबसे ज़्यादा शिकायतें भेज चुके हैं। कल फिर कोशिश करें।,no
+settings,grievanceForm.contactUnavailable,"A contact cannot be taken right now. Send it without one, or try again later.",अभी संपर्क नहीं लिया जा सकता। इसके बिना भेजें या बाद में कोशिश करें।,no
+settings,grievanceForm.failed,It could not be sent. Please try again.,यह भेजी नहीं जा सकी। कृपया फिर से कोशिश करें।,no
+settings,terms,Terms of use,उपयोग की शर्तें,no
+settings,contentPolicy,Content policy,सामग्री नीति,no
+settings,licenses,Open-source licenses,ओपन-सोर्स लाइसेंस,no
+settings,licensesLead,"This app is built with these open-source packages, fonts and texts. Thank you to their authors.","यह ऐप इन ओपन-सोर्स पैकेज, फ़ॉन्ट और पाठों से बना है। इनके लेखकों का शुक्रिया।",no
+settings,draftTranslation,DRAFT TRANSLATION,ड्राफ़्ट अनुवाद,no
+settings,grievanceHow,How grievances are handled,शिकायतें कैसे निपटाई जाती हैं,no
+settings,privacyNotice.changedTitle,Our privacy notice has changed,हमारी निजता सूचना बदल गई है,no
+settings,privacyNotice.changedLead,Please read the updated notice. You can keep using the app after you accept it.,कृपया नई सूचना पढ़ें। स्वीकार करने के बाद आप ऐप इस्तेमाल करते रह सकते हैं।,no
+settings,privacyNotice.yearlyTitle,Your yearly privacy reminder,आपकी सालाना निजता याद-दहानी,no
+settings,privacyNotice.yearlyLead,Once a year we show you what we keep and why. Nothing has changed unless the notice says so.,साल में एक बार हम दिखाते हैं कि हम क्या रखते हैं और क्यों। सूचना में न लिखा हो तो कुछ नहीं बदला।,no
+settings,privacyNotice.accept,I understand,मैं समझ गया/गई,no
+settings,privacyNotice.failed,Could not save. Please try again.,सहेजा नहीं जा सका। कृपया फिर से कोशिश करें।,no
 super,title,Super Admin,सुपर एडमिन,no
 super,nav.label,Super Admin sections,सुपर एडमिन के हिस्से,no
 super,nav.dashboard,Dashboard,डैशबोर्ड,no
+super,nav.reports,Reports,रिपोर्ट,no
+super,nav.grievances,Grievances,शिकायतें,no
 super,nav.masjids,Masjids,मस्जिदें,no
 super,nav.settings,Settings,सेटिंग,no
 super,nav.audit,Audit log,ऑडिट लॉग,no
 super,nav.library,Content Library,सामग्री लाइब्रेरी,no
 super,nav.templates,Notice templates,सूचना टेम्पलेट,no
 super,nav.payments,Payment approvals,भुगतान मंज़ूरी,no
+super,nav.legal,Legal orders,कानूनी आदेश,no
+super,nav.stats,Stats,आँकड़े,no
 super,status.pending,Pending,बाक़ी,no
 super,status.active,Active,चालू,no
 super,status.suspended,Suspended,रोकी गई,no
@@ -1542,6 +1656,13 @@ super,dashboard.campaigns,Active donation campaigns,चालू चंदा �
 super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","पिछले 30 दिनों में {count, plural, one {# लॉग इन} other {# लॉग इन}} रोका गया, क्योंकि किसी फ़ोन की नकल हुई हो सकती है। हर प्रभावित एडमिन को नया लॉग इन लिंक दें।",no
 super,dashboard.changeRequests,Requested changes,बदलाव की गुज़ारिशें,no
 super,dashboard.noChangeRequests,No change requests from admins.,एडमिन की ओर से बदलाव की कोई गुज़ारिश नहीं।,no
+super,dashboard.sla,Deadlines,समय सीमाएँ,no
+super,dashboard.slaUrgentReport,Urgent report,तत्काल रिपोर्ट,no
+super,dashboard.slaReport,Report,रिपोर्ट,no
+super,dashboard.slaRed,Under 20 % left,20% से कम समय बचा,no
+super,dashboard.slaGrievanceAck,Grievance — acknowledge,शिकायत — पावती दें,no
+super,dashboard.slaGrievanceResolve,Grievance — resolve,शिकायत — निपटाएँ,no
+super,dashboard.slaLegalOrder,Legal order — act,कानूनी आदेश — कार्रवाई करें,no
 super,masjids.search,"Search by name, city or code","नाम, शहर या कोड से खोजें",no
 super,masjids.all,All,सभी,no
 super,masjids.new,New masjid,नई मस्जिद,no
@@ -1580,6 +1701,7 @@ super,form.create,Create masjid,मस्जिद बनाएँ,no
 super,form.save,Save changes,बदलाव सहेजें,no
 super,form.required,Required,ज़रूरी,no
 super,detail.followers,"{count, plural, one {# follower} other {# followers}}","{count, plural, one {# फ़ॉलोअर} other {# फ़ॉलोअर}}",no
+super,detail.removals90d,Removed by moderation (90 days),मॉडरेशन द्वारा हटाई गईं (90 दिन),no
 super,detail.followCode,Follow code,फ़ॉलो कोड,no
 super,detail.activate,Activate,चालू करें,no
 super,detail.activateHint,"Needs at least one admin who has logged in and accepted the undertaking, and all five jamaat times set.","कम से कम एक एडमिन चाहिए जिसने लॉग इन करके वचन-पत्र स्वीकार किया हो, और पाँचों जमात के समय सेट हों।",no
@@ -1595,6 +1717,9 @@ super,detail.admins,Admins,एडमिन,no
 super,detail.noAdmins,No admins yet. Add one to activate this masjid.,अभी कोई एडमिन नहीं। मस्जिद चालू करने के लिए एक जोड़ें।,no
 super,detail.addAdmin,Add admin,एडमिन जोड़ें,no
 super,detail.changed,Saved,सहेज लिया,no
+super,detail.poster,QR poster,QR पोस्टर,no
+super,detail.audit,Audit log,ऑडिट लॉग,no
+super,detail.adminAudit,Their actions in the audit log,ऑडिट लॉग में इनके काम,no
 super,admin.name,Name,नाम,no
 super,admin.phone,Phone,फ़ोन,no
 super,admin.phoneHint,Optional. Stored encrypted; viewing it is recorded.,वैकल्पिक। एन्क्रिप्ट करके रखा जाता है; देखने पर दर्ज होता है।,no
@@ -1658,6 +1783,16 @@ super,audit.actorType.admin,Admin,एडमिन,no
 super,audit.actorType.super_admin,Super Admin,सुपर एडमिन,no
 super,audit.actorType.system,System,सिस्टम,no
 super,audit.actorType.device,Device,डिवाइस,no
+super,audit.retentionDryRun,Retention dry run,रिटेंशन ड्राई रन,no
+super,audit.retentionQueued,"Dry run started. Its counts appear here as ""retention.run"" in a minute.","ड्राई रन शुरू हुआ। इसकी गिनती एक मिनट में यहाँ ""retention.run"" के रूप में दिखेगी।",no
+super,audit.retentionNotQueued,Could not start the dry run. Try again.,ड्राई रन शुरू नहीं हो सका। फिर कोशिश करें।,no
+super,audit.masjidFilter,Masjid {id},मस्जिद {id},no
+super,audit.actorFilter,Admin {id},एडमिन {id},no
+super,audit.removeFilter,Remove filter: {name},फ़िल्टर हटाएँ: {name},no
+super,audit.anyDate,Any date,कोई भी तारीख़,no
+super,audit.clearDates,Clear dates,तारीख़ें हटाएँ,no
+super,audit.onlyActor,Only this admin,सिर्फ़ यह एडमिन,no
+super,audit.onlyMasjid,Only this masjid,सिर्फ़ यह मस्जिद,no
 super,library.statusFilter,Status,स्थिति,no
 super,library.kindFilter,Kind,प्रकार,no
 super,library.fileLabel,Your file,आपकी फ़ाइल,no
@@ -1809,6 +1944,189 @@ super,payments.rejected,Turned down. The masjid was told.,नामंज़ू�
 super,payments.history,Earlier UPI details,पहले के UPI विवरण,no
 super,payments.historyStatus.superseded,Was live until {date},{date} तक लागू था,no
 super,payments.historyStatus.rejected,Not approved · {date},मंज़ूर नहीं · {date},no
+super,reports.title,Reports,रिपोर्ट,no
+super,reports.empty,Nothing here.,यहाँ कुछ नहीं है।,no
+super,reports.filter.label,Show,दिखाएँ,no
+super,reports.filter.open,Open,खुली,no
+super,reports.filter.actioned,Removed,हटाई गई,no
+super,reports.filter.dismissed,Dismissed,ख़ारिज,no
+super,reports.urgent,Urgent,तत्काल,no
+super,reports.due,Due {when},समय सीमा {when},no
+super,reports.overdue,Overdue — due {when},समय निकल गया — सीमा {when},no
+super,reports.removals,Removals in 90 days: {count},90 दिनों में हटाई गई पोस्ट: {count},no
+super,reports.reportCount,"{count, plural, one {# report} other {# reports}}","{count, plural, one {# रिपोर्ट} other {# रिपोर्ट}}",no
+super,reports.aboutMasjid,Report about the masjid itself,ख़ुद मस्जिद के बारे में रिपोर्ट,no
+super,reports.status.published,Shown,दिख रही है,no
+super,reports.status.hidden,Hidden for review,जाँच के लिए छिपी,no
+super,reports.status.removed,Removed,हटाई गई,no
+super,reports.status.deleted,Deleted by the masjid,मस्जिद ने हटाई,no
+super,reports.remove,Remove,हटाएँ,no
+super,reports.removeTitle,Remove this post?,यह पोस्ट हटाएँ?,no
+super,reports.removeCategory,Reason the masjid will see,कारण जो मस्जिद देखेगी,no
+super,reports.removeNote,Private note (only you see it),निजी नोट (सिर्फ़ आप देखेंगे),no
+super,reports.removeBody,Hidden for everyone now; preserved privately for 180 days.,अभी सबके लिए छिप जाएगी; 180 दिन तक निजी रूप से सुरक्षित रहेगी।,no
+super,reports.removed,Removed. It is hidden for everyone now.,हटा दी गई। अब यह किसी को नहीं दिखेगी।,no
+super,reports.purgeFailed,"Removed, but the cached copy could not be cleared. Clear it again.","हटा दी गई, पर कैश की कॉपी साफ़ नहीं हो सकी। फिर से साफ़ करें।",no
+super,reports.clearCache,Clear the cache again,कैश फिर से साफ़ करें,no
+super,reports.cacheCleared,The cache is being cleared.,कैश साफ़ किया जा रहा है।,no
+super,reports.restore,Restore,वापस लाएँ,no
+super,reports.restored,Restored. It is shown again.,वापस आ गई। अब फिर से दिख रही है।,no
+super,reports.dismiss,Dismiss,ख़ारिज करें,no
+super,reports.dismissed,Report dismissed.,रिपोर्ट ख़ारिज की गई।,no
+super,reports.openMasjid,Open masjid,मस्जिद खोलें,no
+super,reports.legalOrder,Legal order,कानूनी आदेश,no
+super,reports.legalOrderLoading,Loading orders…,आदेश लोड हो रहे हैं…,no
+super,reports.legalOrderNone,Choose the order,आदेश चुनें,no
+super,grievances.title,Grievances,शिकायतें,no
+super,grievances.empty,No grievances.,कोई शिकायत नहीं।,no
+super,grievances.category.privacy,Privacy / data,निजता / डेटा,no
+super,grievances.category.content,Content,सामग्री,no
+super,grievances.category.technical,Technical,तकनीकी,no
+super,grievances.category.feedback,Feedback,राय,no
+super,grievances.category.other,Other,अन्य,no
+super,grievances.status.open,New,नई,no
+super,grievances.status.acknowledged,Acknowledged,पावती दी गई,no
+super,grievances.status.resolved,Resolved,निपटाई गई,no
+super,grievances.status.rejected,Rejected,ख़ारिज,no
+super,grievances.ackDue,Acknowledge {when},पावती {when},no
+super,grievances.ackOverdue,Acknowledgement overdue — was due {when},पावती में देर — सीमा {when} थी,no
+super,grievances.resolveDue,Resolve {when},निपटारा {when},no
+super,grievances.resolveOverdue,Resolution overdue — was due {when},निपटारे में देर — सीमा {when} थी,no
+super,grievances.acknowledge,Acknowledge,पावती दें,no
+super,grievances.acknowledged,Acknowledged.,पावती दे दी गई।,no
+super,grievances.resolve,Resolve,निपटाएँ,no
+super,grievances.reject,Reject,ख़ारिज करें,no
+super,grievances.resolveTitle,Resolve this grievance,यह शिकायत निपटाएँ,no
+super,grievances.rejectTitle,Reject this grievance,यह शिकायत ख़ारिज करें,no
+super,grievances.note,What was done (kept on record),क्या किया गया (रिकॉर्ड में रहेगा),no
+super,grievances.closed,Closed.,बंद कर दी गई।,no
+super,grievances.showContact,Show contact,संपर्क दिखाएँ,no
+super,grievances.noContact,No contact was left.,कोई संपर्क नहीं छोड़ा गया।,no
+super,legal.title,Legal orders,कानूनी आदेश,no
+super,legal.empty,No legal orders.,कोई कानूनी आदेश नहीं।,no
+super,legal.new,Record an order,आदेश दर्ज करें,no
+super,legal.newTitle,New legal order,नया कानूनी आदेश,no
+super,legal.authority,Authority,प्राधिकरण,no
+super,legal.referenceNo,Order reference number,आदेश संदर्भ संख्या,no
+super,legal.receivedAt,Received at (India time),कब मिला (भारत का समय),no
+super,legal.receivedHint,When the order reached us. The 3-hour clock starts here.,आदेश हमें कब मिला। 3 घंटे की घड़ी यहीं से शुरू होती है।,no
+super,legal.targetType,What does it name?,इसमें किसका नाम है?,no
+super,legal.target.items,A post,एक पोस्ट,no
+super,legal.target.masjids,A masjid,एक मस्जिद,no
+super,legal.target.other,Something else,कुछ और,no
+super,legal.targetRef,Which one,कौन-सा,no
+super,legal.targetHint.items,Paste the post link.,पोस्ट का लिंक पेस्ट करें।,no
+super,legal.targetHint.masjids,"Type the follow code, e.g. ABCD-EFGH.","फ़ॉलो कोड लिखें, जैसे ABCD-EFGH।",no
+super,legal.targetHint.other,A short description.,छोटा-सा विवरण।,no
+super,legal.summary,What the order asks,आदेश में क्या माँगा गया है,no
+super,legal.save,Save,सहेजें,no
+super,legal.required,Fill this in.,इसे भरें।,no
+super,legal.created,Order recorded. Act within 3 hours.,आदेश दर्ज हुआ। 3 घंटे के अंदर कार्रवाई करें।,no
+super,legal.updated,Order updated.,आदेश अपडेट हुआ।,no
+super,legal.status.received,Received,मिला,no
+super,legal.status.actioned,Acted on,कार्रवाई हुई,no
+super,legal.status.contested,Contested,चुनौती दी गई,no
+super,legal.status.closed,Closed,बंद,no
+super,legal.statusLabel,Status,स्थिति,no
+super,legal.due,Act {when},कार्रवाई करें {when},no
+super,legal.overdue,Overdue — was due {when},समय निकल गया — {when} तक करना था,no
+super,legal.hasDocument,Document attached,दस्तावेज़ जुड़ा है,no
+super,legal.receivedLine,Received {when},मिला {when},no
+super,legal.log,Action log,कार्रवाई लॉग,no
+super,legal.update,Update,अपडेट करें,no
+super,legal.updateTitle,Update the order,आदेश अपडेट करें,no
+super,legal.actionTaken,Action taken,की गई कार्रवाई,no
+super,legal.note,Note for the log,लॉग के लिए नोट,no
+super,legal.attachDocument,Attach document,दस्तावेज़ जोड़ें,no
+super,legal.replaceDocument,Replace document,दस्तावेज़ बदलें,no
+super,legal.downloadDocument,Download document,दस्तावेज़ डाउनलोड करें,no
+super,legal.uploading,Uploading…,अपलोड हो रहा है…,no
+super,legal.documentSaved,Document saved (encrypted).,दस्तावेज़ सहेजा गया (एन्क्रिप्टेड)।,no
+super,poster.title,QR poster,QR पोस्टर,no
+super,poster.lead,Print this poster for the masjid. People scan it to follow the masjid in the app.,मस्जिद के लिए यह पोस्टर छापें। लोग इसे स्कैन करके ऐप में मस्जिद को फ़ॉलो करते हैं।,no
+super,poster.size,Paper size,काग़ज़ का आकार,no
+super,poster.print,Print or save as PDF,छापें या PDF सहेजें,no
+super,poster.downloadSvg,QR only (SVG),सिर्फ़ QR (SVG),no
+super,poster.downloadPng,QR only (PNG),सिर्फ़ QR (PNG),no
+super,poster.printHint,"In the print window choose ""Save as PDF"" or your printer. Turn off headers and footers, and keep the scale at 100%.","प्रिंट विंडो में ""PDF के रूप में सहेजें"" या अपना प्रिंटर चुनें। हेडर और फ़ुटर बंद करें, और स्केल 100% रखें।",no
+super,poster.howTo,How to follow this masjid,इस मस्जिद को कैसे फ़ॉलो करें,no
+super,poster.step1,Open your phone camera,अपने फ़ोन का कैमरा खोलें,no
+super,poster.step2,Point it at this QR code (or type {code} in the app),इसे इस QR कोड की तरफ़ करें (या ऐप में {code} लिखें),no
+super,poster.step3,Open the link and tap Follow,लिंक खोलें और फ़ॉलो दबाएँ,no
+super,poster.free,Free · No ads · No account,मुफ़्त · कोई विज्ञापन नहीं · कोई खाता नहीं,no
+super,poster.preview,Poster preview,पोस्टर का पूर्वावलोकन,no
+super,readOnly.title,Masjid admins (all masjids),मस्जिद एडमिन (सभी मस्जिदें),no
+super,readOnly.switch,Admin read-only mode,एडमिन रीड-ओनली मोड,no
+super,readOnly.hint,Masjid admins can see everything but cannot change anything. Use it during an incident. Your own work is not affected.,"मस्जिद एडमिन सब कुछ देख सकते हैं, पर कुछ बदल नहीं सकते। किसी घटना के समय इसका इस्तेमाल करें। आपके अपने काम पर असर नहीं पड़ता।",no
+super,readOnly.onBanner,Admin read-only mode is on. Masjid admins cannot make changes.,एडमिन रीड-ओनली मोड चालू है। मस्जिद एडमिन बदलाव नहीं कर सकते।,no
+super,readOnly.turnOff,Turn off,बंद करें,no
+super,readOnly.confirmTitle,Turn on admin read-only mode?,एडमिन रीड-ओनली मोड चालू करें?,no
+super,readOnly.confirmBody,No masjid admin can post or change anything until you turn it off. Their app shows a notice.,"जब तक आप इसे बंद नहीं करते, कोई मस्जिद एडमिन कुछ पोस्ट या बदल नहीं सकेगा। उनके ऐप में एक सूचना दिखेगी।",no
+super,readOnly.confirm,Turn on,चालू करें,no
+super,readOnly.onToast,Admin read-only mode is on,एडमिन रीड-ओनली मोड चालू है,no
+super,readOnly.offToast,Admin read-only mode is off,एडमिन रीड-ओनली मोड बंद है,no
+super,banners.title,Banners,बैनर,no
+super,banners.maintenance,Maintenance banner,रखरखाव बैनर,no
+super,banners.maintenanceHint,"Shown on Home in both apps, to musallis and masjid admins.",दोनों ऐप के होम पर दिखता है — मुसल्लियों और मस्जिद एडमिन को।,no
+super,banners.incident,Incident banner,घटना बैनर,no
+super,banners.incidentHint,Shown to every musalli on Home. Use it only for something everyone must know.,हर मुसल्ली को होम पर दिखता है। इसे केवल उस बात के लिए इस्तेमाल करें जो सबको जाननी ज़रूरी हो।,no
+super,banners.allLanguages,Write the banner in all four languages (up to 300 characters each).,बैनर चारों भाषाओं में लिखें (हर एक में 300 अक्षर तक)।,no
+super,banners.live,Showing now,अभी दिख रहा है,no
+super,banners.off,Not showing,नहीं दिख रहा,no
+super,banners.show,Show banner,बैनर दिखाएँ,no
+super,banners.update,Update banner,बैनर बदलें,no
+super,banners.takeDown,Take down,हटाएँ,no
+super,banners.shownToast,Banner saved. It can take up to a minute to appear everywhere.,बैनर सहेजा गया। हर जगह दिखने में एक मिनट तक लग सकता है।,no
+super,banners.removedToast,Banner taken down. It can take up to a minute to disappear everywhere.,बैनर हटाया गया। हर जगह से हटने में एक मिनट तक लग सकता है।,no
+super,stats.updated,Updated {time},{time} पर अपडेट,no
+super,stats.emptyTitle,No stats yet,अभी कोई आँकड़े नहीं,no
+super,stats.emptyBody,The first numbers arrive within an hour of the worker starting.,वर्कर चालू होने के एक घंटे के अंदर पहले आँकड़े आ जाएँगे।,no
+super,stats.masjids,Masjids,मस्जिदें,no
+super,stats.devices,Phones with the app,ऐप वाले फ़ोन,no
+super,stats.devicesTotal,"{count, number} phones","{count, number} फ़ोन",no
+super,stats.platform,By phone type,फ़ोन के प्रकार से,no
+super,stats.language,By language,भाषा से,no
+super,stats.pushOn,Notifications on,सूचनाएँ चालू,no
+super,stats.follows,Masjids followed (total),फ़ॉलो की गई मस्जिदें (कुल),no
+super,stats.push,"Notifications, last 24 hours","सूचनाएँ, पिछले 24 घंटे",no
+super,stats.pushLine,"{sent, number} delivered · {failed, number} failed","{sent, number} पहुँचीं · {failed, number} विफल",no
+super,stats.successRate,"{rate, number, percent} delivered","{rate, number, percent} पहुँचीं",no
+super,stats.noPush,Nothing sent in the last 24 hours,पिछले 24 घंटों में कुछ नहीं भेजा गया,no
+super,stats.deadlines,"Deadlines met, last 30 days","समय-सीमा का पालन, पिछले 30 दिन",no
+super,stats.reports,Reports handled in time,समय पर निपटाई गई रिपोर्टें,no
+super,stats.grievanceAck,Grievances acknowledged in time,समय पर स्वीकार की गई शिकायतें,no
+super,stats.grievanceResolve,Grievances resolved in time,समय पर हल की गई शिकायतें,no
+super,stats.rateLine,"{rate, number, percent} · {onTime, number} on time, {late, number} late","{rate, number, percent} · {onTime, number} समय पर, {late, number} देर से",no
+super,stats.noneYet,None yet,अभी कोई नहीं,no
+super,stats.jobs,Background jobs,बैकग्राउंड काम,no
+super,stats.jobsLine,"{waiting, number} waiting · {active, number} running · {failed, number} failed","{waiting, number} इंतज़ार में · {active, number} चल रहे · {failed, number} विफल",no
+super,stats.lag,Oldest waiting job: {time},सबसे पुराना इंतज़ार करता काम: {time},no
+super,stats.lagNone,Nothing waiting,कुछ इंतज़ार में नहीं,no
+super,stats.jobsUnknown,Could not be read this hour,इस घंटे पढ़ा नहीं जा सका,no
+super,stats.seconds,"{count, plural, one {# second} other {# seconds}}","{count, plural, one {# सेकंड} other {# सेकंड}}",no
+super,stats.minutes,"{count, plural, one {# minute} other {# minutes}}","{count, plural, one {# मिनट} other {# मिनट}}",no
+super,stats.cloudinary,Media storage (Cloudinary) this month,मीडिया स्टोरेज (Cloudinary) इस महीने,no
+super,stats.cloudinaryUsed,"{percent, number}% used","{percent, number}% इस्तेमाल",no
+super,stats.credits,"{usage, number} of {limit, number} credits","{limit, number} में से {usage, number} क्रेडिट",no
+super,stats.plan,Plan: {plan},प्लान: {plan},no
+super,stats.cloudinaryUnknown,"Not available (local, or could not be read this hour)","उपलब्ध नहीं (लोकल, या इस घंटे पढ़ा नहीं जा सका)",no
+super,stats.trend,Last 30 days,पिछले 30 दिन,no
+super,stats.trendDevices,Phones,फ़ोन,no
+super,stats.trendFollows,Follows,फ़ॉलो,no
+super,stats.trendMasjids,Active masjids,सक्रिय मस्जिदें,no
+super,stats.trendPush,Notifications delivered (24 h),पहुँची सूचनाएँ (24 घंटे),no
+super,stats.trendEmpty,The trend fills in day by day.,रुझान दिन-ब-दिन भरता जाएगा।,no
+super,stats.trendTable,Daily values,रोज़ के आँकड़े,no
+super,stats.day,Day,दिन,no
+super,stats.value,Value,मान,no
+super,stats.status.pending,Pending,बाकी,no
+super,stats.status.active,Active,सक्रिय,no
+super,stats.status.suspended,Suspended,निलंबित,no
+super,stats.status.deleted,Deleted,हटाई गई,no
+super,stats.platformName.android,Android,Android,no
+super,stats.platformName.ios,iPhone,iPhone,no
+super,stats.platformName.desktop,Computer,कंप्यूटर,no
+super,stats.platformName.other,Other,अन्य,no
 templates,no_water_time_range.title,No water supply,पानी की आपूर्ति बंद,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} से {hours_end} तक पानी उपलब्ध नहीं रहेगा।,no
 templates,electricity_cut_time_range.title,Power cut,बिजली कटौती,no

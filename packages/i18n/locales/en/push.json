@@ -39,6 +39,42 @@
     "payment_active": {
       "title": "New UPI details are live",
       "body": "Your masjid's new UPI details are now shown to everyone, and followers were told. If you didn't ask for this, tell the Super Admin now."
+    },
+    "report_urgent": {
+      "title": "Urgent report",
+      "body": "A post or masjid was reported for personal or private information. Review it in Reports within 2 hours."
+    },
+    "report_autohide": {
+      "title": "Post hidden after many reports",
+      "body": "A post was hidden automatically because many people reported it. Review it in Reports."
+    },
+    "item_removed": {
+      "title": "A post was removed",
+      "body": "A post from your masjid was removed by the app team. Open My Posts to see the reason."
+    },
+    "sla_50": {
+      "title": "Half the time has passed",
+      "body": "Something in Reports has used half of the time allowed to handle it. Open the dashboard."
+    },
+    "sla_80": {
+      "title": "Deadline is close",
+      "body": "Something in Reports must be handled soon — most of its time has passed. Open the dashboard."
+    },
+    "sla_100": {
+      "title": "Deadline passed",
+      "body": "Something in Reports is past its deadline. Handle it now from the dashboard."
+    },
+    "retention_failed": {
+      "title": "Retention run failed",
+      "body": "The daily clean-up could not finish. It will try again; see the audit log."
+    },
+    "cloudinary_70": {
+      "title": "Media storage 70% used",
+      "body": "This month's Cloudinary credits are 70% used. Check Stats."
+    },
+    "cloudinary_90": {
+      "title": "Media storage 90% used",
+      "body": "This month's Cloudinary credits are 90% used. Photos and voice notes may stop soon. Check Stats now."
     }
   }
 }

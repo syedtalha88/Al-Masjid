@@ -1,6 +1,14 @@
 // Entrypoint: worker (BullMQ processors + schedulers, 01 §5.8): the push pipeline and alerts (Phase 4 — the only
 // process with the VAPID private key), the outbox sweeper schedule, the heartbeat; later phases add their jobs.
-import { cloudflarePurger, cloudinaryMediaStore, createLogger, createPushSender, redisSendLedger } from '@mc/api';
+import {
+  cloudflarePurger,
+  cloudinaryMediaStore,
+  cloudinaryPrivateStore,
+  cloudinaryUsageReader,
+  createLogger,
+  createPushSender,
+  redisSendLedger,
+} from '@mc/api';
 import { ensureDevSeed } from '@mc/api/jobs/seed';
 import { startJobWorkers } from '@mc/api/jobs/worker';
 import { createDbHandle } from '@mc/db';
@@ -38,7 +46,23 @@ const db = createDbHandle({
 });
 // The runtime-test stack records pushes instead of sending them (PHASE_04 T4.9); everywhere else: the real service.
 const testTransport = await loadWorkerPushTransport(env, logger, redis);
+// Cloudflare purge (T6.4 media by URL, T8.2 takedowns by tag): never locally — nothing is in front of the local stack.
+const purger =
+  env.APP_ENV !== 'local' && env.CF_API_TOKEN_PURGE && env.CF_ZONE_ID
+    ? cloudflarePurger({ token: env.CF_API_TOKEN_PURGE, zoneId: env.CF_ZONE_ID })
+    : undefined;
+// T8.10: Cloudinary's monthly usage for Stats and the 70 / 90 % alerts — a read, but only where the keys are real.
+const cloudinaryUsage =
+  env.APP_ENV !== 'local' && env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET
+    ? cloudinaryUsageReader({
+        cloudName: env.CLOUDINARY_CLOUD_NAME,
+        apiKey: env.CLOUDINARY_API_KEY,
+        apiSecret: env.CLOUDINARY_API_SECRET,
+      })
+    : undefined;
 const jobs = await startJobWorkers({
+  ...(purger ? { cdnPurger: purger } : {}),
+  ...(cloudinaryUsage ? { cloudinaryUsage } : {}),
   db,
   connection: redis,
   ledger: redisSendLedger(redis),
@@ -61,10 +85,18 @@ const jobs = await startJobWorkers({
           }),
         }
       : {}),
-    ...(env.APP_ENV !== 'local' && env.CF_API_TOKEN_PURGE && env.CF_ZONE_ID
-      ? { purger: cloudflarePurger({ token: env.CF_API_TOKEN_PURGE, zoneId: env.CF_ZONE_ID }) }
-      : {}),
+    ...(purger ? { purger } : {}),
     mediaOrigin: env.MEDIA_ORIGIN,
+    // T8.7: closed legal orders' encrypted documents (3 years) — same rule: never in the real account locally.
+    ...(env.APP_ENV !== 'local' && env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET
+      ? {
+          privateFiles: cloudinaryPrivateStore({
+            cloudName: env.CLOUDINARY_CLOUD_NAME,
+            apiKey: env.CLOUDINARY_API_KEY,
+            apiSecret: env.CLOUDINARY_API_SECRET,
+          }),
+        }
+      : {}),
   },
 });
 await jobs.ready();

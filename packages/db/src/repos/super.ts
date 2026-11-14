@@ -124,6 +124,8 @@ export interface AdminOfMasjid {
 /**
  * C2 masjid page: the masjid document (minus nothing secret — masjids hold none), follower count and its admins.
  *
+ * With `removals` (05 §3 repeat violations, PHASE_08 T8.2): how many of its posts moderation removed since `since`.
+ *
  * @returns `null` for an unknown id.
  * @throws StateError FORBIDDEN (not super).
  */
@@ -131,13 +133,22 @@ export async function getMasjidDetail(
   handle: DbHandle,
   scope: Scope,
   masjidId: UUID,
-): Promise<{ masjid: Record<string, unknown>; followers: number; admins: readonly AdminOfMasjid[] } | null> {
+  options: { readonly removalsSince?: Date } = {},
+): Promise<{
+  masjid: Record<string, unknown>;
+  followers: number;
+  removals: number;
+  admins: readonly AdminOfMasjid[];
+} | null> {
   requireSuperScope(scope);
   const db = await handle.db();
   const ctx = { scope, db };
   const masjid = await scoped(ctx, 'masjids').findOne({ _id: masjidId });
   if (!masjid) return null;
   const stats = await scoped(ctx, 'masjid_stats').findOne({ _id: masjidId });
+  const removed = options.removalsSince
+    ? await scoped(ctx, 'items').find({ masjid_id: masjidId, removed_at: { $gte: options.removalsSince } })
+    : [];
   const memberships = await scoped(ctx, 'masjid_admins').find({ masjid_id: masjidId });
   const adminIds = memberships.map((m): unknown => m['admin_id']).filter(isId);
   const admins = adminIds.length > 0 ? await scoped(ctx, 'admin_users').find({ _id: { $in: adminIds } }) : [];
@@ -159,6 +170,7 @@ export async function getMasjidDetail(
   return {
     masjid,
     followers: typeof stats?.['followers'] === 'number' ? stats['followers'] : 0,
+    removals: removed.length,
     admins: memberships.flatMap((m): AdminOfMasjid[] => {
       const id: unknown = m['admin_id'];
       const admin = isId(id) ? byId.get(id.toHexString()) : undefined;

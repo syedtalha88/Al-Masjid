@@ -126,7 +126,11 @@ export default function Onboarding({ arrivedWithCode, onFinished }: OnboardingPr
 
   const acceptPrivacy = async () => {
     const version = privacyDoc.data?.version ?? (await loadLegalDoc('privacy', locale)).version;
-    await store.update((current) => ({ ...current, privacyVersion: version }));
+    await store.update((current) => ({
+      ...current,
+      privacyVersion: version,
+      privacyAcceptedAt: new Date().toISOString(),
+    }));
     // Registration runs in the background; offline it is deferred and retried (07 A1).
     void import('../../lib/device/sync.ts')
       .then((module) => module.ensureRegistered(sync))

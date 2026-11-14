@@ -30,6 +30,13 @@ export const adminMeSchema = z
     undertakingRequired: z.boolean(),
     /** The version the admin accepted last (B13 shows it). */
     undertakingVersion: z.string().optional(),
+    /**
+     * Admin read-only mode is on (PHASE_08 T8.9): masjid admins' writes answer 503 `READ_ONLY_MODE` — their app shows
+     * a banner; a Super Admin (never blocked) sees that the switch is on.
+     */
+    readOnly: z.boolean(),
+    /** The Super Admin's maintenance banner, shown in both apps while set (T8.9). */
+    maintenanceBanner: z.object({ en: z.string(), hi: z.string(), ur: z.string(), te: z.string() }).optional(),
   })
   .meta({ id: 'AdminMe' });
 export type AdminMe = z.infer<typeof adminMeSchema>;

@@ -39,12 +39,29 @@ export const JOB_SCHEMAS = {
   }),
   /** Scheduled every minute: re-enqueue lost outbox jobs, fail stuck ones (01 §5.3 step 7). */
   'outbox-sweeper': z.strictObject({}),
+  /** After a takedown / restore (T8.2): purge the post's and masjid's cached responses (`i-<publicId>`, `m-<id>`). */
+  'cdn-purge': z.strictObject({
+    tags: z
+      .array(z.string().regex(/^[im]-[A-Za-z0-9_-]{1,40}$/))
+      .min(1)
+      .max(10),
+  }),
+  /** After a takedown / restore (F73): the post's files stop (or start again) being delivered. */
+  // `restrict` is ignored (M1 — the worker follows the post's status); still accepted so jobs queued before stay valid.
+  'media-access': z.strictObject({ itemId: uuid, restrict: z.boolean().optional() }),
+  /** Scheduled every 15 minutes: Super Admin alerts at 50 / 80 / 100 % of each SLA (05 §3, PHASE_08 T8.3). */
+  'sla-alerts': z.strictObject({}),
+  /** Scheduled every minute: urgent-report alerts and auto-hide after many reports (05 §3, PHASE_08 T8.1). */
+  'report-triage': z.strictObject({}),
   /** Scheduled every 10 minutes: approved UPI details whose hold has passed go live (04 R1, T5.2). */
   'payment-activate': z.strictObject({}),
   /** Scheduled daily 00:10 IST: donation drives whose end date has passed close (00 §4.3, T5.3). */
   'campaign-close': z.strictObject({}),
   /** Scheduled daily 03:00 IST: data whose retention period has ended is deleted (02 §6; T5.8: needy people). */
-  retention: z.strictObject({}),
+  /** `dryRun` (T8.7): counts only, changes nothing — the Super Admin's ★ "Retention dry run". */
+  retention: z.strictObject({ dryRun: z.boolean().optional() }),
+  /** Scheduled hourly: platform stats, Ameens of 7 days, queue lag, Cloudinary usage + 70 / 90 % alerts (T8.10). */
+  'stats-snapshot': z.strictObject({}),
 } as const;
 
 export type JobName = keyof typeof JOB_SCHEMAS;
@@ -70,10 +87,17 @@ export const JOB_DEFAULTS: Readonly<Record<JobName, JobsOptions>> = {
   },
   'alert-send': { attempts: 5, backoff: { type: 'exponential', delay: 30_000 }, ...REMOVAL },
   'outbox-sweeper': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
+  // Cloudflare Free allows 5 tag purges a minute: back off over minutes; purging twice is harmless.
+  'cdn-purge': { attempts: 8, backoff: { type: 'exponential', delay: 15_000 }, ...REMOVAL },
+  'media-access': { attempts: 8, backoff: { type: 'exponential', delay: 15_000 }, ...REMOVAL },
   // Idempotent and scheduled: a failed run is simply the next run's work.
+  'sla-alerts': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
+  'report-triage': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
   'payment-activate': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
   'campaign-close': { attempts: 3, backoff: { type: 'exponential', delay: 60_000 }, ...REMOVAL },
   retention: { attempts: 3, backoff: { type: 'exponential', delay: 60_000 }, ...REMOVAL },
+  // Idempotent per hour: a failed run is the next hour's work.
+  'stats-snapshot': { attempts: 1, removeOnComplete: { count: 10 }, removeOnFail: { count: 100 } },
 };
 
 /** The longest one run of a job may take before it counts as failed (BullMQ has no job timeout of its own). */
@@ -83,9 +107,14 @@ export const JOB_TIMEOUT_MS: Readonly<Record<JobName, number>> = {
   'push-send-batch': 240_000,
   'alert-send': 60_000,
   'outbox-sweeper': 50_000,
+  'cdn-purge': 30_000,
+  'media-access': 120_000,
+  'sla-alerts': 120_000,
+  'report-triage': 50_000,
   'payment-activate': 120_000,
   'campaign-close': 120_000,
   retention: 600_000,
+  'stats-snapshot': 300_000,
 };
 
 /** The BullMQ job id of a send batch — dedups a duplicated fan-out (01 §5.8; "." instead of ":", which BullMQ refuses). */

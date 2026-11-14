@@ -17,13 +17,27 @@ export interface QrMatrix {
 }
 
 /**
- * The QR code of `text` (error correction M or higher when it fits — readable from a printed poster or a cracked
- * screen).
+ * The QR code of `text` (at least error correction `level` — M by default, higher when it fits; Q for printed posters,
+ * which get dirty or torn — 07 C3).
  *
- * @throws Error when `text` is too long for any QR version (a UPI link is far below that).
+ * @throws Error when `text` is too long for any QR version (a UPI link or follow link is far below that).
  */
-export function qrMatrix(text: string): QrMatrix {
-  return generate(text, { minCorrectionLevel: correction.M });
+export function qrMatrix(text: string, level: 'M' | 'Q' = 'M'): QrMatrix {
+  return generate(text, { minCorrectionLevel: level === 'Q' ? correction.Q : correction.M });
+}
+
+/**
+ * A standalone SVG file of the code (dark modules on white, quiet zone included) — the poster's "Download QR (SVG)".
+ * Colours are the design tokens' text and surface.
+ */
+export function qrSvgText(matrix: QrMatrix): string {
+  const side = matrix.size + QR_QUIET_MODULES * 2;
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${String(side)} ${String(side)}" shape-rendering="crispEdges">` +
+    `<rect width="${String(side)}" height="${String(side)}" fill="${COLORS.surface}"/>` +
+    `<path transform="translate(${String(QR_QUIET_MODULES)} ${String(QR_QUIET_MODULES)})" fill="${COLORS.text}" fill-rule="evenodd" d="${qrPath(matrix)}"/>` +
+    `</svg>`
+  );
 }
 
 /** The dark modules as one SVG path in module units (`0 … size`). */

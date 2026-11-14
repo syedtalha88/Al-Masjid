@@ -46,6 +46,7 @@ import {
   ShareIcon,
   ShieldCheckIcon,
   UsersIcon,
+  WarningIcon,
 } from '@mc/ui/icons';
 import { useMotionPrefs } from '@mc/ui/motion';
 import { BackIcon, useNavigator, useScreen } from '@mc/ui/navigation';
@@ -59,6 +60,7 @@ import { CampCards } from '../content/components/CampCards.tsx';
 import { ItemList } from '../content/ItemList.tsx';
 import { RamadanCard } from '../home/components/SeasonCards.tsx';
 import { prayerView, ramadanView } from '../home/lib/home-view.ts';
+import { ReportSheetOnDemand } from '../moderation/MoreMenu.tsx';
 import { shareNatively, ShareSheet, type ShareTarget } from './components/ShareSheet.tsx';
 import { TimingsContent } from './components/TimingsContent.tsx';
 import { useMasjidDetail } from './hooks/useMasjidDetail.ts';
@@ -105,6 +107,7 @@ function Detail({ masjidId }: { readonly masjidId: string }) {
   const detail = useMasjidDetail(masjidId);
   const [tab, setTab] = useState<TabId>('overview');
   const [menu, setMenu] = useState(false);
+  const [report, setReport] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [share, setShare] = useState<ShareTarget | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
@@ -393,6 +396,19 @@ function Detail({ masjidId }: { readonly masjidId: string }) {
               {muted ? t('unmute') : t('mute')}
             </Button>
           ) : null}
+          {detail.masjid.state === 'active' ? (
+            <Button
+              variant="secondary"
+              fullWidth
+              leadingIcon={<WarningIcon />}
+              onPress={() => {
+                setMenu(false);
+                setReport(true);
+              }}
+            >
+              {tc('report.action')}
+            </Button>
+          ) : null}
           {detail.follow ? (
             <Button
               variant="danger"
@@ -407,6 +423,14 @@ function Detail({ masjidId }: { readonly masjidId: string }) {
           ) : null}
         </div>
       </Sheet>
+
+      <ReportSheetOnDemand
+        open={report}
+        target={{ kind: 'masjid', masjidId }}
+        onClose={() => {
+          setReport(false);
+        }}
+      />
 
       <Dialog
         open={confirm}

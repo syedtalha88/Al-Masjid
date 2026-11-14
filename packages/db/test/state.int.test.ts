@@ -10,7 +10,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { MIGRATIONS } from '../migrations/index.ts';
 import { createDbHandle, type DbHandle, withTransaction } from '../src/client.ts';
 import { CONTENT_COLLECTIONS, type Namespace } from '../src/collections.ts';
-import { contentWrite, CROCKFORD, genFollowCode, NotImplementedError, StateError, writeAudit } from '../src/effects.ts';
+import { contentWrite, CROCKFORD, genFollowCode, StateError, writeAudit } from '../src/effects.ts';
 import { runMigrations } from '../src/migrate/index.ts';
 import { PolicyDeniedError } from '../src/policy.ts';
 import { PRAYER } from '../src/schema/enums.ts';
@@ -26,7 +26,6 @@ import {
   followMasjid,
   INVITE_TTL_MS,
   removeAdminFromMasjid,
-  removeItem,
   unfollowMasjid,
 } from '../src/state/index.ts';
 import { createTestDatabase, type TestDatabase, testMongoUri } from '../src/testing/index.ts';
@@ -437,11 +436,5 @@ describe('audit writes', () => {
     expect(
       await errorCode(withTransaction(h(), publicScope(), (ctx) => writeAudit(ctx, { action: 'masjid.activate' }))),
     ).toBe('AUDIT_ACTOR');
-  });
-});
-
-describe('later-phase state functions', () => {
-  it('exist with their names and throw NotImplementedError until their phase', () => {
-    expect(() => removeItem(h(), superScope(new UUID()), new UUID(), 'reason')).toThrow(NotImplementedError);
   });
 });

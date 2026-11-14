@@ -267,8 +267,10 @@ export function adminPasskeyRoutes(deps: AdminPasskeyDeps): RouteDefinition[] {
       summary: 'Passkey request options to confirm a sensitive action (bound to this session)',
       tags: ['auth'],
       auth: 'session',
-      // Confirms who is there and writes no content — like logout, allowed before the undertaking (T1.10).
+      // Confirms who is there and writes no content — like logout, allowed before the undertaking (T1.10) and in
+      // read-only mode (T8.9).
       undertaking: 'exempt',
+      readOnly: 'exempt',
       rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
       responses: { 200: requestOptionsSchema },
       handler: async ({ auth, reply }) => {
@@ -282,8 +284,10 @@ export function adminPasskeyRoutes(deps: AdminPasskeyDeps): RouteDefinition[] {
       summary: 'Verify a passkey assertion of the signed-in admin: rotates the session and opens the 5-minute window',
       tags: ['auth'],
       auth: 'session',
-      // Confirms who is there and writes no content — like logout, allowed before the undertaking (T1.10).
+      // Confirms who is there and writes no content — like logout, allowed before the undertaking (T1.10) and in
+      // read-only mode (T8.9).
       undertaking: 'exempt',
+      readOnly: 'exempt',
       rateLimit: [{ bucket: 'adminWrites', key: 'session' }],
       request: { body: assertionVerifyRequestSchema },
       responses: { 204: Empty },

@@ -102,6 +102,7 @@ export const templatesQuery = (api: ApiClient) =>
  */
 export function pruneStaleVersions(client: QueryClient, versions: MasjidVersions): number {
   let removed = 0;
+  const advanced = new Set<string>();
   for (const query of client.getQueryCache().getAll()) {
     const [root, masjidId, v] = query.queryKey;
     if (
@@ -114,10 +115,26 @@ export function pruneStaleVersions(client: QueryClient, versions: MasjidVersions
     // An old bundle stays until the current one has loaded: it is the screen's placeholder (`previousBundle`).
     const placeholder =
       root === 'bundle' && current !== undefined && !client.getQueryData(queryKeys.bundle(masjidId, current));
+    if (current !== undefined && v < current) advanced.add(masjidId);
     if (current !== undefined && v < current && !placeholder) {
       client.removeQueries({ queryKey: query.queryKey, exact: true });
       removed += 1;
     }
+  }
+  // A masjid's content moved on: its opened posts may have been edited, deleted or removed by moderation (T8.2) —
+  // check them again now instead of after their 5 minutes (a removed post must vanish after the next poll).
+  if (advanced.size > 0) {
+    void client.invalidateQueries({
+      predicate: (query) => {
+        if (query.queryKey[0] !== 'item') return false;
+        const data: unknown = query.state.data;
+        const masjidId =
+          typeof data === 'object' && data !== null && 'item' in data
+            ? (data as { item?: { masjidId?: unknown } }).item?.masjidId // ItemDetail (parsed by the client)
+            : undefined;
+        return typeof masjidId === 'string' && advanced.has(masjidId);
+      },
+    });
   }
   return removed;
 }

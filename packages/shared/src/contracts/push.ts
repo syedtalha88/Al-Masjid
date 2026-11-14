@@ -83,6 +83,20 @@ export const ADMIN_ALERT_TYPES = [
   'payment_approved',
   'payment_rejected',
   'payment_active',
+  // Moderation (PHASE_08 T8.1): an urgent report (05 §3: 2 hours) and a post hidden after many reports — Super Admin.
+  'report_urgent',
+  'report_autohide',
+  // Takedown (T8.2): the masjid's admins — fixed words; the category is in My Posts.
+  'item_removed',
+  // SLA timers (T8.3): 50 / 80 / 100 % of the time to handle a report (later: grievances, legal orders) — Super Admin.
+  'sla_50',
+  'sla_80',
+  'sla_100',
+  // Retention (T8.7): the daily run failed (files not deleted, or an error) — Super Admin, once a day.
+  'retention_failed',
+  // Cloudinary usage (T8.10): the month's credits passed 70 % / 90 % — Super Admin, once a month each.
+  'cloudinary_70',
+  'cloudinary_90',
 ] as const;
 
 /**

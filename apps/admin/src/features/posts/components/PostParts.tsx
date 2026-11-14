@@ -2,18 +2,35 @@
 // post's reason; the View / Edit / Delete actions — and the View sheet with the musalli card.
 import { wallClockInZone } from '@mc/domain/time';
 import { useLocale, useTranslation } from '@mc/i18n/react';
+import { MODERATION_CATEGORIES, type ModerationCategory } from '@mc/shared/compliance';
 import type { AdminItem, NoticeTemplate } from '@mc/shared/contracts';
 import { Button, Card, Sheet, Tag, type Tone } from '@mc/ui/components';
 import { FeedItemCard, ItemIcon, itemTitle } from '@mc/ui/content';
+import { useNavigator } from '@mc/ui/navigation';
 
 import { ltr } from '../../timings/lib/text.ts';
 import { POST_TYPES } from '../lib/posts.ts';
 
 const STATUS_TONE: Readonly<Record<AdminItem['status'], Tone>> = {
   published: 'primary',
+  hidden: 'sun',
   deleted: 'neutral',
   removed: 'danger',
 };
+
+/** The moderation category's label key (`MODERATION_CATEGORIES`); an unknown value reads as "against the policy". */
+const CATEGORY_KEY = {
+  misleading: 'posts.category.misleading',
+  hateful: 'posts.category.hateful',
+  off_topic: 'posts.category.off_topic',
+  fraud: 'posts.category.fraud',
+  private_info: 'posts.category.private_info',
+  copyright: 'posts.category.copyright',
+  other: 'posts.category.other',
+  legal_order: 'posts.category.legal_order',
+} as const satisfies Readonly<Record<ModerationCategory, string>>;
+const isCategory = (value: string): value is ModerationCategory =>
+  (MODERATION_CATEGORIES as readonly string[]).includes(value);
 
 export interface PostCardProps {
   readonly row: AdminItem;
@@ -29,6 +46,7 @@ export interface PostCardProps {
 /** One of the masjid's posts with its actions (Edit only within 24 h, Delete only while published). */
 export function PostCard({ row, templates, now, editable, deletable, onView, onEdit, onDelete }: PostCardProps) {
   const { t } = useTranslation('admin');
+  const navigator = useNavigator();
   const { locale, format } = useLocale();
   const { item } = row;
   const type = POST_TYPES.find((entry) => entry === item.type) ?? 'all';
@@ -54,9 +72,31 @@ export function PostCard({ row, templates, now, editable, deletable, onView, onE
       ) : null}
       {row.status === 'removed' ? (
         <div className="flex flex-col gap-1 rounded-md bg-danger-bg p-3 type-footnote text-text">
-          {row.removedReason ? <p>{t('posts.removedReason', { reason: row.removedReason })}</p> : null}
+          {row.removedReason ? (
+            <p>
+              {t('posts.removedReason', {
+                reason: t(CATEGORY_KEY[isCategory(row.removedReason) ? row.removedReason : 'other']),
+              })}
+            </p>
+          ) : null}
           <p className="text-text-secondary">{t('posts.removedHint')}</p>
+          <div>
+            <Button
+              variant="ghost"
+              size="md"
+              onPress={() => {
+                navigator.push('/legal/content-policy');
+              }}
+            >
+              {t('posts.readPolicy')}
+            </Button>
+          </div>
         </div>
+      ) : null}
+      {row.status === 'hidden' ? (
+        <p className="rounded-md bg-surface-muted p-3 type-footnote text-text-secondary" data-post-hidden>
+          {t('posts.hiddenHint')}
+        </p>
       ) : null}
       {row.status === 'published' ? (
         <div className="flex flex-wrap gap-2">

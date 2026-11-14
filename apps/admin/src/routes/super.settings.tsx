@@ -17,8 +17,9 @@ import { useState } from 'react';
 
 import { SHOW_TEST_ALERT } from '../app/build.ts';
 import { StepUpCancelled, useStepUp } from '../features/auth/components/StepUpProvider.tsx';
-import { useErrorText } from '../features/auth/hooks/use-session.ts';
+import { ME_KEY, useErrorText } from '../features/auth/hooks/use-session.ts';
 import { superApi } from '../features/super/api/super-api.ts';
+import { BannerEditor } from '../features/super/components/BannerEditor.tsx';
 import { SuperFrame } from '../features/super/components/SuperFrame.tsx';
 
 export const Route = createFileRoute('/super/settings')({
@@ -27,7 +28,10 @@ export const Route = createFileRoute('/super/settings')({
 
 const SETTINGS_KEY = ['super', 'settings'] as const;
 
-/** C10 Settings (Phase 1 part): Hijri adjustment, default quota, support WhatsApp, grievance officer, document versions. */
+/**
+ * C10 Settings: the ★ kill switches (pause all push — T4.7; admin read-only mode — T8.9), the incident and maintenance
+ * banners (T8.9), then Hijri adjustment, default quota, support WhatsApp, grievance officer, document versions.
+ */
 function Settings() {
   const { t } = useTranslation('super');
   const settings = useQuery({ queryKey: SETTINGS_KEY, queryFn: ({ signal }) => superApi.settings(signal) });
@@ -35,6 +39,14 @@ function Settings() {
     <SuperFrame title={t('nav.settings')} section="settings">
       <div className="flex max-w-xl flex-col gap-8">
         {settings.data ? <PushSwitches paused={settings.data.pushPaused} /> : null}
+        {settings.data ? <ReadOnlySwitch readOnly={settings.data.adminReadOnly} /> : null}
+        {settings.data ? (
+          <>
+            <SectionHeader title={t('banners.title')} />
+            <BannerEditor kind="incident" current={settings.data.incidentBanner} settingsKey={SETTINGS_KEY} />
+            <BannerEditor kind="maintenance" current={settings.data.maintenanceBanner} settingsKey={SETTINGS_KEY} />
+          </>
+        ) : null}
         {settings.data ? <SettingsForm initial={settings.data} /> : <SkeletonText lines={10} />}
       </div>
     </SuperFrame>
@@ -243,6 +255,61 @@ function PushSwitches({ paused }: { readonly paused: boolean }) {
         title={t('push.confirmTitle')}
         body={t('push.confirmBody')}
         confirmLabel={t('push.confirm')}
+        onClose={() => {
+          setConfirm(false);
+        }}
+        onConfirm={() => {
+          setConfirm(false);
+          toggle.mutate(true);
+        }}
+      />
+    </section>
+  );
+}
+
+/**
+ * C10 kill switch ★ (T8.9, 04 §13) — turning it on asks first, then the step-up; while on, masjid admins can read but
+ * every change answers 503 READ_ONLY_MODE (their app shows a banner). Turning it off needs the step-up too.
+ */
+function ReadOnlySwitch({ readOnly }: { readonly readOnly: boolean }) {
+  const { t } = useTranslation('super');
+  const toast = useToast();
+  const errorText = useErrorText();
+  const queryClient = useQueryClient();
+  const run = useStepUp();
+  const [confirm, setConfirm] = useState(false);
+  const toggle = useMutation({
+    mutationFn: (next: boolean) => run(() => superApi.setReadOnly(next)),
+    onSuccess: async (result) => {
+      toast.show({ message: result.readOnly ? t('readOnly.onToast') : t('readOnly.offToast'), tone: 'success' });
+      await queryClient.invalidateQueries({ queryKey: SETTINGS_KEY });
+      await queryClient.invalidateQueries({ queryKey: ME_KEY });
+    },
+    onError: (error) => {
+      if (!(error instanceof StepUpCancelled)) toast.show({ message: errorText(error), tone: 'error' });
+    },
+  });
+  return (
+    <section className="flex flex-col gap-3">
+      <SectionHeader title={t('readOnly.title')} />
+      <div className="rounded-md bg-surface px-4 py-1 shadow-e1">
+        <Switch
+          checked={readOnly}
+          label={`${t('readOnly.switch')} ★`}
+          description={t('readOnly.hint')}
+          disabled={toggle.isPending}
+          onChange={(next) => {
+            if (next) setConfirm(true);
+            else toggle.mutate(false);
+          }}
+        />
+      </div>
+      <Dialog
+        open={confirm}
+        destructive
+        title={t('readOnly.confirmTitle')}
+        body={t('readOnly.confirmBody')}
+        confirmLabel={t('readOnly.confirm')}
         onClose={() => {
           setConfirm(false);
         }}

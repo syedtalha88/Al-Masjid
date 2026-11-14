@@ -134,6 +134,7 @@ export function Sheet({ open, onClose, title, snaps = ['content'], closeButton =
     if (!node) return;
     closing.current = false;
     const spring = () => {
+      node.scrollTop = 0;
       measureSnaps();
       const first = toPercent(snapOffsets.current[0] ?? 0);
       if (reduced) {
@@ -156,6 +157,10 @@ export function Sheet({ open, onClose, title, snaps = ['content'], closeButton =
     let timer = setTimeout(() => {
       node.showModal();
       heading.current?.focus({ preventScroll: true });
+      // showModal() focuses the first focusable element while the panel is still off-screen (translated 100% down)
+      // and scrolls the overflow-hidden dialog to show it; that offset would stay and lift the whole sheet. The
+      // dialog itself never scrolls (its content does).
+      node.scrollTop = 0;
       timer = setTimeout(spring, 0);
     }, 0);
     return () => {

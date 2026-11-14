@@ -67,7 +67,8 @@
       "set": "Set prayer times"
     },
     "quota": "Notifications today: {used} of {limit} used",
-    "soon": "Soon"
+    "soon": "Soon",
+    "readOnly": "Changes are paused for a short while for maintenance. You can still see everything. Please try again later."
   },
   "comingSoon": {
     "title": "Coming soon",
@@ -417,6 +418,7 @@
     },
     "status": {
       "published": "Published",
+      "hidden": "Hidden for review",
       "deleted": "Deleted",
       "removed": "Removed by moderation"
     },
@@ -440,7 +442,19 @@
     "staleBody": "Someone saved it after you opened it. Please open it again from My Posts.",
     "openPosts": "Open My Posts",
     "viewPosts": "View in My Posts",
-    "editTitle": "Edit post"
+    "editTitle": "Edit post",
+    "hiddenHint": "Many people reported this post, so it is hidden while the app team checks it. You don't need to do anything.",
+    "category": {
+      "misleading": "Misleading or false",
+      "hateful": "Hateful or offensive",
+      "off_topic": "Not about religion or the community",
+      "fraud": "Fraud or fake donation",
+      "private_info": "Personal or private information",
+      "copyright": "Copyright",
+      "other": "Against the content policy",
+      "legal_order": "Court or government order"
+    },
+    "readPolicy": "Read the content policy"
   },
   "profile": {
     "title": "Masjid Profile",
@@ -935,5 +949,19 @@
       "consent": "the tick that they agreed"
     },
     "personSaved": "Person saved"
+  },
+  "legal": {
+    "title": "Legal",
+    "notFound": "This page does not exist.",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use",
+    "contentPolicy": "Content policy",
+    "grievance": "Grievances",
+    "undertaking": "Admin undertaking",
+    "licenses": "Open-source licenses",
+    "draft": "DRAFT — requires legal review",
+    "draftTranslation": "DRAFT TRANSLATION",
+    "version": "Version {version}",
+    "licensesLead": "This app is built with these open-source packages, fonts and texts. Thank you to their authors."
   }
 }

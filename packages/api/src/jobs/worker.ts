@@ -3,13 +3,16 @@
 // as a delay (the job waits, it is not lost or failed — T4.7), failures logged and reported on their last attempt,
 // and the schedulers in Asia/Kolkata. Only the worker entrypoint (and tests) start it.
 import type { DbHandle } from '@mc/db';
+import type { CloudinaryStats } from '@mc/db/state';
 import { type Clock, systemClock } from '@mc/shared/clock';
 import { DelayedError, type Job, type JobsOptions, UnrecoverableError, Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
 
 import type { createLogger } from '../logger.ts';
+import type { CdnPurger } from '../media/cdn-purge.ts';
 import type { SendLedger } from '../push/ledger.ts';
 import type { PushSender } from '../push/sender.ts';
+import { alertService } from '../queue/alerts.ts';
 import {
   InvalidJobPayloadError,
   JOB_NAMES,
@@ -21,11 +24,16 @@ import {
 import { createJobQueues, type JobQueues } from '../queue/queues.ts';
 import { processAlertSend } from './alerts/send.ts';
 import { processCampaignClose } from './campaigns/close.ts';
+import { processMediaAccess } from './cdn/media-access.ts';
+import { processCdnPurge } from './cdn/purge.ts';
 import { processPaymentActivate } from './payments/activate.ts';
 import { processFanout, PushPausedError } from './push/fanout.ts';
 import { processSendBatch } from './push/send-batch.ts';
 import { processOutboxSweep } from './push/sweeper.ts';
+import { processSlaAlerts } from './reports/sla-alerts.ts';
+import { processReportTriage } from './reports/triage.ts';
 import { processRetention, type RetentionDeps } from './retention/run.ts';
+import { processStatsSnapshot } from './stats/snapshot.ts';
 
 type Logger = ReturnType<typeof createLogger>;
 
@@ -37,16 +45,33 @@ export const DEFAULT_CONCURRENCY: Readonly<Record<JobName, number>> = {
   'push-send-batch': 4,
   'alert-send': 2,
   'outbox-sweeper': 1,
+  'cdn-purge': 1,
+  'media-access': 1,
+  'sla-alerts': 1,
+  'report-triage': 1,
   'payment-activate': 1,
   'campaign-close': 1,
   retention: 1,
+  'stats-snapshot': 1,
 };
+/**
+ * Queue-wide rate limits (BullMQ `limiter`). `cdn-purge`: Cloudflare Free allows 5 tag-purge requests a minute (bucket
+ * 25 — media/cdn-purge.ts); 4 a minute stays under it, so takedown purges (run first — they carry no priority) are not
+ * refused because routine purges used the budget (security re-review N-M1).
+ */
+export const DEFAULT_LIMITERS: Readonly<Partial<Record<JobName, { readonly max: number; readonly duration: number }>>> =
+  {
+    'cdn-purge': { max: 4, duration: 60_000 },
+  };
 /** Schedulers (01 §5.8), cron in India time. */
 export const SCHEDULES: readonly { readonly job: JobName; readonly pattern: string }[] = [
   { job: 'outbox-sweeper', pattern: '* * * * *' },
+  { job: 'report-triage', pattern: '* * * * *' },
+  { job: 'sla-alerts', pattern: '*/15 * * * *' },
   { job: 'payment-activate', pattern: '*/10 * * * *' },
   { job: 'campaign-close', pattern: '10 0 * * *' },
   { job: 'retention', pattern: '0 3 * * *' },
+  { job: 'stats-snapshot', pattern: '5 * * * *' },
 ];
 export const SCHEDULE_TIME_ZONE = 'Asia/Kolkata';
 
@@ -61,6 +86,8 @@ export interface JobWorkerDeps {
   /** BullMQ key prefix; tests pass their per-file prefix. */
   readonly prefix?: string;
   readonly concurrency?: Partial<Record<JobName, number>>;
+  /** Rate limits per queue (default {@link DEFAULT_LIMITERS}; tests pass `{}` to run without them). */
+  readonly limiters?: Partial<Record<JobName, { readonly max: number; readonly duration: number }>>;
   /** Install the schedulers (off in tests, which run the sweeper themselves). */
   readonly schedulers?: boolean;
   /** Reports a job's final failure (Sentry). */
@@ -69,8 +96,12 @@ export interface JobWorkerDeps {
   readonly pauseRecheckMs?: number;
   /** Per-job option overrides (tests shorten the backoff). */
   readonly jobOptions?: Partial<Record<JobName, JobsOptions>>;
+  /** Cloudflare purge by tag for takedowns (T8.2); absent locally (nothing in front to purge). */
+  readonly cdnPurger?: CdnPurger | undefined;
   /** `retention`'s media part (PHASE_06 T6.4): the worker's media store, the CDN purger, env MEDIA_ORIGIN. */
-  readonly retention?: Pick<RetentionDeps, 'media' | 'purger' | 'mediaOrigin'>;
+  readonly retention?: Pick<RetentionDeps, 'media' | 'purger' | 'mediaOrigin' | 'privateFiles'>;
+  /** `stats-snapshot` (T8.10): Cloudinary's monthly usage — absent locally. */
+  readonly cloudinaryUsage?: (() => Promise<CloudinaryStats>) | undefined;
 }
 
 export class JobTimeoutError extends Error {
@@ -126,6 +157,27 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
       case 'outbox-sweeper':
         parseJobPayload(name, data);
         return processOutboxSweep({ ...common, queues });
+      case 'cdn-purge':
+        return processCdnPurge({ purger: deps.cdnPurger, logger: deps.logger }, parseJobPayload(name, data));
+      case 'media-access': {
+        const payload = parseJobPayload(name, data);
+        return processMediaAccess(
+          {
+            db: deps.db,
+            media: deps.retention?.media,
+            purger: deps.cdnPurger,
+            mediaOrigin: deps.retention?.mediaOrigin,
+            logger: deps.logger,
+          },
+          payload,
+        );
+      }
+      case 'sla-alerts':
+        parseJobPayload(name, data);
+        return processSlaAlerts({ ...common, queues, report: deps.report });
+      case 'report-triage':
+        parseJobPayload(name, data);
+        return processReportTriage({ ...common, queues });
       case 'payment-activate':
         parseJobPayload(name, data);
         return processPaymentActivate({ ...common, queues });
@@ -133,8 +185,18 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
         parseJobPayload(name, data);
         return processCampaignClose(common);
       case 'retention':
+        return processRetention(
+          { ...common, ...deps.retention, alerts: alertService(queues, deps.logger) },
+          parseJobPayload(name, data),
+        );
+      case 'stats-snapshot':
         parseJobPayload(name, data);
-        return processRetention({ ...common, ...deps.retention });
+        return processStatsSnapshot({
+          ...common,
+          queues,
+          alerts: alertService(queues, deps.logger),
+          cloudinaryUsage: deps.cloudinaryUsage,
+        });
     }
   };
 
@@ -154,11 +216,16 @@ export async function startJobWorkers(deps: JobWorkerDeps): Promise<RunningJobWo
       }
     };
 
+  const limiterOf = (name: JobName) => {
+    const limit = (deps.limiters ?? DEFAULT_LIMITERS)[name];
+    return limit ? { limiter: { max: limit.max, duration: limit.duration } } : {};
+  };
   const workers = JOB_NAMES.map((name) => {
     const worker = new Worker(name, processor(name), {
       connection: deps.connection,
       prefix,
       concurrency: deps.concurrency?.[name] ?? DEFAULT_CONCURRENCY[name],
+      ...limiterOf(name),
     });
     worker.on('failed', (job, error) => {
       const attempts = job?.opts.attempts ?? 1;

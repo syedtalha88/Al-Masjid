@@ -45,6 +45,7 @@ export {
   resolveSession,
   revokeSessions,
   SESSION_LIFETIMES,
+  UNDERTAKING_REMINDER_MS,
 } from './auth.ts';
 export {
   type BeneficiaryCategory,
@@ -106,17 +107,39 @@ export {
 } from './devices.ts';
 export { type DuaRequestInput, type DuaRequestPublished, publishDuaRequest } from './duas.ts';
 export { followMasjid, MAX_FOLLOWS_PER_DEVICE, unfollowMasjid } from './follows.ts';
+export {
+  acknowledgeGrievance,
+  createGrievance,
+  type GrievanceCategory,
+  type GrievanceRow,
+  type GrievanceStatus,
+  listGrievances,
+  readGrievanceContact,
+  resolveGrievance,
+} from './grievances.ts';
 export { requireSuper, STEP_UP_WINDOW_MS } from './guards.ts';
 export {
   deleteExpiredItem,
   type ExpiredItem,
   ITEM_PURGE_BATCH,
   listExpiredItems,
+  mediaForTakedown,
   mediaOf,
   type PurgedMedia,
 } from './item-retention.ts';
 export { deleteItem, EDIT_WINDOW_MS, EDITABLE_ITEM_TYPES, editItem, type ItemEdit } from './items.ts';
-export * from './later.ts';
+export {
+  createLegalOrder,
+  LEGAL_ORDER_LOG_MAX,
+  type LegalOrderRow,
+  type LegalOrderStatus,
+  type LegalTargetType,
+  listLegalOrders,
+  readLegalOrderDocument,
+  resolveLegalTarget,
+  setLegalOrderDocument,
+  updateLegalOrder,
+} from './legal-orders.ts';
 export {
   findLibraryDuplicates,
   importLibraryEntries,
@@ -136,6 +159,7 @@ export {
   type NewMasjid,
 } from './masjids.ts';
 export { type ImagePurpose, recordAudioUpload, recordImageUpload } from './media.ts';
+export { dismissReport, itemPurgeRef, type RemovedItem, removeItem, restoreItem } from './moderation.ts';
 export {
   activateDuePaymentProfiles,
   approvePaymentChange,
@@ -177,6 +201,32 @@ export {
   touchJobProgress,
 } from './push.ts';
 export {
+  autoHideItem,
+  countRecentReporters,
+  createReport,
+  listUntriagedReports,
+  markReportsTriaged,
+  readAutohideThreshold,
+  type ReportInput,
+  type ReportReasonValue,
+  type ReportTarget,
+  TRIAGE_BATCH,
+  type UntriagedReport,
+} from './reports.ts';
+export {
+  deleteExpiredLegalOrder,
+  deleteExpiredRuqyah,
+  listExpiredLegalOrders,
+  listExpiredRuqyah,
+  recordRetentionRun,
+  REMOVED_ADMIN_NAME,
+  RETENTION,
+  RETENTION_BATCH,
+  type RetentionCounts,
+  type RetentionOptions,
+  runRetention,
+} from './retention.ts';
+export {
   addRuqyahEntry,
   deleteRuqyahEntry,
   orderRuqyahEntries,
@@ -184,6 +234,14 @@ export {
   type RuqyahEntryInput,
   updateRuqyahEntry,
 } from './ruqyah.ts';
+export {
+  listSlaTimers,
+  type ListSlaTimersOptions,
+  markSlaAlerted,
+  SLA_TIMERS_MAX,
+  type SlaKind,
+  type SlaTimer,
+} from './sla.ts';
 export {
   deleteSpecialDate,
   type RamadanInput,
@@ -193,13 +251,29 @@ export {
   type SpecialDateInput,
 } from './special.ts';
 export {
+  type CloudinaryStats,
+  computeStatsCounts,
+  latestSnapshotForSystem,
+  listStatsSnapshots,
+  type QueueStats,
+  refreshAmeens7d,
+  SLA_WINDOW_MS,
+  type SlaTally,
+  snapshotHour,
+  type StatsCounts,
+  type StatsSnapshot,
+  writeStatsSnapshot,
+} from './stats.ts';
+export {
   acceptUndertaking,
   type MasjidPatch,
   readAdminPhone,
   recordAuditExport,
   revokeAdminPasskeys,
   revokeAdminSessions,
+  setAdminReadOnly,
   setPushPaused,
+  setsBanner,
   type SettingsPatch,
   updateMasjid,
   updateSettings,

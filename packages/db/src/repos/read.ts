@@ -50,6 +50,13 @@ export const idOf = (doc: Document, key = '_id'): string => {
   return idText(value);
 };
 
+/** A UUID field as the UUID itself (for queries). @throws Error when it is not a UUID. */
+export const uuidOf = (doc: Document, key = '_id'): UUID => {
+  const value: unknown = doc[key];
+  if (!(value instanceof UUID)) throw new Error(`document without UUID ${key}`);
+  return value;
+};
+
 /** A sub-document, or `undefined`. */
 export const objectOf = (doc: Document, key: string): Document | undefined => {
   const value: unknown = doc[key];

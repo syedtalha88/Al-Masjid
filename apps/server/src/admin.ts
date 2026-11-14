@@ -2,14 +2,19 @@
 import {
   adminRoutes,
   alertService,
+  cdnPurgeService,
   clearRedisRateLimits,
   createAdminApp,
   createJobQueues,
   createLogger,
   keyRingFromEnv,
   mediaStoreFromEnv,
+  privateStoreFromEnv,
   pushNotifier,
   redisChallengeStore,
+  SEAL_MIN_BITS,
+  SEAL_MIN_BITS_LOCAL,
+  sealKeysFromEnv,
   sessionAuthenticator,
   startHttpServer,
   videoLookupFromEnv,
@@ -58,17 +63,34 @@ const { app } = createAdminApp({
     pepper,
     adminOrigin: env.ADMIN_ORIGIN,
     keyRing: keyRingFromEnv(env),
+    // T8.4 (#173): ★ "Show contact" opens sealed grievance contacts with the private half (absent → 503).
+    ...(env.GRIEVANCE_SEAL_PRIVATE_KEY && env.GRIEVANCE_SEAL_KEY_ID
+      ? {
+          sealKeys: sealKeysFromEnv(
+            {
+              GRIEVANCE_SEAL_PRIVATE_KEY: env.GRIEVANCE_SEAL_PRIVATE_KEY,
+              GRIEVANCE_SEAL_KEY_ID: env.GRIEVANCE_SEAL_KEY_ID,
+              GRIEVANCE_SEAL_OLD_KEYS: env.GRIEVANCE_SEAL_OLD_KEYS,
+            },
+            { minBits: env.APP_ENV === 'local' ? SEAL_MIN_BITS_LOCAL : SEAL_MIN_BITS },
+          ),
+        }
+      : {}),
     // 04 §3: RP ID = the admin host (env.ts checks it equals ADMIN_ORIGIN's hostname), exact origin.
     rp: { id: env.RP_ID, name: BRAND.adminName, origin: env.ADMIN_ORIGIN },
     challenges: redisChallengeStore(connections.redis),
     logger,
     // T3.6: Cloudinary on staging/production, a local directory locally (MEDIA_STORE).
     media: { store: mediaStoreFromEnv(env), origin: env.MEDIA_ORIGIN },
+    // T8.5: encrypted legal-order documents (Cloudinary `raw` + `authenticated`; a private local directory locally).
+    privateFiles: privateStoreFromEnv(env),
     // T6.1: YouTube oEmbed + thumbnail copies on staging/production; a mock without network locally (VIDEO_LOOKUP).
     video: await videoLookupFromEnv(env),
     notifier: pushNotifier(queues, logger),
     // T4.6: alerts are enqueued here, sent by the worker; the Super Admin's test alert exists outside production only.
     alerts: alertService(queues, logger),
+    // T8.2: takedowns purge the post's cached responses (enqueued here, purged by the worker).
+    cdn: cdnPurgeService(queues, logger),
     testAlerts: env.APP_ENV !== 'production',
     // T5.2: the UPI change-lock hold (env.ts refuses < 1440 in production).
     paymentHoldMinutes: env.PAYMENT_HOLD_MINUTES,

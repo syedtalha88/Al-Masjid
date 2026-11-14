@@ -4,12 +4,14 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { createApiClient } from '../api/client.ts';
 import {
+  acceptPrivacyNotice,
   clearAllData,
   finishPendingDeletion,
   syncPreferences,
   updatePreferences,
   wipeCachedContent,
 } from '../device/preferences.ts';
+import { PRIVACY_REMINDER_MS, privacyRecheck } from '../device/privacy-notice.ts';
 import { createDeviceStore, type DeviceStore, memoryBackend } from '../device/store.ts';
 import type { SyncDeps } from '../device/sync.ts';
 
@@ -85,10 +87,10 @@ describe('preferences', () => {
   it('changes the phone at once and the server device record (language and brother/sister together)', async () => {
     expect(await updatePreferences(deps, { audiencePref: 'sisters' })).toBe('saved');
     expect(store.current().audiencePref).toBe('sisters');
-    expect(patches).toEqual([{ locale: 'en', audiencePref: 'sisters' }]);
+    expect(patches).toEqual([{ locale: 'en', audiencePref: 'sisters', privacyVersion: 'draft-1' }]);
     expect(await updatePreferences(deps, { locale: 'ur' })).toBe('saved');
     expect(store.current().locale).toBe('ur');
-    expect(patches.at(-1)).toEqual({ locale: 'ur', audiencePref: 'sisters' });
+    expect(patches.at(-1)).toEqual({ locale: 'ur', audiencePref: 'sisters', privacyVersion: 'draft-1' });
     expect(store.current().prefsPending).toBeUndefined();
   });
 
@@ -100,7 +102,7 @@ describe('preferences', () => {
     expect(await syncPreferences(deps)).toBe('queued');
     mode = 'ok';
     expect(await syncPreferences(deps)).toBe('saved');
-    expect(patches).toEqual([{ locale: 'en', audiencePref: 'sisters' }]);
+    expect(patches).toEqual([{ locale: 'en', audiencePref: 'sisters', privacyVersion: 'draft-1' }]);
     expect(store.current().prefsPending).toBeUndefined();
     expect(await syncPreferences(deps)).toBe('none');
   });
@@ -214,5 +216,39 @@ describe('clear all data (05 §4, journey 12)', () => {
     });
     expect(await clearAllData(deps)).toBe('deleted');
     expect(deletes).toEqual([]);
+  });
+});
+
+describe('privacy notice re-acceptance (T8.6)', () => {
+  const at = (iso: string) => new Date(iso);
+  it('asks again when the server version differs, and a year after acceptance; never before onboarding or offline', () => {
+    const state = { onboardedAt: '2026-10-01T00:00:00.000Z', privacyVersion: 'draft-1' };
+    const soon = at('2026-11-13T00:00:00.000Z');
+    expect(privacyRecheck(state, 'draft-1', soon)).toBeNull();
+    expect(privacyRecheck(state, 'v2', soon)).toBe('changed');
+    expect(privacyRecheck(state, undefined, soon)).toBeNull();
+    expect(privacyRecheck({ privacyVersion: 'draft-1' }, 'v2', soon)).toBeNull();
+    // No acceptance time (phones onboarded before T8.6): the onboarding time stands in.
+    const yearOn = new Date(Date.parse(state.onboardedAt) + PRIVACY_REMINDER_MS);
+    expect(privacyRecheck(state, 'draft-1', yearOn)).toBe('yearly');
+    const accepted = { ...state, privacyAcceptedAt: '2026-11-01T00:00:00.000Z' };
+    expect(privacyRecheck(accepted, 'draft-1', yearOn)).toBeNull();
+    expect(
+      privacyRecheck(accepted, 'draft-1', new Date(Date.parse(accepted.privacyAcceptedAt) + PRIVACY_REMINDER_MS)),
+    ).toBe('yearly');
+  });
+
+  it('accepting stores the version and time on the phone and tells the server; offline it is queued', async () => {
+    const now = at('2026-11-13T06:00:00.000Z');
+    expect(await acceptPrivacyNotice(deps, 'v2', now)).toBe('saved');
+    expect(store.current()).toMatchObject({ privacyVersion: 'v2', privacyAcceptedAt: now.toISOString() });
+    expect(patches.at(-1)).toEqual({ locale: 'en', audiencePref: 'brothers', privacyVersion: 'v2' });
+    expect(privacyRecheck(store.current(), 'v2', now)).toBeNull();
+    mode = 'offline';
+    expect(await acceptPrivacyNotice(deps, 'v3', now)).toBe('queued');
+    expect(store.current()).toMatchObject({ privacyVersion: 'v3', prefsPending: true });
+    mode = 'ok';
+    expect(await syncPreferences(deps)).toBe('saved');
+    expect(patches.at(-1)).toMatchObject({ privacyVersion: 'v3' });
   });
 });

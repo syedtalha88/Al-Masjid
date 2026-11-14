@@ -191,6 +191,12 @@ if [ -d "$LOG_ARCHIVE" ]; then
   else
     bad "log archive is fresh (an archive from the last 2 hours)"
   fi
+  # Retention (02 §6, PHASE_08 T8.7): the 200-day cleanup runs — no day folder older than 201 days is left.
+  if [ -z "$(find "$LOG_ARCHIVE" -mindepth 1 -maxdepth 1 -type d -name '20*' -mtime +201 -print -quit 2>/dev/null)" ]; then
+    ok "log archive keeps no day folder past 200 days"
+  else
+    bad "log archive keeps no day folder past 200 days"
+  fi
 else
   bad "log archive directory exists ($LOG_ARCHIVE)"
 fi

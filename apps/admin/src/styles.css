@@ -4,3 +4,25 @@
 @source '../../../packages/ui/src';
 @source not '../../../packages/ui/src/tokens';
 @source not '../../../packages/ui/src/fonts';
+
+/*
+ * C3 QR poster (07 C3, PHASE_08 T8.8): the poster screen portals a print copy to <body> ([data-poster-print]);
+ * printing shows only that copy, edge to edge, with exact colours. The page size (A4 / A5) is an `@page` rule the
+ * screen adopts as a constructable stylesheet while it is open — the CSP forbids inline <style> (04 §7), and Chromium
+ * takes the PDF size from the document's `@page`, not from a named page on a later box (found by the page.pdf e2e).
+ */
+[data-poster-print] {
+  display: none;
+}
+@media print {
+  body:has(> [data-poster-print]) > :not([data-poster-print]) {
+    display: none !important;
+  }
+  [data-poster-print] {
+    display: block;
+  }
+}
+[data-poster] {
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}

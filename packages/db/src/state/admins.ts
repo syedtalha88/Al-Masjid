@@ -97,6 +97,10 @@ export async function addAdminToMasjid(
         },
         session,
       );
+      // Back on a masjid: no longer "removed" (02 §6 — the one-year anonymization clock stops).
+      await ctx.db
+        .collection<{ _id: UUID; removed_at?: Date }>('admin_users')
+        .updateOne({ _id: input.adminId, removed_at: { $exists: true } }, { $unset: { removed_at: '' } }, session);
       await writeAudit(ctx, {
         action: 'admin.add_to_masjid',
         masjidId: input.masjidId,
@@ -134,6 +138,16 @@ export async function removeAdminFromMasjid(
     await ctx.db
       .collection<{ _id: UUID; admin_count: number }>('masjids')
       .updateOne({ _id: input.masjidId }, { $inc: { admin_count: -1 }, $set: { updated_at: new Date() } }, session);
+    // Their last masjid: the admin counts as removed from now (02 §6 — anonymized a year later unless added back).
+    if ((await ctx.db.collection('masjid_admins').countDocuments({ admin_id: input.adminId }, session)) === 0) {
+      await ctx.db
+        .collection<{ _id: UUID; role: string; removed_at?: Date }>('admin_users')
+        .updateOne(
+          { _id: input.adminId, role: 'masjid_admin' },
+          { $set: { removed_at: input.now ?? new Date() } },
+          session,
+        );
+    }
     // Review L3 (#161): their open UPI request for this masjid closes with them.
     await closeRequestsOfRemovedAdmin(ctx, {
       adminId: input.adminId,

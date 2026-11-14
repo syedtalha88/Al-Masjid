@@ -136,7 +136,8 @@ export async function listExpiredItems(
 
 /**
  * Deletes one due post for good — after its files are gone — with its Ameens and Ameen counter, its campaign amount
- * history, and unlinks its chanda week (02 §5 "item purged by retention", #165 L2). One transaction; it re-checks that
+ * history, and unlinks its chanda week — or deletes it when moderation removed the post (02 §5 "item purged by
+ * retention", #165 L2, security re-review N-M2). One transaction; it re-checks that
  * the post is still due and not held.
  *
  * @returns whether it was deleted (false: no longer due — restored, already purged, or held meanwhile).
@@ -156,16 +157,89 @@ export async function deleteExpiredItem(
     if (held > 0) return false;
     const deleted = await ctx.db
       .collection<ItemDoc>('items')
-      .deleteOne({ _id: input.itemId, ...DUE(input.now) }, session);
-    if (deleted.deletedCount !== 1) return false;
+      .findOneAndDelete({ _id: input.itemId, ...DUE(input.now) }, { ...session, projection: { status: 1 } });
+    if (!deleted) return false;
     await ctx.db.collection<{ dua_item_id: UUID }>('ameens').deleteMany({ dua_item_id: input.itemId }, session);
     await ctx.db.collection<{ _id: UUID }>('ameen_counters').deleteOne({ _id: input.itemId }, session);
     await ctx.db
       .collection<{ campaign_item_id: UUID }>('campaign_amount_history')
       .deleteMany({ campaign_item_id: input.itemId }, session);
-    await ctx.db
-      .collection<{ item_id?: UUID }>('chanda_weeks')
-      .updateMany({ item_id: input.itemId }, { $unset: { item_id: '' } }, session);
+    const weeks = ctx.db.collection<{ item_id?: UUID }>('chanda_weeks');
+    if (deleted['status'] === 'removed') {
+      // A removed chanda post's week is the removed content (figures and note): it ends with the 180-day preservation.
+      // Unlinked instead, "Show chanda" or a save of that week would bring it back (security re-review N-M2).
+      await weeks.deleteMany({ item_id: input.itemId }, session);
+    } else {
+      // Deleted by its masjid: the week stays (the admin may publish it again); only the link goes.
+      await weeks.updateMany({ item_id: input.itemId }, { $unset: { item_id: '' } }, session);
+    }
     return true;
   });
+}
+
+/** The files of a post whose access follows its status, and which way (see {@link mediaForTakedown}). */
+export interface TakedownMedia extends PurgedMedia {
+  /** `true`: the post is not published (removed / hidden / deleted) — restrict; `false`: published — deliver again. */
+  readonly restrict: boolean;
+}
+
+/**
+ * The files whose access changes with a takedown (F73, PHASE_08 T8.2). The direction is the post's CURRENT status, never
+ * the caller's wish (security review M1: a stale retry or a crafted request could otherwise make a removed post's files
+ * public again): not published → its files no published post, masjid photo or Ruqyah recording also uses (those must
+ * keep working) are restricted; published → all of its files are delivered again.
+ *
+ * @throws StateError FORBIDDEN outside the system scope; ITEM_NOT_FOUND.
+ */
+export async function mediaForTakedown(
+  handle: DbHandle,
+  scope: Scope,
+  input: { readonly itemId: UUID },
+): Promise<TakedownMedia> {
+  if (scope.kind !== 'system') throw new StateError('FORBIDDEN');
+  const db = await handle.db();
+  const item = await db
+    .collection<ItemDoc & { status?: string }>('items')
+    .findOne({ _id: input.itemId }, { projection: { image_key: 1, video: 1, campaign: 1, voice: 1, status: 1 } });
+  if (!item) throw new StateError('ITEM_NOT_FOUND');
+  const media = mediaOf(item);
+  const restrict = item.status !== 'published';
+  if (!restrict || media.images.length + media.audio.length === 0) return { ...media, restrict };
+  const inUse = new Set<string>();
+  for (const row of await db
+    .collection<ItemDoc>('items')
+    .find(
+      {
+        _id: { $ne: input.itemId },
+        status: 'published',
+        $or: [
+          { image_key: { $in: media.images } },
+          { 'video.thumb_key': { $in: media.images } },
+          { 'campaign.cover_key': { $in: media.images } },
+          { 'voice.key': { $in: media.audio } },
+        ],
+      },
+      { projection: { image_key: 1, video: 1, campaign: 1, voice: 1 } },
+    )
+    .toArray()) {
+    const other = mediaOf(row);
+    for (const key of [...other.images, ...other.audio]) inUse.add(key);
+  }
+  for (const row of await db
+    .collection<{ photo_key?: string }>('masjids')
+    .find({ photo_key: { $in: media.images } }, { projection: { photo_key: 1 } })
+    .toArray()) {
+    if (row.photo_key) inUse.add(row.photo_key);
+  }
+  for (const row of await db
+    .collection<{ audio?: { key?: string } }>('ruqyah_entries')
+    .find({ 'audio.key': { $in: media.audio } }, { projection: { audio: 1 } })
+    .toArray()) {
+    if (row.audio?.key) inUse.add(row.audio.key);
+  }
+  return {
+    images: media.images.filter((key) => !inUse.has(key)),
+    audio: media.audio.filter((key) => !inUse.has(key)),
+    restrict,
+  };
 }

@@ -80,4 +80,15 @@ export const SCHEMA_AREAS: Readonly<
   // DECISIONS #161 (F69): a UPI request records the session that asked (`requested_session`) and, when closed because
   // its admin lost access, says so (`reject_code`).
   '0022_payment_reject_code': { collections: ['payment_profiles'] },
+  // PHASE_08 T8.1 (DECISIONS #170): `report-triage` marks the reports it has looked at (`triaged_at`) and records when
+  // it auto-hid an item (`hidden_at`).
+  '0023_report_triage': { collections: ['reports', 'items'] },
+  // PHASE_08 T8.2 (DECISIONS #171): the Super Admin's private note on a takedown (`removed_note`).
+  '0024_removed_note': { collections: ['items'] },
+  // PHASE_08 T8.3 (DECISIONS #172): the highest SLA alert sent per report (`sla_alerted`).
+  '0025_report_sla_alerted': { collections: ['reports'] },
+  // PHASE_08 T8.4 (DECISIONS #173): sealed grievance contacts (`s1:` pattern) and the SLA alert record.
+  '0026_grievance_seal': { collections: ['grievances'] },
+  // PHASE_08 T8.5 (DECISIONS #174): legal orders — target type enum, non-empty target, `sla_alerted` for the 3 h clock.
+  '0027_legal_orders': { collections: ['legal_orders'] },
 };

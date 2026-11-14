@@ -83,6 +83,8 @@ const stateSchema = z.object({
   audiencePref: z.optional(z.enum(['brothers', 'sisters'])),
   /** Privacy notice version accepted on onboarding page 4 (05 §2). */
   privacyVersion: z.optional(z.string().check(z.maxLength(20))),
+  /** When that version was accepted (onboarding, a changed notice, the yearly reminder — T8.6). */
+  privacyAcceptedAt: z.optional(instant),
   onboardedAt: z.optional(instant),
   /** Registration is owed (offline at "Continue", or the server forgot the device). */
   registrationPending: z.boolean(),

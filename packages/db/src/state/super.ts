@@ -1,5 +1,6 @@
 // Super Admin state functions (02 §3, 03 §5, PHASE_01 T1.11) and the admin's undertaking acceptance (T1.10). Each
 // asserts its scope (★ = fresh step-up), runs in one transaction and writes its audit entry there.
+import { mentionsPaymentAddress } from '@mc/domain/upi';
 import type { UUID } from 'mongodb';
 
 import { type DbHandle, type TxContext, withTransaction } from '../client.ts';
@@ -271,7 +272,15 @@ export async function acceptUndertaking(
   });
 }
 
-/** Global settings the Super Admin edits in C10 (kill switches arrive in Phase 8). */
+/** A banner in all four languages; `null` takes it down (PHASE_08 T8.9). */
+export interface BannerPatch {
+  readonly en: string;
+  readonly hi: string;
+  readonly ur: string;
+  readonly te: string;
+}
+
+/** Global settings the Super Admin edits in C10 (the ★ kill switches have their own functions). */
 export interface SettingsPatch {
   readonly globalHijriOffset?: -2 | -1 | 0 | 1 | 2;
   readonly defaultPushQuota?: number;
@@ -280,21 +289,40 @@ export interface SettingsPatch {
   readonly undertakingVersion?: string;
   readonly privacyVersion?: string;
   readonly termsVersion?: string;
+  readonly maintenanceBanner?: BannerPatch | null;
+  readonly incidentBanner?: BannerPatch | null;
+}
+
+const bannerDoc = (b: BannerPatch) => ({ en: b.en, hi: b.hi, ur: b.ur, te: b.te });
+
+/** Whether a settings patch puts up a banner (★ — every musalli or admin sees it; taking one down is not ★). */
+export function setsBanner(patch: {
+  readonly maintenanceBanner?: BannerPatch | null | undefined;
+  readonly incidentBanner?: BannerPatch | null | undefined;
+}): boolean {
+  return Boolean(patch.maintenanceBanner) || Boolean(patch.incidentBanner);
 }
 
 /**
- * Updates global settings (Super Admin) through the policy gateway (writable allow-list).
+ * Updates global settings (Super Admin) through the policy gateway (writable allow-list). Banners (T8.9) are set
+ * whole (all four languages) or taken down with `null`; `/config` shows them within its 60-second cache. Putting up a
+ * banner needs a step-up within the last 5 minutes and may not carry a payment address (04 R1, #160, #180 M5).
  *
  * @returns the database field names that changed.
- * @throws StateError FORBIDDEN, NOTHING_TO_UPDATE.
+ * @throws StateError FORBIDDEN, STEP_UP_REQUIRED (a banner without a fresh step-up), PAYMENT_DETAILS_IN_TEXT,
+ *   NOTHING_TO_UPDATE.
  */
 export async function updateSettings(
   handle: DbHandle,
   scope: Scope,
   input: { patch: SettingsPatch; requestId?: string; now?: Date },
 ): Promise<readonly string[]> {
-  const actor = requireSuper(scope);
   const p = input.patch;
+  const actor = requireSuper(scope, { stepUp: setsBanner(p), now: input.now ?? new Date() });
+  for (const banner of [p.maintenanceBanner, p.incidentBanner]) {
+    if (banner && [banner.en, banner.hi, banner.ur, banner.te].some((text) => mentionsPaymentAddress(text)))
+      throw new StateError('PAYMENT_DETAILS_IN_TEXT');
+  }
   const set: Record<string, unknown> = {
     ...(p.globalHijriOffset === undefined ? {} : { global_hijri_offset: p.globalHijriOffset }),
     ...(p.defaultPushQuota === undefined ? {} : { default_push_quota: p.defaultPushQuota }),
@@ -303,8 +331,14 @@ export async function updateSettings(
     ...(p.undertakingVersion === undefined ? {} : { undertaking_version: p.undertakingVersion }),
     ...(p.privacyVersion === undefined ? {} : { privacy_version: p.privacyVersion }),
     ...(p.termsVersion === undefined ? {} : { terms_version: p.termsVersion }),
+    ...(p.maintenanceBanner ? { maintenance_banner: bannerDoc(p.maintenanceBanner) } : {}),
+    ...(p.incidentBanner ? { incident_banner: bannerDoc(p.incidentBanner) } : {}),
   };
-  const unset = p.supportWhatsapp === null ? { support_whatsapp: '' } : {};
+  const unset = {
+    ...(p.supportWhatsapp === null ? { support_whatsapp: '' } : {}),
+    ...(p.maintenanceBanner === null ? { maintenance_banner: '' } : {}),
+    ...(p.incidentBanner === null ? { incident_banner: '' } : {}),
+  };
   const fields = [...Object.keys(set), ...Object.keys(unset)];
   if (fields.length === 0) throw new StateError('NOTHING_TO_UPDATE');
   await withTransaction(handle, scope, async (ctx) => {
@@ -348,6 +382,38 @@ export async function setPushPaused(
     if (changed === 1)
       await writeAudit(ctx, {
         action: input.paused ? 'push.pause' : 'push.resume',
+        targetType: 'settings',
+        targetId: 'global',
+        meta: {},
+        ...(input.requestId ? { requestId: input.requestId } : {}),
+      });
+    return changed === 1;
+  });
+}
+
+/**
+ * Admin read-only mode (C10 ★, PHASE_08 T8.9 — 04 §13 incident kill switch): while on, every masjid admin's write
+ * answers 503 `READ_ONLY_MODE` (enforced by api-admin's route layer from the resolved session); reading, signing in
+ * and out, and the Super Admin's own work go on. Needs a step-up within the last 5 minutes.
+ *
+ * @returns whether the value changed (audited `settings.read_only_on` / `settings.read_only_off` only then).
+ * @throws StateError FORBIDDEN (not super), STEP_UP_REQUIRED.
+ */
+export async function setAdminReadOnly(
+  handle: DbHandle,
+  scope: Scope,
+  input: { readonly readOnly: boolean; readonly requestId?: string; readonly now?: Date },
+): Promise<boolean> {
+  const now = input.now ?? new Date();
+  const actor = requireSuper(scope, { stepUp: true, now });
+  return withTransaction(handle, scope, async (ctx) => {
+    const changed = await scoped(ctx, 'app_settings').updateOne(
+      { _id: 'global', admin_read_only: { $ne: input.readOnly } },
+      { $set: { admin_read_only: input.readOnly, updated_by: actor.adminId, updated_at: now } },
+    );
+    if (changed === 1)
+      await writeAudit(ctx, {
+        action: input.readOnly ? 'settings.read_only_on' : 'settings.read_only_off',
         targetType: 'settings',
         targetId: 'global',
         meta: {},

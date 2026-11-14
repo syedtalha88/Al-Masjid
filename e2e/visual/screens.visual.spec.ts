@@ -1,7 +1,8 @@
 import { expect, settle, test } from '@mc/config/playwright';
 import type { Page } from '@playwright/test';
 
-import { APP_URL } from '../../playwright.config.ts';
+import { ADMIN_URL, APP_URL } from '../../playwright.config.ts';
+import { label, registerWithInvite, seedSuperAdminInvite, virtualAuthenticator } from '../admin/helpers.ts';
 import { followByCode, gotoAfterStart } from '../support/device.ts';
 import { VISUAL_NOW } from './visual-now.ts';
 
@@ -59,9 +60,40 @@ async function pinClock(page: Page) {
 
 const OPTIONS = { scale: 'css', animations: 'disabled', caret: 'hide' } as const;
 
+/** C12's answer in the visual run (fixed numbers; the hourly job is covered by stats-snapshot.int.test.ts). */
+const VISUAL_STATS = {
+  at: VISUAL_NOW,
+  now: {
+    masjids: { pending: 1, active: 4, suspended: 0, deleted: 0 },
+    devices: {
+      total: 120,
+      platform: { android: 100, ios: 15, desktop: 4, other: 1 },
+      locale: { en: 30, hi: 40, ur: 35, te: 15 },
+      push: { active: 90, dead: 5, none: 25 },
+    },
+    follows: 260,
+    push24h: { jobs: 3, sent: 180, failed: 6, successRate: 0.968 },
+    queues: { waiting: 0, active: 0, delayed: 1, failed: 0, lagS: 0 },
+    cloudinary: { usedPercent: 18.4, plan: 'Plus', credits: { usage: 4.6, limit: 25 } },
+    sla: {
+      reports: { onTime: 5, late: 0, rate: 1 },
+      grievanceAck: { onTime: 2, late: 0, rate: 1 },
+      grievanceResolve: { onTime: 1, late: 1, rate: 0.5 },
+    },
+  },
+  trend: [
+    { day: '2026-10-20', activeMasjids: 2, devices: 60, follows: 120, pushSent: 90, pushFailed: 2 },
+    { day: '2026-10-21', activeMasjids: 3, devices: 85, follows: 180, pushSent: 140, pushFailed: 4 },
+    { day: '2026-10-22', activeMasjids: 4, devices: 120, follows: 260, pushSent: 180, pushFailed: 6 },
+  ],
+};
+
 const shot = async (page: Page, locale: string, name: string) => {
   await ready(page);
   await expect(page).toHaveScreenshot([locale, `${name}.png`], OPTIONS);
+  // Opening Updates marks its items seen: the tab badge must be gone before the next screen, or whether the next
+  // baseline shows "9+" depends on timing (Phase 08 baselines caught both states).
+  if (name.endsWith('updates')) await expect(page.locator('[data-tab-button="updates"] [role="img"]')).toHaveCount(0);
 };
 
 for (const locale of LOCALES) {
@@ -141,6 +173,66 @@ for (const locale of LOCALES) {
       await gotoAfterStart(page, `${APP_URL}/qibla`);
       await expect(page.locator('[data-qibla-status="none"]')).toBeVisible({ timeout: 5000 });
       await shot(page, locale, 'qibla');
+    });
+
+    // PHASE_08 T8.11: what a musalli sees of moderation and the law — the report sheet on a post ("…" → Report; not
+    // sent), the grievance form and the legal readers (DRAFT texts until the owner's review — O55).
+    test(`report, grievance and legal pages (${locale})`, async ({ page, browserName }) => {
+      test.slow();
+      await pinClock(page);
+      await page.goto(APP_URL);
+      await followByCode(page, APP_URL, ['TESTA001']);
+      await gotoAfterStart(page, `${APP_URL}/items/seedA0000000`);
+      await ready(page);
+      await page.locator('section[data-screen]:not([inert]) [data-more-menu]').click();
+      await page
+        .getByRole('dialog', { name: label(locale, 'common', 'report.menuTitle') })
+        .getByRole('button', { name: label(locale, 'common', 'report.action') })
+        .click();
+      await expect(page.getByRole('dialog', { name: label(locale, 'common', 'report.titlePost') })).toBeVisible();
+      await settle(page);
+      // WebKit's sheet is not pixel-stable yet (compare run 13 Nov 2026: 3 of 4 locales differed) — Chromium only until
+      // fixed (tracked in PROGRESS, T8.11).
+      if (browserName === 'chromium') await expect(page).toHaveScreenshot([locale, 'report-sheet.png'], OPTIONS);
+      for (const [name, path] of [
+        ['grievance-form', '/settings/grievance'],
+        ['legal-privacy', '/settings/privacy'],
+        ['legal-terms', '/settings/terms'],
+        ['legal-content-policy', '/settings/content-policy'],
+      ] as const) {
+        await gotoAfterStart(page, `${APP_URL}${path}`);
+        await shot(page, locale, name);
+      }
+    });
+
+    // PHASE_08 T8.11: the Super Admin screens of this phase in the admin's language (Chromium only — the passkey sign-in
+    // uses its virtual authenticator): C3 poster (print-sheet baselines → Phase 9, #182), C5 reports, C6 grievances, C7 legal
+    // orders (empty in the fresh seed), C10 settings (kill switches, banners) and C12 stats (a fixed answer — the
+    // snapshot job has integration tests).
+    test(`super admin screens (${locale})`, async ({ page, browserName }) => {
+      test.skip(browserName !== 'chromium', 'the virtual authenticator is a Chromium feature');
+      test.slow();
+      await virtualAuthenticator(page);
+      const token = await seedSuperAdminInvite(page.request, 'Test Owner', locale);
+      await registerWithInvite(page, `${ADMIN_URL}/invite#${token}`, 'Test Owner', locale);
+      await page.clock.setFixedTime(new Date(VISUAL_NOW));
+      await page.route('**/api/super/stats', (route) => route.fulfill({ json: VISUAL_STATS }));
+      const list = (await (await page.request.get(`${ADMIN_URL}/api/super/masjids?q=TESTA001`)).json()) as {
+        masjids: { id: string; followCode: string }[];
+      };
+      const alpha = list.masjids.find((masjid) => masjid.followCode === 'TESTA001');
+      if (!alpha) throw new Error('seed masjid Alpha missing');
+      for (const [name, path] of [
+        ['c5-reports', '/super/reports'],
+        ['c6-grievances', '/super/grievances'],
+        ['c7-legal-orders', '/super/legal-orders'],
+        ['c10-settings', '/super/settings'],
+        ['c12-stats', '/super/stats'],
+        ['c3-poster', `/super/masjids/${alpha.id}/poster`],
+      ] as const) {
+        await page.goto(`${ADMIN_URL}${path}`);
+        await shot(page, locale, `admin-${name}`);
+      }
     });
 
     test.describe('first launch', () => {

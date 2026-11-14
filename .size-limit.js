@@ -24,9 +24,12 @@ import { join } from 'node:path';
  * call and its validated contract sit in the API client like every other endpoint (188.41 kB, +0.44 kB; the screen and
  * its pay sheet are lazy — DECISIONS #157, owner rule "quality over budgets"); 190 kB since Phase 07 — the Home Qibla
  * button in every build and the bayan contract's id / start-second checks (189.01 kB, +0.07 kB; the Qibla page is
- * lazy — DECISIONS #167).
+ * lazy — DECISIONS #167); 195 kB since Phase 08 — the "…" Report menu on every post and masjid, removed-post handling,
+ * the yearly legal re-acceptance check and the moderation fields in the public contracts (193.56 kB, +4.55 kB spread
+ * over many small pieces; the report sheet, legal readers and grievance form are lazy — DECISIONS #180, owner rule
+ * "quality over budgets").
  */
-const APP_INITIAL_JS = '190 kB';
+const APP_INITIAL_JS = '195 kB';
 const ADMIN_INITIAL_JS = '220 kB';
 const INITIAL_CSS = '25 kB';
 const LAZY_CHUNK = '60 kB';

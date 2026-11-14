@@ -57,6 +57,7 @@ admin,home.today.edit,Edit timings,సమయాలు మార్చండి,n
 admin,home.today.set,Set prayer times,నమాజ్ సమయాలు సెట్ చేయండి,no
 admin,home.quota,Notifications today: {used} of {limit} used,ఈరోజు నోటిఫికేషన్లు: {limit} లో {used} వాడారు,no
 admin,home.soon,Soon,త్వరలో,no
+admin,home.readOnly,Changes are paused for a short while for maintenance. You can still see everything. Please try again later.,నిర్వహణ కోసం మార్పులు కొద్దిసేపు ఆపివేయబడ్డాయి. మీరు అన్నీ చూడవచ్చు. దయచేసి కొంతసేపటి తర్వాత మళ్లీ ప్రయత్నించండి.,no
 admin,comingSoon.title,Coming soon,త్వరలో వస్తోంది,no
 admin,comingSoon.body,This part of the app is being built. It will appear here in an update.,యాప్‌లో ఈ భాగం తయారవుతోంది. ఇది ఒక అప్‌డేట్‌లో ఇక్కడ కనిపిస్తుంది.,no
 admin,account.title,My account,నా ఖాతా,no
@@ -361,6 +362,7 @@ admin,posts.types.daily_content,Hadith / Ayah,హదీస్ / ఆయత్,no
 admin,posts.types.dua_request,Dua requests,దువా విన్నపాలు,no
 admin,posts.types.timing_update,Timing updates,సమయ మార్పులు,no
 admin,posts.status.published,Published,ప్రచురించబడింది,no
+admin,posts.status.hidden,Hidden for review,సమీక్ష కోసం దాచబడింది,no
 admin,posts.status.deleted,Deleted,తొలగించబడింది,no
 admin,posts.status.removed,Removed by moderation,మోడరేషన్ తొలగించింది,no
 admin,posts.removedReason,Reason: {reason},కారణం: {reason},no
@@ -384,6 +386,16 @@ admin,posts.staleBody,Someone saved it after you opened it. Please open it again
 admin,posts.openPosts,Open My Posts,నా పోస్ట్‌లు తెరవండి,no
 admin,posts.viewPosts,View in My Posts,నా పోస్ట్‌లలో చూడండి,no
 admin,posts.editTitle,Edit post,పోస్ట్‌ను మార్చండి,no
+admin,posts.hiddenHint,"Many people reported this post, so it is hidden while the app team checks it. You don't need to do anything.","చాలా మంది ఈ పోస్ట్‌ను రిపోర్ట్ చేశారు, అందుకే యాప్ టీమ్ పరిశీలించే వరకు ఇది దాచబడింది. మీరు ఏమీ చేయనవసరం లేదు.",no
+admin,posts.category.misleading,Misleading or false,తప్పుదారి పట్టించేది లేదా అబద్ధం,no
+admin,posts.category.hateful,Hateful or offensive,ద్వేషపూరితం లేదా అవమానకరం,no
+admin,posts.category.off_topic,Not about religion or the community,మతం లేదా సమాజానికి సంబంధం లేనిది,no
+admin,posts.category.fraud,Fraud or fake donation,మోసం లేదా నకిలీ విరాళం,no
+admin,posts.category.private_info,Personal or private information,వ్యక్తిగత లేదా ప్రైవేట్ సమాచారం,no
+admin,posts.category.copyright,Copyright,కాపీరైట్,no
+admin,posts.category.other,Against the content policy,కంటెంట్ విధానానికి విరుద్ధం,no
+admin,posts.category.legal_order,Court or government order,కోర్టు లేదా ప్రభుత్వ ఆదేశం,no
+admin,posts.readPolicy,Read the content policy,కంటెంట్ విధానం చదవండి,no
 admin,profile.title,Masjid Profile,మస్జిద్ ప్రొఫైల్,no
 admin,profile.photo,Photo,ఫోటో,no
 admin,profile.photoNone,No photo yet,ఇంకా ఫోటో లేదు,no
@@ -796,6 +808,18 @@ admin,needy.issue.cap,the amount needed,కావలసిన మొత్తం
 admin,needy.issue.phone,a valid phone number,సరైన ఫోన్ నంబర్,no
 admin,needy.issue.consent,the tick that they agreed,అంగీకార టిక్,no
 admin,needy.personSaved,Person saved,వ్యక్తి వివరాలు సేవ్ అయ్యాయి,no
+admin,legal.title,Legal,చట్టపరమైనవి,no
+admin,legal.notFound,This page does not exist.,ఈ పేజీ లేదు.,no
+admin,legal.privacy,Privacy policy,గోప్యతా విధానం,no
+admin,legal.terms,Terms of use,వినియోగ నిబంధనలు,no
+admin,legal.contentPolicy,Content policy,కంటెంట్ విధానం,no
+admin,legal.grievance,Grievances,ఫిర్యాదులు,no
+admin,legal.undertaking,Admin undertaking,అడ్మిన్ హామీపత్రం,no
+admin,legal.licenses,Open-source licenses,ఓపెన్-సోర్స్ లైసెన్స్‌లు,no
+admin,legal.draft,DRAFT — requires legal review,డ్రాఫ్ట్ — చట్టపరమైన సమీక్ష అవసరం,no
+admin,legal.draftTranslation,DRAFT TRANSLATION,డ్రాఫ్ట్ అనువాదం,no
+admin,legal.version,Version {version},వెర్షన్ {version},no
+admin,legal.licensesLead,"This app is built with these open-source packages, fonts and texts. Thank you to their authors.","ఈ యాప్ ఈ ఓపెన్-సోర్స్ ప్యాకేజీలు, ఫాంట్‌లు, పాఠాలతో తయారైంది. వాటి రచయితలకు ధన్యవాదాలు.",no
 common,appError.title,Something went wrong,ఏదో పొరపాటు జరిగింది,no
 common,appError.body,"Please try again. If it keeps happening, check your internet connection.","దయచేసి మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే, మీ ఇంటర్నెట్ కనెక్షన్ చూడండి.",no
 common,appError.retry,Try again,మళ్లీ ప్రయత్నించండి,no
@@ -984,6 +1008,31 @@ common,qibla.motionButton,Turn on compass,కంపాస్ ఆన్ చేయ
 common,qibla.motionDenied,The compass is off. The direction is shown in degrees instead.,కంపాస్ ఆఫ్‌లో ఉంది. దిశ డిగ్రీలలో చూపబడింది.,no
 common,qibla.noCompass,Face {degrees}° from North — use your phone's compass app if you need to,ఉత్తరం నుండి {degrees}° వైపు తిరగండి — అవసరమైతే మీ ఫోన్ కంపాస్ యాప్ ఉపయోగించండి,no
 common,qibla.dialLabel,Compass: the Kaaba is {degrees}° from North,కంపాస్: కాబా ఉత్తరం నుండి {degrees}° వద్ద ఉంది,no
+common,report.more,More options,మరిన్ని ఎంపికలు,no
+common,report.menuTitle,Options,ఎంపికలు,no
+common,report.action,Report,రిపోర్ట్ చేయండి,no
+common,report.titlePost,Report this post,ఈ పోస్ట్‌ను రిపోర్ట్ చేయండి,no
+common,report.titleMasjid,Report this masjid,ఈ మస్జిద్‌ను రిపోర్ట్ చేయండి,no
+common,report.reasonLegend,What is wrong with it?,ఇందులో ఏమి తప్పు ఉంది?,no
+common,report.reason.misleading,Misleading or false,తప్పుదారి పట్టించేది లేదా అబద్ధం,no
+common,report.reason.hateful,Hateful or offensive,ద్వేషపూరితం లేదా అవమానకరం,no
+common,report.reason.off_topic,Not about religion or the community,మతం లేదా సమాజానికి సంబంధం లేనిది,no
+common,report.reason.fraud,Fraud or fake donation,మోసం లేదా నకిలీ విరాళం,no
+common,report.reason.private_info,Personal or private information,వ్యక్తిగత లేదా ప్రైవేట్ సమాచారం,no
+common,report.reason.copyright,Copyright,కాపీరైట్,no
+common,report.reason.other,Something else,ఇంకేదైనా,no
+common,report.privateInfoHint,"Photos or details of someone shared without permission, or someone pretending to be another person","అనుమతి లేకుండా ఒకరి ఫోటోలు లేదా వివరాలు షేర్ చేయడం, లేదా వేరొకరిలా నటించడం",no
+common,report.details,Details,వివరాలు,no
+common,report.detailsHint,Don't write your name or phone number.,మీ పేరు లేదా ఫోన్ నంబర్ రాయకండి.,no
+common,report.send,Send report,రిపోర్ట్ పంపండి,no
+common,report.sending,Sending…,పంపుతోంది…,no
+common,report.thanksTitle,Thank you,ధన్యవాదాలు,no
+common,report.thanksBody,The app team will look at it. The masjid never sees who sent a report.,యాప్ టీమ్ దీన్ని చూస్తుంది. రిపోర్ట్ ఎవరు పంపారో మస్జిద్‌కు ఎప్పటికీ తెలియదు.,no
+common,report.done,Done,పూర్తయింది,no
+common,report.offline,You're offline. Try again when you're connected.,మీరు ఆఫ్‌లైన్‌లో ఉన్నారు. కనెక్ట్ అయ్యాక మళ్లీ ప్రయత్నించండి.,no
+common,report.limit,You have sent the most reports allowed for today. Try again tomorrow.,ఈ రోజుకు అనుమతించిన అన్ని రిపోర్ట్‌లను మీరు పంపారు. రేపు మళ్లీ ప్రయత్నించండి.,no
+common,report.gone,"This is no longer shown in the app, so there is nothing to report.","ఇది ఇప్పుడు యాప్‌లో కనిపించడం లేదు, కాబట్టి రిపోర్ట్ చేయడానికి ఏమీ లేదు.",no
+common,report.failed,The report could not be sent. Please try again.,రిపోర్ట్ పంపలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
 content,announcements,Announcements,ప్రకటనలు,no
 content,hadithQuran,Hadith & Quran,హదీస్ & ఖుర్ఆన్,no
 content,duaRequests,Dua Requests,దువా విన్నపాలు,no
@@ -1051,6 +1100,8 @@ content,source,Source: {name},మూలం: {name},no
 content,license,Licence: {license},లైసెన్స్: {license},no
 content,gone,This post is no longer available,ఈ పోస్ట్ ఇక అందుబాటులో లేదు,no
 content,goneBody,The masjid may have removed it.,మస్జిద్ దీన్ని తీసేసి ఉండవచ్చు.,no
+content,goneVideo,This video was removed from the app,ఈ వీడియో యాప్ నుండి తొలగించబడింది,no
+content,goneVideoBody,It may still be on the masjid's YouTube channel.,ఇది ఇంకా మస్జిద్ YouTube ఛానెల్‌లో ఉండవచ్చు.,no
 content,back,Go back,వెనక్కి వెళ్ళండి,no
 content,adhkarTitle,Adhkar after salah,నమాజ్ తర్వాత అజ్కార్,no
 content,emptyAdhkar,No adhkar yet,ఇంకా అజ్కార్ లేవు,no
@@ -1192,12 +1243,16 @@ errors,INVALID_TRANSITION,This change isn’t possible right now.,ఈ మార�
 errors,ACTIVATION_REQUIREMENTS,This masjid needs an active admin who has accepted the undertaking before it can go live.,మస్జిద్‌ను ప్రారంభించే ముందు హామీ పత్రాన్ని అంగీకరించిన ఒక యాక్టివ్ అడ్మిన్ ఉండాలి.,no
 errors,UNDERTAKING_REQUIRED,Please read and accept the admin undertaking first.,దయచేసి ముందుగా అడ్మిన్ హామీ పత్రాన్ని చదివి అంగీకరించండి.,no
 errors,UNDERTAKING_VERSION_MISMATCH,The undertaking was updated. Please read the new version and accept it.,హామీ పత్రం మారింది. దయచేసి కొత్తదాన్ని చదివి అంగీకరించండి.,no
+errors,READ_ONLY_MODE,Changes are paused for a short while for maintenance. Your masjid's page still works. Please try again later.,నిర్వహణ కోసం మార్పులు కొద్దిసేపు ఆపివేయబడ్డాయి. మీ మసీదు పేజీ పనిచేస్తోంది. దయచేసి కొంతసేపటి తర్వాత మళ్లీ ప్రయత్నించండి.,no
 errors,ADMIN_NOT_FOUND,We couldn’t find this admin.,ఈ అడ్మిన్ కనబడలేదు.,no
 errors,NOTHING_TO_UPDATE,Nothing was changed.,ఏదీ మార్చలేదు.,no
 errors,INVALID_CURSOR,This list changed. Please reload it.,ఈ జాబితా మారింది. దయచేసి మళ్లీ లోడ్ చేయండి.,no
 errors,NETWORK,You seem to be offline. Please check your connection and try again.,మీరు ఆఫ్‌లైన్‌లో ఉన్నట్లున్నారు. దయచేసి కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి.,no
 errors,ITEM_NOT_FOUND,This post is no longer available.,ఈ పోస్ట్ ఇప్పుడు అందుబాటులో లేదు.,no
 errors,TURNSTILE_FAILED,We could not check that this is a real phone. Please try again.,ఇది నిజమైన ఫోన్ అని మేము నిర్ధారించలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+errors,REPORT_TARGET_NOT_FOUND,"This is no longer shown in the app, so there is nothing to report.","ఇది ఇప్పుడు యాప్‌లో కనిపించడం లేదు, కాబట్టి రిపోర్ట్ చేయడానికి ఏమీ లేదు.",no
+errors,REPORT_NOT_FOUND,This report is already closed.,ఈ రిపోర్ట్ ఇప్పటికే మూసివేయబడింది.,no
+errors,ITEM_ALREADY_REMOVED,This post was already removed.,ఈ పోస్ట్ ఇప్పటికే తొలగించబడింది.,no
 errors,LIBRARY_ENTRY_NOT_FOUND,This library entry no longer exists.,ఈ లైబ్రరీ ఎంట్రీ ఇప్పుడు లేదు.,no
 errors,LIBRARY_DUPLICATE,An entry with this kind and reference is already in the library.,ఇదే రకం మరియు రిఫరెన్స్‌తో ఉన్న ఎంట్రీ ఇప్పటికే లైబ్రరీలో ఉంది.,no
 errors,TEMPLATE_NOT_FOUND,This template no longer exists.,ఈ టెంప్లేట్ ఇప్పుడు లేదు.,no
@@ -1252,9 +1307,15 @@ errors,CAMPAIGN_CLOSED,This donation drive has closed. The amount can no longer 
 errors,CAMPAIGN_TARGET_LOWER,"The target can only be raised, not lowered.","లక్ష్యాన్ని పెంచవచ్చు మాత్రమే, తగ్గించలేరు.",no
 errors,CHANDA_INVALID,Please check the week and the amount.,దయచేసి వారం మరియు మొత్తాన్ని తనిఖీ చేయండి.,no
 errors,CHANDA_HIDDEN,Turn on “Show chanda to followers” before notifying them.,తెలియజేసే ముందు “ఫాలోవర్లకు చందా చూపించు” ఆన్ చేయండి.,no
+errors,CHANDA_UNDER_REVIEW,This week’s chanda post is being reviewed after reports. You can change it once the review is done.,రిపోర్టుల తర్వాత ఈ వారం చందా పోస్ట్ సమీక్షలో ఉంది. సమీక్ష పూర్తయిన తర్వాత మీరు దీన్ని మార్చవచ్చు.,no
 errors,BENEFICIARY_INVALID,"Please check the UPI ID, the name on the UPI account and the amount needed.","దయచేసి UPI ID, UPI ఖాతా పేరు, అవసరమైన మొత్తం సరిచూడండి.",no
 errors,BENEFICIARY_NOT_FOUND,This person is no longer on the list.,ఈ వ్యక్తి ఇప్పుడు జాబితాలో లేరు.,no
 errors,BENEFICIARY_LIMIT_REACHED,You can list up to 100 people at a time. Close one to add another.,మీరు ఒకేసారి గరిష్ఠంగా 100 మందిని ఉంచవచ్చు. కొత్తవారిని చేర్చడానికి ఒకరిని ముగించండి.,no
+errors,GRIEVANCE_NOT_FOUND,This grievance was not found or is already closed.,ఈ ఫిర్యాదు కనబడలేదు లేదా ఇప్పటికే మూసివేయబడింది.,no
+errors,GRIEVANCE_CONTACT_UNAVAILABLE,"A contact cannot be taken right now. Send it without one, or try again later.",ఇప్పుడు సంప్రదింపు వివరాలు తీసుకోలేము. అది లేకుండా పంపండి లేదా తర్వాత ప్రయత్నించండి.,no
+errors,LEGAL_ORDER_NOT_FOUND,This legal order was not found or is closed.,ఈ చట్టపరమైన ఆదేశం కనబడలేదు లేదా ముగిసింది.,no
+errors,LEGAL_TARGET_NOT_FOUND,No post or masjid matches that. Check the link or follow code.,దీనికి సరిపోయే పోస్ట్ లేదా మస్జిద్ లేదు. లింక్ లేదా ఫాలో కోడ్ చూడండి.,no
+errors,LEGAL_ORDER_LOG_FULL,This order's log is full.,ఈ ఆదేశ లాగ్ నిండిపోయింది.,no
 follow,scan.title,Scan masjid QR,మసీదు QR స్కాన్ చేయండి,no
 follow,scan.hint,Point your camera at the QR code on the masjid poster.,మీ కెమెరాను మసీదు పోస్టర్‌పై ఉన్న QR కోడ్ వైపు చూపండి.,no
 follow,scan.torch,Flashlight,టార్చ్,no
@@ -1397,6 +1458,24 @@ push,alert.payment_rejected.title,UPI change not approved,UPI మార్పు
 push,alert.payment_rejected.body,Your UPI change was not approved. Open Payment to see why.,మీ UPI మార్పు ఆమోదించబడలేదు. కారణం చూడటానికి చెల్లింపు తెరవండి.,no
 push,alert.payment_active.title,New UPI details are live,కొత్త UPI వివరాలు అమలులో ఉన్నాయి,no
 push,alert.payment_active.body,"Your masjid's new UPI details are now shown to everyone, and followers were told. If you didn't ask for this, tell the Super Admin now.","మీ మసీదు కొత్త UPI వివరాలు ఇప్పుడు అందరికీ కనిపిస్తున్నాయి, ఫాలోవర్లకు తెలియజేయబడింది. మీరు అడగకపోతే, ఇప్పుడే సూపర్ అడ్మిన్‌కు చెప్పండి.",no
+push,alert.report_urgent.title,Urgent report,అత్యవసర రిపోర్ట్,no
+push,alert.report_urgent.body,A post or masjid was reported for personal or private information. Review it in Reports within 2 hours.,ఒక పోస్ట్ లేదా మస్జిద్‌పై వ్యక్తిగత లేదా ప్రైవేట్ సమాచారం గురించి రిపోర్ట్ వచ్చింది. 2 గంటల్లోపు రిపోర్ట్స్‌లో చూడండి.,no
+push,alert.report_autohide.title,Post hidden after many reports,చాలా రిపోర్ట్‌ల తర్వాత పోస్ట్ దాచబడింది,no
+push,alert.report_autohide.body,A post was hidden automatically because many people reported it. Review it in Reports.,"చాలా మంది ఒక పోస్ట్‌ను రిపోర్ట్ చేశారు, అందుకే అది ఆటోమేటిక్‌గా దాచబడింది. రిపోర్ట్స్‌లో చూడండి.",no
+push,alert.item_removed.title,A post was removed,ఒక పోస్ట్ తొలగించబడింది,no
+push,alert.item_removed.body,A post from your masjid was removed by the app team. Open My Posts to see the reason.,యాప్ టీమ్ మీ మస్జిద్ పోస్ట్‌ను ఒకదాన్ని తొలగించింది. కారణం చూడటానికి నా పోస్ట్‌లు తెరవండి.,no
+push,alert.sla_50.title,Half the time has passed,సగం సమయం గడిచిపోయింది,no
+push,alert.sla_50.body,Something in Reports has used half of the time allowed to handle it. Open the dashboard.,రిపోర్ట్స్‌లో ఒకదానికి ఇచ్చిన సమయంలో సగం గడిచిపోయింది. డాష్‌బోర్డ్ తెరవండి.,no
+push,alert.sla_80.title,Deadline is close,గడువు దగ్గరగా ఉంది,no
+push,alert.sla_80.body,Something in Reports must be handled soon — most of its time has passed. Open the dashboard.,రిపోర్ట్స్‌లో ఒకటి త్వరలో పరిష్కరించాలి — దాని సమయం చాలా వరకు గడిచింది. డాష్‌బోర్డ్ తెరవండి.,no
+push,alert.sla_100.title,Deadline passed,గడువు దాటిపోయింది,no
+push,alert.sla_100.body,Something in Reports is past its deadline. Handle it now from the dashboard.,రిపోర్ట్స్‌లో ఒకటి గడువు దాటింది. ఇప్పుడే డాష్‌బోర్డ్ నుండి పరిష్కరించండి.,no
+push,alert.retention_failed.title,Retention run failed,శుభ్రత పని విఫలమైంది,no
+push,alert.retention_failed.body,The daily clean-up could not finish. It will try again; see the audit log.,రోజువారీ శుభ్రత పూర్తి కాలేదు. ఇది మళ్లీ ప్రయత్నిస్తుంది; ఆడిట్ లాగ్ చూడండి.,no
+push,alert.cloudinary_70.title,Media storage 70% used,మీడియా స్టోరేజ్ 70% వాడబడింది,no
+push,alert.cloudinary_70.body,This month's Cloudinary credits are 70% used. Check Stats.,ఈ నెల Cloudinary క్రెడిట్లు 70% వాడబడ్డాయి. గణాంకాలు చూడండి.,no
+push,alert.cloudinary_90.title,Media storage 90% used,మీడియా స్టోరేజ్ 90% వాడబడింది,no
+push,alert.cloudinary_90.body,This month's Cloudinary credits are 90% used. Photos and voice notes may stop soon. Check Stats now.,"ఈ నెల Cloudinary క్రెడిట్లు 90% వాడబడ్డాయి. ఫోటోలు, వాయిస్ నోట్లు త్వరలో ఆగిపోవచ్చు. ఇప్పుడే గణాంకాలు చూడండి.",no
 settings,language,Language,భాష,no
 settings,languageSheet,Choose your language,మీ భాషను ఎంచుకోండి,no
 settings,audience,Brother / Sister,సోదరుడు / సోదరి,no
@@ -1461,7 +1540,6 @@ settings,docVersion,Version {version},వెర్షన్ {version},no
 settings,officer,Grievance Officer,ఫిర్యాదుల అధికారి,no
 settings,officerTimes,We acknowledge every complaint within 24 hours.,ప్రతి ఫిర్యాదును 24 గంటల్లోపు స్వీకరించినట్లు తెలియజేస్తాం.,no
 settings,emailOfficer,Email the Grievance Officer,ఫిర్యాదుల అధికారికి ఈమెయిల్ చేయండి,no
-settings,formSoon,"A complaint form inside the app is coming soon. Until then, please write by email.",యాప్‌లోనే ఫిర్యాదు ఫారం త్వరలో వస్తుంది. అప్పటి వరకు దయచేసి ఈమెయిల్ ద్వారా రాయండి.,no
 settings,officerOffline,Connect to the internet to see the Grievance Officer’s details.,ఫిర్యాదుల అధికారి వివరాలు చూడటానికి ఇంటర్నెట్‌కు కనెక్ట్ అవ్వండి.,no
 settings,aboutFree,"Free forever. No ads, ever. No account. No tracking.",ఎప్పటికీ ఉచితం. ప్రకటనలు ఎప్పుడూ లేవు. ఖాతా లేదు. ట్రాకింగ్ లేదు.,no
 settings,aboutCommunity,Made for the community.,సమాజం కోసం తయారు చేయబడింది.,no
@@ -1522,15 +1600,51 @@ settings,push.noMasjids,Follow a masjid to get its notifications.,నోటి�
 settings,push.askTitle,Turn on notifications?,నోటిఫికేషన్‌లు ఆన్ చేయాలా?,no
 settings,push.askAllow,Turn on,ఆన్ చేయండి,no
 settings,push.askLater,Not now,ఇప్పుడు కాదు,no
+settings,grievanceForm.title,Send a grievance,ఫిర్యాదు పంపండి,no
+settings,grievanceForm.category,What is it about?,ఇది దేని గురించి?,no
+settings,grievanceForm.categories.privacy,My privacy or my data,నా గోప్యత లేదా నా డేటా,no
+settings,grievanceForm.categories.content,Something in the app,యాప్‌లో ఏదో,no
+settings,grievanceForm.categories.technical,The app does not work,యాప్ పని చేయడం లేదు,no
+settings,grievanceForm.categories.feedback,An idea or feedback,ఒక ఆలోచన లేదా అభిప్రాయం,no
+settings,grievanceForm.categories.other,Something else,ఇంకేదైనా,no
+settings,grievanceForm.description,What happened?,ఏమి జరిగింది?,no
+settings,grievanceForm.descriptionHint,Please don't write anyone's private details.,దయచేసి ఎవరి ప్రైవేట్ వివరాలూ రాయకండి.,no
+settings,grievanceForm.contact,Your e-mail or phone,మీ ఇ-మెయిల్ లేదా ఫోన్,no
+settings,grievanceForm.contactHint,Only if you want a reply. It is kept locked; only the Grievance Officer can see it.,మీకు సమాధానం కావాలంటే మాత్రమే. ఇది లాక్ చేసి ఉంచబడుతుంది; ఫిర్యాదుల అధికారి మాత్రమే చూడగలరు.,no
+settings,grievanceForm.send,Send,పంపండి,no
+settings,grievanceForm.sending,Sending…,పంపుతోంది…,no
+settings,grievanceForm.doneTitle,Received,అందింది,no
+settings,grievanceForm.doneRef,Your reference:,మీ రిఫరెన్స్:,no
+settings,grievanceForm.doneAck,We will acknowledge it within 24 hours.,24 గంటల్లోపు దీన్ని స్వీకరించినట్లు తెలియజేస్తాము.,no
+settings,grievanceForm.offline,You're offline. Try again when you're connected.,మీరు ఆఫ్‌లైన్‌లో ఉన్నారు. కనెక్ట్ అయ్యాక మళ్లీ ప్రయత్నించండి.,no
+settings,grievanceForm.limit,You have sent the most grievances allowed for today. Try again tomorrow.,ఈ రోజుకు అనుమతించిన అన్ని ఫిర్యాదులను మీరు పంపారు. రేపు మళ్లీ ప్రయత్నించండి.,no
+settings,grievanceForm.contactUnavailable,"A contact cannot be taken right now. Send it without one, or try again later.",ఇప్పుడు సంప్రదింపు వివరాలు తీసుకోలేము. అది లేకుండా పంపండి లేదా తర్వాత ప్రయత్నించండి.,no
+settings,grievanceForm.failed,It could not be sent. Please try again.,పంపలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
+settings,terms,Terms of use,వినియోగ నిబంధనలు,no
+settings,contentPolicy,Content policy,కంటెంట్ విధానం,no
+settings,licenses,Open-source licenses,ఓపెన్-సోర్స్ లైసెన్స్‌లు,no
+settings,licensesLead,"This app is built with these open-source packages, fonts and texts. Thank you to their authors.","ఈ యాప్ ఈ ఓపెన్-సోర్స్ ప్యాకేజీలు, ఫాంట్‌లు, పాఠాలతో తయారైంది. వాటి రచయితలకు ధన్యవాదాలు.",no
+settings,draftTranslation,DRAFT TRANSLATION,డ్రాఫ్ట్ అనువాదం,no
+settings,grievanceHow,How grievances are handled,ఫిర్యాదులు ఎలా పరిష్కరించబడతాయి,no
+settings,privacyNotice.changedTitle,Our privacy notice has changed,మా గోప్యతా నోటీసు మారింది,no
+settings,privacyNotice.changedLead,Please read the updated notice. You can keep using the app after you accept it.,దయచేసి కొత్త నోటీసు చదవండి. అంగీకరించిన తర్వాత యాప్ వాడడం కొనసాగించవచ్చు.,no
+settings,privacyNotice.yearlyTitle,Your yearly privacy reminder,మీ వార్షిక గోప్యతా గుర్తు,no
+settings,privacyNotice.yearlyLead,Once a year we show you what we keep and why. Nothing has changed unless the notice says so.,"సంవత్సరానికి ఒకసారి మేము ఏమి ఉంచుతామో, ఎందుకో చూపిస్తాము. నోటీసులో చెప్పకపోతే ఏమీ మారలేదు.",no
+settings,privacyNotice.accept,I understand,నాకు అర్థమైంది,no
+settings,privacyNotice.failed,Could not save. Please try again.,సేవ్ చేయలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.,no
 super,title,Super Admin,సూపర్ అడ్మిన్,no
 super,nav.label,Super Admin sections,సూపర్ అడ్మిన్ విభాగాలు,no
 super,nav.dashboard,Dashboard,డాష్‌బోర్డ్,no
+super,nav.reports,Reports,రిపోర్ట్‌లు,no
+super,nav.grievances,Grievances,ఫిర్యాదులు,no
 super,nav.masjids,Masjids,మస్జిద్‌లు,no
 super,nav.settings,Settings,సెట్టింగ్స్,no
 super,nav.audit,Audit log,ఆడిట్ లాగ్,no
 super,nav.library,Content Library,కంటెంట్ లైబ్రరీ,no
 super,nav.templates,Notice templates,నోటీసు టెంప్లేట్‌లు,no
 super,nav.payments,Payment approvals,చెల్లింపు ఆమోదాలు,no
+super,nav.legal,Legal orders,చట్టపరమైన ఆదేశాలు,no
+super,nav.stats,Stats,గణాంకాలు,no
 super,status.pending,Pending,పెండింగ్,no
 super,status.active,Active,యాక్టివ్,no
 super,status.suspended,Suspended,నిలిపివేయబడింది,no
@@ -1542,6 +1656,13 @@ super,dashboard.campaigns,Active donation campaigns,నడుస్తున్�
 super,dashboard.passkeyAlert,"{count, plural, one {# login was} other {# logins were}} blocked in the last 30 days because a phone may have been copied. Give each affected admin a new login link.","గత 30 రోజుల్లో {count, plural, one {# లాగిన్} other {# లాగిన్‌లు}} నిలిపివేయబడింది, ఎందుకంటే ఒక ఫోన్ కాపీ చేయబడి ఉండవచ్చు. ప్రభావితమైన ప్రతి అడ్మిన్‌కు కొత్త లాగిన్ లింక్ ఇవ్వండి.",no
 super,dashboard.changeRequests,Requested changes,మార్పు అభ్యర్థనలు,no
 super,dashboard.noChangeRequests,No change requests from admins.,అడ్మిన్ల నుండి మార్పు అభ్యర్థనలు లేవు.,no
+super,dashboard.sla,Deadlines,గడువులు,no
+super,dashboard.slaUrgentReport,Urgent report,అత్యవసర రిపోర్ట్,no
+super,dashboard.slaReport,Report,రిపోర్ట్,no
+super,dashboard.slaRed,Under 20 % left,20% కంటే తక్కువ సమయం మిగిలింది,no
+super,dashboard.slaGrievanceAck,Grievance — acknowledge,ఫిర్యాదు — స్వీకరించండి,no
+super,dashboard.slaGrievanceResolve,Grievance — resolve,ఫిర్యాదు — పరిష్కరించండి,no
+super,dashboard.slaLegalOrder,Legal order — act,చట్టపరమైన ఆదేశం — చర్య తీసుకోండి,no
 super,masjids.search,"Search by name, city or code","పేరు, నగరం లేదా కోడ్‌తో వెతకండి",no
 super,masjids.all,All,అన్నీ,no
 super,masjids.new,New masjid,కొత్త మస్జిద్,no
@@ -1580,6 +1701,7 @@ super,form.create,Create masjid,మస్జిద్ సృష్టించ�
 super,form.save,Save changes,మార్పులు సేవ్ చేయండి,no
 super,form.required,Required,తప్పనిసరి,no
 super,detail.followers,"{count, plural, one {# follower} other {# followers}}","{count, plural, one {# ఫాలోవర్} other {# ఫాలోవర్లు}}",no
+super,detail.removals90d,Removed by moderation (90 days),మోడరేషన్ తొలగించినవి (90 రోజులు),no
 super,detail.followCode,Follow code,ఫాలో కోడ్,no
 super,detail.activate,Activate,యాక్టివేట్ చేయండి,no
 super,detail.activateHint,"Needs at least one admin who has logged in and accepted the undertaking, and all five jamaat times set.","లాగిన్ అయి హామీ పత్రం అంగీకరించిన కనీసం ఒక అడ్మిన్ ఉండాలి, ఐదు జమాత్ సమయాలు సెట్ చేసి ఉండాలి.",no
@@ -1595,6 +1717,9 @@ super,detail.admins,Admins,అడ్మిన్‌లు,no
 super,detail.noAdmins,No admins yet. Add one to activate this masjid.,ఇంకా అడ్మిన్‌లు లేరు. మస్జిద్‌ను యాక్టివేట్ చేయడానికి ఒకరిని జోడించండి.,no
 super,detail.addAdmin,Add admin,అడ్మిన్‌ను జోడించండి,no
 super,detail.changed,Saved,సేవ్ అయింది,no
+super,detail.poster,QR poster,QR పోస్టర్,no
+super,detail.audit,Audit log,ఆడిట్ లాగ్,no
+super,detail.adminAudit,Their actions in the audit log,ఆడిట్ లాగ్‌లో వీరి పనులు,no
 super,admin.name,Name,పేరు,no
 super,admin.phone,Phone,ఫోన్,no
 super,admin.phoneHint,Optional. Stored encrypted; viewing it is recorded.,ఐచ్ఛికం. ఎన్‌క్రిప్ట్ చేసి ఉంచబడుతుంది; చూసినప్పుడు నమోదవుతుంది.,no
@@ -1658,6 +1783,16 @@ super,audit.actorType.admin,Admin,అడ్మిన్,no
 super,audit.actorType.super_admin,Super Admin,సూపర్ అడ్మిన్,no
 super,audit.actorType.system,System,సిస్టమ్,no
 super,audit.actorType.device,Device,డివైస్,no
+super,audit.retentionDryRun,Retention dry run,రిటెన్షన్ డ్రై రన్,no
+super,audit.retentionQueued,"Dry run started. Its counts appear here as ""retention.run"" in a minute.","డ్రై రన్ మొదలైంది. దాని లెక్కలు ఒక నిమిషంలో ఇక్కడ ""retention.run""గా కనిపిస్తాయి.",no
+super,audit.retentionNotQueued,Could not start the dry run. Try again.,డ్రై రన్ మొదలు కాలేదు. మళ్లీ ప్రయత్నించండి.,no
+super,audit.masjidFilter,Masjid {id},మసీదు {id},no
+super,audit.actorFilter,Admin {id},అడ్మిన్ {id},no
+super,audit.removeFilter,Remove filter: {name},ఫిల్టర్ తీసివేయండి: {name},no
+super,audit.anyDate,Any date,ఏ తేదీ అయినా,no
+super,audit.clearDates,Clear dates,తేదీలు తీసివేయండి,no
+super,audit.onlyActor,Only this admin,ఈ అడ్మిన్ మాత్రమే,no
+super,audit.onlyMasjid,Only this masjid,ఈ మసీదు మాత్రమే,no
 super,library.statusFilter,Status,స్థితి,no
 super,library.kindFilter,Kind,రకం,no
 super,library.fileLabel,Your file,మీ ఫైల్,no
@@ -1809,6 +1944,189 @@ super,payments.rejected,Turned down. The masjid was told.,తిరస్కర�
 super,payments.history,Earlier UPI details,మునుపటి UPI వివరాలు,no
 super,payments.historyStatus.superseded,Was live until {date},{date} వరకు అమలులో ఉంది,no
 super,payments.historyStatus.rejected,Not approved · {date},ఆమోదించబడలేదు · {date},no
+super,reports.title,Reports,రిపోర్ట్‌లు,no
+super,reports.empty,Nothing here.,ఇక్కడ ఏమీ లేదు.,no
+super,reports.filter.label,Show,చూపించు,no
+super,reports.filter.open,Open,తెరిచినవి,no
+super,reports.filter.actioned,Removed,తొలగించినవి,no
+super,reports.filter.dismissed,Dismissed,తిరస్కరించినవి,no
+super,reports.urgent,Urgent,అత్యవసరం,no
+super,reports.due,Due {when},గడువు {when},no
+super,reports.overdue,Overdue — due {when},గడువు మించింది — గడువు {when},no
+super,reports.removals,Removals in 90 days: {count},90 రోజుల్లో తొలగించినవి: {count},no
+super,reports.reportCount,"{count, plural, one {# report} other {# reports}}","{count, plural, one {# రిపోర్ట్} other {# రిపోర్ట్‌లు}}",no
+super,reports.aboutMasjid,Report about the masjid itself,మస్జిద్ గురించే రిపోర్ట్,no
+super,reports.status.published,Shown,కనిపిస్తోంది,no
+super,reports.status.hidden,Hidden for review,సమీక్ష కోసం దాచబడింది,no
+super,reports.status.removed,Removed,తొలగించబడింది,no
+super,reports.status.deleted,Deleted by the masjid,మస్జిద్ తొలగించింది,no
+super,reports.remove,Remove,తొలగించు,no
+super,reports.removeTitle,Remove this post?,ఈ పోస్ట్‌ను తొలగించాలా?,no
+super,reports.removeCategory,Reason the masjid will see,మస్జిద్ చూసే కారణం,no
+super,reports.removeNote,Private note (only you see it),ప్రైవేట్ నోట్ (మీరు మాత్రమే చూస్తారు),no
+super,reports.removeBody,Hidden for everyone now; preserved privately for 180 days.,ఇప్పుడే అందరికీ దాచబడుతుంది; 180 రోజులు ప్రైవేట్‌గా భద్రపరచబడుతుంది.,no
+super,reports.removed,Removed. It is hidden for everyone now.,తొలగించబడింది. ఇప్పుడు ఎవరికీ కనిపించదు.,no
+super,reports.purgeFailed,"Removed, but the cached copy could not be cleared. Clear it again.","తొలగించబడింది, కానీ కాష్ కాపీని తీసివేయలేకపోయాము. మళ్లీ తీసివేయండి.",no
+super,reports.clearCache,Clear the cache again,కాష్‌ను మళ్లీ తీసివేయండి,no
+super,reports.cacheCleared,The cache is being cleared.,కాష్ తీసివేయబడుతోంది.,no
+super,reports.restore,Restore,పునరుద్ధరించు,no
+super,reports.restored,Restored. It is shown again.,పునరుద్ధరించబడింది. మళ్లీ కనిపిస్తోంది.,no
+super,reports.dismiss,Dismiss,తిరస్కరించు,no
+super,reports.dismissed,Report dismissed.,రిపోర్ట్ తిరస్కరించబడింది.,no
+super,reports.openMasjid,Open masjid,మస్జిద్ తెరవండి,no
+super,reports.legalOrder,Legal order,చట్టపరమైన ఆదేశం,no
+super,reports.legalOrderLoading,Loading orders…,ఆదేశాలు లోడ్ అవుతున్నాయి…,no
+super,reports.legalOrderNone,Choose the order,ఆదేశాన్ని ఎంచుకోండి,no
+super,grievances.title,Grievances,ఫిర్యాదులు,no
+super,grievances.empty,No grievances.,ఫిర్యాదులు లేవు.,no
+super,grievances.category.privacy,Privacy / data,గోప్యత / డేటా,no
+super,grievances.category.content,Content,కంటెంట్,no
+super,grievances.category.technical,Technical,సాంకేతికం,no
+super,grievances.category.feedback,Feedback,అభిప్రాయం,no
+super,grievances.category.other,Other,ఇతర,no
+super,grievances.status.open,New,కొత్తది,no
+super,grievances.status.acknowledged,Acknowledged,స్వీకరించబడింది,no
+super,grievances.status.resolved,Resolved,పరిష్కరించబడింది,no
+super,grievances.status.rejected,Rejected,తిరస్కరించబడింది,no
+super,grievances.ackDue,Acknowledge {when},స్వీకరణ {when},no
+super,grievances.ackOverdue,Acknowledgement overdue — was due {when},స్వీకరణ ఆలస్యం — గడువు {when},no
+super,grievances.resolveDue,Resolve {when},పరిష్కారం {when},no
+super,grievances.resolveOverdue,Resolution overdue — was due {when},పరిష్కారం ఆలస్యం — గడువు {when},no
+super,grievances.acknowledge,Acknowledge,స్వీకరించండి,no
+super,grievances.acknowledged,Acknowledged.,స్వీకరించబడింది.,no
+super,grievances.resolve,Resolve,పరిష్కరించండి,no
+super,grievances.reject,Reject,తిరస్కరించండి,no
+super,grievances.resolveTitle,Resolve this grievance,ఈ ఫిర్యాదును పరిష్కరించండి,no
+super,grievances.rejectTitle,Reject this grievance,ఈ ఫిర్యాదును తిరస్కరించండి,no
+super,grievances.note,What was done (kept on record),ఏమి చేశారు (రికార్డులో ఉంటుంది),no
+super,grievances.closed,Closed.,మూసివేయబడింది.,no
+super,grievances.showContact,Show contact,సంప్రదింపు చూపించు,no
+super,grievances.noContact,No contact was left.,సంప్రదింపు ఇవ్వలేదు.,no
+super,legal.title,Legal orders,చట్టపరమైన ఆదేశాలు,no
+super,legal.empty,No legal orders.,చట్టపరమైన ఆదేశాలు లేవు.,no
+super,legal.new,Record an order,ఆదేశాన్ని నమోదు చేయండి,no
+super,legal.newTitle,New legal order,కొత్త చట్టపరమైన ఆదేశం,no
+super,legal.authority,Authority,అధికార సంస్థ,no
+super,legal.referenceNo,Order reference number,ఆదేశ రిఫరెన్స్ నంబర్,no
+super,legal.receivedAt,Received at (India time),ఎప్పుడు అందింది (భారత సమయం),no
+super,legal.receivedHint,When the order reached us. The 3-hour clock starts here.,ఆదేశం మాకు ఎప్పుడు అందింది. 3 గంటల గడువు ఇక్కడి నుంచే మొదలవుతుంది.,no
+super,legal.targetType,What does it name?,ఇందులో దేని పేరు ఉంది?,no
+super,legal.target.items,A post,ఒక పోస్ట్,no
+super,legal.target.masjids,A masjid,ఒక మస్జిద్,no
+super,legal.target.other,Something else,ఇంకేదైనా,no
+super,legal.targetRef,Which one,ఏది,no
+super,legal.targetHint.items,Paste the post link.,పోస్ట్ లింక్‌ను పేస్ట్ చేయండి.,no
+super,legal.targetHint.masjids,"Type the follow code, e.g. ABCD-EFGH.","ఫాలో కోడ్ రాయండి, ఉదా. ABCD-EFGH.",no
+super,legal.targetHint.other,A short description.,చిన్న వివరణ.,no
+super,legal.summary,What the order asks,ఆదేశం ఏమి కోరుతోంది,no
+super,legal.save,Save,సేవ్ చేయండి,no
+super,legal.required,Fill this in.,దీన్ని నింపండి.,no
+super,legal.created,Order recorded. Act within 3 hours.,ఆదేశం నమోదైంది. 3 గంటల్లో చర్య తీసుకోండి.,no
+super,legal.updated,Order updated.,ఆదేశం అప్‌డేట్ అయింది.,no
+super,legal.status.received,Received,అందింది,no
+super,legal.status.actioned,Acted on,చర్య తీసుకున్నారు,no
+super,legal.status.contested,Contested,సవాలు చేశారు,no
+super,legal.status.closed,Closed,ముగిసింది,no
+super,legal.statusLabel,Status,స్థితి,no
+super,legal.due,Act {when},చర్య తీసుకోండి {when},no
+super,legal.overdue,Overdue — was due {when},గడువు దాటింది — {when} వరకు ఉండేది,no
+super,legal.hasDocument,Document attached,పత్రం జత చేయబడింది,no
+super,legal.receivedLine,Received {when},అందింది {when},no
+super,legal.log,Action log,చర్యల లాగ్,no
+super,legal.update,Update,అప్‌డేట్ చేయండి,no
+super,legal.updateTitle,Update the order,ఆదేశాన్ని అప్‌డేట్ చేయండి,no
+super,legal.actionTaken,Action taken,తీసుకున్న చర్య,no
+super,legal.note,Note for the log,లాగ్ కోసం నోట్,no
+super,legal.attachDocument,Attach document,పత్రాన్ని జత చేయండి,no
+super,legal.replaceDocument,Replace document,పత్రాన్ని మార్చండి,no
+super,legal.downloadDocument,Download document,పత్రాన్ని డౌన్‌లోడ్ చేయండి,no
+super,legal.uploading,Uploading…,అప్‌లోడ్ అవుతోంది…,no
+super,legal.documentSaved,Document saved (encrypted).,పత్రం సేవ్ అయింది (ఎన్‌క్రిప్ట్ చేయబడింది).,no
+super,poster.title,QR poster,QR పోస్టర్,no
+super,poster.lead,Print this poster for the masjid. People scan it to follow the masjid in the app.,మస్జిద్ కోసం ఈ పోస్టర్‌ను ప్రింట్ చేయండి. ప్రజలు దీన్ని స్కాన్ చేసి యాప్‌లో మస్జిద్‌ను ఫాలో చేస్తారు.,no
+super,poster.size,Paper size,కాగితం పరిమాణం,no
+super,poster.print,Print or save as PDF,ప్రింట్ చేయండి లేదా PDFగా సేవ్ చేయండి,no
+super,poster.downloadSvg,QR only (SVG),QR మాత్రమే (SVG),no
+super,poster.downloadPng,QR only (PNG),QR మాత్రమే (PNG),no
+super,poster.printHint,"In the print window choose ""Save as PDF"" or your printer. Turn off headers and footers, and keep the scale at 100%.","ప్రింట్ విండోలో ""PDFగా సేవ్ చేయండి"" లేదా మీ ప్రింటర్‌ను ఎంచుకోండి. హెడర్‌లు, ఫుటర్‌లు ఆపివేసి, స్కేల్ 100% ఉంచండి.",no
+super,poster.howTo,How to follow this masjid,ఈ మస్జిద్‌ను ఎలా ఫాలో చేయాలి,no
+super,poster.step1,Open your phone camera,మీ ఫోన్ కెమెరా తెరవండి,no
+super,poster.step2,Point it at this QR code (or type {code} in the app),దాన్ని ఈ QR కోడ్ వైపు చూపండి (లేదా యాప్‌లో {code} టైప్ చేయండి),no
+super,poster.step3,Open the link and tap Follow,లింక్ తెరిచి ఫాలో నొక్కండి,no
+super,poster.free,Free · No ads · No account,ఉచితం · ప్రకటనలు లేవు · ఖాతా అవసరం లేదు,no
+super,poster.preview,Poster preview,పోస్టర్ ప్రివ్యూ,no
+super,readOnly.title,Masjid admins (all masjids),మసీదు అడ్మిన్‌లు (అన్ని మసీదులు),no
+super,readOnly.switch,Admin read-only mode,అడ్మిన్ రీడ్-ఓన్లీ మోడ్,no
+super,readOnly.hint,Masjid admins can see everything but cannot change anything. Use it during an incident. Your own work is not affected.,"మసీదు అడ్మిన్‌లు అన్నీ చూడగలరు, కానీ ఏదీ మార్చలేరు. ఏదైనా సంఘటన సమయంలో దీన్ని ఉపయోగించండి. మీ స్వంత పనిపై ప్రభావం ఉండదు.",no
+super,readOnly.onBanner,Admin read-only mode is on. Masjid admins cannot make changes.,అడ్మిన్ రీడ్-ఓన్లీ మోడ్ ఆన్‌లో ఉంది. మసీదు అడ్మిన్‌లు మార్పులు చేయలేరు.,no
+super,readOnly.turnOff,Turn off,ఆపివేయండి,no
+super,readOnly.confirmTitle,Turn on admin read-only mode?,అడ్మిన్ రీడ్-ఓన్లీ మోడ్ ఆన్ చేయాలా?,no
+super,readOnly.confirmBody,No masjid admin can post or change anything until you turn it off. Their app shows a notice.,మీరు దీన్ని ఆపే వరకు ఏ మసీదు అడ్మిన్ కూడా ఏదీ పోస్ట్ చేయలేరు లేదా మార్చలేరు. వారి యాప్‌లో ఒక సూచన కనిపిస్తుంది.,no
+super,readOnly.confirm,Turn on,ఆన్ చేయండి,no
+super,readOnly.onToast,Admin read-only mode is on,అడ్మిన్ రీడ్-ఓన్లీ మోడ్ ఆన్‌లో ఉంది,no
+super,readOnly.offToast,Admin read-only mode is off,అడ్మిన్ రీడ్-ఓన్లీ మోడ్ ఆఫ్‌లో ఉంది,no
+super,banners.title,Banners,బ్యానర్లు,no
+super,banners.maintenance,Maintenance banner,నిర్వహణ బ్యానర్,no
+super,banners.maintenanceHint,"Shown on Home in both apps, to musallis and masjid admins.",రెండు యాప్‌ల హోమ్‌లో కనిపిస్తుంది — ముసల్లీలకు మరియు మసీదు అడ్మిన్‌లకు.,no
+super,banners.incident,Incident banner,సంఘటన బ్యానర్,no
+super,banners.incidentHint,Shown to every musalli on Home. Use it only for something everyone must know.,ప్రతి ముసల్లీకి హోమ్‌లో కనిపిస్తుంది. అందరూ తప్పక తెలుసుకోవాల్సిన విషయానికి మాత్రమే దీన్ని ఉపయోగించండి.,no
+super,banners.allLanguages,Write the banner in all four languages (up to 300 characters each).,బ్యానర్‌ను నాలుగు భాషల్లోనూ రాయండి (ఒక్కొక్కటి 300 అక్షరాల వరకు).,no
+super,banners.live,Showing now,ఇప్పుడు కనిపిస్తోంది,no
+super,banners.off,Not showing,కనిపించడం లేదు,no
+super,banners.show,Show banner,బ్యానర్ చూపించండి,no
+super,banners.update,Update banner,బ్యానర్ మార్చండి,no
+super,banners.takeDown,Take down,తీసివేయండి,no
+super,banners.shownToast,Banner saved. It can take up to a minute to appear everywhere.,బ్యానర్ సేవ్ అయింది. అన్ని చోట్లా కనిపించడానికి ఒక నిమిషం వరకు పట్టవచ్చు.,no
+super,banners.removedToast,Banner taken down. It can take up to a minute to disappear everywhere.,బ్యానర్ తీసివేయబడింది. అన్ని చోట్ల నుండి పోవడానికి ఒక నిమిషం వరకు పట్టవచ్చు.,no
+super,stats.updated,Updated {time},{time}కి నవీకరించబడింది,no
+super,stats.emptyTitle,No stats yet,ఇంకా గణాంకాలు లేవు,no
+super,stats.emptyBody,The first numbers arrive within an hour of the worker starting.,వర్కర్ ప్రారంభమైన గంటలోపు మొదటి గణాంకాలు వస్తాయి.,no
+super,stats.masjids,Masjids,మసీదులు,no
+super,stats.devices,Phones with the app,యాప్ ఉన్న ఫోన్లు,no
+super,stats.devicesTotal,"{count, number} phones","{count, number} ఫోన్లు",no
+super,stats.platform,By phone type,ఫోన్ రకం ప్రకారం,no
+super,stats.language,By language,భాష ప్రకారం,no
+super,stats.pushOn,Notifications on,నోటిఫికేషన్లు ఆన్,no
+super,stats.follows,Masjids followed (total),ఫాలో చేసిన మసీదులు (మొత్తం),no
+super,stats.push,"Notifications, last 24 hours","నోటిఫికేషన్లు, గత 24 గంటలు",no
+super,stats.pushLine,"{sent, number} delivered · {failed, number} failed","{sent, number} చేరాయి · {failed, number} విఫలం",no
+super,stats.successRate,"{rate, number, percent} delivered","{rate, number, percent} చేరాయి",no
+super,stats.noPush,Nothing sent in the last 24 hours,గత 24 గంటల్లో ఏదీ పంపలేదు,no
+super,stats.deadlines,"Deadlines met, last 30 days","గడువులు పాటించడం, గత 30 రోజులు",no
+super,stats.reports,Reports handled in time,సమయానికి పరిష్కరించిన రిపోర్టులు,no
+super,stats.grievanceAck,Grievances acknowledged in time,సమయానికి స్వీకరించిన ఫిర్యాదులు,no
+super,stats.grievanceResolve,Grievances resolved in time,సమయానికి పరిష్కరించిన ఫిర్యాదులు,no
+super,stats.rateLine,"{rate, number, percent} · {onTime, number} on time, {late, number} late","{rate, number, percent} · {onTime, number} సమయానికి, {late, number} ఆలస్యంగా",no
+super,stats.noneYet,None yet,ఇంకా ఏదీ లేదు,no
+super,stats.jobs,Background jobs,నేపథ్య పనులు,no
+super,stats.jobsLine,"{waiting, number} waiting · {active, number} running · {failed, number} failed","{waiting, number} వేచి ఉన్నాయి · {active, number} నడుస్తున్నాయి · {failed, number} విఫలం",no
+super,stats.lag,Oldest waiting job: {time},అత్యంత పాత వేచి ఉన్న పని: {time},no
+super,stats.lagNone,Nothing waiting,ఏదీ వేచి లేదు,no
+super,stats.jobsUnknown,Could not be read this hour,ఈ గంట చదవలేకపోయాం,no
+super,stats.seconds,"{count, plural, one {# second} other {# seconds}}","{count, plural, one {# సెకను} other {# సెకన్లు}}",no
+super,stats.minutes,"{count, plural, one {# minute} other {# minutes}}","{count, plural, one {# నిమిషం} other {# నిమిషాలు}}",no
+super,stats.cloudinary,Media storage (Cloudinary) this month,మీడియా స్టోరేజ్ (Cloudinary) ఈ నెల,no
+super,stats.cloudinaryUsed,"{percent, number}% used","{percent, number}% వాడబడింది",no
+super,stats.credits,"{usage, number} of {limit, number} credits","{limit, number}లో {usage, number} క్రెడిట్లు",no
+super,stats.plan,Plan: {plan},ప్లాన్: {plan},no
+super,stats.cloudinaryUnknown,"Not available (local, or could not be read this hour)","అందుబాటులో లేదు (లోకల్, లేదా ఈ గంట చదవలేకపోయాం)",no
+super,stats.trend,Last 30 days,గత 30 రోజులు,no
+super,stats.trendDevices,Phones,ఫోన్లు,no
+super,stats.trendFollows,Follows,ఫాలోలు,no
+super,stats.trendMasjids,Active masjids,సక్రియ మసీదులు,no
+super,stats.trendPush,Notifications delivered (24 h),చేరిన నోటిఫికేషన్లు (24 గం),no
+super,stats.trendEmpty,The trend fills in day by day.,ట్రెండ్ రోజురోజుకూ నిండుతుంది.,no
+super,stats.trendTable,Daily values,రోజువారీ విలువలు,no
+super,stats.day,Day,రోజు,no
+super,stats.value,Value,విలువ,no
+super,stats.status.pending,Pending,పెండింగ్,no
+super,stats.status.active,Active,సక్రియం,no
+super,stats.status.suspended,Suspended,నిలిపివేయబడింది,no
+super,stats.status.deleted,Deleted,తొలగించబడింది,no
+super,stats.platformName.android,Android,Android,no
+super,stats.platformName.ios,iPhone,iPhone,no
+super,stats.platformName.desktop,Computer,కంప్యూటర్,no
+super,stats.platformName.other,Other,ఇతర,no
 templates,no_water_time_range.title,No water supply,నీటి సరఫరా నిలిపివేత,no
 templates,no_water_time_range.body,Water will not be available from {hours_start} to {hours_end}.,{hours_start} నుండి {hours_end} వరకు నీరు అందుబాటులో ఉండదు.,no
 templates,electricity_cut_time_range.title,Power cut,విద్యుత్ నిలిపివేత,no

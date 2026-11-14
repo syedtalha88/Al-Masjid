@@ -14,7 +14,7 @@ const instant = z.iso.datetime();
  */
 export const adminItemSchema = z.object({
   id: z.string(),
-  status: z.enum(['published', 'deleted', 'removed']),
+  status: z.enum(['published', 'hidden', 'deleted', 'removed']),
   updatedAt: instant,
   editableUntil: z.optional(instant),
   libraryId: z.optional(z.string()),

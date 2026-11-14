@@ -36,6 +36,7 @@ import {
   resolveSession,
   revokeSessions,
   SESSION_LIFETIMES,
+  UNDERTAKING_REMINDER_MS,
 } from '../src/state/index.ts';
 import { createTestDatabase, type TestDatabase, testMongoUri } from '../src/testing/index.ts';
 import { newId } from '../src/values.ts';
@@ -455,6 +456,33 @@ describe('sessions (04 §4)', () => {
         now: new Date(s0.getTime() + life.absoluteMs),
       }),
     ).toBeNull();
+  });
+
+  it('the undertaking is current only in its version and for a year after acceptance (T8.6)', async () => {
+    const r = await registeredAdmin();
+    const now = new Date(
+      ((await raw('admin_sessions').findOne({ _id: r.sessionId }))?.['created_at'] as Date).getTime() + 60_000,
+    );
+    const version = 'test-undertaking-1';
+    await raw('app_settings').updateOne(
+      { _id: 'global' as never },
+      { $set: { undertaking_version: version } },
+      { upsert: true },
+    );
+    const set = (fields: Record<string, unknown>) => raw('admin_users').updateOne({ _id: r.adminId }, { $set: fields });
+    const current = async () =>
+      (await resolveSession(h(), publicScope(), { tokenHash: r.sessionHash, now }))?.undertakingCurrent;
+    // Accepted before T8.6 (no time recorded): current until the version changes.
+    await set({ undertaking_version: version });
+    expect(await current()).toBe(true);
+    await set({ undertaking_accepted_at: new Date(now.getTime() - UNDERTAKING_REMINDER_MS + 60_000) });
+    expect(await current()).toBe(true);
+    // A year after acceptance: shown again.
+    await set({ undertaking_accepted_at: new Date(now.getTime() - UNDERTAKING_REMINDER_MS) });
+    expect(await current()).toBe(false);
+    // Another version in force: shown again, whenever it was accepted.
+    await set({ undertaking_version: 'old-version', undertaking_accepted_at: now });
+    expect(await current()).toBe(false);
   });
 
   it('super admin sessions: idle 30 min, absolute 12 h', async () => {

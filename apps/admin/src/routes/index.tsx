@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 
 import { SHOW_COMING_SOON } from '../app/build.ts';
 import { useSignedInAdmin } from '../features/auth/hooks/use-session.ts';
+import { AdminBanners } from '../features/home/components/AdminBanners.tsx';
 import { FollowersChip, QuotaPill, TodayStrip } from '../features/home/components/HomeHeader.tsx';
 import { useMasjidHome } from '../features/home/hooks/use-masjid-home.ts';
 import { useMinute } from '../features/home/hooks/use-minute.ts';
@@ -26,7 +27,7 @@ export const Route = createFileRoute('/')({
  * B3 Admin Home: the masjid (switcher when the admin has several) with its followers, the today strip (next jamaat,
  * edit timings), the tiles in their final order — a tile opens its screen once its task has landed, else "Coming soon";
  * later phases' tiles exist in dev/staging builds only — today's notification quota, and the account button. Super
- * Admins also get their console here. (Inbox banner: Phase 8 moderation notices / Phase 5 payment status.)
+ * Admins also get their console here. On top: read-only mode and the maintenance banner (T8.9).
  */
 function Home() {
   const { t } = useTranslation('admin');
@@ -78,6 +79,7 @@ function Home() {
           }
         : {})}
     >
+      <AdminBanners className="mb-4" />
       {isSuper ? (
         <div className="mb-4">
           <AdminTile

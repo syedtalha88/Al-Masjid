@@ -105,8 +105,6 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'audit.export': ['filters', 'rows', 'truncated'],
   'admin.undertaking_accept': ['version'],
   'invite.consume': ['purpose'],
-  'device.follow': [],
-  'device.unfollow': [],
   'auth.register': ['credential'],
   'auth.login': ['credential'],
   'auth.login_failed': ['credential_hash', 'capped'],
@@ -118,6 +116,9 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   // The push kill switch (C10 ★, PHASE_04 T4.7).
   'push.pause': [],
   'push.resume': [],
+  // Admin read-only mode (C10 ★, PHASE_08 T8.9).
+  'settings.read_only_on': [],
+  'settings.read_only_off': [],
   'library.import': ['batch', 'entries'],
   'library.update': ['fields', 'back_to_draft'],
   'library.verify': [],
@@ -166,6 +167,23 @@ export const AUDIT_ACTIONS: Readonly<Record<string, readonly string[]>> = {
   'item.publish': ['type', 'template', 'notify', 'image'],
   'item.edit': ['type'],
   'item.delete': ['type'],
+  // PHASE_08 T8.1: `report-triage` hid a post many devices reported within an hour (system actor).
+  'item.autohide': ['type', 'reporters'],
+  // PHASE_08 T8.2 (C5): takedown and restore by the Super Admin — the category and counts, never the private note.
+  'item.remove': ['type', 'category', 'reports', 'was', 'legal_order'],
+  'item.restore': ['type', 'was', 'reports'],
+  'report.dismiss': [],
+  // PHASE_08 T8.4 (C6): grievances — never the description or the contact in meta.
+  'grievance.ack': [],
+  'grievance.resolve': ['status'],
+  'grievance.contact': [],
+  // PHASE_08 T8.5 (C7): legal orders — never the authority, reference, summary or notes in meta.
+  'legal_order.create': ['target_type'],
+  'legal_order.update': ['from', 'to', 'action'],
+  'legal_order.document': ['replaced'],
+  'legal_order.document_read': [],
+  // PHASE_08 T8.7 (02 §6): the daily retention run's summary — counts per rule and whether it was a dry run.
+  'retention.run': ['dry_run', 'counts', 'files', 'partial'],
 };
 const META_LIMIT_BYTES = 4096;
 
@@ -184,10 +202,10 @@ const actorOf = (scope: Scope) => {
       return { actor_type: 'admin', actor_id: scope.adminId };
     case 'super':
       return { actor_type: 'super_admin', actor_id: scope.adminId };
-    case 'device':
-      return { actor_type: 'device', actor_id: scope.deviceId };
     case 'system':
       return { actor_type: 'system' };
+    // A device never writes the audit log (security review M2): its id there would outlive "Clear all data".
+    case 'device':
     case 'public':
     case 'hook':
       throw new StateError('AUDIT_ACTOR', `scope ${scope.kind} cannot write the audit log`);

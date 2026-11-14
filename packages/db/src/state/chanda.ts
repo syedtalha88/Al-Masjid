@@ -15,7 +15,7 @@ import { numberOf, text } from '../repos/read.ts';
 import { MAX_PAISE } from '../schema/dsl.ts';
 import type { Scope } from '../scope.ts';
 import { scoped } from '../scoped.ts';
-import { idText, newId, toInt64 } from '../values.ts';
+import { idText, isId, newId, toInt64 } from '../values.ts';
 import { enqueueNotification, insertPublishedItem } from './publish.ts';
 
 /** 02 chanda_weeks.note. */
@@ -39,18 +39,64 @@ async function ownMasjid(ctx: TxContext, masjidId: UUID): Promise<Doc> {
   return masjid as Doc; // `_id` is the UUID just matched
 }
 
+/** Feed-item statuses of a post taken down by moderation (removed ★, or auto-hidden waiting for review). */
+const TAKEN_DOWN = ['removed', 'hidden'] as const;
+
+/** The chanda feed items of a masjid that moderation took down — their weeks stay hidden (#180 M6). */
+async function takenDownChandaItems(ctx: TxContext, masjidId: UUID): Promise<UUID[]> {
+  const rows = await ctx.db
+    .collection<{ _id: UUID; masjid_id: UUID; type: string; status: string }>('items')
+    .find(
+      { masjid_id: masjidId, type: 'chanda_update', status: { $in: [...TAKEN_DOWN] } },
+      { session: ctx.session, projection: { _id: 1 } },
+    )
+    .toArray();
+  return rows.map((row) => row._id);
+}
+
 /**
  * 02 §5 chanda visibility mirror: `visible` on every week of the masjid and on every chanda feed item — a data-layer
- * effect in the caller's transaction (the admin policy cells cannot write either field).
+ * effect in the caller's transaction (the admin policy cells cannot write either field). Showing chanda again never
+ * shows a week whose feed item moderation took down (#180 M6).
  */
 async function mirrorChandaVisibility(ctx: TxContext, masjidId: UUID, visible: boolean, now: Date): Promise<void> {
   const session = { session: ctx.session };
+  const takenDown = visible ? await takenDownChandaItems(ctx, masjidId) : [];
   await ctx.db
-    .collection<{ masjid_id: UUID }>('chanda_weeks')
-    .updateMany({ masjid_id: masjidId }, { $set: { visible, updated_at: now } }, session);
+    .collection<{ masjid_id: UUID; item_id?: UUID }>('chanda_weeks')
+    .updateMany(
+      { masjid_id: masjidId, ...(takenDown.length > 0 ? { item_id: { $nin: takenDown } } : {}) },
+      { $set: { visible, updated_at: now } },
+      session,
+    );
   await ctx.db
     .collection<{ masjid_id: UUID }>('items')
     .updateMany({ masjid_id: masjidId, type: 'chanda_update' }, { $set: { 'chanda.visible': visible } }, session);
+}
+
+/**
+ * Moderation effect (05 §3, #180 M6): a `chanda_update` post taken down (removed or auto-hidden) also hides its week's
+ * public figures and note (`v_pub_chanda_weeks`); restored, the week follows the masjid's "Show chanda" again. Runs in
+ * the moderation transaction; does nothing for other post types.
+ */
+export async function mirrorChandaTakedown(
+  ctx: TxContext,
+  item: { readonly _id: UUID; readonly masjid_id: UUID; readonly type: string },
+  takenDown: boolean,
+  now: Date,
+): Promise<void> {
+  if (item.type !== 'chanda_update') return;
+  const session = { session: ctx.session };
+  let visible = false;
+  if (!takenDown) {
+    const masjid = await ctx.db
+      .collection<{ _id: UUID; show_chanda?: boolean }>('masjids')
+      .findOne({ _id: item.masjid_id }, { ...session, projection: { show_chanda: 1 } });
+    visible = masjid?.show_chanda === true;
+  }
+  await ctx.db
+    .collection<{ masjid_id: UUID; item_id?: UUID }>('chanda_weeks')
+    .updateMany({ masjid_id: item.masjid_id, item_id: item._id }, { $set: { visible, updated_at: now } }, session);
 }
 
 export interface ChandaWeekInput {
@@ -71,9 +117,13 @@ export interface ChandaWeekInput {
  * both afterwards (the item keeps its date; `edited_at` is set).
  *
  * @returns the week's id, its feed item and the outbox job (when notifying); `created` = the week was new.
+ * A week whose post moderation took down is never published again from here (#180 M6): removed → refused; auto-hidden
+ * (waiting for review) → refused too, so the reviewer judges what was reported (security re-review N-L1).
+ *
  * @throws StateError MASJID_NOT_FOUND, CHANDA_INVALID (not a week start of this masjid, a future week, an amount that is
  *   not whole paise in 0 … ₹10^10, a note over 200 characters), CHANDA_HIDDEN (notify while chanda is not shown),
- *   NOTIFY_QUOTA_EXCEEDED.
+ *   CHANDA_UNDER_REVIEW (the week's post is auto-hidden, waiting for review), ITEM_ALREADY_REMOVED (the week's post was
+ *   removed by moderation), NOTIFY_QUOTA_EXCEEDED.
  */
 export async function setChandaWeek(
   handle: DbHandle,
@@ -119,14 +169,30 @@ export async function setChandaWeek(
       const created = existing === null;
       if (existing) {
         weekId = existing['_id'] as UUID; // the document just read
+        const itemId: unknown = existing['item_id'];
+        // Moderation state is read directly: the admin policy filter does not show taken-down posts (#180 L1) —
+        // still only this masjid's post.
+        const moderated = isId(itemId)
+          ? await content.db
+              .collection<{ _id: UUID; masjid_id: UUID; status: string }>('items')
+              .findOne(
+                { _id: itemId, masjid_id: input.masjidId },
+                { session: content.session, projection: { status: 1 } },
+              )
+          : null;
+        if (moderated?.status === 'removed') throw new StateError('ITEM_ALREADY_REMOVED');
+        // Auto-hidden, waiting for review: the week is the reported content — it stays as it was reported, so a removal
+        // keeps what was reported and a restore shows nothing the reviewer did not see (security re-review N-L1).
+        if (moderated?.status === 'hidden') throw new StateError('CHANDA_UNDER_REVIEW');
         await weeks.updateOne(
           { _id: weekId },
           note === ''
             ? { $set: { amount_paise: amount }, $unset: { note: '' } }
             : { $set: { amount_paise: amount, note } },
         );
-        const itemId: unknown = existing['item_id'];
-        const linked = itemId ? await scoped(content, 'items').findOne({ _id: itemId, status: 'published' }) : null;
+        const linked = isId(itemId)
+          ? await scoped(content, 'items').findOne({ _id: itemId, status: 'published' })
+          : null;
         if (linked) {
           await scoped(content, 'items').updateOne(
             { _id: linked['_id'] },

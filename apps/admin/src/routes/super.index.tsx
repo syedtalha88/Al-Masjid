@@ -1,10 +1,12 @@
 import { useLocale, useTranslation } from '@mc/i18n/react';
-import { Button, Card, InfoNote, ListRow, SectionHeader, SkeletonText } from '@mc/ui/components';
+import { slaProgress } from '@mc/shared/compliance';
+import { Button, Card, InfoNote, ListRow, NoticeBanner, SectionHeader, SkeletonText, Tag } from '@mc/ui/components';
 import { MasjidTile, WarningIcon } from '@mc/ui/icons';
 import { useNavigator } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 
+import { useSignedInAdmin } from '../features/auth/hooks/use-session.ts';
 import { superApi } from '../features/super/api/super-api.ts';
 import { StatusTag, SUPER_SECTIONS, SuperFrame } from '../features/super/components/SuperFrame.tsx';
 
@@ -13,10 +15,24 @@ export const Route = createFileRoute('/super/')({
 });
 
 const COUNTS = ['pending', 'active', 'suspended', 'deleted'] as const;
+const SLA_KIND_KEY = {
+  urgent_report: 'dashboard.slaUrgentReport',
+  report: 'dashboard.slaReport',
+  grievance_ack: 'dashboard.slaGrievanceAck',
+  grievance_resolve: 'dashboard.slaGrievanceResolve',
+  legal_order: 'dashboard.slaLegalOrder',
+} as const;
+/** Where a timer's row leads. */
+const SLA_SCREEN = (kind: keyof typeof SLA_KIND_KEY) =>
+  kind.startsWith('grievance')
+    ? '/super/grievances'
+    : kind === 'legal_order'
+      ? '/super/legal-orders'
+      : '/super/reports';
 
 /**
- * C1 Dashboard: the push kill-switch banner and 24-hour delivery (T4.5, T4.7), masjid counts and pending activations;
- * SLA cards arrive with moderation (Phase 8).
+ * C1 Dashboard: the push kill-switch and admin read-only banners (T4.7, T8.9), 24-hour delivery (T4.5), masjid counts and pending activations;
+ * the SLA card (open report timers, earliest due first — PHASE_08 T8.3).
  */
 function Dashboard() {
   const { t: ta } = useTranslation('admin');
@@ -24,6 +40,7 @@ function Dashboard() {
   const { format } = useLocale();
   const navigator = useNavigator();
   const dashboard = useQuery({ queryKey: ['super', 'dashboard'], queryFn: ({ signal }) => superApi.dashboard(signal) });
+  const me = useSignedInAdmin();
 
   return (
     <SuperFrame title={ta('home.superAdmin')} section="dashboard">
@@ -62,6 +79,27 @@ function Dashboard() {
         </div>
       ) : null}
 
+      {me.readOnly ? (
+        // T8.9: admin read-only mode is on — masjid admins' writes wait until it is turned off in Settings.
+        <NoticeBanner
+          tone="warning"
+          className="mb-6"
+          action={
+            <Button
+              variant="outline"
+              size="md"
+              onPress={() => {
+                navigator.push('/super/settings');
+              }}
+            >
+              {t('readOnly.turnOff')}
+            </Button>
+          }
+        >
+          {t('readOnly.onBanner')}
+        </NoticeBanner>
+      ) : null}
+
       {dashboard.data && dashboard.data.passkeyAlerts > 0 ? (
         // 04 §3: a passkey whose sign counter went backwards was revoked (possible clone); Super Admins also get a push
         // alert (T4.6).
@@ -69,6 +107,34 @@ function Dashboard() {
           <WarningIcon size={20} className="mt-px shrink-0" />
           <p className="min-w-0">{t('dashboard.passkeyAlert', { count: dashboard.data.passkeyAlerts })}</p>
         </div>
+      ) : null}
+
+      {dashboard.data && dashboard.data.sla.length > 0 ? (
+        // C1 / 05 §3: open timers, earliest due first; red with under 20 % of the time left (PHASE_08 T8.3).
+        <section className="mb-6 flex flex-col gap-3" data-sla-card>
+          <SectionHeader title={t('dashboard.sla')} />
+          <ul className="flex flex-col divide-y divide-border rounded-md bg-surface shadow-e1">
+            {dashboard.data.sla.map((timer) => {
+              const now = new Date();
+              const progress = slaProgress(new Date(timer.startAt), new Date(timer.dueAt), now);
+              const when = format.relative(new Date(timer.dueAt), now);
+              return (
+                <li key={timer.id} data-sla-row={timer.id} data-red={progress.red ? 'true' : 'false'}>
+                  <ListRow
+                    className="px-4"
+                    title={t(SLA_KIND_KEY[timer.kind])}
+                    subtitle={t(progress.overdue ? 'reports.overdue' : 'reports.due', { when })}
+                    trailing={progress.red ? <Tag tone="danger">{t('dashboard.slaRed')}</Tag> : undefined}
+                    chevron
+                    onPress={() => {
+                      navigator.push(SLA_SCREEN(timer.kind));
+                    }}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       ) : null}
 
       <section className="flex flex-col gap-3">

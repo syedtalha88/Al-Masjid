@@ -3,16 +3,23 @@ import {
   adminPhoneSchema,
   auditPageSchema,
   type AuditQuery,
+  cdnPurgeSchema,
   changedSchema,
   countSchema,
+  dismissedSchema,
   inviteLinkSchema,
   type LIBRARY_KINDS,
   type LIBRARY_STATUSES,
   libraryImportReportSchema,
+  moderationQueueSchema,
+  moderationResultSchema,
   noContentSchema,
   paymentApprovedSchema,
   problemSchema,
   pushPauseResponseSchema,
+  readOnlyResponseSchema,
+  type RemoveItemRequest,
+  type REPORT_STATUS_VALUES,
   starterTemplatesAddedSchema,
   type SuperAdminCreate,
   superAdminCreatedSchema,
@@ -27,12 +34,28 @@ import {
   superPaymentListSchema,
   type SuperSettingsPatch,
   superSettingsSchema,
+  superStatsSchema,
   type SuperTemplateCreate,
   superTemplateListSchema,
   type SuperTemplatePatch,
   superTemplateResponseSchema,
   testAlertResponseSchema,
 } from '@mc/shared/contracts';
+import { retentionQueuedSchema } from '@mc/shared/contracts';
+import {
+  grievanceAckSchema,
+  grievanceContactSchema,
+  grievanceListSchema,
+  grievanceResolvedSchema,
+} from '@mc/shared/contracts/grievances';
+import {
+  type LegalOrderCreate,
+  legalOrderCreatedSchema,
+  legalOrderDocumentSavedSchema,
+  legalOrderListSchema,
+  type LegalOrderPatch,
+  legalOrderUpdatedSchema,
+} from '@mc/shared/contracts/legal-orders';
 import { ProblemError, ResponseError } from '@mc/shared/http';
 
 import { call } from '../../auth/api/auth-api.ts';
@@ -59,6 +82,8 @@ const fileForm = (file: Blob, name: string) => {
 
 export const superApi = {
   dashboard: (signal?: AbortSignal) => call(`${SUPER_API}/dashboard`, superDashboardSchema, signal ? { signal } : {}),
+  /** C12 (T8.10): the newest hourly snapshot and the 30-day trend. */
+  stats: (signal?: AbortSignal) => call(`${SUPER_API}/stats`, superStatsSchema, signal ? { signal } : {}),
   masjids: (params: { q?: string; status?: MasjidStatusFilter; cursor?: string }, signal?: AbortSignal) =>
     call(`${SUPER_API}/masjids${query(params)}`, superMasjidListSchema, signal ? { signal } : {}),
   createMasjid: (body: SuperMasjidCreate) =>
@@ -95,7 +120,70 @@ export const superApi = {
   /** ★ The push kill switch (T4.7). */
   setPushPaused: (paused: boolean) =>
     call(`${SUPER_API}/settings/push-pause`, pushPauseResponseSchema, { method: 'POST', body: { paused } }),
+  /** ★ Admin read-only mode (T8.9): masjid admins' writes answer 503 READ_ONLY_MODE while on. */
+  setReadOnly: (readOnly: boolean) =>
+    call(`${SUPER_API}/settings/read-only`, readOnlyResponseSchema, { method: 'POST', body: { readOnly } }),
   /** C4 (T5.2): open UPI change requests, oldest first. */
+  /** ★ A retention dry run (T8.7): the worker counts what is due; the summary appears in the audit log. */
+  retentionDryRun: () => call(`${SUPER_API}/retention/dry-run`, retentionQueuedSchema, { method: 'POST', body: {} }),
+  // --- Legal orders (07 C7, PHASE_08 T8.5) ---
+  legalOrders: (signal?: AbortSignal) =>
+    call(`${SUPER_API}/legal-orders`, legalOrderListSchema, signal ? { signal } : {}),
+  /** ★ Records an order; due = received + 3 hours. */
+  createLegalOrder: (body: LegalOrderCreate) =>
+    call(`${SUPER_API}/legal-orders`, legalOrderCreatedSchema, { method: 'POST', body }),
+  /** ★ Status move, action taken and / or a note for the log. */
+  updateLegalOrder: (orderId: string, body: LegalOrderPatch) =>
+    call(`${SUPER_API}/legal-orders/${id(orderId)}`, legalOrderUpdatedSchema, { method: 'PATCH', body }),
+  /** ★ The order's document (encrypted on the server before it is stored). */
+  uploadLegalDocument: (orderId: string, file: Blob, name: string) =>
+    call(`${SUPER_API}/legal-orders/${id(orderId)}/document`, legalOrderDocumentSavedSchema, {
+      method: 'POST',
+      form: fileForm(file, name),
+    }),
+  /** ★ The decrypted document, as a download (fetched with the session cookie; no storage URL reaches the browser). */
+  async legalDocument(orderId: string): Promise<{ readonly blob: Blob; readonly filename: string }> {
+    const response = await fetch(`${SUPER_API}/legal-orders/${id(orderId)}/document`, {
+      headers: { Accept: 'application/pdf, image/jpeg, image/png, application/problem+json' },
+    });
+    const requestId = response.headers.get('x-request-id') ?? undefined;
+    if (!response.ok) {
+      const problem = problemSchema.safeParse(await response.json().catch(() => null));
+      if (problem.success) throw new ProblemError(problem.data, requestId);
+      throw new ResponseError(response.status, 'unexpected-status', requestId);
+    }
+    const named = /filename="([A-Za-z0-9._-]+)"/u.exec(response.headers.get('content-disposition') ?? '')?.[1];
+    return { blob: await response.blob(), filename: named ?? 'legal-order' };
+  },
+  // --- Grievances (07 C6, PHASE_08 T8.4) ---
+  grievances: (signal?: AbortSignal) => call(`${SUPER_API}/grievances`, grievanceListSchema, signal ? { signal } : {}),
+  ackGrievance: (grievanceId: string) =>
+    call(`${SUPER_API}/grievances/${id(grievanceId)}/ack`, grievanceAckSchema, { method: 'POST', body: {} }),
+  resolveGrievance: (grievanceId: string, status: 'resolved' | 'rejected', resolution: string) =>
+    call(`${SUPER_API}/grievances/${id(grievanceId)}/resolve`, grievanceResolvedSchema, {
+      method: 'POST',
+      body: { status, resolution },
+    }),
+  /** ★ */
+  grievanceContact: (grievanceId: string) =>
+    call(`${SUPER_API}/grievances/${id(grievanceId)}/contact`, grievanceContactSchema),
+  // --- Moderation (07 C5, PHASE_08 T8.2) ---
+  reports: (status: (typeof REPORT_STATUS_VALUES)[number], signal?: AbortSignal) =>
+    call(`${SUPER_API}/reports${query({ status })}`, moderationQueueSchema, signal ? { signal } : {}),
+  /** ★ */
+  removeItem: (itemId: string, body: RemoveItemRequest) =>
+    call(`${SUPER_API}/items/${id(itemId)}/remove`, moderationResultSchema, { method: 'POST', body }),
+  /** ★ */
+  restoreItem: (itemId: string) =>
+    call(`${SUPER_API}/items/${id(itemId)}/restore`, moderationResultSchema, { method: 'POST', body: {} }),
+  /** Clears the CDN cache of a post again and re-checks its files (the server derives everything from the post — M1). */
+  purgeAgain: (itemId: string) =>
+    call(`${SUPER_API}/items/${id(itemId)}/purge`, cdnPurgeSchema, { method: 'POST', body: {} }),
+  dismissReport: (reportId: string, note?: string) =>
+    call(`${SUPER_API}/reports/${id(reportId)}/dismiss`, dismissedSchema, {
+      method: 'POST',
+      body: note ? { note } : {},
+    }),
   payments: (signal?: AbortSignal) =>
     call(`${SUPER_API}/payments/pending`, superPaymentListSchema, signal ? { signal } : {}),
   /** ★ Approve a UPI change — live after the hold. */

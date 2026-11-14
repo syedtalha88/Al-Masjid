@@ -2,7 +2,8 @@
 // routes (add only with `consentConfirmed: true` and valid details; replace; "Update received" → fulfilled at the cap;
 // close / delete; other masjids unreachable; the private phone / note encrypted at rest, returned only to the masjid's
 // own admin and audited) and the musalli's list (least-funded first, zakat filter, immutable per version) — with a
-// sweep over EVERY public response for the private part. Fake people, UPI IDs and numbers only (10 §5).
+// sweep over EVERY public response for the private part; every change (and a masjid suspend / delete) purges the
+// masjid's CDN tag (F67, #180 M7). Fake people, UPI IDs and numbers only (10 §5).
 import { randomUUID } from 'node:crypto';
 
 import { parseId } from '@mc/db';
@@ -16,11 +17,27 @@ import { deviceAuthenticator } from '../src/auth/device.ts';
 import { memoryRateLimiter } from '../src/http/rate-limit.ts';
 import { processRetention } from '../src/jobs/retention/run.ts';
 import { createLogger } from '../src/logger.ts';
+import type { CdnPurgeService } from '../src/queue/cdn.ts';
 import { apiPublicRoutes } from '../src/routes/index.ts';
 import { silentLogger } from './helpers.ts';
 import { CSRF, superHarness } from './super-harness.ts';
 
-const { app, asSuper, register, db, testDatabase, clock } = superHarness('beneficiary_routes');
+/** Every CDN purge the routes ask for (F67, #180 M7). */
+const purges: { tags: readonly string[]; key: string }[] = [];
+const cdn: CdnPurgeService = {
+  purgeTags: (tags, key) => {
+    purges.push({ tags, key });
+    return Promise.resolve(true);
+  },
+  purgeMasjidSoon: (masjidId, now) => {
+    purges.push({ tags: [`m-${masjidId}`], key: `soon.${now.toISOString()}` });
+    return Promise.resolve(true);
+  },
+  mediaAccess: () => Promise.resolve(true),
+};
+const { app, asSuper, register, db, testDatabase, clock, stepUp } = superHarness('beneficiary_routes', undefined, {
+  cdn,
+});
 
 /** A BSON UUID for raw database reads (this package cannot import the driver). */
 const uuid = (text: string = randomUUID()) => {
@@ -209,6 +226,45 @@ describe('admin: /beneficiaries', () => {
     expect(JSON.stringify(audit)).not.toMatch(
       /Test Edited|Test Mistake|Sample reason|okexample|Test Person A|Other Name/,
     );
+  });
+
+  it('every change asks for a (merged) purge of the masjid’s CDN tag; a refused one does not (F67, #180 M7, N-M1)', async () => {
+    const { masjidId, call } = await activeMasjid('Test Masjid Needy Purge');
+    const tag = `m-${masjidId}`;
+    // The masjid's activation purged its tag too (status change, #180 M7): count the needy list's merged purges only.
+    const purged = () => purges.filter((entry) => entry.tags.includes(tag) && entry.key.startsWith('soon.')).length;
+    const before = purged();
+    const { id } = (await call('post').send(personBody())).body as { id: string };
+    expect(purged()).toBe(before + 1);
+    await call('patch', `/${id}`).send(personBody({ vpa: 'other@okexample' }));
+    await call('post', `/${id}/received`).send({ receivedPaise: 1_000 });
+    await call('post', `/${id}/close`);
+    expect(purged()).toBe(before + 4);
+    expect((await call('post', `/${id}/close`)).status).toBe(404);
+    expect(purged()).toBe(before + 4);
+    const second = (await call('post').send(personBody({ displayName: 'Test Second' }))).body as { id: string };
+    await call('delete', `/${second.id}`);
+    expect(purged()).toBe(before + 6);
+    // Only the masjid's own tag, through the merged routine purge.
+    const mine = purges.filter((entry) => entry.key.startsWith('soon.') && entry.tags.includes(tag));
+    expect(mine.every((entry) => entry.tags.length === 1)).toBe(true);
+  });
+
+  it('suspending, unsuspending and deleting a masjid purge its CDN tag (#180 M7)', async () => {
+    const { masjidId } = await activeMasjid('Test Masjid Purge Status');
+    const tag = `m-${masjidId}`;
+    await stepUp(true);
+    for (const [method, path, body] of [
+      ['post', 'suspend', { reason: 'Test reason' }],
+      ['post', 'unsuspend', { reason: 'Test reason' }],
+      ['delete', '', {}],
+    ] as const) {
+      const before = purges.filter((entry) => entry.tags.includes(tag)).length;
+      clock.advance(1_000);
+      const response = await asSuper(method, path ? `/masjids/${masjidId}/${path}` : `/masjids/${masjidId}`).send(body);
+      expect(response.status).toBe(204);
+      expect(purges.filter((entry) => entry.tags.includes(tag)).length).toBe(before + 1);
+    }
   });
 
   it('the private phone / note: encrypted at rest, only for this masjid’s admin, every view audited', async () => {
@@ -404,15 +460,19 @@ describe('worker: retention', () => {
 
     const back = clock.now();
     const day = 24 * 60 * 60 * 1000;
+    // Retention also deletes admin sessions that ended 30 days before (T8.7): this file's own sessions are put back.
+    const sessions = await db().collection('admin_sessions').find().toArray();
     clock.set(new Date(back.getTime() + 89 * day));
     expect(await asSystem((handle) => processRetention({ db: handle, clock, logger }))).toMatchObject({
-      beneficiaries: 0,
+      counts: { beneficiaries: 0 },
     });
     expect(await left()).toBe(4);
     clock.set(new Date(back.getTime() + 90 * day + 60_000));
     const run = await asSystem((handle) => processRetention({ db: handle, clock, logger }));
-    expect(run.beneficiaries).toBeGreaterThanOrEqual(3); // this masjid's three (and other tests' ended people)
+    expect(run.counts['beneficiaries']).toBeGreaterThanOrEqual(3); // this masjid's three (and other tests' ended people)
     clock.set(back);
+    for (const doc of sessions)
+      await db().collection('admin_sessions').replaceOne({ _id: doc._id }, doc, { upsert: true });
 
     const remaining = await rawPeople()
       .find({ masjid_id: uuid(masjidId) })

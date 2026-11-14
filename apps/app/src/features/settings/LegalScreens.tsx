@@ -1,9 +1,9 @@
 // Settings → Privacy Policy (legal reader with the DRAFT badge, 05 §10), Contact & Grievance (the Grievance Officer from
 // `/config`, 05 §3 — changes without deploys; the in-app form arrives with Phase 8) and About (07 A15).
-import { loadLegalDoc } from '@mc/i18n/legal';
+import { type LegalDoc, loadLegalDoc } from '@mc/i18n/legal';
 import { useLocale, useTranslation } from '@mc/i18n/react';
 import { BRAND } from '@mc/shared/brand';
-import { Button, Card, EmptyState, InfoNote, Skeleton, SkeletonText, Tag } from '@mc/ui/components';
+import { Button, Card, EmptyState, InfoNote, ListRow, Skeleton, SkeletonText, Tag } from '@mc/ui/components';
 import { Screen, useNavigator } from '@mc/ui/navigation';
 import { useQuery } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -11,6 +11,7 @@ import type { ReactNode } from 'react';
 import { configQuery } from '../../lib/api/queries.ts';
 import { useAppData } from '../../lib/data.tsx';
 import { appRelease } from '../../lib/query/persist.ts';
+import { GrievanceForm } from './GrievanceForm.tsx';
 
 const Gate = ({ children }: { readonly children: ReactNode }) => {
   const { ready } = useTranslation('settings');
@@ -21,42 +22,65 @@ const Gate = ({ children }: { readonly children: ReactNode }) => {
 export function PrivacyScreen() {
   return (
     <Gate>
-      <Privacy />
+      <LegalReader name="privacy" />
     </Gate>
   );
 }
 
-function Privacy() {
+export function TermsScreen() {
+  return (
+    <Gate>
+      <LegalReader name="terms" />
+    </Gate>
+  );
+}
+
+export function ContentPolicyScreen() {
+  return (
+    <Gate>
+      <LegalReader name="content-policy" />
+    </Gate>
+  );
+}
+
+const TITLE_KEY = { privacy: 'privacy', terms: 'terms', 'content-policy': 'contentPolicy' } as const;
+
+/** Draft marks for a legal document (05 §10): the DRAFT banner and, for machine translations, DRAFT TRANSLATION. */
+export function LegalMarks({ doc }: { readonly doc: LegalDoc }) {
+  const { t } = useTranslation('settings');
+  return (
+    <div className="flex flex-wrap items-center gap-2" data-legal-marks>
+      {doc.status === 'draft' ? <Tag tone="danger">{t('draft')}</Tag> : null}
+      {doc.draftTranslation ? <Tag tone="sun">{t('draftTranslation')}</Tag> : null}
+      <span className="type-caption text-text-tertiary">{t('docVersion', { version: doc.version })}</span>
+    </div>
+  );
+}
+
+/** The legal reader (05 §10, T8.6): the bundled document in the person's language, with its draft marks. */
+function LegalReader({ name }: { readonly name: keyof typeof TITLE_KEY }) {
   const { t } = useTranslation('settings');
   const navigator = useNavigator();
   const { t: tc } = useTranslation();
   const { locale } = useLocale();
   // Same key as onboarding's sheet: one copy in memory (bundled file, never stale).
   const doc = useQuery({
-    queryKey: ['legal', 'privacy', locale],
-    queryFn: () => loadLegalDoc('privacy', locale),
+    queryKey: ['legal', name, locale],
+    queryFn: () => loadLegalDoc(name, locale),
     staleTime: Number.POSITIVE_INFINITY,
   });
   return (
-    <Screen title={t('privacy')}>
-      <article className="flex flex-col gap-4 pt-2 pb-8">
+    <Screen title={t(TITLE_KEY[name])}>
+      <article className="flex flex-col gap-4 pt-2 pb-8" data-legal-doc={name}>
         {doc.data ? (
           <>
-            <div className="flex flex-wrap items-center gap-2">
-              {doc.data.status === 'draft' ? <Tag tone="danger">{t('draft')}</Tag> : null}
-              <span className="type-caption text-text-tertiary">{t('docVersion', { version: doc.data.version })}</span>
-            </div>
-            {/* The drafts exist in English only so far (human translations come with the legal review). */}
-            <ul
-              lang={locale !== 'en' ? 'en' : undefined}
-              dir="auto"
-              className="flex list-disc flex-col gap-3 ps-5 type-body text-text"
-            >
+            <LegalMarks doc={doc.data} />
+            <ul dir="auto" className="flex list-disc flex-col gap-3 ps-5 type-body text-text">
               {doc.data.points.map((point) => (
                 <li key={point}>{point}</li>
               ))}
             </ul>
-            {/* The notice sends questions to the Grievance Officer; this is also the page's keyboard stop (axe). */}
+            {/* Questions go to the Grievance Officer; this is also the page's keyboard stop (axe). */}
             <Button
               variant="outline"
               fullWidth
@@ -100,6 +124,12 @@ function Grievance() {
   const { api } = useAppData();
   const config = useQuery(configQuery(api));
   const officer = config.data?.grievanceOfficer;
+  const { locale } = useLocale();
+  const doc = useQuery({
+    queryKey: ['legal', 'grievance', locale],
+    queryFn: () => loadLegalDoc('grievance', locale),
+    staleTime: Number.POSITIVE_INFINITY,
+  });
   // Placeholders ("NOT SET") until the Super Admin fills them in (C10): no mail link to a non-address.
   const email = officer && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(officer.email) ? officer.email : null;
   return (
@@ -136,7 +166,20 @@ function Grievance() {
             <Skeleton className="h-32 w-full rounded-md" />
           </div>
         )}
-        <InfoNote>{t('formSoon')}</InfoNote>
+        {doc.data ? (
+          <details className="rounded-md bg-surface p-4 shadow-e1" data-legal-doc="grievance">
+            <summary className="min-h-11 cursor-pointer type-headline text-text">{t('grievanceHow')}</summary>
+            <div className="flex flex-col gap-3 pt-3">
+              <LegalMarks doc={doc.data} />
+              <ul dir="auto" className="flex list-disc flex-col gap-2 ps-5 type-callout text-text">
+                {doc.data.points.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+            </div>
+          </details>
+        ) : null}
+        <GrievanceForm />
       </div>
     </Screen>
   );
@@ -152,6 +195,7 @@ export function AboutScreen() {
 
 function About() {
   const { t } = useTranslation('settings');
+  const navigator = useNavigator();
   const release = appRelease();
   return (
     <Screen title={t('about')}>
@@ -164,6 +208,26 @@ function About() {
         <p className="max-w-xs pt-4 type-body text-text">{t('aboutFree')}</p>
         <p className="type-callout text-text-secondary">{t('aboutCommunity')}</p>
       </div>
+      <ul className="mb-8 flex flex-col divide-y divide-border rounded-md bg-surface shadow-e1">
+        {(
+          [
+            ['terms', '/settings/terms'],
+            ['contentPolicy', '/settings/content-policy'],
+            ['licenses', '/settings/licenses'],
+          ] as const
+        ).map(([key, path]) => (
+          <li key={key}>
+            <ListRow
+              className="px-4"
+              title={t(key)}
+              chevron
+              onPress={() => {
+                navigator.push(path);
+              }}
+            />
+          </li>
+        ))}
+      </ul>
     </Screen>
   );
 }

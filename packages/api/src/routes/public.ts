@@ -20,6 +20,8 @@ import {
   resolveMasjidByCode,
 } from '@mc/db/repos';
 import {
+  createGrievance,
+  createReport,
   deleteDevice,
   followMasjid,
   getDeviceRecord,
@@ -33,6 +35,7 @@ import {
 } from '@mc/db/state';
 import { normalizeFollowCode } from '@mc/domain/follow-code';
 import { addDays, calendarDateInZone } from '@mc/domain/time';
+import { reportSla, SLA_MS } from '@mc/shared/compliance';
 import {
   ameenCountsSchema,
   ameenResponseSchema,
@@ -56,17 +59,22 @@ import {
   templateListSchema,
   updateDeviceRequestSchema,
 } from '@mc/shared/contracts';
+import { grievanceReceivedSchema, grievanceRequestSchema } from '@mc/shared/contracts/grievances';
+import { reportRequestSchema, reportResponseSchema } from '@mc/shared/contracts/reports';
 import type { Response } from 'express';
 import { z } from 'zod';
 
 import { deviceSecretHash, newDeviceSecret } from '../auth/device.ts';
 import type { TurnstileVerifier } from '../auth/turnstile.ts';
+import { sealField } from '../crypto/seal.ts';
 import { defineRoute, redirectSchema, type RouteDefinition } from '../http/define-route.ts';
 import { ApiProblem } from '../http/problem.ts';
 
 export interface PublicRouteDeps {
   readonly db: DbHandle;
   readonly turnstile: TurnstileVerifier;
+  /** The grievance contact sealing key (public half — DECISIONS #173); absent → a contact is refused (503). */
+  readonly grievanceSeal?: { readonly publicKey: string; readonly keyId: string } | undefined;
 }
 
 /** Mount point of these routes (01 §2) — redirects name full paths. */
@@ -514,6 +522,58 @@ export function publicRoutes(deps: PublicRouteDeps): RouteDefinition[] {
         const itemId = /^[A-Za-z0-9_-]{12}$/.test(params.publicId) ? await findDuaItemId(db, params.publicId) : null;
         if (!itemId) throw new ApiProblem(404, 'ITEM_NOT_FOUND');
         return reply(200, { count: await recordAmeen(db, auth.scope, itemId) });
+      },
+    }),
+    // --- grievances (PHASE_08 T8.4) -----------------------------------------------------------------------------
+    defineRoute({
+      method: 'post',
+      path: '/grievances',
+      summary: 'File a grievance (Turnstile; 5 a day per IP); the contact is sealed for the Super Admin only',
+      tags: ['grievance'],
+      auth: 'none',
+      rateLimit: [{ bucket: 'grievancesIp', key: 'ip' }],
+      request: { body: grievanceRequestSchema },
+      responses: { 201: grievanceReceivedSchema },
+      handler: async ({ body, clock, reply }) => {
+        if (!(await deps.turnstile(body.turnstileToken))) throw new ApiProblem(403, 'TURNSTILE_FAILED');
+        const contact = body.contact === '' ? undefined : body.contact;
+        const seal = deps.grievanceSeal;
+        if (contact !== undefined && !seal) throw new ApiProblem(503, 'GRIEVANCE_CONTACT_UNAVAILABLE');
+        const now = clock.now();
+        const { publicRef } = await createGrievance(db, publicScope(), {
+          category: body.category,
+          description: body.description,
+          seal: contact !== undefined && seal ? (ref) => sealField(seal, contact, ref) : undefined,
+          ackDueAt: new Date(now.getTime() + SLA_MS.grievanceAck),
+          resolveDueAt: new Date(now.getTime() + SLA_MS.grievanceResolve),
+          now,
+        });
+        return reply(201, { publicRef });
+      },
+    }),
+    // --- reports (PHASE_08 T8.1) ---------------------------------------------------------------------------------
+    defineRoute({
+      method: 'post',
+      path: '/reports',
+      summary: 'Report a post or a masjid (device + Turnstile; 10 a day); never hides anything by itself',
+      tags: ['moderation'],
+      auth: 'device',
+      rateLimit: [{ bucket: 'reports', key: 'device' }],
+      request: { body: reportRequestSchema },
+      responses: { 201: reportResponseSchema },
+      handler: async ({ auth, body, clock, reply }) => {
+        if (!(await deps.turnstile(body.turnstileToken))) throw new ApiProblem(403, 'TURNSTILE_FAILED');
+        const now = clock.now();
+        const masjidId = body.targetType === 'masjid' ? parseId(body.targetPublicId) : null;
+        if (body.targetType === 'masjid' && !masjidId) throw new ApiProblem(404, 'REPORT_TARGET_NOT_FOUND');
+        await createReport(db, auth.scope, {
+          target: masjidId ? { kind: 'masjid', masjidId } : { kind: 'item', publicId: body.targetPublicId },
+          reason: body.reason,
+          details: body.details === '' ? undefined : body.details,
+          ...reportSla(body.reason, now),
+          now,
+        });
+        return reply(201, { received: true });
       },
     }),
     defineRoute({

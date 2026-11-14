@@ -30,6 +30,7 @@ import { Route as DuaIndexRouteImport } from './routes/dua.index'
 import { Route as DuaAttachRouteImport } from './routes/dua.attach'
 import { Route as DuaDetailsRouteImport } from './routes/dua.details'
 import { Route as DuaPreviewRouteImport } from './routes/dua.preview'
+import { Route as LegalDocRouteImport } from './routes/legal.$doc'
 import { Route as NeedyIndexRouteImport } from './routes/needy.index'
 import { Route as NeedyIdRouteImport } from './routes/needy.$id'
 import { Route as NoticeIndexRouteImport } from './routes/notice.index'
@@ -42,8 +43,12 @@ import { Route as SpecialIndexRouteImport } from './routes/special.index'
 import { Route as SpecialIdRouteImport } from './routes/special.$id'
 import { Route as SuperIndexRouteImport } from './routes/super.index'
 import { Route as SuperAuditRouteImport } from './routes/super.audit'
+import { Route as SuperGrievancesRouteImport } from './routes/super.grievances'
+import { Route as SuperLegalOrdersRouteImport } from './routes/super.legal-orders'
 import { Route as SuperPaymentsRouteImport } from './routes/super.payments'
+import { Route as SuperReportsRouteImport } from './routes/super.reports'
 import { Route as SuperSettingsRouteImport } from './routes/super.settings'
+import { Route as SuperStatsRouteImport } from './routes/super.stats'
 import { Route as VideosIndexRouteImport } from './routes/videos.index'
 import { Route as VideosNewRouteImport } from './routes/videos.new'
 import { Route as SuperLibraryIndexRouteImport } from './routes/super.library.index'
@@ -56,6 +61,7 @@ import { Route as SuperTemplatesIndexRouteImport } from './routes/super.template
 import { Route as SuperTemplatesKeyRouteImport } from './routes/super.templates.$key'
 import { Route as SuperTemplatesNewRouteImport } from './routes/super.templates.new'
 import { Route as SuperMasjidsIdEditRouteImport } from './routes/super.masjids.$id.edit'
+import { Route as SuperMasjidsIdPosterRouteImport } from './routes/super.masjids.$id.poster'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -162,6 +168,11 @@ const DuaPreviewRoute = DuaPreviewRouteImport.update({
   path: '/dua/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LegalDocRoute = LegalDocRouteImport.update({
+  id: '/legal/$doc',
+  path: '/legal/$doc',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NeedyIndexRoute = NeedyIndexRouteImport.update({
   id: '/needy/',
   path: '/needy/',
@@ -222,14 +233,34 @@ const SuperAuditRoute = SuperAuditRouteImport.update({
   path: '/super/audit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperGrievancesRoute = SuperGrievancesRouteImport.update({
+  id: '/super/grievances',
+  path: '/super/grievances',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperLegalOrdersRoute = SuperLegalOrdersRouteImport.update({
+  id: '/super/legal-orders',
+  path: '/super/legal-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuperPaymentsRoute = SuperPaymentsRouteImport.update({
   id: '/super/payments',
   path: '/super/payments',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperReportsRoute = SuperReportsRouteImport.update({
+  id: '/super/reports',
+  path: '/super/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuperSettingsRoute = SuperSettingsRouteImport.update({
   id: '/super/settings',
   path: '/super/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperStatsRoute = SuperStatsRouteImport.update({
+  id: '/super/stats',
+  path: '/super/stats',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VideosIndexRoute = VideosIndexRouteImport.update({
@@ -292,6 +323,11 @@ const SuperMasjidsIdEditRoute = SuperMasjidsIdEditRouteImport.update({
   path: '/edit',
   getParentRoute: () => SuperMasjidsIdRoute,
 } as any)
+const SuperMasjidsIdPosterRoute = SuperMasjidsIdPosterRouteImport.update({
+  id: '/poster',
+  path: '/poster',
+  getParentRoute: () => SuperMasjidsIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -312,6 +348,7 @@ export interface FileRoutesByFullPath {
   '/dua/attach': typeof DuaAttachRoute
   '/dua/details': typeof DuaDetailsRoute
   '/dua/preview': typeof DuaPreviewRoute
+  '/legal/$doc': typeof LegalDocRoute
   '/needy/$id': typeof NeedyIdRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
@@ -319,8 +356,12 @@ export interface FileRoutesByFullPath {
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
+  '/super/grievances': typeof SuperGrievancesRoute
+  '/super/legal-orders': typeof SuperLegalOrdersRoute
   '/super/payments': typeof SuperPaymentsRoute
+  '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/super/stats': typeof SuperStatsRoute
   '/videos/new': typeof VideosNewRoute
   '/daily/': typeof DailyIndexRoute
   '/donation/': typeof DonationIndexRoute
@@ -341,6 +382,7 @@ export interface FileRoutesByFullPath {
   '/super/masjids/': typeof SuperMasjidsIndexRoute
   '/super/templates/': typeof SuperTemplatesIndexRoute
   '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute
+  '/super/masjids/$id/poster': typeof SuperMasjidsIdPosterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -361,6 +403,7 @@ export interface FileRoutesByTo {
   '/dua/attach': typeof DuaAttachRoute
   '/dua/details': typeof DuaDetailsRoute
   '/dua/preview': typeof DuaPreviewRoute
+  '/legal/$doc': typeof LegalDocRoute
   '/needy/$id': typeof NeedyIdRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
@@ -368,8 +411,12 @@ export interface FileRoutesByTo {
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
+  '/super/grievances': typeof SuperGrievancesRoute
+  '/super/legal-orders': typeof SuperLegalOrdersRoute
   '/super/payments': typeof SuperPaymentsRoute
+  '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/super/stats': typeof SuperStatsRoute
   '/videos/new': typeof VideosNewRoute
   '/daily': typeof DailyIndexRoute
   '/donation': typeof DonationIndexRoute
@@ -390,6 +437,7 @@ export interface FileRoutesByTo {
   '/super/masjids': typeof SuperMasjidsIndexRoute
   '/super/templates': typeof SuperTemplatesIndexRoute
   '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute
+  '/super/masjids/$id/poster': typeof SuperMasjidsIdPosterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -411,6 +459,7 @@ export interface FileRoutesById {
   '/dua/attach': typeof DuaAttachRoute
   '/dua/details': typeof DuaDetailsRoute
   '/dua/preview': typeof DuaPreviewRoute
+  '/legal/$doc': typeof LegalDocRoute
   '/needy/$id': typeof NeedyIdRoute
   '/notice/fill': typeof NoticeFillRoute
   '/notice/preview': typeof NoticePreviewRoute
@@ -418,8 +467,12 @@ export interface FileRoutesById {
   '/soon/$tile': typeof SoonTileRoute
   '/special/$id': typeof SpecialIdRoute
   '/super/audit': typeof SuperAuditRoute
+  '/super/grievances': typeof SuperGrievancesRoute
+  '/super/legal-orders': typeof SuperLegalOrdersRoute
   '/super/payments': typeof SuperPaymentsRoute
+  '/super/reports': typeof SuperReportsRoute
   '/super/settings': typeof SuperSettingsRoute
+  '/super/stats': typeof SuperStatsRoute
   '/videos/new': typeof VideosNewRoute
   '/daily/': typeof DailyIndexRoute
   '/donation/': typeof DonationIndexRoute
@@ -440,6 +493,7 @@ export interface FileRoutesById {
   '/super/masjids/': typeof SuperMasjidsIndexRoute
   '/super/templates/': typeof SuperTemplatesIndexRoute
   '/super/masjids/$id/edit': typeof SuperMasjidsIdEditRoute
+  '/super/masjids/$id/poster': typeof SuperMasjidsIdPosterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -462,6 +516,7 @@ export interface FileRouteTypes {
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
+    | '/legal/$doc'
     | '/needy/$id'
     | '/notice/fill'
     | '/notice/preview'
@@ -469,8 +524,12 @@ export interface FileRouteTypes {
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
+    | '/super/grievances'
+    | '/super/legal-orders'
     | '/super/payments'
+    | '/super/reports'
     | '/super/settings'
+    | '/super/stats'
     | '/videos/new'
     | '/daily/'
     | '/donation/'
@@ -491,6 +550,7 @@ export interface FileRouteTypes {
     | '/super/masjids/'
     | '/super/templates/'
     | '/super/masjids/$id/edit'
+    | '/super/masjids/$id/poster'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -511,6 +571,7 @@ export interface FileRouteTypes {
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
+    | '/legal/$doc'
     | '/needy/$id'
     | '/notice/fill'
     | '/notice/preview'
@@ -518,8 +579,12 @@ export interface FileRouteTypes {
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
+    | '/super/grievances'
+    | '/super/legal-orders'
     | '/super/payments'
+    | '/super/reports'
     | '/super/settings'
+    | '/super/stats'
     | '/videos/new'
     | '/daily'
     | '/donation'
@@ -540,6 +605,7 @@ export interface FileRouteTypes {
     | '/super/masjids'
     | '/super/templates'
     | '/super/masjids/$id/edit'
+    | '/super/masjids/$id/poster'
   id:
     | '__root__'
     | '/'
@@ -560,6 +626,7 @@ export interface FileRouteTypes {
     | '/dua/attach'
     | '/dua/details'
     | '/dua/preview'
+    | '/legal/$doc'
     | '/needy/$id'
     | '/notice/fill'
     | '/notice/preview'
@@ -567,8 +634,12 @@ export interface FileRouteTypes {
     | '/soon/$tile'
     | '/special/$id'
     | '/super/audit'
+    | '/super/grievances'
+    | '/super/legal-orders'
     | '/super/payments'
+    | '/super/reports'
     | '/super/settings'
+    | '/super/stats'
     | '/videos/new'
     | '/daily/'
     | '/donation/'
@@ -589,6 +660,7 @@ export interface FileRouteTypes {
     | '/super/masjids/'
     | '/super/templates/'
     | '/super/masjids/$id/edit'
+    | '/super/masjids/$id/poster'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -610,6 +682,7 @@ export interface RootRouteChildren {
   DuaAttachRoute: typeof DuaAttachRoute
   DuaDetailsRoute: typeof DuaDetailsRoute
   DuaPreviewRoute: typeof DuaPreviewRoute
+  LegalDocRoute: typeof LegalDocRoute
   NeedyIdRoute: typeof NeedyIdRoute
   NoticeFillRoute: typeof NoticeFillRoute
   NoticePreviewRoute: typeof NoticePreviewRoute
@@ -617,8 +690,12 @@ export interface RootRouteChildren {
   SoonTileRoute: typeof SoonTileRoute
   SpecialIdRoute: typeof SpecialIdRoute
   SuperAuditRoute: typeof SuperAuditRoute
+  SuperGrievancesRoute: typeof SuperGrievancesRoute
+  SuperLegalOrdersRoute: typeof SuperLegalOrdersRoute
   SuperPaymentsRoute: typeof SuperPaymentsRoute
+  SuperReportsRoute: typeof SuperReportsRoute
   SuperSettingsRoute: typeof SuperSettingsRoute
+  SuperStatsRoute: typeof SuperStatsRoute
   VideosNewRoute: typeof VideosNewRoute
   DailyIndexRoute: typeof DailyIndexRoute
   DonationIndexRoute: typeof DonationIndexRoute
@@ -789,6 +866,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DuaPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/legal/$doc': {
+      id: '/legal/$doc'
+      path: '/legal/$doc'
+      fullPath: '/legal/$doc'
+      preLoaderRoute: typeof LegalDocRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/needy/': {
       id: '/needy/'
       path: '/needy'
@@ -873,6 +957,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperAuditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/super/grievances': {
+      id: '/super/grievances'
+      path: '/super/grievances'
+      fullPath: '/super/grievances'
+      preLoaderRoute: typeof SuperGrievancesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super/legal-orders': {
+      id: '/super/legal-orders'
+      path: '/super/legal-orders'
+      fullPath: '/super/legal-orders'
+      preLoaderRoute: typeof SuperLegalOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/payments': {
       id: '/super/payments'
       path: '/super/payments'
@@ -880,11 +978,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperPaymentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/super/reports': {
+      id: '/super/reports'
+      path: '/super/reports'
+      fullPath: '/super/reports'
+      preLoaderRoute: typeof SuperReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super/settings': {
       id: '/super/settings'
       path: '/super/settings'
       fullPath: '/super/settings'
       preLoaderRoute: typeof SuperSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super/stats': {
+      id: '/super/stats'
+      path: '/super/stats'
+      fullPath: '/super/stats'
+      preLoaderRoute: typeof SuperStatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/videos/': {
@@ -971,15 +1083,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperMasjidsIdEditRouteImport
       parentRoute: typeof SuperMasjidsIdRoute
     }
+    '/super/masjids/$id/poster': {
+      id: '/super/masjids/$id/poster'
+      path: '/poster'
+      fullPath: '/super/masjids/$id/poster'
+      preLoaderRoute: typeof SuperMasjidsIdPosterRouteImport
+      parentRoute: typeof SuperMasjidsIdRoute
+    }
   }
 }
 
 interface SuperMasjidsIdRouteChildren {
   SuperMasjidsIdEditRoute: typeof SuperMasjidsIdEditRoute
+  SuperMasjidsIdPosterRoute: typeof SuperMasjidsIdPosterRoute
 }
 
 const SuperMasjidsIdRouteChildren: SuperMasjidsIdRouteChildren = {
   SuperMasjidsIdEditRoute: SuperMasjidsIdEditRoute,
+  SuperMasjidsIdPosterRoute: SuperMasjidsIdPosterRoute,
 }
 
 const SuperMasjidsIdRouteWithChildren = SuperMasjidsIdRoute._addFileChildren(
@@ -1005,6 +1126,7 @@ const rootRouteChildren: RootRouteChildren = {
   DuaAttachRoute: DuaAttachRoute,
   DuaDetailsRoute: DuaDetailsRoute,
   DuaPreviewRoute: DuaPreviewRoute,
+  LegalDocRoute: LegalDocRoute,
   NeedyIdRoute: NeedyIdRoute,
   NoticeFillRoute: NoticeFillRoute,
   NoticePreviewRoute: NoticePreviewRoute,
@@ -1012,8 +1134,12 @@ const rootRouteChildren: RootRouteChildren = {
   SoonTileRoute: SoonTileRoute,
   SpecialIdRoute: SpecialIdRoute,
   SuperAuditRoute: SuperAuditRoute,
+  SuperGrievancesRoute: SuperGrievancesRoute,
+  SuperLegalOrdersRoute: SuperLegalOrdersRoute,
   SuperPaymentsRoute: SuperPaymentsRoute,
+  SuperReportsRoute: SuperReportsRoute,
   SuperSettingsRoute: SuperSettingsRoute,
+  SuperStatsRoute: SuperStatsRoute,
   VideosNewRoute: VideosNewRoute,
   DailyIndexRoute: DailyIndexRoute,
   DonationIndexRoute: DonationIndexRoute,

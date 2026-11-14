@@ -70,6 +70,8 @@
   "license": "Licence: {license}",
   "gone": "This post is no longer available",
   "goneBody": "The masjid may have removed it.",
+  "goneVideo": "This video was removed from the app",
+  "goneVideoBody": "It may still be on the masjid's YouTube channel.",
   "back": "Go back",
   "adhkarTitle": "Adhkar after salah",
   "emptyAdhkar": "No adhkar yet",

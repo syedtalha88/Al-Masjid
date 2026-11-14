@@ -245,8 +245,9 @@ Before you start: **O37** must be done (the notification keys on staging match).
 | 8.8 | Legal pages | Read Privacy, Terms, Content Policy in all 4 languages | All present; still marked DRAFT until your lawyer approves |
 | 8.9 | Poster | Super Admin → masjid → Generate poster → A4 → print (or save PDF and print at a shop) | Clean poster, Urdu and Telugu text correct, big QR + code |
 | 8.10 | Scan printed poster | Stick it on a wall; scan from 1.5 m in normal light | Scans quickly |
-| 8.11 | Kill switches | Turn on maintenance banner; turn on admin read-only mode | Banner shows in both apps; admin can't publish (friendly message). Turn both off |
-| 8.12 | Audit export | Audit log → Export CSV | File downloads; no secrets inside |
+| 8.11 | Kill switches | Super Admin → Settings: write a maintenance banner and an incident banner (all 4 languages) → Show banner; turn on **Admin read-only mode ★** (confirm + screen lock) | Within a minute: musalli Home shows both banners (incident on top), admin Home shows the maintenance one; a masjid admin sees "Changes are paused…" and saving anything shows a polite message; the Super Admin dashboard says read-only is on. Turn read-only off and **Take down** both banners — they go within a minute |
+| 8.12 | Audit export | Audit log → pick an action and dates → Export CSV ★; also open a masjid → **Audit log** | File downloads with only ids, actions, dates and field names (no phone numbers, emails or secrets); the masjid's link shows only its entries |
+| 8.13 | Stats | Super Admin → **Stats** (a few hours after deploy) | Numbers for masjids, phones, notifications, deadlines met; Media storage shows a %; the 30-day lines fill in day by day |
 
 ---
 

@@ -2,11 +2,11 @@
 
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
-> Last updated: 13 Nov 2026 — **Phases 03, 04, 05 and 06 are on staging**; **Phases 05, 06 and 07 are closed on our
-> side** ("DONE — owner checks pending", DECISIONS #162). Phase 07 (Qibla) reaches staging with the next `main` CI run;
-> **Phase 08 (moderation, grievance, legal pages, QR posters) is next.** Your checks, in any order: O45 → O50 + O28
-> (Phase 05), O49 (Phase 06, possible now), O29 (Phase 07, once it is on staging). Older items: O25 rest → O26
-> (Phase 03), O38 (Phase 04).
+> Last updated: 13 Nov 2026 — **staging runs `30a268b`: Phases 03–07 are all there** (Phase 07 Qibla included).
+> Phases 05, 06 and 07 are closed on our side ("DONE — owner checks pending", DECISIONS #162). **Phase 08 (moderation,
+> grievance, legal pages, QR posters) is being built** — reporting (T8.1) and takedown (T8.2) are done on its branch.
+> Your checks, in any order: O45 → O50 + O28 (Phase 05), **O49 (Phase 06 bayans) and O29 (Phase 07 Qibla) — both
+> possible now**. Older items: O25 rest → O26 (Phase 03), O38 (Phase 04).
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
 > Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.
@@ -95,7 +95,16 @@
 
 | # | What | Time | When |
 |---|---|---|---|
-| O29 | **Qibla check** — compare the arrow with a masjid's mihrab direction on one Android and one iPhone | 10 min | Phase 07 |
+| O29 | **Qibla check** — compare the arrow with a masjid's mihrab direction on one Android and one iPhone (`owner/PHASE_TESTING_GUIDE.md` → Phase 07). Staging has Phase 07 since 13 Nov 2026 | 10 min | **now** |
+| O51 | **Phase 08 takedown check on staging** (after Phase 08 reaches staging) — report a test post from a phone, remove it in Super Admin → Reports; within a minute the post's old link says "no longer available" (also when opened in a private window), and its photo's address no longer loads. Steps will be in `owner/PHASE_TESTING_GUIDE.md` → Phase 08 (DECISIONS #171, F76) | 15 min | Phase 08 |
+| O52 | **Sentry e-mail for passed deadlines** — in Sentry → Settings → your project → Alerts, keep (or add) the rule that e-mails you about **new issues**; a report past its deadline is sent there as "SLA deadline passed" in case a phone alert is missed (DECISIONS #172) | 5 min | before launch |
+| O53 | **Grievance sealing key pair (staging, later production)** — needed before grievance contacts work on staging (DECISIONS #173). On your PC: `openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 -out grievance.key` then `openssl pkey -in grievance.key -pubout -out grievance.pub`. Put `GRIEVANCE_SEAL_PUBLIC_KEY=<base64 of grievance.pub>` and `GRIEVANCE_SEAL_KEY_ID=g1` in `/etc/masjid-connect/staging/api-public.env`; `GRIEVANCE_SEAL_PRIVATE_KEY=<base64 of grievance.key>` and `GRIEVANCE_SEAL_KEY_ID=g1` in `api-admin.env` only. Keep `grievance.key` in your password manager; never paste it into chat. Use the 4096 command exactly as written — the server refuses to start with a key smaller than 3072 bits (DECISIONS #180) | 15 min | before Phase 08 reaches staging |
+| O54 | **Legal order document check on staging** (DECISIONS #174) — after Phase 08 is on staging: Super Admin → Legal orders → Record an order (fake text) → Attach document (any small PDF) → Download document: the same file opens. Then in the Cloudinary console → Media Library → the `legal/` folder: the file is listed as *authenticated* / raw, and opening its public link shows an error (not the file). Tell me if any step fails | 10 min | after Phase 08 reaches staging |
+| O55 | **Legal texts review** (DECISIONS #175): give your lawyer the five drafts in `packages/i18n/legal/en/` (privacy, terms, content-policy, grievance, undertaking). Also find out from your Cloudinary and Sentry account settings which region (country) your data is stored in — the privacy notice says "region to be confirmed" for both. Get human Hindi, Urdu and Telugu translations of the final English text. Send me the final texts; I mark them reviewed. **Production cannot be built until this is done** (the build refuses drafts) | lawyer + translator time | before launch (Phase 09) |
+| O56 | **Print and scan a QR poster** (DECISIONS #177): on staging, Super Admin → Masjids → open a masjid → **QR poster** → **Print or save as PDF** (in the print window: headers/footers off, scale 100%). Print it on A4 (and once on A5). Stand 1.5 m away and scan it with an Android phone camera and an iPhone camera — the app should open that masjid. Check the Hindi, Urdu and Telugu lines look right on paper. Tell me anything that looks off | 20 min | after Phase 08 reaches staging |
+| O57 | **Kill switches and banners** (DECISIONS #178): on staging, Super Admin → Settings. (1) Turn on **Admin read-only mode ★** (confirm + screen lock). On a masjid admin's phone: Home shows "Changes are paused…", and saving anything shows a polite message. Turn it off again — within a minute the notice goes. (2) Under **Banners**, write a short test maintenance banner in all four languages → **Show banner**; write a test incident banner → **Show banner**. Within a minute the musalli app's Home shows both (incident on top), and the admin app's Home shows the maintenance one. (3) **Take down** both. Tell me anything that looks off | 10 min | after Phase 08 reaches staging |
+| O58 | **Stats check** (DECISIONS #179): a few hours after Phase 08 reaches staging, open Super Admin → **Stats**. You should see numbers for masjids, phones and notifications; **Media storage (Cloudinary)** should show a percentage (if it says "Not available", the Cloudinary key cannot read usage — tell me); **Background jobs** should show counts. The 30-day lines fill in day by day. You will also get a phone alert if Cloudinary use passes 70% or 90% in a month | 5 min | a few hours after Phase 08 reaches staging |
+| O59 | **Atlas roles for Phase 08** (DECISIONS #180 M2): the musalli app's database user may no longer write the audit log. Apply the new `infra/mongo/atlas-roles.json` in Atlas (same steps as O36 / O43), then on the server `sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles` → must PASS; send me the output (no secrets in it). Later the same for production | 15 min | before Phase 08 is merged into `main` (main deploys to staging) |
 
 ### Before the pilot launch
 

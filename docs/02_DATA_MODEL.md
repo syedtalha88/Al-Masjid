@@ -185,7 +185,7 @@ State machine (enforced **only** by `packages/db/src/state/payment.ts` — §3):
 **legal_orders**: `_id`, `authority ≤200`, `reference_no ≤120`, `received_at`, `due_at` (received + 3h), `target_type`, `target_id`, `summary ≤2000`, `action_taken ≤2000`, `action_log [{at, by, note ≤500}]` ≤ 200, `status legal_order_status`, `document_key` optional (Cloudinary `raw` + `authenticated` asset holding the AES-256-GCM-encrypted file — DECISIONS #40), `handled_by`, timestamps. Index `{status:1, due_at:1}`.
 **audit_log**: `_id` **ObjectId** (ordered), `at Date`, `actor_type actor_type`, `actor_id` UUID optional, `action string ≤80` (dot-namespaced, e.g. `item.publish`, `payment.approve`, `session.revoke`), `masjid_id` optional, `target_type ≤40`, `target_id ≤64`, `meta` object (≤ 4 KB, no secrets/PII — allow-listed keys per action), `request_id ≤64`. **Append-only**: no user except `mc_system` has `update`/`remove` privileges on this collection (§4.3); only the retention job deletes entries older than retention and records the purge as a new audit entry. Indexes: `{at:-1}` · `{masjid_id:1, at:-1}` · `{actor_id:1, at:-1}` · `{action:1, at:-1}`.
 **app_settings**: single document `_id: "global"`: `global_hijri_offset int −2..2`, `maintenance_banner {en,hi,ur,te}` optional, `incident_banner {en,hi,ur,te}` optional, `default_push_quota`, `undertaking_version`, `privacy_version`, `terms_version`, `push_paused bool default false`, `admin_read_only bool default false`, `report_autohide_threshold int default 10`, `grievance_officer {name, email, address, city}`, `support_whatsapp` optional, `min_client_version`, `updated_by`, `updated_at`. Public fields (exposed via `/config` through the `v_pub_settings` view): hijri offset, banners, legal versions, grievance officer, min client version.
-**stats_snapshots**: `_id` = ISO hour string, aggregate counts computed hourly by the worker (masjids by status, devices by platform/locale/push status, follows, push success 24h, Cloudinary credits used) — Super Admin Stats reads this instead of scanning large collections.
+**stats_snapshots**: `_id` = ISO hour string (UTC, `YYYY-MM-DDTHH`), `counts` = aggregate counts computed hourly by the worker (masjids by status, devices by platform/locale/push status, follows, push 24h {jobs, sent, failed}, deadlines over 30 days {reports, grievanceAck, grievanceResolve: {onTime, late}}, optional queues {waiting, active, delayed, failed, lagS} and cloudinary {usedPercent, credits?, plan?}), `created_at` — Super Admin Stats reads this instead of scanning large collections (T8.10).
 **_migrations** (runner): `_id` = migration id, `checksum`, `applied_at`, `duration_ms`; plus a lock document `_id: "__lock"` with `locked_until`.
 
 ## 3. Data-layer operations that replace SQL helper/state functions
@@ -226,7 +226,7 @@ S = find, I = insert, U = update, D = delete. "own" = scope's device / scope's m
 | reports | – | I | S reports about own masjid (**never** `device_id`) | S/U |
 | grievances, grievance_seq | I via `createGrievance` | – | – | S/U (decrypt contact in API with step-up) |
 | legal_orders | – | – | – | S/I/U |
-| audit_log | – | I (device actions) | S own masjid entries; I | S; I |
+| audit_log | – | – (devices never write it — security review M2, DECISIONS #180) | S own masjid entries; I | S; I |
 | app_settings | S via `v_pub_settings` (public fields) | – | S | S/U |
 | stats_snapshots | – | – | – | S |
 
@@ -260,7 +260,7 @@ Tests assert (via `explain`) that the hot view queries (feed page, bundle parts,
 | `v_admin_follow_audience` | – | find | find | ″ |
 | masjids, masjid_timings, special_timings, items, chanda_weeks, ruqyah_entries (#130), masjid_contacts (#131), content_library, notice_templates, payment_profiles, admin_users, masjid_admins, webauthn_credentials, admin_invites, admin_sessions, admin_push_subscriptions, notification_jobs, push_quota_usage, legal_orders, app_settings | – | find, insert, update | find, insert, update, remove | collMod, createIndex, createCollection |
 | masjid_admins, admin_push_subscriptions | – | + remove | ″ | ″ |
-| campaign_amount_history, audit_log | audit_log: insert | **find, insert only** | find, insert, remove (retention only) | ″ |
+| campaign_amount_history, audit_log | – | **find, insert only** | find, insert, remove (retention only) | ″ |
 | reports | insert | find, update | all | ″ |
 | grievances | insert | find, update | all | ″ |
 | grievance_seq | find, insert, update | – | all | ″ |
@@ -286,7 +286,7 @@ Implemented once in `packages/db/src/effects.ts`, invoked inside the same transa
 - **Device mirror**: device `audience_pref` / `locale` / push status change → `updateMany` the device's follows (≤ 20 docs).
 - **Reference & delete rules** (replace Postgres `ON DELETE`): masjids and admin users are never hard-deleted by the app (soft delete / anonymize). Hard deletes happen only in state functions or the retention job, always in a transaction:
   - device deleted (Clear all data or retention) → its `device_follows` and `ameens` deleted, `masjid_stats.followers` decremented, `ameen_counters` kept; `reports.device_id` is `$unset` by the daily `retention` job for reports whose device no longer exists (the public DB user has insert-only access to `reports`, so it can't clear it itself);
-  - item purged by retention → its `ameens`, `ameen_counters`, `campaign_amount_history`, linked `chanda_weeks.item_id` (unset) and media (Cloudinary images, incl. copied video thumbnails) removed; `notification_jobs`/`reports`/`audit_log` keep the dangling id until their own retention;
+  - item purged by retention → its `ameens`, `ameen_counters`, `campaign_amount_history`, linked `chanda_weeks.item_id` (unset — or the whole week deleted when moderation removed the post: its figures and note were the removed content, security re-review N-M2) and media (Cloudinary images, incl. copied video thumbnails) removed; `notification_jobs`/`reports`/`audit_log` keep the dangling id until their own retention;
   - admin removed from a masjid → `masjid_admins` document deleted + `admin_count` decremented; admin anonymized → credentials, sessions, invites, push subscriptions deleted;
   - any other dangling reference is a bug: the weekly `counters-reconcile` job also reports orphaned references.
 - **Reconciliation**: weekly worker job `counters-reconcile` recomputes `masjid_stats.followers`, `devices.follow_count`, `ameen_counters`, `masjids.admin_count` and logs/alerts any drift (should be zero).
@@ -307,6 +307,7 @@ Implemented once in `packages/db/src/effects.ts`, invoked inside the same transa
 | Grievances | 3 years after resolution (owner to confirm with lawyer) | delete |
 | Legal orders | 3 years after close (owner to confirm) | delete (+ private document) |
 | Audit log | 2 years | delete (audited purge summary) |
+| Audit entries naming a device (follows, written before DECISIONS #180) | at once | delete — a device id must not outlive "Clear all data" |
 | Notification jobs | 90 days | delete |
 | Push quota usage | 90 days | delete |
 | Campaign amount history | life of campaign + 1 year | delete |

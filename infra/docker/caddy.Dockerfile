@@ -58,6 +58,8 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm fetch
 COPY . .
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm install --frozen-lockfile --offline
 ARG RELEASE=dev
+# `production` only from deploy-prod.yml: the build then refuses legal texts still marked draft (05 §10, T8.6).
+ARG MC_BUILD_ENV=
 ARG VITE_PUBLIC_APP_ORIGIN \
     VITE_PUBLIC_MEDIA_ORIGIN \
     VITE_PUBLIC_VAPID_PUBLIC_KEY \
@@ -68,8 +70,8 @@ ARG VITE_PUBLIC_APP_ORIGIN \
 # Source maps (+ their bundles) move to /maps for the optional Sentry upload (web-maps stage, T0.13); the served
 # dist/ keeps none. Then: no dev-only code, no secrets in the bundles. Staging builds (VITE_PUBLIC_SHOWCASE=true, set
 # only by deploy-staging.yml — DECISIONS #58) may carry the showcase, but only as a lazy, non-precached chunk.
-RUN MC_RELEASE="${RELEASE}" VITE_PUBLIC_API_BASE=/api/v1 pnpm --filter @mc/app build && \
-    MC_RELEASE="${RELEASE}" VITE_PUBLIC_API_BASE=/api/admin pnpm --filter @mc/admin build && \
+RUN MC_BUILD_ENV="${MC_BUILD_ENV}" MC_RELEASE="${RELEASE}" VITE_PUBLIC_API_BASE=/api/v1 pnpm --filter @mc/app build && \
+    MC_BUILD_ENV="${MC_BUILD_ENV}" MC_RELEASE="${RELEASE}" VITE_PUBLIC_API_BASE=/api/admin pnpm --filter @mc/admin build && \
     for app in app admin; do \
       mkdir -p "/maps/$app" && \
       cp apps/$app/dist/assets/*.js "/maps/$app/" && \

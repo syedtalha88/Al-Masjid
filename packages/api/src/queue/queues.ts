@@ -19,7 +19,7 @@ export interface JobQueues {
   enqueue<N extends JobName>(
     name: N,
     payload: JobInput<N>,
-    options?: { jobId?: string; delayMs?: number },
+    options?: { jobId?: string; delayMs?: number; priority?: number },
   ): Promise<void>;
   /** The queue of `name` (worker: schedulers, health counts, the sweeper's state checks). */
   queue(name: JobName): Queue;
@@ -56,6 +56,7 @@ export function createJobQueues(
       await queue(name).add(name, data, {
         ...(options?.jobId === undefined ? {} : { jobId: options.jobId }),
         ...(options?.delayMs === undefined ? {} : { delay: options.delayMs }),
+        ...(options?.priority === undefined ? {} : { priority: options.priority }),
       });
     },
     queue,

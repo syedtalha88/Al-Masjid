@@ -64,6 +64,7 @@ export {
 export { ListRow, type ListRowProps } from './ListRow.tsx';
 export { MasjidCard, type MasjidCardProps } from './MasjidCard.tsx';
 export { MasjidListItem, type MasjidListItemProps } from './MasjidListItem.tsx';
+export { NoticeBanner, type NoticeBannerProps, type NoticeTone } from './NoticeBanner.tsx';
 export { applyPadKey, MAX_PAISE, NumberPad, type NumberPadProps } from './NumberPad.tsx';
 export { Pager, type PagerProps } from './Pager.tsx';
 export { DatePickerSheet, type DatePickerSheetProps, Select, type SelectOption, type SelectProps } from './Pickers.tsx';

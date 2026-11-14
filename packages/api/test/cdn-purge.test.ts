@@ -3,7 +3,9 @@
 // HTTP 200 with `success: true` is a refusal (the job retries). And the delivery URLs a stored file has.
 import { describe, expect, it } from 'vitest';
 
+import { processCdnPurge } from '../src/jobs/cdn/purge.ts';
 import { cloudflarePurger, mediaDeliveryUrls, noCdnPurger, PURGE_BATCH } from '../src/media/cdn-purge.ts';
+import { silentLogger } from './helpers.ts';
 
 const ZONE = '0123456789abcdef0123456789abcdef';
 
@@ -66,5 +68,39 @@ describe('mediaDeliveryUrls', () => {
       'https://media.test/i/1440/webp/m/a/b',
       'https://media.test/a/m4a/m/a/a/c',
     ]);
+  });
+});
+
+// PHASE_08 T8.2 — purge by cache tag (verified 13 Nov 2026: every plan, `{"tags": [...]}`, ≤ 100 per request) and the
+// `cdn-purge` job.
+describe('purge by cache tag', () => {
+  it('sends the tags to the same endpoint, in batches of 100', async () => {
+    const { calls, fetch } = fake(ok);
+    const tags = Array.from({ length: 101 }, (_, n) => `i-tag${String(n)}`);
+    await cloudflarePurger({ token: 'test-token', zoneId: ZONE, fetch }).purgeTags(tags);
+    expect(calls).toHaveLength(2);
+    expect(calls[0]?.url).toBe(`https://api.cloudflare.com/client/v4/zones/${ZONE}/purge_cache`);
+    const bodies = calls.map((call) => JSON.parse(call.init.body as string) as Record<string, string[]>);
+    expect(Object.keys(bodies[0] ?? {})).toEqual(['tags']);
+    expect(bodies.map((body) => body['tags']?.length)).toEqual([100, 1]);
+  });
+
+  it('a refusal or rate limit (1134) throws, so the job retries', async () => {
+    const { fetch } = fake(() => Response.json({ success: false, errors: [{ code: 1134 }] }, { status: 429 }));
+    await expect(cloudflarePurger({ token: 't', zoneId: ZONE, fetch }).purgeTags(['i-x'])).rejects.toThrow(
+      /cdn purge refused: HTTP 429/,
+    );
+  });
+
+  it('the job purges with the purger, and does nothing without one (local)', async () => {
+    const asked: string[][] = [];
+    const logger = silentLogger();
+    const purger = {
+      ...noCdnPurger,
+      purgeTags: (tags: readonly string[]) => (asked.push([...tags]), Promise.resolve()),
+    };
+    expect(await processCdnPurge({ purger, logger }, { tags: ['i-abcdefghijkl', 'm-x'] })).toEqual({ purged: true });
+    expect(asked).toEqual([['i-abcdefghijkl', 'm-x']]);
+    expect(await processCdnPurge({ purger: undefined, logger }, { tags: ['i-a'] })).toEqual({ purged: false });
   });
 });

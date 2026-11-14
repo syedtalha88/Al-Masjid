@@ -28,6 +28,8 @@ export const API_ERRORS = {
   INVITE_INVALID: 404, // 03 §4: uniform 404 for unknown, used, superseded and expired invites
   UNDERTAKING_REQUIRED: 403,
   UNDERTAKING_VERSION_MISMATCH: 409,
+  // Admin read-only mode (PHASE_08 T8.9): the Super Admin's kill switch — masjid admins' writes wait.
+  READ_ONLY_MODE: 503,
   // State rules (02 §3/§5)
   MASJID_NOT_FOUND: 404,
   FOLLOW_LIMIT_REACHED: 409,
@@ -42,6 +44,16 @@ export const API_ERRORS = {
   // Public API (03 §3, Phase 2)
   ITEM_NOT_FOUND: 404,
   TURNSTILE_FAILED: 403,
+  // Reports (03 §3, Phase 8): the post or masjid is not public (anymore).
+  REPORT_TARGET_NOT_FOUND: 404,
+  GRIEVANCE_CONTACT_UNAVAILABLE: 503,
+  GRIEVANCE_NOT_FOUND: 404,
+  // Legal orders (03 §5, Phase 8 T8.5)
+  LEGAL_ORDER_NOT_FOUND: 404,
+  LEGAL_TARGET_NOT_FOUND: 404,
+  LEGAL_ORDER_LOG_FULL: 409,
+  ITEM_ALREADY_REMOVED: 409,
+  REPORT_NOT_FOUND: 404,
   // Content Library (03 §5, Phase 3)
   LIBRARY_ENTRY_NOT_FOUND: 404,
   LIBRARY_DUPLICATE: 409,
@@ -99,6 +111,7 @@ export const API_ERRORS = {
   CAMPAIGN_TARGET_LOWER: 409, // the target only goes up (00 §4.3, T5.3)
   CHANDA_INVALID: 400, // not a week start of the masjid, a future week, amount, note ≤ 200, week start 1–7 (T5.5)
   CHANDA_HIDDEN: 409, // "Notify followers" while chanda is not shown (T5.5)
+  CHANDA_UNDER_REVIEW: 409, // the week's post is auto-hidden, waiting for review (#180 M6, re-review N-L1)
   BENEFICIARY_INVALID: 400, // an invalid UPI ID, a name / reason / payee out of range, a cap outside ₹1 … ₹1 crore (T5.8)
   BENEFICIARY_NOT_FOUND: 404, // unknown person, or closed / deleted (T5.8)
   BENEFICIARY_LIMIT_REACHED: 409, // 100 active people (00 §4.14, T5.8)
