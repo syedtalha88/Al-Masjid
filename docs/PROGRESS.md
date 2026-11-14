@@ -15,10 +15,37 @@
 | 05 | Donations, chanda & UPI change-lock | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): CI green on `997a914`, phase-verifier findings fixed, security re-review clean. Waiting: O43 → merge to `main` / staging → O45 → O50 (guide 5.1–5.22) + O28 | [final](reports/PHASE_05_REPORT.md) | – |
 | 06 | Bayan videos | **DONE — owner checks pending** (12 Nov 2026, DECISIONS #162): CI green on `main` `402e7f8` (run 43237107240), on staging; security review #165, phase-verifier fixes #167 (reach `main` with Phase 07). Waiting: O49 (real YouTube links), O48 (purge token, before May 2027) | [final](reports/PHASE_06_REPORT.md) | – |
 | 07 | Qibla compass | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): security review #167, phase-verifier FAIL → fixed (#169), e2e 12/12 on Pixel 7 + iPhone 14; CI + staging with the merge into `main`. Waiting: O29 (mihrab check) | [final](reports/PHASE_07_REPORT.md) | – |
-| 08 | Moderation, grievance, legal pages, QR posters | **IN PROGRESS** — T8.1–T8.10 done (#170–#179); T8.11: security fixes done (#180, `a665ee0`); left: 3 red CI checks (db int, env files, visual), security re-review, e2e, verifier, report | – | – |
+| 08 | Moderation, grievance, legal pages, QR posters | **IN PROGRESS** — T8.1–T8.10 done (#170–#179); T8.11: security fixes (#180) + re-review fixes and red CI checks (#181, `825efd5`); left: CI on `825efd5`, e2e, verifier, report | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (14 Nov 2026 — Phase 08: all security fixes done; 3 CI checks red; T8.11 rest left)
+## ▶ Next session — start here (14 Nov 2026, evening — Phase 08: CI fixes + re-review fixes done; e2e / verifier / report left)
+
+**Owner instruction (13 Nov 2026):** finish Phase 08 fast but at full quality, close it per protocol, then **STOP — do
+not start Phase 09**. The owner then tests every module end to end and reports changes / issues.
+
+**State:** `main` = `30a268b` (Phases 05–07) on staging. `feat/phase-08` = `ci/phase-08` = `825efd5` (pushed; CI run
+on it was started 14 Nov). Done this session (DECISIONS #181):
+- The three red CI checks of run 43468883740: db int coverage (91.05 → 96.48 %, new
+  `packages/db/test/legal-sla-stats.int.test.ts`; bug: legal target link with a query), VPS env files
+  (`GRIEVANCE_SEAL_*` in production; `make-env.sh` keeps them), visual (real bug: ICU cache kept the English fallback
+  — `packages/i18n/src/icu-format.ts`; 7 `legal-privacy` baselines updated; full compare 52/52).
+- Security re-review of the #180 fixes: 0 H, 2 M (N-M1 purge starvation, N-M2 chanda week after purge) — **both
+  fixed**; 7 L: N-L1, L2, L3, L5, L6, L7 fixed, N-L4 accepted. A second re-review of `825efd5`'s fix commits is
+  optional (only if the owner wants "no finding of any severity").
+- Local on `825efd5`: db int 445/445 (96.48 %), api int 518 + 1 skipped, `verify:quick` 32/32, i18n check ✅,
+  env-file test 17/17 + schema check 6/6, shellcheck ✅. `scripts/visual.mjs` now passes extra args to Playwright
+  (`node scripts/visual.mjs --grep "…"`).
+
+**Next (in order):**
+1. Read the CI run on `825efd5` (`curl …/actions/runs?branch=ci/phase-08` → jobs → annotations); fix anything red.
+2. e2e on the local stack (`pnpm stack:up:test` → `pnpm db:reset`): `e2e/admin/kill-switches-stats.spec.ts`,
+   moderation / legal specs, journey 11 + legal re-acceptance; then full e2e on Pixel 7 + iPhone 14.
+3. `phase-verifier` on `docs/phases/PHASE_08_MODERATION_LEGAL_POSTERS.md`; fix findings.
+4. `docs/reports/PHASE_08_REPORT.md` (security: #180 0 H / 7 M / 12 L, #181 0 H / 2 M / 7 L; budget 195 kB; visual
+   52/52; test counts above).
+5. Close (#162): CI green → merge into `main` → staging → owner steps (O51, O53–O58) → **stop** and tell the owner.
+
+## ▶ Previous hand-off (14 Nov 2026 — Phase 08: all security fixes done; 3 CI checks red; T8.11 rest left)
 
 **Owner instruction (13 Nov 2026):** finish Phase 08 fast but at full quality (tests, 4 locales, docs, owner list),
 close it per protocol, then **STOP — do not start Phase 09**. The owner then runs end-to-end testing of every module
