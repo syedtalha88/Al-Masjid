@@ -20,6 +20,26 @@
 
 ## ▶ Next session — start here (14 Nov 2026, night — Phase 08: verifier fixes in progress; usage limit hit)
 
+**⚡ OWNER INSTRUCTION (14 Nov 2026, night): do only the bare minimum to close Phase 08 — everything optional moves to
+Phase 9.** The steps below replace the longer list. Skip: the second phase-verifier run, the local stack rebuild and
+local e2e / visual runs (CI runs them), the long DECISIONS #182 write-up, and every LOW item.
+
+**Bare-minimum close (in order):**
+1. **Drop the print-sheet baseline block** in `e2e/visual/screens.visual.spec.ts` (the `if (locale === 'en') { … }`
+   after the super admin screens loop): its baselines were never made and would turn CI's visual job red. → Phase 9.
+2. Push `feat/phase-08:ci/phase-08` and read the CI run. Fix **only** what is red. If the api branch coverage
+   (`packages/api`, gate 85 %) is still short: add tests for `src/routes/super-library.ts` / `videos.ts` until green.
+   If journey 11's new template-notice check (`e2e/admin/moderation.spec.ts`) fails, fix it or remove that check.
+3. Short **DECISIONS #182**: verifier findings fixed (C5 preview, C2 removal count, dry-run tests, F57 → Phase 9,
+   O59) and the list **deferred to Phase 9**: print-sheet baselines (T8.8), automated staging purge check (F76 /
+   O51), Cloudinary public-URL check (O54), journey 11 via a real notification, C5 urgent / reports / legal filters,
+   illustrated empty states C5–C7, C1 / A5 baselines, legal gate vs `translation: draft`, dry-run counts for
+   beneficiaries / alert subscriptions, admin-yearly re-accept e2e, VPS 200-day log check test, re-review of #181.
+4. Short `docs/reports/PHASE_08_REPORT.md` (template headings; numbers from PROGRESS / CI; deviations = #182 list).
+5. Owner **O59** (Atlas roles) → merge into `main` → staging → mark Phase 08 "DONE — owner checks pending" → **stop**
+   and tell the owner. Do not start Phase 9.
+
+
 **Owner instruction (13 Nov 2026):** finish Phase 08 at full quality, close it per protocol, then **STOP — do not
 start Phase 09**. The owner then tests every module end to end.
 
