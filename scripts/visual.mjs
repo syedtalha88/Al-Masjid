@@ -38,9 +38,16 @@ const run = (command, args, options = {}) => {
 run(process.execPath, ['scripts/db-reset.ts']);
 run(process.execPath, ['scripts/seed-dev.ts'], { env: { ...process.env, SEED_NOW: visualNow } });
 
+// Further arguments go to Playwright as they are (e.g. `pnpm test:visual -- --grep "super admin"`), single-quoted for
+// the container's bash.
+const extra = process.argv
+  .slice(2)
+  .filter((arg) => arg !== '--update' && arg !== '--')
+  .map((arg) => `'${arg.replaceAll("'", "'\\''")}'`);
 const playwright = [
   'pnpm exec playwright test --project=visual-pixel-7 --project=visual-iphone-14 --workers=2',
   update ? '--update-snapshots=all' : '',
+  ...extra,
   '--reporter=line',
 ].join(' ');
 const hosts = 'printf "127.0.0.1 app.localhost admin.localhost\\n" >> /etc/hosts';

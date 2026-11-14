@@ -27,13 +27,23 @@ describe('createIcuFormat', () => {
     ).toBe('16 Rabi’ al-Akhir 1448');
   });
 
-  it('memoizes per language/namespace/key and can be cleared', () => {
+  it('memoizes per language/namespace/key while the message stays the same; can be cleared', () => {
     const format = createIcuFormat();
     expect(format.parse('Hello {name}', { name: 'A' }, 'en', 'common', 'k')).toBe('Hello A');
-    // Same key: the cached formatter is reused even when called with a different resource string.
-    expect(format.parse('Bye {name}', { name: 'B' }, 'en', 'common', 'k')).toBe('Hello B');
+    expect(format.parse('Hello {name}', { name: 'B' }, 'en', 'common', 'k')).toBe('Hello B');
     format.clearCache();
-    expect(format.parse('Bye {name}', { name: 'B' }, 'en', 'common', 'k')).toBe('Bye B');
+    expect(format.parse('Hello {name}', { name: 'C' }, 'en', 'common', 'k')).toBe('Hello C');
+  });
+
+  it('a fallback message never sticks: once the language’s own message arrives, it is the one shown', () => {
+    // i18next passes the requested language (te) even when it answers from the fallback (en) because te's namespace
+    // is still loading. The English text was cached under te/super/key and stayed on screen for good (Phase 08 visual
+    // baselines: a Super Admin screen in English with <html lang="te">).
+    const format = createIcuFormat();
+    expect(format.parse(precompiled('Reports'), undefined, 'te', 'super', 'reports.title')).toBe('Reports');
+    expect(format.parse(precompiled('రిపోర్టులు'), undefined, 'te', 'super', 'reports.title')).toBe('రిపోర్టులు');
+    expect(format.parse('Open {n}', { n: 2 }, 'ur', 'super', 'tab')).toBe('Open 2');
+    expect(format.parse('کھلی {n}', { n: 2 }, 'ur', 'super', 'tab')).toBe('کھلی 2');
   });
 
   it('never throws: a broken message comes back as written (or the key for a broken AST)', () => {

@@ -2,7 +2,8 @@
 // builds precompile every catalogue string to its AST (`mcIcuPrecompile`, vite-plugin.ts) and alias the FormatJS parser
 // to its `no-parser` stub; this module formats the precompiled ASTs. In dev and tests the catalogues are plain strings
 // and the full parser is present, so the same module parses them on first use. Same behaviour as i18next-icu 2.5
-// (memoized per language/namespace/key, `ignoreTag`, a message that fails to format is returned as written).
+// (memoized per language/namespace/key — and message text, see createIcuFormat —, `ignoreTag`, a message that fails to
+// format is returned as written).
 import type { I18nFormatModule } from 'i18next';
 import { IntlMessageFormat } from 'intl-messageformat';
 
@@ -45,9 +46,14 @@ export interface IcuFormatModule extends I18nFormatModule {
   clearCache(): void;
 }
 
-/** Creates the module (one per i18next instance — its cache is per instance). */
+/**
+ * Creates the module (one per i18next instance — its cache is per instance). A cached formatter is reused only for the
+ * same message text: i18next passes the *requested* language even when it answers from the fallback (English) while
+ * that language's namespace is still loading, so a cache keyed by language/namespace/key alone kept the English text
+ * on screen after the real message arrived (Phase 08 — a Super Admin screen in English with `<html lang="te">`).
+ */
 export function createIcuFormat(): IcuFormatModule {
-  let cache = new Map<string, Formatter>();
+  let cache = new Map<string, { readonly res: string; readonly formatter: Formatter }>();
   const compile = (res: string, lng: string): Formatter =>
     res.startsWith(PRECOMPILED_MARK)
       ? new IntlMessageFormat(JSON.parse(res.slice(1)) as ConstructorParameters<typeof IntlMessageFormat>[0], lng)
@@ -59,10 +65,11 @@ export function createIcuFormat(): IcuFormatModule {
       if (typeof res !== 'string') return res;
       const cacheKey = `${lng}\u0000${ns}\u0000${key}`;
       try {
-        let formatter = cache.get(cacheKey);
+        const cached = cache.get(cacheKey);
+        let formatter = cached?.res === res ? cached.formatter : undefined;
         if (!formatter) {
           formatter = compile(res, lng);
-          cache.set(cacheKey, formatter);
+          cache.set(cacheKey, { res, formatter });
         }
         return formatter.format(isolateArguments(options, lng));
       } catch {
