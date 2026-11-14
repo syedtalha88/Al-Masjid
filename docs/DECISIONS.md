@@ -3331,3 +3331,43 @@ LOW findings:
   mid-batch; the ledger keeps the resumed batch from sending twice (pipeline test). **F68 re-targeted to Phase 9**: a
   QR decoder on the server is a new dependency that needs its own DECISIONS entry (size, CVEs); the text part (#160)
   stays in force.
+
+### #181 — Phase 08 security re-review fixes and the red CI checks (PHASE_08 T8.11) — ACCEPTED (Claude Code, 14 Nov 2026)
+Re-review of `1405aea..a792aee` (the #180 fixes): 0 HIGH, 2 MEDIUM, 7 LOW. Verified OK: M1, M2, M3 core, M5, M6 (but
+see N-M2 / N-L1), M7 coverage, L1, L3, L5, L6, L7, L9, L10, F64, and the three CI-fix commits.
+- **N-M1 fixed — takedown purges can no longer be starved.** #180 M7 enqueued a `cdn-purge` per needy change; with
+  Cloudflare Free's 5 tag purges a minute, a busy day of edits could make a takedown purge fail its 8 attempts and be
+  dropped. Needy changes now call `purgeMasjidSoon`: one delayed job per masjid per 10 s window (`cdn.m.<id>.<window>`,
+  runs at the window's end, after every change in it), BullMQ priority 10. Takedown / restore / auto-hide / masjid
+  status purges carry no priority, so they run first. The worker rate-limits `cdn-purge` to 4 jobs a minute
+  (`DEFAULT_LIMITERS`). Masjid status changes stay immediate (rare, Super Admin only).
+- **N-M2 fixed — a removed chanda week ends with its post.** Retention purging a *removed* `chanda_update` post deletes
+  its `chanda_weeks` row (the figures and note were the removed content; unlinking it let "Show chanda" or a save bring
+  it back after 180 days). A post the masjid deleted itself keeps the old unlink (02 §5 updated). After the purge, the
+  same week can be entered again as a new post — a new publish, moderated like any other.
+- **N-L1 fixed** — saving a week whose post is auto-hidden is refused (`CHANDA_UNDER_REVIEW`, 409, new text ×4): the
+  reviewer judges what was reported, and a restore shows nothing they did not see. The raw item read is scoped to the
+  masjid.
+- **N-L2 fixed** — the auto-hide alert / purge / file-check job ids carry the hide time (`autoHideItem` returns
+  `hiddenAt`), so a second hide after a restore within a day is not swallowed by job-id dedup.
+- **N-L3 fixed** — urgent reports are read apart from normal ones (500 each) on the existing `status_sla` index (no new
+  index: open reports stay few); grievances and legal orders get a 5,000 safety cap (`SLA_LEGAL_TIMERS_MAX`).
+- **N-L4 accepted** — the needy / status routes do not report `cdnPurgeQueued`: `cdnPurgeService` already logs every
+  failed enqueue attempt at error level, and the masjid's responses are cached for at most a day. A per-masjid "purge
+  again" button is not worth new UI for a Redis outage.
+- **N-L5 fixed** — `make-env.sh` takes the last non-empty value of a name, and stops before rewriting anything when a
+  file sets one name to two different values (test: a key appended below its empty line survives `--force`).
+- **N-L6 fixed** — a send batch re-reads the post at each checkpoint (every 100 sends) and stops when it is removed,
+  hidden or deleted; the batch is counted off.
+- **N-L7 fixed** — retention deletes the device under the still-inactive filter first; the delete is the check.
+
+The three red CI checks of run 43468883740 (`a665ee0`), fixed in the same session:
+- **db integration** — the job runs with coverage; `packages/db` lines were 91.05 % (gate 95 %): the Phase 08 state
+  modules had no db-level tests. `test/legal-sla-stats.int.test.ts` (16 tests) → 96.48 %. It found a bug:
+  `resolveLegalTarget` read a pasted post link with a query (`…/p/<id>?utm=…`) as the query → fixed.
+- **VPS env files** — production now also needs `GRIEVANCE_SEAL_*` (#173, O53); `make-env.sh` writes them empty in
+  production and keeps the owner's values across `--force` (before, `--force` dropped them on staging).
+- **Visual baselines** — the "super admin screens" ur / te diffs were a real bug, not a flake: i18next passes the
+  *requested* language to the formatter even when it answers from the English fallback while that language's
+  namespace is still loading, and the ICU cache (language / namespace / key) then kept the English text for good.
+  The cache now reuses a formatter only for the same message text. The 7 `legal-privacy` baselines changed for #180 L11.
