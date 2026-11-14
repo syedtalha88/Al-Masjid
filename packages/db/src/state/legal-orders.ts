@@ -59,7 +59,8 @@ export async function resolveLegalTarget(
   const ref = input.ref.trim();
   if (input.type === 'other') return { type: 'other', id: ref.slice(0, 64) };
   const ctx = { scope, db: await handle.db() };
-  const last = ref.split(/[/?#]/u).filter(Boolean).at(-1) ?? '';
+  // The last path segment of a pasted link — its query / fragment dropped first (`…/p/<id>?utm=…` is the post).
+  const last = (ref.split(/[?#]/u)[0] ?? '').split('/').filter(Boolean).at(-1) ?? '';
   if (input.type === 'items') {
     const asId = parseId(last);
     const filter = asId ? { _id: asId } : PUBLIC_ID.test(last) ? { public_id: last } : undefined;
