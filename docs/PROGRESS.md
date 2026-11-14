@@ -21,10 +21,10 @@
 ## ▶ Next session — start here (15 Nov 2026 — Phase 08 DONE, owner checks pending; Phase 9 NOT started)
 
 **State:** Phase 08 closed with the bare minimum (#182); `main` = Phases 07 + 08 (merge `1caf675`, then this docs
-commit). `ci/phase-08` run 43621150271 all green. The first `main` run (43626323798) failed once on a midnight date
-flake (`e2e/app/campaigns.spec.ts` on iPhone 14: seed on 14 Nov, test after midnight → "20 days left" vs "21"); this
-docs push re-runs CI → **check that it is green and that "Release to staging" ran**; if the staging release fails or is
-skipped, tell the owner.
+commit). `ci/phase-08` run 43621150271 all green. `main` run 43626323798 failed once on a midnight date flake
+(`e2e/app/campaigns.spec.ts`, iPhone 14: seeded 14 Nov, ran after midnight → "20 days left" vs "21"); re-run on
+`5435674` (run 43628709629) **all green + "Release to staging" done** — `/health` on both origins shows `5435674…`, db +
+redis ok (15 Nov 2026).
 
 **Owner next:** O59 (Atlas roles — the owner chose to merge first), O53 (grievance keys), then O51, O54, O56, O57, O58.
 **Do not start Phase 9** until the owner says so; its list of carried-over items is DECISIONS #182 + F57.
