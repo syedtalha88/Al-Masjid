@@ -206,8 +206,9 @@ for (const locale of LOCALES) {
     });
 
     // PHASE_08 T8.11: the Super Admin screens of this phase in the admin's language (Chromium only — the passkey sign-in
-    // uses its virtual authenticator): C3 poster, C5 reports, C6 grievances, C7 legal orders (empty in the fresh seed),
-    // C10 settings (kill switches, banners) and C12 stats (a fixed answer — the snapshot job has integration tests).
+    // uses its virtual authenticator): C3 poster (+ its A4 / A5 print sheets), C5 reports, C6 grievances, C7 legal
+    // orders (empty in the fresh seed), C10 settings (kill switches, banners) and C12 stats (a fixed answer — the
+    // snapshot job has integration tests).
     test(`super admin screens (${locale})`, async ({ page, browserName }) => {
       test.skip(browserName !== 'chromium', 'the virtual authenticator is a Chromium feature');
       test.slow();
@@ -231,6 +232,20 @@ for (const locale of LOCALES) {
       ] as const) {
         await page.goto(`${ADMIN_URL}${path}`);
         await shot(page, locale, `admin-${name}`);
+      }
+      // T8.8: the printed sheet as the printer gets it (print media), A4 and A5 — the QR, the code and the three steps
+      // in all four languages (Urdu right to left, Hindi / Telugu shaping). It is the same in every admin language.
+      if (locale === 'en') {
+        const sheet = page.locator('[data-poster-print] [data-poster]');
+        await page.emulateMedia({ media: 'print' });
+        await page.evaluate(() => document.fonts.ready.then(() => undefined));
+        await expect(sheet).toHaveScreenshot([locale, 'admin-c3-print-a4.png'], OPTIONS);
+        await page.emulateMedia({ media: 'screen' });
+        await page.getByRole('radio', { name: 'A5' }).click();
+        await expect(page.locator('[data-poster="a5"]').first()).toBeVisible();
+        await page.emulateMedia({ media: 'print' });
+        await expect(sheet).toHaveScreenshot([locale, 'admin-c3-print-a5.png'], OPTIONS);
+        await page.emulateMedia({ media: 'screen' });
       }
     });
 

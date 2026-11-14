@@ -1,7 +1,9 @@
 import { formatters } from '@mc/i18n/format';
+import type { Locale } from '@mc/i18n/locales';
 import { useLocale, useTranslation } from '@mc/i18n/react';
 import { MODERATION_CATEGORIES, type ModerationCategory } from '@mc/shared/compliance';
 import type { QueueTargetView, REPORT_STATUS_VALUES } from '@mc/shared/contracts';
+import { PreviewFrame } from '@mc/ui/admin';
 import {
   Button,
   Dialog,
@@ -143,6 +145,15 @@ function TargetCard({ target, open }: { readonly target: QueueTargetView; readon
     enabled: removing && category === 'legal_order',
   });
   const openOrders = (orders.data?.orders ?? []).filter((order) => order.status !== 'closed');
+  // The post exactly as musallis see it, in each language (C5, PHASE_08 T8.2): a template notice needs its template —
+  // every template, retired ones too (the C9 list), so an old post still shows its text.
+  const templates = useQuery({
+    queryKey: ['super', 'templates'],
+    queryFn: ({ signal }) => superApi.templates(signal),
+    enabled: target.item?.templateKey !== undefined,
+    staleTime: 5 * 60 * 1000,
+  });
+  const [shown, setShown] = useState<Locale>(target.item?.contentLocale ?? locale);
   const now = new Date();
   const due = new Date(target.dueAt);
   const left = due.getTime() - now.getTime();
@@ -229,8 +240,15 @@ function TargetCard({ target, open }: { readonly target: QueueTargetView; readon
         </span>
       </div>
       {target.item ? (
-        <div className="rounded-md bg-bg p-3" data-report-preview>
-          <FeedItemCard item={target.item} templates={undefined} now={now} />
+        <div data-report-preview>
+          <PreviewFrame
+            locale={shown}
+            onLocaleChange={setShown}
+            label={ta('notice.preview')}
+            languageLabel={ta('notice.showIn')}
+          >
+            <FeedItemCard item={target.item} templates={templates.data?.templates} now={now} />
+          </PreviewFrame>
         </div>
       ) : (
         <p className="type-callout text-text-secondary">{t('reports.aboutMasjid')}</p>

@@ -94,4 +94,31 @@ describe('sealField / openSealed', () => {
       assertSealPublicKey(b64(ec.publicKey.export({ type: 'spki', format: 'pem' }).toString()));
     }).toThrow(SealError);
   });
+
+  it('boot refuses every other malformed input: a non-RSA private key, bad or duplicate ids, a bad old-key entry', () => {
+    const ec = generateKeyPairSync('ec', { namedCurve: 'P-256' });
+    const ecPrivate = b64(ec.privateKey.export({ type: 'pkcs8', format: 'pem' }).toString());
+    const good = b64(current.privatePem);
+    const refused = (env: Parameters<typeof sealKeysFromEnv>[0]) => () => sealKeysFromEnv(env);
+    expect(refused({ GRIEVANCE_SEAL_PRIVATE_KEY: ecPrivate, GRIEVANCE_SEAL_KEY_ID: 'g1' })).toThrow(SealError);
+    expect(refused({ GRIEVANCE_SEAL_PRIVATE_KEY: good, GRIEVANCE_SEAL_KEY_ID: 'G 1' })).toThrow(SealError);
+    expect(
+      refused({ GRIEVANCE_SEAL_PRIVATE_KEY: good, GRIEVANCE_SEAL_KEY_ID: 'g1', GRIEVANCE_SEAL_OLD_KEYS: `g1:${good}` }),
+    ).toThrow('malformed seal key id');
+    expect(
+      refused({
+        GRIEVANCE_SEAL_PRIVATE_KEY: good,
+        GRIEVANCE_SEAL_KEY_ID: 'g1',
+        GRIEVANCE_SEAL_OLD_KEYS: `g0:${good}:x`,
+      }),
+    ).toThrow('malformed old seal key');
+    expect(
+      refused({ GRIEVANCE_SEAL_PRIVATE_KEY: good, GRIEVANCE_SEAL_KEY_ID: 'g1', GRIEVANCE_SEAL_OLD_KEYS: 'g0' }),
+    ).toThrow(SealError);
+    expect(() => {
+      assertSealPublicKey(b64('not a key'));
+    }).toThrow('malformed seal public key');
+    expect(() => sealField({ publicKey: b64(current.publicPem), keyId: 'bad id' }, 'x', 'GR-6')).toThrow(SealError);
+    expect(() => openSealed(new Map(), 'nothing like a sealed value', 'GR-6')).toThrow(SealError);
+  });
 });

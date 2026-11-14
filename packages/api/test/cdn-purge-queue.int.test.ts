@@ -67,4 +67,34 @@ describe('cdn-purge queue (N-M1)', () => {
   it('the worker limits cdn-purge under Cloudflare’s 5 tag purges a minute', () => {
     expect(DEFAULT_LIMITERS['cdn-purge']).toEqual({ max: 4, duration: 60_000 });
   });
+
+  it('without queues (unit tests) nothing is queued; a Redis that keeps failing is tried three times, then false', async () => {
+    const none = cdnPurgeService(null, silentLogger());
+    expect(await none.purgeTags(['i-x'], 'k')).toBe(false);
+    expect(await none.purgeMasjidSoon(MASJID, at(0))).toBe(false);
+    expect(await none.mediaAccess(MASJID, 'k')).toBe(false);
+    expect(await none.retentionDryRun?.('k')).toBe(false);
+    let tries = 0;
+    const down: JobQueues = {
+      ...q(),
+      enqueue: () => {
+        tries += 1;
+        return Promise.reject(new Error('redis down'));
+      },
+    };
+    const failing = cdnPurgeService(down, silentLogger());
+    expect(await failing.purgeMasjidSoon(MASJID, at(0))).toBe(false);
+    expect(tries).toBe(3);
+    expect(await failing.mediaAccess(MASJID, 'k')).toBe(false);
+    expect(await failing.retentionDryRun?.('k')).toBe(false);
+    expect(tries).toBe(9);
+  });
+
+  it('media checks and retention dry runs are queued under their keys', async () => {
+    const cdn = cdnPurgeService(q(), silentLogger());
+    expect(await cdn.mediaAccess(MASJID, 'restore.1')).toBe(true);
+    expect(await cdn.retentionDryRun?.('29000000')).toBe(true);
+    expect(await q().queue('media-access').getJob('media.restore.1')).toBeDefined();
+    expect((await q().queue('retention').getJob('retention.dry.29000000'))?.data).toEqual({ dryRun: true });
+  });
 });

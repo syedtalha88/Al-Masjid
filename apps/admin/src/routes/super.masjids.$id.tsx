@@ -188,6 +188,12 @@ function Body({ data }: { readonly data: SuperMasjidDetail }) {
           <Fact label={t('form.hijriOffset')}>
             {masjid.hijriOffset === undefined ? t('form.hijriOffsetNone') : <Bdi>{String(masjid.hijriOffset)}</Bdi>}
           </Fact>
+          {/* 05 §3: repeat violations — posts moderation removed in the last 90 days (also on each C5 card). */}
+          <Fact label={t('detail.removals90d')}>
+            <span className={data.removals90d > 0 ? 'text-danger' : undefined} data-removals-90d>
+              {format.number(data.removals90d)}
+            </span>
+          </Fact>
         </dl>
       </Card>
 

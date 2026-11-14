@@ -334,8 +334,10 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
       auth: 'super',
       request: { params: z.object({ id: Id }) },
       responses: { 200: superMasjidDetailSchema },
-      handler: async ({ auth, params, reply }) => {
-        const detail = await getMasjidDetail(db, auth.scope, idOr404(params.id, 'MASJID_NOT_FOUND'));
+      handler: async ({ auth, params, clock, reply }) => {
+        const detail = await getMasjidDetail(db, auth.scope, idOr404(params.id, 'MASJID_NOT_FOUND'), {
+          removalsSince: new Date(clock.now().getTime() - REPEAT_VIOLATION_WINDOW_MS),
+        });
         if (!detail) throw new ApiProblem(404, 'MASJID_NOT_FOUND');
         const m = detail.masjid;
         return reply(200, {
@@ -362,6 +364,7 @@ export function superRoutes(deps: SuperRouteDeps): RouteDefinition[] {
             createdAt: (m['created_at'] as Date).toISOString(), // validator-enforced date
           },
           followers: detail.followers,
+          removals90d: detail.removals,
           admins: detail.admins.map(adminOut),
         });
       },

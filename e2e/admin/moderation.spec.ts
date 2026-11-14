@@ -104,22 +104,33 @@ test.describe('journey 11 — report → remove (T8.2)', () => {
       const musalli = await page.context().newPage();
       await musalli.goto(APP_URL);
       await registerDevice(musalli);
-      await followByCode(musalli, APP_URL, [followCode]);
-      await musalli.goto(`${APP_URL}/items/${publicId}`);
-      const detail = musalli.locator('section[data-screen]:not([inert])');
-      await expect(detail.getByText('Test reported notice')).toBeVisible();
-      await detail.locator('[data-more-menu]').click();
-      await musalli.locator('[data-report-open]').click();
-      const sheet = musalli.getByRole('dialog', { name: 'Report this post' });
-      await sheet.getByText('Misleading or false', { exact: true }).click();
-      await sheet.getByRole('button', { name: 'Send report' }).click();
-      await expect(musalli.getByRole('dialog', { name: 'Thank you' })).toBeVisible();
+      // Also the seeded template notice of masjid Alpha (`no_water_time_range`): C5 must show its template text.
+      await followByCode(musalli, APP_URL, [followCode, 'TESTA001']);
+      const report = async (id: string, title: string) => {
+        await musalli.goto(`${APP_URL}/items/${id}`);
+        const detail = musalli.locator('section[data-screen]:not([inert])');
+        await expect(detail.getByText(title).first()).toBeVisible();
+        await detail.locator('[data-more-menu]').click();
+        await musalli.locator('[data-report-open]').click();
+        const sheet = musalli.getByRole('dialog', { name: 'Report this post' });
+        await sheet.getByText('Misleading or false', { exact: true }).click();
+        await sheet.getByRole('button', { name: 'Send report' }).click();
+        await expect(musalli.getByRole('dialog', { name: 'Thank you' })).toBeVisible();
+      };
+      await report(publicId, 'Test reported notice');
+      await report('seedA0000000', 'No water supply');
 
       // C5: the Super Admin finds it, with the post as musallis see it, and removes it.
       await page.goto(`${ADMIN_URL}/super/reports`);
       const card = page.locator('[data-report-target]').filter({ hasText: masjidName });
       await expect(card).toBeVisible();
       await expect(card.locator('[data-report-preview]')).toContainText('Test reported notice');
+      // A template notice shows its template's text, in each language (07 C5 "identical to musalli rendering").
+      const templated = page.locator('[data-report-target]').filter({ hasText: 'No water supply' });
+      const preview = templated.locator('[data-report-preview]');
+      await expect(preview).toContainText('Water will not be available from');
+      await preview.getByRole('radio', { name: 'اردو' }).click();
+      await expect(preview).toContainText('پانی دستیاب نہیں');
       await expect(card).toContainText('Misleading or false');
       await expectAxeClean();
       await capture('c5-reports');

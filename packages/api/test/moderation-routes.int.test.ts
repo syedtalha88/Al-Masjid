@@ -45,7 +45,13 @@ const cdn: CdnPurgeService = {
     access.push({ itemId });
     return Promise.resolve(true);
   },
+  retentionDryRun: (key) => {
+    dryRuns.push(key);
+    return Promise.resolve(purgeWorks);
+  },
 };
+/** Keys of the retention dry runs asked for (one per minute — the job id). */
+const dryRuns: string[] = [];
 const harness = superHarness('moderation-routes', NOW, { alerts, cdn });
 const { asSuper, stepUp, clock } = harness;
 
@@ -212,5 +218,33 @@ describe('moderation (C5)', () => {
     expect((await asSuper('post', `/items/${id}/remove`).send({ category: 'other', extra: 1 })).status).toBe(400);
     expect((await asSuper('post', '/items/not-an-id/remove').send({ category: 'other' })).status).toBe(404);
     expect((await asSuper('get', '/reports?status=everything')).status).toBe(400);
+  });
+});
+
+describe('retention dry run (★ PHASE_08 T8.7)', () => {
+  it('needs a step-up; queues one dry run per minute; says when it could not be queued', async () => {
+    dryRuns.length = 0;
+    await stepUp(false);
+    expect((await asSuper('post', '/retention/dry-run').send({})).status).toBe(403);
+    expect(dryRuns).toEqual([]);
+    await stepUp(true);
+    const first = await asSuper('post', '/retention/dry-run').send({});
+    expect(first.status).toBe(202);
+    expect(first.body).toEqual({ queued: true });
+    // A double tap within the minute asks with the same key — the job id queues it once.
+    await asSuper('post', '/retention/dry-run').send({});
+    expect(dryRuns).toHaveLength(2);
+    expect(dryRuns[0]).toBe(dryRuns[1]);
+    expect(dryRuns[0]).toBe(String(Math.floor(clock.now().getTime() / 60_000)));
+    clock.advance(60_000);
+    await asSuper('post', '/retention/dry-run').send({});
+    expect(dryRuns[2]).not.toBe(dryRuns[0]);
+    // The queue is down: the Super Admin is told.
+    purgeWorks = false;
+    try {
+      expect((await asSuper('post', '/retention/dry-run').send({})).body).toEqual({ queued: false });
+    } finally {
+      purgeWorks = true;
+    }
   });
 });

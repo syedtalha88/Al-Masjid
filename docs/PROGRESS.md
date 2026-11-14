@@ -15,10 +15,60 @@
 | 05 | Donations, chanda & UPI change-lock | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): CI green on `997a914`, phase-verifier findings fixed, security re-review clean. Waiting: O43 → merge to `main` / staging → O45 → O50 (guide 5.1–5.22) + O28 | [final](reports/PHASE_05_REPORT.md) | – |
 | 06 | Bayan videos | **DONE — owner checks pending** (12 Nov 2026, DECISIONS #162): CI green on `main` `402e7f8` (run 43237107240), on staging; security review #165, phase-verifier fixes #167 (reach `main` with Phase 07). Waiting: O49 (real YouTube links), O48 (purge token, before May 2027) | [final](reports/PHASE_06_REPORT.md) | – |
 | 07 | Qibla compass | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): security review #167, phase-verifier FAIL → fixed (#169), e2e 12/12 on Pixel 7 + iPhone 14; CI + staging with the merge into `main`. Waiting: O29 (mihrab check) | [final](reports/PHASE_07_REPORT.md) | – |
-| 08 | Moderation, grievance, legal pages, QR posters | **IN PROGRESS** — T8.1–T8.10 done (#170–#179); T8.11: security fixes (#180) + re-review fixes and red CI checks (#181, `825efd5`); left: CI on `825efd5`, e2e, verifier, report | – | – |
+| 08 | Moderation, grievance, legal pages, QR posters | **IN PROGRESS** — T8.1–T8.10 done (#170–#179); T8.11: security fixes (#180) + re-review fixes and red CI checks (#181, `825efd5`); left: api coverage in CI, verifier fixes (see Next session), report | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (14 Nov 2026, evening — Phase 08: CI fixes + re-review fixes done; e2e / verifier / report left)
+## ▶ Next session — start here (14 Nov 2026, night — Phase 08: verifier fixes in progress; usage limit hit)
+
+**Owner instruction (13 Nov 2026):** finish Phase 08 at full quality, close it per protocol, then **STOP — do not
+start Phase 09**. The owner then tests every module end to end.
+
+**State:** `feat/phase-08` pushed (this hand-off commit). `ci/phase-08` = `825efd5` — CI run 43612283693 there:
+typecheck ✅ unit ✅ security ✅, **integration ❌ = packages/api branch coverage < 85 %** (Phase 08 code was
+under-tested; db was fixed earlier). Fixes since then are committed here but **not yet run in CI**.
+
+**Done this session after #181 (uncommitted work now committed in "wip(phase-08)…" below):**
+- api coverage tests: `test/media-access-job.int.test.ts`, `test/moderation-no-queue.int.test.ts`,
+  `test/worker-dispatch.int.test.ts`, more cases in `cdn-purge-queue`, `seal`, `stats-snapshot`, `private-files`,
+  dry-run route test in `moderation-routes` + role-guard row in `super-routes`. Measured locally by merging coverage
+  maps (Windows workers crash natively → `$TEMP/merge.py` approach): **84.65 % before** the private-files /
+  worker-dispatch tests (gate 85 %; need ≥ 1683/1980) — those two add ~18 branches → expected ≈ 85.5 %. **Confirm in
+  CI.** If still short: `src/routes/super-library.ts` (19), `admin-masjid.ts` (21), `videos.ts` (11).
+- phase-verifier (FAIL, 9 REQUIRED) fixes:
+  - ✅ C5 preview: all templates (`superApi.templates`) + `PreviewFrame` 4-language switcher
+    (`apps/admin/src/routes/super.reports.tsx`); e2e journey 11 now also reports seed template notice
+    `seedA0000000` and checks English + Urdu text (`e2e/admin/moderation.spec.ts`) — **not yet run** (stack must be
+    rebuilt).
+  - ✅ C2 repeat-violation count: `removals90d` in `GET /super/masjids/:id` (db `getMasjidDetail` option
+    `removalsSince`), shown on `super.masjids.$id.tsx` (4 locales); `openapi.json` regenerated; test in
+    `moderation-no-queue.int.test.ts`.
+  - ✅ T8.7 dry-run route tests (step-up, per-minute key, queue down).
+  - ✅ T8.8 print snapshot: `e2e/visual/screens.visual.spec.ts` adds `en/admin-c3-print-a4.png` + `-a5.png` —
+    **baselines not yet generated**: `pnpm stack:up:test` then
+    `node scripts/visual.mjs --update --grep "super admin screens"`, keep only the 2 new files (+ any real change),
+    then `pnpm db:reset`.
+  - ✅ F57 re-targeted to Phase 9 (text references **DECISIONS #182 — not yet written**).
+  - ✅ O59 owner task (Atlas roles re-apply for #180 M2) in `owner/MY_PENDING_TASKS.md`.
+  - ⏳ Write DECISIONS #182: verifier findings + resolutions (above), F57, substituted checks (F76→O51 automated
+    staging purge check; O54 Cloudinary public-URL check — owner to acknowledge in the report), and the LOW list
+    (journey 11 opens the item URL not a real notification; C5 filters urgent/reports/legal not built; plain empty
+    states on C5/C6/C7; no C1/A5 screen baselines; legal gate ignores `translation: draft`; dry run has no counts for
+    beneficiaries / alert subscriptions; no admin-yearly re-accept e2e; VPS 200-day log check untested; privacy draft
+    regions → O55; admin initial JS 218.8 / 220 kB).
+
+**Next (in order):**
+1. `pnpm stack:up:test` → `pnpm db:reset` → `E2E_TEST_HOOKS=1 pnpm exec playwright test --project=pixel-7
+   --workers=1 e2e/admin/moderation.spec.ts` (C5 template preview) → visual update above (52 + 2 shots).
+2. `pnpm verify:quick`, `pnpm i18n:check`; push `feat/phase-08:ci/phase-08`; read the CI run (api coverage, e2e both
+   phones, Lighthouse, visual). Note: Phase 08 e2e specs share global settings — run them with `--workers=1` locally
+   (CI already does).
+3. Write DECISIONS #182; re-run `phase-verifier`; `docs/reports/PHASE_08_REPORT.md` (security #180 0H/7M/12L,
+   #181 0H/2M/7L; db int 445 / 96.48 %; e2e Phase 08 18/18 Pixel 7; visual 54; budgets app 193.6/195, admin
+   218.8/220).
+4. Close (#162): CI green → owner O59 (Atlas roles) → merge into `main` → staging → owner steps O51, O53–O58 →
+   **stop** and tell the owner.
+
+## ▶ Previous hand-off (14 Nov 2026, evening — Phase 08: CI fixes + re-review fixes done; e2e / verifier / report left)
 
 **Owner instruction (13 Nov 2026):** finish Phase 08 fast but at full quality, close it per protocol, then **STOP — do
 not start Phase 09**. The owner then tests every module end to end and reports changes / issues.
@@ -1196,7 +1246,7 @@ changes) → `eslint e2e playwright.config.ts` → build the app → `pnpm size`
 | F54 | T3.13 (5 Nov 2026, DECISIONS #128; #133) | ~~Voice notes: badge on list cards, player in the A8 card, pause when covered, fake-mic e2e~~ — **done 5 Nov 2026 (#133)**: "Voice message · 0:42" tag on announcement / dua cards, the hadith card plays it in place, the player pauses when its screen goes `inert`, `e2e/admin/voice-recording.spec.ts` records through Chromium's fake microphone. **Left:** a real phone recording on staging (Safari MP4, Chrome Opus) — owner check 3.14 | Staging check with O25 / O27 |
 | F55 | T3.14 (5 Nov 2026, DECISIONS #129, #130) | ~~A library entry retired or sent back to draft stays in cached bundles / feeds / Ruqyah lists of the masjids using it~~ — **closed 5 Nov 2026 (#133)**: retire, back-to-draft and verify bump every using masjid's version in the same transaction (`packages/db/test/library-users.int.test.ts`). Note kept: locally (Windows) the WebKit run of `e2e/app/content.spec.ts` can stall on a `versions` request (CI's WebKit passes) | Closed |
 | F56 | CI 5 Nov 2026 (`a0954df`, `4cc10d4`) | ~~Lighthouse warm load misses the performance category gate (app 87, admin 89)~~ — **fixed 6 Nov 2026 (#134)**: the 300–500 ms t≈8 ms task was Lighthouse's JS-coverage start walking the previous visit's heap in a reused tab; `pnpm lhci` now opens the warm visit in a freshly started browser on the cold run's profile. Also cut: Intl formatters built on first use, the onboarding pager no longer forces a style recalculation. Local warm: app 95 / admin 97. **Confirm on CI** | Closed when CI is green |
-| F57 | Phase 03 close (6 Nov 2026, DECISIONS #135) | T3.1 Admin Home inbox banner ("N new messages") not built: the inbox it points to does not exist yet (change-request replies Phase 5, reports Phase 8) | With the inbox (Phase 5 / Phase 8) |
+| F57 | Phase 03 close (6 Nov 2026, DECISIONS #135) | T3.1 Admin Home inbox banner ("N new messages") not built: the inbox it points to does not exist yet (change-request replies Phase 5, reports Phase 8). Phase 08 (#171): moderation messages reach the admin as a push + My Posts "Removed by moderation" — My Posts is the inbox for now, so no banner was added | **Phase 9** (re-targeted 14 Nov 2026, DECISIONS #182): a Home banner counting unread moderation / change-request messages, if the owner's testing shows admins miss them |
 | F58 | Phase 03 close (6 Nov 2026, DECISIONS #136) | ~~Latin times inside Urdu sentences reordered by bidi ("PM 8:45"; camp hours scrambled; voice player times on the wrong ends)~~ — **fixed 6 Nov 2026**: times LTR-isolated in template params, camp card, khutbah line, Eid card; player labels follow the page direction; Urdu baselines regenerated | Closed |
 | F59 | CI 6 Nov 2026 (`2e5eda5`) | e2e `voice.spec`: on CI's Chromium the local file store's WAV sometimes fails to play ("Available when online"); passes locally. The playback assertion is skipped on CI only; upload, publish, badge and player checks stay  | Deferred to Phase 9 (DECISIONS #143): CI run `64b0234` (8 Nov) had no voice.spec failure; the CI-only skip stays until media logs are added |
 | F60 | T4.1 (8 Nov 2026, DECISIONS #138) | `web-push` pinned at 3.6.7: 4.0.0 (6 Nov 2026) was younger than `minimumReleaseAge`. Review its changelog and move to 4.x (Renovate) — the adapter uses only `generateRequestDetails`  | Phase 9 hardening (DECISIONS #143): 4.x after its changelog review; 3.6.7 has no known advisory |

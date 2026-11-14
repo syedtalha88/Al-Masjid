@@ -229,4 +229,19 @@ describe('stats-snapshot (T8.10)', () => {
     expect(counts.masjids.active).toBeGreaterThan(0);
     expect(raised).toHaveLength(0);
   });
+
+  it('Redis unreachable: the snapshot is still written, without the queue counts', async () => {
+    const down: JobQueues = {
+      ...q(),
+      queue: () => {
+        throw new Error('redis down');
+      },
+    };
+    clock.set(new Date(NOW.getTime() + 5 * HOUR));
+    const { hour } = await processStatsSnapshot({ db: sys(), clock, logger: silentLogger(), queues: down, alerts });
+    const counts = await snapshot(hour);
+    expect(counts.queues).toBeUndefined();
+    expect(counts.cloudinary).toBeUndefined(); // no usage reader configured
+    expect(counts.masjids.active).toBeGreaterThan(0);
+  });
 });

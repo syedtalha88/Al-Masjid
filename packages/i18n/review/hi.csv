@@ -1701,6 +1701,7 @@ super,form.create,Create masjid,मस्जिद बनाएँ,no
 super,form.save,Save changes,बदलाव सहेजें,no
 super,form.required,Required,ज़रूरी,no
 super,detail.followers,"{count, plural, one {# follower} other {# followers}}","{count, plural, one {# फ़ॉलोअर} other {# फ़ॉलोअर}}",no
+super,detail.removals90d,Removed by moderation (90 days),मॉडरेशन द्वारा हटाई गईं (90 दिन),no
 super,detail.followCode,Follow code,फ़ॉलो कोड,no
 super,detail.activate,Activate,चालू करें,no
 super,detail.activateHint,"Needs at least one admin who has logged in and accepted the undertaking, and all five jamaat times set.","कम से कम एक एडमिन चाहिए जिसने लॉग इन करके वचन-पत्र स्वीकार किया हो, और पाँचों जमात के समय सेट हों।",no

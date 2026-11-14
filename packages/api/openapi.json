@@ -4587,6 +4587,10 @@
           "followers": {
             "type": "number"
           },
+          "removals90d": {
+            "type": "integer",
+            "minimum": 0
+          },
           "admins": {
             "type": "array",
             "items": {
@@ -4597,6 +4601,7 @@
         "required": [
           "masjid",
           "followers",
+          "removals90d",
           "admins"
         ]
       },

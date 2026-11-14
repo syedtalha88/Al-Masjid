@@ -7,7 +7,12 @@ import { afterAll, describe, expect, it } from 'vitest';
 
 import { FieldCryptoError, type FieldKeyRing } from '../src/crypto/field.ts';
 import { decryptFile, encryptFile, sniffPrivateFile } from '../src/crypto/file.ts';
-import { cloudinaryPrivateStore, filePrivateStore, newLegalDocumentKey } from '../src/media/private-store.ts';
+import {
+  cloudinaryPrivateStore,
+  filePrivateStore,
+  newLegalDocumentKey,
+  privateStoreFromEnv,
+} from '../src/media/private-store.ts';
 import { cloudinarySignature } from '../src/media/store.ts';
 
 // PHASE_08 T8.5 (04 §5, DECISIONS #40): legal-order documents — AES-256-GCM envelopes bound to their order (another
@@ -186,5 +191,46 @@ describe('private stores (T8.5)', () => {
         /not an authenticated asset/u,
       );
     }
+  });
+
+  it('Cloudinary: an oversized download is refused (by its header or its body); a failed destroy throws', async () => {
+    const key = newLegalDocumentKey(ORDER);
+    const big = 9 * 1024 * 1024 + 1;
+    const store = (answer: () => Response) =>
+      cloudinaryPrivateStore({
+        cloudName: 'test-cloud',
+        apiKey: '123',
+        apiSecret: FAKE_SECRET,
+        fetch: () => Promise.resolve(answer()),
+      });
+    await expect(
+      store(() => new Response('x', { headers: { 'content-length': String(big) } })).get(key),
+    ).rejects.toThrow(/too large/u);
+    await expect(store(() => new Response(new Uint8Array(big))).get(key)).rejects.toThrow(/too large/u);
+    await expect(store(() => new Response('', { status: 500 })).delete(key)).rejects.toThrow(/HTTP 500/u);
+    // Without an injected clock the signature uses the real time; a small answer comes back as it is.
+    await expect(store(() => new Response(new Uint8Array([1, 2, 3]))).get(key)).resolves.toEqual(
+      Buffer.from([1, 2, 3]),
+    );
+  });
+
+  it('the store follows MEDIA_STORE; Cloudinary needs its keys', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'mc-private-env-'));
+    dirs.push(dir);
+    const local = privateStoreFromEnv({ MEDIA_STORE: 'files', MEDIA_DIR: dir });
+    const key = newLegalDocumentKey(ORDER);
+    await local.put(key, PDF);
+    expect(await local.get(key)).toEqual(PDF);
+    expect(() => privateStoreFromEnv({ MEDIA_STORE: 'cloudinary', CLOUDINARY_CLOUD_NAME: 'c' })).toThrow(
+      /needs the keys/u,
+    );
+    expect(
+      privateStoreFromEnv({
+        MEDIA_STORE: 'cloudinary',
+        CLOUDINARY_CLOUD_NAME: 'c',
+        CLOUDINARY_API_KEY: '1',
+        CLOUDINARY_API_SECRET: FAKE_SECRET,
+      }),
+    ).toHaveProperty('get');
   });
 });

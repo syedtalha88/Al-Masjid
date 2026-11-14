@@ -227,6 +227,8 @@ describe('/api/super role guard (04 §5)', () => {
       ['patch', `/legal-orders/${id}`],
       ['post', `/legal-orders/${id}/document`],
       ['get', `/legal-orders/${id}/document`],
+      // PHASE_08 T8.7: the ★ retention dry run.
+      ['post', '/retention/dry-run'],
       ['get', '/no-such-route'],
     ];
     for (const [method, path] of routes) {

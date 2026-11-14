@@ -126,6 +126,8 @@ export const superMasjidDetailSchema = z
       createdAt: z.iso.datetime(),
     }),
     followers: z.number(),
+    /** Posts moderation removed in the last 90 days (05 §3 repeat violations). */
+    removals90d: z.int().min(0),
     admins: z.array(superAdminRowSchema),
   })
   .meta({ id: 'SuperMasjidDetail' });
