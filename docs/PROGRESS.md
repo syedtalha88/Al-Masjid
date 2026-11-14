@@ -15,63 +15,63 @@
 | 05 | Donations, chanda & UPI change-lock | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): CI green on `997a914`, phase-verifier findings fixed, security re-review clean. Waiting: O43 → merge to `main` / staging → O45 → O50 (guide 5.1–5.22) + O28 | [final](reports/PHASE_05_REPORT.md) | – |
 | 06 | Bayan videos | **DONE — owner checks pending** (12 Nov 2026, DECISIONS #162): CI green on `main` `402e7f8` (run 43237107240), on staging; security review #165, phase-verifier fixes #167 (reach `main` with Phase 07). Waiting: O49 (real YouTube links), O48 (purge token, before May 2027) | [final](reports/PHASE_06_REPORT.md) | – |
 | 07 | Qibla compass | **DONE — owner checks pending** (13 Nov 2026, DECISIONS #162): security review #167, phase-verifier FAIL → fixed (#169), e2e 12/12 on Pixel 7 + iPhone 14; CI + staging with the merge into `main`. Waiting: O29 (mihrab check) | [final](reports/PHASE_07_REPORT.md) | – |
-| 08 | Moderation, grievance, legal pages, QR posters | **IN PROGRESS** — T8.1–T8.10 done on `feat/phase-08` (#170–#179); T8.11 quality gates: security fixes done (#180), e2e / verifier / report left | – | – |
+| 08 | Moderation, grievance, legal pages, QR posters | **IN PROGRESS** — T8.1–T8.10 done (#170–#179); T8.11: security fixes done (#180, `a665ee0`); left: 3 red CI checks (db int, env files, visual), security re-review, e2e, verifier, report | – | – |
 | 09 | Hardening, Play Store & pilot launch | NOT STARTED | – | – |
 
-## ▶ Next session — start here (13 Nov 2026, ~22:40 — Phase 08: security fixes all done; T8.11 e2e / verifier / report left)
+## ▶ Next session — start here (14 Nov 2026 — Phase 08: all security fixes done; 3 CI checks red; T8.11 rest left)
 
 **Owner instruction (13 Nov 2026):** finish Phase 08 fast but at full quality (tests, 4 locales, docs, owner list),
 close it per protocol, then **STOP — do not start Phase 09**. The owner then runs end-to-end testing of every module
 and reports changes / issues to fix.
 
-**State:** `main` = `30a268b` (Phases 05–07) on staging. Phase 08 on `feat/phase-08` = `ci/phase-08` = `a665ee0`
-(pushed; CI started for it). Done this session (DECISIONS #180 now ACCEPTED):
+**State:** `main` = `30a268b` (Phases 05–07) on staging. Phase 08 on `feat/phase-08` (latest = docs-only hand-off
+commits on top of `a665ee0`); `ci/phase-08` = `a665ee0` (last CI run **43468883740**). DECISIONS #180 ACCEPTED:
 - `c7bc7bc` — **M3** SLA timers (legal orders / grievances read in full, legal orders first; the job skips fully
-  alerted timers), **M5** banners ★ + no payment address, **M6** chanda post takedown hides its week (and saving a
-  removed week is refused), **M7 / F67** CDN purge on every needy change and masjid status change.
+  alerted timers), **M5** banners ★ + no payment address, **M6** chanda post takedown hides its week (saving a removed
+  week is refused), **M7 / F67** CDN purge on every needy change and masjid status change.
 - `a665ee0` — LOWs: L1, L3, L5, L6, L7, L9, L10, L11 fixed; L2, L4 (→ F77), L8 accepted with reasons; L12: F64
-  closed, F68 → Phase 9. Semgrep `gcm-no-tag-length` fixed (the other local hits are the 3 rules CI excludes). App
-  initial JS budget 190 → 195 kB (193.56 kB, recorded). The `no-raw-colors` gate failed on a "#180" comment — never
-  write `#<3–8 hex chars>` in apps/** comments (write "DECISIONS 180").
-- Local: db int 428/428, api int all green (Windows worker crashes re-run alone; `admin-passkeys` flakes natively
-  on this host — passed 21/21 alone), unit db/api/ui/admin/server green, `pnpm size` green.
-- The previous CI run (`c7bc7bc`) failed on: no-raw-colors (fixed), Semgrep GCM (fixed), db int (the reports test
-  fixed in `c7bc7bc`), budgets (fixed). **Read the `a665ee0` run first.**
+  closed, F68 → Phase 9. Semgrep `gcm-no-tag-length` fixed. App initial JS budget 190 → 195 kB (193.56 kB, recorded).
+  Never write `#<3–8 hex chars>` in apps/** comments (the `no-raw-colors` gate reads it as a colour) — write
+  "DECISIONS 180".
+- Local on `a665ee0`: db int 428/428, api int green (Windows worker crashes → re-run the file alone; `admin-passkeys`
+  crashes natively on this host now and then — 21/21 alone), unit db/api/ui/admin/server green, `pnpm size` green.
+  Local stack (`pnpm stack:up:test`) runs `a665ee0` — both APIs boot with the L7 key-size check. **The DB holds the
+  fixed-date visual seed → `pnpm db:reset` before other e2e.**
 
-**Update 13 Nov 2026 ~23:10 (session ended on the usage limit):**
-- CI run **43468883740** (`a665ee0`): **Integration tests FAILED in `packages/db` `test:int`** — the annotations do not
-  name the test (only the mongo log; the retention-job test DB was active). Locally db int is 428/428 green → reproduce:
-  run each db int file alone; suspects = `retention.int.test.ts` (L10 re-check inside the transaction), `policy`
-  (L1), `moderation` (L3 / M6). Other jobs were still running at hand-off — read their results.
-- Same run: Typecheck/lint/i18n ✅, Unit + coverage ✅ (no-raw-colors fixed), **Security scans ❌ at step "VPS env
-  files — generation, --force keeps values, valid against the env schemas"** (`infra/vps/test/make-env.test.sh` +
-  `scripts/check-make-env.mjs`). Semgrep (the step before it) now passes. This step never ran in the earlier red runs
-  (Semgrep failed first), so it may be an older break — reproduce with the docker command in `ci.yml` line ~140.
-- Final for run 43468883740: **Build · budgets · images · e2e · Lighthouse ❌ only at "Visual baselines"** (budgets
-  ✅ now). Local `pnpm test:visual` (compare) on `a665ee0`: **9 failed / 43 passed** — "grievance and legal pages" en /
-  hi / ur / te on Pixel 7 and en / hi / te on iPhone 14 (expected: L11 privacy text) **plus "super admin screens" ur
-  and te on Pixel 7 (NOT expected — inspect the diff before updating; likely C5 Dismiss / C10 banner changes or a
-  flake)**. Then `pnpm test:visual:update`, keep only real changes, `pnpm db:reset`.
-- The `security-reviewer` re-run did not finish (it stopped on an account/billing API error) — run it again.
-- Local stack rebuilt with `a665ee0` (`pnpm stack:up:test` OK — both APIs boot with the L7 key-size check) and seeded.
-- `pnpm test:visual` (compare) was started; its result was not read. Expected diff: the privacy reader ×4 (L11) →
-  `pnpm test:visual:update`, keep only real changes. Afterwards `pnpm db:reset` (visual leaves the fixed-date seed).
-- The `security-reviewer` re-run on `1405aea..a665ee0` was started but its report was not received → **run it again**
-  (focus list: M5 route + data layer, M6 direct `ctx.db` writes, M7 purge keys, L7, L9 Caddy header, L10, F64).
+**CI run 43468883740 (`a665ee0`):** Typecheck/lint/i18n ✅ · Unit + coverage ✅ · budgets ✅ · Semgrep ✅ ·
+- ❌ **Integration tests (`packages/db` `test:int`)** — the annotations do not name the test; locally 428/428 green.
+  Reproduce: run each db int file alone (suspects: `retention.int.test.ts` — L10 re-check; `policy` — L1;
+  `moderation` — L3 / M6; `reports`). Job logs need auth — only annotations are readable without `gh`.
+- ❌ **Security scans → step "VPS env files — generation, --force keeps values, valid against the env schemas"**
+  (`infra/vps/test/make-env.test.sh` + `scripts/check-make-env.mjs`, docker command in `ci.yml` ~line 140). This step
+  never ran in the earlier red runs (Semgrep failed first) → may be an older break, not #180.
+- ❌ **Visual baselines.** Local `pnpm test:visual` (compare) = 9 failed / 43 passed: "grievance and legal pages"
+  en / hi / ur / te on Pixel 7 + en / hi / te on iPhone 14 (**expected** — the L11 privacy sentence), and "super admin
+  screens" ur + te on Pixel 7 (**not expected** — look at `test-results/**/test-failed-1.png` vs the baseline before
+  updating; maybe C5 / C10 changes or a flake). Then `pnpm test:visual:update`, keep only real changes (pixel-diff),
+  `pnpm db:reset`.
 
 **Next (in order):**
-1. CI for `a665ee0` (`curl https://api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-08`, then
-   `/actions/runs/<id>/jobs` and `/check-runs/<job id>/annotations`; job logs need auth — reproduce locally).
-2. `security-reviewer` re-run on `1405aea..a665ee0` (started this session — act on its findings).
-3. Local stack (`pnpm stack:up:test` → `pnpm db:seed` → `git checkout -- apps/app/src/routeTree.gen.ts`), then:
-   `e2e/admin/kill-switches-stats.spec.ts` (banner save is ★ now), the moderation / legal specs, and the visual
-   baselines that changed: **the privacy reader ×4** (L11 text). iPhone report-sheet baseline stability; full e2e on
-   Pixel 7 + iPhone 14 in the Linux image (`scripts/visual.mjs` pattern, `--network container:mc-dev-caddy-1`,
-   `E2E_TEST_HOOKS=1`); journey 11 + legal re-acceptance specs.
-4. `phase-verifier` on `docs/phases/PHASE_08_*.md`; `docs/reports/PHASE_08_REPORT.md` (security: 0 H, 7 M fixed,
-   12 L: 9 fixed / 3 accepted — list from #180).
-5. Close Phase 08 (#162 autopilot): CI green → merge to `main` → staging → owner steps (O51, O53–O58; O53 key must be
-   ≥ 3072 bits — the given 4096 command is fine). Then **stop** and tell the owner.
+1. Fix the three red CI checks above; fast-forward `ci/phase-08` (`git push origin feat/phase-08:ci/phase-08`) and read
+   the run (`curl https://api.github.com/repos/syedtalha88/Al-Masjid/actions/runs?branch=ci/phase-08` →
+   `/actions/runs/<id>/jobs` → `/check-runs/<job id>/annotations`).
+2. **`security-reviewer` re-run** on `1405aea..a665ee0` — the one started on 13 Nov stopped on an account / billing API
+   error and returned nothing. Focus: M5 route + data layer, M6 direct `ctx.db` writes, M7 purge keys, L7 crypto + boot
+   checks, L9 Caddy `@ogPost` header, L10, F64. Fix every HIGH / MEDIUM.
+3. e2e on the local stack: `e2e/admin/kill-switches-stats.spec.ts` (banner save is ★ now), moderation / legal specs,
+   journey 11 + legal re-acceptance; iPhone report-sheet baseline stability; full e2e on Pixel 7 + iPhone 14 in the
+   Linux image (`scripts/visual.mjs` pattern, `--network container:mc-dev-caddy-1`, `E2E_TEST_HOOKS=1`).
+4. `phase-verifier` on `docs/phases/PHASE_08_*.md`; write `docs/reports/PHASE_08_REPORT.md` (security: 0 H, 7 M fixed,
+   12 L: 9 fixed / 3 accepted — list in #180; budget 195 kB; visual / e2e counts).
+5. Close Phase 08 (#162 autopilot): CI green → merge into `main` → staging → owner steps (O51, O53–O58; the O53 key
+   must be ≥ 3072 bits — the given 4096 command is fine). Then **stop** and tell the owner.
+
+**Local notes:** Bash heredocs with quotes / Python fail in this shell — write scratch scripts with the Write tool into
+the scratchpad and run `python <script> "/c/AL Masjid"` (`newline='
+'`, then prettier). The stack serves BUILT images:
+UI fixes need `pnpm stack:up:test` before an e2e / screenshot shows them. Integration suites:
+`node ../../scripts/vitest-int.mjs --maxWorkers=4` in the package. Never read `.env*` files; `.claude/settings.json` is
+the owner's own uncommitted change — never commit it.
 
 ## ▶ Previous hand-off (13 Nov 2026, late night — Phase 08: T8.1–T8.10 done; T8.11 in progress)
 
