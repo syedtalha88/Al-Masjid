@@ -47,7 +47,12 @@ and reports changes / issues to fix.
   files — generation, --force keeps values, valid against the env schemas"** (`infra/vps/test/make-env.test.sh` +
   `scripts/check-make-env.mjs`). Semgrep (the step before it) now passes. This step never ran in the earlier red runs
   (Semgrep failed first), so it may be an older break — reproduce with the docker command in `ci.yml` line ~140.
-  Build/e2e/Lighthouse job was still running at hand-off.
+- Final for run 43468883740: **Build · budgets · images · e2e · Lighthouse ❌ only at "Visual baselines"** (budgets
+  ✅ now). Local `pnpm test:visual` (compare) on `a665ee0`: **9 failed / 43 passed** — "grievance and legal pages" en /
+  hi / ur / te on Pixel 7 and en / hi / te on iPhone 14 (expected: L11 privacy text) **plus "super admin screens" ur
+  and te on Pixel 7 (NOT expected — inspect the diff before updating; likely C5 Dismiss / C10 banner changes or a
+  flake)**. Then `pnpm test:visual:update`, keep only real changes, `pnpm db:reset`.
+- The `security-reviewer` re-run did not finish (it stopped on an account/billing API error) — run it again.
 - Local stack rebuilt with `a665ee0` (`pnpm stack:up:test` OK — both APIs boot with the L7 key-size check) and seeded.
 - `pnpm test:visual` (compare) was started; its result was not read. Expected diff: the privacy reader ×4 (L11) →
   `pnpm test:visual:update`, keep only real changes. Afterwards `pnpm db:reset` (visual leaves the fixed-date seed).
