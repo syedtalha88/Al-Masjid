@@ -12,6 +12,8 @@
 # (MongoDB Atlas URIs — Phase 1, Turnstile = Cloudflare's always-pass test secret — Phase 1, Cloudinary API keys —
 # Phase 3, Cloudflare purge token — Phase 3/8); on production they stay EMPTY, so production refuses to boot until
 # the real values are filled in (review S-M2; env.ts also rejects the placeholders in production).
+# The grievance sealing key pair (DECISIONS #173, owner step O53) is made by the owner on their PC, never here: a value
+# already in a file is kept; production gets the lines EMPTY; staging gets them only once set (empty is invalid there).
 set -euo pipefail
 
 DOMAIN=almasjids.com
@@ -84,6 +86,13 @@ if [ "$ENVIRONMENT" = production ]; then hold=1440 robots=all; else hold=10 robo
 external() { # <file> <NAME> <staging placeholder>
   if [ "$ENVIRONMENT" = production ]; then keep "$1" "$2" ''; else keep "$1" "$2" "$3"; fi
 }
+# Owner-made values (the grievance sealing keys): "\nNAME=value" when already set; production: "\nNAME=" to fill in.
+owner_line() { # <file> <NAME>
+  local value
+  value=$(old "$1" "$2")
+  if [ -n "$value" ] || [ "$ENVIRONMENT" = production ]; then printf '\n%s=%s' "$2" "$value"; fi
+}
+seal_old=$(old api-admin.env GRIEVANCE_SEAL_OLD_KEYS)
 mongo_placeholder() { echo "mongodb+srv://$1:PHASE1-ATLAS-NOT-SET@not-set.invalid/"; }
 turnstile_test=1x0000000000000000000000000000000AA # Cloudflare's documented always-pass test secret
 
@@ -110,7 +119,7 @@ api_public="$common
 MONGODB_URI_PUBLIC=$(external api-public.env MONGODB_URI_PUBLIC "$(mongo_placeholder mc_public)")
 REDIS_URL_PUBLIC=redis://rl_public:$redis_public@redis:6379
 TURNSTILE_SECRET=$(external api-public.env TURNSTILE_SECRET "$turnstile_test")
-PORT=8787"
+PORT=8787$(owner_line api-public.env GRIEVANCE_SEAL_PUBLIC_KEY)$(owner_line api-public.env GRIEVANCE_SEAL_KEY_ID)"
 api_admin="$common
 $encryption
 MONGODB_URI_ADMIN=$(external api-admin.env MONGODB_URI_ADMIN "$(mongo_placeholder mc_admin)")
@@ -121,7 +130,8 @@ $(cloudinary api-admin.env)
 TURNSTILE_SECRET=$(external api-admin.env TURNSTILE_SECRET "$turnstile_test")
 VAPID_PUBLIC_KEY=$vapid_public
 PAYMENT_HOLD_MINUTES=$hold
-PORT=8788"
+PORT=8788$(owner_line api-admin.env GRIEVANCE_SEAL_PRIVATE_KEY)$(owner_line api-admin.env GRIEVANCE_SEAL_KEY_ID)${seal_old:+
+GRIEVANCE_SEAL_OLD_KEYS=$seal_old}"
 worker="$common
 $encryption
 MONGODB_URI_SYSTEM=$(external worker.env MONGODB_URI_SYSTEM "$(mongo_placeholder mc_system)")
@@ -178,8 +188,10 @@ echo "  VITE_PUBLIC_APP_ORIGIN=$app_origin"
 echo "  VITE_PUBLIC_MEDIA_ORIGIN=$media_origin"
 if [ "$ENVIRONMENT" = production ]; then
   echo "Still EMPTY until the owner fills them (production refuses to boot without them): MongoDB URIs,"
-  echo "  TURNSTILE_SECRET, CLOUDINARY_API_KEY/SECRET, CF_API_TOKEN_PURGE, CF_ZONE_ID (PROGRESS F31)."
+  echo "  TURNSTILE_SECRET, CLOUDINARY_API_KEY/SECRET, CF_API_TOKEN_PURGE, CF_ZONE_ID (PROGRESS F31),"
+  echo "  GRIEVANCE_SEAL_* (api-public: public key + id, api-admin: private key + id — owner step O53)."
 else
   echo "Placeholders to replace later (PROGRESS F31): MongoDB URIs (Phase 1), TURNSTILE_SECRET (Phase 1),"
   echo "  CLOUDINARY_API_KEY/SECRET (Phase 3), CF_API_TOKEN_PURGE + CF_ZONE_ID (Phase 3/8)."
+  echo "Add by hand (kept by later --force runs): GRIEVANCE_SEAL_* — owner step O53 (DECISIONS #173)."
 fi

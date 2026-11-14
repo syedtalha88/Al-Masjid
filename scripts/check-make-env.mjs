@@ -21,10 +21,18 @@ function read(environment, process) {
   );
 }
 
-// Filled by the owner per phase (PROGRESS F31); empty in a fresh production set.
+// Filled by the owner per phase (PROGRESS F31; the grievance sealing pair: O53, DECISIONS #173); empty in a fresh
+// production set.
 const EXTERNAL = {
-  'api-public': ['MONGODB_URI_PUBLIC', 'TURNSTILE_SECRET'],
-  'api-admin': ['MONGODB_URI_ADMIN', 'TURNSTILE_SECRET', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET'],
+  'api-public': ['MONGODB_URI_PUBLIC', 'TURNSTILE_SECRET', 'GRIEVANCE_SEAL_PUBLIC_KEY', 'GRIEVANCE_SEAL_KEY_ID'],
+  'api-admin': [
+    'MONGODB_URI_ADMIN',
+    'TURNSTILE_SECRET',
+    'CLOUDINARY_API_KEY',
+    'CLOUDINARY_API_SECRET',
+    'GRIEVANCE_SEAL_PRIVATE_KEY',
+    'GRIEVANCE_SEAL_KEY_ID',
+  ],
   worker: ['MONGODB_URI_SYSTEM', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'CF_API_TOKEN_PURGE', 'CF_ZONE_ID'],
 };
 
