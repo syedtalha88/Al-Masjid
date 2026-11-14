@@ -2,11 +2,10 @@
 
 > Things only I can do. Tick them as I go and tell Claude Code "O<n> done".
 > The same list is kept in `docs/PROGRESS.md` → "Waiting for the owner".
-> Last updated: 13 Nov 2026 — **staging runs `30a268b`: Phases 03–07 are all there** (Phase 07 Qibla included).
-> Phases 05, 06 and 07 are closed on our side ("DONE — owner checks pending", DECISIONS #162). **Phase 08 (moderation,
-> grievance, legal pages, QR posters) is being built** — reporting (T8.1) and takedown (T8.2) are done on its branch.
-> Your checks, in any order: O45 → O50 + O28 (Phase 05), **O49 (Phase 06 bayans) and O29 (Phase 07 Qibla) — both
-> possible now**. Older items: O25 rest → O26 (Phase 03), O38 (Phase 04).
+> Last updated: 14 Nov 2026 — **Phase 08 is closed on our side and merged into `main` (`1caf675`) → staging.**
+> Do first: **O59** (Atlas roles — Phase 08 screens on staging need it), then **O53** (grievance key pair). Then the
+> Phase 08 checks, in any order: O51, O54, O56, O57, O58. Older checks still open: O45 → O50 + O28 (Phase 05), O49
+> (Phase 06), O29 (Phase 07), O25 rest → O26 (Phase 03), O38 (Phase 04). Phase 9 waits until you say "start Phase 9".
 >
 > **Safety rules for every step:** never paste a private key or password into chat or send one to anyone.
 > Public keys (they start with `ssh-ed25519`, `age1…` or a WireGuard *public* key) are fine to share.
@@ -104,7 +103,7 @@
 | O56 | **Print and scan a QR poster** (DECISIONS #177): on staging, Super Admin → Masjids → open a masjid → **QR poster** → **Print or save as PDF** (in the print window: headers/footers off, scale 100%). Print it on A4 (and once on A5). Stand 1.5 m away and scan it with an Android phone camera and an iPhone camera — the app should open that masjid. Check the Hindi, Urdu and Telugu lines look right on paper. Tell me anything that looks off | 20 min | after Phase 08 reaches staging |
 | O57 | **Kill switches and banners** (DECISIONS #178): on staging, Super Admin → Settings. (1) Turn on **Admin read-only mode ★** (confirm + screen lock). On a masjid admin's phone: Home shows "Changes are paused…", and saving anything shows a polite message. Turn it off again — within a minute the notice goes. (2) Under **Banners**, write a short test maintenance banner in all four languages → **Show banner**; write a test incident banner → **Show banner**. Within a minute the musalli app's Home shows both (incident on top), and the admin app's Home shows the maintenance one. (3) **Take down** both. Tell me anything that looks off | 10 min | after Phase 08 reaches staging |
 | O58 | **Stats check** (DECISIONS #179): a few hours after Phase 08 reaches staging, open Super Admin → **Stats**. You should see numbers for masjids, phones and notifications; **Media storage (Cloudinary)** should show a percentage (if it says "Not available", the Cloudinary key cannot read usage — tell me); **Background jobs** should show counts. The 30-day lines fill in day by day. You will also get a phone alert if Cloudinary use passes 70% or 90% in a month | 5 min | a few hours after Phase 08 reaches staging |
-| O59 | **Atlas roles for Phase 08** (DECISIONS #180 M2): the musalli app's database user may no longer write the audit log. Apply the new `infra/mongo/atlas-roles.json` in Atlas (same steps as O36 / O43), then on the server `sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles` → must PASS; send me the output (no secrets in it). Later the same for production | 15 min | before Phase 08 is merged into `main` (main deploys to staging) |
+| O59 | **Atlas roles for Phase 08** (DECISIONS #180 M2): the musalli app's database user may no longer write the audit log. Apply the new `infra/mongo/atlas-roles.json` in Atlas (same steps as O36 / O43), then on the server `sudo /usr/local/lib/masjid-connect/deploy.sh staging --verify-roles` → must PASS; send me the output (no secrets in it). Later the same for production | 15 min | **now** — Phase 08 was merged into `main` on 14 Nov 2026 (`1caf675`, your choice to do O59 after); until then Phase 08 screens on staging may fail |
 
 ### Before the pilot launch
 

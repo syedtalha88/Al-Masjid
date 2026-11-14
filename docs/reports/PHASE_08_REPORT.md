@@ -4,8 +4,8 @@
 > instruction (14 Nov 2026); the optional items are deferred to Phase 9 (list in §6). The owner checks O51, O53–O59
 > after Phase 08 is on staging.
 
-**Date:** 14 Nov 2026 · **Commits:** `046317f..` on `feat/phase-08` (on top of Phases 05–07) · **Staging:** with the
-merge into `main` · **Decisions:** #170–#179 (T8.1–T8.10), #180 + #181 (security reviews), #182 (verifier fixes,
+**Date:** 15 Nov 2026 · **Commits:** `046317f..84e3f37` on `feat/phase-08` (on top of Phases 05–07), merged into `main`
+`1caf675` · **CI:** `ci/phase-08` run 43621150271 green · **Staging:** with that merge · **Decisions:** #170–#179 (T8.1–T8.10), #180 + #181 (security reviews), #182 (verifier fixes,
 bare-minimum close).
 
 ## 1. Summary
