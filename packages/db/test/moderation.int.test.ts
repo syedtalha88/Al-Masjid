@@ -20,6 +20,7 @@ import { buildDevSeed, seedId, seedPublicId, writeDevSeed } from '../src/seed/in
 import {
   autoHideItem,
   createReport,
+  deleteExpiredItem,
   dismissReport,
   mediaForTakedown,
   registerDevice,
@@ -298,23 +299,41 @@ describe('chanda posts taken down (#180 M6)', () => {
     expect(await publicWeeks()).toContain(week.week_start);
   });
 
-  it('auto-hidden: hidden with its post; a save keeps the figures but publishes nothing; notify is refused', async () => {
+  it('auto-hidden: hidden with its post; saving or notifying is refused and changes nothing (re-review N-L1)', async () => {
     const week = await latestWeek();
     await autoHideItem(as('mc_system'), systemScope(), { itemId: week.item_id, reporters: 10, now: NOW });
     expect(await publicWeeks()).not.toContain(week.week_start);
     const posts = await chandaItems();
+    const before = await weeks().findOne({ _id: week._id });
     const save = { masjidId: DELTA, weekStart: week.week_start, amountPaise: 4_200, notify: false, now: NOW };
-    expect(await setChandaWeek(as('mc_admin'), deltaAdmin, save)).toMatchObject({ created: false });
+    expect(await code(setChandaWeek(as('mc_admin'), deltaAdmin, save))).toBe('CHANDA_UNDER_REVIEW');
+    expect(await code(setChandaWeek(as('mc_admin'), deltaAdmin, { ...save, notify: true }))).toBe(
+      'CHANDA_UNDER_REVIEW',
+    );
     expect(await chandaItems()).toBe(posts);
+    expect(await weeks().findOne({ _id: week._id })).toEqual(before);
     expect(await t().db.collection<{ _id: UUID }>('items').findOne({ _id: week.item_id })).toMatchObject({
       status: 'hidden',
+      chanda: { amount_paise: week.amount_paise },
     });
     expect(await publicWeeks()).not.toContain(week.week_start);
-    expect(await code(setChandaWeek(as('mc_admin'), deltaAdmin, { ...save, notify: true }))).toBe('CHANDA_HIDDEN');
 
     // Restored: public again (Delta shows its chanda).
     await restoreItem(as('mc_admin'), stepped(), { itemId: week.item_id, now: NOW });
     expect(await publicWeeks()).toContain(week.week_start);
+  });
+
+  it('a removed chanda post purged after 180 days takes its week with it — nothing brings it back (re-review N-M2)', async () => {
+    const week = await latestWeek();
+    await removeItem(as('mc_admin'), stepped(), { itemId: week.item_id, category: 'other', now: NOW });
+    const later = new Date(NOW.getTime() + 181 * 24 * 3_600_000);
+    expect(await deleteExpiredItem(as('mc_system'), systemScope(), { itemId: week.item_id, now: later })).toBe(true);
+    expect(await weeks().findOne({ _id: week._id })).toBeNull();
+    // "Show chanda" off and on: the purged week does not come back.
+    await setChandaSettings(as('mc_admin'), deltaAdmin, { masjidId: DELTA, show: false, now: NOW });
+    await setChandaSettings(as('mc_admin'), deltaAdmin, { masjidId: DELTA, show: true, now: NOW });
+    expect(await publicWeeks()).not.toContain(week.week_start);
+    expect(await weeks().countDocuments({ masjid_id: DELTA, week_start: week.week_start })).toBe(0);
   });
 
   it('a restore while the masjid hides its chanda keeps the week hidden', async () => {

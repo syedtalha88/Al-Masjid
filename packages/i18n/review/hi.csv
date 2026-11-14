@@ -1307,6 +1307,7 @@ errors,CAMPAIGN_CLOSED,This donation drive has closed. The amount can no longer 
 errors,CAMPAIGN_TARGET_LOWER,"The target can only be raised, not lowered.","लक्ष्य सिर्फ़ बढ़ाया जा सकता है, घटाया नहीं।",no
 errors,CHANDA_INVALID,Please check the week and the amount.,कृपया हफ़्ता और राशि जाँच लें।,no
 errors,CHANDA_HIDDEN,Turn on “Show chanda to followers” before notifying them.,सूचना भेजने से पहले “फ़ॉलोअर्स को चंदा दिखाएँ” चालू करें।,no
+errors,CHANDA_UNDER_REVIEW,This week’s chanda post is being reviewed after reports. You can change it once the review is done.,रिपोर्ट के बाद इस हफ़्ते की चंदा पोस्ट की जाँच हो रही है। जाँच पूरी होने के बाद आप इसे बदल सकते हैं।,no
 errors,BENEFICIARY_INVALID,"Please check the UPI ID, the name on the UPI account and the amount needed.","कृपया UPI ID, UPI खाते का नाम और ज़रूरत की रक़म जाँचें।",no
 errors,BENEFICIARY_NOT_FOUND,This person is no longer on the list.,यह व्यक्ति अब सूची में नहीं है।,no
 errors,BENEFICIARY_LIMIT_REACHED,You can list up to 100 people at a time. Close one to add another.,आप एक समय में अधिकतम 100 लोग जोड़ सकते हैं। नया जोड़ने के लिए एक बंद करें।,no

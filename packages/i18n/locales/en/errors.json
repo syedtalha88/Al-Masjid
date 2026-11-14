@@ -91,6 +91,7 @@
   "CAMPAIGN_TARGET_LOWER": "The target can only be raised, not lowered.",
   "CHANDA_INVALID": "Please check the week and the amount.",
   "CHANDA_HIDDEN": "Turn on “Show chanda to followers” before notifying them.",
+  "CHANDA_UNDER_REVIEW": "This week’s chanda post is being reviewed after reports. You can change it once the review is done.",
   "BENEFICIARY_INVALID": "Please check the UPI ID, the name on the UPI account and the amount needed.",
   "BENEFICIARY_NOT_FOUND": "This person is no longer on the list.",
   "BENEFICIARY_LIMIT_REACHED": "You can list up to 100 people at a time. Close one to add another.",

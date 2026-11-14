@@ -136,7 +136,8 @@ export async function listExpiredItems(
 
 /**
  * Deletes one due post for good — after its files are gone — with its Ameens and Ameen counter, its campaign amount
- * history, and unlinks its chanda week (02 §5 "item purged by retention", #165 L2). One transaction; it re-checks that
+ * history, and unlinks its chanda week — or deletes it when moderation removed the post (02 §5 "item purged by
+ * retention", #165 L2, security re-review N-M2). One transaction; it re-checks that
  * the post is still due and not held.
  *
  * @returns whether it was deleted (false: no longer due — restored, already purged, or held meanwhile).
@@ -156,16 +157,22 @@ export async function deleteExpiredItem(
     if (held > 0) return false;
     const deleted = await ctx.db
       .collection<ItemDoc>('items')
-      .deleteOne({ _id: input.itemId, ...DUE(input.now) }, session);
-    if (deleted.deletedCount !== 1) return false;
+      .findOneAndDelete({ _id: input.itemId, ...DUE(input.now) }, { ...session, projection: { status: 1 } });
+    if (!deleted) return false;
     await ctx.db.collection<{ dua_item_id: UUID }>('ameens').deleteMany({ dua_item_id: input.itemId }, session);
     await ctx.db.collection<{ _id: UUID }>('ameen_counters').deleteOne({ _id: input.itemId }, session);
     await ctx.db
       .collection<{ campaign_item_id: UUID }>('campaign_amount_history')
       .deleteMany({ campaign_item_id: input.itemId }, session);
-    await ctx.db
-      .collection<{ item_id?: UUID }>('chanda_weeks')
-      .updateMany({ item_id: input.itemId }, { $unset: { item_id: '' } }, session);
+    const weeks = ctx.db.collection<{ item_id?: UUID }>('chanda_weeks');
+    if (deleted['status'] === 'removed') {
+      // A removed chanda post's week is the removed content (figures and note): it ends with the 180-day preservation.
+      // Unlinked instead, "Show chanda" or a save of that week would bring it back (security re-review N-M2).
+      await weeks.deleteMany({ item_id: input.itemId }, session);
+    } else {
+      // Deleted by its masjid: the week stays (the admin may publish it again); only the link goes.
+      await weeks.updateMany({ item_id: input.itemId }, { $unset: { item_id: '' } }, session);
+    }
     return true;
   });
 }

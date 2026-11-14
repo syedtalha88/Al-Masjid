@@ -118,12 +118,12 @@ export interface ChandaWeekInput {
  *
  * @returns the week's id, its feed item and the outbox job (when notifying); `created` = the week was new.
  * A week whose post moderation took down is never published again from here (#180 M6): removed → refused; auto-hidden
- * (waiting for review) → its figures are saved but stay hidden until the Super Admin restores the post.
+ * (waiting for review) → refused too, so the reviewer judges what was reported (security re-review N-L1).
  *
  * @throws StateError MASJID_NOT_FOUND, CHANDA_INVALID (not a week start of this masjid, a future week, an amount that is
- *   not whole paise in 0 … ₹10^10, a note over 200 characters), CHANDA_HIDDEN (notify while chanda is not shown, or
- *   the week's post is auto-hidden), ITEM_ALREADY_REMOVED (the week's post was removed by moderation),
- *   NOTIFY_QUOTA_EXCEEDED.
+ *   not whole paise in 0 … ₹10^10, a note over 200 characters), CHANDA_HIDDEN (notify while chanda is not shown),
+ *   CHANDA_UNDER_REVIEW (the week's post is auto-hidden, waiting for review), ITEM_ALREADY_REMOVED (the week's post was
+ *   removed by moderation), NOTIFY_QUOTA_EXCEEDED.
  */
 export async function setChandaWeek(
   handle: DbHandle,
@@ -170,15 +170,20 @@ export async function setChandaWeek(
       if (existing) {
         weekId = existing['_id'] as UUID; // the document just read
         const itemId: unknown = existing['item_id'];
-        // Moderation state is read directly: the admin policy filter does not show taken-down posts (#180 L1).
+        // Moderation state is read directly: the admin policy filter does not show taken-down posts (#180 L1) —
+        // still only this masjid's post.
         const moderated = isId(itemId)
           ? await content.db
-              .collection<{ _id: UUID; status: string; public_id: string }>('items')
-              .findOne({ _id: itemId }, { session: content.session, projection: { status: 1, public_id: 1 } })
+              .collection<{ _id: UUID; masjid_id: UUID; status: string }>('items')
+              .findOne(
+                { _id: itemId, masjid_id: input.masjidId },
+                { session: content.session, projection: { status: 1 } },
+              )
           : null;
         if (moderated?.status === 'removed') throw new StateError('ITEM_ALREADY_REMOVED');
-        const hidden = moderated?.status === 'hidden';
-        if (hidden && input.notify) throw new StateError('CHANDA_HIDDEN');
+        // Auto-hidden, waiting for review: the week is the reported content — it stays as it was reported, so a removal
+        // keeps what was reported and a restore shows nothing the reviewer did not see (security re-review N-L1).
+        if (moderated?.status === 'hidden') throw new StateError('CHANDA_UNDER_REVIEW');
         await weeks.updateOne(
           { _id: weekId },
           note === ''
@@ -188,17 +193,7 @@ export async function setChandaWeek(
         const linked = isId(itemId)
           ? await scoped(content, 'items').findOne({ _id: itemId, status: 'published' })
           : null;
-        if (hidden) {
-          // Auto-hidden: the figures follow, the post stays hidden (no new post — that would undo the takedown).
-          await content.db
-            .collection<{ _id: UUID; status: string }>('items')
-            .updateOne(
-              { _id: moderated._id, status: 'hidden' },
-              { $set: { 'chanda.amount_paise': amount, edited_at: now } },
-              { session: content.session },
-            );
-          item = { itemId: moderated._id, publicId: moderated.public_id };
-        } else if (linked) {
+        if (linked) {
           await scoped(content, 'items').updateOne(
             { _id: linked['_id'] },
             { $set: { 'chanda.amount_paise': amount, edited_at: now } },
