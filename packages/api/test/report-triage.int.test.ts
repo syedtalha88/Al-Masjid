@@ -137,20 +137,38 @@ describe('report-triage', () => {
     expect(await statusOf(post)).toBe('published');
     clock.advance(10 * MINUTE);
     await reportPost(post);
+    const hiddenAt = clock.now().getTime();
     expect(await run()).toMatchObject({ triaged: 1, hidden: 1 });
     expect(await statusOf(post)).toBe('hidden');
     const item = await t().db.collection('items').findOne({ public_id: post });
     const itemText = idText(item?._id as never); // the seed post exists
+    const hide = `${itemText}.${String(hiddenAt)}`;
     expect(sent).toEqual([
-      { jobId: `alert.report_autohide.${itemText}`, type: 'report_autohide' },
-      { jobId: `cdn.autohide.${itemText}`, type: 'cdn-purge' },
-      { jobId: `media.autohide.${itemText}`, type: 'media-access' },
+      { jobId: `alert.report_autohide.${hide}`, type: 'report_autohide' },
+      { jobId: `cdn.autohide.${hide}`, type: 'cdn-purge' },
+      { jobId: `media.autohide.${hide}`, type: 'media-access' },
     ]);
     clock.advance(MINUTE);
     expect(await run()).toEqual({ triaged: 0, urgent: 0, hidden: 0 });
     expect(sent).toHaveLength(3);
     const audits = await t().db.collection('audit_log').countDocuments({ action: 'item.autohide' });
     expect(audits).toBe(1);
+
+    // Restored, then hidden again within the day: a new hide with its own alert, purge and file check (N-L2).
+    await t()
+      .db.collection('items')
+      .updateOne({ public_id: post }, { $set: { status: 'published' }, $unset: { hidden_at: '' } });
+    clock.advance(10 * MINUTE);
+    await reportPost(post);
+    await reportPost(post);
+    await reportPost(post);
+    const againAt = clock.now().getTime();
+    expect(await run()).toMatchObject({ hidden: 1 });
+    expect(sent.slice(3).map((entry) => entry.jobId)).toEqual([
+      `alert.report_autohide.${itemText}.${String(againAt)}`,
+      `cdn.autohide.${itemText}.${String(againAt)}`,
+      `media.autohide.${itemText}.${String(againAt)}`,
+    ]);
   });
 
   it('reports spread over more than an hour do not hide the post', async () => {

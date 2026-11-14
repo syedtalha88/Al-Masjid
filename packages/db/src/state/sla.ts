@@ -23,8 +23,13 @@ export interface SlaTimer {
   readonly alerted: number;
 }
 
-/** At most this many open reports are read at once (earliest due first). */
+/** At most this many open reports of each kind (urgent, normal) are read at once (earliest due first). */
 export const SLA_TIMERS_MAX = 500;
+/**
+ * Grievances and legal orders are read in full up to this safety cap (memory bound for a flood; legal orders are entered
+ * by the Super Admin and grievances are rate-limited, so it is never reached in practice — re-review N-L3).
+ */
+export const SLA_LEGAL_TIMERS_MAX = 5000;
 
 /** Only timers whose last alert (100 %) has not been sent yet — what the job still has to act on. */
 const NOT_FULLY_ALERTED = { $or: [{ sla_alerted: { $exists: false } }, { sla_alerted: { $lt: 100 } }] };
@@ -37,8 +42,9 @@ export interface ListSlaTimersOptions {
 /**
  * The open timers — legal orders first, then grievances and reports, each group earliest due first — for the system's
  * `sla-alerts` job and the Super Admin's dashboard (C1). Legal orders (entered by the Super Admin) and grievances
- * (rate-limited, legally bound) are read in full; only reports are capped at {@link SLA_TIMERS_MAX}, so a report flood
- * can never push a legal order or a grievance out of the list (#180 M3).
+ * (rate-limited, legally bound) are read in full (up to {@link SLA_LEGAL_TIMERS_MAX}); reports are capped at
+ * {@link SLA_TIMERS_MAX} per kind — urgent and normal read apart — so a report flood can never push a legal order, a
+ * grievance or an urgent report out of the list (#180 M3, re-review N-L3).
  *
  * @throws StateError FORBIDDEN unless the system or the Super Admin.
  */
@@ -50,10 +56,12 @@ export async function listSlaTimers(
   if (scope.kind !== 'system' && scope.kind !== 'super') throw new StateError('FORBIDDEN');
   const db = await handle.db();
   const pending = options.pendingAlertsOnly === true ? NOT_FULLY_ALERTED : {};
-  const reports = await scoped({ scope, db }, 'reports').find(
-    { status: 'open', ...pending },
-    { sort: { sla_due_at: 1, _id: 1 }, limit: SLA_TIMERS_MAX },
-  );
+  const openReports = (urgent: boolean) =>
+    scoped({ scope, db }, 'reports').find(
+      { status: 'open', urgent, ...pending },
+      { sort: { sla_due_at: 1, _id: 1 }, limit: SLA_TIMERS_MAX },
+    );
+  const reports = [...(await openReports(true)), ...(await openReports(false))];
   const fromReports = reports.flatMap((doc): SlaTimer[] => {
     const id: unknown = doc['_id'];
     const masjidId: unknown = doc['masjid_id'];
@@ -75,7 +83,7 @@ export async function listSlaTimers(
   // Grievances (T8.4): open → the 24 h acknowledgement clock; acknowledged → the resolve clock (from acknowledgement).
   const grievances = await scoped({ scope, db }, 'grievances').find(
     { status: { $in: ['open', 'acknowledged'] }, ...pending },
-    { sort: { ack_due_at: 1, _id: 1 } },
+    { sort: { ack_due_at: 1, _id: 1 }, limit: SLA_LEGAL_TIMERS_MAX },
   );
   const fromGrievances = grievances.flatMap((doc): SlaTimer[] => {
     const id: unknown = doc['_id'];
@@ -98,7 +106,7 @@ export async function listSlaTimers(
   // Legal orders (T8.5): the 3-hour clock runs from the entered received time until the order is acted on.
   const orders = await scoped({ scope, db }, 'legal_orders').find(
     { status: 'received', ...pending },
-    { sort: { due_at: 1, _id: 1 } },
+    { sort: { due_at: 1, _id: 1 }, limit: SLA_LEGAL_TIMERS_MAX },
   );
   const fromOrders = orders.flatMap((doc): SlaTimer[] => {
     const id: unknown = doc['_id'];

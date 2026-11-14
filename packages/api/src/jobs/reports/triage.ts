@@ -66,7 +66,9 @@ export async function processReportTriage(deps: ReportTriageDeps): Promise<Repor
     // Already hidden (a run that hid it but failed to enqueue): raise again — the job id keeps it to one push.
     if (outcome.status !== 'hidden') continue;
     if (outcome.result === 'hidden') hidden += 1;
-    const alertId = `report_autohide.${itemText}`;
+    // One hide = one alert / purge / file check; a hide after a restore is a new one (security re-review N-L2).
+    const hide = `${itemText}.${String(outcome.hiddenAt?.getTime() ?? 0)}`;
+    const alertId = `report_autohide.${hide}`;
     await deps.queues.enqueue(
       'alert-send',
       { alertId, to: { kind: 'super' }, alert: { type: 'report_autohide', params: {} } },
@@ -78,9 +80,9 @@ export async function processReportTriage(deps: ReportTriageDeps): Promise<Repor
       await deps.queues.enqueue(
         'cdn-purge',
         { tags: [`i-${outcome.target.publicId}`, `m-${idText(outcome.target.masjidId)}`] },
-        { jobId: `cdn.autohide.${itemText}` },
+        { jobId: `cdn.autohide.${hide}` },
       );
-      await deps.queues.enqueue('media-access', { itemId: itemText }, { jobId: `media.autohide.${itemText}` });
+      await deps.queues.enqueue('media-access', { itemId: itemText }, { jobId: `media.autohide.${hide}` });
     }
     if (outcome.result === 'hidden') {
       deps.logger.warn({ item: itemText, reporters }, 'post hidden pending review after many reports');

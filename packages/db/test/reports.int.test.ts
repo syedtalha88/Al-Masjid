@@ -187,15 +187,19 @@ describe('report-triage state (system)', () => {
     const before = await version(ALPHA);
     expect(await autoHideItem(sys(), systemScope(), { itemId, reporters: 10, now: NOW })).toMatchObject({
       result: 'hidden',
+      hiddenAt: NOW,
     });
     expect(await raw('items').findOne({ _id: itemId })).toMatchObject({ status: 'hidden', hidden_at: NOW });
     expect(await version(ALPHA)).toBe(before + 1);
     expect(await getPublicItem(pub(), publicId, ['everyone', 'brothers', 'sisters'])).toBeNull();
-    // Unchanged — still with its target, so a repeat run can purge the CDN again (security review M4).
-    expect(await autoHideItem(sys(), systemScope(), { itemId, reporters: 12, now: NOW })).toEqual({
+    // Unchanged — still with its target and the time of this hide, so a repeat run purges the CDN again under the
+    // same job ids (security review M4, re-review N-L2).
+    const later = new Date(NOW.getTime() + 60_000);
+    expect(await autoHideItem(sys(), systemScope(), { itemId, reporters: 12, now: later })).toEqual({
       result: 'unchanged',
       status: 'hidden',
       target: { publicId, masjidId: ALPHA },
+      hiddenAt: NOW,
     });
     expect(await version(ALPHA)).toBe(before + 1);
     const audits = await raw('audit_log').find({ action: 'item.autohide' }).toArray();

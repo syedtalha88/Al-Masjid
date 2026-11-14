@@ -97,8 +97,9 @@ async function sweepUpdate(
 }
 
 /**
- * One device and what hangs off it (02 §5: follows with their follower counts, Ameens — counters keep totals). `still`
- * is checked again inside the transaction: a device used again since it was picked is kept (#180 L10).
+ * One device and what hangs off it (02 §5: follows with their follower counts, Ameens — counters keep totals). The
+ * device is deleted first, under `still` — the delete itself is the check, so a device used again since it was picked
+ * is kept even if that use wrote no `devices` field (#180 L10, re-review N-L7); nothing else changes then.
  */
 async function deleteDeviceDocs(
   db: Db,
@@ -106,10 +107,8 @@ async function deleteDeviceDocs(
   deviceId: UUID,
   still: Record<string, unknown>,
 ): Promise<boolean> {
-  const unused = await db
-    .collection<{ _id: UUID }>('devices')
-    .findOne({ _id: deviceId, ...still }, { session, projection: { _id: 1 } });
-  if (!unused) return false;
+  const deleted = await db.collection<{ _id: UUID }>('devices').deleteOne({ _id: deviceId, ...still }, { session });
+  if (deleted.deletedCount !== 1) return false;
   const follows = db.collection<{ device_id: UUID; masjid_id: UUID }>('device_follows');
   const followed = await follows.find({ device_id: deviceId }, { session, projection: { masjid_id: 1 } }).toArray();
   for (const follow of followed) {
@@ -123,7 +122,7 @@ async function deleteDeviceDocs(
   }
   await follows.deleteMany({ device_id: deviceId }, { session });
   await db.collection<{ device_id: UUID }>('ameens').deleteMany({ device_id: deviceId }, { session });
-  return (await db.collection<{ _id: UUID }>('devices').deleteOne({ _id: deviceId }, { session })).deletedCount === 1;
+  return true;
 }
 
 /**

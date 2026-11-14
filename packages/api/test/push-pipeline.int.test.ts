@@ -569,6 +569,39 @@ describe('push pipeline', () => {
     for (const device of devices) expect(deliveredTo([device])).toHaveLength(1);
   });
 
+  it('a post taken down during a big batch: nobody else gets it, the batch is counted off (re-review N-L6)', async () => {
+    const id = await masjid();
+    const devices = [await follower(id), await follower(id), await follower(id)];
+    const jobId = await published(id);
+    await raw('notification_jobs').updateOne(
+      { _id: idOf(jobId) },
+      { $set: { status: 'running', pending_batches: 1, fanout_page: 1, fanout_done: true } },
+    );
+    const itemId = (await raw('notification_jobs').findOne({ _id: idOf(jobId) }))?.['item_id'] as Id; // the job's post
+    const real = createPushSender({ vapid: VAPID, transport: service.transport });
+    let sends = 0;
+    const deps = {
+      db: sys(),
+      ledger: redisSendLedger(testRedis().redis),
+      // Moderation removes the post right after the first send.
+      sender: {
+        send: async (...args: Parameters<typeof real.send>) => {
+          const outcome = await real.send(...args);
+          sends += 1;
+          if (sends === 1) await raw('items').updateOne({ _id: itemId }, { $set: { status: 'removed' } });
+          return outcome;
+        },
+      },
+      clock: { now: () => NOW },
+      logger: silentLogger(),
+      pauseCheckEvery: 1,
+    };
+    const payload = { jobId, page: 0, locale: 'en' as const, deviceIds: devices.map((device) => idText(device)) };
+    expect(await processSendBatch(deps, payload, { final: false })).toMatchObject({ sent: 1, counted: true });
+    expect(deliveredTo(devices)).toHaveLength(1);
+    expect(await job(jobId)).toMatchObject({ pending_batches: 0 });
+  });
+
   it('a batch whose counter write fails is counted by its retry — the ledger claim is released (DECISIONS #140)', async () => {
     const id = await masjid();
     const device = await follower(id);

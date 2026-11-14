@@ -162,10 +162,23 @@ export async function processSendBatch(
     }
   };
   for (let start = 0; start < todo.length; start += round) {
-    // F64: paused mid-batch → stop now. Sent devices are in the ledger, so the resumed batch sends only the rest.
-    if (start > 0 && (await isPushPaused(deps.db, scope))) {
-      await markSubscriptionsDead(deps.db, scope, gone, deps.clock.now(), jobId);
-      throw new PushPausedError();
+    if (start > 0) {
+      // F64: paused mid-batch → stop now. Sent devices are in the ledger, so the resumed batch sends only the rest.
+      if (await isPushPaused(deps.db, scope)) {
+        await markSubscriptionsDead(deps.db, scope, gone, deps.clock.now(), jobId);
+        throw new PushPausedError();
+      }
+      // Removed, hidden or deleted mid-batch → nobody else gets it (re-review N-L6); the batch is counted off.
+      if (!(await getPushContent(deps.db, scope, job.itemId))?.published) {
+        const pruned = await markSubscriptionsDead(deps.db, scope, gone, deps.clock.now(), jobId);
+        const counted = await countOnce(
+          deps,
+          jobId,
+          { jobKey: payload.jobId, batchId },
+          { sent: already.size + sentNow, failed: 0, pruned: 0 },
+        );
+        return { sent: already.size + sentNow, failed: 0, pruned, counted };
+      }
     }
     await eachLimited(todo.slice(start, start + round), SEND_CONCURRENCY, sendOne);
   }
