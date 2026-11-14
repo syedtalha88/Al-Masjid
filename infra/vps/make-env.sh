@@ -40,9 +40,20 @@ umask 077
 secret() { openssl rand 24 | base64 -w0 | tr '+/' '-_' | tr -d '='; } # URL-safe (goes into redis:// URLs)
 key32() { openssl rand -base64 32; }
 b64url() { base64 -w0 | tr '+/' '-_' | tr -d '='; }
-old() { # <file> <NAME> — the value already set in an existing file (empty if none)
-  if [ -f "$DIR/$1" ]; then sed -n "s/^$2=//p" "$DIR/$1" | head -n 1; fi
+old() { # <file> <NAME> — the value already set in an existing file: the last non-empty one (empty if none)
+  if [ -f "$DIR/$1" ]; then sed -n "s/^$2=//p" "$DIR/$1" | { grep -v '^$' || true; } | tail -n 1; fi
 }
+# A name set twice with different values (e.g. a key appended below its empty line, re-review N-L5): stop before
+# anything is rewritten — which one is meant is the owner's call. Same value twice, or an empty line and a value, is fine.
+for file in api-public.env api-admin.env worker.env web.env redis.env; do
+  [ -f "$DIR/$file" ] || continue
+  # Distinct non-empty NAME=value lines -> names that still occur twice have two different values.
+  twice=$(grep -E '^[A-Z0-9_]+=.' "$DIR/$file" | LC_ALL=C sort -u | cut -d= -f1 | LC_ALL=C sort | uniq -d | tr '\n' ' ')
+  if [ -n "$twice" ]; then
+    echo "$DIR/$file sets ${twice}more than once with different values — keep one line each and run again" >&2
+    exit 1
+  fi
+done
 keep() { # <file> <NAME> <default> — existing value, else the default
   local value
   value=$(old "$1" "$2")

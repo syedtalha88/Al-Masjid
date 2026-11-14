@@ -54,6 +54,21 @@ check "--force keeps a real value entered later (Atlas URI)" \
 check "--force keeps the grievance sealing keys added by hand (O53), once each" \
   '[ "$(val "$root/staging/api-public.env" GRIEVANCE_SEAL_PUBLIC_KEY)" = "$seal_public" ] && [ "$(val "$root/staging/api-admin.env" GRIEVANCE_SEAL_PRIVATE_KEY)" = "$seal_private" ] && [ "$(val "$root/staging/api-public.env" GRIEVANCE_SEAL_KEY_ID)" = g1 ] && [ "$(val "$root/staging/api-admin.env" GRIEVANCE_SEAL_KEY_ID)" = g1 ] && [ "$(grep -c "^GRIEVANCE_SEAL_" "$root/staging/api-admin.env")" -eq 2 ] && ! grep -q "^GRIEVANCE_SEAL_PRIVATE" "$root/staging/api-public.env"'
 
+# The owner appends a value below its empty line (re-review N-L5): --force keeps the value, not the empty line.
+sed -i '/^GRIEVANCE_SEAL_PUBLIC_KEY=/d; /^GRIEVANCE_SEAL_KEY_ID=/d' "$root/staging/api-public.env"
+printf 'GRIEVANCE_SEAL_PUBLIC_KEY=\nGRIEVANCE_SEAL_KEY_ID=\nGRIEVANCE_SEAL_PUBLIC_KEY=%s\nGRIEVANCE_SEAL_KEY_ID=g1\n' \
+  "$seal_public" >>"$root/staging/api-public.env"
+gen staging --force; got=$?
+check "--force keeps a value appended below its empty line (once)" \
+  '[ "$got" -eq 0 ] && [ "$(val "$root/staging/api-public.env" GRIEVANCE_SEAL_PUBLIC_KEY)" = "$seal_public" ] && [ "$(grep -c "^GRIEVANCE_SEAL_" "$root/staging/api-public.env")" -eq 2 ]'
+# Two different values for one name: refused, nothing rewritten.
+cp "$root/staging/api-public.env" "$root/public.before"
+echo "GRIEVANCE_SEAL_KEY_ID=g2" >>"$root/staging/api-public.env"
+gen staging --force; got=$?
+check "two different values for one name: refused, the file is left as it was" \
+  '[ "$got" -eq 1 ] && grep -q "more than once" "$root/out" && [ "$(tail -n 1 "$root/staging/api-public.env")" = GRIEVANCE_SEAL_KEY_ID=g2 ]'
+cp "$root/public.before" "$root/staging/api-public.env"
+
 gen production; got=$?
 check "production: written; external services EMPTY (no placeholders, no test secret)" \
   '[ "$got" -eq 0 ] && [ -z "$(val "$root/production/api-public.env" TURNSTILE_SECRET)" ] && [ -z "$(val "$root/production/api-admin.env" MONGODB_URI_ADMIN)" ] && [ -z "$(val "$root/production/worker.env" CF_ZONE_ID)" ] && ! grep -rq "not-set\|NOT-SET" "$root/production"'
