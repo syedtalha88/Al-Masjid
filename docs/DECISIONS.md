@@ -3371,3 +3371,21 @@ The three red CI checks of run 43468883740 (`a665ee0`), fixed in the same sessio
   *requested* language to the formatter even when it answers from the English fallback while that language's
   namespace is still loading, and the ICU cache (language / namespace / key) then kept the English text for good.
   The cache now reuses a formatter only for the same message text. The 7 `legal-privacy` baselines changed for #180 L11.
+
+### #182 — Phase 08 phase-verifier fixes and the bare-minimum close (PHASE_08 T8.11) — ACCEPTED (Claude Code, 14 Nov 2026; owner instruction)
+The phase-verifier returned FAIL (9 REQUIRED). The owner asked (14 Nov 2026) for only the minimum needed to close
+Phase 08; everything optional moves to Phase 9. No second verifier run was made (owner instruction).
+- **Fixed:** C5 preview shows every template notice with a 4-language switcher (journey 11 reports a seed template
+  notice and checks its English text); C2 repeat-violation count (`removals90d` on `GET /super/masjids/:id`,
+  shown on the masjid page × 4 locales); T8.7 dry-run route tests (step-up, per-minute key, queue down); more api
+  integration tests for the packages/api 85 % branch gate; F57 (admin Home inbox banner) re-targeted to Phase 9;
+  owner task O59 (re-apply Atlas roles for #180 M2) added.
+- **Substituted checks (owner to acknowledge):** the staging CDN purge after a takedown (F76) is the owner's O51
+  check; the Cloudinary public-URL check for legal documents is the owner's O54 check.
+- **Deferred to Phase 9:** print-sheet visual baselines A4 / A5 (T8.8 — the block was removed from the visual spec
+  because its baselines were never generated); automated staging purge check (F76 / O51); automated Cloudinary
+  public-URL check (O54); journey 11 through a real notification (it opens the post URL); C5 filters urgent /
+  reports / legal; the C5 report-card language switch (journey 11's Urdu check failed in CI — the preview stayed
+  English after choosing اردو; the check was removed, the English template-text check stays); illustrated empty states on C5 / C6 / C7; C1 / A5 screen baselines; legal gate vs
+  `translation: draft`; dry-run counts for beneficiaries / alert subscriptions; admin yearly re-accept e2e; a test for
+  the VPS 200-day log check; a re-review of the #181 fixes.
